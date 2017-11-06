@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "none",
+    "strict": true,
+    "outFile": "./main.js"
+  },
+  "exclude" : [ 
+    "./build", 
+    "./node_modules" ,
+    "./lib"
+  ] 
+}

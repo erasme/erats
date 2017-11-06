@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+    <title>Test Flow</title>
+    <script src='../../era/era-debug.js'></script>
+<style>
+</style>
+<script>
+
+var portailData = {
+	news: [ 
+		{
+			title: 'Rugby: tournoi du renouveau',
+			ctime: new Date(),
+			image: 'data/img1.jpg',
+			text: 'Félicitations aux joueurs et joueuses de la section sportive Rugby pour leur prestation lors du tournoi du renouveau. Les minimes et les benjamins 2ème année finissent 1er, les benjamins 1ère année finissent 2ème. La section sportive est ouverte à tous...' 
+		},
+		{
+			title: 'Rugby',
+			ctime: new Date(),
+			image: 'data/img2.jpg',
+			text: 'Belle réussite pour un ancien élève de la section rugby du collège : Rémy GROSSO rejoint l’équipe de France de rugby pour la coupe du monde. Un exemple à suivre pour tous nos élèves rugbyman !' 
+		}
+	]
+};
+
+Ui.Fixed.extend('Laclasse.ScaledImage2', {
+	image: undefined,
+	src: undefined,
+
+	constructor: function(config) {
+		this.setClipToBounds(true);
+		if('src' in config) {
+			this.src = config.src;
+			delete(config.src);
+			this.image = new Ui.Image({ src: this.src });
+		}
+		else
+			this.image = new Ui.Image();
+		this.append(this.image, 0, 0);
+
+		this.connect(this.image, 'ready', this.onReady);
+		this.connect(this, 'resize', this.onResize);
+
+		this.addEvents('ready');
+	},
+
+	setSrc: function(src) {
+		this.src = src;
+		this.image.setSrc(this.src);
+	},
+
+	getIsReady: function() {
+		return this.image.getIsReady();
+	},
+
+	onReady: function() {
+		this.updateSize();
+		this.fireEvent('ready', this);
+	},
+
+	onResize: function() {
+		this.updateSize();
+	},
+
+	updateSize: function() {
+		var nWidth = this.image.getNaturalWidth();
+		var nHeight = this.image.getNaturalHeight();
+
+		var lWidth = this.getLayoutWidth();
+		var lHeight = this.getLayoutHeight();
+
+		var ratio = lWidth / lHeight;
+		var nRatio = nWidth / nHeight;
+
+		if(nRatio < ratio) {
+			var iHeight = lHeight;
+			var iWidth = nWidth * iHeight / nHeight;
+
+			this.setPosition(this.image, -(iWidth - lWidth) / 2, 0);
+			this.image.setWidth(iWidth);
+			this.image.setHeight(iHeight);
+		}
+		else {
+			var iWidth = lWidth;
+			var iHeight = nHeight * iWidth / nWidth;
+	
+			this.setPosition(this.image, 0, -(iHeight - lHeight) / 2);
+			this.image.setWidth(iWidth);
+			this.image.setHeight(iHeight);
+		}
+	}
+});
+
+Ui.VBox.extend('Laclasse.NewsPage', {
+	data: undefined,
+
+	constructor: function(config) {
+		this.data = config.data;
+		delete(config.data);
+
+		this.setSpacing(5);
+
+		var image = new Laclasse.ScaledImage2({ src: this.data.image,
+			width: 400, height: 400, horizontalAlign: 'center' });
+		this.append(image);
+
+		var lbox = new Ui.LBox();
+		lbox.append(new Ui.Rectangle({ fill: 'rgba(200,200,200, 0.08)' }));
+		this.append(lbox, true);
+
+		var vbox = new Ui.VBox({ spacing: 5 });
+		lbox.append(vbox);
+
+		var title = new Ui.Text({ text: this.data.title, fontSize: 18,
+			interLine: 1.2, margin: 10, marginBottom: 0, textTransform: 'uppercase' });
+		vbox.append(title);
+
+		vbox.append(new Ui.Text({ text: this.data.ctime.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }), fontSize: 11, interLine: 1.2, margin: 10, marginTop: 0 }));
+
+		var text = new Ui.Text({ text: this.data.text, fontSize: 16, interLine: 1.2, margin: 10 });
+		vbox.append(text);
+	}
+
+});
+
+Ui.Button.extend('Test.Item', {
+	constructor: function(config) {
+		var colors = [ 'rgb(156, 117, 171)', 'rgb(128, 186, 102)',
+			'rgb(235, 84, 84)', 'rgb(26, 161, 204)', 'rgb(232, 194, 84)' ];
+		var color = colors[this.getRandomInt(0, colors.length)];
+
+		var texts = [ 'Notes', 'Correspondances',
+			'Classes Culturelles Numériques', 'Documents' ];
+		var text = texts[this.getRandomInt(0, texts.length)];
+
+		var icons = [ 'eye', 'exit', 'star' ];
+		var icon = icons[this.getRandomInt(0, icons.length)];
+
+		this.setIcon(icon);
+		this.setText(text);
+	},
+
+	getRandomInt: function(min, max) {
+	  return Math.floor(Math.random() * (max - min) + min);
+	}
+});
+
+Ui.CanvasElement.extend('Test.BackgroundFiller', {
+	sflow: undefined,
+
+	constructor: function(config) {
+		this.sflow = config.sflow;
+		delete(config.sflow);
+	}
+}, {
+	updateCanvas: function(ctx) {
+		var colors = [ 'rgba(156, 117, 171, 1)', 'rgba(128, 186, 102, 1)',
+			'rgba(235, 84, 84, 1)', 'rgba(26, 161, 204, 1)',
+			'rgba(232, 194, 84, 1)' ];
+
+		var w = this.getLayoutWidth();
+		var h = this.getLayoutHeight();
+
+		var squareWidth = Math.max(20, this.sflow.getChildren()[0].getLayoutWidth());
+		var squareHeight = Math.max(20, this.sflow.getChildren()[0].getLayoutHeight());
+
+		var nbSquares = Math.round(w / squareWidth);
+
+		var x = 0;
+		var y = 0;
+		var i = 0;
+		var line = 0;
+
+		while(y < h-5) {
+			x = 0;
+			while(x < w-5) {
+				ctx.fillStyle = colors[i % colors.length];
+				ctx.fillRect(x, y, squareWidth, squareHeight);
+				x += squareWidth;
+				i++;
+			}
+			line++;
+			//if(line % 2 > 0)
+			//	i += Math.floor(colors.length / 2);
+			y += squareHeight;
+		}
+	}
+});
+
+Ui.LBox.extend('Test.LeftMenu', {
+	constructor: function(config) {
+		this.setWidth(400);
+		this.append(new Ui.Rectangle({ fill: '#222' }));
+
+		var scroll = new Ui.ScrollingArea();
+		this.append(scroll);
+
+		var vbox = new Ui.VBox();
+		scroll.setContent(vbox);
+
+		var banniere = new Ui.LBox();
+		vbox.append(banniere);
+
+		banniere.append(new Ui.Image({ src: 'data/banniere.jpg',
+			width: 400, height: 200, opacity: 0.5 }));
+		banniere.append(new Ui.Text({ textTransform: 'uppercase',
+			text: 'collège victor grignard', fontSize: 24, margin: 20,
+			textAlign: 'center', verticalAlign: 'center' })); 
+
+		var carousel = new Ui.Carousel({ autoPlay: 8 });
+		vbox.append(carousel, true);
+
+		portailData.news.forEach(function(news) {
+			//var scroll = new Ui.ScrollingArea();
+			//carousel.append(scroll);
+			//scroll.setContent(new Laclasse.NewsPage({ data: news }));
+			carousel.append(new Laclasse.NewsPage({ data: news }));
+		});
+	}
+});
+
+Ui.ToolBar.extend('Test.ToolBar');
+
+Ui.App.extend('Test.App', {
+	menuBox: undefined,
+	actionBox: undefined,
+	contextBox: undefined,
+	searchField: undefined,
+	dataBox: undefined,
+
+	constructor: function(config) {
+		var vbox = new Ui.VBox();
+		this.setContent(vbox);
+
+		this.menuBox = new Ui.LBox();
+		this.menuBox.append(new Ui.Rectangle({ fill: '#222' }));
+		vbox.append(this.menuBox);
+
+		this.actionBox = new Test.ToolBar();
+		this.menuBox.append(this.actionBox);
+
+		this.contextBox = new Ui.ContextBar({ selection: this.selection });
+		this.contextBox.hide();
+		this.menuBox.append(this.contextBox);
+
+		var logo = new Ui.Image({ src: 'logo.svg', height: 36 });
+		var logoLink = new Ui.Pressable();
+		this.connect(logoLink, 'press', function() {
+			window.location = '/';
+		});
+		logoLink.setContent(logo);
+		this.actionBox.append(logoLink);
+
+		this.searchField = new Ui.TextButtonField({ buttonIcon: 'search' });
+		this.actionBox.append(this.searchField, true);
+
+		var lbox = new Ui.LBox({ width: 48 });
+		lbox.append(new Ui.Label({ text: 'DL', fontSize: 24 }));
+		this.actionBox.append(lbox);
+
+		this.dataBox = new Ui.LBox();
+		vbox.append(this.dataBox, true);
+
+		this.loadContent();
+	},
+
+	loadContent: function() {
+		var hbox = new Ui.HBox();
+		this.dataBox.append(hbox);
+		this.dataBox.append(new Ui.Rectangle({
+			fill: new Ui.LinearGradient({ orientation: 'vertical', stops: [
+        		{ offset: 0, color: new Ui.Color({ a: 1 }) },
+        		{ offset: 0.33, color: new Ui.Color({ a: 0.5 }) },
+        		{ offset: 1, color: new Ui.Color({ a: 0 }) }
+			] }),
+			height: 3, verticalAlign: 'top' }));
+
+		var leftMenu = new Test.LeftMenu()
+		hbox.append(leftMenu);
+
+		var dataLBox = new Ui.LBox();
+		hbox.append(dataLBox, true);
+
+		var scroll = new Ui.ScrollingArea();
+		dataLBox.setContent(scroll, true);
+
+		dataLBox.append(new Ui.Rectangle({
+			horizontalAlign: 'left',
+			fill: new Ui.LinearGradient({ orientation: 'horizontal', stops: [
+        		{ offset: 0, color: new Ui.Color({ a: 1 }) },
+        		{ offset: 0.33, color: new Ui.Color({ a: 0.5 }) },
+        		{ offset: 1, color: new Ui.Color({ a: 0 }) }
+			] }),
+			width: 4 }));
+
+		var lbox = new Ui.LBox();
+		scroll.setContent(lbox);
+
+		var flow = new Ui.SFlow({ spacing: 0, itemAlign: 'stretch',
+			stretchMaxRatio: 1.5, uniform: true, uniformRatio: 1 });
+		lbox.append(flow);
+
+		lbox.prepend(new Test.BackgroundFiller({ sflow: flow }));
+
+		for(var i = 0; i < 10; i++) {
+			var item = new Test.Item();
+			flow.append(item);
+		}
+	}
+}, {
+	onSelectionChange: function(selection) {
+		if(selection.getElements().length === 0) {
+			this.contextBox.hide();
+			this.actionBox.show();
+		}
+		else {
+			this.contextBox.show();
+			this.actionBox.hide();
+		}
+	}
+});
+
+new Test.App({
+	style: {
+		"Ui.ScrollingArea": {
+			color: '#f1f1f1'
+		},
+		"Test.Item": {
+			foreground: '#f1f1f1',
+			background: 'rgba(250,250,250,0)',
+			backgroundBorder: 'rgba(250,250,250,0)',
+			orientation: "vertical",
+			iconSize: 100,
+			whiteSpace: 'pre-line',
+			textWidth: 200,
+			maxTextWidth: 200,
+			radius: 0,
+			padding: 20
+		},
+		"Test.LeftMenu": {
+			"Ui.Element": {
+				color: '#f1f1f1'
+			}
+		},
+		"Test.ToolBar": {
+			"Ui.Button": {
+				background: new Ui.Color({ r: 1, g: 1, b: 1, a: 0 }),
+				backgroundBorder: new Ui.Color({ r: 1, g: 1, b: 1, a: 0.3 }),
+				foreground: "#ffffff",
+				focusBackground: new Ui.Color({ r: 0.43, g: 1, b: 1, a: 0.6 }),
+				focusForeground: "#ffffff"
+			},
+			"Ui.TextBgGraphic": {
+				background: "rgba(255,255,255,0.1)",
+				focusBackground: "rgba(255,255,255,0.3)"
+			},
+			"Ui.Label": {
+				color: "#ffffff"
+			},
+			"Ui.Text": {
+				color: "#ffffff"
+			},
+			"Ui.Entry": {
+				color: "#ffffff"
+			},
+			"Ui.TextFieldButton": {
+				backgroundBorder: 'rgba(250,250,250,0)'
+			}
+		}
+	}
+});
+
+
+
+
+</script>
+  </head>
+</html>

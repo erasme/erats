@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<script src='../../era/era-debug.js'></script>
+<script>
+//
+// Play with Ui.Text, the simplest text element
+//
+
+var app = new Ui.App();
+
+var vbox = new Ui.VBox();
+app.setContent(vbox);
+
+var toolbar = new Ui.ToolBar();
+vbox.append(toolbar);
+
+var button = new Ui.CheckBox({ text: 'selectable' });
+//toolbar.append(button);
+
+app.connect(button, 'toggle', function() {
+	text.setSelectable(true);
+});
+
+app.connect(button, 'untoggle', function() {
+	text.setSelectable(false);
+});
+
+
+var scroll = new Ui.ScrollingArea();
+vbox.append(scroll, true);
+
+var lbox = new Ui.LBox({ verticalAlign: 'center', horizontalAlign: 'center', margin: 100 });
+//vbox.append(lbox, true);
+scroll.setContent(lbox);
+
+lbox.append(new Ui.Rectangle({ fill: 'lightgreen' }));
+
+var text = new Ui.Text({
+//	width: 50,
+	margin: 5,
+	interLine: 1.5,
+//	wordWrap: 'break-word',
+	color: { r: 1, g: 0, b: 0 },
+//	textAlign: 'center',
+//	horizontalAlign: 'center',
+	text: 'hello world alongwordtotestforcedsplit with many lines to have fun'
+});
+lbox.append(text);
+
+/*var text = new Ui.Label({
+	margin: 5,
+	color: { r: 1, g: 0, b: 0 },
+	text: 'hello, this is a simple text'
+});
+lbox.append(text);*/
+
+
+</script>
+  </head>
+</html>

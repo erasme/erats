@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+    <title>Test Ui.TextAreaField</title>
+    <script src='../../era/era-debug.js'></script>
+<script>
+
+
+var app = new Ui.App();
+
+var scroll = new Ui.ScrollingArea();
+app.setContent(scroll);
+
+var vbox = new Ui.VBox();
+
+scroll.setContent(vbox);
+
+vbox.append(new Ui.Rectangle({ fill: 'orange', height: 400 }));
+
+var textareafield = new Ui.TextAreaField({
+	verticalAlign: 'center', horizontalAlign: 'center',
+	width: 400,
+	textHolder: 'Type text here'
+});
+vbox.append(textareafield);
+
+vbox.append(new Ui.Rectangle({ fill: 'lightblue', height: 400 }));
+
+</script>
+  </head>
+</html>

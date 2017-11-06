@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>Test TextButtonField</title>
+    <script src='../../era/era-debug.js'></script>
+<script>
+
+Ui.VBox.extend('Test.Logs', {
+	logs: undefined,
+
+	constructor: function() {
+		this.append(new Ui.Label({ text: 'Logs:', horizontalAlign: 'left', fontWeight: 'bold' }));
+		var scrolling = new Ui.ScrollingArea();
+		this.append(scrolling, true);
+		this.logs = new Ui.VBox();
+		scrolling.setContent(this.logs);
+	},
+
+	log: function(text, color) {
+		if(color == undefined)
+			color = 'black';
+		this.logs.prepend(new Ui.Label({ text: text, color: color, horizontalAlign: 'left' }));
+	}
+});
+
+var app = new Ui.App();
+
+var vbox = new Ui.VBox({ padding: 50, spacing: 10 });
+app.setContent(vbox);
+
+var textbuttonfield = new Ui.TextButtonField({ buttonIcon: 'search', textHolder: 'Search' });
+vbox.append(textbuttonfield);
+
+app.connect(textbuttonfield, 'change', function(textbuttonfield, value) {
+	logs.log('change: '+value);
+});
+
+app.connect(textbuttonfield, 'validate', function(textbuttonfield) {
+	logs.log('validate: '+textbuttonfield.getValue(), 'green');
+});
+
+var logs = new Test.Logs();
+vbox.append(logs, true);
+
+</script>
+  </head>
+</html>

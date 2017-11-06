@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+    <title>Test PopupMenu</title>
+    <script src='../../era/era-debug.js'></script>
+<style>
+</style>
+<script>
+
+Ui.Button.extend('Test.Button', {
+	constructor: function() {
+		this.setDraggableData(this);
+	},
+
+	suppress: function() {
+		console.log('suppress');
+	},
+
+	open: function() {
+		console.log('open');
+	}
+}, {
+	getSelectionActions: function() {
+		return {
+			suppress: {
+				text: 'Supprimer', icon: 'trash',
+				scope: this, callback: this.suppress, multiple: true
+			},
+			open: {
+				"default": true,
+				text: 'Ouvrir', icon: 'eye',
+				scope: this, callback: this.open, multiple: false
+			}
+		};
+	}
+});
+
+var app = new Ui.App();
+
+var hbox = new Ui.HBox({ uniform: true, verticalAlign: 'top', margin: 10, spacing: 10 });
+app.setContent(hbox);
+
+var button = new Ui.Button({ icon: 'star', text: 'open rect popup' });
+hbox.append(button);
+app.connect(button, 'press', function(b) {
+	var popup = new Ui.Popup();
+
+	var vbox = new Ui.VBox({ spacing: 10, margin: 10 });
+	popup.setContent(vbox);
+
+	vbox.append(new Test.Button({ icon: 'star', text: 'super stuff' }));
+	vbox.append(new Test.Button({ icon: 'star', text: 'super stuff 2' }));
+	popup.open(b, 'bottom');
+});
+
+var button = new Ui.Button({ icon: 'star', text: 'open segmentbar' });
+hbox.append(button);
+app.connect(button, 'press', function(b) {
+	var popup = new Ui.Popup();
+//	popup.setPreferredWidth(400);
+
+	var vbox = new Ui.VBox({ spacing: 10, margin: 10 });
+	popup.setContent(vbox);
+
+	var segmentbar = new Ui.SegmentBar({
+		field: 'text', data: [
+			{ text: 'Users' }, { text: 'Groups' }, { text: 'Resources' }
+		] });
+	vbox.append(segmentbar);
+
+	var label = new Ui.Text({ textAlign: 'center', margin: 20 });
+	vbox.append(label);
+
+	app.connect(segmentbar, 'change', function(segmentbar, data) {
+		label.setText(data.text);
+	});
+	segmentbar.setCurrentPosition(0);
+
+//	vbox.append(new Ui.Rectangle({ fill: 'orange', width: 500, height: 50 }));
+
+	popup.open(b, 'bottom');
+});
+
+
+</script>
+  </head>
+</html>
