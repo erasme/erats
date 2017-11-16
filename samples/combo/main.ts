@@ -13,7 +13,7 @@ class App extends Ui.App {
 		for(let i = 0; i < 25; i++)
 			data.push(<MyData>{ text: 'item '+i, id: i });
 
-        let combo = new Ui.Combo({ field: 'text', data: data, placeHolder: 'choice...' });        
+        let combo = new Ui.Combo({ field: 'text', data: data, placeHolder: 'choice...', search: true });        
 		vbox.append(combo);
 
 		this.connect(combo, 'change', function(combo: Ui.Combo, val: MyData, position: number) {

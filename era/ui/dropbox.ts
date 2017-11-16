@@ -13,7 +13,7 @@ namespace Ui
 	export interface DropBoxInit extends LBoxInit {
 	}
 
-	export class DropBox extends LBox {
+	export class DropBox extends LBox implements DropBoxInit {
 		watchers: DragWatcher[] = undefined;
 		allowedTypes: { type: string | Function, effect: DropEffect[] | DropEffectFunc }[] = undefined;
 

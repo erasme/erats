@@ -107,12 +107,12 @@ var App = (function (_super) {
         content.append(vbox, true);
         var button = new Ui.Button({ text: 'default', width: 200 });
         vbox.append(button);
-        _this.connect(button, 'press', function () { return _this.setStyle(undefined); });
+        _this.connect(button, 'press', function () { return _this.style = undefined; });
         var _loop_1 = function (i) {
             var style = styles[i];
             var button_1 = new Ui.Button({ text: "style" + i, width: 200 });
             vbox.append(button_1);
-            this_1.connect(button_1, 'press', function () { return _this.setStyle(style); });
+            this_1.connect(button_1, 'press', function () { return _this.style = style; });
         };
         var this_1 = this;
         for (var i = 0; i < styles.length; i++) {

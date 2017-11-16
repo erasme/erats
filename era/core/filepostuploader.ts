@@ -2,6 +2,7 @@ namespace Core {
 	export interface FilePostUploaderInit {
 		method: string;
 		file: File;
+		field: string;
 		service: string;
 		destination: string;
 	}
@@ -33,12 +34,13 @@ namespace Core {
 		protected reader: undefined;
 		protected request: XMLHttpRequest;
 		protected binaryString: boolean = false;
-		protected responseText: string;
+		protected _responseText: string;
 		protected fileReader: FileReader;
 		protected boundary: string;
 		protected _method: string = 'POST';
 		protected fields: object;
 		protected _isCompleted: boolean = false;
+		field: string = 'file';
 
 		protected loadedOctets: number;
 		protected totalOctets: number;
@@ -92,7 +94,7 @@ namespace Core {
 					for (field in this.fields) {
 						formData.append(field, this.fields[field]);
 					}
-					formData.append("file", this._file.fileApi);
+					formData.append(this.field, this._file.fileApi);
 	
 					this.request = new XMLHttpRequest();
 					if ('upload' in this.request)
@@ -155,14 +157,14 @@ namespace Core {
 			}
 		}
 
-		getResponseText() {
-			return this.responseText;
+		get responseText(): string {
+			return this._responseText;
 		}
 
-		getResponseJSON() {
+		get responseJSON(): any {
 			let res;
 			try {
-				res = JSON.parse(this.getResponseText());
+				res = JSON.parse(this.responseText);
 			}
 			catch (err) {
 				res = undefined;
@@ -186,11 +188,11 @@ namespace Core {
 			if (this.request.readyState == 4) {
 				this._isCompleted = true;
 				if (this.request.status == 200) {
-					this.responseText = this.request.responseText;
+					this._responseText = this.request.responseText;
 					this.fireEvent('complete', this);
 				}
 				else {
-					this.responseText = this.request.responseText;
+					this._responseText = this.request.responseText;
 					this.fireEvent('error', this, this.request.status);
 				}
 				this.request = undefined;
@@ -212,7 +214,7 @@ namespace Core {
 
 		protected onFileReaderLoad(event) {
 			let body = '--' + this.boundary + '\r\n';
-			body += "Content-Disposition: form-data; name='file'; filename='" + this._file.fileApi.name + "'\r\n";
+			body += "Content-Disposition: form-data; name='"+this.field+"'; filename='" + this._file.fileApi.name + "'\r\n";
 			body += 'Content-Type: ' + this._file.fileApi.type + '\r\n\r\n';
 			body += event.target.result + '\r\n';
 			body += '--' + this.boundary + '--';
@@ -222,7 +224,7 @@ namespace Core {
 		}
 
 		protected onIFrameLoad(event) {
-			this.responseText = event.target.contentWindow.document.body.innerText;
+			this._responseText = event.target.contentWindow.document.body.innerText;
 			document.body.removeChild(this._file.iframe);
 			this.fireEvent('complete', this);
 		}

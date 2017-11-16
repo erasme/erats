@@ -29,7 +29,7 @@ namespace Ui {
 			this.input.select();
 		}
 
-		protected onFile(fileWrapper: UploadableFileWrapper, file: File) {
+		protected onFile(fileWrapper: UploadableFileWrapper, file: Core.File) {
 			this.fireEvent('file', this, file);
 		}
 	}

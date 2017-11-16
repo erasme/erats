@@ -543,7 +543,7 @@ namespace Ui
 					offset += uniformSize;
 				}
 				else {
-					if ((Ui.Box.getResizable(child)) && ((this.vertical ? child.measureHeight : child.measureWidth) < this.star)) {
+					if ((Ui.Box.getResizable(child)) && ((this.vertical ? child.measureHeight : child.measureWidth) < star)) {
 						if (isFirst)
 							isFirst = false;
 						else
@@ -555,7 +555,6 @@ namespace Ui
 						offset += star;
 					}
 					else if (size > 0) {
-
 						if (isFirst)
 							isFirst = false;
 						else

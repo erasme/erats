@@ -119,8 +119,9 @@ namespace Ui
 
 			this.bindedUpdate = this.update.bind(this);
 
-			if (init)
-				this.assign(init);
+			this.assign(init);
+			if (window['loaded'] === true)
+				this.onWindowLoad();	
 		}
 
 		setWebApp(webApp: boolean) {
@@ -636,3 +637,5 @@ namespace Ui
 		}
 	}
 }	
+
+window.addEventListener('load', () => window['loaded'] = true);

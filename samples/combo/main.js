@@ -19,7 +19,7 @@ var App = (function (_super) {
         var data = [];
         for (var i = 0; i < 25; i++)
             data.push({ text: 'item ' + i, id: i });
-        var combo = new Ui.Combo({ field: 'text', data: data, placeHolder: 'choice...' });
+        var combo = new Ui.Combo({ field: 'text', data: data, placeHolder: 'choice...', search: true });
         vbox.append(combo);
         _this.connect(combo, 'change', function (combo, val, position) {
             console.log('Combo change: ' + val.text);

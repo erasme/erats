@@ -11,8 +11,8 @@ namespace Ui
 		id: string;
 		focusable: boolean;
 		role: string;
-		width: number;
-		height: number;
+		width: number | undefined;
+		height: number | undefined;
 		maxWidth: number;
 		maxHeight: number;
 		verticalAlign: VerticalAlign;
@@ -26,6 +26,7 @@ namespace Ui
 		opacity: number;
 		transform: Matrix;
 		eventsHidden: boolean;
+		style: object | undefined;
 	}
 
 	export class Element extends Core.Object implements ElementInit, Anim.Target
@@ -123,8 +124,8 @@ namespace Ui
 		parentDisabled?: boolean = undefined;
 
 		// handle styles
-		style: object | undefined = undefined;
-		parentStyle: object | undefined = undefined;
+		private _style: object | undefined = undefined;
+		private _parentStyle: object | undefined = undefined;
 		mergeStyle: object | undefined = undefined;
 
 	    // @constructs
@@ -546,14 +547,14 @@ namespace Ui
 		// Return the preferred width of the element
 		// or undefined
 		//
-		get width(): number {
+		get width(): number | undefined {
 			return this._width;
 		}
 
 		//
 		// Set the preferred width of the element
 		//
-		set width(width: number) {
+		set width(width: number | undefined) {
 			if(this._width !== width) {
 				this._width = width;
 				this.invalidateMeasure();
@@ -564,14 +565,14 @@ namespace Ui
 		// Return the preferred height of the element
 		// or undefined
 		//
-		get height(): number {
+		get height(): number | undefined {
 			return this._height;
 		}
 
 		//
 		// Set the preferred height of the element
 		//
-		set height(height: number) {
+		set height(height: number | undefined) {
 			if(this._height !== height) {
 				this._height = height;
 				this.invalidateMeasure();
@@ -1134,14 +1135,14 @@ namespace Ui
 		private mergeStyles() {
 			let current: Function; let found: boolean;
 			this.mergeStyle = undefined;
-			if(this.parentStyle != undefined) {
+			if(this._parentStyle != undefined) {
 				current = this.constructor;
 				found = false;
 				while (current != undefined) {
-					let classStyle = this.getClassStyle(this.parentStyle, current);
+					let classStyle = this.getClassStyle(this._parentStyle, current);
 					if (classStyle != undefined && this.containSubStyle(classStyle)) {
 						if (this.mergeStyle == undefined)
-							this.mergeStyle = Core.Util.clone(this.parentStyle);
+							this.mergeStyle = Core.Util.clone(this._parentStyle);
 						this.fusionStyle(this.mergeStyle, classStyle);
 						found = true;
 						break;
@@ -1151,16 +1152,16 @@ namespace Ui
 						current = current.constructor;
 				}
 				if(!found)
-					this.mergeStyle = this.parentStyle;
+					this.mergeStyle = this._parentStyle;
 			}
-			if(this.style != undefined) {
+			if(this._style != undefined) {
 				if(this.mergeStyle != undefined) {
 					this.mergeStyle = Core.Util.clone(this.mergeStyle);
-					this.fusionStyle(this.mergeStyle, this.style);
+					this.fusionStyle(this.mergeStyle, this._style);
 
 					current = this.constructor;
 					while (current != undefined) {
-						let classStyle = this.getClassStyle(this.style, current);
+						let classStyle = this.getClassStyle(this._style, current);
 						if (classStyle != undefined && this.containSubStyle(classStyle)) {
 							this.fusionStyle(this.mergeStyle, classStyle);
 							break;
@@ -1174,10 +1175,10 @@ namespace Ui
 					current = this.constructor;
 					found = false;
 					while (current != undefined) {
-						let classStyle = this.getClassStyle(this.style, current);
+						let classStyle = this.getClassStyle(this._style, current);
 						if (classStyle != undefined) {
 							if(this.mergeStyle == undefined)
-								this.mergeStyle = Core.Util.clone(this.style);
+								this.mergeStyle = Core.Util.clone(this._style);
 							this.fusionStyle(this.mergeStyle, classStyle);
 							found = true;
 							break;
@@ -1187,7 +1188,7 @@ namespace Ui
 							current = current.constructor;
 					}
 					if(!found)
-						this.mergeStyle = this.style;
+						this.mergeStyle = this._style;
 				}
 			}
 		}
@@ -1221,30 +1222,28 @@ namespace Ui
 		}
 
 		setParentStyle(parentStyle: object | undefined) {
-			if(this.parentStyle !== parentStyle)
-				this.parentStyle = parentStyle;
+			if(this._parentStyle !== parentStyle)
+				this._parentStyle = parentStyle;
 			this.mergeStyles();
 			this.onInternalStyleChange();
 		}
 
-		setStyle(style: object | undefined) {
-			console.log(this.getClassName() + '.setStyle');
-			console.log(style);
-			this.style = style;
+		set style(style: object | undefined) {
+			this._style = style;
 			this.mergeStyles();
 			this.onInternalStyleChange();
 		}
 
 		setStyleProperty(property: string, value: any) {
-			if(this.style === undefined)
-				this.style = {};
-			if(this.style[this.getClassName()] === undefined)
-				this.style[this.getClassName()] = {};
-			this.style[this.getClassName()][property] = value;
+			if(this._style === undefined)
+				this._style = {};
+			this._style[property] = value;
 		}
 
 		getStyleProperty(property: string): any {			
 			let current: Function;
+			if (this._style != undefined && this._style[property] != undefined)
+				return this._style[property];	
 			if(this.mergeStyle != undefined) {
 				current = this.constructor;
 				while (current != undefined) {

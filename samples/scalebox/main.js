@@ -17,17 +17,11 @@ var App = (function (_super) {
         var lbox = new Ui.LBox();
         lbox.margin = 100;
         _this.setContent(lbox);
-        var scalebox = new Ui.ScaleBox();
-        scalebox.fixedWidth = 800;
-        scalebox.fixedHeight = 600;
-        lbox.setContent(scalebox);
-        var rect = new Ui.Rectangle();
-        rect.fill = 'orange';
+        var scalebox = new Ui.ScaleBox({ fixedWidth: 800, fixedHeight: 600 });
+        lbox.content = scalebox;
+        var rect = new Ui.Rectangle({ fill: 'orange' });
         scalebox.append(rect);
-        var text = new Ui.Text();
-        text.margin = 20;
-        text.fontSize = 40;
-        text.text = 'Hello World !';
+        var text = new Ui.Text({ margin: 20, fontSize: 40, text: 'Hello World !' });
         scalebox.append(text);
         return _this;
     }

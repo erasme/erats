@@ -5,6 +5,7 @@ namespace Ui {
 		data: object[];
 		position: number;
 		current: object;
+		search: boolean;
 	}
 
 	export class Combo extends Button implements ComboInit {
@@ -16,6 +17,7 @@ namespace Ui {
 		sep: undefined;
 		arrowtop: Icon;
 		arrowbottom: Icon;
+		search: boolean;
 
 		/**
 		 * @constructs
@@ -31,6 +33,7 @@ namespace Ui {
 			super();
 			this.addEvents('change');
 
+			this.text = '';
 			this.arrowtop = new Icon({ icon: 'arrowtop', width: 10, height: 10 });
 			this.arrowbottom = new Icon({ icon: 'arrowbottom', width: 10, height: 10 });
 
@@ -38,8 +41,7 @@ namespace Ui {
 				verticalAlign: 'center',
 				content: [ this.arrowtop, this.arrowbottom ], marginRight: 5
 			});
-			if (init)
-				this.assign(init);
+			this.assign(init);
 		}
 
 		set placeHolder(placeHolder: string) {
@@ -109,7 +111,7 @@ namespace Ui {
 		}
 
 		protected onPress() {
-			let popup = new Ui.ComboPopup({ field: this._field, data: this._data });
+			let popup = new Ui.ComboPopup({ field: this._field, data: this._data, search: this.search });
 			if (this._position !== -1)
 				popup.position = this._position;
 			this.connect(popup, 'item', this.onItemPress);
@@ -123,11 +125,13 @@ namespace Ui {
 		}
 
 		static style: object = {
-			textTransform: 'none'
+			textTransform: 'none',
+			textAlign: 'left'
 		}
 	}
 
 	export interface ComboPopupInit extends MenuPopupInit {
+		search: boolean;
 		field: string;
 		data: object[];
 		position: number;
@@ -137,16 +141,56 @@ namespace Ui {
 		private list: VBox;
 		private _data: object[];
 		private _field: string;
+		private searchField: TextField;
 
 		constructor(init?: Partial<ComboPopupInit>) {
 			super();
 			this.addEvents('item');
 			this.autoClose =true;
 
+			let vbox = new VBox();
+			this.searchField = new TextField({ textHolder: 'Recherche' });
+			this.searchField.hide(true);
+			this.connect(this.searchField, 'change', this.onSearchChange);
+			vbox.append(this.searchField);
+			this.content = vbox;
+
 			this.list = new VBox();
-			this.content = this.list;
-			if (init)
-				this.assign(init);
+			vbox.append(this.list);
+			//this.content = this.list;
+
+			this.assign(init);
+		}
+
+		private onSearchChange(field: TextField, value: string) {
+			this.list.children.forEach((item: ComboItem) => {
+				if (value == '')
+					item.show();
+				else {
+					let text = Core.Util.toNoDiacritics(item.text).toLocaleLowerCase();
+					let search = Core.Util.toNoDiacritics(value).toLowerCase().split(' ');
+					if (search.length == 0)
+						item.show();
+					else {
+						let match = true;
+						for (let i = 0; match && (i < search.length); i++) {
+							let word = search[i];
+							match = (text.indexOf(word) != -1);
+						}
+						if (match)
+							item.show();
+						else
+							item.hide(true);
+					}
+				}
+			});
+		}
+
+		set search(value: boolean) {
+			if (value)
+				this.searchField.show();
+			else
+				this.searchField.hide(true);
 		}
 
 		set field(field: string) {
@@ -186,7 +230,8 @@ namespace Ui {
 	export class ComboItem extends Button {
 		static style: object = {
 			borderWidth: 0,
-			textTransform: 'none'
+			textTransform: 'none',
+			textAlign: 'left'
 		}
 	}
 }	

@@ -127,8 +127,8 @@ namespace Ui
 	}
 
 	export interface ButtonInit extends SelectionableInit {
-		text: string;
-		icon: string;
+		text: string | undefined;
+		icon: string | undefined;
 		background: Element;
 		marker: Element;
 		isActive: boolean;
@@ -142,7 +142,7 @@ namespace Ui
 		private _isActive: boolean = false;
 		private mainBox: HBox;
 		private buttonPartsBox: Box;
-		private _icon: ButtonIcon = undefined;
+		private _icon: Element = undefined;
 		private _iconBox: LBox;
 		private _text: Element = undefined;
 		private _textBox: LBox;
@@ -162,6 +162,7 @@ namespace Ui
 
 			this.mainBox = new HBox();
 			this.mainBox.verticalAlign = 'center';
+			this.mainBox.horizontalAlign = 'stretch';
 			this.dropbox.append(this.mainBox);
 
 			this.buttonPartsBox = new Box();
@@ -177,8 +178,7 @@ namespace Ui
 			this.connect(this, 'blur', this.updateColors);
 			this.connect(this, 'enter', this.updateColors);
 			this.connect(this, 'leave', this.updateColors);
-			if (init)
-				this.assign(init);
+			this.assign(init);
 		}
 
 		get dropBox(): DropBox {
@@ -203,15 +203,15 @@ namespace Ui
 			return this._textBox;
 		}
 
-		get text(): string {
+		get text(): string | undefined {
 			return (this._text instanceof ButtonText) ? (this._text as ButtonText).text : undefined;
 		}
 
-		set text(text: string) {
+		set text(text: string | undefined) {
 			this.setTextOrElement(text);
 		}
 
-		setTextOrElement(text: string | Element) {
+		setTextOrElement(text: string | Element | undefined) {
 			if (typeof (text) === 'string') {
 				if (this._text !== undefined) {
 					if (this._text instanceof ButtonText)
@@ -244,45 +244,47 @@ namespace Ui
 			this.updateVisibles();
 		}
 
-		get iconBox(): Element {
+		get iconBox(): LBox {
 			return this._iconBox;
 		}
 
-		get icon(): string {
+		get icon(): string | undefined {
 			return (this._icon instanceof ButtonIcon) ? (this._icon as ButtonIcon).icon : undefined;
 		}
 
-		set icon(icon: string) {
+		set icon(icon: string | undefined) {
 			this.setIconOrElement(icon);
 		}
 
-		setIconOrElement(icon) {
+		setIconOrElement(icon: Element | string | undefined) {
 			if (typeof (icon) === 'string') {
 				if (this._icon != undefined) {
 					if (this._icon instanceof ButtonIcon)
 						this._icon.icon = icon;
 					else {
-						this._icon = new ButtonIcon();
-						this._icon.icon = icon;
-						this._icon.badge = this._badge;
-						this._icon.fill = this.getForegroundColor();
-						this._icon.badgeColor = this.getStyleProperty('badgeColor');
-						this._icon.badgeTextColor = this.getStyleProperty('badgeTextColor');
-						this._iconBox.content = this._icon;
+						let ic = new ButtonIcon();
+						this._icon = ic;
+						ic.icon = icon;
+						ic.badge = this._badge;
+						ic.fill = this.getForegroundColor();
+						ic.badgeColor = this.getStyleProperty('badgeColor');
+						ic.badgeTextColor = this.getStyleProperty('badgeTextColor');
+						this.iconBox.content = this._icon;
 					}
 				}
 				else {
-					this._icon = new ButtonIcon();
-					this._icon.icon = icon;
-					this._icon.badge = this._badge;
-					this._icon.fill = this.getForegroundColor();
-					this._icon.badgeColor = this.getStyleProperty('badgeColor');
-					this._icon.badgeTextColor = this.getStyleProperty('badgeTextColor');
+					let ic = new ButtonIcon();
+					this._icon = ic
+					ic.icon = icon;
+					ic.badge = this._badge;
+					ic.fill = this.getForegroundColor();
+					ic.badgeColor = this.getStyleProperty('badgeColor');
+					ic.badgeTextColor = this.getStyleProperty('badgeTextColor');
 					this._iconBox.content = this._icon;
 				}
 			}
 			else {
-				this._icon = icon;
+				this._icon = icon as Element;
 				this._iconBox.content = this._icon;
 			}
 			this.updateVisibles();
@@ -418,14 +420,15 @@ namespace Ui
 				if (this._textBox.parent == undefined)
 					this.buttonPartsBox.append(this._textBox, true);
 				if (this._text instanceof ButtonText) {
-					if (this.isIconVisible && (this.orientation === 'horizontal')) {
-						this._text.textAlign = 'left';
-						this.mainBox.horizontalAlign = undefined;
+					let textAlign = this.getStyleProperty('textAlign');
+					if (textAlign == 'auto') {
+						if (this.isIconVisible && (this.orientation === 'horizontal'))
+							this._text.textAlign = 'left';
+						else
+							this._text.textAlign = 'center';
 					}
-					else {
-						this._text.textAlign = 'center';
-						this.mainBox.horizontalAlign = 'center';
-					}
+					else
+						this._text.textAlign = textAlign;	
 				
 					this._text.fontFamily = this.getStyleProperty('fontFamily');
 					this._text.fontSize = this.getStyleProperty('fontSize');
@@ -484,7 +487,6 @@ namespace Ui
 		}
 
 		protected onStyleChange() {
-			console.log(this.getClassName() + '.onStyleChange');
 			this.buttonPartsBox.spacing = Math.max(0, this.getStyleProperty('spacing'));
 			this.buttonPartsBox.margin = Math.max(0, this.getStyleProperty('padding'));
 			if (this.bg instanceof ButtonBackground) {
@@ -502,7 +504,7 @@ namespace Ui
 			this.updateColors();
 		}
 
-		static style:object = {
+		static style: object = {
 			orientation: 'horizontal',
 			borderWidth: 1,
 			badgeColor: 'red',
@@ -530,6 +532,7 @@ namespace Ui
 			textTransform: 'uppercase',
 			maxTextWidth: Number.MAX_VALUE,
 			textHeight: 26,
+			textAlign: 'auto',
 			interLine: 1,
 			maxLine: 3,
 			whiteSpace: 'nowrap',
@@ -540,7 +543,7 @@ namespace Ui
 
 	export class DefaultButton extends Button
 	{
-		static style:object = {
+		static style: object = {
 			borderWidth: 1,
 			background: '#444444',
 			backgroundBorder: '#444444',

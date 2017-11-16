@@ -251,6 +251,7 @@ declare namespace Core {
     interface FilePostUploaderInit {
         method: string;
         file: File;
+        field: string;
         service: string;
         destination: string;
     }
@@ -260,12 +261,13 @@ declare namespace Core {
         protected reader: undefined;
         protected request: XMLHttpRequest;
         protected binaryString: boolean;
-        protected responseText: string;
+        protected _responseText: string;
         protected fileReader: FileReader;
         protected boundary: string;
         protected _method: string;
         protected fields: object;
         protected _isCompleted: boolean;
+        field: string;
         protected loadedOctets: number;
         protected totalOctets: number;
         constructor(init?: Partial<FilePostUploaderInit>);
@@ -276,8 +278,8 @@ declare namespace Core {
         destination: string;
         send(): void;
         abort(): void;
-        getResponseText(): string;
-        getResponseJSON(): any;
+        readonly responseText: string;
+        readonly responseJSON: any;
         readonly isCompleted: boolean;
         readonly total: number;
         readonly loaded: number;
@@ -586,8 +588,8 @@ declare namespace Ui {
         id: string;
         focusable: boolean;
         role: string;
-        width: number;
-        height: number;
+        width: number | undefined;
+        height: number | undefined;
         maxWidth: number;
         maxHeight: number;
         verticalAlign: VerticalAlign;
@@ -601,6 +603,7 @@ declare namespace Ui {
         opacity: number;
         transform: Matrix;
         eventsHidden: boolean;
+        style: object | undefined;
     }
     class Element extends Core.Object implements ElementInit, Anim.Target {
         name: string;
@@ -660,8 +663,8 @@ declare namespace Ui {
         private parentOpacity;
         disabled?: boolean;
         parentDisabled?: boolean;
-        style: object | undefined;
-        parentStyle: object | undefined;
+        private _style;
+        private _parentStyle;
         mergeStyle: object | undefined;
         constructor(init?: Partial<ElementInit>);
         setDisabled(disabled: boolean): void;
@@ -692,8 +695,8 @@ declare namespace Ui {
         protected drawCore(): void;
         invalidateDraw(): void;
         protected renderDrawing(): any;
-        width: number;
-        height: number;
+        width: number | undefined;
+        height: number | undefined;
         maxWidth: number;
         maxHeight: number;
         verticalAlign: VerticalAlign;
@@ -751,7 +754,7 @@ declare namespace Ui {
         parent: Element;
         getParentByClass(classFunc: Function): Element;
         setParentStyle(parentStyle: object | undefined): void;
-        setStyle(style: object | undefined): void;
+        style: object | undefined;
         setStyleProperty(property: string, value: any): void;
         getStyleProperty(property: string): any;
         protected onInternalStyleChange(): void;
@@ -1876,7 +1879,7 @@ declare namespace Ui {
     type DropEffectFunc = (data: any, dataTransfer: DragDataTransfer) => DropEffect[];
     interface DropBoxInit extends LBoxInit {
     }
-    class DropBox extends LBox {
+    class DropBox extends LBox implements DropBoxInit {
         watchers: DragWatcher[];
         allowedTypes: {
             type: string | Function;
@@ -1927,8 +1930,8 @@ declare namespace Ui {
         updateCanvas(ctx: any): void;
     }
     interface ButtonInit extends SelectionableInit {
-        text: string;
-        icon: string;
+        text: string | undefined;
+        icon: string | undefined;
         background: Element;
         marker: Element;
         isActive: boolean;
@@ -1952,11 +1955,11 @@ declare namespace Ui {
         readonly dropBox: DropBox;
         background: Element;
         readonly textBox: Element;
-        text: string;
-        setTextOrElement(text: string | Element): void;
-        readonly iconBox: Element;
-        icon: string;
-        setIconOrElement(icon: any): void;
+        text: string | undefined;
+        setTextOrElement(text: string | Element | undefined): void;
+        readonly iconBox: LBox;
+        icon: string | undefined;
+        setIconOrElement(icon: Element | string | undefined): void;
         marker: Element;
         isActive: boolean;
         badge: string;
@@ -2528,8 +2531,10 @@ declare namespace Ui {
     }
 }
 declare namespace Ui {
-    class Fixed extends Container {
-        constructor();
+    interface FixedInit extends ContainerInit {
+    }
+    class Fixed extends Container implements FixedInit {
+        constructor(init?: Partial<FixedInit>);
         setPosition(item: Element, x: number, y: number): void;
         setRelativePosition(item: Element, x: number, y: number, absolute?: boolean): void;
         append(child: Element, x: number, y: number): void;
@@ -2560,6 +2565,7 @@ declare namespace Ui {
         private textHasFocus;
         hasFocus: boolean;
         private readonly background;
+        private readonly backgroundBorder;
         updateCanvas(ctx: any): void;
         onDisable(): void;
         onEnable(): void;
@@ -2571,6 +2577,7 @@ declare namespace Ui {
         borderWidth: number;
         background: Color;
         focusBackground: Color;
+        backgroundBorder: Color;
     }
 }
 declare namespace Ui {
@@ -2681,15 +2688,20 @@ declare namespace Ui {
     }
 }
 declare namespace Ui {
+    interface ScaleBoxInit extends ContainerInit {
+        fixedWidth: number;
+        fixedHeight: number;
+    }
     class ScaleBox extends Container {
         private _fixedWidth;
         private _fixedHeight;
+        constructor(init?: Partial<ScaleBoxInit>);
         setFixedSize(width: number, height: number): void;
         fixedWidth: number;
         fixedHeight: number;
         append(child: Element): void;
         remove(child: Element): void;
-        setContent(content: Element): void;
+        content: Element;
         protected measureCore(width: number, height: number): {
             width: any;
             height: any;
@@ -2839,6 +2851,7 @@ declare namespace Ui {
         data: object[];
         position: number;
         current: object;
+        search: boolean;
     }
     class Combo extends Button implements ComboInit {
         private _field;
@@ -2849,6 +2862,7 @@ declare namespace Ui {
         sep: undefined;
         arrowtop: Icon;
         arrowbottom: Icon;
+        search: boolean;
         constructor(init?: Partial<ComboInit>);
         placeHolder: string;
         field: string;
@@ -2862,6 +2876,7 @@ declare namespace Ui {
         static style: object;
     }
     interface ComboPopupInit extends MenuPopupInit {
+        search: boolean;
         field: string;
         data: object[];
         position: number;
@@ -2870,7 +2885,10 @@ declare namespace Ui {
         private list;
         private _data;
         private _field;
+        private searchField;
         constructor(init?: Partial<ComboPopupInit>);
+        private onSearchChange(field, value);
+        search: boolean;
         field: string;
         data: object[];
         position: number;
@@ -3558,7 +3576,7 @@ declare namespace Ui {
         constructor(init?: Partial<UploadButtonInit>);
         directoryMode: boolean;
         protected onUploadButtonPress(): void;
-        protected onFile(fileWrapper: UploadableFileWrapper, file: File): void;
+        protected onFile(fileWrapper: UploadableFileWrapper, file: Core.File): void;
     }
 }
 declare namespace Ui {
@@ -3788,7 +3806,7 @@ declare namespace Ui {
     type DropAtEffectFunc = (data: any, position: number) => DropEffect[];
     interface DropAtBoxInit extends DropBoxInit {
     }
-    class DropAtBox extends LBox {
+    class DropAtBox extends LBox implements DropAtBoxInit {
         watchers: DragWatcher[];
         allowedTypes: {
             type: string | Function;

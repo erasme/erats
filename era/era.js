@@ -1874,6 +1874,7 @@ var Core;
             _this.binaryString = false;
             _this._method = 'POST';
             _this._isCompleted = false;
+            _this.field = 'file';
             _this.addEvents('progress', 'complete', 'error');
             _this.fields = {};
             if (init)
@@ -1924,7 +1925,7 @@ var Core;
                     for (field in this.fields) {
                         formData.append(field, this.fields[field]);
                     }
-                    formData.append("file", this._file.fileApi);
+                    formData.append(this.field, this._file.fileApi);
                     this.request = new XMLHttpRequest();
                     if ('upload' in this.request)
                         this.connect(this.request.upload, 'progress', this.onUpdateProgress);
@@ -1980,19 +1981,27 @@ var Core;
                 this.request = undefined;
             }
         };
-        FilePostUploader.prototype.getResponseText = function () {
-            return this.responseText;
-        };
-        FilePostUploader.prototype.getResponseJSON = function () {
-            var res;
-            try {
-                res = JSON.parse(this.getResponseText());
-            }
-            catch (err) {
-                res = undefined;
-            }
-            return res;
-        };
+        Object.defineProperty(FilePostUploader.prototype, "responseText", {
+            get: function () {
+                return this._responseText;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(FilePostUploader.prototype, "responseJSON", {
+            get: function () {
+                var res;
+                try {
+                    res = JSON.parse(this.responseText);
+                }
+                catch (err) {
+                    res = undefined;
+                }
+                return res;
+            },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(FilePostUploader.prototype, "isCompleted", {
             get: function () {
                 return this._isCompleted;
@@ -2018,11 +2027,11 @@ var Core;
             if (this.request.readyState == 4) {
                 this._isCompleted = true;
                 if (this.request.status == 200) {
-                    this.responseText = this.request.responseText;
+                    this._responseText = this.request.responseText;
                     this.fireEvent('complete', this);
                 }
                 else {
-                    this.responseText = this.request.responseText;
+                    this._responseText = this.request.responseText;
                     this.fireEvent('error', this, this.request.status);
                 }
                 this.request = undefined;
@@ -2041,7 +2050,7 @@ var Core;
         };
         FilePostUploader.prototype.onFileReaderLoad = function (event) {
             var body = '--' + this.boundary + '\r\n';
-            body += "Content-Disposition: form-data; name='file'; filename='" + this._file.fileApi.name + "'\r\n";
+            body += "Content-Disposition: form-data; name='" + this.field + "'; filename='" + this._file.fileApi.name + "'\r\n";
             body += 'Content-Type: ' + this._file.fileApi.type + '\r\n\r\n';
             body += event.target.result + '\r\n';
             body += '--' + this.boundary + '--';
@@ -2049,7 +2058,7 @@ var Core;
             this.fileReader = undefined;
         };
         FilePostUploader.prototype.onIFrameLoad = function (event) {
-            this.responseText = event.target.contentWindow.document.body.innerText;
+            this._responseText = event.target.contentWindow.document.body.innerText;
             document.body.removeChild(this._file.iframe);
             this.fireEvent('complete', this);
         };
@@ -3320,8 +3329,8 @@ var Ui;
             _this.parentOpacity = 1;
             _this.disabled = undefined;
             _this.parentDisabled = undefined;
-            _this.style = undefined;
-            _this.parentStyle = undefined;
+            _this._style = undefined;
+            _this._parentStyle = undefined;
             _this.mergeStyle = undefined;
             _this._drawing = _this.renderDrawing();
             if (DEBUG) {
@@ -4132,14 +4141,14 @@ var Ui;
             var current;
             var found;
             this.mergeStyle = undefined;
-            if (this.parentStyle != undefined) {
+            if (this._parentStyle != undefined) {
                 current = this.constructor;
                 found = false;
                 while (current != undefined) {
-                    var classStyle = this.getClassStyle(this.parentStyle, current);
+                    var classStyle = this.getClassStyle(this._parentStyle, current);
                     if (classStyle != undefined && this.containSubStyle(classStyle)) {
                         if (this.mergeStyle == undefined)
-                            this.mergeStyle = Core.Util.clone(this.parentStyle);
+                            this.mergeStyle = Core.Util.clone(this._parentStyle);
                         this.fusionStyle(this.mergeStyle, classStyle);
                         found = true;
                         break;
@@ -4149,15 +4158,15 @@ var Ui;
                         current = current.constructor;
                 }
                 if (!found)
-                    this.mergeStyle = this.parentStyle;
+                    this.mergeStyle = this._parentStyle;
             }
-            if (this.style != undefined) {
+            if (this._style != undefined) {
                 if (this.mergeStyle != undefined) {
                     this.mergeStyle = Core.Util.clone(this.mergeStyle);
-                    this.fusionStyle(this.mergeStyle, this.style);
+                    this.fusionStyle(this.mergeStyle, this._style);
                     current = this.constructor;
                     while (current != undefined) {
-                        var classStyle = this.getClassStyle(this.style, current);
+                        var classStyle = this.getClassStyle(this._style, current);
                         if (classStyle != undefined && this.containSubStyle(classStyle)) {
                             this.fusionStyle(this.mergeStyle, classStyle);
                             break;
@@ -4171,10 +4180,10 @@ var Ui;
                     current = this.constructor;
                     found = false;
                     while (current != undefined) {
-                        var classStyle = this.getClassStyle(this.style, current);
+                        var classStyle = this.getClassStyle(this._style, current);
                         if (classStyle != undefined) {
                             if (this.mergeStyle == undefined)
-                                this.mergeStyle = Core.Util.clone(this.style);
+                                this.mergeStyle = Core.Util.clone(this._style);
                             this.fusionStyle(this.mergeStyle, classStyle);
                             found = true;
                             break;
@@ -4184,7 +4193,7 @@ var Ui;
                             current = current.constructor;
                     }
                     if (!found)
-                        this.mergeStyle = this.style;
+                        this.mergeStyle = this._style;
                 }
             }
         };
@@ -4217,27 +4226,29 @@ var Ui;
             return undefined;
         };
         Element.prototype.setParentStyle = function (parentStyle) {
-            if (this.parentStyle !== parentStyle)
-                this.parentStyle = parentStyle;
+            if (this._parentStyle !== parentStyle)
+                this._parentStyle = parentStyle;
             this.mergeStyles();
             this.onInternalStyleChange();
         };
-        Element.prototype.setStyle = function (style) {
-            console.log(this.getClassName() + '.setStyle');
-            console.log(style);
-            this.style = style;
-            this.mergeStyles();
-            this.onInternalStyleChange();
-        };
+        Object.defineProperty(Element.prototype, "style", {
+            set: function (style) {
+                this._style = style;
+                this.mergeStyles();
+                this.onInternalStyleChange();
+            },
+            enumerable: true,
+            configurable: true
+        });
         Element.prototype.setStyleProperty = function (property, value) {
-            if (this.style === undefined)
-                this.style = {};
-            if (this.style[this.getClassName()] === undefined)
-                this.style[this.getClassName()] = {};
-            this.style[this.getClassName()][property] = value;
+            if (this._style === undefined)
+                this._style = {};
+            this._style[property] = value;
         };
         Element.prototype.getStyleProperty = function (property) {
             var current;
+            if (this._style != undefined && this._style[property] != undefined)
+                return this._style[property];
             if (this.mergeStyle != undefined) {
                 current = this.constructor;
                 while (current != undefined) {
@@ -7906,7 +7917,7 @@ var Ui;
                     offset += uniformSize;
                 }
                 else {
-                    if ((Ui.Box.getResizable(child)) && ((this.vertical ? child.measureHeight : child.measureWidth) < this.star)) {
+                    if ((Ui.Box.getResizable(child)) && ((this.vertical ? child.measureHeight : child.measureWidth) < star)) {
                         if (isFirst)
                             isFirst = false;
                         else
@@ -11017,6 +11028,7 @@ var Ui;
             _this.dropbox.content = _this.bg;
             _this.mainBox = new Ui.HBox();
             _this.mainBox.verticalAlign = 'center';
+            _this.mainBox.horizontalAlign = 'stretch';
             _this.dropbox.append(_this.mainBox);
             _this.buttonPartsBox = new Ui.Box();
             _this.mainBox.append(_this.buttonPartsBox, true);
@@ -11028,8 +11040,7 @@ var Ui;
             _this.connect(_this, 'blur', _this.updateColors);
             _this.connect(_this, 'enter', _this.updateColors);
             _this.connect(_this, 'leave', _this.updateColors);
-            if (init)
-                _this.assign(init);
+            _this.assign(init);
             return _this;
         }
         Object.defineProperty(Button.prototype, "dropBox", {
@@ -11127,22 +11138,24 @@ var Ui;
                     if (this._icon instanceof ButtonIcon)
                         this._icon.icon = icon;
                     else {
-                        this._icon = new ButtonIcon();
-                        this._icon.icon = icon;
-                        this._icon.badge = this._badge;
-                        this._icon.fill = this.getForegroundColor();
-                        this._icon.badgeColor = this.getStyleProperty('badgeColor');
-                        this._icon.badgeTextColor = this.getStyleProperty('badgeTextColor');
-                        this._iconBox.content = this._icon;
+                        var ic = new ButtonIcon();
+                        this._icon = ic;
+                        ic.icon = icon;
+                        ic.badge = this._badge;
+                        ic.fill = this.getForegroundColor();
+                        ic.badgeColor = this.getStyleProperty('badgeColor');
+                        ic.badgeTextColor = this.getStyleProperty('badgeTextColor');
+                        this.iconBox.content = this._icon;
                     }
                 }
                 else {
-                    this._icon = new ButtonIcon();
-                    this._icon.icon = icon;
-                    this._icon.badge = this._badge;
-                    this._icon.fill = this.getForegroundColor();
-                    this._icon.badgeColor = this.getStyleProperty('badgeColor');
-                    this._icon.badgeTextColor = this.getStyleProperty('badgeTextColor');
+                    var ic = new ButtonIcon();
+                    this._icon = ic;
+                    ic.icon = icon;
+                    ic.badge = this._badge;
+                    ic.fill = this.getForegroundColor();
+                    ic.badgeColor = this.getStyleProperty('badgeColor');
+                    ic.badgeTextColor = this.getStyleProperty('badgeTextColor');
                     this._iconBox.content = this._icon;
                 }
             }
@@ -11293,14 +11306,15 @@ var Ui;
                 if (this._textBox.parent == undefined)
                     this.buttonPartsBox.append(this._textBox, true);
                 if (this._text instanceof ButtonText) {
-                    if (this.isIconVisible && (this.orientation === 'horizontal')) {
-                        this._text.textAlign = 'left';
-                        this.mainBox.horizontalAlign = undefined;
+                    var textAlign = this.getStyleProperty('textAlign');
+                    if (textAlign == 'auto') {
+                        if (this.isIconVisible && (this.orientation === 'horizontal'))
+                            this._text.textAlign = 'left';
+                        else
+                            this._text.textAlign = 'center';
                     }
-                    else {
-                        this._text.textAlign = 'center';
-                        this.mainBox.horizontalAlign = 'center';
-                    }
+                    else
+                        this._text.textAlign = textAlign;
                     this._text.fontFamily = this.getStyleProperty('fontFamily');
                     this._text.fontSize = this.getStyleProperty('fontSize');
                     this._text.fontWeight = this.getStyleProperty('fontWeight');
@@ -11353,7 +11367,6 @@ var Ui;
             this.opacity = 1;
         };
         Button.prototype.onStyleChange = function () {
-            console.log(this.getClassName() + '.onStyleChange');
             this.buttonPartsBox.spacing = Math.max(0, this.getStyleProperty('spacing'));
             this.buttonPartsBox.margin = Math.max(0, this.getStyleProperty('padding'));
             if (this.bg instanceof ButtonBackground) {
@@ -11398,6 +11411,7 @@ var Ui;
             textTransform: 'uppercase',
             maxTextWidth: Number.MAX_VALUE,
             textHeight: 26,
+            textAlign: 'auto',
             interLine: 1,
             maxLine: 3,
             whiteSpace: 'nowrap',
@@ -12580,8 +12594,9 @@ var Ui;
                 _this.connect(window, 'orientationchange', _this.onOrientationChange);
             _this.connect(window, 'message', _this.onMessage);
             _this.bindedUpdate = _this.update.bind(_this);
-            if (init)
-                _this.assign(init);
+            _this.assign(init);
+            if (window['loaded'] === true)
+                _this.onWindowLoad();
             return _this;
         }
         App.prototype.setWebApp = function (webApp) {
@@ -12987,6 +13002,7 @@ var Ui;
     }(Ui.LBox));
     Ui.App = App;
 })(Ui || (Ui = {}));
+window.addEventListener('load', function () { return window['loaded'] = true; });
 var Ui;
 (function (Ui) {
     var Form = (function (_super) {
@@ -14518,8 +14534,8 @@ var Ui;
 (function (Ui) {
     var Fixed = (function (_super) {
         __extends(Fixed, _super);
-        function Fixed() {
-            var _this = _super.call(this) || this;
+        function Fixed(init) {
+            var _this = _super.call(this, init) || this;
             _this.addEvents('resize');
             return _this;
         }
@@ -14665,20 +14681,32 @@ var Ui;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(TextBgGraphic.prototype, "backgroundBorder", {
+            get: function () {
+                return Ui.Color.create(this.getStyleProperty('backgroundBorder'));
+            },
+            enumerable: true,
+            configurable: true
+        });
         TextBgGraphic.prototype.updateCanvas = function (ctx) {
             var w = this.layoutWidth;
             var h = this.layoutHeight;
             var radius = this.getStyleProperty('radius');
             radius = Math.max(0, Math.min(radius, Math.min(w / 2, h / 2)));
             var borderWidth = this.getStyleProperty('borderWidth');
+            ctx.lineWidth = borderWidth;
             var lh = Math.max(8, h - 4 - 16);
             if (this.isDisabled)
                 ctx.globalAlpha = 0.2;
             ctx.fillStyle = this.background.getCssRgba();
             ctx.beginPath();
-            ctx.roundRect(0, 0, w, h, radius, radius, radius, radius);
+            ctx.roundRect(0 + borderWidth / 2, 0 + borderWidth / 2, w - borderWidth, h - borderWidth, radius, radius, radius, radius);
             ctx.closePath();
             ctx.fill();
+            if (borderWidth > 0) {
+                ctx.strokeStyle = this.backgroundBorder.getCssRgba();
+                ctx.stroke();
+            }
         };
         TextBgGraphic.prototype.onDisable = function () {
             this.invalidateDraw();
@@ -14690,10 +14718,11 @@ var Ui;
             this.invalidateDraw();
         };
         TextBgGraphic.style = {
-            radius: 3,
-            borderWidth: 2,
+            radius: 0,
+            borderWidth: 1,
             background: Ui.Color.create('rgba(120,120,120,0.2)'),
-            focusBackground: Ui.Color.create('rgba(33,211,255,0.4)')
+            focusBackground: Ui.Color.create('rgba(33,211,255,0.4)'),
+            backgroundBorder: Ui.Color.create('rgba(60,60,60,0.2)')
         };
         return TextBgGraphic;
     }(Ui.CanvasElement));
@@ -15225,8 +15254,8 @@ var Ui;
 (function (Ui) {
     var ScaleBox = (function (_super) {
         __extends(ScaleBox, _super);
-        function ScaleBox() {
-            var _this = _super !== null && _super.apply(this, arguments) || this;
+        function ScaleBox(init) {
+            var _this = _super.call(this, init) || this;
             _this._fixedWidth = 400;
             _this._fixedHeight = 300;
             return _this;
@@ -15266,10 +15295,14 @@ var Ui;
             this.removeChild(child);
             child.setTransformOrigin(0.5, 0.5);
         };
-        ScaleBox.prototype.setContent = function (content) {
-            this.clear();
-            this.append(content);
-        };
+        Object.defineProperty(ScaleBox.prototype, "content", {
+            set: function (content) {
+                this.clear();
+                this.append(content);
+            },
+            enumerable: true,
+            configurable: true
+        });
         ScaleBox.prototype.measureCore = function (width, height) {
             var ratio = this._fixedWidth / this._fixedHeight;
             var aratio = width / height;
@@ -16254,14 +16287,14 @@ var Ui;
             _this._position = -1;
             _this._placeHolder = '...';
             _this.addEvents('change');
+            _this.text = '';
             _this.arrowtop = new Ui.Icon({ icon: 'arrowtop', width: 10, height: 10 });
             _this.arrowbottom = new Ui.Icon({ icon: 'arrowbottom', width: 10, height: 10 });
             _this.marker = new Ui.VBox({
                 verticalAlign: 'center',
                 content: [_this.arrowtop, _this.arrowbottom], marginRight: 5
             });
-            if (init)
-                _this.assign(init);
+            _this.assign(init);
             return _this;
         }
         Object.defineProperty(Combo.prototype, "placeHolder", {
@@ -16344,7 +16377,7 @@ var Ui;
             this.position = position;
         };
         Combo.prototype.onPress = function () {
-            var popup = new Ui.ComboPopup({ field: this._field, data: this._data });
+            var popup = new Ui.ComboPopup({ field: this._field, data: this._data, search: this.search });
             if (this._position !== -1)
                 popup.position = this._position;
             this.connect(popup, 'item', this.onItemPress);
@@ -16356,7 +16389,8 @@ var Ui;
             this.arrowbottom.fill = this.getForegroundColor();
         };
         Combo.style = {
-            textTransform: 'none'
+            textTransform: 'none',
+            textAlign: 'left'
         };
         return Combo;
     }(Ui.Button));
@@ -16367,12 +16401,50 @@ var Ui;
             var _this = _super.call(this) || this;
             _this.addEvents('item');
             _this.autoClose = true;
+            var vbox = new Ui.VBox();
+            _this.searchField = new Ui.TextField({ textHolder: 'Recherche' });
+            _this.searchField.hide(true);
+            _this.connect(_this.searchField, 'change', _this.onSearchChange);
+            vbox.append(_this.searchField);
+            _this.content = vbox;
             _this.list = new Ui.VBox();
-            _this.content = _this.list;
-            if (init)
-                _this.assign(init);
+            vbox.append(_this.list);
+            _this.assign(init);
             return _this;
         }
+        ComboPopup.prototype.onSearchChange = function (field, value) {
+            this.list.children.forEach(function (item) {
+                if (value == '')
+                    item.show();
+                else {
+                    var text = Core.Util.toNoDiacritics(item.text).toLocaleLowerCase();
+                    var search = Core.Util.toNoDiacritics(value).toLowerCase().split(' ');
+                    if (search.length == 0)
+                        item.show();
+                    else {
+                        var match = true;
+                        for (var i = 0; match && (i < search.length); i++) {
+                            var word = search[i];
+                            match = (text.indexOf(word) != -1);
+                        }
+                        if (match)
+                            item.show();
+                        else
+                            item.hide(true);
+                    }
+                }
+            });
+        };
+        Object.defineProperty(ComboPopup.prototype, "search", {
+            set: function (value) {
+                if (value)
+                    this.searchField.show();
+                else
+                    this.searchField.hide(true);
+            },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(ComboPopup.prototype, "field", {
             set: function (field) {
                 this._field = field;
@@ -16424,7 +16496,8 @@ var Ui;
         }
         ComboItem.style = {
             borderWidth: 0,
-            textTransform: 'none'
+            textTransform: 'none',
+            textAlign: 'left'
         };
         return ComboItem;
     }(Ui.Button));

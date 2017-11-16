@@ -20,6 +20,10 @@ namespace Ui
 			return color;
 		}
 
+		private get backgroundBorder(): Color {
+			return Color.create(this.getStyleProperty('backgroundBorder'));
+		}
+
 		updateCanvas(ctx) {
 			let w = this.layoutWidth;
 			let h = this.layoutHeight;
@@ -27,6 +31,7 @@ namespace Ui
 			let radius = this.getStyleProperty('radius');
 			radius = Math.max(0, Math.min(radius, Math.min(w / 2, h / 2)));
 			let borderWidth = this.getStyleProperty('borderWidth');
+			ctx.lineWidth = borderWidth;
 		
 			let lh = Math.max(8, h - 4 - 16);
 	
@@ -37,7 +42,7 @@ namespace Ui
 			ctx.fillStyle = this.background.getCssRgba();
 			ctx.beginPath();
 
-			ctx.roundRect(0, 0, w, h, radius, radius, radius, radius);
+			ctx.roundRect(0 + borderWidth / 2, 0 + borderWidth / 2, w - borderWidth, h - borderWidth, radius, radius, radius, radius);
 
 			/*ctx.moveTo(0, h-lh-4);
 			ctx.lineTo(0, h-4);
@@ -54,6 +59,10 @@ namespace Ui
 			ctx.lineTo(0, h-4-borderWidth);*/
 			ctx.closePath();
 			ctx.fill();
+			if (borderWidth > 0) {
+				ctx.strokeStyle = this.backgroundBorder.getCssRgba();
+				ctx.stroke();
+			}
 		}
 	
 		onDisable() {
@@ -69,10 +78,11 @@ namespace Ui
 		}
 
 		static style: TextBgGraphicStyle = {
-			radius: 3,
-			borderWidth: 2,
+			radius: 0,
+			borderWidth: 1,
 			background: Color.create('rgba(120,120,120,0.2)'),
-			focusBackground: Color.create('rgba(33,211,255,0.4)')
+			focusBackground: Color.create('rgba(33,211,255,0.4)'),
+			backgroundBorder: Color.create('rgba(60,60,60,0.2)')
 		}
 	}
 
@@ -81,5 +91,6 @@ namespace Ui
 		borderWidth: number;
 		background: Color;
 		focusBackground: Color;
+		backgroundBorder: Color;
 	}
 }

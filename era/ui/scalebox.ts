@@ -1,9 +1,18 @@
 ﻿namespace Ui
 {
+	export interface ScaleBoxInit extends ContainerInit {
+		fixedWidth: number;
+		fixedHeight: number;
+	}
+
 	export class ScaleBox extends Container
 	{
 		private _fixedWidth: number = 400;
 		private _fixedHeight: number = 300
+
+		constructor(init?: Partial<ScaleBoxInit>) {
+			super(init);
+		}
 
 		setFixedSize(width: number, height: number) {
 			let changed = false;
@@ -37,7 +46,7 @@
 			child.setTransformOrigin(0.5, 0.5);
 		}
 
-		setContent(content: Element) {
+		set content(content: Element) {
 			this.clear();
 			this.append(content);
 		}

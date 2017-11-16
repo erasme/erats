@@ -104,13 +104,13 @@ class App extends Ui.App {
 
 		let button = new Ui.Button({ text: 'default', width: 200 });
 		vbox.append(button);
-		this.connect(button, 'press', () => this.setStyle(undefined));
+		this.connect(button, 'press', () => this.style = undefined);
 
 		for (let i = 0; i < styles.length; i++) {
 			let style = styles[i];
 			let button = new Ui.Button({ text: `style${i}`, width: 200 });
 			vbox.append(button);
-			this.connect(button, 'press', () => this.setStyle(style));
+			this.connect(button, 'press', () => this.style = style);
 		}
 	}
 }

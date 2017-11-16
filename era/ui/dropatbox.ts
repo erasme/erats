@@ -5,7 +5,7 @@
 	export interface DropAtBoxInit extends DropBoxInit {
 	}
 
-	export class DropAtBox extends LBox {
+	export class DropAtBox extends LBox implements DropAtBoxInit {
 		watchers: DragWatcher[] = [];
 		allowedTypes: { type: string | Function, effect: DropEffect[] | DropAtEffectFunc }[] = undefined;
 		private container: Container;

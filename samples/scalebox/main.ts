@@ -5,19 +5,16 @@ class App extends Ui.App {
         super();
         let lbox = new Ui.LBox();
         lbox.margin = 100;
-		this.setContent(lbox);
+        this.setContent(lbox);
 
-        let scalebox = new Ui.ScaleBox();
-        scalebox.fixedWidth = 800; scalebox.fixedHeight = 600;
-		lbox.setContent(scalebox);
+        let scalebox = new Ui.ScaleBox({ fixedWidth: 800, fixedHeight: 600 });
+	    lbox.content = scalebox;
 	
-        let rect = new Ui.Rectangle();
-        rect.fill = 'orange';
-		scalebox.append(rect);
+        let rect = new Ui.Rectangle({ fill: 'orange' });
+        scalebox.append(rect);
 
-        let text = new Ui.Text();
-        text.margin = 20; text.fontSize = 40; text.text = 'Hello World !';
-		scalebox.append(text);
+        let text = new Ui.Text({ margin: 20, fontSize: 40, text: 'Hello World !' });
+        scalebox.append(text);
 	}
 }
 
