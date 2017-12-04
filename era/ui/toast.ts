@@ -100,15 +100,15 @@ namespace Ui
 			this.addEvents('close');
 
 			let sha = new Ui.Shadow();
-			sha.shadowWidth = 2; sha.radius = 1; sha.inner = false; sha.opacity = 0.8;
+			sha.shadowWidth = 3; sha.radius = 1; sha.inner = false; sha.opacity = 0.4;
 			this.append(sha);
 
 			let r = new Rectangle();
-			r.fill = '#666666'; r.width = 200; r.height = 30; r.margin = 2; r.opacity = 0.5;
+			r.fill = '#303030'; r.width = 200; r.height = 30; r.margin = 2; r.opacity = 1;
 			this.append(r);
 
 			this.toastContentBox = new LBox();
-			this.toastContentBox.margin = 2; this.toastContentBox.width = 200;
+			this.toastContentBox.margin = 10; this.toastContentBox.width = 200;
 			this.append(this.toastContentBox);
 		}
 
@@ -188,7 +188,9 @@ namespace Ui
 				let t = new Ui.Text();
 				t.text = content as string;
 				t.verticalAlign = 'center';
-				t.margin = 5; t.color = Color.create('#deff89');
+				t.fontWeight = 'bold';
+				t.margin = 5;
+				t.color = Color.create('#ffffff');
 				content = t;
 			}
 			toast.content = content;

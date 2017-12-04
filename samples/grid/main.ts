@@ -4,7 +4,7 @@ let app = new Ui.App();
 
 let grid = new Ui.Grid();
 grid.cols = 'auto,auto,*'; grid.rows = 'auto,auto,auto,*,2*';
-app.setContent(grid);
+app.content = grid;
 
 let r = new Ui.Rectangle();
 r.fill = 'lightgreen'; r.width = 150; r.height = 50;
@@ -18,7 +18,7 @@ r.fill = 'purple'; r.width = 50; r.height = 50;
 grid.attach(r, 0, 1, 1, 1);
 
 var button = new Ui.Button();
-button.setText('salut');
+button.text = 'salut';
 grid.attach(button, 0, 2, 2, 1);
 
 app.connect(button, 'press', function() {
@@ -26,19 +26,19 @@ app.connect(button, 'press', function() {
 });
 
 r = new Ui.Rectangle();
-r.fill = 'green'; r.width = 50; r.height = 50; r.verticalAlign = Ui.VerticalAlign.stretch;
+r.fill = 'green'; r.width = 50; r.height = 50; r.verticalAlign = 'stretch';
 grid.attach(r, 0, 3, 2, 1);
 
 r = new Ui.Rectangle();
-r.fill = 'orange'; r.width = 50; r.height = 50; r.verticalAlign = Ui.VerticalAlign.stretch;
+r.fill = 'orange'; r.width = 50; r.height = 50; r.verticalAlign = 'stretch';
 grid.attach(r, 0, 4, 2, 1);
 
 r = new Ui.Rectangle();
-r.fill = '#45dfac'; r.width = 50; r.height = 50; r.verticalAlign = Ui.VerticalAlign.stretch;
+r.fill = '#45dfac'; r.width = 50; r.height = 50; r.verticalAlign = 'stretch';
 grid.attach(r, 2, 0, 1, 5);
 
 var text = new Ui.Text();
-text.verticalAlign = Ui.VerticalAlign.top;
+text.verticalAlign = 'top';
 text.text = 
   'salut, je suis un texte à rallonge pour tester le retour à la ligne,\n\n'+
   'voir même encore plus long que ça pour un max de fun qui dure.';

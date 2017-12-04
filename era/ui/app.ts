@@ -92,13 +92,13 @@ namespace Ui
 			this.connect(window, 'resize', this.onWindowResize);
 			this.connect(window, 'keyup', this.onWindowKeyUp);
 
-			this.connect(window, 'focus', function (event) {
+			this.connect(window, 'focus', (event: FocusEvent) => {
 				if (event.target == undefined)
 					return;
 				this.focusElement = event.target;
 			}, true);
 
-			this.connect(window, 'blur', function (event) {
+			this.connect(window, 'blur', (event: FocusEvent) => {
 				this.focusElement = undefined;
 			}, true);
 
@@ -514,7 +514,7 @@ namespace Ui
 		}
 
 		handleScrolling(drawing) {
-			this.connect(this, 'ptrdown', function (event: PointerEvent) {
+			/*this.connect(this, 'ptrdown', function (event: PointerEvent) {
 				let startOffsetX = drawing.scrollLeft;
 				let startOffsetY = drawing.scrollTop;
 				let watcher = event.pointer.watch(this);
@@ -544,7 +544,7 @@ namespace Ui
 						drawing.scrollTop = startOffsetY - delta.y;
 					}
 				});
-			});
+			});*/
 		}
 
 		getElementsByClassName(className) {

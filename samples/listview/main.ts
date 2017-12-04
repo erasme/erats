@@ -62,7 +62,7 @@ class App extends Ui.App {
 		checkbox = new Ui.CheckBox({ text: 'data scrolled (best perf)', value: true, width: 250 });
 		toolbar.append(checkbox);
 		this.connect(checkbox, 'change', function(checkbox: Ui.CheckBox, value: boolean) {
-			listview.setScrolled(value);
+			listview.scrolled = value;
 		});
 
 		let button = new Ui.Button({ text: 'set 1500', verticalAlign: 'center' });
@@ -78,7 +78,7 @@ class App extends Ui.App {
 					data4: i
 				});
 			}
-			listview.setData(data);
+			listview.data = data;
 		});
 
 		button = new Ui.Button({ text: 'clear all', verticalAlign: 'center' });
@@ -90,7 +90,7 @@ class App extends Ui.App {
 		button = new Ui.Button({ text: 'append 70', verticalAlign: 'center' });
 		toolbar.append(button);
 		this.connect(button, 'press', function() {
-			let count = listview.getData().length;
+			let count = listview.data.length;
 			for(let i = 0; i < 70; i++) {
 				listview.appendData({
 					data0: ((i % 3) === 0),
@@ -105,7 +105,7 @@ class App extends Ui.App {
 		button = new Ui.Button({ text: 'update numbers', verticalAlign: 'center' });
 		toolbar.append(button);
 		this.connect(button, 'press', function() {
-			let data = listview.getData();
+			let data = listview.data;
             for (let i = 0; i < data.length; i++) {
                 let obj = data[i];
 				(data[i] as any).data3 = Math.random()*50;

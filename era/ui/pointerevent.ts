@@ -158,16 +158,18 @@ namespace Ui
 		captureWatcher: PointerWatcher = undefined;
 		history: any = undefined;
 		buttons: number = 0;
+		button: number = 0;
 
 		constructor(type: string, id: number) {
 			super();
-			this.addEvents('ptrmove', 'ptrup', 'ptrcancel');
+			this.addEvents('ptrmove', 'ptrup', 'ptrdown');
 
 			this.type = type;
 			this.id = id;
 			this.start = (new Date().getTime()) / 1000;
 			this.watchers = [];
 			this.history = [];
+			//console.log(`new Pointer ${this.id}`);
 		}
 	
 		capture(watcher) {
@@ -263,6 +265,9 @@ namespace Ui
 				x = this.x;
 			if (y === undefined)
 				y = this.y;
+			
+			//console.log(`ptr ${this.id} move #${this.watchers.length}`);
+			//this.watchers.forEach((w) => console.log(w.element));
 		
 			if ((this.x !== x) || (this.y !== y)) {
 				// update the cumulated move
@@ -283,15 +288,15 @@ namespace Ui
 			let watchers = this.watchers.slice();
 			for (let i = 0; i < watchers.length; i++)
 				watchers[i].move();
-			
+
 			if (this.captureWatcher === undefined) {
 				let target = App.current.elementFromPoint(new Point(this.x, this.y));
 				if (target != undefined) {
 					let pointerEvent = new PointerEvent('ptrmove', this);
-					this.fireEvent('ptrmove', pointerEvent);
 					pointerEvent.dispatchEvent(target);
 				}
 			}
+			this.fireEvent('ptrmove', this);
 		}
 
 		getIsHold() {
@@ -309,10 +314,26 @@ namespace Ui
 		}
 
 		getIsMove() {
-			return this.cumulMove >= Pointer.MOVE_DELTA;
+			if (this.type == 'mouse' && this.button == 0)
+				return this.cumulMove >= Pointer.MOUSE_MOVE_DELTA;
+			else
+				return this.cumulMove >= Pointer.MOVE_DELTA;
 		}
 
-		down(x: number, y: number, buttons) {
+		getPosition(element: Element) {
+			let current = new Point(this.getX(), this.getY());
+			return element.pointFromWindow(current);
+		}
+
+		getIsInside(element: Element) {
+			let pos = this.getPosition(element);
+			if ((pos.x >= 0) && (pos.x <= element.layoutWidth) &&
+				(pos.y >= 0) && (pos.y <= element.layoutHeight))
+				return true;
+			return false;
+		}
+
+		down(x: number, y: number, buttons: number, button: number) {
 			this.start = (new Date().getTime()) / 1000;
 
 			this.x = x;
@@ -327,15 +348,17 @@ namespace Ui
 			this.buttons = buttons;
 			this.cumulMove = 0;
 
+			this.button = button;
+
 			let watchers = this.watchers.slice();
 			for (let i = 0; i < watchers.length; i++)
 				watchers[i].down();
 
 			let target = App.current.elementFromPoint(new Point(this.x, this.y));
-			if (target !== undefined) {
-				let pointerEvent = new Ui.PointerEvent('ptrdown', this);
+			let pointerEvent = new PointerEvent('ptrdown', this);
+			if (target !== undefined)
 				pointerEvent.dispatchEvent(target);
-			}
+			this.fireEvent('ptrdown', this);
 		}
 
 		up() {
@@ -346,19 +369,18 @@ namespace Ui
 				this.watchers = [];
 			this.buttons = 0;
 
+			let pointerEvent = new PointerEvent('ptrup', this);
 			if (this.captureWatcher === undefined) {
 				let target = App.current.elementFromPoint(new Point(this.x, this.y));
-				if (target != undefined) {
-					let pointerEvent = new PointerEvent('ptrup', this);
-					this.fireEvent('ptrup', pointerEvent);
+				if (target != undefined)
 					pointerEvent.dispatchEvent(target);
-				}
 			}
 			this.captureWatcher = undefined;
+			this.fireEvent('ptrup', this);
 		}
 
 		watch(element) {
-			let watcher = new Ui.PointerWatcher(element, this);
+			let watcher = new PointerWatcher(element, this);
 			this.watchers.push(watcher);
 			return watcher;
 		}
@@ -373,6 +395,7 @@ namespace Ui
 		}
 
 		static HOLD_DELAY: number = 0.75;
+		static MOUSE_MOVE_DELTA: number = 5;
 		static MOVE_DELTA: number = 15;
 		static HISTORY_TIMELAPS: number = 0.5
 	}
@@ -385,7 +408,7 @@ namespace Ui
 		lastTouchY: number = -1;
 		lastDownTouchX: number = -1;
 		lastDownTouchY: number = -1;
-		mouse: any = undefined;
+		mouse: Pointer = undefined;
 		app: App;
 		pointers: Core.HashTable<Pointer> = {};
 
@@ -400,7 +423,7 @@ namespace Ui
 				this.connect(window, 'pointercancel', this.onPointerCancel);
 			}
 			else {
-				this.mouse = new Ui.Pointer('mouse', 0);
+				this.mouse = new Pointer('mouse', 0);
 
 				this.connect(window, 'mousedown', this.onMouseDown);
 				this.connect(window, 'mousemove', this.onMouseMove);
@@ -419,21 +442,21 @@ namespace Ui
 					// if Ctrl, Alt or Shift change signal to the mouse
 					if ((event.which === 16) || (event.which === 17) || (event.which === 18)) {
 						this.mouse.setControls(event.altKey, event.ctrlKey, event.shiftKey);
-						this.mouse.move();
+						this.mouse.move(event);
 					}
 				});
 				this.connect(window, 'keyup', function (event) {
 					// if Ctrl, Alt or Shift change signal to the mouse
 					if ((event.which === 16) || (event.which === 17) || (event.which === 18)) {
 						this.mouse.setControls(event.altKey, event.ctrlKey, event.shiftKey);
-						this.mouse.move();
+						this.mouse.move(event);
 					}
 				});
 
 				this.connect(document, 'contextmenu', function (event) {
 					if (this.mouse !== undefined) {
 						this.mouse.capture(undefined);
-						this.mouse.up();
+						this.mouse.up(event);
 					}
 				});
 
@@ -468,7 +491,7 @@ namespace Ui
 				this.mouse.capture(undefined);
 		}
 
-		onMouseDown(event) {
+		onMouseDown(event: MouseEvent) {
 			// avoid emulated mouse event after touch events
 			let deltaTime = (((new Date().getTime()) / 1000) - this.lastUpdate);
 			let deltaX = (this.lastTouchX - event.clientX);
@@ -495,12 +518,12 @@ namespace Ui
 
 			let oldButtons = this.mouse.getButtons();
 			if (oldButtons === 0)
-				this.mouse.down(event.clientX, event.clientY, buttons);
+				this.mouse.down(event.clientX, event.clientY, buttons, event.button);
 			else
 				this.mouse.setButtons(oldButtons | buttons);
 		}
 
-		onMouseMove(event) {
+		onMouseMove(event: MouseEvent) {
 			this.mouse.setControls(event.altKey, event.ctrlKey, event.shiftKey);
 			// avoid emulated mouse event after touch events
 			let deltaTime = (((new Date().getTime()) / 1000) - this.lastUpdate);
@@ -519,7 +542,7 @@ namespace Ui
 			this.mouse.move(event.clientX, event.clientY);
 		}
 
-		onMouseUp(event) {
+		onMouseUp(event: MouseEvent) {
 			this.mouse.setControls(event.altKey, event.ctrlKey, event.shiftKey);
 			// avoid emulated mouse event after touch events
 			let deltaTime = (((new Date().getTime()) / 1000) - this.lastUpdate);
@@ -548,7 +571,7 @@ namespace Ui
 			} catch (e) { }
 		}
 
-		onPointerDown(event) {
+		onPointerDown(event: any) {
 			event.target.setPointerCapture(event.pointerId);
 			if (this.pointers[event.pointerId] === undefined) {
 				let type;
@@ -563,7 +586,7 @@ namespace Ui
 				this.pointers[event.pointerId] = pointer;
 			}	
 			this.pointers[event.pointerId].setControls(event.altKey, event.ctrlKey, event.shiftKey);
-			this.pointers[event.pointerId].down(event.clientX, event.clientY, 1);
+			this.pointers[event.pointerId].down(event.clientX, event.clientY, event.buttons, event.button);
 		}
 
 		onPointerMove(event) {
@@ -622,10 +645,10 @@ namespace Ui
 				this.lastTouchY = event.touches[i].clientY;
 
 				if (this.pointers[event.touches[i].identifier] == undefined) {
-					let pointer = new Ui.Pointer('touch', event.touches[i].identifier);
+					let pointer = new Pointer('touch', event.touches[i].identifier);
 					this.pointers[event.touches[i].identifier] = pointer;
 					pointer.setControls(event.altKey, event.ctrlKey, event.shiftKey);
-					pointer.down(event.touches[i].clientX, event.touches[i].clientY, 1);
+					pointer.down(event.touches[i].clientX, event.touches[i].clientY, 1, 0);
 				}
 			}
 			if (event.type === 'touchstart') {

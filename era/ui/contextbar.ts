@@ -15,14 +15,18 @@ namespace Ui
 		}
 	}
 
-	export class ContextBar extends LBox
+	export interface ContextBarInit extends LBoxInit {
+		selection: Selection;
+	}
+
+	export class ContextBar extends LBox implements ContextBarInit
 	{
 		bg: Rectangle;
-		selection: Selection = undefined;
+		private _selection: Selection = undefined;
 		actionsBox: Box;
 		closeButton: ContextBarCloseButton;
 
-		constructor() {
+		constructor(init?: Partial<ContextBarInit>) {
 			super();
 
 			this.bg = new Ui.Rectangle();
@@ -42,34 +46,44 @@ namespace Ui
 
 			this.actionsBox = new Ui.HBox();
 			this.actionsBox.spacing = 5;
+			scroll.content = this.actionsBox;
+
+			this.assign(init);
 		}
 
-		setSelection(selection: Selection) {
-			if (this.selection != undefined)
-				this.disconnect(this.selection, 'change', this.onSelectionChange);
-			this.selection = selection;
-			if (this.selection != undefined)
-				this.connect(this.selection, 'change', this.onSelectionChange);
+		get selection(): Selection {
+			return this._selection;
+		}
+
+		set selection(selection: Selection) {
+			if (this._selection != undefined)
+				this.disconnect(this._selection, 'change', this.onSelectionChange);
+			this._selection = selection;
+			if (this._selection != undefined)
+				this.connect(this._selection, 'change', this.onSelectionChange);
 		}
 	
 		onClosePress() {
-			this.selection.clear();
+			this._selection.clear();
 		}
 	
 		onSelectionChange() {
-			this.closeButton.text = this.selection.getElements().length.toString();
-			let actions = this.selection.getActions();
+			console.log('ContextBar.onSelectionChange');
+			this.closeButton.text = this._selection.elements.length.toString();
+			let actions = this._selection.getActions();
+			console.log(actions);
 		
 			this.actionsBox.clear();
+			this.actionsBox.append(new Element(), true);
 			for (let actionName in actions) {
 				let action = actions[actionName];
 				if (action.hidden === true)
 					continue;
-				let button = new Ui.ActionButton();
+				let button = new ActionButton();
 				button.icon = action.icon;
 				button.text = action.text;
 				button.action = action;
-				button.selection = this.selection;
+				button.selection = this._selection;
 				this.actionsBox.append(button);
 			}
 		}

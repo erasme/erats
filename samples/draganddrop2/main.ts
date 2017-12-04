@@ -85,7 +85,7 @@ class DropBox3 extends Ui.DropBox {
 let app = new Ui.App();
 
 let vbox = new Ui.VBox({ verticalAlign: 'center', horizontalAlign: 'center', spacing: 20 });
-app.setContent(vbox);
+app.content = vbox;
 
 let hbox = new Ui.HBox({ horizontalAlign: 'center', spacing: 20 });
 vbox.append(hbox);

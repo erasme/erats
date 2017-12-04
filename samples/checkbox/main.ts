@@ -4,40 +4,36 @@ class App extends Ui.App {
     constructor() {
         super();
 		let vbox = new Ui.VBox();
-		this.setContent(vbox);
+		this.content = vbox;
 
 		let toolbar = new Ui.ToolBar();
 		vbox.append(toolbar);
 
-        let checkbox = new Ui.CheckBox();
-        checkbox.text = 'check me'; checkbox.width = 200;
-        checkbox.verticalAlign = Ui.VerticalAlign.center;
-        checkbox.horizontalAlign = Ui.HorizontalAlign.center;
+		let checkbox = new Ui.CheckBox({
+			verticalAlign: 'center', horizontalAlign: 'center',
+			width: 200, text: 'check me'
+		});
 		vbox.append(checkbox, true);
 
-        let button = new Ui.Button();
-        button.setText('check');
+		let button = new Ui.Button({ text: 'check' });
 		toolbar.append(button);
 		this.connect(button, 'press', function() {
 			checkbox.value = true;
 		});
 
-        button = new Ui.Button();
-        button.setText('uncheck');
+		button = new Ui.Button({ text: 'uncheck' });
 		toolbar.append(button);
 		this.connect(button, 'press', function() {
 			checkbox.value = false;
 		});
 
-        button = new Ui.Button();
-        button.setText('enable');
+		button = new Ui.Button({ text: 'enable' });
 		toolbar.append(button);
 		this.connect(button, 'press', function() {
 			checkbox.enable();
 		});
 
-        button = new Ui.Button();
-        button.setText('disable');
+		button = new Ui.Button({ text: 'disable' });
 		toolbar.append(button);
 		this.connect(button, 'press', function() {
 			checkbox.disable();

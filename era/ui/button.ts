@@ -355,7 +355,7 @@ namespace Ui
 			if (this.isDown)
 				deltaY = -0.20;
 			else if (this.isOver) {
-				deltaY = 0.20;
+				deltaY = 0.10;
 				yuv.a = Math.max(0.4, yuv.a);
 			}
 			return Color.createFromYuv(yuv.y + deltaY, yuv.u, yuv.v, yuv.a);

@@ -5146,10 +5146,10 @@ var Core;
                 var id = '_pat' + (++Core.SVG2DContext.counter);
                 pattern.setAttributeNS(null, 'id', id);
                 pattern.setAttributeNS(null, 'patternUnits', 'userSpaceOnUse');
-                pattern.setAttributeNS(null, 'x', dx);
-                pattern.setAttributeNS(null, 'y', dy);
-                pattern.setAttributeNS(null, 'width', dw);
-                pattern.setAttributeNS(null, 'height', dh);
+                pattern.setAttributeNS(null, 'x', dx.toString());
+                pattern.setAttributeNS(null, 'y', dy.toString());
+                pattern.setAttributeNS(null, 'width', dw.toString());
+                pattern.setAttributeNS(null, 'height', dh.toString());
                 img = document.createElementNS(svgNS, 'image');
                 img.href.baseVal = image.src;
                 img.setAttributeNS(null, 'x', -sx * dw / sw);
@@ -5397,9 +5397,9 @@ var Core;
                     parser.next();
                     y3 = y + parser.getCurrent();
                     parser.next();
-                    this.bezierCurveTo(x1, y1, x2, y2, x3, y3);
                     x = x3;
                     y = y3;
+                    this.bezierCurveTo(x1, y1, x2, y2, x, y);
                 }
                 else if (cmd === 'C') {
                     x1 = parser.getCurrent();
@@ -5414,9 +5414,9 @@ var Core;
                     parser.next();
                     y3 = parser.getCurrent();
                     parser.next();
-                    this.bezierCurveTo(x1, y1, x2, y2, x3, y3);
                     x = x3;
                     y = y3;
+                    this.bezierCurveTo(x1, y1, x2, y2, x, y);
                 }
                 else if (cmd === 's') {
                     x1 = x + parser.getCurrent();
@@ -5429,10 +5429,10 @@ var Core;
                     parser.next();
                     y3 = y + parser.getCurrent();
                     parser.next();
-                    this.bezierCurveTo(x1, y1, x2, y2, x3, y3);
-                    this.lineTo(x3, y3);
                     x = x3;
                     y = y3;
+                    this.bezierCurveTo(x1, y1, x2, y2, x, y);
+                    this.lineTo(x, y);
                 }
                 else if (cmd === 'S') {
                     x1 = parser.getCurrent();
@@ -5445,9 +5445,9 @@ var Core;
                     parser.next();
                     y3 = parser.getCurrent();
                     parser.next();
-                    this.bezierCurveTo(x1, y1, x2, y2, x3, y3);
                     x = x3;
                     y = y3;
+                    this.bezierCurveTo(x1, y1, x2, y2, x, y);
                 }
                 else if (cmd === 'q') {
                     x1 = x + parser.getCurrent();
@@ -5458,9 +5458,9 @@ var Core;
                     parser.next();
                     y2 = y + parser.getCurrent();
                     parser.next();
-                    this.quadraticCurveTo(x1, y1, x2, y2);
                     x = x2;
                     y = y2;
+                    this.quadraticCurveTo(x1, y1, x, y);
                 }
                 else if (cmd === 'Q') {
                     x1 = parser.getCurrent();
@@ -5471,9 +5471,9 @@ var Core;
                     parser.next();
                     y2 = parser.getCurrent();
                     parser.next();
-                    this.quadraticCurveTo(x1, y1, x2, y2);
                     x = x2;
                     y = y2;
+                    this.quadraticCurveTo(x1, y1, x, y);
                 }
                 else if ((cmd === 'z') || (cmd === 'Z')) {
                     x = beginX;
@@ -5818,6 +5818,7 @@ var Ui;
             this.register('dragchoose', 'M24 .2C10.8 .2 .2 10.8 .2 24 .2 37.2 10.8 47.8 24 47.8 37.2 47.8 47.8 37.2 47.8 24 47.8 10.8 37.2 .2 24 .2zM23.6 3.3L25.9 3.3C33.1 3.3 37.8 8 37.8 14.7 37.8 22.1 33.3 24 29.7 25.6 27.7 26.6 26 27.4 26 29.8 26 31.4 26.4 32.3 26.4 32.8 26.4 33.2 26.2 33.3 25.8 33.3L19.7 33.3C19.3 33.3 19.1 33.1 19 32.8 18.8 31.6 18.6 30.2 18.6 28.9 18.6 23 22.8 21.3 26.3 19.5 28.5 18.4 30.4 17.3 30.4 14.7 30.4 12.1 28.4 10.1 25.9 10.1L23.6 10.1C21.8 10.1 20.2 11.1 19 13.8 18.9 14.2 18.7 14.3 18.5 14.3 18.2 14.3 18 14.1 17.8 14L12.6 11.3C12.4 11.2 12.2 11.1 12.2 10.9 12.2 10.5 12.9 9.5 13.4 8.5 15.4 5.5 18.3 3.3 23.6 3.3zM23.4 36.4C25.7 36.4 27.7 38.4 27.7 40.7 27.7 43 25.7 44.9 23.4 44.9 21.1 44.9 19.1 43 19.1 40.7 19.1 38.4 21.1 36.4 23.4 36.4z');
             this.register('dragrun', 'M24 2.4C12.1 2.4 2.4 12.1 2.4 24 2.4 36 12.1 45.6 24 45.6 36 45.6 45.6 36 45.6 24 45.6 12.1 36 2.4 24 2.4zM23.9 7.8C24 7.8 24 7.8 24 7.8 27 7.8 29.8 8.6 32.2 10L30.4 13.1C32.3 14.2 33.8 15.7 34.9 17.6L38 15.8C39.4 18.2 40.3 21 40.3 24 40.3 24 40.3 24 40.3 24.1L36.7 24C36.7 26.3 36.1 28.4 35 30.3L38.1 32.1C36.7 34.6 34.6 36.7 32.1 38.1L30.3 35C28.4 36.1 26.3 36.7 24 36.7L24.1 40.3C24 40.3 24 40.3 24 40.3 21 40.3 18.2 39.4 15.8 38L17.6 34.9C15.7 33.8 14.2 32.3 13.1 30.4L10 32.2C8.6 29.8 7.8 27 7.8 24 7.8 24 7.8 24 7.8 23.9L11.3 24C11.3 21.7 12 19.6 13 17.7L9.9 15.9C11.3 13.4 13.4 11.3 15.9 9.9L17.7 13C19.6 12 21.7 11.3 24 11.3L23.9 7.8zM24 18.8C21.1 18.8 18.8 21.1 18.8 24 18.8 26.9 21.1 29.2 24 29.2 26.9 29.2 29.2 26.9 29.2 24 29.2 21.1 26.9 18.8 24 18.8z');
             this.register('dragplay', 'M24 .2C10.8 .2 .2 10.8 .2 24 .2 37.2 10.8 47.8 24 47.8 37.2 47.8 47.8 37.2 47.8 24 47.8 10.8 37.2 .2 24 .2zM13.8 7.8L42.2 24 13.8 40.3 13.8 7.8z');
+            this.register('burger', 'M24 1.47C20.77 1.48 18.16 4.17 18.16 7.49 18.16 10.82 20.77 13.52 24 13.52 27.23 13.52 29.84 10.82 29.84 7.49 29.84 4.17 27.23 1.48 24 1.47Zm0 16.42c-3.23 0-5.84 2.7-5.84 6.02 0 3.33 2.61 6.02 5.84 6.02 3.23 0 5.84-2.7 5.84-6.02C29.84 20.59 27.23 17.9 24 17.9Zm0 16.42c-3.23 0-5.84 2.7-5.84 6.02 0 3.33 2.61 6.02 5.84 6.02 3.23 0 5.84-2.7 5.84-6.02C29.84 37.01 27.23 34.32 24 34.32Z');
         };
         Icon.getPath = function (icon) {
             return Icon.icons[icon];
@@ -6190,7 +6191,8 @@ var Ui;
             _this.captureWatcher = undefined;
             _this.history = undefined;
             _this.buttons = 0;
-            _this.addEvents('ptrmove', 'ptrup', 'ptrcancel');
+            _this.button = 0;
+            _this.addEvents('ptrmove', 'ptrup', 'ptrdown');
             _this.type = type;
             _this.id = id;
             _this.start = (new Date().getTime()) / 1000;
@@ -6290,10 +6292,10 @@ var Ui;
                 var target = Ui.App.current.elementFromPoint(new Ui.Point(this.x, this.y));
                 if (target != undefined) {
                     var pointerEvent = new PointerEvent('ptrmove', this);
-                    this.fireEvent('ptrmove', pointerEvent);
                     pointerEvent.dispatchEvent(target);
                 }
             }
+            this.fireEvent('ptrmove', this);
         };
         Pointer.prototype.getIsHold = function () {
             return (((new Date().getTime()) / 1000) - this.start) >= Ui.Pointer.HOLD_DELAY;
@@ -6307,9 +6309,23 @@ var Ui;
             return this.cumulMove;
         };
         Pointer.prototype.getIsMove = function () {
-            return this.cumulMove >= Pointer.MOVE_DELTA;
+            if (this.type == 'mouse' && this.button == 0)
+                return this.cumulMove >= Pointer.MOUSE_MOVE_DELTA;
+            else
+                return this.cumulMove >= Pointer.MOVE_DELTA;
         };
-        Pointer.prototype.down = function (x, y, buttons) {
+        Pointer.prototype.getPosition = function (element) {
+            var current = new Ui.Point(this.getX(), this.getY());
+            return element.pointFromWindow(current);
+        };
+        Pointer.prototype.getIsInside = function (element) {
+            var pos = this.getPosition(element);
+            if ((pos.x >= 0) && (pos.x <= element.layoutWidth) &&
+                (pos.y >= 0) && (pos.y <= element.layoutHeight))
+                return true;
+            return false;
+        };
+        Pointer.prototype.down = function (x, y, buttons, button) {
             this.start = (new Date().getTime()) / 1000;
             this.x = x;
             this.initialX = x;
@@ -6319,14 +6335,15 @@ var Ui;
             this.history.push({ time: this.start, x: this.initialX, y: this.initialY });
             this.buttons = buttons;
             this.cumulMove = 0;
+            this.button = button;
             var watchers = this.watchers.slice();
             for (var i = 0; i < watchers.length; i++)
                 watchers[i].down();
             var target = Ui.App.current.elementFromPoint(new Ui.Point(this.x, this.y));
-            if (target !== undefined) {
-                var pointerEvent = new Ui.PointerEvent('ptrdown', this);
+            var pointerEvent = new PointerEvent('ptrdown', this);
+            if (target !== undefined)
                 pointerEvent.dispatchEvent(target);
-            }
+            this.fireEvent('ptrdown', this);
         };
         Pointer.prototype.up = function () {
             var watchers = this.watchers.slice();
@@ -6335,18 +6352,17 @@ var Ui;
             if (this.type == 'touch')
                 this.watchers = [];
             this.buttons = 0;
+            var pointerEvent = new PointerEvent('ptrup', this);
             if (this.captureWatcher === undefined) {
                 var target = Ui.App.current.elementFromPoint(new Ui.Point(this.x, this.y));
-                if (target != undefined) {
-                    var pointerEvent = new PointerEvent('ptrup', this);
-                    this.fireEvent('ptrup', pointerEvent);
+                if (target != undefined)
                     pointerEvent.dispatchEvent(target);
-                }
             }
             this.captureWatcher = undefined;
+            this.fireEvent('ptrup', this);
         };
         Pointer.prototype.watch = function (element) {
-            var watcher = new Ui.PointerWatcher(element, this);
+            var watcher = new PointerWatcher(element, this);
             this.watchers.push(watcher);
             return watcher;
         };
@@ -6359,6 +6375,7 @@ var Ui;
             }
         };
         Pointer.HOLD_DELAY = 0.75;
+        Pointer.MOUSE_MOVE_DELTA = 5;
         Pointer.MOVE_DELTA = 15;
         Pointer.HISTORY_TIMELAPS = 0.5;
         return Pointer;
@@ -6384,7 +6401,7 @@ var Ui;
                 _this.connect(window, 'pointercancel', _this.onPointerCancel);
             }
             else {
-                _this.mouse = new Ui.Pointer('mouse', 0);
+                _this.mouse = new Pointer('mouse', 0);
                 _this.connect(window, 'mousedown', _this.onMouseDown);
                 _this.connect(window, 'mousemove', _this.onMouseMove);
                 _this.connect(window, 'mouseup', _this.onMouseUp);
@@ -6392,19 +6409,19 @@ var Ui;
                 _this.connect(window, 'keydown', function (event) {
                     if ((event.which === 16) || (event.which === 17) || (event.which === 18)) {
                         this.mouse.setControls(event.altKey, event.ctrlKey, event.shiftKey);
-                        this.mouse.move();
+                        this.mouse.move(event);
                     }
                 });
                 _this.connect(window, 'keyup', function (event) {
                     if ((event.which === 16) || (event.which === 17) || (event.which === 18)) {
                         this.mouse.setControls(event.altKey, event.ctrlKey, event.shiftKey);
-                        this.mouse.move();
+                        this.mouse.move(event);
                     }
                 });
                 _this.connect(document, 'contextmenu', function (event) {
                     if (this.mouse !== undefined) {
                         this.mouse.capture(undefined);
-                        this.mouse.up();
+                        this.mouse.up(event);
                     }
                 });
                 _this.connect(document.body, 'touchstart', _this.updateTouches, true);
@@ -6453,7 +6470,7 @@ var Ui;
             this.mouse.setControls(event.altKey, event.ctrlKey, event.shiftKey);
             var oldButtons = this.mouse.getButtons();
             if (oldButtons === 0)
-                this.mouse.down(event.clientX, event.clientY, buttons);
+                this.mouse.down(event.clientX, event.clientY, buttons, event.button);
             else
                 this.mouse.setButtons(oldButtons | buttons);
         };
@@ -6507,7 +6524,7 @@ var Ui;
                 this.pointers[event.pointerId] = pointer;
             }
             this.pointers[event.pointerId].setControls(event.altKey, event.ctrlKey, event.shiftKey);
-            this.pointers[event.pointerId].down(event.clientX, event.clientY, 1);
+            this.pointers[event.pointerId].down(event.clientX, event.clientY, event.buttons, event.button);
         };
         PointerManager.prototype.onPointerMove = function (event) {
             if (this.pointers[event.pointerId] === undefined) {
@@ -6556,10 +6573,10 @@ var Ui;
                 this.lastTouchX = event.touches[i].clientX;
                 this.lastTouchY = event.touches[i].clientY;
                 if (this.pointers[event.touches[i].identifier] == undefined) {
-                    var pointer = new Ui.Pointer('touch', event.touches[i].identifier);
+                    var pointer = new Pointer('touch', event.touches[i].identifier);
                     this.pointers[event.touches[i].identifier] = pointer;
                     pointer.setControls(event.altKey, event.ctrlKey, event.shiftKey);
-                    pointer.down(event.touches[i].clientX, event.touches[i].clientY, 1);
+                    pointer.down(event.touches[i].clientX, event.touches[i].clientY, 1, 0);
                 }
             }
             if (event.type === 'touchstart') {
@@ -6708,29 +6725,14 @@ var Ui;
         __extends(DragEmuDataTransfer, _super);
         function DragEmuDataTransfer(draggable, x, y, delayed, pointer) {
             var _this = _super.call(this) || this;
-            _this.image = undefined;
-            _this.imageEffect = undefined;
-            _this.catcher = undefined;
             _this.startX = 0;
             _this.startY = 0;
             _this.dropX = 0;
             _this.dropY = 0;
             _this.x = 0;
             _this.y = 0;
-            _this.startImagePoint = undefined;
-            _this.overElement = undefined;
             _this.hasStarted = false;
-            _this.dragDelta = undefined;
-            _this.effectAllowed = undefined;
-            _this.watcher = undefined;
-            _this.pointer = undefined;
-            _this.dropEffect = undefined;
-            _this.dropEffectIcon = undefined;
-            _this.data = undefined;
-            _this.timer = undefined;
-            _this.dropFailsTimer = undefined;
             _this.delayed = false;
-            _this.dragWatcher = undefined;
             _this.addEvents('start', 'end');
             _this.dropEffect = [];
             _this.effectAllowed = [];
@@ -6741,7 +6743,6 @@ var Ui;
             _this.pointer = pointer;
             _this.watcher = _this.pointer.watch(Ui.App.current);
             _this.dragDelta = _this.draggable.pointFromWindow(new Ui.Point(_this.startX, _this.startY));
-            _this.data = {};
             _this.connect(_this.watcher, 'move', _this.onPointerMove);
             _this.connect(_this.watcher, 'up', _this.onPointerUp);
             _this.connect(_this.watcher, 'cancel', _this.onPointerCancel);
@@ -6750,13 +6751,13 @@ var Ui;
             return _this;
         }
         DragEmuDataTransfer.prototype.setData = function (data) {
-            this.data = data;
+            this._data = data;
         };
         DragEmuDataTransfer.prototype.getData = function () {
-            return this.data;
+            return this._data;
         };
         DragEmuDataTransfer.prototype.hasData = function () {
-            return this.data !== undefined;
+            return this._data !== undefined;
         };
         DragEmuDataTransfer.prototype.getPosition = function () {
             return new Ui.Point(this.x, this.y);
@@ -6807,28 +6808,60 @@ var Ui;
             return res;
         };
         DragEmuDataTransfer.prototype.onTimer = function () {
+            var _this = this;
             this.timer = undefined;
             this.fireEvent('start', this);
             if (this.hasData()) {
                 this.hasStarted = true;
-                this.image = this.generateImage(this.draggable.drawing);
+                this.image = document.createElement('div');
                 this.image.style.touchAction = 'none';
                 this.image.style.zIndex = '100000';
                 this.image.style.position = 'absolute';
-                if ('removeProperty' in this.image.style)
-                    this.image.style.removeProperty('transform');
-                if (Core.Navigator.isIE && ('removeProperty' in this.image.style))
-                    this.image.style.removeProperty('-ms-transform');
-                else if (Core.Navigator.isGecko)
-                    this.image.style.removeProperty('-moz-transform');
-                else if (Core.Navigator.isWebkit)
-                    this.image.style.removeProperty('-webkit-transform');
-                else if (Core.Navigator.isOpera)
-                    this.image.style.removeProperty('-o-transform');
-                if (Core.Navigator.supportOpacity) {
-                    this.image.style.opacity = '1';
-                    this.image.firstChild.style.opacity = '0.8';
+                var generateImage = function (el) {
+                    var image = _this.generateImage(el.drawing);
+                    if ('removeProperty' in image.style)
+                        image.style.removeProperty('transform');
+                    if (Core.Navigator.isIE && ('removeProperty' in image.style))
+                        image.style.removeProperty('-ms-transform');
+                    else if (Core.Navigator.isGecko)
+                        image.style.removeProperty('-moz-transform');
+                    else if (Core.Navigator.isWebkit)
+                        image.style.removeProperty('-webkit-transform');
+                    else if (Core.Navigator.isOpera)
+                        image.style.removeProperty('-o-transform');
+                    image.style.left = '0px';
+                    image.style.top = '0px';
+                    return image;
+                };
+                if (this._data instanceof Ui.Selection) {
+                    var sel = this._data;
+                    var els = sel.elements;
+                    for (var i = Math.max(0, els.length - 6); i < els.length; i++) {
+                        var invPos = els.length - (i + 1);
+                        var op = 0.1;
+                        if (invPos == 0)
+                            op = 1;
+                        else if (invPos == 1)
+                            op = 0.95;
+                        else if (invPos == 2)
+                            op = 0.7;
+                        else if (invPos == 3)
+                            op = 0.5;
+                        else if (invPos == 4)
+                            op = 0.2;
+                        var image = generateImage(els[i]);
+                        image.style.left = invPos * 5 + "px";
+                        image.style.top = invPos * 5 + "px";
+                        image.style.opacity = op.toString();
+                        this.image.appendChild(image);
+                    }
                 }
+                else {
+                    var image = generateImage(this.draggable);
+                    this.image.appendChild(image);
+                }
+                if (Core.Navigator.supportOpacity)
+                    this.image.style.opacity = '0.8';
                 var ofs = this.delayed ? -10 : 0;
                 this.startImagePoint = this.draggable.pointToWindow(new Ui.Point());
                 this.image.style.left = (this.startImagePoint.x + ofs) + 'px';
@@ -6936,11 +6969,18 @@ var Ui;
                     this.overElement = undefined;
             }
             else {
-                if (watcher.pointer.getIsMove())
-                    watcher.cancel();
+                if (watcher.pointer.getIsMove()) {
+                    if (this.delayed)
+                        watcher.cancel();
+                    else
+                        this.onTimer();
+                }
             }
         };
         DragEmuDataTransfer.prototype.onPointerUp = function (watcher) {
+            this.disconnect(this.watcher, 'move', this.onPointerMove);
+            this.disconnect(this.watcher, 'up', this.onPointerUp);
+            this.disconnect(this.watcher, 'cancel', this.onPointerCancel);
             if (!watcher.getIsCaptured())
                 watcher.cancel();
             else {
@@ -7984,33 +8024,66 @@ var Ui;
 })(Ui || (Ui = {}));
 var Ui;
 (function (Ui) {
+    var OverWatcher = (function (_super) {
+        __extends(OverWatcher, _super);
+        function OverWatcher(init) {
+            var _this = _super.call(this) || this;
+            _this.pointer = undefined;
+            _this.enter = init.enter;
+            _this.leave = init.leave;
+            _this.element = init.element;
+            _this.connect(init.element, 'ptrmove', function (event) {
+                if (!_this.element.isDisabled && (_this.pointer == undefined)) {
+                    _this.pointer = event.pointer;
+                    if (_this.enter)
+                        _this.enter(_this);
+                    _this.connect(_this.pointer, 'ptrmove', _this.onPtrMove);
+                    _this.connect(_this.pointer, 'ptrup', _this.onPtrUp);
+                }
+            });
+            return _this;
+        }
+        OverWatcher.prototype.onPtrMove = function (pointer) {
+            if (!pointer.getIsInside(this.element))
+                this.onPtrLeave(pointer);
+        };
+        OverWatcher.prototype.onPtrUp = function (pointer) {
+            if (pointer.type == 'touch')
+                this.onPtrLeave(pointer);
+        };
+        OverWatcher.prototype.onPtrLeave = function (pointer) {
+            this.disconnect(pointer, 'ptrmove', this.onPtrMove);
+            this.disconnect(pointer, 'ptrup', this.onPtrUp);
+            this.pointer = undefined;
+            if (this.leave)
+                this.leave(this);
+        };
+        Object.defineProperty(OverWatcher.prototype, "isOver", {
+            get: function () {
+                return (this.pointer !== undefined);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return OverWatcher;
+    }(Core.Object));
+    Ui.OverWatcher = OverWatcher;
     var Overable = (function (_super) {
         __extends(Overable, _super);
         function Overable(init) {
             var _this = _super.call(this) || this;
-            _this.watcher = undefined;
             _this.addEvents('enter', 'leave', 'move');
-            _this.connect(_this, 'ptrmove', function (event) {
-                if (!_this.isDisabled && (_this.watcher == undefined)) {
-                    _this.watcher = event.pointer.watch(_this);
-                    _this.fireEvent('enter', _this);
-                    _this.connect(_this.watcher, 'move', function () {
-                        if (!_this.watcher.getIsInside())
-                            _this.watcher.cancel();
-                    });
-                    _this.connect(_this.watcher, 'cancel', function () {
-                        _this.watcher = undefined;
-                        _this.fireEvent('leave', _this);
-                    });
-                }
+            _this.watcher = new OverWatcher({
+                element: _this,
+                enter: function () { return _this.fireEvent('enter', _this); },
+                leave: function () { return _this.fireEvent('leave', _this); }
             });
-            if (init)
-                _this.assign(init);
+            _this.assign(init);
             return _this;
         }
         Object.defineProperty(Overable.prototype, "isOver", {
             get: function () {
-                return (this.watcher !== undefined);
+                return this.watcher.isOver;
             },
             enumerable: true,
             configurable: true
@@ -8021,6 +8094,122 @@ var Ui;
 })(Ui || (Ui = {}));
 var Ui;
 (function (Ui) {
+    var PressWatcher = (function (_super) {
+        __extends(PressWatcher, _super);
+        function PressWatcher(init) {
+            var _this = _super.call(this) || this;
+            _this._isDown = false;
+            _this.lastTime = undefined;
+            _this.assign(init);
+            _this.connect(_this.element, 'ptrdown', _this.onPointerDown);
+            _this.connect(_this.element.drawing, 'keydown', _this.onKeyDown);
+            _this.connect(_this.element.drawing, 'keyup', _this.onKeyUp);
+            return _this;
+        }
+        Object.defineProperty(PressWatcher.prototype, "isDown", {
+            get: function () {
+                return this._isDown;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        PressWatcher.prototype.onPointerDown = function (event) {
+            var _this = this;
+            if (this.element.isDisabled || this._isDown)
+                return;
+            if (event.pointer.type == 'mouse' && event.pointer.button != 0)
+                return;
+            var watcher = event.pointer.watch(this);
+            this.connect(watcher, 'move', function () {
+                if (watcher.pointer.getIsMove())
+                    watcher.cancel();
+            });
+            this.connect(watcher, 'up', function (event) {
+                _this.onUp();
+                var x = event.pointer.getX();
+                var y = event.pointer.getY();
+                var altKey = event.pointer.getAltKey();
+                var shiftKey = event.pointer.getShiftKey();
+                var ctrlKey = event.pointer.getCtrlKey();
+                _this.onPress(x, y, altKey, shiftKey, ctrlKey);
+                watcher.capture();
+                watcher.cancel();
+            });
+            this.connect(watcher, 'cancel', function () { return _this.onUp(); });
+            this.onDown();
+        };
+        PressWatcher.prototype.onKeyDown = function (event) {
+            var key = event.which;
+            if (!this.element.isDisabled && key == 13) {
+                event.preventDefault();
+                event.stopPropagation();
+                this.onDown();
+            }
+        };
+        PressWatcher.prototype.onKeyUp = function (event) {
+            var key = event.which;
+            if (!this.element.isDisabled && this._isDown && (key == 13)) {
+                event.preventDefault();
+                event.stopPropagation();
+                this.onUp();
+                this.onPress(undefined, undefined, event.altKey, event.shiftKey, event.ctrlKey);
+            }
+        };
+        PressWatcher.prototype.onDown = function () {
+            this._isDown = true;
+            if (this.down)
+                this.down(this);
+        };
+        PressWatcher.prototype.onUp = function () {
+            this._isDown = false;
+            if (this.up)
+                this.up(this);
+        };
+        PressWatcher.prototype.onPress = function (x, y, altKey, shiftKey, ctrlKey) {
+            var _this = this;
+            this.x = x;
+            this.y = y;
+            this.altKey = altKey;
+            this.shiftKey = shiftKey;
+            this.ctrlKey = ctrlKey;
+            if (this.press)
+                this.press(this);
+            var currentTime = (new Date().getTime()) / 1000;
+            if ((this.lastTime !== undefined) && (currentTime - this.lastTime < 0.30)) {
+                this.onActivate(x, y);
+                if (this.delayedTimer != undefined) {
+                    this.delayedTimer.abort();
+                    this.delayedTimer = undefined;
+                }
+            }
+            else {
+                this.delayedTimer = new Core.DelayedTask(this, 0.30, function () {
+                    _this.onDelayedPress(x, y, altKey, shiftKey, ctrlKey);
+                });
+            }
+            this.lastTime = currentTime;
+        };
+        PressWatcher.prototype.onActivate = function (x, y) {
+            if (this.activate)
+                this.activate(this);
+        };
+        PressWatcher.prototype.onDelayedPress = function (x, y, altKey, shiftKey, ctrlKey) {
+            this.x = x;
+            this.y = y;
+            this.altKey = altKey;
+            this.shiftKey = shiftKey;
+            this.ctrlKey = ctrlKey;
+            if (this.delayedTimer) {
+                if (!this.delayedTimer.isDone)
+                    this.delayedTimer.abort();
+                this.delayedTimer = undefined;
+            }
+            if (this.delayedpress)
+                this.delayedpress(this);
+        };
+        return PressWatcher;
+    }(Core.Object));
+    Ui.PressWatcher = PressWatcher;
     var Pressable = (function (_super) {
         __extends(Pressable, _super);
         function Pressable(init) {
@@ -8028,7 +8217,7 @@ var Ui;
             _this._lock = false;
             _this._isDown = false;
             _this.lastTime = undefined;
-            _this.addEvents('press', 'down', 'up', 'activate');
+            _this.addEvents('press', 'down', 'up', 'activate', 'delayedpress');
             _this.drawing.style.cursor = 'pointer';
             _this.focusable = true;
             _this.role = 'button';
@@ -8067,7 +8256,10 @@ var Ui;
             this.onActivate();
         };
         Pressable.prototype.onPointerDown = function (event) {
+            var _this = this;
             if (this.isDisabled || this._isDown || this._lock)
+                return;
+            if (event.pointer.type == 'mouse' && event.pointer.button != 0)
                 return;
             var watcher = event.pointer.watch(this);
             this.connect(watcher, 'move', function () {
@@ -8075,18 +8267,17 @@ var Ui;
                     watcher.cancel();
             });
             this.connect(watcher, 'up', function (event) {
-                this.onUp();
-                this.onPress(event.pointer.getX(), event.pointer.getY());
-                var currentTime = (new Date().getTime()) / 1000;
-                if ((this.lastTime !== undefined) && (currentTime - this.lastTime < 0.30))
-                    this.onActivate(event.pointer.getX(), event.pointer.getY());
-                this.lastTime = currentTime;
+                _this.onUp();
+                var x = event.pointer.getX();
+                var y = event.pointer.getY();
+                var altKey = event.pointer.getAltKey();
+                var shiftKey = event.pointer.getShiftKey();
+                var ctrlKey = event.pointer.getCtrlKey();
+                _this.onPress(x, y, altKey, shiftKey, ctrlKey);
                 watcher.capture();
                 watcher.cancel();
             });
-            this.connect(watcher, 'cancel', function () {
-                this.onUp();
-            });
+            this.connect(watcher, 'cancel', function () { return _this.onUp(); });
             this.onDown();
         };
         Pressable.prototype.onKeyDown = function (event) {
@@ -8103,7 +8294,7 @@ var Ui;
                 event.preventDefault();
                 event.stopPropagation();
                 this.onUp();
-                this.onPress();
+                this.onPress(undefined, undefined, event.altKey, event.shiftKey, event.ctrlKey);
             }
         };
         Pressable.prototype.onDown = function () {
@@ -8114,11 +8305,34 @@ var Ui;
             this._isDown = false;
             this.fireEvent('up', this);
         };
-        Pressable.prototype.onPress = function (x, y) {
-            this.fireEvent('press', this, x, y);
+        Pressable.prototype.onPress = function (x, y, altKey, shiftKey, ctrlKey) {
+            var _this = this;
+            this.fireEvent('press', this, x, y, altKey, shiftKey, ctrlKey);
+            var currentTime = (new Date().getTime()) / 1000;
+            if ((this.lastTime !== undefined) && (currentTime - this.lastTime < 0.30)) {
+                this.onActivate(x, y);
+                if (this.delayedTimer != undefined) {
+                    this.delayedTimer.abort();
+                    this.delayedTimer = undefined;
+                }
+            }
+            else {
+                this.delayedTimer = new Core.DelayedTask(this, 0.30, function () {
+                    _this.onDelayedPress(x, y, altKey, shiftKey, ctrlKey);
+                });
+            }
+            this.lastTime = currentTime;
         };
-        Pressable.prototype.onActivate = function () {
+        Pressable.prototype.onActivate = function (x, y) {
             this.fireEvent('activate', this);
+        };
+        Pressable.prototype.onDelayedPress = function (x, y, altKey, shiftKey, ctrlKey) {
+            if (this.delayedTimer) {
+                if (!this.delayedTimer.isDone)
+                    this.delayedTimer.abort();
+                this.delayedTimer = undefined;
+            }
+            this.fireEvent('delayedpress', this, x, y, altKey, shiftKey, ctrlKey);
         };
         Pressable.prototype.onDisable = function () {
             _super.prototype.onDisable.call(this);
@@ -8137,6 +8351,53 @@ var Ui;
 })(Ui || (Ui = {}));
 var Ui;
 (function (Ui) {
+    var DraggableWatcher = (function (_super) {
+        __extends(DraggableWatcher, _super);
+        function DraggableWatcher(init) {
+            var _this = _super.call(this) || this;
+            _this.allowedMode = 'all';
+            _this.assign(init);
+            _this.connect(_this.element, 'ptrdown', _this.onDraggablePointerDown);
+            return _this;
+        }
+        Object.defineProperty(DraggableWatcher.prototype, "dragDelta", {
+            get: function () {
+                return this._dragDelta;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        DraggableWatcher.prototype.onDraggablePointerDown = function (event) {
+            if (event.pointerType == 'mouse' && event.pointer.button != 0 && event.pointer.button != 1)
+                return;
+            if (this.element.isDisabled || (this.data === undefined))
+                return;
+            var delayed = !(event.pointerType == 'mouse' && event.pointer.button == 0);
+            this.dataTransfer = new Ui.DragEmuDataTransfer(this.element, event.clientX, event.clientY, delayed, event.pointer);
+            this._dragDelta = this.element.pointFromWindow(new Ui.Point(event.clientX, event.clientY));
+            this.connect(this.dataTransfer, 'start', this.onDragStart);
+            this.connect(this.dataTransfer, 'end', this.onDragEnd);
+        };
+        DraggableWatcher.prototype.onDragStart = function (dataTransfer) {
+            var selection = Ui.Selectionable.getParentSelectionHandler(this.element);
+            if (selection && (selection.elements.indexOf(this.element) != -1))
+                dataTransfer.setData(selection);
+            else
+                dataTransfer.setData(this.data);
+            dataTransfer.effectAllowed = this.allowedMode;
+            if (this.start)
+                this.start(this);
+        };
+        DraggableWatcher.prototype.onDragEnd = function (dataTransfer) {
+            var action = 'none';
+            if (dataTransfer.dropEffect && dataTransfer.dropEffect.length > 0)
+                action = dataTransfer.dropEffect[0].action;
+            if (this.end)
+                this.end(this, action);
+        };
+        return DraggableWatcher;
+    }(Core.Object));
+    Ui.DraggableWatcher = DraggableWatcher;
     var Draggable = (function (_super) {
         __extends(Draggable, _super);
         function Draggable(init) {
@@ -8162,16 +8423,23 @@ var Ui;
             configurable: true
         });
         Draggable.prototype.onDraggablePointerDown = function (event) {
+            if (event.pointerType == 'mouse' && event.pointer.button != 0 && event.pointer.button != 1)
+                return;
             if (this.lock || this.isDisabled || (this.draggableData === undefined))
                 return;
-            this.dataTransfer = new Ui.DragEmuDataTransfer(this, event.clientX, event.clientY, true, event.pointer);
+            var delayed = !(event.pointerType == 'mouse' && event.pointer.button == 0);
+            this.dataTransfer = new Ui.DragEmuDataTransfer(this, event.clientX, event.clientY, delayed, event.pointer);
             this._dragDelta = this.pointFromWindow(new Ui.Point(event.clientX, event.clientY));
             this.connect(this.dataTransfer, 'start', this.onDragStart);
             this.connect(this.dataTransfer, 'end', this.onDragEnd);
         };
         Draggable.prototype.onDragStart = function (dataTransfer) {
+            var selection = Ui.Selectionable.getParentSelectionHandler(this);
+            if (selection && (selection.elements.indexOf(this) != -1))
+                dataTransfer.setData(selection);
+            else
+                dataTransfer.setData(this.draggableData);
             dataTransfer.effectAllowed = this.allowedMode;
-            dataTransfer.setData(this.draggableData);
             this.fireEvent('dragstart', this, dataTransfer);
         };
         Draggable.prototype.onDragEnd = function (dataTransfer) {
@@ -8183,55 +8451,155 @@ var Ui;
 })(Ui || (Ui = {}));
 var Ui;
 (function (Ui) {
+    var SelectionableWatcher = (function (_super) {
+        __extends(SelectionableWatcher, _super);
+        function SelectionableWatcher(init) {
+            var _this = _super.call(this) || this;
+            _this._isSelected = false;
+            _this.element = init.element;
+            _this.select = init.select;
+            _this.unselect = init.unselect;
+            new Ui.PressWatcher({
+                element: _this.element,
+                delayedpress: function (w) { return _this.onDelayedPress(w); },
+                activate: function (w) { return _this.onSelectionableActivate(w); }
+            });
+            new Ui.DraggableWatcher({
+                element: _this.element,
+                data: _this.element,
+                start: function (w) { return _this.onSelectionableDragStart(w); },
+                end: function (w) { return _this.onSelectionableDragEnd(w); }
+            });
+            return _this;
+        }
+        Object.defineProperty(SelectionableWatcher.prototype, "isSelected", {
+            get: function () {
+                return this._isSelected;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        SelectionableWatcher.prototype.onSelect = function (selection) {
+            this._isSelected = true;
+            this.handler = selection;
+            if (this.select)
+                this.select(selection);
+        };
+        SelectionableWatcher.prototype.onUnselect = function (selection) {
+            this._isSelected = false;
+            this.handler = undefined;
+            if (this.unselect)
+                this.unselect(selection);
+        };
+        SelectionableWatcher.prototype.onDelayedPress = function (watcher) {
+            var selection = this.getParentSelectionHandler();
+            if (selection) {
+                if (watcher.ctrlKey) {
+                    if (this.isSelected)
+                        selection.remove(this.element);
+                    else
+                        selection.append([this.element]);
+                }
+                else if (watcher.shiftKey)
+                    selection.extend(this.element);
+                else
+                    selection.elements = [this.element];
+            }
+        };
+        SelectionableWatcher.prototype.getSelectionActions = function () {
+            return {};
+        };
+        SelectionableWatcher.prototype.getParentSelectionHandler = function () {
+            return Selectionable.getParentSelectionHandler(this.element);
+        };
+        SelectionableWatcher.prototype.onSelectionableDragStart = function (watcher) {
+            console.log('SelectionableWatcher.onSelectionableDragStart');
+            console.log(this);
+            var selection = this.getParentSelectionHandler();
+            if (selection && (selection.elements.indexOf(this) == -1))
+                selection.elements = [this.element];
+        };
+        SelectionableWatcher.prototype.onSelectionableDragEnd = function (watcher) {
+            if (this.isSelected) {
+                var handler = this.getParentSelectionHandler();
+                if (handler !== undefined)
+                    handler.clear();
+            }
+        };
+        SelectionableWatcher.prototype.onSelectionableActivate = function (watcher) {
+            if (this.element.isLoaded) {
+                var handler = this.getParentSelectionHandler();
+                if (handler !== undefined) {
+                    handler.elements = [this.element];
+                    if (handler.getDefaultAction() !== undefined)
+                        handler.executeDefaultAction();
+                    else
+                        handler.clear();
+                }
+            }
+        };
+        return SelectionableWatcher;
+    }(Core.Object));
+    Ui.SelectionableWatcher = SelectionableWatcher;
     var Selectionable = (function (_super) {
         __extends(Selectionable, _super);
         function Selectionable(init) {
             var _this = _super.call(this) || this;
-            _this.isSelected = false;
-            _this.handler = undefined;
+            _this._isSelected = false;
             _this.connect(_this, 'activate', _this.onSelectionableActivate);
             _this.connect(_this, 'dragstart', _this.onSelectionableDragStart);
             _this.connect(_this, 'dragend', _this.onSelectionableDragEnd);
+            _this.connect(_this, 'ptrdown', _this.onSelectionablePointerDown);
+            _this.connect(_this.drawing, 'contextmenu', function (event) { return event.preventDefault(); });
             if (init)
                 _this.assign(init);
             return _this;
         }
-        Selectionable.prototype.getIsSelected = function () {
-            return this.isSelected;
-        };
-        Selectionable.prototype.setIsSelected = function (isSelected) {
-            if (this.isSelected !== isSelected) {
-                this.isSelected = isSelected;
-                if (this.isSelected)
-                    this.onSelect();
+        Object.defineProperty(Selectionable.prototype, "isSelected", {
+            get: function () {
+                return this._isSelected;
+            },
+            set: function (isSelected) {
+                if (isSelected)
+                    this.select();
                 else
-                    this.onUnselect();
-            }
+                    this.unselect();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Selectionable.prototype.onSelect = function (selection) {
+            console.log(this.getClassName() + ".onSelect");
+            this._isSelected = true;
+            this.handler = selection;
         };
-        Selectionable.prototype.onSelect = function () {
-        };
-        Selectionable.prototype.onUnselect = function () {
+        Selectionable.prototype.onUnselect = function (selection) {
+            console.log(this.getClassName() + ".onUnselect");
+            this._isSelected = false;
+            this.handler = undefined;
         };
         Selectionable.prototype.getSelectionActions = function () {
             return {};
         };
         Selectionable.prototype.getParentSelectionHandler = function () {
-            var parent = this.parent;
+            return Selectionable.getParentSelectionHandler(this);
+        };
+        Selectionable.getParentSelectionHandler = function (element) {
+            var parent = element.parent;
             while (parent !== undefined) {
                 if ('getSelectionHandler' in parent)
-                    break;
+                    return parent.getSelectionHandler();
                 parent = parent.parent;
             }
-            if (parent !== undefined)
-                return parent.getSelectionHandler();
-            else
-                return undefined;
+            return undefined;
         };
         Selectionable.prototype.onSelectionableDragStart = function () {
-            this.select();
+            var selection = this.getParentSelectionHandler();
+            if (selection && (selection.elements.indexOf(this) == -1))
+                selection.elements = [this];
         };
         Selectionable.prototype.onSelectionableDragEnd = function () {
-            if (this.getIsSelected()) {
+            if (this.isSelected) {
                 var handler = this.getParentSelectionHandler();
                 if (handler !== undefined)
                     handler.clear();
@@ -8250,24 +8618,63 @@ var Ui;
             }
         };
         Selectionable.prototype.select = function () {
+            console.log(this.getClassName() + ".select");
             if (this.isLoaded) {
                 this.handler = this.getParentSelectionHandler();
-                if (this.handler !== undefined) {
-                    this.handler.append(this);
-                    this.setIsSelected(true);
-                }
+                if (this.handler)
+                    this.handler.elements = [this];
             }
         };
         Selectionable.prototype.unselect = function () {
-            if (this.handler !== undefined) {
+            console.log(this.getClassName() + ".unselect");
+            if (this.handler)
                 this.handler.remove(this);
-                this.setIsSelected(false);
-            }
         };
         Selectionable.prototype.onUnload = function () {
-            if (this.getIsSelected())
-                this.unselect();
+            if (this.handler)
+                this.handler.remove(this);
             _super.prototype.onUnload.call(this);
+        };
+        Selectionable.prototype.onSelectionablePointerDown = function (event) {
+            if (this.isDisabled || event.pointer.type != 'mouse' || event.pointer.button != 2)
+                return;
+            var selection = this.getParentSelectionHandler();
+            if (selection == undefined)
+                return;
+            if (selection.elements.indexOf(this) == -1)
+                selection.elements = [this];
+            var actions = selection.getActions();
+            var count = 0;
+            for (var key in actions) {
+                count++;
+            }
+            if (count == 0)
+                return false;
+            var watcher = event.pointer.watch(this);
+            this.connect(watcher, 'move', function () {
+                if (watcher.pointer.getIsMove())
+                    watcher.cancel();
+            });
+            this.connect(watcher, 'up', function (event) {
+                watcher.capture();
+                watcher.cancel();
+            });
+            var popup = new Ui.MenuPopup();
+            var vbox = new Ui.VBox();
+            popup.content = vbox;
+            for (var actionName in actions) {
+                var action = actions[actionName];
+                if (action.hidden === true)
+                    continue;
+                var button = new Ui.ActionButton();
+                button.icon = action.icon;
+                button.text = action.text;
+                button.action = action;
+                button.selection = selection;
+                vbox.append(button);
+                this.connect(button, 'press', function () { return popup.close(); });
+            }
+            popup.openAt(event.pointer.x, event.pointer.y);
         };
         return Selectionable;
     }(Ui.Draggable));
@@ -8279,76 +8686,147 @@ var Ui;
         __extends(Selection, _super);
         function Selection() {
             var _this = _super.call(this) || this;
-            _this.elements = undefined;
+            _this._elements = undefined;
             _this.addEvents('change');
-            _this.elements = [];
+            _this._elements = [];
             return _this;
         }
         Selection.prototype.clear = function () {
-            var currentElements = this.elements;
-            this.elements = [];
-            for (var i = 0; i < currentElements.length; i++) {
-                this.connect(currentElements[i], 'unload', this.onElementUnload);
-                currentElements[i].setIsSelected(false);
+            var change = false;
+            while (this._elements.length > 0) {
+                if (this.internalRemove(this._elements[0]))
+                    change = true;
             }
-            this.fireEvent('change', this);
-        };
-        Selection.prototype.append = function (element) {
-            var i;
-            var found = false;
-            for (i = 0; !found && (i < this.elements.length); i++)
-                found = (this.elements[i] === element);
-            if (!found) {
-                var hasMultiple = false;
-                var actions = this.getElementActions(element);
-                for (var actionName in actions) {
-                    if (actions[actionName].multiple === true)
-                        hasMultiple = true;
-                }
-                if (this.elements.length > 0) {
-                    var compat = true;
-                    for (i = 0; compat && (i < this.elements.length); i++) {
-                        var otherCompat = false;
-                        var otherActions = this.getElementActions(this.elements[i]);
-                        for (var actionKey in actions) {
-                            var action = actions[actionKey];
-                            if (action.multiple === true) {
-                                for (var otherActionKey in otherActions) {
-                                    var otherAction = otherActions[otherActionKey];
-                                    if ((otherAction.multiple === true) && (otherAction.callback === action.callback)) {
-                                        otherCompat = true;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                        compat = compat && otherCompat;
-                    }
-                    if (!compat || !hasMultiple) {
-                        for (i = 0; i < this.elements.length; i++)
-                            this.elements[i].setIsSelected(false);
-                        this.elements = [];
-                    }
-                }
-                this.elements.push(element);
-                this.connect(element, 'unload', this.onElementUnload);
+            if (change)
                 this.fireEvent('change', this);
+        };
+        Selection.prototype.appendRange = function (start, end) {
+            var _this = this;
+            var change = false;
+            var res = this.findRangeElements(start, end);
+            res.forEach(function (el) { if (_this.internalAppend(el))
+                change = true; });
+            if (end.focusable)
+                end.focus();
+            if (change)
+                this.fireEvent('change', this);
+        };
+        Selection.prototype.append = function (elements) {
+            var _this = this;
+            var change = false;
+            if (elements instanceof Ui.Selectionable) {
+                if (this.internalAppend(elements))
+                    change = true;
+                if (elements.focusable)
+                    elements.focus();
             }
+            else {
+                elements.forEach(function (el) { if (_this.internalAppend(el))
+                    change = true; });
+                if (elements[elements.length - 1].focusable)
+                    elements[elements.length - 1].focus();
+            }
+            if (change)
+                this.fireEvent('change', this);
+        };
+        Selection.prototype.extend = function (end) {
+            if (this._elements.length == 0)
+                this.append(end);
+            else {
+                var focusElement = this._elements.find(function (el) { return el.hasFocus; });
+                if (!focusElement)
+                    focusElement = this._elements[0];
+                var res = this.findRangeElements(focusElement, end);
+                this.elements = res;
+            }
+        };
+        Selection.prototype.findRangeElements = function (start, end) {
+            var start_parents = new Array();
+            var parent = start.parent;
+            while (parent) {
+                start_parents.push(parent);
+                parent = parent.parent;
+            }
+            var common_parent;
+            parent = end.parent;
+            while (parent && !common_parent) {
+                var pos = start_parents.indexOf(parent);
+                if (pos != -1)
+                    common_parent = parent;
+                parent = parent.parent;
+            }
+            var all = new Array();
+            var add_selectionable = function (el) {
+                if (el instanceof Ui.Selectionable)
+                    all.push(el);
+                else if (el instanceof Ui.Container)
+                    el.children.forEach(function (el2) { return add_selectionable(el2); });
+            };
+            add_selectionable(common_parent);
+            var start_pos = all.indexOf(start);
+            var end_pos = all.indexOf(end);
+            var res = new Array();
+            for (var i = Math.min(start_pos, end_pos); i <= Math.max(start_pos, end_pos); i++)
+                res.push(all[i]);
+            return res;
+        };
+        Selection.prototype.internalAppend = function (element) {
+            if (this._elements.indexOf(element) != -1)
+                return false;
+            this._elements.push(element);
+            this.connect(element, 'unload', this.onElementUnload);
+            element.onSelect(this);
+            return true;
         };
         Selection.prototype.remove = function (element) {
-            var foundPos;
-            for (var i = 0; (foundPos === undefined) && (i < this.elements.length); i++)
-                if (this.elements[i] === element)
-                    foundPos = i;
-            if (foundPos !== undefined) {
-                this.elements.splice(foundPos, 1);
-                this.disconnect(element, 'unload', this.onElementUnload);
-                this.fireEvent('change', this);
+            var _this = this;
+            var change = false;
+            if (element instanceof Ui.Selectionable) {
+                if (this.internalRemove(element))
+                    change = true;
             }
+            else
+                element.forEach(function (el) { if (_this.internalRemove(el))
+                    change = true; });
+            if (change)
+                this.fireEvent('change', this);
         };
-        Selection.prototype.getElements = function () {
-            return this.elements.slice();
+        Selection.prototype.internalRemove = function (element) {
+            var foundPos = this.elements.indexOf(element);
+            if (foundPos != -1) {
+                this._elements.splice(foundPos, 1);
+                this.disconnect(element, 'unload', this.onElementUnload);
+                element.onUnselect(this);
+                return true;
+            }
+            return false;
         };
+        Object.defineProperty(Selection.prototype, "elements", {
+            get: function () {
+                return this._elements.slice();
+            },
+            set: function (elements) {
+                var _this = this;
+                var removeList = new Array();
+                var addList = new Array();
+                elements.forEach(function (el) {
+                    if (_this._elements.indexOf(el) == -1)
+                        addList.push(el);
+                });
+                this._elements.forEach(function (el) {
+                    if (elements.indexOf(el) == -1)
+                        removeList.push(el);
+                });
+                removeList.forEach(function (el) { return _this.internalRemove(el); });
+                addList.forEach(function (el) { return _this.internalAppend(el); });
+                if (elements.length > 0 && elements[elements.length - 1].focusable)
+                    elements[elements.length - 1].focus();
+                if (addList.length > 0 || removeList.length > 0)
+                    this.fireEvent('change', this);
+            },
+            enumerable: true,
+            configurable: true
+        });
         Selection.prototype.getElementActions = function (element) {
             var actions = Core.Util.clone(element.getSelectionActions());
             var current = element.parent;
@@ -8364,29 +8842,29 @@ var Ui;
             var allActions;
             var actionName;
             var action;
-            if (this.elements.length === 0)
+            if (this._elements.length === 0)
                 return undefined;
             else {
-                if (this.elements.length === 1) {
+                if (this._elements.length === 1) {
                     actions = {};
-                    allActions = this.getElementActions(this.elements[0]);
+                    allActions = this.getElementActions(this._elements[0]);
                     for (actionName in allActions) {
                         action = allActions[actionName];
-                        if (!('testRight' in action) || action.testRight.call(this.elements[0]))
+                        if (!('testRight' in action) || action.testRight.call(this._elements[0]))
                             actions[actionName] = allActions[actionName];
                     }
                     return actions;
                 }
                 else {
                     actions = {};
-                    allActions = this.getElementActions(this.elements[0]);
+                    allActions = this.getElementActions(this._elements[0]);
                     for (actionName in allActions) {
                         action = allActions[actionName];
                         if (action.multiple === true) {
                             var compat = true;
-                            for (var i = 1; compat && (i < this.elements.length); i++) {
+                            for (var i = 1; compat && (i < this._elements.length); i++) {
                                 var otherCompat = false;
-                                var otherActions = this.getElementActions(this.elements[i]);
+                                var otherActions = this.getElementActions(this._elements[i]);
                                 for (var otherActionKey in otherActions) {
                                     var otherAction = otherActions[otherActionKey];
                                     if ((otherAction.multiple === true) && (otherAction.callback === action.callback)) {
@@ -8399,8 +8877,8 @@ var Ui;
                             if (compat) {
                                 var allowed = true;
                                 if ('testRight' in action) {
-                                    for (var i = 0; allowed && (i < this.elements.length); i++) {
-                                        allowed = allowed && action.testRight.call(this.elements[i]);
+                                    for (var i = 0; allowed && (i < this._elements.length); i++) {
+                                        allowed = allowed && action.testRight.call(this._elements[i]);
                                     }
                                 }
                                 if (allowed)
@@ -8912,7 +9390,10 @@ var Ui;
                         var test = 0;
                         if (delta > 0)
                             test = deltaPos / delta;
-                        if (test > 0.7)
+                        var testLevel = 0.7;
+                        if (event.pointer.type == 'mouse' && event.pointer.button == 0)
+                            testLevel = 0;
+                        if (test >= testLevel)
                             watcher.capture();
                         else {
                             this.setPosition(this.startPosX, this.startPosY);
@@ -9075,6 +9556,7 @@ var Ui;
             _this._maxScale = 10;
             _this._allowRotate = true;
             _this._allowTranslate = true;
+            _this._allowLeftMouse = true;
             _this.speedX = 0;
             _this.speedY = 0;
             _this.addEvents('down', 'up', 'transform', 'inertiastart', 'inertiaend');
@@ -9086,6 +9568,13 @@ var Ui;
             _this.connect(_this, 'wheel', _this.onWheel);
             return _this;
         }
+        Object.defineProperty(Transformable.prototype, "allowLeftMouse", {
+            set: function (value) {
+                this._allowLeftMouse = value;
+            },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(Transformable.prototype, "allowScale", {
             set: function (allow) {
                 this._allowScale = allow;
@@ -9260,6 +9749,8 @@ var Ui;
             this.fireEvent('up', this);
         };
         Transformable.prototype.onPointerDown = function (event) {
+            if (!this._allowLeftMouse && event.pointerType == 'mouse' && event.pointer.button == 0)
+                return;
             this.stopInertia();
             if (this.watcher1 === undefined) {
                 if (this._allowTranslate)
@@ -9526,7 +10017,6 @@ var Ui;
             _this.viewHeight = 0;
             _this.contentWidth = 0;
             _this.contentHeight = 0;
-            _this.overWatcher = undefined;
             _this.scrollLock = false;
             _this.scrollbarVerticalNeeded = false;
             _this.scrollbarHorizontalNeeded = false;
@@ -9538,31 +10028,20 @@ var Ui;
             _this.connect(_this.contentBox, 'down', _this.autoShowScrollbars);
             _this.connect(_this.contentBox, 'inertiaend', _this.autoHideScrollbars);
             _this.appendChild(_this.contentBox);
-            _this.connect(_this, 'ptrmove', function (event) {
-                if (!_this.isDisabled && !event.pointer.getIsDown() && (_this.overWatcher === undefined)) {
-                    _this.overWatcher = event.pointer.watch(_this);
+            new Ui.OverWatcher({
+                element: _this,
+                enter: function () {
                     _this.isOver = true;
                     _this.autoShowScrollbars();
-                    _this.connect(_this.overWatcher, 'move', function () {
-                        if (!_this.overWatcher.getIsInside())
-                            _this.overWatcher.cancel();
-                    });
-                    _this.connect(_this.overWatcher, 'down', function () {
-                        _this.overWatcher.cancel();
-                    });
-                    _this.connect(_this.overWatcher, 'up', function () {
-                        _this.overWatcher.cancel();
-                    });
-                    _this.connect(_this.overWatcher, 'cancel', function () {
-                        _this.overWatcher = undefined;
-                        _this.isOver = false;
-                        _this.autoHideScrollbars();
-                    });
+                },
+                leave: function () {
+                    _this.isOver = false;
+                    _this.autoHideScrollbars();
                 }
             });
             _this.connect(_this, 'wheel', _this.onWheel);
-            if (init)
-                _this.assign(init);
+            _this.connect(_this.drawing, 'keydown', _this.onKeyDown);
+            _this.assign(init);
             return _this;
         }
         Object.defineProperty(Scrollable.prototype, "maxScale", {
@@ -9655,8 +10134,9 @@ var Ui;
                 this.appendChild(this.scrollbarHorizontalBox);
             }
         };
-        Scrollable.prototype.setOffset = function (offsetX, offsetY, absolute) {
+        Scrollable.prototype.setOffset = function (offsetX, offsetY, absolute, align) {
             if (absolute === void 0) { absolute = false; }
+            if (align === void 0) { align = false; }
             if (absolute === undefined)
                 absolute = false;
             if (offsetX === undefined)
@@ -9683,6 +10163,10 @@ var Ui;
                 this.relativeOffsetY = 0;
             else
                 this.relativeOffsetY = offsetY / (this.contentHeight - this.viewHeight);
+            if (align) {
+                offsetX = Math.round(offsetX);
+                offsetY = Math.round(offsetY);
+            }
             if ((this.offsetX !== offsetX) || (this.offsetY !== offsetY)) {
                 this.offsetX = offsetX;
                 this.offsetY = offsetY;
@@ -9729,8 +10213,27 @@ var Ui;
             configurable: true
         });
         Scrollable.prototype.onWheel = function (event) {
-            if (this.setOffset(this.contentBox.offsetX + event.deltaX * 3, this.contentBox.offsetY + event.deltaY * 3, true)) {
+            var deltaX = event.deltaX;
+            var deltaY = event.deltaY;
+            if (event.shiftKey) {
+                deltaX = event.deltaY;
+                deltaY = event.deltaX;
+            }
+            if (this.setOffset(this.contentBox.offsetX + deltaX * 3, this.contentBox.offsetY + deltaY * 3, true)) {
                 event.stopPropagation();
+            }
+        };
+        Scrollable.prototype.onKeyDown = function (event) {
+            if (this.isDisabled)
+                return;
+            var key = event.which;
+            if (key == 34 && this.setOffset(undefined, this.contentBox.offsetY + this.layoutHeight, true)) {
+                event.stopPropagation();
+                event.preventDefault();
+            }
+            else if (key == 33 && this.setOffset(undefined, this.contentBox.offsetY - this.layoutHeight, true)) {
+                event.stopPropagation();
+                event.preventDefault();
             }
         };
         Scrollable.prototype.autoShowScrollbars = function () {
@@ -9860,7 +10363,7 @@ var Ui;
                 return;
             var totalWidth = this.viewWidth - this.scrollbarHorizontalBox.layoutWidth;
             var offsetX = Math.min(1, Math.max(0, movable.positionX / totalWidth));
-            this.setOffset(offsetX, undefined);
+            this.setOffset(offsetX, undefined, false, true);
             movable.setPosition(offsetX * totalWidth, undefined);
         };
         Scrollable.prototype.onScrollbarVerticalMove = function (movable) {
@@ -9868,7 +10371,7 @@ var Ui;
                 return;
             var totalHeight = this.viewHeight - this.scrollbarVerticalBox.layoutHeight;
             var offsetY = Math.min(1, Math.max(0, movable.positionY / totalHeight));
-            this.setOffset(undefined, offsetY);
+            this.setOffset(undefined, offsetY, false, true);
             movable.setPosition(undefined, offsetY * totalHeight);
         };
         Scrollable.prototype.onScrollIntoView = function (el) {
@@ -9932,6 +10435,7 @@ var Ui;
             _this._contentWidth = 0;
             _this._contentHeight = 0;
             _this.addEvents('scroll');
+            _this.allowLeftMouse = false;
             _this.clipToBounds = true;
             _this.connect(_this.drawing, 'scroll', function () {
                 _this.translateX -= _this.drawing.scrollLeft;
@@ -10022,10 +10526,14 @@ var Ui;
             if (orientation == 'horizontal') {
                 _this.rect.width = 30;
                 _this.rect.height = 5;
+                _this.over.height = 15;
+                _this.rect.verticalAlign = 'bottom';
             }
             else {
                 _this.rect.width = 5;
                 _this.rect.height = 30;
+                _this.over.width = 15;
+                _this.rect.horizontalAlign = 'right';
             }
             _this.over.content = _this.rect;
             _this.connect(_this.over, 'enter', _this.startAnim);
@@ -10688,6 +11196,190 @@ var Ui;
 })(Ui || (Ui = {}));
 var Ui;
 (function (Ui) {
+    var DropableWatcher = (function (_super) {
+        __extends(DropableWatcher, _super);
+        function DropableWatcher(init) {
+            var _this = _super.call(this) || this;
+            _this.assign(init);
+            _this.watchers = [];
+            _this.connect(_this.element, 'dragover', _this.onDragOver);
+            return _this;
+        }
+        DropableWatcher.prototype.addType = function (type, effects) {
+            if (typeof (type) === 'string')
+                type = type.toLowerCase();
+            if (this.allowedTypes == undefined)
+                this.allowedTypes = [];
+            if (typeof (effects) === 'string')
+                effects = [effects];
+            if (typeof (effects) !== 'function') {
+                for (var i = 0; i < effects.length; i++) {
+                    var effect = effects[i];
+                    if (typeof (effect) === 'string')
+                        effect = { action: effect };
+                    if (!('text' in effect)) {
+                        if (effect.action === 'copy')
+                            effect.text = 'Copier';
+                        else if (effect.action === 'move')
+                            effect.text = 'Déplacer';
+                        else if (effect.action === 'link')
+                            effect.text = 'Lier';
+                        else
+                            effect.text = effect.action;
+                    }
+                    if (!('dragicon' in effect))
+                        effect.dragicon = 'drag' + effect.action;
+                    effects[i] = effect;
+                }
+                this.allowedTypes.push({ type: type, effect: effects });
+            }
+            else
+                this.allowedTypes.push({ type: type, effect: effects });
+        };
+        Object.defineProperty(DropableWatcher.prototype, "types", {
+            set: function (types) {
+                var _this = this;
+                this.allowedTypes = [];
+                types.forEach(function (type) { return _this.addType(type.type, type.effects); });
+            },
+            enumerable: true,
+            configurable: true
+        });
+        DropableWatcher.prototype.onDragOver = function (event) {
+            var found = false;
+            for (var i = 0; !found && (i < this.watchers.length); i++)
+                found = (this.watchers[i].getDataTransfer() === event.dataTransfer);
+            if (!found) {
+                var effect = this.onDragEffect(event.dataTransfer);
+                console.log('onDragOver ' + effect);
+                if ((effect !== undefined) && (effect.length > 0)) {
+                    var watcher = event.dataTransfer.capture(this.element, effect);
+                    this.watchers.push(watcher);
+                    this.connect(watcher, 'drop', this.onWatcherDrop);
+                    this.connect(watcher, 'leave', this.onWatcherLeave);
+                    event.stopImmediatePropagation();
+                    this.onWatcherEnter(watcher);
+                }
+            }
+            else
+                event.stopImmediatePropagation();
+        };
+        DropableWatcher.prototype.onWatcherEnter = function (watcher) {
+            this.onDragEnter(watcher.getDataTransfer());
+        };
+        DropableWatcher.prototype.onWatcherDrop = function (watcher, effect, x, y) {
+            var point = this.element.pointFromWindow(new Ui.Point(x, y));
+            this.onDrop(watcher.getDataTransfer(), effect, point.getX(), point.getY());
+        };
+        DropableWatcher.prototype.onWatcherLeave = function (watcher) {
+            var found = false;
+            var i = 0;
+            for (; !found && (i < this.watchers.length); i++) {
+                found = (this.watchers[i] === watcher);
+            }
+            i--;
+            if (found)
+                this.watchers.splice(i, 1);
+            if (this.watchers.length === 0)
+                this.onDragLeave();
+        };
+        DropableWatcher.prototype.getAllowedTypesEffect = function (dataTransfer) {
+            if (this.allowedTypes !== undefined) {
+                var data = dataTransfer.getData();
+                var effect = undefined;
+                for (var i = 0; (effect === undefined) && (i < this.allowedTypes.length); i++) {
+                    var type = this.allowedTypes[i];
+                    if (typeof (type.type) === 'string') {
+                        if (type.type === 'all')
+                            effect = type.effect;
+                        else if (data instanceof Ui.DragNativeData) {
+                            if ((type.type === 'files') && data.hasFiles())
+                                effect = type.effect;
+                            else if (((type.type === 'text') || (type.type === 'text/plain')) && data.hasTypes('text/plain', 'text'))
+                                effect = type.effect;
+                            else if (data.hasType(type.type))
+                                effect = type.effect;
+                        }
+                    }
+                    else if (data instanceof type.type)
+                        effect = type.effect;
+                }
+                if (typeof (effect) === 'function') {
+                    var effects = this.onDragEffectFunction(dataTransfer, effect);
+                    for (var i = 0; i < effects.length; i++) {
+                        var effect_1 = effects[i];
+                        if (typeof (effect_1) === 'string')
+                            effect_1 = { action: effect_1 };
+                        if (!('text' in effect_1)) {
+                            if (effect_1.action === 'copy')
+                                effect_1.text = 'Copier';
+                            else if (effect_1.action === 'move')
+                                effect_1.text = 'Déplacer';
+                            else if (effect_1.action === 'link')
+                                effect_1.text = 'Lier';
+                            else if (effect_1.action === 'run')
+                                effect_1.text = 'Exécuter';
+                            else if (effect_1.action === 'play')
+                                effect_1.text = 'Jouer';
+                            else
+                                effect_1.text = effect_1.action;
+                        }
+                        if (!('dragicon' in effect_1))
+                            effect_1.dragicon = 'drag' + effect_1.action;
+                        effects[i] = effect_1;
+                    }
+                    effect = effects;
+                }
+                if (effect === undefined)
+                    effect = [];
+                return effect;
+            }
+            else
+                return [];
+        };
+        DropableWatcher.prototype.onDragEffect = function (dataTransfer) {
+            var dragEvent = new Ui.DragEvent();
+            dragEvent.setType('drageffect');
+            dragEvent.setBubbles(false);
+            dragEvent.dataTransfer = dataTransfer;
+            dragEvent.dispatchEvent(this.element);
+            var effectAllowed = dragEvent.effectAllowed;
+            if (effectAllowed !== undefined)
+                return dragEvent.effectAllowed;
+            else
+                return this.getAllowedTypesEffect(dataTransfer);
+        };
+        DropableWatcher.prototype.onDragEffectFunction = function (dataTransfer, func) {
+            return func(dataTransfer.getData(), dataTransfer);
+        };
+        DropableWatcher.prototype.onDrop = function (dataTransfer, dropEffect, x, y) {
+            var done = false;
+            if (this.drop && !this.drop(this, dataTransfer.getData(), dropEffect, x, y, dataTransfer)) {
+                var data = dataTransfer.getData();
+                if (data instanceof Ui.DragNativeData && data.hasFiles()) {
+                    var files = data.getFiles();
+                    done = true;
+                    if (this.dropfile) {
+                        for (var i = 0; i < files.length; i++)
+                            done = done && this.dropfile(this, files[i], dropEffect, x, y);
+                    }
+                }
+            }
+            else
+                done = true;
+            return done;
+        };
+        DropableWatcher.prototype.onDragEnter = function (dataTransfer) {
+            if (this.enter)
+                this.enter(this, dataTransfer.getData());
+        };
+        DropableWatcher.prototype.onDragLeave = function () {
+            if (this.leave)
+                this.leave(this);
+        };
+        return DropableWatcher;
+    }(Core.Object));
+    Ui.DropableWatcher = DropableWatcher;
     var DropBox = (function (_super) {
         __extends(DropBox, _super);
         function DropBox(init) {
@@ -10794,26 +11486,26 @@ var Ui;
                 if (typeof (effect) === 'function') {
                     var effects = this.onDragEffectFunction(dataTransfer, effect);
                     for (var i = 0; i < effects.length; i++) {
-                        var effect_1 = effects[i];
-                        if (typeof (effect_1) === 'string')
-                            effect_1 = { action: effect_1 };
-                        if (!('text' in effect_1)) {
-                            if (effect_1.action === 'copy')
-                                effect_1.text = 'Copier';
-                            else if (effect_1.action === 'move')
-                                effect_1.text = 'Déplacer';
-                            else if (effect_1.action === 'link')
-                                effect_1.text = 'Lier';
-                            else if (effect_1.action === 'run')
-                                effect_1.text = 'Exécuter';
-                            else if (effect_1.action === 'play')
-                                effect_1.text = 'Jouer';
+                        var effect_2 = effects[i];
+                        if (typeof (effect_2) === 'string')
+                            effect_2 = { action: effect_2 };
+                        if (!('text' in effect_2)) {
+                            if (effect_2.action === 'copy')
+                                effect_2.text = 'Copier';
+                            else if (effect_2.action === 'move')
+                                effect_2.text = 'Déplacer';
+                            else if (effect_2.action === 'link')
+                                effect_2.text = 'Lier';
+                            else if (effect_2.action === 'run')
+                                effect_2.text = 'Exécuter';
+                            else if (effect_2.action === 'play')
+                                effect_2.text = 'Jouer';
                             else
-                                effect_1.text = effect_1.action;
+                                effect_2.text = effect_2.action;
                         }
-                        if (!('dragicon' in effect_1))
-                            effect_1.dragicon = 'drag' + effect_1.action;
-                        effects[i] = effect_1;
+                        if (!('dragicon' in effect_2))
+                            effect_2.dragicon = 'drag' + effect_2.action;
+                        effects[i] = effect_2;
                     }
                     effect = effects;
                 }
@@ -11238,7 +11930,7 @@ var Ui;
             if (this.isDown)
                 deltaY = -0.20;
             else if (this.isOver) {
-                deltaY = 0.20;
+                deltaY = 0.10;
                 yuv.a = Math.max(0.4, yuv.a);
             }
             return Ui.Color.createFromYuv(yuv.y + deltaY, yuv.u, yuv.v, yuv.a);
@@ -11465,7 +12157,7 @@ var Ui;
         });
         ActionButton.prototype.onActionButtonEffect = function (data, dataTransfer) {
             if ('draggable' in dataTransfer) {
-                var elements = this._selection.getElements();
+                var elements = this._selection.elements;
                 var found = undefined;
                 for (var i = 0; (found === undefined) && (i < elements.length); i++) {
                     if (elements[i] === dataTransfer.draggable)
@@ -11515,9 +12207,9 @@ var Ui;
     Ui.ContextBarCloseButton = ContextBarCloseButton;
     var ContextBar = (function (_super) {
         __extends(ContextBar, _super);
-        function ContextBar() {
+        function ContextBar(init) {
             var _this = _super.call(this) || this;
-            _this.selection = undefined;
+            _this._selection = undefined;
             _this.bg = new Ui.Rectangle();
             _this.append(_this.bg);
             var hbox = new Ui.HBox();
@@ -11531,22 +12223,34 @@ var Ui;
             hbox.append(scroll, true);
             _this.actionsBox = new Ui.HBox();
             _this.actionsBox.spacing = 5;
+            scroll.content = _this.actionsBox;
+            _this.assign(init);
             return _this;
         }
-        ContextBar.prototype.setSelection = function (selection) {
-            if (this.selection != undefined)
-                this.disconnect(this.selection, 'change', this.onSelectionChange);
-            this.selection = selection;
-            if (this.selection != undefined)
-                this.connect(this.selection, 'change', this.onSelectionChange);
-        };
+        Object.defineProperty(ContextBar.prototype, "selection", {
+            get: function () {
+                return this._selection;
+            },
+            set: function (selection) {
+                if (this._selection != undefined)
+                    this.disconnect(this._selection, 'change', this.onSelectionChange);
+                this._selection = selection;
+                if (this._selection != undefined)
+                    this.connect(this._selection, 'change', this.onSelectionChange);
+            },
+            enumerable: true,
+            configurable: true
+        });
         ContextBar.prototype.onClosePress = function () {
-            this.selection.clear();
+            this._selection.clear();
         };
         ContextBar.prototype.onSelectionChange = function () {
-            this.closeButton.text = this.selection.getElements().length.toString();
-            var actions = this.selection.getActions();
+            console.log('ContextBar.onSelectionChange');
+            this.closeButton.text = this._selection.elements.length.toString();
+            var actions = this._selection.getActions();
+            console.log(actions);
             this.actionsBox.clear();
+            this.actionsBox.append(new Ui.Element(), true);
             for (var actionName in actions) {
                 var action = actions[actionName];
                 if (action.hidden === true)
@@ -11555,7 +12259,7 @@ var Ui;
                 button.icon = action.icon;
                 button.text = action.text;
                 button.action = action;
-                button.selection = this.selection;
+                button.selection = this._selection;
                 this.actionsBox.append(button);
             }
         };
@@ -11601,15 +12305,12 @@ var Ui;
             _this.appendChild(_this.background);
             _this.contentBox = new Ui.LBox();
             _this.contentBox.margin = 2;
-            _this.contentBox.marginTop = 1;
             _this.contentBox.setTransformOrigin(0, 0);
             _this.appendChild(_this.contentBox);
             _this.scroll = new Ui.ScrollingArea();
-            _this.scroll.margin = 2;
-            _this.scroll.marginTop = 1;
             _this.contentBox.append(_this.scroll);
             _this.contextBox = new Ui.ContextBar();
-            _this.contextBox.setSelection(_this.popupSelection);
+            _this.contextBox.selection = _this.popupSelection;
             _this.contextBox.verticalAlign = 'top';
             _this.contextBox.hide(true);
             _this.contentBox.append(_this.contextBox);
@@ -11656,8 +12357,6 @@ var Ui;
             configurable: true
         });
         Popup.prototype.onWindowResize = function () {
-            if (this._autoClose && (this.posX !== undefined))
-                this.close();
         };
         Popup.prototype.onShadowPress = function () {
             if (this._autoClose)
@@ -11696,7 +12395,7 @@ var Ui;
             }
         };
         Popup.prototype.onPopupSelectionChange = function (selection) {
-            if (selection.getElements().length === 0)
+            if (selection.elements.length === 0)
                 this.contextBox.hide(true);
             else
                 this.contextBox.show();
@@ -11774,7 +12473,6 @@ var Ui;
         Popup.prototype.measureCore = function (width, height) {
             var constraintWidth = Math.max(width - 40, 0);
             var constraintHeight = Math.max(height - 40, 0);
-            console.log("Popup.measureCore(" + width + "," + height + ")");
             if ((this._preferredWidth !== undefined) && (this._preferredWidth < constraintWidth))
                 constraintWidth = this._preferredWidth;
             if ((this._preferredHeight !== undefined) && (this._preferredHeight < constraintHeight))
@@ -11787,7 +12485,6 @@ var Ui;
                 return { width: Math.max(width, size.width + 40), height: Math.max(height, size.height + 40) };
         };
         Popup.prototype.arrangeCore = function (width, height) {
-            console.log("Popup.arrangeCore(" + width + "," + height + ")");
             if ((this.openClock !== undefined) && !this.openClock.isActive)
                 this.openClock.begin();
             var x = 0;
@@ -11958,7 +12655,7 @@ var Ui;
         };
         Popup.style = {
             background: '#f8f8f8',
-            shadow: new Ui.Color(1, 1, 1, 0.1)
+            shadow: 'rgba(0,0,0,0.15)'
         };
         return Popup;
     }(Ui.Container));
@@ -12113,29 +12810,32 @@ var Ui;
         __extends(MenuToolBarButton, _super);
         function MenuToolBarButton() {
             var _this = _super.call(this) || this;
-            _this.icon = 'arrowbottom';
+            _this.icon = 'burger';
             return _this;
         }
+        MenuToolBarButton.style = {
+            backgroundBorder: 'rgba(140,140,140,0)'
+        };
         return MenuToolBarButton;
     }(Ui.Button));
     Ui.MenuToolBarButton = MenuToolBarButton;
     var MenuToolBar = (function (_super) {
         __extends(MenuToolBar, _super);
-        function MenuToolBar() {
-            var _this = _super.call(this) || this;
-            _this.paddingTop = 0;
-            _this.paddingBottom = 0;
-            _this.paddingLeft = 0;
-            _this.paddingRight = 0;
+        function MenuToolBar(init) {
+            var _this = _super.call(this, init) || this;
+            _this._paddingTop = 0;
+            _this._paddingBottom = 0;
+            _this._paddingLeft = 0;
+            _this._paddingRight = 0;
             _this.star = 0;
             _this.measureLock = undefined;
             _this.items = undefined;
             _this.menuButton = undefined;
-            _this.itemsAlign = 'left';
-            _this.menuPosition = 'right';
-            _this.uniform = false;
+            _this._itemsAlign = 'left';
+            _this._menuPosition = 'right';
+            _this._uniform = false;
             _this.uniformSize = 0;
-            _this.spacing = 0;
+            _this._spacing = 0;
             _this.itemsWidth = 0;
             _this.keepItems = undefined;
             _this.menuNeeded = false;
@@ -12148,94 +12848,136 @@ var Ui;
             _this.appendChild(_this.menuButton);
             return _this;
         }
-        MenuToolBar.prototype.getUniform = function () {
-            return this.uniform;
-        };
-        MenuToolBar.prototype.setUniform = function (uniform) {
-            if (this.uniform !== uniform) {
-                this.uniform = uniform;
-                this.invalidateMeasure();
-            }
-        };
-        MenuToolBar.prototype.getMenuPosition = function () {
-            return this.menuPosition;
-        };
-        MenuToolBar.prototype.setMenuPosition = function (menuPosition) {
-            if (this.menuPosition !== menuPosition) {
-                this.menuPosition = menuPosition;
-                this.invalidateArrange();
-            }
-        };
-        MenuToolBar.prototype.getItemsAlign = function () {
-            return this.itemsAlign;
-        };
-        MenuToolBar.prototype.setItemsAlign = function (align) {
-            if (this.itemsAlign !== align) {
-                this.itemsAlign = align;
-                this.invalidateArrange();
-            }
-        };
-        MenuToolBar.prototype.getLogicalChildren = function () {
-            return this.items;
-        };
-        MenuToolBar.prototype.setPadding = function (padding) {
-            this.setPaddingTop(padding);
-            this.setPaddingBottom(padding);
-            this.setPaddingLeft(padding);
-            this.setPaddingRight(padding);
-        };
-        MenuToolBar.prototype.getPaddingTop = function () {
-            return this.paddingTop;
-        };
-        MenuToolBar.prototype.setPaddingTop = function (paddingTop) {
-            if (this.paddingTop !== paddingTop) {
-                this.paddingTop = paddingTop;
-                this.invalidateMeasure();
-            }
-        };
-        MenuToolBar.prototype.getPaddingBottom = function () {
-            return this.paddingBottom;
-        };
-        MenuToolBar.prototype.setPaddingBottom = function (paddingBottom) {
-            if (this.paddingBottom !== paddingBottom) {
-                this.paddingBottom = paddingBottom;
-                this.invalidateMeasure();
-            }
-        };
-        MenuToolBar.prototype.getPaddingLeft = function () {
-            return this.paddingLeft;
-        };
-        MenuToolBar.prototype.setPaddingLeft = function (paddingLeft) {
-            if (this.paddingLeft !== paddingLeft) {
-                this.paddingLeft = paddingLeft;
-                this.invalidateMeasure();
-            }
-        };
-        MenuToolBar.prototype.getPaddingRight = function () {
-            return this.paddingRight;
-        };
-        MenuToolBar.prototype.setPaddingRight = function (paddingRight) {
-            if (this.paddingRight !== paddingRight) {
-                this.paddingRight = paddingRight;
-                this.invalidateMeasure();
-            }
-        };
-        MenuToolBar.prototype.getSpacing = function () {
-            return this.spacing;
-        };
-        MenuToolBar.prototype.setSpacing = function (spacing) {
-            if (this.spacing !== spacing) {
-                this.spacing = spacing;
-                this.invalidateMeasure();
-            }
-        };
+        Object.defineProperty(MenuToolBar.prototype, "uniform", {
+            get: function () {
+                return this._uniform;
+            },
+            set: function (uniform) {
+                if (this._uniform !== uniform) {
+                    this._uniform = uniform;
+                    this.invalidateMeasure();
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MenuToolBar.prototype, "menuPosition", {
+            get: function () {
+                return this._menuPosition;
+            },
+            set: function (menuPosition) {
+                if (this._menuPosition !== menuPosition) {
+                    this._menuPosition = menuPosition;
+                    this.invalidateArrange();
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MenuToolBar.prototype, "itemsAlign", {
+            get: function () {
+                return this._itemsAlign;
+            },
+            set: function (align) {
+                if (this._itemsAlign !== align) {
+                    this._itemsAlign = align;
+                    this.invalidateArrange();
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MenuToolBar.prototype, "logicalChildren", {
+            get: function () {
+                return this.items;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MenuToolBar.prototype, "padding", {
+            set: function (padding) {
+                this.paddingTop = padding;
+                this.paddingBottom = padding;
+                this.paddingLeft = padding;
+                this.paddingRight = padding;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MenuToolBar.prototype, "paddingTop", {
+            get: function () {
+                return this._paddingTop;
+            },
+            set: function (paddingTop) {
+                if (this._paddingTop !== paddingTop) {
+                    this._paddingTop = paddingTop;
+                    this.invalidateMeasure();
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MenuToolBar.prototype, "paddingBottom", {
+            get: function () {
+                return this._paddingBottom;
+            },
+            set: function (paddingBottom) {
+                if (this._paddingBottom !== paddingBottom) {
+                    this._paddingBottom = paddingBottom;
+                    this.invalidateMeasure();
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MenuToolBar.prototype, "paddingLeft", {
+            get: function () {
+                return this._paddingLeft;
+            },
+            set: function (paddingLeft) {
+                if (this._paddingLeft !== paddingLeft) {
+                    this._paddingLeft = paddingLeft;
+                    this.invalidateMeasure();
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MenuToolBar.prototype, "paddingRight", {
+            get: function () {
+                return this._paddingRight;
+            },
+            set: function (paddingRight) {
+                if (this._paddingRight !== paddingRight) {
+                    this._paddingRight = paddingRight;
+                    this.invalidateMeasure();
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MenuToolBar.prototype, "spacing", {
+            get: function () {
+                return this._spacing;
+            },
+            set: function (spacing) {
+                if (this._spacing !== spacing) {
+                    this._spacing = spacing;
+                    this.invalidateMeasure();
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
         MenuToolBar.prototype.append = function (child, resizable) {
+            if (resizable === void 0) { resizable = false; }
             if (resizable !== undefined)
                 Ui.Box.setResizable(child, resizable === true);
             this.items.push(child);
             this.invalidateMeasure();
         };
         MenuToolBar.prototype.prepend = function (child, resizable) {
+            if (resizable === void 0) { resizable = false; }
             if (resizable !== undefined)
                 Ui.Box.setResizable(child, resizable === true);
             this.items.unshift(child);
@@ -12319,10 +13061,10 @@ var Ui;
             this.invalidateMeasure();
         };
         MenuToolBar.prototype.measureCore = function (width, height) {
-            var left = this.getPaddingLeft();
-            var right = this.getPaddingRight();
-            var top = this.getPaddingTop();
-            var bottom = this.getPaddingBottom();
+            var left = this.paddingLeft;
+            var right = this.paddingRight;
+            var top = this.paddingTop;
+            var bottom = this.paddingBottom;
             var constraintWidth = Math.max(0, width - (left + right));
             var constraintHeight = Math.max(0, height - (top + bottom));
             var size;
@@ -12346,15 +13088,15 @@ var Ui;
             var maxItemWidth = 0;
             var maxItemHeight = buttonSize.height;
             var minItemsSize = 0;
-            i = (this.menuPosition === 'left') ? (i = this.items.length - 1) : 0;
+            i = (this._menuPosition === 'left') ? (i = this.items.length - 1) : 0;
             while ((i >= 0) && (i < this.items.length)) {
                 var minSize = minSizes[i];
-                if (totalWidth + minSize.width + this.spacing > constraintWidth)
+                if (totalWidth + minSize.width + this._spacing > constraintWidth)
                     break;
-                totalWidth += minSize.width + this.spacing;
+                totalWidth += minSize.width + this._spacing;
                 if (totalWidth + buttonSize.width > constraintWidth)
                     break;
-                if (this.menuPosition === 'left')
+                if (this._menuPosition === 'left')
                     this.keepItems.unshift(this.items[i]);
                 else
                     this.keepItems.push(this.items[i]);
@@ -12367,31 +13109,31 @@ var Ui;
                 }
                 if (minSize.width > maxItemWidth)
                     maxItemWidth = minSize.width;
-                if (this.menuPosition === 'left')
+                if (this._menuPosition === 'left')
                     i--;
                 else
                     i++;
             }
             if (totalWidth > 0)
-                totalWidth -= this.spacing;
+                totalWidth -= this._spacing;
             this.menuNeeded = this.keepItems.length !== this.items.length;
             var constraintSize = constraintWidth;
             if (this.menuNeeded) {
-                constraintSize -= buttonSize.width + this.spacing;
+                constraintSize -= buttonSize.width + this._spacing;
                 while ((i >= 0) && (i < this.items.length)) {
                     this.removeChild(this.items[i]);
-                    if (this.menuPosition === 'left')
+                    if (this._menuPosition === 'left')
                         i--;
                     else
                         i++;
                 }
             }
-            if (this.uniform) {
-                if ((this.keepItems.length * (maxItemWidth + this.spacing)) - this.spacing <= constraintWidth) {
+            if (this._uniform) {
+                if ((this.keepItems.length * (maxItemWidth + this._spacing)) - this._spacing <= constraintWidth) {
                     for (i = 0; i < this.keepItems.length; i++)
                         this.keepItems[i].measure(maxItemWidth, maxItemHeight);
                     this.uniformSize = maxItemWidth;
-                    size = { width: ((this.keepItems.length * (maxItemWidth + this.spacing)) - this.spacing), height: maxItemHeight };
+                    size = { width: ((this.keepItems.length * (maxItemWidth + this._spacing)) - this._spacing), height: maxItemHeight };
                 }
                 else {
                     this.uniformSize = undefined;
@@ -12400,7 +13142,7 @@ var Ui;
             }
             else {
                 if (countResizable > 0) {
-                    var remainWidth = constraintSize - minItemsSize - ((this.keepItems.length - 1) * this.spacing);
+                    var remainWidth = constraintSize - minItemsSize - ((this.keepItems.length - 1) * this._spacing);
                     var starFound = true;
                     var star = remainWidth / countResizable;
                     do {
@@ -12425,7 +13167,7 @@ var Ui;
                             }
                         }
                     } while (!starFound);
-                    minItemsSize += this.spacing * (this.keepItems.length - 1);
+                    minItemsSize += this._spacing * (this.keepItems.length - 1);
                     if (countResizable > 0) {
                         minItemsSize += star * countResizable;
                         this.star = star;
@@ -12438,7 +13180,7 @@ var Ui;
                     size = { width: totalWidth, height: maxItemHeight };
             }
             if (this.menuNeeded)
-                size.width += buttonSize.width + this.spacing;
+                size.width += buttonSize.width + this._spacing;
             size.width += left + right;
             size.height += top + bottom;
             this.measureLock = undefined;
@@ -12446,18 +13188,18 @@ var Ui;
         };
         MenuToolBar.prototype.arrangeCore = function (width, height) {
             this.bg.arrange(0, 0, width, height);
-            var left = this.paddingLeft;
-            var right = this.paddingRight;
-            var top = this.paddingTop;
-            var bottom = this.paddingBottom;
+            var left = this._paddingLeft;
+            var right = this._paddingRight;
+            var top = this._paddingTop;
+            var bottom = this._paddingBottom;
             width -= left + right;
             height -= top + bottom;
             var x = left;
             var y = top;
             var first = true;
-            if (this.itemsAlign !== 'left')
+            if (this._itemsAlign !== 'left')
                 x = width - this.measureWidth;
-            if (this.menuNeeded && (this.menuPosition === 'left')) {
+            if (this.menuNeeded && (this._menuPosition === 'left')) {
                 first = false;
                 this.menuButton.arrange(x, y, this.menuButton.measureWidth, height);
                 x += this.menuButton.measureWidth;
@@ -12467,9 +13209,9 @@ var Ui;
                 if (first)
                     first = false;
                 else
-                    x += this.spacing;
+                    x += this._spacing;
                 var itemWidth = void 0;
-                if (this.uniform && (this.uniformSize !== undefined))
+                if (this._uniform && (this.uniformSize !== undefined))
                     itemWidth = this.uniformSize;
                 else {
                     itemWidth = item.measureWidth;
@@ -12479,11 +13221,11 @@ var Ui;
                 item.arrange(x, y, itemWidth, height);
                 x += itemWidth;
             }
-            if (this.menuNeeded && (this.menuPosition !== 'left')) {
+            if (this.menuNeeded && (this._menuPosition !== 'left')) {
                 if (first)
                     first = false;
                 else
-                    x += this.spacing;
+                    x += this._spacing;
                 this.menuButton.arrange(x, y, this.menuButton.measureWidth, height);
             }
             if (!this.menuNeeded)
@@ -12577,10 +13319,10 @@ var Ui;
             _this.connect(window, 'focus', function (event) {
                 if (event.target == undefined)
                     return;
-                this.focusElement = event.target;
+                _this.focusElement = event.target;
             }, true);
             _this.connect(window, 'blur', function (event) {
-                this.focusElement = undefined;
+                _this.focusElement = undefined;
             }, true);
             _this.connect(window, 'dragstart', function (event) { event.preventDefault(); });
             _this.connect(window, 'dragenter', function (event) { event.preventDefault(); return false; });
@@ -12892,36 +13634,6 @@ var Ui;
             }
         };
         App.prototype.handleScrolling = function (drawing) {
-            this.connect(this, 'ptrdown', function (event) {
-                var startOffsetX = drawing.scrollLeft;
-                var startOffsetY = drawing.scrollTop;
-                var watcher = event.pointer.watch(this);
-                this.connect(watcher, 'move', function () {
-                    if (!watcher.getIsCaptured()) {
-                        if (watcher.pointer.getIsMove()) {
-                            var direction = watcher.getDirection();
-                            var allowed = false;
-                            if (direction === 'left')
-                                allowed = (drawing.scrollLeft + drawing.clientWidth) < drawing.scrollWidth;
-                            else if (direction === 'right')
-                                allowed = drawing.scrollLeft > 0;
-                            else if (direction === 'bottom')
-                                allowed = drawing.scrollTop > 0;
-                            else if (direction === 'top')
-                                allowed = true;
-                            if (allowed)
-                                watcher.capture();
-                            else
-                                watcher.cancel();
-                        }
-                    }
-                    else {
-                        var delta = watcher.getDelta();
-                        drawing.scrollLeft = startOffsetX - delta.x;
-                        drawing.scrollTop = startOffsetY - delta.y;
-                    }
-                });
-            });
         };
         App.prototype.getElementsByClassName = function (className) {
             var res = [];
@@ -13148,8 +13860,8 @@ var Ui;
         };
         DialogButtonBox.prototype.getActionButtons = function () {
             var buttons = [];
-            for (var i = 1; i < this.actionButtonsBox.getLogicalChildren().length; i++)
-                buttons.push(this.actionButtonsBox.getLogicalChildren()[i]);
+            for (var i = 1; i < this.actionButtonsBox.logicalChildren.length; i++)
+                buttons.push(this.actionButtonsBox.logicalChildren[i]);
             return buttons;
         };
         DialogButtonBox.prototype.onCancelPress = function () {
@@ -13208,9 +13920,6 @@ var Ui;
             _this.buttonsBox.hide(true);
             _this.vbox.append(_this.buttonsBox);
             _this.scroll = new Ui.ScrollingArea();
-            _this.scroll.marginLeft = 2;
-            _this.scroll.marginTop = 2;
-            _this.scroll.marginRight = 2;
             _this.scroll.scrollHorizontal = false;
             _this.scroll.scrollVertical = false;
             _this.vbox.append(_this.scroll, true);
@@ -13220,7 +13929,7 @@ var Ui;
             _this.contentBox.margin = 8;
             _this.contentVBox.append(_this.contentBox, true);
             _this.contextBox = new Ui.ContextBar();
-            _this.contextBox.setSelection(_this.dialogSelection);
+            _this.contextBox.selection = _this.dialogSelection;
             _this.contextBox.hide();
             _this.buttonsBox.append(_this.contextBox);
             _this.actionBox = new Ui.DialogButtonBox();
@@ -13330,7 +14039,7 @@ var Ui;
         });
         Dialog.prototype.updateButtonsBoxVisible = function () {
             var visible = (this._cancelButton !== undefined) || (this._actionButtons !== undefined) ||
-                (this.dialogSelection.getElements().length > 0);
+                (this.dialogSelection.elements.length > 0);
             if (!this.buttonsVisible && visible) {
                 this.buttonsVisible = true;
                 this.buttonsBox.show();
@@ -13394,7 +14103,7 @@ var Ui;
         };
         Dialog.prototype.onKeyDown = function (event) {
             if (event.which === 46) {
-                if (this.dialogSelection.getElements().length !== 0) {
+                if (this.dialogSelection.elements.length !== 0) {
                     if (this.dialogSelection.executeDeleteAction()) {
                         event.preventDefault();
                         event.stopPropagation();
@@ -13430,7 +14139,7 @@ var Ui;
             this.lbox.arrange((width - usedWidth) / 2, (height - usedHeight) / 2, usedWidth, usedHeight);
         };
         Dialog.style = {
-            shadow: 'rgba(255,255,255,0.1)',
+            shadow: 'rgba(0,0,0,0.5)',
             background: '#f8f8f8'
         };
         return Dialog;
@@ -14011,20 +14720,20 @@ var Ui;
             _this.newToast = false;
             _this.addEvents('close');
             var sha = new Ui.Shadow();
-            sha.shadowWidth = 2;
+            sha.shadowWidth = 3;
             sha.radius = 1;
             sha.inner = false;
-            sha.opacity = 0.8;
+            sha.opacity = 0.4;
             _this.append(sha);
             var r = new Ui.Rectangle();
-            r.fill = '#666666';
+            r.fill = '#303030';
             r.width = 200;
             r.height = 30;
             r.margin = 2;
-            r.opacity = 0.5;
+            r.opacity = 1;
             _this.append(r);
             _this.toastContentBox = new Ui.LBox();
-            _this.toastContentBox.margin = 2;
+            _this.toastContentBox.margin = 10;
             _this.toastContentBox.width = 200;
             _this.append(_this.toastContentBox);
             return _this;
@@ -14099,8 +14808,9 @@ var Ui;
                 var t = new Ui.Text();
                 t.text = content;
                 t.verticalAlign = 'center';
+                t.fontWeight = 'bold';
                 t.margin = 5;
-                t.color = Ui.Color.create('#deff89');
+                t.color = Ui.Color.create('#ffffff');
                 content = t;
             }
             toast.content = content;
@@ -14735,7 +15445,7 @@ var Ui;
         function TextField(init) {
             var _this = _super.call(this) || this;
             _this.addEvents('change');
-            _this.padding = 3;
+            _this.padding = 2;
             _this.graphic = new Ui.TextBgGraphic();
             _this.append(_this.graphic);
             _this.textholder = new Ui.Label();
@@ -14744,7 +15454,7 @@ var Ui;
             _this.textholder.margin = 3;
             _this.append(_this.textholder);
             _this.entry = new Ui.Entry();
-            _this.entry.margin = 4;
+            _this.entry.margin = 5;
             _this.entry.fontSize = 16;
             _this.connect(_this.entry, 'focus', _this.onEntryFocus);
             _this.connect(_this.entry, 'blur', _this.onEntryBlur);
@@ -15639,8 +16349,7 @@ var Ui;
             var _this = _super.call(this) || this;
             _this._cols = [{ auto: true, star: false, absolute: false, actualWidth: 0, offset: 0, width: 0 }];
             _this._rows = [{ auto: true, star: false, absolute: false, actualHeight: 0, offset: 0, height: 0 }];
-            if (init)
-                _this.assign(init);
+            _this.assign(init);
             return _this;
         }
         Object.defineProperty(Grid.prototype, "cols", {
@@ -15660,7 +16369,6 @@ var Ui;
                     else if (DEBUG)
                         throw ('Ui.Grid column definition "' + col + '" not supported');
                 }
-                this.invalidateMeasure();
             },
             enumerable: true,
             configurable: true
@@ -16288,11 +16996,10 @@ var Ui;
             _this._placeHolder = '...';
             _this.addEvents('change');
             _this.text = '';
-            _this.arrowtop = new Ui.Icon({ icon: 'arrowtop', width: 10, height: 10 });
-            _this.arrowbottom = new Ui.Icon({ icon: 'arrowbottom', width: 10, height: 10 });
+            _this.arrowbottom = new Ui.Icon({ icon: 'arrowbottom', width: 16, height: 16 });
             _this.marker = new Ui.VBox({
-                verticalAlign: 'center',
-                content: [_this.arrowtop, _this.arrowbottom], marginRight: 5
+                verticalAlign: 'center', marginRight: 5,
+                content: [_this.arrowbottom]
             });
             _this.assign(init);
             return _this;
@@ -16381,11 +17088,10 @@ var Ui;
             if (this._position !== -1)
                 popup.position = this._position;
             this.connect(popup, 'item', this.onItemPress);
-            popup.openElement(this, 'right');
+            popup.openElement(this, 'bottom');
         };
         Combo.prototype.updateColors = function () {
             _super.prototype.updateColors.call(this);
-            this.arrowtop.fill = this.getForegroundColor();
             this.arrowbottom.fill = this.getForegroundColor();
         };
         Combo.style = {
@@ -19129,6 +19835,252 @@ var Ui;
 })(Ui || (Ui = {}));
 var Ui;
 (function (Ui) {
+    var SelectionArea = (function (_super) {
+        __extends(SelectionArea, _super);
+        function SelectionArea(init) {
+            var _this = _super.call(this, init) || this;
+            _this.connect(_this, 'ptrdown', _this.onPointerDown);
+            _this.connect(_this.drawing, 'keydown', _this.onKeyDown);
+            return _this;
+        }
+        SelectionArea.prototype.getParentSelectionHandler = function () {
+            var parent = this.parent;
+            while (parent !== undefined) {
+                if ('getSelectionHandler' in parent)
+                    return parent.getSelectionHandler();
+                parent = parent.parent;
+            }
+            return undefined;
+        };
+        SelectionArea.prototype.findAreaElements = function (p1, p2) {
+            var _this = this;
+            var res = new Array();
+            var p = new Ui.Point(Math.min(p1.x, p2.x), Math.min(p1.y, p2.y));
+            var s = { width: Math.abs(p1.x - p2.x), height: Math.abs(p1.y - p2.y) };
+            var intersect = function (el) {
+                var m = el.transformToElement(_this);
+                var pe1 = (new Ui.Point(0, 0)).multiply(m);
+                var pe2 = (new Ui.Point(el.layoutWidth, el.layoutHeight)).multiply(m);
+                var pe = new Ui.Point(Math.min(pe1.x, pe2.x), Math.min(pe1.y, pe2.y));
+                var se = { width: Math.abs(pe1.x - pe2.x), height: Math.abs(pe1.y - pe2.y) };
+                var hoverlap = (p.x < pe.x + se.width) && (pe.x < p.x + s.width);
+                var voverlap = (p.y < pe.y + se.height) && (pe.y < p.y + s.height);
+                return hoverlap && voverlap;
+            };
+            var addSelectionable = function (el) {
+                if (el instanceof Ui.Selectionable) {
+                    if (intersect(el))
+                        res.push(el);
+                }
+                else if (el instanceof Ui.Container)
+                    el.children.forEach(function (el2) { return addSelectionable(el2); });
+            };
+            addSelectionable(this);
+            res = res.sort(function (a, b) {
+                var m = a.transformToElement(_this);
+                var c1 = (new Ui.Point(a.layoutWidth / 2, a.layoutHeight / 2)).multiply(m);
+                var d1 = Math.sqrt(Math.pow((c1.x - p2.x), 2) + Math.pow((c1.y - p2.y), 2));
+                m = b.transformToElement(_this);
+                var c2 = (new Ui.Point(b.layoutWidth / 2, b.layoutHeight / 2)).multiply(m);
+                var d2 = Math.sqrt(Math.pow((c2.x - p2.x), 2) + Math.pow((c2.y - p2.y), 2));
+                return d2 - d1;
+            });
+            return res;
+        };
+        SelectionArea.prototype.findSelectionableElements = function () {
+            var res = new Array();
+            var addSelectionable = function (el) {
+                if (el instanceof Ui.Selectionable) {
+                    res.push(el);
+                }
+                else if (el instanceof Ui.Container)
+                    el.children.forEach(function (el2) { return addSelectionable(el2); });
+            };
+            addSelectionable(this);
+            return res;
+        };
+        SelectionArea.prototype.findMatchSelectionable = function (element, filter) {
+            var _this = this;
+            var all = this.findSelectionableElements();
+            if (all.length == 0)
+                return undefined;
+            var m = element.transformToElement(this);
+            var p1 = (new Ui.Point(0, 0)).multiply(m);
+            var p2 = (new Ui.Point(element.layoutWidth, element.layoutHeight)).multiply(m);
+            var p = new Ui.Point(Math.min(p1.x, p2.x), Math.min(p1.y, p2.y));
+            var s = { width: Math.abs(p1.x - p2.x), height: Math.abs(p1.y - p2.y) };
+            var c = new Ui.Point((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
+            var distance = 0;
+            var found;
+            all.forEach(function (el) {
+                var m = el.transformToElement(_this);
+                var pe1 = (new Ui.Point(0, 0)).multiply(m);
+                var pe2 = (new Ui.Point(el.layoutWidth, el.layoutHeight)).multiply(m);
+                var pe = new Ui.Point(Math.min(pe1.x, pe2.x), Math.min(pe1.y, pe2.y));
+                var se = { width: Math.abs(pe1.x - pe2.x), height: Math.abs(pe1.y - pe2.y) };
+                var ce = new Ui.Point((pe1.x + pe2.x) / 2, (pe1.y + pe2.y) / 2);
+                if (!filter(p, s, c, pe, se, ce))
+                    return;
+                var d = Math.sqrt(Math.pow((c.x - ce.x), 2) + Math.pow((c.y - ce.y), 2));
+                if (!found || d < distance) {
+                    distance = d;
+                    found = el;
+                }
+            });
+            return found;
+        };
+        SelectionArea.prototype.findRightSelectionable = function (element) {
+            return this.findMatchSelectionable(element, function (p, s, c, pe, se, ce) {
+                if (pe.x < p.x + s.width)
+                    return false;
+                var voverlap = (p.y < pe.y + se.height) && (pe.y < p.y + s.height);
+                if (!voverlap)
+                    return false;
+                return true;
+            });
+        };
+        SelectionArea.prototype.findLeftSelectionable = function (element) {
+            return this.findMatchSelectionable(element, function (p, s, c, pe, se, ce) {
+                if (pe.x + se.width > p.x)
+                    return false;
+                var voverlap = (p.y < pe.y + se.height) && (pe.y < p.y + s.height);
+                if (!voverlap)
+                    return false;
+                return true;
+            });
+        };
+        SelectionArea.prototype.findBottomSelectionable = function (element) {
+            return this.findMatchSelectionable(element, function (p, s, c, pe, se, ce) {
+                if (p.y + s.height > pe.y)
+                    return false;
+                var hoverlap = (p.x < pe.x + se.width) && (pe.x < p.x + s.width);
+                if (!hoverlap)
+                    return false;
+                return true;
+            });
+        };
+        SelectionArea.prototype.findTopSelectionable = function (element) {
+            return this.findMatchSelectionable(element, function (p, s, c, pe, se, ce) {
+                if (pe.y + se.height > p.y)
+                    return false;
+                var hoverlap = (p.x < pe.x + se.width) && (pe.x < p.x + s.width);
+                if (!hoverlap)
+                    return false;
+                return true;
+            });
+        };
+        SelectionArea.prototype.onPointerDown = function (event) {
+            var _this = this;
+            if (this.watcher != undefined)
+                return;
+            if (event.pointerType == 'mouse' && event.pointer.button == 0) {
+                this.watcher = event.pointer.watch(this);
+                this.connect(this.watcher, 'move', this.onPtrMove);
+                this.connect(this.watcher, 'up', this.onPtrUp);
+                this.connect(this.watcher, 'cancel', function () { return _this.watcher = undefined; });
+            }
+        };
+        SelectionArea.prototype.onPtrUp = function (watcher) {
+            if (watcher.getIsCaptured()) {
+                var endPos = watcher.pointer.getPosition(this);
+                var res_1 = this.findAreaElements(this.startPos, endPos);
+                var selection = this.getParentSelectionHandler();
+                if (watcher.pointer.shiftKey)
+                    selection.append(res_1);
+                else if (watcher.pointer.ctrlKey) {
+                    var els_1 = selection.elements;
+                    var res2_1 = new Array();
+                    els_1.forEach(function (el) {
+                        if (res_1.indexOf(el) == -1)
+                            res2_1.push(el);
+                    });
+                    res_1.forEach(function (el) {
+                        if (els_1.indexOf(el) == -1)
+                            res2_1.push(el);
+                    });
+                    selection.elements = res2_1;
+                }
+                else
+                    selection.elements = res_1;
+                if (this.rectangle.parent == this)
+                    this.remove(this.rectangle);
+            }
+            else if (watcher.getIsInside() && !watcher.pointer.getIsMove()) {
+                var selection = this.getParentSelectionHandler();
+                if (selection)
+                    selection.clear();
+                var sel = void 0;
+            }
+            if (this.watcher)
+                this.watcher.cancel();
+        };
+        SelectionArea.prototype.onPtrMove = function (watcher) {
+            if (!watcher.getIsCaptured()) {
+                if (watcher.pointer.getIsMove()) {
+                    watcher.capture();
+                    this.startPos = watcher.pointer.getPosition(this);
+                    this.rectangle = new Ui.Rectangle({
+                        width: 0, height: 0,
+                        fill: 'rgba(0,0,0,0.1)'
+                    });
+                    this.append(this.rectangle);
+                }
+            }
+            else {
+                var movePos = watcher.pointer.getPosition(this);
+                this.rectangle.arrange(Math.min(movePos.x, this.startPos.x), Math.min(movePos.y, this.startPos.y), Math.abs(movePos.x - this.startPos.x), Math.abs(movePos.y - this.startPos.y));
+            }
+        };
+        SelectionArea.prototype.onKeyDown = function (event) {
+            var _this = this;
+            console.log("onKeyDown " + event.which);
+            if ((event.which >= 37 && event.which <= 40) || event.which == 65 || event.which == 16) {
+                var selection = this.getParentSelectionHandler();
+                if (!selection)
+                    return;
+                var ours = new Array();
+                ours = selection.elements.filter(function (el) { return el.getIsChildOf(_this); });
+                if (ours.length == 0)
+                    return;
+                var focusElement = ours.find(function (el) { return el.hasFocus; });
+                if (!focusElement)
+                    focusElement = ours[0];
+                var found = void 0;
+                if (event.which == 37) {
+                    found = this.findLeftSelectionable(focusElement);
+                }
+                else if (event.which == 39) {
+                    found = this.findRightSelectionable(focusElement);
+                }
+                else if (event.which == 38) {
+                    found = this.findTopSelectionable(focusElement);
+                }
+                else if (event.which == 40) {
+                    found = this.findBottomSelectionable(focusElement);
+                }
+                if (found) {
+                    event.stopPropagation();
+                    event.preventDefault();
+                    var shiftStart = this.shiftStart || focusElement;
+                    if (event.shiftKey)
+                        selection.elements = selection.findRangeElements(shiftStart, found);
+                    else
+                        selection.elements = [found];
+                    if (found.focusable)
+                        found.focus();
+                }
+                if (event.which == 65 && event.ctrlKey)
+                    selection.elements = this.findSelectionableElements();
+                if (event.which == 16)
+                    this.shiftStart = focusElement;
+            }
+        };
+        return SelectionArea;
+    }(Ui.LBox));
+    Ui.SelectionArea = SelectionArea;
+})(Ui || (Ui = {}));
+var Ui;
+(function (Ui) {
     var ListViewHeader = (function (_super) {
         __extends(ListViewHeader, _super);
         function ListViewHeader(init) {
@@ -19320,15 +20272,33 @@ var Ui;
         ListViewRow.prototype.setSelectionActions = function (value) {
             this.selectionActions = value;
         };
-        ListViewRow.prototype.onPress = function () {
-            this.setIsSelected(!this.getIsSelected());
+        ListViewRow.prototype.onPress = function (x, y, altKey, shiftKey, ctrlKey) {
+            _super.prototype.onPress.call(this, x, y, altKey, shiftKey, ctrlKey);
+            var selection = this.getParentSelectionHandler();
+            if (selection) {
+                if (ctrlKey) {
+                    if (this.isSelected)
+                        selection.remove(this);
+                    else
+                        selection.append(this);
+                }
+                else if (shiftKey)
+                    selection.extend(this);
+                else
+                    selection.elements = [this];
+            }
         };
-        ListViewRow.prototype.onSelect = function () {
-            this.select();
+        ListViewRow.prototype.onActivate = function (x, y) {
+            _super.prototype.onActivate.call(this, x, y);
+            var selection = this.getParentSelectionHandler();
+            console.log(selection.getDefaultAction());
+        };
+        ListViewRow.prototype.onSelect = function (selection) {
+            _super.prototype.onSelect.call(this, selection);
             this.onStyleChange();
         };
-        ListViewRow.prototype.onUnselect = function () {
-            this.unselect();
+        ListViewRow.prototype.onUnselect = function (selection) {
+            _super.prototype.onUnselect.call(this, selection);
             this.onStyleChange();
         };
         ListViewRow.prototype.measureCore = function (width, height) {
@@ -19354,7 +20324,7 @@ var Ui;
             }
         };
         ListViewRow.prototype.onStyleChange = function () {
-            if (this.getIsSelected())
+            if (this.isSelected)
                 this.background.fill = this.getStyleProperty('selectColor');
             else
                 this.background.fill = this.getStyleProperty('color');
@@ -19373,7 +20343,7 @@ var Ui;
         }
         ListViewRowOdd.style = {
             color: new Ui.Color(0.5, 0.5, 0.5, 0.05),
-            selectColor: new Ui.Color(0.88, 0.88, 0.88)
+            selectColor: 'rgba(8,160,229,0.6)'
         };
         return ListViewRowOdd;
     }(ListViewRow));
@@ -19385,7 +20355,7 @@ var Ui;
         }
         ListViewRowEven.style = {
             color: new Ui.Color(0.5, 0.5, 0.5, 0.1),
-            selectColor: new Ui.Color(0.88, 0.88, 0.88)
+            selectColor: 'rgba(8,160,229,0.8)'
         };
         return ListViewRowEven;
     }(ListViewRow));
@@ -19415,17 +20385,17 @@ var Ui;
     Ui.ListViewScrollLoader = ListViewScrollLoader;
     var ListView = (function (_super) {
         __extends(ListView, _super);
-        function ListView(config) {
+        function ListView(init) {
             var _this = _super.call(this) || this;
             _this.rowsHeight = 0;
             _this.headersHeight = 0;
             _this.headersVisible = true;
             _this.sortInvert = false;
-            _this.scrolled = true;
+            _this._scrolled = true;
             _this.addEvents('select', 'unselect', 'activate', 'header');
-            if (config.headers !== undefined) {
-                _this.headers = config.headers;
-                delete (config.headers);
+            if (init && init.headers != undefined) {
+                _this.headers = init.headers;
+                delete (init.headers);
             }
             else
                 _this.headers = [{ width: 100, type: 'string', title: 'Title', key: 'default' }];
@@ -19439,28 +20409,33 @@ var Ui;
             _this.headersBar = new ListViewHeadersBar({ headers: _this.headers });
             _this.connect(_this.headersBar, 'header', _this.onHeaderPress);
             _this.append(_this.headersBar);
-            _this.data = [];
-            _this.dataLoader = new ListViewScrollLoader(_this, _this.data);
+            _this._data = [];
+            _this.dataLoader = new ListViewScrollLoader(_this, _this._data);
             _this.scroll = new Ui.VBoxScrollingArea({ loader: _this.dataLoader });
             _this.append(_this.scroll, true);
+            _this.assign(init);
             return _this;
         }
-        ListView.prototype.setScrolled = function (scrolled) {
-            if (this.scrolled !== (scrolled === true)) {
-                this.scrolled = scrolled;
-                if (this.scrolled) {
-                    this.remove(this.vbox);
-                    this.scroll = new Ui.VBoxScrollingArea({ loader: this.dataLoader });
-                    this.append(this.scroll, true);
+        Object.defineProperty(ListView.prototype, "scrolled", {
+            set: function (scrolled) {
+                if (this._scrolled !== (scrolled === true)) {
+                    this._scrolled = scrolled;
+                    if (this._scrolled) {
+                        this.remove(this.vbox);
+                        this.scroll = new Ui.VBoxScrollingArea({ loader: this.dataLoader });
+                        this.append(this.scroll, true);
+                    }
+                    else {
+                        this.remove(this.scroll);
+                        this.vbox = new Ui.VBox();
+                        this.append(this.vbox, true);
+                        this.updateData(this._data);
+                    }
                 }
-                else {
-                    this.remove(this.scroll);
-                    this.vbox = new Ui.VBox();
-                    this.append(this.vbox, true);
-                    this.updateData(this.data);
-                }
-            }
-        };
+            },
+            enumerable: true,
+            configurable: true
+        });
         ListView.prototype.showHeaders = function () {
             if (!this.headersVisible) {
                 this.headersVisible = true;
@@ -19483,29 +20458,29 @@ var Ui;
             if ((position % 2) === 0)
                 return new ListViewRowOdd({
                     headers: this.headers,
-                    data: this.data[position], selectionActions: this.selectionActions
+                    data: this._data[position], selectionActions: this.selectionActions
                 });
             else
                 return new ListViewRowEven({
                     headers: this.headers,
-                    data: this.data[position], selectionActions: this.selectionActions
+                    data: this._data[position], selectionActions: this.selectionActions
                 });
         };
         ListView.prototype.appendData = function (data) {
-            this.data.push(data);
+            this._data.push(data);
             this.sortData();
-            if (this.scrolled)
+            if (this._scrolled)
                 this.dataLoader.signalChange();
             else
-                this.vbox.append(this.getElementAt(this.data.length - 1));
+                this.vbox.append(this.getElementAt(this._data.length - 1));
         };
         ListView.prototype.updateData = function (data) {
             this.sortData();
-            if (this.scrolled)
+            if (this._scrolled)
                 this.scroll.reload();
             else {
                 this.vbox.clear();
-                for (var i = 0; i < this.data.length; i++) {
+                for (var i = 0; i < this._data.length; i++) {
                     this.vbox.append(this.getElementAt(i));
                 }
             }
@@ -19516,51 +20491,55 @@ var Ui;
                 this.removeDataAt(row);
         };
         ListView.prototype.removeDataAt = function (position) {
-            if (position < this.data.length) {
-                this.data.splice(position, 1);
-                if (this.scrolled)
+            if (position < this._data.length) {
+                this._data.splice(position, 1);
+                if (this._scrolled)
                     this.scroll.reload();
                 else {
                     this.vbox.clear();
-                    for (var i = 0; i < this.data.length; i++) {
+                    for (var i = 0; i < this._data.length; i++) {
                         this.vbox.append(this.getElementAt(i));
                     }
                 }
             }
         };
         ListView.prototype.clearData = function () {
-            this.data = [];
-            this.dataLoader = new ListViewScrollLoader(this, this.data);
-            if (this.scrolled)
+            this._data = [];
+            this.dataLoader = new ListViewScrollLoader(this, this._data);
+            if (this._scrolled)
                 this.scroll.loader = this.dataLoader;
             else
                 this.vbox.clear();
         };
-        ListView.prototype.getData = function () {
-            return this.data;
-        };
-        ListView.prototype.setData = function (data) {
-            if (data !== undefined) {
-                this.data = data;
-                this.sortData();
-                this.dataLoader = new ListViewScrollLoader(this, this.data);
-                if (this.scrolled)
-                    this.scroll.loader = this.dataLoader;
-                else {
-                    this.vbox.clear();
-                    for (var i = 0; i < this.data.length; i++) {
-                        this.vbox.append(this.getElementAt(i));
+        Object.defineProperty(ListView.prototype, "data", {
+            get: function () {
+                return this._data;
+            },
+            set: function (data) {
+                if (data !== undefined) {
+                    this._data = data;
+                    this.sortData();
+                    this.dataLoader = new ListViewScrollLoader(this, this._data);
+                    if (this._scrolled)
+                        this.scroll.loader = this.dataLoader;
+                    else {
+                        this.vbox.clear();
+                        for (var i = 0; i < this._data.length; i++) {
+                            this.vbox.append(this.getElementAt(i));
+                        }
                     }
                 }
-            }
-            else {
-                this.clearData();
-            }
-        };
+                else {
+                    this.clearData();
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
         ListView.prototype.sortData = function () {
             var key = this.sortColKey;
             var invert = this.sortInvert;
-            this.data.sort(function (a, b) {
+            this._data.sort(function (a, b) {
                 var res;
                 if (a[key] < b[key])
                     res = -1;
@@ -19576,20 +20555,20 @@ var Ui;
             this.sortInvert = invert === true;
             this.headersBar.sortBy(this.sortColKey, this.sortInvert);
             this.sortData();
-            if (this.scrolled) {
+            if (this._scrolled) {
                 this.scroll.reload();
                 this.invalidateArrange();
             }
             else {
                 this.vbox.clear();
-                for (var i = 0; i < this.data.length; i++) {
+                for (var i = 0; i < this._data.length; i++) {
                     this.vbox.append(this.getElementAt(i));
                 }
             }
         };
         ListView.prototype.findDataRow = function (data) {
-            for (var row = 0; row < this.data.length; row++) {
-                if (data == this.data[row])
+            for (var row = 0; row < this._data.length; row++) {
+                if (data == this._data[row])
                     return row;
             }
             return -1;
@@ -19604,9 +20583,9 @@ var Ui;
         ListView.prototype.onChildInvalidateArrange = function (child) {
             _super.prototype.onChildInvalidateArrange.call(this, child);
             if (child === this.headersBar) {
-                if (this.scrolled && (this.scroll !== undefined))
+                if (this._scrolled && (this.scroll !== undefined))
                     this.scroll.getActiveItems().forEach(function (item) { item.invalidateArrange(); });
-                else if (!this.scrolled)
+                else if (!this._scrolled)
                     this.vbox.children.forEach(function (item) { item.invalidateArrange(); });
             }
         };
@@ -20333,20 +21312,21 @@ var Ui;
     var Fold = (function (_super) {
         __extends(Fold, _super);
         function Fold(init) {
-            var _this = _super.call(this, init) || this;
+            var _this = _super.call(this) || this;
             _this._offset = 0;
             _this._position = 'bottom';
             _this._isFolded = true;
             _this._over = true;
             _this._mode = 'extend';
             _this.contentSize = 0;
-            _this._animDuration = 2;
+            _this._animDuration = 0.5;
             _this.addEvents('fold', 'unfold', 'positionchange');
             _this.headerBox = new Ui.LBox();
             _this.appendChild(_this.headerBox);
             _this.contentBox = new Ui.LBox();
             _this.appendChild(_this.contentBox);
             _this.contentBox.hide();
+            _this.assign(init);
             return _this;
         }
         Object.defineProperty(Fold.prototype, "isFolded", {
@@ -21426,26 +22406,26 @@ var Ui;
                 if (typeof (effect) === 'function') {
                     var effects = this.onDragEffectFunction(dataTransfer, effect);
                     for (var i = 0; i < effects.length; i++) {
-                        var effect_2 = effects[i];
-                        if (typeof (effect_2) === 'string')
-                            effect_2 = { action: effect_2 };
-                        if (!('text' in effect_2)) {
-                            if (effect_2.action === 'copy')
-                                effect_2.text = 'Copier';
-                            else if (effect_2.action === 'move')
-                                effect_2.text = 'Déplacer';
-                            else if (effect_2.action === 'link')
-                                effect_2.text = 'Lier';
-                            else if (effect_2.action === 'run')
-                                effect_2.text = 'Exécuter';
-                            else if (effect_2.action === 'play')
-                                effect_2.text = 'Jouer';
+                        var effect_3 = effects[i];
+                        if (typeof (effect_3) === 'string')
+                            effect_3 = { action: effect_3 };
+                        if (!('text' in effect_3)) {
+                            if (effect_3.action === 'copy')
+                                effect_3.text = 'Copier';
+                            else if (effect_3.action === 'move')
+                                effect_3.text = 'Déplacer';
+                            else if (effect_3.action === 'link')
+                                effect_3.text = 'Lier';
+                            else if (effect_3.action === 'run')
+                                effect_3.text = 'Exécuter';
+                            else if (effect_3.action === 'play')
+                                effect_3.text = 'Jouer';
                             else
-                                effect_2.text = effect_2.action;
+                                effect_3.text = effect_3.action;
                         }
-                        if (!('dragicon' in effect_2))
-                            effect_2.dragicon = 'drag' + effect_2.action;
-                        effects[i] = effect_2;
+                        if (!('dragicon' in effect_3))
+                            effect_3.dragicon = 'drag' + effect_3.action;
+                        effects[i] = effect_3;
                     }
                     effect = effects;
                 }
@@ -21687,5 +22667,659 @@ var Ui;
         return HDropBox;
     }(DropAtBox));
     Ui.HDropBox = HDropBox;
+})(Ui || (Ui = {}));
+var Ui;
+(function (Ui) {
+    var SegmentBar = (function (_super) {
+        __extends(SegmentBar, _super);
+        function SegmentBar(init) {
+            var _this = _super.call(this) || this;
+            _this._field = 'text';
+            _this._orientation = 'horizontal';
+            _this.focusable = true;
+            _this.addEvents('change');
+            _this.border = new Ui.Frame();
+            _this.append(_this.border);
+            _this.box = new Ui.Box({ uniform: true, margin: 1, spacing: 1, orientation: _this._orientation });
+            _this.append(_this.box);
+            _this.connect(_this, 'focus', _this.onStyleChange);
+            _this.connect(_this, 'blur', _this.onStyleChange);
+            _this.connect(_this.drawing, 'keydown', _this.onKeyDown);
+            _this.assign(init);
+            return _this;
+        }
+        Object.defineProperty(SegmentBar.prototype, "orientation", {
+            set: function (orientation) {
+                this._orientation = orientation;
+                this.box.orientation = orientation;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(SegmentBar.prototype, "field", {
+            set: function (field) {
+                this._field = field;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(SegmentBar.prototype, "data", {
+            set: function (data) {
+                while (this.box.firstChild !== undefined) {
+                    this.disconnect(this.box.firstChild, 'toggle', this.onSegmentSelect);
+                    this.box.remove(this.box.firstChild);
+                }
+                this._data = data;
+                for (var i = 0; i < data.length; i++) {
+                    var mode = void 0;
+                    if (this._orientation === 'horizontal')
+                        mode = (i === 0) ? 'left' : (i === data.length - 1) ? 'right' : 'middle';
+                    else
+                        mode = (i === 0) ? 'top' : (i === data.length - 1) ? 'bottom' : 'middle';
+                    var segment = new Ui.SegmentButton({ data: data[i], text: data[i][this._field], mode: mode });
+                    this.box.append(segment, true);
+                    this.connect(segment, 'press', this.onSegmentSelect);
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(SegmentBar.prototype, "currentPosition", {
+            get: function () {
+                for (var i = 0; i < this.box.children.length; i++) {
+                    if (this.box.children[i] === this.current)
+                        return i;
+                }
+            },
+            set: function (position) {
+                if ((position >= 0) && (position < this.box.children.length)) {
+                    this.current = this.box.children[position];
+                    this.onSegmentSelect(this.current);
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        SegmentBar.prototype.next = function () {
+            for (var i = 0; i < this.box.children.length; i++) {
+                if (this.box.children[i] === this.current) {
+                    this.currentPosition = i + 1;
+                    break;
+                }
+            }
+        };
+        SegmentBar.prototype.previous = function () {
+            for (var i = 0; i < this.box.children.length; i++) {
+                if (this.box.children[i] === this.current) {
+                    this.currentPosition = i - 1;
+                    break;
+                }
+            }
+        };
+        SegmentBar.prototype.onSegmentSelect = function (segment) {
+            this.current = segment;
+            this.onStyleChange();
+            this.fireEvent('change', this, segment.data);
+        };
+        SegmentBar.prototype.onKeyDown = function (event) {
+            if (this.isDisabled)
+                return;
+            var key = event.which;
+            if ((key == 37) || (key == 39)) {
+                event.stopPropagation();
+                event.preventDefault();
+            }
+            if (key == 37)
+                this.previous();
+            else if (key == 39)
+                this.next();
+        };
+        SegmentBar.prototype.onStyleChange = function () {
+            var spacing = this.getStyleProperty('spacing');
+            var padding = this.getStyleProperty('padding');
+            var radius = this.getStyleProperty('radius');
+            var borderWidth = this.getStyleProperty('borderWidth');
+            this.border.radius = radius;
+            this.border.frameWidth = borderWidth;
+            var background = this.getStyleProperty('background');
+            var backgroundBorder = this.getStyleProperty('backgroundBorder');
+            var foreground = this.getStyleProperty('foreground');
+            if (this.hasFocus && !this.getIsMouseFocus()) {
+                background = this.getStyleProperty('focusBackground');
+                backgroundBorder = this.getStyleProperty('focusBackgroundBorder');
+                foreground = this.getStyleProperty('focusForeground');
+            }
+            var activeBackground = this.getStyleProperty('activeBackground');
+            var activeForeground = this.getStyleProperty('activeForeground');
+            var textHeight = this.getStyleProperty('textHeight');
+            var textTransform = this.getStyleProperty('textTransform');
+            this.box.margin = borderWidth;
+            this.border.fill = backgroundBorder;
+            for (var i = 0; i < this.box.children.length; i++) {
+                var child = this.box.children[i];
+                child.radius = Math.max(0, radius - borderWidth);
+                child.spacing = padding - borderWidth;
+                child.textHeight = textHeight;
+                child.textTransform = textTransform;
+                if (this.current === child) {
+                    child.background = activeBackground;
+                    child.foreground = activeForeground;
+                }
+                else {
+                    child.background = background;
+                    child.foreground = foreground;
+                }
+            }
+        };
+        SegmentBar.style = {
+            borderWidth: 1,
+            background: 'rgba(240,240,240,1)',
+            backgroundBorder: 'rgba(102,102,102,1)',
+            foreground: '#444444',
+            focusBackground: 'rgba(240,240,240,1)',
+            focusBackgroundBorder: '#07a0e5',
+            focusForeground: '#07a0e5',
+            activeBackground: '#07a0e5',
+            activeForeground: 'rgba(250,250,250,1)',
+            radius: 3,
+            textHeight: 26,
+            spacing: 10,
+            padding: 7,
+            textTransform: 'uppercase'
+        };
+        return SegmentBar;
+    }(Ui.LBox));
+    Ui.SegmentBar = SegmentBar;
+    var SegmentButton = (function (_super) {
+        __extends(SegmentButton, _super);
+        function SegmentButton(init) {
+            var _this = _super.call(this) || this;
+            _this._mode = undefined;
+            _this._radius = 3;
+            _this.focusable = false;
+            _this.bg = new Ui.Rectangle();
+            _this.append(_this.bg);
+            _this.textBox = new Ui.LBox();
+            _this.append(_this.textBox);
+            _this.label = new Ui.CompactLabel({ verticalAlign: 'center', whiteSpace: 'nowrap', textAlign: 'center' });
+            _this.textBox.content = _this.label;
+            _this.assign(init);
+            return _this;
+        }
+        Object.defineProperty(SegmentButton.prototype, "textTransform", {
+            set: function (textTransform) {
+                this.label.textTransform = textTransform;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(SegmentButton.prototype, "foreground", {
+            set: function (color) {
+                this.label.color = Ui.Color.create(color);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(SegmentButton.prototype, "data", {
+            get: function () {
+                return this._data;
+            },
+            set: function (data) {
+                this._data = data;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(SegmentButton.prototype, "text", {
+            set: function (text) {
+                this.label.text = text;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(SegmentButton.prototype, "textHeight", {
+            set: function (height) {
+                this.textBox.height = height;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(SegmentButton.prototype, "mode", {
+            set: function (mode) {
+                this._mode = mode;
+                if (mode == 'left') {
+                    this.bg.radiusTopLeft = this._radius;
+                    this.bg.radiusBottomLeft = this._radius;
+                    this.bg.radiusTopRight = 0;
+                    this.bg.radiusBottomRight = 0;
+                }
+                else if (mode == 'right') {
+                    this.bg.radiusTopLeft = 0;
+                    this.bg.radiusBottomLeft = 0;
+                    this.bg.radiusTopRight = this._radius;
+                    this.bg.radiusBottomRight = this._radius;
+                }
+                else if (mode == 'top') {
+                    this.bg.radiusTopLeft = this._radius;
+                    this.bg.radiusBottomLeft = 0;
+                    this.bg.radiusTopRight = this._radius;
+                    this.bg.radiusBottomRight = 0;
+                }
+                else if (mode == 'bottom') {
+                    this.bg.radiusTopLeft = 0;
+                    this.bg.radiusBottomLeft = this._radius;
+                    this.bg.radiusTopRight = 0;
+                    this.bg.radiusBottomRight = this._radius;
+                }
+                else {
+                    this.bg.radiusTopLeft = 0;
+                    this.bg.radiusBottomLeft = 0;
+                    this.bg.radiusTopRight = 0;
+                    this.bg.radiusBottomRight = 0;
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(SegmentButton.prototype, "radius", {
+            set: function (radius) {
+                this._radius = radius;
+                this.mode = this._mode;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(SegmentButton.prototype, "spacing", {
+            set: function (spacing) {
+                this.textBox.margin = spacing;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(SegmentButton.prototype, "background", {
+            set: function (color) {
+                this.bg.fill = color;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        SegmentButton.prototype.onDisable = function () {
+            _super.prototype.onDisable.call(this);
+            this.bg.opacity = 0.2;
+        };
+        SegmentButton.prototype.onEnable = function () {
+            _super.prototype.onEnable.call(this);
+            this.bg.opacity = 1;
+        };
+        return SegmentButton;
+    }(Ui.Pressable));
+    Ui.SegmentButton = SegmentButton;
+})(Ui || (Ui = {}));
+var Ui;
+(function (Ui) {
+    var Locator = (function (_super) {
+        __extends(Locator, _super);
+        function Locator(init) {
+            var _this = _super.call(this, init) || this;
+            _this.addEvents('change');
+            _this.connect(_this, 'focus', _this.updateColors);
+            _this.connect(_this, 'blur', _this.updateColors);
+            return _this;
+        }
+        Object.defineProperty(Locator.prototype, "path", {
+            get: function () {
+                return this._path;
+            },
+            set: function (path) {
+                var spacing = this.getStyleProperty('spacing');
+                var radius = this.getStyleProperty('radius');
+                var padding = this.getStyleProperty('padding');
+                this._path = path;
+                while (this.children.length > 0)
+                    this.removeChild(this.children[0]);
+                this.border = new Ui.Rectangle({ fill: '#888888', radius: radius });
+                this.appendChild(this.border);
+                this.backgrounds = [];
+                this.foregrounds = [];
+                if (path == '/') {
+                    var bg = new Ui.Rectangle({ radius: radius - 1 });
+                    this.backgrounds.push(bg);
+                    this.appendChild(bg);
+                    var fg = new Ui.Pressable({ padding: padding });
+                    fg.locatorPath = '/';
+                    fg.locatorPos = 0;
+                    this.connect(fg, 'press', this.onPathPress);
+                    this.connect(fg, 'down', this.onPathDown);
+                    this.connect(fg, 'up', this.onPathUp);
+                    this.connect(fg, 'focus', this.onPathFocus);
+                    this.connect(fg, 'blur', this.onPathBlur);
+                    var home = new Ui.Icon({ icon: 'home', width: 24, height: 24 });
+                    home.verticalAlign = 'center';
+                    home.horizontalAlign = 'center';
+                    fg.appendChild(home);
+                    this.foregrounds.push(fg);
+                    this.appendChild(fg);
+                }
+                else {
+                    var paths = path.split('/');
+                    var cleanPaths = [];
+                    for (var i = 0; i < paths.length; i++) {
+                        if (paths[i] !== '')
+                            cleanPaths.push(paths[i]);
+                    }
+                    paths = cleanPaths;
+                    var bg = new LocatorRightArrow({ arrowLength: spacing, radius: radius - 1 });
+                    this.backgrounds.push(bg);
+                    this.appendChild(bg);
+                    for (var i = 0; i < paths.length; i++) {
+                        var bg_1 = void 0;
+                        if (i == paths.length - 1)
+                            bg_1 = new LocatorLeftArrow({ arrowLength: spacing, radius: radius - 1 });
+                        else
+                            bg_1 = new LocatorLeftRightArrow({ arrowLength: spacing });
+                        this.backgrounds.push(bg_1);
+                        this.appendChild(bg_1);
+                    }
+                    var currentPath = '/';
+                    var fg = new Ui.Pressable({ padding: padding });
+                    this.connect(fg, 'press', this.onPathPress);
+                    this.connect(fg, 'down', this.onPathDown);
+                    this.connect(fg, 'up', this.onPathUp);
+                    this.connect(fg, 'focus', this.onPathFocus);
+                    this.connect(fg, 'blur', this.onPathBlur);
+                    var home = new Ui.Icon({ icon: 'home', width: 24, height: 24 });
+                    home.verticalAlign = 'center';
+                    home.horizontalAlign = 'center';
+                    fg.locatorPos = 0;
+                    fg.locatorPath = '/';
+                    fg.appendChild(home);
+                    this.foregrounds.push(fg);
+                    this.appendChild(fg);
+                    for (var i = 0; i < paths.length; i++) {
+                        currentPath += paths[i];
+                        var fg_1 = new Ui.Pressable({ padding: padding });
+                        fg_1.locatorPos = i + 1;
+                        this.connect(fg_1, 'press', this.onPathPress);
+                        this.connect(fg_1, 'down', this.onPathDown);
+                        this.connect(fg_1, 'up', this.onPathUp);
+                        this.connect(fg_1, 'focus', this.onPathFocus);
+                        this.connect(fg_1, 'blur', this.onPathBlur);
+                        fg_1.locatorPath = currentPath;
+                        fg_1.appendChild(new Ui.Label({ text: paths[i], verticalAlign: 'center' }));
+                        this.foregrounds.push(fg_1);
+                        this.appendChild(fg_1);
+                        currentPath += '/';
+                    }
+                }
+                this.updateColors();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Locator.prototype.getBackground = function () {
+            return Ui.Color.create(this.getStyleProperty('background'));
+        };
+        Locator.prototype.getLightColor = function () {
+            var yuv = this.getBackground().getYuv();
+            var deltaY = 0;
+            if (yuv.y < 0.4)
+                return Ui.Color.createFromYuv(yuv.y - 0.15 + deltaY, yuv.u, yuv.v);
+            else
+                return Ui.Color.createFromYuv(yuv.y + 0.15 + deltaY, yuv.u, yuv.v);
+        };
+        Locator.prototype.getBackgroundBorder = function () {
+            var color;
+            if ((this.focusedPart !== undefined) && !this.focusedPart.getIsMouseFocus())
+                color = Ui.Color.create(this.getStyleProperty('focusBackgroundBorder'));
+            else
+                color = Ui.Color.create(this.getStyleProperty('backgroundBorder'));
+            var yuv = color.getYuva();
+            var deltaY = 0;
+            return Ui.Color.createFromYuv(yuv.y + deltaY, yuv.u, yuv.v, yuv.a);
+        };
+        Locator.prototype.getDownColor = function () {
+            var yuv = this.getBackground().getYuv();
+            var deltaY = -0.20;
+            if (yuv.y < 0.4)
+                return Ui.Color.createFromYuv(yuv.y - 0.15 + deltaY, yuv.u, yuv.v);
+            else
+                return Ui.Color.createFromYuv(yuv.y + 0.15 + deltaY, yuv.u, yuv.v);
+        };
+        Locator.prototype.onPathPress = function (pathItem) {
+            this.fireEvent('change', this, pathItem.locatorPath, pathItem.locatorPos);
+        };
+        Locator.prototype.onPathDown = function (pathItem) {
+            this.backgrounds[pathItem.locatorPos].fill = this.getDownColor();
+        };
+        Locator.prototype.onPathUp = function (pathItem) {
+            this.backgrounds[pathItem.locatorPos].fill = this.getLightColor();
+        };
+        Locator.prototype.onPathFocus = function (pressable) {
+            this.focusedPart = pressable;
+            this.updateColors();
+        };
+        Locator.prototype.onPathBlur = function (pressable) {
+            this.focusedPart = undefined;
+            this.updateColors();
+        };
+        Locator.prototype.updateColors = function () {
+            var backgroundColor = this.getBackground();
+            var focusBackgroundColor = Ui.Color.create(this.getStyleProperty('focusBackground'));
+            this.border.fill = this.getBackgroundBorder();
+            var focusPos = -1;
+            if (this.focusedPart !== undefined) {
+                for (var i = 0; (focusPos === -1) && (i < this.foregrounds.length); i++)
+                    if (this.foregrounds[i] === this.focusedPart)
+                        focusPos = i;
+            }
+            for (var i = 0; i < this.backgrounds.length; i++) {
+                if (i === focusPos)
+                    this.backgrounds[i].fill = focusBackgroundColor;
+                else
+                    this.backgrounds[i].fill = backgroundColor;
+            }
+        };
+        Locator.prototype.measureCore = function (width, height) {
+            console.log('locator.measureCore ');
+            console.log(this.foregrounds);
+            if (this.foregrounds.length === 0)
+                return { width: 0, height: 0 };
+            var i;
+            for (i = 0; i < this.foregrounds.length; i++)
+                this.foregrounds[i].measure(0, 0);
+            for (i = 0; i < this.backgrounds.length; i++)
+                this.backgrounds[i].measure(0, 0);
+            this.border.measure(0, 0);
+            if (this.foregrounds.length == 1)
+                return { width: this.foregrounds[0].measureWidth + 2, height: this.foregrounds[0].measureHeight + 2 };
+            else {
+                var minWidth = 0;
+                var minHeight = 0;
+                for (i = 0; i < this.foregrounds.length; i++) {
+                    var child = this.foregrounds[i];
+                    if (child.measureHeight > minHeight)
+                        minHeight = child.measureHeight;
+                    minWidth += child.measureWidth;
+                }
+                var spacing = this.getStyleProperty('spacing');
+                var borderWidth = this.getStyleProperty('borderWidth');
+                minWidth += (this.foregrounds.length - 1) * (spacing + borderWidth);
+                return { width: minWidth + (2 * borderWidth), height: minHeight + (2 * borderWidth) };
+            }
+        };
+        Locator.prototype.arrangeCore = function (width, height) {
+            var borderWidth = this.getStyleProperty('borderWidth');
+            if (this.foregrounds.length == 1) {
+                this.foregrounds[0].arrange(borderWidth, borderWidth, width - 2 * borderWidth, height - 2 * borderWidth);
+                this.backgrounds[0].arrange(borderWidth, borderWidth, width - 2 * borderWidth, height - 2 * borderWidth);
+                this.border.arrange(0, 0, width, height);
+                return;
+            }
+            var spacing = this.getStyleProperty('spacing');
+            var x = borderWidth;
+            for (var i = 0; i < this.foregrounds.length; i++) {
+                var bg = this.backgrounds[i];
+                var fg = this.foregrounds[i];
+                var fgWidth = fg.measureWidth;
+                fg.arrange(x + 1, 0 + borderWidth, fgWidth, height - 2 * borderWidth);
+                if (i === 0)
+                    bg.arrange(x, 0 + borderWidth, fgWidth + spacing, height - 2 * borderWidth);
+                else if (i == this.foregrounds.length - 1)
+                    bg.arrange(x - spacing, 0 + borderWidth, fgWidth + spacing, height - 2 * borderWidth);
+                else
+                    bg.arrange(x - spacing, 0 + borderWidth, fgWidth + spacing * 2, height - 2 * borderWidth);
+                x += fgWidth + spacing + borderWidth;
+            }
+            this.border.arrange(0, 0, width, height);
+        };
+        Locator.prototype.onStyleChange = function () {
+            var spacing = this.getStyleProperty('spacing');
+            var padding = this.getStyleProperty('padding');
+            var radius = this.getStyleProperty('radius');
+            var borderWidth = this.getStyleProperty('borderWidth');
+            for (var i = 0; i < this.backgrounds.length; i++) {
+                var bg = this.backgrounds[i];
+                if ('arrowLength' in bg)
+                    bg.arrowLength = spacing;
+                bg.radius = radius - borderWidth;
+            }
+            for (var i = 0; i < this.foregrounds.length; i++)
+                this.foregrounds[i].padding = padding;
+            this.border.radius = radius;
+            this.updateColors();
+        };
+        Locator.prototype.onDisable = function () {
+            _super.prototype.onDisable.call(this);
+            for (var i = 0; i < this.foregrounds.length; i++)
+                this.foregrounds[i].opacity = 0.4;
+        };
+        Locator.prototype.onEnable = function () {
+            _super.prototype.onEnable.call(this);
+            for (var i = 0; i < this.foregrounds.length; i++)
+                this.foregrounds[i].opacity = 1;
+        };
+        Locator.style = {
+            background: 'rgba(250,250,250,1)',
+            backgroundBorder: 'rgba(140,140,140,1)',
+            focusBackground: '#07a0e5',
+            focusBackgroundBorder: Ui.Color.createFromRgb(0.04, 0.43, 0.5),
+            focusActiveBackgroundBorder: Ui.Color.createFromRgb(0.04, 0.43, 0.5),
+            radius: 3,
+            spacing: 10,
+            padding: 8,
+            borderWidth: 1
+        };
+        return Locator;
+    }(Ui.Container));
+    Ui.Locator = Locator;
+    var LocatorRightArrow = (function (_super) {
+        __extends(LocatorRightArrow, _super);
+        function LocatorRightArrow(config) {
+            var _this = _super.call(this) || this;
+            _this._radius = 8;
+            _this._length = 10;
+            _this._fill = new Ui.Color();
+            return _this;
+        }
+        Object.defineProperty(LocatorRightArrow.prototype, "radius", {
+            set: function (radius) {
+                this._radius = radius;
+                this.invalidateArrange();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(LocatorRightArrow.prototype, "arrowLength", {
+            set: function (length) {
+                this._length = length;
+                this.invalidateArrange();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(LocatorRightArrow.prototype, "fill", {
+            set: function (color) {
+                this._fill = Ui.Color.create(color);
+                this.invalidateDraw();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        LocatorRightArrow.prototype.updateCanvas = function (ctx) {
+            var width = this.layoutWidth;
+            var height = this.layoutHeight;
+            var v1 = width - this._length;
+            var v2 = height / 2;
+            var v3 = height - this._radius;
+            ctx.svgPath('M' + this._radius + ',0 L' + v1 + ',0 L' + width + ',' + v2 + ' L' + v1 + ',' + height + ' L' + this._radius + ',' + height + ' Q0,' + height + ' 0,' + v3 + ' L0,' + this._radius + ' Q0,0 ' + this._radius + ',0 z');
+            ctx.fillStyle = this._fill.getCssRgba();
+            ctx.fill();
+        };
+        return LocatorRightArrow;
+    }(Ui.CanvasElement));
+    Ui.LocatorRightArrow = LocatorRightArrow;
+    var LocatorLeftArrow = (function (_super) {
+        __extends(LocatorLeftArrow, _super);
+        function LocatorLeftArrow(init) {
+            var _this = _super.call(this, init) || this;
+            _this._radius = 8;
+            _this._length = 10;
+            return _this;
+        }
+        Object.defineProperty(LocatorLeftArrow.prototype, "radius", {
+            set: function (radius) {
+                this._radius = radius;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(LocatorLeftArrow.prototype, "arrowLength", {
+            set: function (length) {
+                this._length = length;
+                this.invalidateDraw();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        LocatorLeftArrow.prototype.arrangeCore = function (width, height) {
+            _super.prototype.arrangeCore.call(this, width, height);
+            var v2 = width - this._radius;
+            var v3 = height - this._radius;
+            var v4 = height / 2;
+            this.path = 'M0,0 L' + v2 + ',0 Q' + width + ',0 ' + width + ',' + this._radius + ' L' + width + ',' + v3 + ' Q' + width + ',' + height + ' ' + v2 + ',' + height + ' L0,' + height + ' L' + this._length + ',' + v4 + ' z';
+        };
+        return LocatorLeftArrow;
+    }(Ui.Shape));
+    Ui.LocatorLeftArrow = LocatorLeftArrow;
+    var LocatorLeftRightArrow = (function (_super) {
+        __extends(LocatorLeftRightArrow, _super);
+        function LocatorLeftRightArrow(init) {
+            var _this = _super.call(this) || this;
+            _this._length = 10;
+            return _this;
+        }
+        Object.defineProperty(LocatorLeftRightArrow.prototype, "radius", {
+            set: function (radius) {
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(LocatorLeftRightArrow.prototype, "arrowLength", {
+            set: function (length) {
+                this._length = length;
+                this.invalidateDraw();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        LocatorLeftRightArrow.prototype.arrangeCore = function (width, height) {
+            _super.prototype.arrangeCore.call(this, width, height);
+            var v1 = width - this._length;
+            var v2 = height / 2;
+            this.path = 'M0,0 L' + v1 + ',0 L' + width + ',' + v2 + ' L' + v1 + ',' + height + ' L0,' + height + ' L' + this._length + ',' + v2 + ' z';
+        };
+        return LocatorLeftRightArrow;
+    }(Ui.Shape));
+    Ui.LocatorLeftRightArrow = LocatorLeftRightArrow;
 })(Ui || (Ui = {}));
 //# sourceMappingURL=era.js.map

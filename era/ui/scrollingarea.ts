@@ -13,9 +13,13 @@ namespace Ui {
 			this.rect = new Rectangle();
 			if (orientation == 'horizontal') {
 				this.rect.width = 30; this.rect.height = 5;
+				this.over.height = 15;
+				this.rect.verticalAlign = 'bottom';
 			}
 			else {
 				this.rect.width = 5; this.rect.height = 30;
+				this.over.width = 15;
+				this.rect.horizontalAlign = 'right';
 			}
 			this.over.content = this.rect;
 			this.connect(this.over, 'enter', this.startAnim);

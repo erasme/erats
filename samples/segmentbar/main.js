@@ -1,0 +1,35 @@
+"use strict";
+/// <reference path="../../era/era.d.ts" />
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var App = (function (_super) {
+    __extends(App, _super);
+    function App() {
+        var _this = _super.call(this) || this;
+        var vbox = new Ui.VBox({ horizontalAlign: 'center', verticalAlign: 'center', spacing: 5 });
+        _this.content = vbox;
+        var label = new Ui.Label({ horizontalAlign: 'center' });
+        vbox.append(label);
+        var segmentbar = new Ui.SegmentBar({
+            field: 'text', data: [
+                { text: 'Home' }, { text: 'Download' }, { text: 'API' }, { text: 'Samples' }
+            ]
+        });
+        vbox.append(segmentbar);
+        _this.connect(segmentbar, 'change', function (segmentbar, data) {
+            return label.text = "Choice: " + data.text;
+        });
+        segmentbar.currentPosition = 0;
+        return _this;
+    }
+    return App;
+}(Ui.App));
+new App();

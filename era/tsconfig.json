@@ -109,6 +109,7 @@
         "ui/iframe.ts",
         "ui/contenteditable.ts",
         "ui/vboxscrollable.ts",
+        "ui/selectionarea.ts",
         "ui/listview.ts",
         "ui/uploadable.ts",
         "ui/uploadbutton.ts",
@@ -121,6 +122,8 @@
         "ui/switch.ts",
         "ui/accordeonable.ts",
         "ui/accordeon.ts",
-        "ui/dropatbox.ts"
+        "ui/dropatbox.ts",
+        "ui/segmentbar.ts",
+        "ui/locator.ts"
     ]
 }

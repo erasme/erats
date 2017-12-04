@@ -29,7 +29,6 @@ namespace Ui
 		viewHeight: number = 0;
 		contentWidth: number = 0;
 		contentHeight: number = 0;
-		protected overWatcher: PointerWatcher = undefined;
 		scrollLock: boolean = false;
 		scrollbarVerticalNeeded: boolean = false;
 		scrollbarHorizontalNeeded: boolean = false;
@@ -45,35 +44,22 @@ namespace Ui
 			this.connect(this.contentBox, 'inertiaend', this.autoHideScrollbars);
 			this.appendChild(this.contentBox);
 
-			this.connect(this, 'ptrmove', (event: PointerEvent) => {
-				if (!this.isDisabled && !event.pointer.getIsDown() && (this.overWatcher === undefined)) {
-					this.overWatcher = event.pointer.watch(this);
+			new OverWatcher({
+				element: this,
+				enter: () => {
 					this.isOver = true;
-					// enter
 					this.autoShowScrollbars();
-
-					this.connect(this.overWatcher, 'move', () => {
-						if (!this.overWatcher.getIsInside())
-							this.overWatcher.cancel();
-					});
-					this.connect(this.overWatcher, 'down', () => {
-						this.overWatcher.cancel();
-					});
-					this.connect(this.overWatcher, 'up', () => {
-						this.overWatcher.cancel();
-					});
-					this.connect(this.overWatcher, 'cancel', () => {
-						this.overWatcher = undefined;
-						this.isOver = false;
-						// leave
-						this.autoHideScrollbars();
-					});
+				},
+				leave: () => {
+					this.isOver = false;
+					this.autoHideScrollbars();
 				}
 			});
 
 			this.connect(this, 'wheel', this.onWheel);
-			if (init)
-				this.assign(init);
+			this.connect(this.drawing, 'keydown', this.onKeyDown);
+
+			this.assign(init);
 		}
 
 		set maxScale(maxScale: number) {
@@ -158,7 +144,7 @@ namespace Ui
 			}
 		}
 	
-		setOffset(offsetX: number, offsetY: number, absolute: boolean = false) {
+		setOffset(offsetX?: number, offsetY?: number, absolute: boolean = false, align: boolean = false) {
 
 			if (absolute === undefined)
 				absolute = false;
@@ -189,6 +175,10 @@ namespace Ui
 			else
 				this.relativeOffsetY = offsetY / (this.contentHeight - this.viewHeight);
 
+			if (align) {
+				offsetX = Math.round(offsetX);
+				offsetY = Math.round(offsetY);
+			}
 			if ((this.offsetX !== offsetX) || (this.offsetY !== offsetY)) {
 				this.offsetX = offsetX;
 				this.offsetY = offsetY;
@@ -232,8 +222,31 @@ namespace Ui
 		}
 
 		protected onWheel(event: WheelEvent) {
-			if (this.setOffset(this.contentBox.offsetX + event.deltaX * 3, this.contentBox.offsetY + event.deltaY * 3, true)) {
+			let deltaX = event.deltaX;
+			let deltaY = event.deltaY;
+			if (event.shiftKey) {
+				deltaX = event.deltaY;
+				deltaY = event.deltaX;
+			}
+
+			if (this.setOffset(this.contentBox.offsetX + deltaX * 3, this.contentBox.offsetY + deltaY * 3, true)) {
 				event.stopPropagation();
+			}
+		}
+
+		protected onKeyDown(event) {
+			if (this.isDisabled)
+				return;
+			let key = event.which;
+			// page down
+			if (key == 34 && this.setOffset(undefined, this.contentBox.offsetY + this.layoutHeight, true)) {
+				event.stopPropagation();
+				event.preventDefault();
+			}
+			// page up
+			else if (key == 33 && this.setOffset(undefined, this.contentBox.offsetY - this.layoutHeight, true)) {
+				event.stopPropagation();
+				event.preventDefault();
 			}
 		}
 
@@ -385,7 +398,7 @@ namespace Ui
 				return;
 			let totalWidth = this.viewWidth - this.scrollbarHorizontalBox.layoutWidth;
 			let offsetX = Math.min(1, Math.max(0, movable.positionX / totalWidth));
-			this.setOffset(offsetX, undefined);
+			this.setOffset(offsetX, undefined, false, true);
 			movable.setPosition(offsetX * totalWidth, undefined);
 		}
 
@@ -394,7 +407,7 @@ namespace Ui
 				return;
 			let totalHeight = this.viewHeight - this.scrollbarVerticalBox.layoutHeight;
 			let offsetY = Math.min(1, Math.max(0, movable.positionY / totalHeight));
-			this.setOffset(undefined, offsetY);
+			this.setOffset(undefined, offsetY, false, true);
 			movable.setPosition(undefined, offsetY * totalHeight);
 		}
 
@@ -467,6 +480,7 @@ namespace Ui
 			super();
 			this.addEvents('scroll');
 
+			this.allowLeftMouse = false;
 			this.clipToBounds = true;
 			this.connect(this.drawing, 'scroll', () => {
 				this.translateX -= this.drawing.scrollLeft;

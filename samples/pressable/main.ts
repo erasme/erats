@@ -8,12 +8,16 @@ class App extends Ui.App {
 
 		let count = 0;
 		let activateCount = 0;
-
+		let delayedCount = 0;
+		
         let label = new Ui.Label({ text: 'press count: 0' });
         vbox.append(label);
 
         let label2 = new Ui.Label({ text: 'activate count: 0' });
 		vbox.append(label2);
+
+		let label3 = new Ui.Label({ text: 'delayed press count: 0' });
+		vbox.append(label3);
 
 		let pressable = new Ui.Pressable();
 		vbox.append(pressable);
@@ -25,6 +29,7 @@ class App extends Ui.App {
 		pressable.append(rectangle);
 		this.connect(pressable, 'press', () => label.text = `press count: ${++count}`);
 		this.connect(pressable, 'activate', () => label2.text = `activate count: ${++activateCount}`);
+		this.connect(pressable, 'delayedpress', () => label3.text = `delayed press count: ${++delayedCount}`);
 		this.connect(pressable, 'down', () => rectangle.fill = 'blue');
 		this.connect(pressable, 'up', () => rectangle.fill = 'lightblue');
 	}	

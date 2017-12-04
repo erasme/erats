@@ -18,10 +18,13 @@ var App = (function (_super) {
         _this.setContent(vbox);
         var count = 0;
         var activateCount = 0;
+        var delayedCount = 0;
         var label = new Ui.Label({ text: 'press count: 0' });
         vbox.append(label);
         var label2 = new Ui.Label({ text: 'activate count: 0' });
         vbox.append(label2);
+        var label3 = new Ui.Label({ text: 'delayed press count: 0' });
+        vbox.append(label3);
         var pressable = new Ui.Pressable();
         vbox.append(pressable);
         var rectangle = new Ui.Rectangle({
@@ -30,6 +33,7 @@ var App = (function (_super) {
         pressable.append(rectangle);
         _this.connect(pressable, 'press', function () { return label.text = "press count: " + ++count; });
         _this.connect(pressable, 'activate', function () { return label2.text = "activate count: " + ++activateCount; });
+        _this.connect(pressable, 'delayedpress', function () { return label3.text = "delayed press count: " + ++delayedCount; });
         _this.connect(pressable, 'down', function () { return rectangle.fill = 'blue'; });
         _this.connect(pressable, 'up', function () { return rectangle.fill = 'lightblue'; });
         return _this;

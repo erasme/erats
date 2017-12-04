@@ -14,7 +14,7 @@ namespace Ui {
 			super();
 			this.addEvents('change');
 
-			this.padding = 3;
+			this.padding = 2;
 		
 			this.graphic = new TextBgGraphic();
 			this.append(this.graphic);
@@ -26,7 +26,7 @@ namespace Ui {
 			this.append(this.textholder);
 
 			this.entry = new Ui.Entry();
-			this.entry.margin = 4;
+			this.entry.margin = 5;
 			this.entry.fontSize = 16;
 			this.connect(this.entry, 'focus', this.onEntryFocus);
 			this.connect(this.entry, 'blur', this.onEntryBlur);

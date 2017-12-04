@@ -32,8 +32,7 @@ namespace Ui {
 			super();
 			this._cols = [{ auto: true, star: false, absolute: false, actualWidth: 0, offset: 0, width: 0 }];
 			this._rows = [{ auto: true, star: false, absolute: false, actualHeight: 0, offset: 0, height: 0 }];
-			if (init)
-				this.assign(init);
+			this.assign(init);
 		}
 
 		set cols(colsDef: string) {
@@ -52,7 +51,7 @@ namespace Ui {
 				else if (DEBUG)
 					throw ('Ui.Grid column definition "' + col + '" not supported');
 			}
-			this.invalidateMeasure();
+			//this.invalidateMeasure();
 		}
 
 		set rows(rowsDef: string) {
@@ -203,7 +202,7 @@ namespace Ui {
 			return min;
 		}
 
-		protected measureCore(width, height) {
+		protected measureCore(width: number, height: number) {
 			let i; let child; let col; let colSpan; let colPos;
 			let childX; let childWidth; let x; let row; let rowPos;
 

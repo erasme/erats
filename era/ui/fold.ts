@@ -27,10 +27,10 @@ namespace Ui {
 		private _mode: FoldMode = 'extend';
 		private clock: Anim.Clock;
 		private contentSize: number = 0;
-		private _animDuration: number = 2;
+		private _animDuration: number = 0.5;
 
 		constructor(init?: Partial<FoldInit>) {
-			super(init);
+			super();
 			this.addEvents('fold', 'unfold', 'positionchange');
 
 			this.headerBox = new Ui.LBox();
@@ -39,6 +39,7 @@ namespace Ui {
 			this.contentBox = new Ui.LBox();
 			this.appendChild(this.contentBox);
 			this.contentBox.hide();
+			this.assign(init);
 		}
 
 		get isFolded(): boolean {

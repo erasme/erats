@@ -27,6 +27,7 @@ namespace Ui
 		private _maxScale: number = 10;
 		private _allowRotate: boolean = true;
 		private _allowTranslate: boolean = true;
+		private _allowLeftMouse: boolean = true;
 
 		private speedX: number = 0;
 		private speedY: number = 0;
@@ -43,6 +44,10 @@ namespace Ui
 			this.connect(this, 'ptrdown', this.onPointerDown);
 
 			this.connect(this, 'wheel', this.onWheel);
+		}
+
+		set allowLeftMouse(value: boolean) {
+			this._allowLeftMouse = value;
 		}
 
 		set allowScale(allow: boolean) {
@@ -196,6 +201,9 @@ namespace Ui
 		}
 	
 		protected onPointerDown(event: PointerEvent) {
+			if (!this._allowLeftMouse && event.pointerType == 'mouse' && event.pointer.button == 0)
+				return;	
+
 			this.stopInertia();
 
 			if (this.watcher1 === undefined) {

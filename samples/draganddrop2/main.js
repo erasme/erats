@@ -90,7 +90,7 @@ var DropBox3 = (function (_super) {
 }(Ui.DropBox));
 var app = new Ui.App();
 var vbox = new Ui.VBox({ verticalAlign: 'center', horizontalAlign: 'center', spacing: 20 });
-app.setContent(vbox);
+app.content = vbox;
 var hbox = new Ui.HBox({ horizontalAlign: 'center', spacing: 20 });
 vbox.append(hbox);
 var item1 = new Item1({ width: 64, height: 64 });

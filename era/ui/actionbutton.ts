@@ -23,7 +23,7 @@ namespace Ui
 
 		protected onActionButtonEffect(data, dataTransfer) {
 			if ('draggable' in dataTransfer) {
-				let elements = this._selection.getElements();
+				let elements = this._selection.elements;
 				let found = undefined;
 				for (let i = 0; (found === undefined) && (i < elements.length); i++) {
 					if (elements[i] === dataTransfer.draggable)

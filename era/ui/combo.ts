@@ -34,12 +34,13 @@ namespace Ui {
 			this.addEvents('change');
 
 			this.text = '';
-			this.arrowtop = new Icon({ icon: 'arrowtop', width: 10, height: 10 });
-			this.arrowbottom = new Icon({ icon: 'arrowbottom', width: 10, height: 10 });
+			//this.arrowtop = new Icon({ icon: 'arrowtop', width: 10, height: 10 });
+			this.arrowbottom = new Icon({ icon: 'arrowbottom', width: 16, height: 16 });
 
 			this.marker = new Ui.VBox({
-				verticalAlign: 'center',
-				content: [ this.arrowtop, this.arrowbottom ], marginRight: 5
+				verticalAlign: 'center', marginRight: 5,
+				//content: [ this.arrowtop, this.arrowbottom ]
+				content: [ this.arrowbottom ]
 			});
 			this.assign(init);
 		}
@@ -60,7 +61,6 @@ namespace Ui {
 			this._data = data;
 		}
 	
-		/**Read only*/
 		get data(): object[] {
 			return this._data;
 		}
@@ -115,12 +115,12 @@ namespace Ui {
 			if (this._position !== -1)
 				popup.position = this._position;
 			this.connect(popup, 'item', this.onItemPress);
-			popup.openElement(this, 'right');
+			popup.openElement(this, 'bottom');
 		}
 
 		protected updateColors() {
 			super.updateColors();
-			this.arrowtop.fill = this.getForegroundColor();
+			//this.arrowtop.fill = this.getForegroundColor();
 			this.arrowbottom.fill = this.getForegroundColor();
 		}
 

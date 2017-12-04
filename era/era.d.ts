@@ -852,8 +852,8 @@ declare namespace Core {
         x: number;
         y: number;
         constructor();
-        moveTo(x: any, y: any): void;
-        lineTo(x: any, y: any): void;
+        moveTo(x: number, y: number): void;
+        lineTo(x: number, y: number): void;
         quadraticCurveTo(cpx: any, cpy: any, x: any, y: any): void;
         bezierCurveTo(cp1x: any, cp1y: any, cp2x: any, cp2y: any, x: any, y: any): void;
         arcTo(x1: any, y1: any, x2: any, y2: any, radiusX: any, radiusY: any, angle: any): void;
@@ -892,14 +892,14 @@ declare namespace Core {
         states: any;
         constructor(svgElement: SVGSVGElement);
         beginPath(): void;
-        moveTo(x: any, y: any): void;
-        lineTo(x: any, y: any): void;
+        moveTo(x: number, y: number): void;
+        lineTo(x: number, y: number): void;
         quadraticCurveTo(cpx: any, cpy: any, x: any, y: any): void;
         bezierCurveTo(cp1x: any, cp1y: any, cp2x: any, cp2y: any, x: any, y: any): void;
-        rect(x: any, y: any, w: any, h: any): void;
-        arc(x: any, y: any, radius: any, startAngle: any, endAngle: any, anticlockwise: any): void;
-        ellipse(x: any, y: any, radiusX: any, radiusY: any, rotation: any, startAngle: any, endAngle: any, anticlockwise: any): void;
-        roundRect(x: any, y: any, w: any, h: any, radiusTopLeft: any, radiusTopRight: any, radiusBottomRight: any, radiusBottomLeft: any, antiClockwise?: boolean): void;
+        rect(x: number, y: number, w: number, h: number): void;
+        arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, anticlockwise: boolean): void;
+        ellipse(x: number, y: number, radiusX: number, radiusY: number, rotation: number, startAngle: number, endAngle: number, anticlockwise: boolean): void;
+        roundRect(x: number, y: number, w: number, h: number, radiusTopLeft: number, radiusTopRight: number, radiusBottomRight: number, radiusBottomLeft: number, antiClockwise?: boolean): void;
         closePath(): void;
         fill(): void;
         stroke(): void;
@@ -907,14 +907,14 @@ declare namespace Core {
         resetClip(): void;
         getLineDash(): any;
         setLineDash(lineDash: any): void;
-        drawImage(image: any, sx: any, sy: any, sw: any, sh: any, dx: any, dy: any, dw: any, dh: any): void;
-        fillText(text: any, x: any, y: any, maxWidth: any): void;
-        strokeText(text: any, x: any, y: any, maxWidth: any): void;
+        drawImage(image: any, sx: number, sy: number, sw: number, sh: number, dx: number, dy: number, dw: number, dh: number): void;
+        fillText(text: string, x: number, y: number, maxWidth: number): void;
+        strokeText(text: string, x: number, y: number, maxWidth: number): void;
         save(): void;
         restore(): void;
-        scale(x: any, y: any): void;
-        rotate(angle: any): void;
-        translate(x: any, y: any): void;
+        scale(x: number, y: number): void;
+        rotate(angle: number): void;
+        translate(x: number, y: number): void;
         transform(a: any, b: any, c: any, d: any, e: any, f: any): void;
         setTransform(a: any, b: any, c: any, d: any, e: any, f: any): void;
         resetTransform(): void;
@@ -1093,6 +1093,7 @@ declare namespace Ui {
         captureWatcher: PointerWatcher;
         history: any;
         buttons: number;
+        button: number;
         constructor(type: string, id: number);
         capture(watcher: any): void;
         release(watcher: any): void;
@@ -1119,11 +1120,14 @@ declare namespace Ui {
         getDelta(): number;
         getCumulMove(): number;
         getIsMove(): boolean;
-        down(x: number, y: number, buttons: any): void;
+        getPosition(element: Element): Point;
+        getIsInside(element: Element): boolean;
+        down(x: number, y: number, buttons: number, button: number): void;
         up(): void;
         watch(element: any): PointerWatcher;
         unwatch(watcher: any): void;
         static HOLD_DELAY: number;
+        static MOUSE_MOVE_DELTA: number;
         static MOVE_DELTA: number;
         static HISTORY_TIMELAPS: number;
     }
@@ -1134,14 +1138,14 @@ declare namespace Ui {
         lastTouchY: number;
         lastDownTouchX: number;
         lastDownTouchY: number;
-        mouse: any;
+        mouse: Pointer;
         app: App;
         pointers: Core.HashTable<Pointer>;
         constructor(app: App);
         onSelectStart(event: any): void;
-        onMouseDown(event: any): void;
-        onMouseMove(event: any): void;
-        onMouseUp(event: any): void;
+        onMouseDown(event: MouseEvent): void;
+        onMouseMove(event: MouseEvent): void;
+        onMouseUp(event: MouseEvent): void;
         onWindowLoad(): void;
         onPointerDown(event: any): void;
         onPointerMove(event: any): void;
@@ -1203,7 +1207,7 @@ declare namespace Ui {
         releaseDragWatcher(dragWatcher: DragWatcher): void;
     }
     class DragEmuDataTransfer extends Core.Object implements DragDataTransfer {
-        draggable: Draggable;
+        draggable: Element;
         image: HTMLElement;
         imageEffect: DragEffectIcon;
         catcher: HTMLElement;
@@ -1222,12 +1226,12 @@ declare namespace Ui {
         pointer: Pointer;
         dropEffect: any;
         dropEffectIcon: any;
-        data: any;
+        private _data;
         timer: Core.DelayedTask;
         dropFailsTimer: Anim.Clock;
         delayed: boolean;
         dragWatcher: DragWatcher;
-        constructor(draggable: Draggable, x: number, y: number, delayed: boolean, pointer: Pointer);
+        constructor(draggable: Element, x: number, y: number, delayed: boolean, pointer: Pointer);
         setData(data: any): void;
         getData(): any;
         hasData(): boolean;
@@ -1396,15 +1400,63 @@ declare namespace Ui {
     }
 }
 declare namespace Ui {
+    class OverWatcher extends Core.Object {
+        private element;
+        private pointer;
+        private enter;
+        private leave;
+        constructor(init: {
+            element: Ui.Element;
+            enter?: (watcher: OverWatcher) => void;
+            leave?: (watcher: OverWatcher) => void;
+        });
+        private onPtrMove(pointer);
+        private onPtrUp(pointer);
+        private onPtrLeave(pointer);
+        readonly isOver: boolean;
+    }
     interface OverableInit extends LBoxInit {
     }
     class Overable extends LBox implements OverableInit {
-        watcher: PointerWatcher;
+        watcher: OverWatcher;
         constructor(init?: Partial<OverableInit>);
         readonly isOver: boolean;
     }
 }
 declare namespace Ui {
+    class PressWatcher extends Core.Object {
+        private element;
+        private press;
+        private down;
+        private up;
+        private activate;
+        private delayedpress;
+        private _isDown;
+        private lastTime;
+        private delayedTimer;
+        x?: number;
+        y?: number;
+        altKey?: boolean;
+        shiftKey?: boolean;
+        ctrlKey?: boolean;
+        constructor(init: {
+            element: Ui.Element;
+            press?: (watcher: PressWatcher) => void;
+            down?: (watcher: PressWatcher) => void;
+            up?: (watcher: PressWatcher) => void;
+            activate?: (watcher: PressWatcher) => void;
+            delayedpress?: (watcher: PressWatcher) => void;
+        });
+        readonly isDown: boolean;
+        protected onPointerDown(event: PointerEvent): void;
+        protected onKeyDown(event: KeyboardEvent): void;
+        protected onKeyUp(event: KeyboardEvent): void;
+        protected onDown(): void;
+        protected onUp(): void;
+        protected onPress(x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean): void;
+        protected onActivate(x?: number, y?: number): void;
+        protected onDelayedPress(x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean): void;
+    }
     interface PressableInit extends OverableInit {
         lock: boolean;
     }
@@ -1412,23 +1464,44 @@ declare namespace Ui {
         private _lock;
         private _isDown;
         private lastTime;
+        private delayedTimer;
         constructor(init?: Partial<PressableInit>);
         readonly isDown: boolean;
         lock: boolean;
         press(): void;
         activate(): void;
         protected onPointerDown(event: PointerEvent): void;
-        protected onKeyDown(event: any): void;
-        protected onKeyUp(event: any): void;
+        protected onKeyDown(event: KeyboardEvent): void;
+        protected onKeyUp(event: KeyboardEvent): void;
         protected onDown(): void;
         protected onUp(): void;
-        protected onPress(x?: number, y?: number): void;
-        protected onActivate(): void;
+        protected onPress(x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean): void;
+        protected onActivate(x?: number, y?: number): void;
+        protected onDelayedPress(x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean): void;
         protected onDisable(): void;
         protected onEnable(): void;
     }
 }
 declare namespace Ui {
+    class DraggableWatcher extends Core.Object {
+        allowedMode: string | 'copy' | 'copyLink' | 'copyMove' | 'link' | 'linkMove' | 'move' | 'all';
+        data: any;
+        private _dragDelta;
+        private dataTransfer;
+        private element;
+        private start;
+        private end;
+        constructor(init: {
+            element: Ui.Element;
+            data: any;
+            start?: (watcher: DraggableWatcher) => void;
+            end?: (watcher: DraggableWatcher, effect: 'none' | 'copy' | 'link' | 'move' | string) => void;
+        });
+        readonly dragDelta: Point;
+        private onDraggablePointerDown(event);
+        private onDragStart(dataTransfer);
+        private onDragEnd(dataTransfer);
+    }
     interface DraggableInit extends PressableInit {
     }
     class Draggable extends Pressable implements DraggableInit {
@@ -1440,8 +1513,8 @@ declare namespace Ui {
         setAllowedMode(allowedMode: any): void;
         readonly dragDelta: Point;
         private onDraggablePointerDown(event);
-        private onDragStart(dataTransfer);
-        private onDragEnd(dataTransfer);
+        protected onDragStart(dataTransfer: DragEmuDataTransfer): void;
+        protected onDragEnd(dataTransfer: DragEmuDataTransfer): void;
     }
 }
 declare namespace Ui {
@@ -1452,38 +1525,71 @@ declare namespace Ui {
         scope?: any;
         callback?: Function;
         multiple?: boolean;
+        hidden?: boolean;
     }
     interface SelectionActions {
         [key: string]: SelectionAction;
     }
+    interface SelectionableItem {
+        selectionWatcher: SelectionableWatcher;
+    }
+    class SelectionableWatcher extends Core.Object {
+        private element;
+        private _isSelected;
+        private handler;
+        private select;
+        private unselect;
+        constructor(init: {
+            element: Element;
+            dragSelect?: boolean;
+            pressSelect?: boolean;
+            select?: (selection: Selection) => void;
+            unselect?: (selection: Selection) => void;
+        });
+        readonly isSelected: boolean;
+        onSelect(selection: Selection): void;
+        onUnselect(selection: Selection): void;
+        protected onDelayedPress(watcher: PressWatcher): void;
+        getSelectionActions(): SelectionActions;
+        getParentSelectionHandler(): Selection | undefined;
+        onSelectionableDragStart(watcher: DraggableWatcher): void;
+        onSelectionableDragEnd(watcher: DraggableWatcher): void;
+        onSelectionableActivate(watcher: PressWatcher): void;
+    }
     interface SelectionableInit extends DraggableInit {
     }
     class Selectionable extends Draggable implements SelectionableInit {
-        isSelected: boolean;
-        handler: any;
+        private _isSelected;
+        private handler;
         constructor(init?: Partial<SelectionableInit>);
-        getIsSelected(): boolean;
-        setIsSelected(isSelected: any): void;
-        protected onSelect(): void;
-        protected onUnselect(): void;
+        isSelected: boolean;
+        onSelect(selection: Selection): void;
+        onUnselect(selection: Selection): void;
         getSelectionActions(): SelectionActions;
-        getParentSelectionHandler(): any;
+        getParentSelectionHandler(): Selection | undefined;
+        static getParentSelectionHandler(element: Element): Selection | undefined;
         onSelectionableDragStart(): void;
         onSelectionableDragEnd(): void;
         onSelectionableActivate(): void;
         select(): void;
         unselect(): void;
         onUnload(): void;
+        private onSelectionablePointerDown(event);
     }
 }
 declare namespace Ui {
     class Selection extends Core.Object {
-        elements: Selectionable[];
+        private _elements;
         constructor();
         clear(): void;
-        append(element: Selectionable): void;
-        remove(element: Selectionable): void;
-        getElements(): Selectionable[];
+        appendRange(start: Selectionable, end: Selectionable): void;
+        append(elements: Array<Selectionable> | Selectionable): void;
+        extend(end: Selectionable): void;
+        findRangeElements(start: Selectionable, end: Selectionable): Array<Selectionable>;
+        private internalAppend(element);
+        remove(element: Array<Selectionable> | Selectionable): void;
+        private internalRemove(element);
+        elements: Selectionable[];
         getElementActions(element: Selectionable): {};
         getActions(): any;
         getDefaultAction(): any;
@@ -1628,9 +1734,11 @@ declare namespace Ui {
         private _maxScale;
         private _allowRotate;
         private _allowTranslate;
+        private _allowLeftMouse;
         private speedX;
         private speedY;
         constructor();
+        allowLeftMouse: boolean;
         allowScale: boolean;
         minScale: number;
         maxScale: number;
@@ -1694,7 +1802,6 @@ declare namespace Ui {
         viewHeight: number;
         contentWidth: number;
         contentHeight: number;
-        protected overWatcher: PointerWatcher;
         scrollLock: boolean;
         scrollbarVerticalNeeded: boolean;
         scrollbarHorizontalNeeded: boolean;
@@ -1709,7 +1816,7 @@ declare namespace Ui {
         scrollVertical: boolean;
         setScrollbarVertical(scrollbarVertical: Movable): void;
         setScrollbarHorizontal(scrollbarHorizontal: Movable): void;
-        setOffset(offsetX: number, offsetY: number, absolute?: boolean): boolean;
+        setOffset(offsetX?: number, offsetY?: number, absolute?: boolean, align?: boolean): boolean;
         getOffsetX(): number;
         getRelativeOffsetX(): number;
         getOffsetY(): number;
@@ -1718,6 +1825,7 @@ declare namespace Ui {
         readonly isDown: boolean;
         readonly isInertia: boolean;
         protected onWheel(event: WheelEvent): void;
+        protected onKeyDown(event: any): void;
         autoShowScrollbars(): void;
         autoHideScrollbars(): void;
         protected onShowBarsTick(clock: Anim.Clock, progress: number, delta: number): void;
@@ -1877,6 +1985,41 @@ declare namespace Ui {
         secondary?: boolean;
     }
     type DropEffectFunc = (data: any, dataTransfer: DragDataTransfer) => DropEffect[];
+    class DropableWatcher extends Core.Object {
+        private element;
+        private enter;
+        private leave;
+        private drop;
+        private dropfile;
+        private watchers;
+        private allowedTypes;
+        constructor(init: {
+            element: Element;
+            enter?: (watcher: DropableWatcher, data: any) => void;
+            leave?: (watcher: DropableWatcher) => void;
+            drop?: (watcher: DropableWatcher, data: any, dropEffect: string, x: number, y: number, dataTransfer: DragDataTransfer) => boolean;
+            dropfile?: (watcher: DropableWatcher, file: any, dropEffect: string, x: number, y: number) => boolean;
+            types?: Array<{
+                type: string | Function;
+                effects: string | string[] | DropEffect[] | DropEffectFunc;
+            }>;
+        });
+        addType(type: string | Function, effects: string | string[] | DropEffect[] | DropEffectFunc): void;
+        types: Array<{
+            type: string | Function;
+            effects: string | string[] | DropEffect[] | DropEffectFunc;
+        }>;
+        protected onDragOver(event: DragEvent): void;
+        protected onWatcherEnter(watcher: DragWatcher): void;
+        protected onWatcherDrop(watcher: DragWatcher, effect: any, x: number, y: number): void;
+        protected onWatcherLeave(watcher: DragWatcher): void;
+        private getAllowedTypesEffect(dataTransfer);
+        protected onDragEffect(dataTransfer: DragDataTransfer): string | DropEffect[];
+        protected onDragEffectFunction(dataTransfer: DragDataTransfer, func: DropEffectFunc): DropEffect[];
+        protected onDrop(dataTransfer: DragDataTransfer, dropEffect: any, x: number, y: number): boolean;
+        protected onDragEnter(dataTransfer: DragDataTransfer): void;
+        protected onDragLeave(): void;
+    }
     interface DropBoxInit extends LBoxInit {
     }
     class DropBox extends LBox implements DropBoxInit {
@@ -1997,13 +2140,16 @@ declare namespace Ui {
         constructor();
         static style: any;
     }
-    class ContextBar extends LBox {
-        bg: Rectangle;
+    interface ContextBarInit extends LBoxInit {
         selection: Selection;
+    }
+    class ContextBar extends LBox implements ContextBarInit {
+        bg: Rectangle;
+        private _selection;
         actionsBox: Box;
         closeButton: ContextBarCloseButton;
-        constructor();
-        setSelection(selection: Selection): void;
+        constructor(init?: Partial<ContextBarInit>);
+        selection: Selection;
         onClosePress(): void;
         onSelectionChange(): void;
         onStyleChange(): void;
@@ -2092,46 +2238,49 @@ declare namespace Ui {
     }
     class MenuToolBarButton extends Button {
         constructor();
+        static style: any;
     }
-    class MenuToolBar extends Container {
+    interface MenuToolBarInit extends ContainerInit {
         paddingTop: number;
         paddingBottom: number;
         paddingLeft: number;
         paddingRight: number;
-        star: number;
-        measureLock: any;
-        items: Element[];
-        menuButton: MenuToolBarButton;
-        itemsAlign: string;
-        menuPosition: string;
+        itemsAlign: 'left' | 'right';
+        menuPosition: 'left' | 'right';
         uniform: boolean;
-        uniformSize: number;
         spacing: number;
-        itemsWidth: number;
-        keepItems: any;
-        menuNeeded: boolean;
-        bg: Rectangle;
-        constructor();
-        getUniform(): boolean;
-        setUniform(uniform: any): void;
-        getMenuPosition(): string;
-        setMenuPosition(menuPosition: any): void;
-        getItemsAlign(): string;
-        setItemsAlign(align: any): void;
-        getLogicalChildren(): Element[];
-        setPadding(padding: any): void;
-        getPaddingTop(): number;
-        setPaddingTop(paddingTop: any): void;
-        getPaddingBottom(): number;
-        setPaddingBottom(paddingBottom: any): void;
-        getPaddingLeft(): number;
-        setPaddingLeft(paddingLeft: any): void;
-        getPaddingRight(): number;
-        setPaddingRight(paddingRight: any): void;
-        getSpacing(): number;
-        setSpacing(spacing: any): void;
-        append(child: Element, resizable: boolean): void;
-        prepend(child: Element, resizable: boolean): void;
+    }
+    class MenuToolBar extends Container implements MenuToolBarInit {
+        private _paddingTop;
+        private _paddingBottom;
+        private _paddingLeft;
+        private _paddingRight;
+        private star;
+        private measureLock;
+        items: Element[];
+        private menuButton;
+        private _itemsAlign;
+        private _menuPosition;
+        private _uniform;
+        private uniformSize;
+        private _spacing;
+        private itemsWidth;
+        private keepItems;
+        private menuNeeded;
+        private bg;
+        constructor(init?: Partial<MenuToolBarInit>);
+        uniform: boolean;
+        menuPosition: 'left' | 'right';
+        itemsAlign: 'left' | 'right';
+        readonly logicalChildren: Element[];
+        padding: number;
+        paddingTop: number;
+        paddingBottom: number;
+        paddingLeft: number;
+        paddingRight: number;
+        spacing: number;
+        append(child: Element, resizable?: boolean): void;
+        prepend(child: Element, resizable?: boolean): void;
         remove(child: Element): void;
         moveAt(child: Element, position: number): void;
         insertAt(child: Element, position: number, resizable: boolean): void;
@@ -2778,7 +2927,7 @@ declare namespace Ui {
         detach(child: Element): void;
         private getColMin(colPos);
         private getRowMin(rowPos);
-        protected measureCore(width: any, height: any): {
+        protected measureCore(width: number, height: number): {
             width: number;
             height: number;
         };
@@ -3371,8 +3520,31 @@ declare namespace Ui {
     }
 }
 declare namespace Ui {
+    interface SelectionAreaInit extends Ui.LBoxInit {
+    }
+    class SelectionArea extends Ui.LBox implements SelectionAreaInit {
+        watcher: Ui.PointerWatcher | undefined;
+        rectangle: Ui.Rectangle;
+        startPos: Ui.Point;
+        private shiftStart;
+        constructor(init?: Partial<SelectionAreaInit>);
+        getParentSelectionHandler(): Ui.Selection | undefined;
+        private findAreaElements(p1, p2);
+        private findSelectionableElements();
+        private findMatchSelectionable(element, filter);
+        private findRightSelectionable(element);
+        private findLeftSelectionable(element);
+        private findBottomSelectionable(element);
+        private findTopSelectionable(element);
+        private onPointerDown(event);
+        private onPtrUp(watcher);
+        private onPtrMove(watcher);
+        private onKeyDown(event);
+    }
+}
+declare namespace Ui {
     interface HeaderDef {
-        width: number;
+        width?: number;
         type: string;
         title: string;
         key: string;
@@ -3428,9 +3600,10 @@ declare namespace Ui {
         getData(): object;
         getSelectionActions(): SelectionActions;
         setSelectionActions(value: SelectionActions): void;
-        protected onPress(): void;
-        protected onSelect(): void;
-        protected onUnselect(): void;
+        protected onPress(x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean): void;
+        protected onActivate(x?: number, y?: number): void;
+        onSelect(selection: Selection): void;
+        onUnselect(selection: Selection): void;
         protected measureCore(width: number, height: number): {
             width: number;
             height: number;
@@ -3454,8 +3627,13 @@ declare namespace Ui {
         getMax(): number;
         getElementAt(position: any): ListViewRow;
     }
-    class ListView extends VBox {
-        data: object[];
+    interface ListViewInit extends VBoxInit {
+        headers: HeaderDef[];
+        scrolled: boolean;
+        selectionActions: SelectionActions;
+    }
+    class ListView extends VBox implements ListViewInit {
+        private _data;
         headers: HeaderDef[];
         headersBar: ListViewHeadersBar;
         firstRow: undefined;
@@ -3470,10 +3648,10 @@ declare namespace Ui {
         dataLoader: ListViewScrollLoader;
         scroll: VBoxScrollingArea;
         selectionActions: SelectionActions;
-        scrolled: boolean;
+        private _scrolled;
         vbox: VBox;
-        constructor(config: any);
-        setScrolled(scrolled: any): void;
+        constructor(init?: Partial<ListViewInit>);
+        scrolled: boolean;
         showHeaders(): void;
         hideHeaders(): void;
         getSelectionActions(): SelectionActions;
@@ -3484,8 +3662,7 @@ declare namespace Ui {
         removeData(data: any): void;
         removeDataAt(position: any): void;
         clearData(): void;
-        getData(): object[];
-        setData(data: any): void;
+        data: Array<any>;
         sortData(): void;
         sortBy(key: any, invert: any): void;
         findDataRow(data: any): number;
@@ -3886,5 +4063,131 @@ declare namespace Ui {
         constructor(init?: Partial<HDropBoxInit>);
         uniform: boolean;
         spacing: number;
+    }
+}
+declare namespace Ui {
+    interface SegmentBarInit extends LBoxInit {
+        orientation: 'horizontal' | 'vertical';
+        field: string;
+        data: Array<any>;
+        currentPosition: number;
+    }
+    class SegmentBar extends LBox {
+        private border;
+        private box;
+        private current;
+        private _field;
+        private _data;
+        private _orientation;
+        constructor(init?: Partial<SegmentBarInit>);
+        orientation: 'horizontal' | 'vertical';
+        field: string;
+        data: Array<any>;
+        currentPosition: number;
+        next(): void;
+        previous(): void;
+        private onSegmentSelect(segment);
+        private onKeyDown(event);
+        protected onStyleChange(): void;
+        static style: any;
+    }
+    interface SegmentButtonInit extends PressableInit {
+        textTransform: string;
+        foreground: Color | string;
+        data: any;
+        text: string;
+        textHeight: number;
+        mode: 'left' | 'right' | 'top' | 'bottom';
+        radius: number;
+        spacing: number;
+        background: Color | string;
+    }
+    class SegmentButton extends Pressable implements SegmentButtonInit {
+        private textBox;
+        private label;
+        private bg;
+        private _mode;
+        private _data;
+        private _radius;
+        constructor(init?: Partial<SegmentButtonInit>);
+        textTransform: string;
+        foreground: Color | string;
+        data: any;
+        text: string;
+        textHeight: number;
+        mode: 'left' | 'right' | 'top' | 'bottom';
+        radius: number;
+        spacing: number;
+        background: Color | string;
+        protected onDisable(): void;
+        protected onEnable(): void;
+    }
+}
+declare namespace Ui {
+    interface LocatorInit extends ContainerInit {
+        path: string;
+    }
+    class Locator extends Container implements LocatorInit {
+        private _path;
+        private foregrounds;
+        private backgrounds;
+        private border;
+        private focusedPart;
+        constructor(init?: Partial<LocatorInit>);
+        path: string;
+        private getBackground();
+        private getLightColor();
+        private getBackgroundBorder();
+        private getDownColor();
+        private onPathPress(pathItem);
+        private onPathDown(pathItem);
+        private onPathUp(pathItem);
+        private onPathFocus(pressable);
+        private onPathBlur(pressable);
+        private updateColors();
+        protected measureCore(width: number, height: number): {
+            width: number;
+            height: number;
+        };
+        protected arrangeCore(width: number, height: number): void;
+        protected onStyleChange(): void;
+        protected onDisable(): void;
+        protected onEnable(): void;
+        static style: any;
+    }
+    interface LocatorRightArrowInit extends CanvasElementInit {
+    }
+    class LocatorRightArrow extends CanvasElement {
+        private _radius;
+        private _length;
+        private _fill;
+        constructor(config: any);
+        radius: number;
+        arrowLength: number;
+        fill: Color | string;
+        protected updateCanvas(ctx: any): void;
+    }
+    interface LocatorLeftArrowInit extends ShapeInit {
+        radius: number;
+        arrowLength: number;
+    }
+    class LocatorLeftArrow extends Shape implements LocatorLeftArrowInit {
+        private _radius;
+        private _length;
+        constructor(init?: Partial<LocatorLeftArrowInit>);
+        radius: number;
+        arrowLength: number;
+        protected arrangeCore(width: number, height: number): void;
+    }
+    interface LocatorLeftRightArrowInit extends ShapeInit {
+        radius: number;
+        arrowLength: number;
+    }
+    class LocatorLeftRightArrow extends Shape implements LocatorLeftRightArrowInit {
+        private _length;
+        constructor(init?: Partial<LocatorLeftRightArrowInit>);
+        radius: number;
+        arrowLength: number;
+        protected arrangeCore(width: number, height: number): void;
     }
 }

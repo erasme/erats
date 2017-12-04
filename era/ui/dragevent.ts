@@ -143,34 +143,34 @@ namespace Ui
 	}
 
 	export class DragEmuDataTransfer extends Core.Object implements DragDataTransfer {
-		draggable: Draggable;
-		image: HTMLElement = undefined;
-		imageEffect: DragEffectIcon = undefined;
-		catcher: HTMLElement = undefined;
+		draggable: Element;
+		image: HTMLElement;
+		imageEffect: DragEffectIcon;
+		catcher: HTMLElement;
 		startX: number = 0;
 		startY: number = 0;
 		dropX: number = 0;
 		dropY: number = 0;
 		x: number = 0;
 		y: number = 0;
-		startImagePoint: Point = undefined;
-		overElement: Element = undefined;
+		startImagePoint: Point;
+		overElement: Element;
 		hasStarted: boolean = false;
-		dragDelta: Point = undefined;
+		dragDelta: Point;
 
-		effectAllowed: any = undefined;
-		watcher: PointerWatcher = undefined;
-		pointer: Pointer = undefined;
-		dropEffect: any = undefined;
-		dropEffectIcon: any = undefined;
-		data: any = undefined;
-		timer: Core.DelayedTask = undefined;
-		dropFailsTimer: Anim.Clock = undefined;
+		effectAllowed: any;
+		watcher: PointerWatcher;
+		pointer: Pointer;
+		dropEffect: any;
+		dropEffectIcon: any;
+		private _data: any;
+		timer: Core.DelayedTask;
+		dropFailsTimer: Anim.Clock;
 		delayed: boolean = false;
 
-		dragWatcher: DragWatcher = undefined;
+		dragWatcher: DragWatcher;
 
-		constructor(draggable: Draggable, x: number, y: number, delayed: boolean, pointer: Pointer) {
+		constructor(draggable: Element, x: number, y: number, delayed: boolean, pointer: Pointer) {
 			super();
 			this.addEvents('start', 'end');
 
@@ -184,26 +184,29 @@ namespace Ui
 			this.watcher = this.pointer.watch(App.current);
 
 			this.dragDelta = this.draggable.pointFromWindow(new Point(this.startX, this.startY));
-			this.data = {};
 
 			this.connect(this.watcher, 'move', this.onPointerMove);
 			this.connect(this.watcher, 'up', this.onPointerUp);
 			this.connect(this.watcher, 'cancel', this.onPointerCancel);
 
+			//console.log(`DragEmuDataTransfer delay? ${delayed}`);
+
 			if (this.delayed)
 				this.timer = new Core.DelayedTask(this, 0.5, this.onTimer);
+			//else
+			//	this.onTimer();
 		}
 
 		setData(data): void {
-			this.data = data;
+			this._data = data;
 		}
 
 		getData(): any {
-			return this.data;
+			return this._data;
 		}
 
 		hasData(): boolean {
-			return this.data !== undefined;
+			return this._data !== undefined;
 		}
 
 		getPosition(): Point {
@@ -267,26 +270,59 @@ namespace Ui
 			if (this.hasData()) {
 				this.hasStarted = true;
 
-				this.image = this.generateImage(this.draggable.drawing);
+				this.image = document.createElement('div');
 				this.image.style.touchAction = 'none';
 				this.image.style.zIndex = '100000';
 				this.image.style.position = 'absolute';
-				// remove possible matrix transform
-				if ('removeProperty' in this.image.style)
-					this.image.style.removeProperty('transform');
-				if (Core.Navigator.isIE && ('removeProperty' in this.image.style))
-					this.image.style.removeProperty('-ms-transform');
-				else if (Core.Navigator.isGecko)
-					this.image.style.removeProperty('-moz-transform');
-				else if (Core.Navigator.isWebkit)
-					this.image.style.removeProperty('-webkit-transform');
-				else if (Core.Navigator.isOpera)
-					this.image.style.removeProperty('-o-transform');
-			
-				if (Core.Navigator.supportOpacity) {
-					this.image.style.opacity = '1';
-					(this.image.firstChild as HTMLElement).style.opacity = '0.8';
+
+				let generateImage = (el: Element): HTMLElement => {
+					let image = this.generateImage(el.drawing);
+					// remove possible matrix transform
+					if ('removeProperty' in image.style)
+						image.style.removeProperty('transform');
+					if (Core.Navigator.isIE && ('removeProperty' in image.style))
+						image.style.removeProperty('-ms-transform');
+					else if (Core.Navigator.isGecko)
+						image.style.removeProperty('-moz-transform');
+					else if (Core.Navigator.isWebkit)
+						image.style.removeProperty('-webkit-transform');
+					else if (Core.Navigator.isOpera)
+						image.style.removeProperty('-o-transform');
+					image.style.left = '0px';
+					image.style.top = '0px';
+					return image;
+				};
+
+				if (this._data instanceof Selection) {
+					let sel = this._data as Selection;
+					let els = sel.elements;
+					for (let i = Math.max(0, els.length - 6); i < els.length; i++) {
+						let invPos = els.length - (i + 1);
+						let op = 0.1;
+						if (invPos == 0)
+							op = 1;
+						else if (invPos == 1)
+							op = 0.95;
+						else if (invPos == 2)
+							op = 0.7;	
+						else if (invPos == 3)
+							op = 0.5;
+						else if (invPos == 4)
+							op = 0.2;
+						let image = generateImage(els[i]);
+						image.style.left = `${invPos * 5}px`;
+						image.style.top = `${invPos * 5}px`;
+						image.style.opacity = op.toString();
+						this.image.appendChild(image);
+					}
 				}
+				else {
+					let image = generateImage(this.draggable);
+					this.image.appendChild(image);
+				}	
+			
+				if (Core.Navigator.supportOpacity)
+					this.image.style.opacity = '0.8';
 
 				let ofs = this.delayed ? -10 : 0;
 
@@ -339,6 +375,8 @@ namespace Ui
 		protected onPointerMove(watcher: PointerWatcher) {
 			let deltaX; let deltaY; let delta; let dragEvent; let ofs;
 
+			//console.log('onPointerMove isMove: ' + watcher.pointer.getIsMove());
+
 			if (watcher.getIsCaptured()) {
 				let clientX = watcher.pointer.getX();
 				let clientY = watcher.pointer.getY();
@@ -383,11 +421,11 @@ namespace Ui
 					}
 
 					if (this.dragWatcher !== undefined)
-						this.dragWatcher.move(clientX, clientY);
-				
+						this.dragWatcher.move(clientX, clientY);					
+					
 					this.dropEffect = DragEmuDataTransfer.getMatchingDropEffect(this.effectAllowed, effectAllowed,
 						watcher.pointer.getType(), watcher.pointer.getCtrlKey(), watcher.pointer.getAltKey(),
-						watcher.pointer.getShiftKey());
+						watcher.pointer.getShiftKey());	
 
 					if (this.dropEffect.length > 1)
 						this.dropEffectIcon = 'dragchoose';
@@ -395,7 +433,7 @@ namespace Ui
 						this.dropEffectIcon = this.dropEffect[0].dragicon;
 					else
 						this.dropEffectIcon = undefined;
-
+					
 					// handle the drop effect icon feedback
 					if (this.dropEffectIcon !== oldDropEffectIcon) {
 						if (this.imageEffect !== undefined) {
@@ -425,12 +463,23 @@ namespace Ui
 
 			}
 			else {
-				if (watcher.pointer.getIsMove())
-					watcher.cancel();
+				//	this.onTimer();
+
+				if (watcher.pointer.getIsMove()) {
+					if (this.delayed)
+						watcher.cancel();
+					else
+						this.onTimer();	
+				}
 			}
 		}
 
 		protected onPointerUp(watcher: PointerWatcher) {
+			//console.log('onPointerUp isCaptured: ' + watcher.getIsCaptured());
+			this.disconnect(this.watcher, 'move', this.onPointerMove);
+			this.disconnect(this.watcher, 'up', this.onPointerUp);
+			this.disconnect(this.watcher, 'cancel', this.onPointerCancel);
+
 			if (!watcher.getIsCaptured())
 				watcher.cancel();
 			else {
@@ -477,6 +526,7 @@ namespace Ui
 		}
 
 		protected onPointerCancel(watcher: PointerWatcher) {
+			//console.log('onPointerCancel');
 			if (this.timer !== undefined) {
 				this.timer.abort();
 				this.timer = undefined;

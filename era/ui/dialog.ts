@@ -118,8 +118,8 @@ namespace Ui {
 
 		getActionButtons() {
 			let buttons = [];
-			for (let i = 1; i < this.actionButtonsBox.getLogicalChildren().length; i++)
-				buttons.push(this.actionButtonsBox.getLogicalChildren()[i]);
+			for (let i = 1; i < this.actionButtonsBox.logicalChildren.length; i++)
+				buttons.push(this.actionButtonsBox.logicalChildren[i]);
 			return buttons;
 		}
 
@@ -201,9 +201,6 @@ namespace Ui {
 			this.vbox.append(this.buttonsBox);
 
 			this.scroll = new Ui.ScrollingArea();
-			this.scroll.marginLeft = 2;
-			this.scroll.marginTop = 2;
-			this.scroll.marginRight = 2;
 			this.scroll.scrollHorizontal = false;
 			this.scroll.scrollVertical = false;
 			this.vbox.append(this.scroll, true);
@@ -216,7 +213,7 @@ namespace Ui {
 			this.contentVBox.append(this.contentBox, true);
 
 			this.contextBox = new Ui.ContextBar();
-			this.contextBox.setSelection(this.dialogSelection);
+			this.contextBox.selection = this.dialogSelection;
 			this.contextBox.hide();
 			this.buttonsBox.append(this.contextBox);
 
@@ -337,7 +334,7 @@ namespace Ui {
 
 		updateButtonsBoxVisible() {
 			let visible = (this._cancelButton !== undefined) || (this._actionButtons !== undefined) ||
-				(this.dialogSelection.getElements().length > 0);
+				(this.dialogSelection.elements.length > 0);
 		
 			if (!this.buttonsVisible && visible) {
 				this.buttonsVisible = true;
@@ -397,7 +394,7 @@ namespace Ui {
 			// delete key
 			if (event.which === 46) {
 				// selection is not empty
-				if (this.dialogSelection.getElements().length !== 0) {
+				if (this.dialogSelection.elements.length !== 0) {
 					if (this.dialogSelection.executeDeleteAction()) {
 						event.preventDefault();
 						event.stopPropagation();
@@ -448,7 +445,7 @@ namespace Ui {
 		}
 
 		static style: object = {
-			shadow: 'rgba(255,255,255,0.1)',
+			shadow: 'rgba(0,0,0,0.5)',
 			background: '#f8f8f8'
 		}
 	}

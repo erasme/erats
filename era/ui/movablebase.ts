@@ -138,8 +138,14 @@ namespace Ui {
 						let test = 0;
 						if (delta > 0)
 							test = deltaPos / delta;
-
-						if (test > 0.7)
+						
+						let testLevel = 0.7;
+						// if mouse left button, directly capture. No valid move needed
+						// to validate the pointer capture
+						if (event.pointer.type == 'mouse' && event.pointer.button == 0)
+							testLevel = 0;	
+						
+						if (test >= testLevel)
 							watcher.capture();
 						else {
 							this.setPosition(this.startPosX, this.startPosY);

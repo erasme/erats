@@ -145,12 +145,12 @@ namespace Core {
 			this.d = '';
 		}
 
-		moveTo(x, y) {
+		moveTo(x: number, y: number) {
 			this.d += ' M ' + x + ' ' + y;
 			this.x = x; this.y = y;
 		}
 
-		lineTo(x, y) {
+		lineTo(x: number, y: number) {
 			this.d += ' L ' + x + ' ' + y;
 			this.x = x; this.y = y;
 		}
@@ -331,11 +331,11 @@ namespace Core {
 			this.currentPath = new Core.SVG2DPath();
 		}
 
-		moveTo(x, y) {
+		moveTo(x: number, y: number) {
 			this.currentPath.moveTo(x, y);
 		}
 
-		lineTo(x, y) {
+		lineTo(x: number, y: number) {
 			this.currentPath.lineTo(x, y);
 		}
 
@@ -347,19 +347,19 @@ namespace Core {
 			this.currentPath.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y);
 		}
 
-		rect(x, y, w, h) {
+		rect(x: number, y: number, w: number, h: number) {
 			this.currentPath.rect(x, y, w, h);
 		}
 
-		arc(x, y, radius, startAngle, endAngle, anticlockwise) {
+		arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, anticlockwise: boolean) {
 			this.currentPath.arc(x, y, radius, startAngle, endAngle, anticlockwise);
 		}
 
-		ellipse(x, y, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise) {
+		ellipse(x: number, y: number, radiusX: number, radiusY: number, rotation: number, startAngle: number, endAngle: number, anticlockwise: boolean) {
 			this.currentPath.ellipse(x, y, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise);
 		}
 
-		roundRect(x, y, w, h, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, antiClockwise = false) {
+		roundRect(x: number, y: number, w: number, h: number, radiusTopLeft: number, radiusTopRight: number, radiusBottomRight: number, radiusBottomLeft: number, antiClockwise: boolean = false) {
 			this.currentPath.roundRect(x, y, w, h, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, antiClockwise);
 		}
 
@@ -419,7 +419,7 @@ namespace Core {
 		}
 
 		// drawing images
-		drawImage(image, sx, sy, sw, sh, dx, dy, dw, dh) {
+		drawImage(image, sx: number, sy: number, sw: number, sh: number, dx: number, dy: number, dw: number, dh: number) {
 			let img;
 			let nw = image.naturalWidth;
 			let nh = image.naturalHeight;
@@ -460,10 +460,10 @@ namespace Core {
 				let id = '_pat' + (++Core.SVG2DContext.counter);
 				pattern.setAttributeNS(null, 'id', id);
 				pattern.setAttributeNS(null, 'patternUnits', 'userSpaceOnUse');
-				pattern.setAttributeNS(null, 'x', dx);
-				pattern.setAttributeNS(null, 'y', dy);
-				pattern.setAttributeNS(null, 'width', dw);
-				pattern.setAttributeNS(null, 'height', dh);
+				pattern.setAttributeNS(null, 'x', dx.toString());
+				pattern.setAttributeNS(null, 'y', dy.toString());
+				pattern.setAttributeNS(null, 'width', dw.toString());
+				pattern.setAttributeNS(null, 'height', dh.toString());
 
 				img = document.createElementNS(svgNS, 'image');
 				img.href.baseVal = image.src;
@@ -486,7 +486,7 @@ namespace Core {
 			}
 		}
 
-		fillText(text, x, y, maxWidth) {
+		fillText(text: string, x: number, y: number, maxWidth: number) {
 			let t:any = document.createElementNS(svgNS, 'text');
 			let textNode = document.createTextNode(text);
 			t.appendChild(textNode);
@@ -540,7 +540,7 @@ namespace Core {
 			this.g.appendChild(t);
 		}
 
-		strokeText(text, x, y, maxWidth) {
+		strokeText(text: string, x: number, y: number, maxWidth: number) {
 		}
 
 		save() {
@@ -587,15 +587,15 @@ namespace Core {
 			}
 		}
 
-		scale(x, y) {
+		scale(x: number, y: number) {
 			this.currentTransform = this.currentTransform.scaleNonUniform(x, (y === undefined) ? x : y);
 		}
 
-		rotate(angle) {
+		rotate(angle: number) {
 			this.currentTransform = this.currentTransform.rotate(angle * 180 / Math.PI);
 		}
 
-		translate(x, y) {
+		translate(x: number, y: number) {
 			this.currentTransform = this.currentTransform.translate(x, y);
 		}
 
@@ -713,8 +713,9 @@ namespace Core {
 					y2 = y + parser.getCurrent(); parser.next();
 					x3 = x + parser.getCurrent(); parser.next();
 					y3 = y + parser.getCurrent(); parser.next();
-					this.bezierCurveTo(x1, y1, x2, y2, x3, y3);
 					x = x3; y = y3;
+					this.bezierCurveTo(x1, y1, x2, y2, x, y);
+					
 				}
 				else if (cmd === 'C') {
 					x1 = parser.getCurrent(); parser.next();
@@ -723,8 +724,8 @@ namespace Core {
 					y2 = parser.getCurrent(); parser.next();
 					x3 = parser.getCurrent(); parser.next();
 					y3 = parser.getCurrent(); parser.next();
-					this.bezierCurveTo(x1, y1, x2, y2, x3, y3);
 					x = x3; y = y3;
+					this.bezierCurveTo(x1, y1, x2, y2, x, y);
 				}
 				else if (cmd === 's') {
 					x1 = x + parser.getCurrent(); parser.next();
@@ -733,9 +734,9 @@ namespace Core {
 					y2 = y1;
 					x3 = x + parser.getCurrent(); parser.next();
 					y3 = y + parser.getCurrent(); parser.next();
-					this.bezierCurveTo(x1, y1, x2, y2, x3, y3);
-					this.lineTo(x3, y3);
 					x = x3; y = y3;
+					this.bezierCurveTo(x1, y1, x2, y2, x, y);
+					this.lineTo(x, y);
 				}
 				else if (cmd === 'S') {
 					x1 = parser.getCurrent(); parser.next();
@@ -744,24 +745,24 @@ namespace Core {
 					y2 = y1;
 					x3 = parser.getCurrent(); parser.next();
 					y3 = parser.getCurrent(); parser.next();
-					this.bezierCurveTo(x1, y1, x2, y2, x3, y3);
 					x = x3; y = y3;
+					this.bezierCurveTo(x1, y1, x2, y2, x, y);
 				}
 				else if (cmd === 'q') {
 					x1 = x + parser.getCurrent(); parser.next();
 					y1 = y + parser.getCurrent(); parser.next();
 					x2 = x + parser.getCurrent(); parser.next();
 					y2 = y + parser.getCurrent(); parser.next();
-					this.quadraticCurveTo(x1, y1, x2, y2);
 					x = x2; y = y2;
+					this.quadraticCurveTo(x1, y1, x, y);
 				}
 				else if (cmd === 'Q') {
 					x1 = parser.getCurrent(); parser.next();
 					y1 = parser.getCurrent(); parser.next();
 					x2 = parser.getCurrent(); parser.next();
 					y2 = parser.getCurrent(); parser.next();
-					this.quadraticCurveTo(x1, y1, x2, y2);
 					x = x2; y = y2;
+					this.quadraticCurveTo(x1, y1, x, y);
 				}
 				else if ((cmd === 'z') || (cmd === 'Z')) {
 					x = beginX;

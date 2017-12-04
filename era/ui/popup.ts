@@ -52,17 +52,14 @@ namespace Ui
 
 			this.contentBox = new LBox();
 			this.contentBox.margin = 2;
-			this.contentBox.marginTop = 1;
 			this.contentBox.setTransformOrigin(0, 0);
 			this.appendChild(this.contentBox);
 
 			this.scroll = new ScrollingArea();
-			this.scroll.margin = 2;
-			this.scroll.marginTop = 1;
 			this.contentBox.append(this.scroll);
 
 			this.contextBox = new ContextBar();
-			this.contextBox.setSelection(this.popupSelection);
+			this.contextBox.selection = this.popupSelection;
 			this.contextBox.verticalAlign = 'top';
 			this.contextBox.hide(true);
 			this.contentBox.append(this.contextBox);
@@ -104,8 +101,8 @@ namespace Ui
 		}
 
 		protected onWindowResize() {
-			if (this._autoClose && (this.posX !== undefined))
-				this.close();
+//			if (this._autoClose && (this.posX !== undefined))
+//				this.close();
 		}
 
 		protected onShadowPress() {
@@ -152,7 +149,7 @@ namespace Ui
 		}
 
 		protected onPopupSelectionChange(selection: Selection) {
-			if (selection.getElements().length === 0)
+			if (selection.elements.length === 0)
 				this.contextBox.hide(true);
 			else
 				this.contextBox.show();
@@ -252,7 +249,7 @@ namespace Ui
 			let constraintWidth = Math.max(width - 40, 0);
 			let constraintHeight = Math.max(height - 40, 0);
 
-			console.log(`Popup.measureCore(${width},${height})`);
+			//console.log(`Popup.measureCore(${width},${height})`);
 
 			if ((this._preferredWidth !== undefined) && (this._preferredWidth < constraintWidth))
 				constraintWidth = this._preferredWidth;
@@ -262,7 +259,7 @@ namespace Ui
 			this.background.measure(constraintWidth, constraintHeight);
 			let size = this.contentBox.measure(constraintWidth, constraintHeight);
 
-			//		console.log('contentBox = '+size.width+' x '+size.height);
+			//console.log('contentBox = '+size.width+' x '+size.height);
 
 			if ((this.posX !== undefined) || (this.attachedElement !== undefined))
 				return { width: Math.max(50, size.width), height: Math.max(50, size.height) };
@@ -271,7 +268,7 @@ namespace Ui
 		}
 
 		protected arrangeCore(width: number, height: number) {
-			console.log(`Popup.arrangeCore(${width},${height})`);
+			//console.log(`Popup.arrangeCore(${width},${height})`);
 
 			// the delayed open animation
 			if ((this.openClock !== undefined) && !this.openClock.isActive)
@@ -470,7 +467,7 @@ namespace Ui
 
 		static style: any = {
 			background: '#f8f8f8',
-			shadow: new Color(1, 1, 1, 0.1)
+			shadow: 'rgba(0,0,0,0.15)'
 		}
 	}
 

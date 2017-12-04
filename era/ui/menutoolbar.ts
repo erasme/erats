@@ -6,32 +6,47 @@ namespace Ui
 	{
 		constructor() {
 			super();
-			this.icon = 'arrowbottom';
+			this.icon = 'burger';
+		}
+
+		static style: any = {
+			backgroundBorder: 'rgba(140,140,140,0)'
 		}
 	}
 
-	export class MenuToolBar extends Container
-	{
-		paddingTop: number = 0;
-		paddingBottom: number = 0;
-		paddingLeft: number = 0;
-		paddingRight: number = 0;
-		star: number = 0;
-		measureLock: any = undefined;
-		items: Element[] = undefined;
-		menuButton: MenuToolBarButton = undefined;
-		itemsAlign: string = 'left';
-		menuPosition: string = 'right';
-		uniform: boolean = false;
-		uniformSize: number = 0;
-		spacing: number = 0;
-		itemsWidth: number = 0;
-		keepItems: any = undefined;
-		menuNeeded: boolean = false;
-		bg: Rectangle = undefined;
+	export interface MenuToolBarInit extends ContainerInit {
+		paddingTop: number;
+		paddingBottom: number;
+		paddingLeft: number;
+		paddingRight: number;
+		itemsAlign: 'left' | 'right';
+		menuPosition: 'left' | 'right';
+		uniform: boolean;
+		spacing: number;
+	}
 
-		constructor() {
-			super();
+	export class MenuToolBar extends Container implements MenuToolBarInit
+	{
+		private _paddingTop: number = 0;
+		private _paddingBottom: number = 0;
+		private _paddingLeft: number = 0;
+		private _paddingRight: number = 0;
+		private star: number = 0;
+		private measureLock: any = undefined;
+		items: Element[] = undefined;
+		private menuButton: MenuToolBarButton = undefined;
+		private _itemsAlign: 'left' | 'right' = 'left';
+		private _menuPosition: 'left' | 'right' = 'right';
+		private _uniform: boolean = false;
+		private uniformSize: number = 0;
+		private _spacing: number = 0;
+		private itemsWidth: number = 0;
+		private keepItems: any = undefined;
+		private menuNeeded: boolean = false;
+		private bg: Rectangle = undefined;
+
+		constructor(init?: Partial<MenuToolBarInit>) {
+			super(init);
 			this.items = [];
 
 			this.bg = new Ui.Rectangle();
@@ -42,66 +57,66 @@ namespace Ui
 			this.appendChild(this.menuButton);
 		}
 	
-		getUniform() {
-			return this.uniform;
+		get uniform(): boolean {
+			return this._uniform;
 		}
 	
-		setUniform(uniform) {
-			if (this.uniform !== uniform) {
-				this.uniform = uniform;
+		set uniform(uniform: boolean) {
+			if (this._uniform !== uniform) {
+				this._uniform = uniform;
 				this.invalidateMeasure();
 			}
 		}
 	
-		getMenuPosition() {
-			return this.menuPosition;
+		get menuPosition(): 'left' | 'right' {
+			return this._menuPosition;
 		}
 
-		setMenuPosition(menuPosition) {
-			if (this.menuPosition !== menuPosition) {
-				this.menuPosition = menuPosition;
+		set menuPosition(menuPosition: 'left' | 'right') {
+			if (this._menuPosition !== menuPosition) {
+				this._menuPosition = menuPosition;
 				this.invalidateArrange();
 			}
 		}
 
-		getItemsAlign() {
-			return this.itemsAlign;
+		get itemsAlign(): 'left' | 'right' {
+			return this._itemsAlign;
 		}
 
-		setItemsAlign(align) {
-			if (this.itemsAlign !== align) {
-				this.itemsAlign = align;
+		set itemsAlign(align: 'left' | 'right') {
+			if (this._itemsAlign !== align) {
+				this._itemsAlign = align;
 				this.invalidateArrange();
 			}
 		}
 
-		getLogicalChildren() {
+		get logicalChildren() {
 			return this.items;
 		}
 
 		//
 		// Set the padding for all borders
 		//
-		setPadding(padding) {
-			this.setPaddingTop(padding);
-			this.setPaddingBottom(padding);
-			this.setPaddingLeft(padding);
-			this.setPaddingRight(padding);
+		set padding(padding: number) {
+			this.paddingTop = padding;
+			this.paddingBottom = padding;
+			this.paddingLeft = padding;
+			this.paddingRight = padding;
 		}
 
 		//
 		// Return the current element top padding
 		//
-		getPaddingTop() {
-			return this.paddingTop;
+		get paddingTop(): number {
+			return this._paddingTop;
 		}
 
 		//
 		// Set the current element top padding
 		//
-		setPaddingTop(paddingTop) {
-			if (this.paddingTop !== paddingTop) {
-				this.paddingTop = paddingTop;
+		set paddingTop(paddingTop: number) {
+			if (this._paddingTop !== paddingTop) {
+				this._paddingTop = paddingTop;
 				this.invalidateMeasure();
 			}
 		}
@@ -109,16 +124,16 @@ namespace Ui
 		//
 		// Return the current element bottom padding
 		//
-		getPaddingBottom() {
-			return this.paddingBottom;
+		get paddingBottom(): number {
+			return this._paddingBottom;
 		}
 
 		//
 		// Set the current element bottom padding
 		//
-		setPaddingBottom(paddingBottom) {
-			if (this.paddingBottom !== paddingBottom) {
-				this.paddingBottom = paddingBottom;
+		set paddingBottom(paddingBottom: number) {
+			if (this._paddingBottom !== paddingBottom) {
+				this._paddingBottom = paddingBottom;
 				this.invalidateMeasure();
 			}
 		}
@@ -126,16 +141,16 @@ namespace Ui
 		//
 		// Return the current element left padding
 		//
-		getPaddingLeft() {
-			return this.paddingLeft;
+		get paddingLeft(): number {
+			return this._paddingLeft;
 		}
 
 		//
 		// Set the current element left padding
 		//
-		setPaddingLeft(paddingLeft) {
-			if (this.paddingLeft !== paddingLeft) {
-				this.paddingLeft = paddingLeft;
+		set paddingLeft(paddingLeft: number) {
+			if (this._paddingLeft !== paddingLeft) {
+				this._paddingLeft = paddingLeft;
 				this.invalidateMeasure();
 			}
 		}
@@ -143,16 +158,16 @@ namespace Ui
 		//
 		// Return the current element right padding
 		//
-		getPaddingRight() {
-			return this.paddingRight;
+		get paddingRight(): number {
+			return this._paddingRight;
 		}
 
 		//
 		// Set the current element right padding
 		//
-		setPaddingRight(paddingRight) {
-			if (this.paddingRight !== paddingRight) {
-				this.paddingRight = paddingRight;
+		set paddingRight(paddingRight: number) {
+			if (this._paddingRight !== paddingRight) {
+				this._paddingRight = paddingRight;
 				this.invalidateMeasure();
 			}
 		}
@@ -161,16 +176,16 @@ namespace Ui
 		// Return the space inserted between each
 		// child
 		//
-		getSpacing() {
-			return this.spacing;
+		get spacing(): number {
+			return this._spacing;
 		}
 
 		//
 		// Set the space value inserted between each child
 		//
-		setSpacing(spacing) {
-			if (this.spacing !== spacing) {
-				this.spacing = spacing;
+		set spacing(spacing: number) {
+			if (this._spacing !== spacing) {
+				this._spacing = spacing;
 				this.invalidateMeasure();
 			}
 		}
@@ -178,7 +193,7 @@ namespace Ui
 		//
 		// Append a child at the end of the box
 		//
-		append(child: Element, resizable: boolean) {
+		append(child: Element, resizable: boolean = false) {
 			if (resizable !== undefined)
 				Ui.Box.setResizable(child, resizable === true);
 			this.items.push(child);
@@ -188,7 +203,7 @@ namespace Ui
 		//
 		// Append a child at the begining of the box
 		//
-		prepend(child: Element, resizable: boolean) {
+		prepend(child: Element, resizable: boolean = false) {
 			if (resizable !== undefined)
 				Ui.Box.setResizable(child, resizable === true);
 			this.items.unshift(child);
@@ -279,10 +294,10 @@ namespace Ui
 		measureCore(width: number, height: number) {
 			//		console.log(this+'.measureCore('+width+','+height+')');
 
-			let left = this.getPaddingLeft();
-			let right = this.getPaddingRight();
-			let top = this.getPaddingTop();
-			let bottom = this.getPaddingBottom();
+			let left = this.paddingLeft;
+			let right = this.paddingRight;
+			let top = this.paddingTop;
+			let bottom = this.paddingBottom;
 			let constraintWidth = Math.max(0, width - (left + right));
 			let constraintHeight = Math.max(0, height - (top + bottom));
 			let size; let i;
@@ -317,15 +332,15 @@ namespace Ui
 			let maxItemHeight = buttonSize.height;
 			let minItemsSize = 0;
 
-			i = (this.menuPosition === 'left') ? (i = this.items.length - 1) : 0;
+			i = (this._menuPosition === 'left') ? (i = this.items.length - 1) : 0;
 			while ((i >= 0) && (i < this.items.length)) {
 				let minSize = minSizes[i];
-				if (totalWidth + minSize.width + this.spacing > constraintWidth)
+				if (totalWidth + minSize.width + this._spacing > constraintWidth)
 					break;
-				totalWidth += minSize.width + this.spacing;
+				totalWidth += minSize.width + this._spacing;
 				if (totalWidth + buttonSize.width > constraintWidth)
 					break;
-				if (this.menuPosition === 'left')
+				if (this._menuPosition === 'left')
 					this.keepItems.unshift(this.items[i]);
 				else
 					this.keepItems.push(this.items[i]);
@@ -338,22 +353,22 @@ namespace Ui
 				}
 				if (minSize.width > maxItemWidth)
 					maxItemWidth = minSize.width;
-				if (this.menuPosition === 'left')
+				if (this._menuPosition === 'left')
 					i--;
 				else
 					i++;
 			}
 			if (totalWidth > 0)
-				totalWidth -= this.spacing;
+				totalWidth -= this._spacing;
 			this.menuNeeded = this.keepItems.length !== this.items.length;
 
 			let constraintSize = constraintWidth;
 			if (this.menuNeeded) {
-				constraintSize -= buttonSize.width + this.spacing;
+				constraintSize -= buttonSize.width + this._spacing;
 				// remove graphical childs that dont fit
 				while ((i >= 0) && (i < this.items.length)) {
 					this.removeChild(this.items[i]);
-					if (this.menuPosition === 'left')
+					if (this._menuPosition === 'left')
 						i--;
 					else
 						i++;
@@ -361,13 +376,13 @@ namespace Ui
 			}
 
 			// measure using items we keept
-			if (this.uniform) {
+			if (this._uniform) {
 				// we can respect the uniform constraint
-				if ((this.keepItems.length * (maxItemWidth + this.spacing)) - this.spacing <= constraintWidth) {
+				if ((this.keepItems.length * (maxItemWidth + this._spacing)) - this._spacing <= constraintWidth) {
 					for (i = 0; i < this.keepItems.length; i++)
 						this.keepItems[i].measure(maxItemWidth, maxItemHeight);
 					this.uniformSize = maxItemWidth;
-					size = { width: ((this.keepItems.length * (maxItemWidth + this.spacing)) - this.spacing), height: maxItemHeight };
+					size = { width: ((this.keepItems.length * (maxItemWidth + this._spacing)) - this._spacing), height: maxItemHeight };
 				}
 				// we cant respect, do our best, dont care
 				else {
@@ -378,7 +393,7 @@ namespace Ui
 			// measure is not uniform
 			else {
 				if (countResizable > 0) {
-					let remainWidth = constraintSize - minItemsSize - ((this.keepItems.length - 1) * this.spacing);
+					let remainWidth = constraintSize - minItemsSize - ((this.keepItems.length - 1) * this._spacing);
 					let starFound = true;
 					let star = remainWidth / countResizable;
 					do {
@@ -404,7 +419,7 @@ namespace Ui
 						}
 					} while (!starFound);
 				
-					minItemsSize += this.spacing * (this.keepItems.length - 1);
+					minItemsSize += this._spacing * (this.keepItems.length - 1);
 					if (countResizable > 0) {
 						minItemsSize += star * countResizable;
 						this.star = star;
@@ -418,7 +433,7 @@ namespace Ui
 			}
 
 			if (this.menuNeeded)
-				size.width += buttonSize.width + this.spacing;
+				size.width += buttonSize.width + this._spacing;
 		
 			size.width += left + right;
 			size.height += top + bottom;
@@ -429,20 +444,20 @@ namespace Ui
 		arrangeCore(width: number, height: number) {
 			this.bg.arrange(0, 0, width, height);
 
-			let left = this.paddingLeft;
-			let right = this.paddingRight;
-			let top = this.paddingTop;
-			let bottom = this.paddingBottom;
+			let left = this._paddingLeft;
+			let right = this._paddingRight;
+			let top = this._paddingTop;
+			let bottom = this._paddingBottom;
 			width -= left + right;
 			height -= top + bottom;
 
 			let x = left;
 			let y = top;
 			let first = true;
-			if (this.itemsAlign !== 'left')
+			if (this._itemsAlign !== 'left')
 				x = width - this.measureWidth;
 		
-			if (this.menuNeeded && (this.menuPosition === 'left')) {
+			if (this.menuNeeded && (this._menuPosition === 'left')) {
 				first = false;
 				this.menuButton.arrange(x, y, this.menuButton.measureWidth, height);
 				x += this.menuButton.measureWidth;
@@ -453,9 +468,9 @@ namespace Ui
 				if (first)
 					first = false;
 				else
-					x += this.spacing;
+					x += this._spacing;
 				let itemWidth;
-				if (this.uniform && (this.uniformSize !== undefined))
+				if (this._uniform && (this.uniformSize !== undefined))
 					itemWidth = this.uniformSize;
 				else {
 					itemWidth = item.measureWidth;
@@ -466,11 +481,11 @@ namespace Ui
 				x += itemWidth;
 			}
 		
-			if (this.menuNeeded && (this.menuPosition !== 'left')) {
+			if (this.menuNeeded && (this._menuPosition !== 'left')) {
 				if (first)
 					first = false;
 				else
-					x += this.spacing;
+					x += this._spacing;
 				this.menuButton.arrange(x, y, this.menuButton.measureWidth, height);
 			}
 		

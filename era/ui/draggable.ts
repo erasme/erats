@@ -1,5 +1,68 @@
-namespace Ui
-{
+namespace Ui {
+
+	export class DraggableWatcher extends Core.Object {
+		allowedMode: string | 'copy' | 'copyLink' | 'copyMove' | 'link' | 'linkMove' | 'move' | 'all' = 'all';
+		// the data that we drag & drop
+		data: any;
+		private _dragDelta: Point;
+		private dataTransfer: DragDataTransfer;
+		private element: Ui.Element;
+		private start: (watcher: DraggableWatcher) => void;
+		private end: (watcher: DraggableWatcher, effect: 'none' | 'copy' | 'link' | 'move' | string) => void;
+
+		constructor(init: {
+			element: Ui.Element,
+			data: any,
+			start?: (watcher: DraggableWatcher) => void,
+			end?: (watcher: DraggableWatcher, effect: 'none' | 'copy' | 'link' | 'move' | string) => void
+		}) {
+			super();
+			this.assign(init);
+			this.connect(this.element, 'ptrdown', this.onDraggablePointerDown);
+		}
+
+		get dragDelta(): Point {
+			return this._dragDelta;
+		}
+
+		private onDraggablePointerDown(event: PointerEvent): void {
+			// left and middle mouse button only
+			if (event.pointerType == 'mouse' && event.pointer.button != 0 && event.pointer.button != 1)
+				return;	
+			if (this.element.isDisabled || (this.data === undefined))
+				return;
+
+			let delayed = !(event.pointerType == 'mouse' && event.pointer.button == 0);
+			
+			this.dataTransfer = new DragEmuDataTransfer(
+				this.element, event.clientX, event.clientY, delayed, event.pointer);
+			this._dragDelta = this.element.pointFromWindow(new Point(event.clientX, event.clientY));
+			this.connect(this.dataTransfer, 'start', this.onDragStart);
+			this.connect(this.dataTransfer, 'end', this.onDragEnd);
+		}
+
+		private onDragStart(dataTransfer: DragEmuDataTransfer): void {
+			let selection = Selectionable.getParentSelectionHandler(this.element);
+			if (selection && (selection.elements.indexOf(this.element as any) != -1))
+				dataTransfer.setData(selection);
+			else
+				dataTransfer.setData(this.data);
+			dataTransfer.effectAllowed = this.allowedMode;
+			if (this.start)
+				this.start(this);
+		}
+
+		private onDragEnd(dataTransfer: DragEmuDataTransfer): void {
+			let action = 'none';
+			if (dataTransfer.dropEffect && dataTransfer.dropEffect.length > 0)
+				action = dataTransfer.dropEffect[0].action;
+			// dropEffect give the operation done: [none|copy|link|move]
+			if (this.end)
+				this.end(this, action);
+			
+		}
+	}
+
 	export interface DraggableInit extends PressableInit {
 	}
 
@@ -47,23 +110,32 @@ namespace Ui
 		}
 
 		private onDraggablePointerDown(event: PointerEvent): void {
+			// left and middle mouse button only
+			if (event.pointerType == 'mouse' && event.pointer.button != 0 && event.pointer.button != 1)
+				return;	
 			if (this.lock || this.isDisabled || (this.draggableData === undefined))
 				return;
 
+			let delayed = !(event.pointerType == 'mouse' && event.pointer.button == 0);
+			
 			this.dataTransfer = new DragEmuDataTransfer(
-				this, event.clientX, event.clientY, true, event.pointer);
+				this, event.clientX, event.clientY, delayed, event.pointer);
 			this._dragDelta = this.pointFromWindow(new Point(event.clientX, event.clientY));
 			this.connect(this.dataTransfer, 'start', this.onDragStart);
 			this.connect(this.dataTransfer, 'end', this.onDragEnd);
 		}
 
-		private onDragStart(dataTransfer: DragEmuDataTransfer): void {
+		protected onDragStart(dataTransfer: DragEmuDataTransfer): void {
+			let selection = Selectionable.getParentSelectionHandler(this);
+			if (selection && (selection.elements.indexOf(this as any) != -1))
+				dataTransfer.setData(selection);
+			else
+				dataTransfer.setData(this.draggableData);
 			dataTransfer.effectAllowed = this.allowedMode;
-			dataTransfer.setData(this.draggableData);
 			this.fireEvent('dragstart', this, dataTransfer);
 		}
 
-		private onDragEnd(dataTransfer: DragEmuDataTransfer): void {
+		protected onDragEnd(dataTransfer: DragEmuDataTransfer): void {
 			// dropEffect give the operation done: [none|copy|link|move]
 			this.fireEvent('dragend', this, dataTransfer.dropEffect);
 		}
