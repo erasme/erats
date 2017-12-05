@@ -21,7 +21,12 @@ var Selectionable = (function (_super) {
         });
         _this.selectedMark.hide();
         _this.append(_this.selectedMark);
-        _this.draggableData = _this;
+        new Ui.SelectionableWatcher({
+            element: _this,
+            selectionActions: _this.getSelectionActions(),
+            select: function () { return _this.selectedMark.show(); },
+            unselect: function () { return _this.selectedMark.hide(); }
+        });
         _this.assign(init);
         return _this;
     }
@@ -31,9 +36,6 @@ var Selectionable = (function (_super) {
     Selectionable.prototype.onItemEdit = function () {
         Ui.Toast.send('Item edited');
     };
-    Selectionable.prototype.onPress = function () {
-        this.isSelected = !this.isSelected;
-    };
     Selectionable.prototype.onSelect = function () {
         this.selectedMark.show();
     };
@@ -41,20 +43,21 @@ var Selectionable = (function (_super) {
         this.selectedMark.hide();
     };
     Selectionable.prototype.getSelectionActions = function () {
+        var _this = this;
         return {
             remove: {
-                text: 'Remove', icon: 'trash',
-                scope: this, callback: this.onItemDelete, multiple: false
+                text: 'Remove', icon: 'trash', multiple: false,
+                callback: function () { return _this.onItemDelete(); }
             },
             edit: {
-                "default": true,
+                "default": true, multiple: false,
                 text: 'Edit', icon: 'edit',
-                scope: this, callback: this.onItemEdit, multiple: false
+                callback: function () { return _this.onItemEdit(); }
             }
         };
     };
     return Selectionable;
-}(Ui.Selectionable));
+}(Ui.LBox));
 var App = (function (_super) {
     __extends(App, _super);
     function App() {

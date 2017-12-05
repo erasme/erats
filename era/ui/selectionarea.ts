@@ -6,7 +6,7 @@ namespace Ui {
         watcher: Ui.PointerWatcher | undefined;
         rectangle: Ui.Rectangle;
         startPos: Ui.Point;
-        private shiftStart: Ui.Selectionable;
+        private shiftStart: Ui.SelectionableWatcher;
 
         constructor(init?: Partial<SelectionAreaInit>) {
             super(init);
@@ -29,8 +29,8 @@ namespace Ui {
             return undefined;
         }
 
-        private findAreaElements(p1: Ui.Point, p2: Ui.Point): Array<Ui.Selectionable> {
-            let res = new Array<Ui.Selectionable>();
+        private findAreaElements(p1: Ui.Point, p2: Ui.Point): Array<Ui.SelectionableWatcher> {
+            let res = new Array<Ui.SelectionableWatcher>();
 
             let p = new Ui.Point(Math.min(p1.x, p2.x), Math.min(p1.y, p2.y));
             let s = { width: Math.abs(p1.x - p2.x), height: Math.abs(p1.y - p2.y) };
@@ -48,9 +48,10 @@ namespace Ui {
             };
 
             let addSelectionable = (el: Ui.Element) => {
-                if (el instanceof Ui.Selectionable) {
-                    if (intersect(el))
-                        res.push(el);
+                let watcher = Ui.SelectionableWatcher.getSelectionableWatcher(el);
+                if (watcher) {
+                    if (intersect(watcher.element))
+                        res.push(watcher);
                 }
                 else if (el instanceof Ui.Container)
                     el.children.forEach(el2 => addSelectionable(el2));
@@ -59,12 +60,12 @@ namespace Ui {
 
             // sort from the distance to p2 (release area selection)
             res = res.sort((a, b) => {
-                let m = a.transformToElement(this);
-                let c1 = (new Ui.Point(a.layoutWidth / 2, a.layoutHeight / 2)).multiply(m);
+                let m = a.element.transformToElement(this);
+                let c1 = (new Ui.Point(a.element.layoutWidth / 2, a.element.layoutHeight / 2)).multiply(m);
                 let d1 = Math.sqrt(Math.pow((c1.x - p2.x), 2) + Math.pow((c1.y - p2.y), 2));
                 
-                m = b.transformToElement(this);
-                let c2 = (new Ui.Point(b.layoutWidth / 2, b.layoutHeight / 2)).multiply(m);
+                m = b.element.transformToElement(this);
+                let c2 = (new Ui.Point(b.element.layoutWidth / 2, b.element.layoutHeight / 2)).multiply(m);
                 let d2 = Math.sqrt(Math.pow((c2.x - p2.x), 2) + Math.pow((c2.y - p2.y), 2));
 
                 return d2 - d1;
@@ -73,13 +74,13 @@ namespace Ui {
             return res;
         }
     
-        private findSelectionableElements(): Array<Ui.Selectionable> {
-            let res = new Array<Ui.Selectionable>();
+        private findSelectionableWatchers(): Array<Ui.SelectionableWatcher> {
+            let res = new Array<Ui.SelectionableWatcher>();
 
             let addSelectionable = (el: Ui.Element) => {
-                if (el instanceof Ui.Selectionable) {
-                    res.push(el);
-                }
+                let watcher = Ui.SelectionableWatcher.getSelectionableWatcher(el);
+                if (watcher)
+                    res.push(watcher);
                 else if (el instanceof Ui.Container)
                     el.children.forEach(el2 => addSelectionable(el2));
             };
@@ -88,11 +89,11 @@ namespace Ui {
         }
     
         private findMatchSelectionable(
-            element: Ui.Selectionable,
+            element: Ui.Element,
             filter: (p: Ui.Point, s: { width: number, height: number }, c: Ui.Point,
                 pe: Ui.Point, se: { width: number, height: number }, ce: Ui.Point) => boolean
-        ): Ui.Selectionable | undefined {
-            let all = this.findSelectionableElements();
+        ): Ui.SelectionableWatcher | undefined {
+            let all = this.findSelectionableWatchers();
             if (all.length == 0)
                 return undefined;
                     
@@ -104,9 +105,10 @@ namespace Ui {
             let c = new Ui.Point((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
 
             let distance = 0;
-            let found: Ui.Selectionable | undefined;
+            let found: Ui.SelectionableWatcher | undefined;
 
-            all.forEach((el) => {
+            all.forEach((w) => {
+                let el = w.element;
                 let m = el.transformToElement(this);
                 let pe1 = (new Ui.Point(0, 0)).multiply(m);
                 let pe2 = (new Ui.Point(el.layoutWidth, el.layoutHeight)).multiply(m);
@@ -119,13 +121,13 @@ namespace Ui {
                 let d = Math.sqrt(Math.pow((c.x - ce.x), 2) + Math.pow((c.y - ce.y), 2));
                 if (!found || d < distance) {
                     distance = d;
-                    found = el;
+                    found = w;
                 }
             });
             return found;
         }
 
-        private findRightSelectionable(element: Ui.Selectionable): Ui.Selectionable | undefined {
+        private findRightSelectionable(element: Ui.Element): Ui.SelectionableWatcher | undefined {
             return this.findMatchSelectionable(element,
                 (p, s, c, pe, se, ce) => {
                     if (pe.x < p.x + s.width)
@@ -137,7 +139,7 @@ namespace Ui {
                 });
         }
 
-        private findLeftSelectionable(element: Ui.Selectionable): Ui.Selectionable | undefined {
+        private findLeftSelectionable(element: Ui.Element): Ui.SelectionableWatcher | undefined {
             return this.findMatchSelectionable(element,
                 (p, s, c, pe, se, ce) => {
                     if (pe.x + se.width > p.x)
@@ -149,7 +151,7 @@ namespace Ui {
                 });
         }
 
-        private findBottomSelectionable(element: Ui.Selectionable): Ui.Selectionable | undefined {
+        private findBottomSelectionable(element: Ui.Element): Ui.SelectionableWatcher | undefined {
             return this.findMatchSelectionable(element,
                 (p, s, c, pe, se, ce) => {
                     if (p.y + s.height > pe.y)
@@ -161,7 +163,7 @@ namespace Ui {
                 });
         }
 
-        private findTopSelectionable(element: Ui.Selectionable): Ui.Selectionable | undefined {
+        private findTopSelectionable(element: Ui.Element): Ui.SelectionableWatcher | undefined {
             return this.findMatchSelectionable(element,
                 (p, s, c, pe, se, ce) => {
                     if (pe.y + se.height > p.y)
@@ -196,21 +198,21 @@ namespace Ui {
                     selection.append(res);
                 // Ctrl = selection append the inverted selection status
                 else if (watcher.pointer.ctrlKey) {
-                    let els = selection.elements;
-                    let res2 = new Array<Selectionable>();
-                    els.forEach(el => {
-                        if (res.indexOf(el) == -1)
-                            res2.push(el);
+                    let watchers = selection.watchers;
+                    let res2 = new Array<SelectionableWatcher>();
+                    watchers.forEach(w => {
+                        if (res.indexOf(w) == -1)
+                            res2.push(w);
                     });
-                    res.forEach(el => {
-                        if (els.indexOf(el) == -1)
-                            res2.push(el);    
+                    res.forEach(w => {
+                        if (watchers.indexOf(w) == -1)
+                            res2.push(w);    
                     });
-                    selection.elements = res2;
+                    selection.watchers = res2;
                 }
                 // set the current selection    
                 else
-                    selection.elements = res;
+                    selection.watchers = res;
 
                 if (this.rectangle.parent == this)
                     this.remove(this.rectangle);
@@ -258,17 +260,19 @@ namespace Ui {
                 if (!selection)
                     return;
 
-                let ours = new Array<Ui.Selectionable>();
-                ours = selection.elements.filter((el) => el.getIsChildOf(this));    
+                let ours = new Array<Ui.SelectionableWatcher>();
+                ours = selection.watchers.filter((w) => w.element.getIsChildOf(this));
 
                 if (ours.length == 0)
                     return;
                 
-                let focusElement = ours.find(el => el.hasFocus);
-                if (!focusElement)
-                    focusElement = ours[0];    
+                let focusElement: Ui.Element;
+                let focusWatcher = ours.find(w => w.element.hasFocus);
+                if (!focusWatcher)
+                    focusWatcher = ours[0];
+                focusElement = focusWatcher.element;
         
-                let found: Ui.Selectionable | undefined;
+                let found: Ui.SelectionableWatcher | undefined;
                 // left (37)
                 if (event.which == 37) {
                     found = this.findLeftSelectionable(focusElement);
@@ -289,21 +293,21 @@ namespace Ui {
                     event.stopPropagation();
                     event.preventDefault();
 
-                    let shiftStart = this.shiftStart || focusElement;
+                    let shiftStart = this.shiftStart || focusWatcher;
 
                     if (event.shiftKey)
-                        selection.elements = selection.findRangeElements(shiftStart, found);
+                        selection.watchers = selection.findRangeElements(shiftStart, found);
                     else
-                        selection.elements = [found];
-                    if (found.focusable)
-                        found.focus();    
+                        selection.watchers = [found];
+                    if (found.element.focusable)
+                        found.element.focus();
                 }
                 // Ctrl + A
                 if (event.which == 65 && event.ctrlKey)
-                    selection.elements = this.findSelectionableElements();
+                    selection.watchers = this.findSelectionableWatchers();
                 // Shift
                 if (event.which == 16)
-                    this.shiftStart = focusElement;
+                    this.shiftStart = focusWatcher;
             }
         }
     }

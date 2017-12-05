@@ -1522,81 +1522,73 @@ declare namespace Ui {
         default?: boolean;
         text: string;
         icon: string;
-        scope?: any;
-        callback?: Function;
+        callback?: (selection: Selection) => void;
         multiple?: boolean;
         hidden?: boolean;
     }
     interface SelectionActions {
         [key: string]: SelectionAction;
     }
-    interface SelectionableItem {
-        selectionWatcher: SelectionableWatcher;
-    }
     class SelectionableWatcher extends Core.Object {
-        private element;
+        readonly element: Element;
+        readonly selectionActions: SelectionActions;
         private _isSelected;
         private handler;
         private select;
         private unselect;
         constructor(init: {
             element: Element;
+            selectionActions?: SelectionActions;
             dragSelect?: boolean;
             pressSelect?: boolean;
             select?: (selection: Selection) => void;
             unselect?: (selection: Selection) => void;
         });
-        readonly isSelected: boolean;
-        onSelect(selection: Selection): void;
-        onUnselect(selection: Selection): void;
-        protected onDelayedPress(watcher: PressWatcher): void;
-        getSelectionActions(): SelectionActions;
-        getParentSelectionHandler(): Selection | undefined;
-        onSelectionableDragStart(watcher: DraggableWatcher): void;
-        onSelectionableDragEnd(watcher: DraggableWatcher): void;
-        onSelectionableActivate(watcher: PressWatcher): void;
-    }
-    interface SelectionableInit extends DraggableInit {
-    }
-    class Selectionable extends Draggable implements SelectionableInit {
-        private _isSelected;
-        private handler;
-        constructor(init?: Partial<SelectionableInit>);
+        static getSelectionableWatcher(element: Element): SelectionableWatcher | undefined;
+        static getIsSelectionableItem(element: Element): boolean;
         isSelected: boolean;
         onSelect(selection: Selection): void;
         onUnselect(selection: Selection): void;
+        protected onDelayedPress(watcher: PressWatcher): void;
+        private getParentSelectionHandler();
+        private onSelectionableDragStart(watcher);
+        private onSelectionableDragEnd(watcher);
+        private onSelectionableActivate(watcher);
+    }
+    interface SelectionableInit extends LBoxInit {
+    }
+    class Selectionable extends LBox implements SelectionableInit {
+        private selectionWatcher;
+        constructor(init?: Partial<SelectionableInit>);
+        isSelected: boolean;
+        protected onSelect(selection: Selection): void;
+        protected onUnselect(selection: Selection): void;
         getSelectionActions(): SelectionActions;
-        getParentSelectionHandler(): Selection | undefined;
+        private getParentSelectionHandler();
         static getParentSelectionHandler(element: Element): Selection | undefined;
-        onSelectionableDragStart(): void;
-        onSelectionableDragEnd(): void;
-        onSelectionableActivate(): void;
-        select(): void;
-        unselect(): void;
-        onUnload(): void;
-        private onSelectionablePointerDown(event);
     }
 }
 declare namespace Ui {
     class Selection extends Core.Object {
-        private _elements;
+        private _watchers;
         constructor();
         clear(): void;
-        appendRange(start: Selectionable, end: Selectionable): void;
-        append(elements: Array<Selectionable> | Selectionable): void;
-        extend(end: Selectionable): void;
-        findRangeElements(start: Selectionable, end: Selectionable): Array<Selectionable>;
-        private internalAppend(element);
-        remove(element: Array<Selectionable> | Selectionable): void;
-        private internalRemove(element);
-        elements: Selectionable[];
-        getElementActions(element: Selectionable): {};
+        appendRange(start: SelectionableWatcher, end: SelectionableWatcher): void;
+        append(elements: Array<SelectionableWatcher> | SelectionableWatcher): void;
+        extend(end: SelectionableWatcher): void;
+        findRangeElements(start: SelectionableWatcher, end: SelectionableWatcher): Array<SelectionableWatcher>;
+        private internalAppend(watcher);
+        remove(watcher: Array<SelectionableWatcher> | SelectionableWatcher): void;
+        private internalRemove(watcher);
+        watchers: Array<SelectionableWatcher>;
+        elements: Element[];
+        getElementActions(watcher: SelectionableWatcher): {};
         getActions(): any;
         getDefaultAction(): any;
         executeDefaultAction(): boolean;
         getDeleteAction(): any;
         executeDeleteAction(): boolean;
-        onElementUnload(element: Selectionable): void;
+        onElementUnload(element: Element): void;
     }
 }
 declare namespace Ui {
@@ -2081,7 +2073,7 @@ declare namespace Ui {
         badge: string;
         orientation: string;
     }
-    class Button extends Selectionable implements ButtonInit {
+    class Button extends Pressable implements ButtonInit {
         private dropbox;
         private _isActive;
         private mainBox;
@@ -3530,7 +3522,7 @@ declare namespace Ui {
         constructor(init?: Partial<SelectionAreaInit>);
         getParentSelectionHandler(): Ui.Selection | undefined;
         private findAreaElements(p1, p2);
-        private findSelectionableElements();
+        private findSelectionableWatchers();
         private findMatchSelectionable(element, filter);
         private findRightSelectionable(element);
         private findLeftSelectionable(element);
@@ -3586,24 +3578,19 @@ declare namespace Ui {
         };
         protected arrangeCore(width: number, height: number): void;
     }
-    class ListViewRow extends Selectionable {
-        headers: HeaderDef[];
+    class ListViewRow extends Container {
+        private headers;
         data: object;
-        cells: ListViewCell[];
-        background: Rectangle;
-        selectionActions: SelectionActions;
+        private cells;
+        private background;
+        private selectionActions;
+        private selectionWatcher;
         constructor(init: {
             headers: HeaderDef[];
             data: object;
             selectionActions?: SelectionActions;
         });
         getData(): object;
-        getSelectionActions(): SelectionActions;
-        setSelectionActions(value: SelectionActions): void;
-        protected onPress(x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean): void;
-        protected onActivate(x?: number, y?: number): void;
-        onSelect(selection: Selection): void;
-        onUnselect(selection: Selection): void;
         protected measureCore(width: number, height: number): {
             width: number;
             height: number;
@@ -3655,19 +3642,19 @@ declare namespace Ui {
         showHeaders(): void;
         hideHeaders(): void;
         getSelectionActions(): SelectionActions;
-        setSelectionActions(value: any): void;
+        setSelectionActions(value: SelectionActions): void;
         getElementAt(position: number): ListViewRow;
         appendData(data: any): void;
         updateData(data: any): void;
         removeData(data: any): void;
-        removeDataAt(position: any): void;
+        removeDataAt(position: number): void;
         clearData(): void;
         data: Array<any>;
         sortData(): void;
-        sortBy(key: any, invert: any): void;
+        sortBy(key: string, invert: boolean): void;
         findDataRow(data: any): number;
         onHeaderPress(header: any, key: any): void;
-        onSelectionEdit(selection: any): void;
+        onSelectionEdit(selection: Selection): void;
         protected onChildInvalidateArrange(child: Element): void;
     }
     class ListViewCell extends LBox {

@@ -4,8 +4,8 @@ namespace Ui {
 		default?: boolean;
 		text: string;
 		icon: string;
-		scope?: any;
-		callback?: Function;
+		//scope?: any;
+		callback?: (selection: Selection) => void;
 		multiple?: boolean;
 		hidden?: boolean;
 	}
@@ -15,7 +15,8 @@ namespace Ui {
 	}
 
 	export class SelectionableWatcher extends Core.Object {
-		private element: Element;
+		readonly element: Element;
+		readonly selectionActions: SelectionActions;
 		private _isSelected: boolean = false;
 		private handler: Selection | undefined;
 		private select: (selection: Selection) => void;
@@ -23,6 +24,7 @@ namespace Ui {
 
 		constructor(init: {
 			element: Element,
+			selectionActions?: SelectionActions,			
 			dragSelect?: boolean,
 			pressSelect?: boolean,
 			select?: (selection: Selection) => void,
@@ -30,6 +32,8 @@ namespace Ui {
 		}) {
 			super();
 			this.element = init.element;
+			this.element.focusable = true;
+			this.selectionActions = init.selectionActions;			
 			this.element['Ui.SelectionableWatcher.watcher'] = this;
 			this.select = init.select;
 			this.unselect = init.unselect;
@@ -70,9 +74,9 @@ namespace Ui {
 				let selection = this.getParentSelectionHandler();
 				if (selection) {
 					if (value)
-						selection.append(this.element as any);
+						selection.append(this);
 					else
-						selection.remove(this.element as any);
+						selection.remove(this);
 				}
 			}
 		}
@@ -96,39 +100,30 @@ namespace Ui {
 			if (selection) {
 				if (watcher.ctrlKey) {
 					if (this.isSelected)
-						selection.remove(this.element as any);
+						selection.remove(this);
 					else
-						selection.append([this.element as any]);
+						selection.append([this]);
                 }
                 else if (watcher.shiftKey)
-                    selection.extend(this.element as any);
+                    selection.extend(this);
 				else
-					selection.elements = [this.element as any];	
+					selection.watchers = [this];
 			}
 		}
 
-		// ex:
-		// {
-		//   delete: { text: 'Delete', icon: 'trash', callback: this.onDelete, multiple: true },
-		//   edit: ...
-		// }
-		getSelectionActions(): SelectionActions {
-			return {};
-		}
-
-		getParentSelectionHandler(): Selection | undefined {
+		private getParentSelectionHandler(): Selection | undefined {
 			return Selectionable.getParentSelectionHandler(this.element);
 		}
 
-		onSelectionableDragStart(watcher: DraggableWatcher) {
+		private onSelectionableDragStart(watcher: DraggableWatcher) {
 			console.log('SelectionableWatcher.onSelectionableDragStart');
 			console.log(this);
 			let selection = this.getParentSelectionHandler();
-			if (selection && (selection.elements.indexOf(this as any) == -1))
-				selection.elements = [this.element as any];
+			if (selection && (selection.watchers.indexOf(this) == -1))
+				selection.watchers = [this];
 		}
 	
-		onSelectionableDragEnd(watcher: DraggableWatcher) {
+		private onSelectionableDragEnd(watcher: DraggableWatcher) {
 			if (this.isSelected) {
 				let handler = this.getParentSelectionHandler();
 				if (handler !== undefined)
@@ -136,7 +131,7 @@ namespace Ui {
 			}
 		}
 		
-		onSelectionableActivate(watcher: PressWatcher) {
+		private onSelectionableActivate(watcher: PressWatcher) {
 			if (this.element.isLoaded) {
 				let handler = this.getParentSelectionHandler();
 				if (handler !== undefined) {
@@ -201,49 +196,48 @@ namespace Ui {
 		}*/
 	}
 
-	export interface SelectionableInit extends DraggableInit {
+	export interface SelectionableInit extends LBoxInit {
 	}
 
-	export class Selectionable extends Draggable implements SelectionableInit
+	export class Selectionable extends LBox implements SelectionableInit
 	{
-		private _isSelected: boolean = false;
-		private handler: Selection | undefined;
+		//private _isSelected: boolean = false;
+		//private handler: Selection | undefined;
+		private selectionWatcher: SelectionableWatcher;
 
 		constructor(init?: Partial<SelectionableInit>) {
 			super();
-			// TODO: change this
-			this['Ui.SelectionableWatcher.watcher'] = 'TODO';
+			this.addEvents('select', 'unselect');
 
-			this.connect(this, 'activate', this.onSelectionableActivate);
-			this.connect(this, 'dragstart', this.onSelectionableDragStart);
-			this.connect(this, 'dragend', this.onSelectionableDragEnd);
-			this.connect(this, 'ptrdown', this.onSelectionablePointerDown);
-			this.connect(this.drawing, 'contextmenu', (event) => event.preventDefault());
-			if (init)
-				this.assign(init);
+			this.selectionWatcher = new SelectionableWatcher({
+				element: this,
+				selectionActions: this.getSelectionActions(),
+				select: (s) => this.onSelect(s),
+				unselect: (s) => this.onUnselect(s)
+			});
+
+//			this.connect(this, 'activate', this.onSelectionableActivate);
+//			this.connect(this, 'dragstart', this.onSelectionableDragStart);
+//			this.connect(this, 'dragend', this.onSelectionableDragEnd);
+//			this.connect(this, 'ptrdown', this.onSelectionablePointerDown);
+//			this.connect(this.drawing, 'contextmenu', (event) => event.preventDefault());
+			this.assign(init);
 		}
 
 		get isSelected(): boolean {
-			return this._isSelected;
+			return this.selectionWatcher.isSelected;
 		}
 	
 		set isSelected(isSelected: boolean) {
-			if (isSelected)
-				this.select();
-			else
-				this.unselect();
+			this.selectionWatcher.isSelected = isSelected;
 		}
 
-		onSelect(selection: Selection) {
-			console.log(`${this.getClassName()}.onSelect`);
-			this._isSelected = true;
-			this.handler = selection;
+		protected onSelect(selection: Selection) {
+			this.fireEvent('select', this);
 		}
 
-		onUnselect(selection: Selection) {
-			console.log(`${this.getClassName()}.onUnselect`);
-			this._isSelected = false;
-			this.handler = undefined;
+		protected onUnselect(selection: Selection) {
+			this.fireEvent('unselect', this);
 		}
 		
 		// ex:
@@ -255,7 +249,7 @@ namespace Ui {
 			return {};
 		}
 
-		getParentSelectionHandler(): Selection | undefined {
+		private getParentSelectionHandler(): Selection | undefined {
 			return Selectionable.getParentSelectionHandler(this);
 		}
 
@@ -269,7 +263,7 @@ namespace Ui {
 			}
 			return undefined;
 		}
-
+/*
 		onSelectionableDragStart() {
 			let selection = this.getParentSelectionHandler();
 			if (selection && (selection.elements.indexOf(this) == -1))
@@ -309,13 +303,13 @@ namespace Ui {
 	
 		unselect() {
 			console.log(`${this.getClassName()}.unselect`);
-			if (this.handler)
-				this.handler.remove(this);
+//			if (this.handler)
+//				this.handler.remove(this);
 		}
 
 		onUnload() {
-			if (this.handler)
-				this.handler.remove(this);
+//			if (this.handler)
+//				this.handler.remove(this);
 			super.onUnload();
 		}
 
@@ -368,6 +362,6 @@ namespace Ui {
 			}
 
 			popup.openAt(event.pointer.x, event.pointer.y);
-		}
+		}*/
 	}
 }

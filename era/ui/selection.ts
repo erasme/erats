@@ -1,75 +1,72 @@
 namespace Ui {
 	export class Selection extends Core.Object {
-		private _elements: Selectionable[];
-		private watchers: SelectionableWatcher[];
+		private _watchers: SelectionableWatcher[];
 
 		constructor() {
 			super();
 			this.addEvents('change');
-			this._elements = [];
-			this.watchers = [];
+			this._watchers = [];
 		}
 
 		clear() {			
 			let change = false;
-			while (this._elements.length > 0) {
-				if (this.internalRemove(this._elements[0]))
+			while (this._watchers.length > 0) {
+				if (this.internalRemove(this._watchers[0]))
 					change = true;	
 			}
 			if (change)
 				this.fireEvent('change', this);
 		}
 
-		appendRange(start: Selectionable, end: Selectionable) {
+		appendRange(start: SelectionableWatcher, end: SelectionableWatcher) {
 			let change = false;
 			let res = this.findRangeElements(start, end);
 			res.forEach(el => { if (this.internalAppend(el)) change = true; });
-			if (end.focusable)
-				end.focus();	
+			if (end.element.focusable)
+				end.element.focus();	
 			if (change)
 				this.fireEvent('change', this);	
 		}
 
-		append(elements: Array<Selectionable> | Selectionable) {
+		append(elements: Array<SelectionableWatcher> | SelectionableWatcher) {
 			let change = false;
-			if (elements instanceof Selectionable) {
+			if (elements instanceof SelectionableWatcher) {
 				if (this.internalAppend(elements))
 					change = true;
-				if (elements.focusable)
-					elements.focus();	
+				if (elements.element.focusable)
+					elements.element.focus();	
 			}
 			else {
 				elements.forEach(el => { if (this.internalAppend(el)) change = true });
-				if (elements[elements.length - 1].focusable)
-					elements[elements.length - 1].focus();
+				if (elements[elements.length - 1].element.focusable)
+					elements[elements.length - 1].element.focus();
 			}
 			if (change)
 				this.fireEvent('change', this);	
 		}
 
-		extend(end: Selectionable) {
-			if (this._elements.length == 0)
+		extend(end: SelectionableWatcher) {
+			if (this._watchers.length == 0)
 				this.append(end);
 			else {
-				let focusElement = this._elements.find(el => el.hasFocus);
+				let focusElement = this._watchers.find(el => el.element.hasFocus);
 				if (!focusElement)
-					focusElement = this._elements[0];
+					focusElement = this._watchers[0];
 				
-				let res = this.findRangeElements(focusElement, end);
-				this.elements = res;
+				this.watchers = this.findRangeElements(focusElement, end);
 			}
 		}
 
-		findRangeElements(start: Selectionable, end: Selectionable): Array<Selectionable> {
+		findRangeElements(start: SelectionableWatcher, end: SelectionableWatcher): Array<SelectionableWatcher> {
 			let start_parents = new Array<Element>();
-			let parent = start.parent;
+			let parent = start.element.parent;
 			while (parent) {
 				start_parents.push(parent);
 				parent = parent.parent;
 			}
 
 			let common_parent: Element;
-			parent = end.parent;
+			parent = end.element.parent;
 			while (parent && !common_parent) {
 				let pos = start_parents.indexOf(parent);
 				if (pos != -1)
@@ -77,11 +74,11 @@ namespace Ui {
 				parent = parent.parent;
 			}
 
-			let all = new Array<Selectionable>();
+			let all = new Array<SelectionableWatcher>();
 			let add_selectionable = (el: Element) => {
-				//if (SelectionableWatcher.getIsSelectionableItem(el))
-				if (el instanceof Selectionable)	
-					all.push(el);
+				let w = SelectionableWatcher.getSelectionableWatcher(el);
+				if (w)	
+					all.push(w);
 				else if (el instanceof Container)
 					el.children.forEach(el2 => add_selectionable(el2));
 			};
@@ -89,79 +86,87 @@ namespace Ui {
 
 			let start_pos = all.indexOf(start);
 			let end_pos = all.indexOf(end);
-			let res = new Array<Selectionable>();
+			let res = new Array<SelectionableWatcher>();
 			for (let i = Math.min(start_pos, end_pos); i <= Math.max(start_pos, end_pos); i++)
 				res.push(all[i]);
 
 			return res;
 		}
 
-		private internalAppend(element: Selectionable): boolean {
+		private internalAppend(watcher: SelectionableWatcher): boolean {
 			// test if we already have it
-			if (this._elements.indexOf(element) != -1)
+			if (this._watchers.indexOf(watcher) != -1)
 				return false;
-			this._elements.push(element);
-			this.connect(element, 'unload', this.onElementUnload);
-			element.onSelect(this);
+			this._watchers.push(watcher);
+			this.connect(watcher.element, 'unload', this.onElementUnload);
+			watcher.onSelect(this);
 			return true;
 		}
 	
-		remove(element: Array<Selectionable> | Selectionable) {
+		remove(watcher: Array<SelectionableWatcher> | SelectionableWatcher) {
 			let change = false;
-			if (element instanceof Selectionable) {
-				if (this.internalRemove(element))
+			if (watcher instanceof SelectionableWatcher) {
+				if (this.internalRemove(watcher))
 					change = true;
 			}
 			else
-				element.forEach(el => { if (this.internalRemove(el)) change = true });
+				watcher.forEach(w => { if (this.internalRemove(w)) change = true });
 			if (change)
 				this.fireEvent('change', this);	
 		}
 
-		private internalRemove(element: Selectionable): boolean  {
+		private internalRemove(watcher: SelectionableWatcher): boolean  {
 			// test if we already have it
-			let foundPos = this.elements.indexOf(element);
+			let foundPos = this._watchers.indexOf(watcher);
 			if (foundPos != -1) {
-				this._elements.splice(foundPos, 1);
-				this.disconnect(element, 'unload', this.onElementUnload);
-				element.onUnselect(this);
+				this._watchers.splice(foundPos, 1);
+				this.disconnect(watcher.element, 'unload', this.onElementUnload);
+				watcher.onUnselect(this);
 				return true;
 			}
 			return false;
 		}
 	
-		get elements(): Selectionable[] {
-			// return a copy, because action on elements might change
-			// the elements list
-			return this._elements.slice();
+		get watchers(): Array<SelectionableWatcher> {
+			return this._watchers.slice();
 		}
 
-		set elements(elements: Selectionable[]) {
-			let removeList = new Array<Selectionable>();
-			let addList = new Array<Selectionable>();
-			elements.forEach(el => {
-				if (this._elements.indexOf(el) == -1)
-					addList.push(el);	
+		set watchers(watchers: Array<SelectionableWatcher>) {
+			let removeList = new Array<SelectionableWatcher>();
+			let addList = new Array<SelectionableWatcher>();
+			watchers.forEach(w => {
+				if (this._watchers.indexOf(w) == -1)
+					addList.push(w);
 			});
-			this._elements.forEach(el => {
-				if (elements.indexOf(el) == -1)
-					removeList.push(el);
+			this._watchers.forEach(w => {
+				if (watchers.indexOf(w) == -1)
+					removeList.push(w);
 			});
 			removeList.forEach(el => this.internalRemove(el));
 			addList.forEach(el => this.internalAppend(el));
-			if (elements.length > 0 && elements[elements.length - 1].focusable)
-				elements[elements.length - 1].focus();
+			if (watchers.length > 0 && watchers[watchers.length - 1].element.focusable)
+			watchers[watchers.length - 1].element.focus();
 			if (addList.length > 0 || removeList.length > 0)
 				this.fireEvent('change', this);	
 		}
 
-		getElementActions(element: Selectionable) {
-			let actions = Core.Util.clone(element.getSelectionActions());
+		get elements(): Element[] {
+			// return a copy, because action on elements might change
+			// the elements list
+			return this._watchers.map(w => w.element);
+		}
+
+		set elements(elements: Element[]) {
+			this.watchers = elements.map(el => SelectionableWatcher.getSelectionableWatcher(el));
+		}
+
+		getElementActions(watcher: SelectionableWatcher) {
+			let actions = Core.Util.clone(watcher.selectionActions);
 			// handle parent context actions
-			let current = element.parent;
+			let current = watcher.element.parent;
 			while (current != undefined) {
 				if ('getContextActions' in current)
-					actions = (current as any).getContextActions(element, actions);
+					actions = (current as any).getContextActions(watcher.element, actions);
 				current = current.parent;
 			}
 			return actions;
@@ -169,15 +174,15 @@ namespace Ui {
 
 		getActions() {
 			let actions; let allActions; let actionName; let action;
-			if (this._elements.length === 0)
+			if (this._watchers.length === 0)
 				return undefined;
 			else {
-				if (this._elements.length === 1) {
+				if (this._watchers.length === 1) {
 					actions = {};
-					allActions = this.getElementActions(this._elements[0]);
+					allActions = this.getElementActions(this._watchers[0]);
 					for (actionName in allActions) {
 						action = allActions[actionName];
-						if (!('testRight' in action) || action.testRight.call(this._elements[0]))
+						if (!('testRight' in action) || action.testRight.call(this._watchers[0]))
 							actions[actionName] = allActions[actionName];
 					}
 					return actions;
@@ -185,14 +190,14 @@ namespace Ui {
 				// return only actions that support multiple element
 				else {
 					actions = {};
-					allActions = this.getElementActions(this._elements[0]);
+					allActions = this.getElementActions(this._watchers[0]);
 					for (actionName in allActions) {
 						action = allActions[actionName];
 						if (action.multiple === true) {
 							let compat = true;
-							for (let i = 1; compat && (i < this._elements.length); i++) {
+							for (let i = 1; compat && (i < this._watchers.length); i++) {
 								let otherCompat = false;
-								let otherActions = this.getElementActions(this._elements[i]);
+								let otherActions = this.getElementActions(this._watchers[i]);
 								for (let otherActionKey in otherActions) {
 									let otherAction = otherActions[otherActionKey];
 									if ((otherAction.multiple === true) && (otherAction.callback === action.callback)) {
@@ -206,8 +211,8 @@ namespace Ui {
 								let allowed = true;
 								// test rights for all elements
 								if ('testRight' in action) {
-									for (let i = 0; allowed && (i < this._elements.length); i++) {
-										allowed = allowed && action.testRight.call(this._elements[i]);
+									for (let i = 0; allowed && (i < this._watchers.length); i++) {
+										allowed = allowed && action.testRight.call(this._watchers[i]);
 									}
 								}
 								if (allowed)
@@ -269,10 +274,11 @@ namespace Ui {
 			}
 		}
 	
-		onElementUnload(element: Selectionable) {
+		onElementUnload(element: Element) {
 			// remove the element from the selection
 			// if removed from the DOM
-			this.remove(element);
+			let watcher = SelectionableWatcher.getSelectionableWatcher(element);
+			this.remove(watcher);
 		}
 	}
 }

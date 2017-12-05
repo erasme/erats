@@ -8457,6 +8457,9 @@ var Ui;
             var _this = _super.call(this) || this;
             _this._isSelected = false;
             _this.element = init.element;
+            _this.element.focusable = true;
+            _this.selectionActions = init.selectionActions;
+            _this.element['Ui.SelectionableWatcher.watcher'] = _this;
             _this.select = init.select;
             _this.unselect = init.unselect;
             new Ui.PressWatcher({
@@ -8472,9 +8475,26 @@ var Ui;
             });
             return _this;
         }
+        SelectionableWatcher.getSelectionableWatcher = function (element) {
+            return element['Ui.SelectionableWatcher.watcher'];
+        };
+        SelectionableWatcher.getIsSelectionableItem = function (element) {
+            return (element instanceof Selectionable) || (SelectionableWatcher.getSelectionableWatcher(element) != undefined);
+        };
         Object.defineProperty(SelectionableWatcher.prototype, "isSelected", {
             get: function () {
                 return this._isSelected;
+            },
+            set: function (value) {
+                if (this._isSelected != value) {
+                    var selection = this.getParentSelectionHandler();
+                    if (selection) {
+                        if (value)
+                            selection.append(this);
+                        else
+                            selection.remove(this);
+                    }
+                }
             },
             enumerable: true,
             configurable: true
@@ -8496,18 +8516,15 @@ var Ui;
             if (selection) {
                 if (watcher.ctrlKey) {
                     if (this.isSelected)
-                        selection.remove(this.element);
+                        selection.remove(this);
                     else
-                        selection.append([this.element]);
+                        selection.append([this]);
                 }
                 else if (watcher.shiftKey)
-                    selection.extend(this.element);
+                    selection.extend(this);
                 else
-                    selection.elements = [this.element];
+                    selection.watchers = [this];
             }
-        };
-        SelectionableWatcher.prototype.getSelectionActions = function () {
-            return {};
         };
         SelectionableWatcher.prototype.getParentSelectionHandler = function () {
             return Selectionable.getParentSelectionHandler(this.element);
@@ -8516,8 +8533,8 @@ var Ui;
             console.log('SelectionableWatcher.onSelectionableDragStart');
             console.log(this);
             var selection = this.getParentSelectionHandler();
-            if (selection && (selection.elements.indexOf(this) == -1))
-                selection.elements = [this.element];
+            if (selection && (selection.watchers.indexOf(this) == -1))
+                selection.watchers = [this];
         };
         SelectionableWatcher.prototype.onSelectionableDragEnd = function (watcher) {
             if (this.isSelected) {
@@ -8545,38 +8562,31 @@ var Ui;
         __extends(Selectionable, _super);
         function Selectionable(init) {
             var _this = _super.call(this) || this;
-            _this._isSelected = false;
-            _this.connect(_this, 'activate', _this.onSelectionableActivate);
-            _this.connect(_this, 'dragstart', _this.onSelectionableDragStart);
-            _this.connect(_this, 'dragend', _this.onSelectionableDragEnd);
-            _this.connect(_this, 'ptrdown', _this.onSelectionablePointerDown);
-            _this.connect(_this.drawing, 'contextmenu', function (event) { return event.preventDefault(); });
-            if (init)
-                _this.assign(init);
+            _this.addEvents('select', 'unselect');
+            _this.selectionWatcher = new SelectionableWatcher({
+                element: _this,
+                selectionActions: _this.getSelectionActions(),
+                select: function (s) { return _this.onSelect(s); },
+                unselect: function (s) { return _this.onUnselect(s); }
+            });
+            _this.assign(init);
             return _this;
         }
         Object.defineProperty(Selectionable.prototype, "isSelected", {
             get: function () {
-                return this._isSelected;
+                return this.selectionWatcher.isSelected;
             },
             set: function (isSelected) {
-                if (isSelected)
-                    this.select();
-                else
-                    this.unselect();
+                this.selectionWatcher.isSelected = isSelected;
             },
             enumerable: true,
             configurable: true
         });
         Selectionable.prototype.onSelect = function (selection) {
-            console.log(this.getClassName() + ".onSelect");
-            this._isSelected = true;
-            this.handler = selection;
+            this.fireEvent('select', this);
         };
         Selectionable.prototype.onUnselect = function (selection) {
-            console.log(this.getClassName() + ".onUnselect");
-            this._isSelected = false;
-            this.handler = undefined;
+            this.fireEvent('unselect', this);
         };
         Selectionable.prototype.getSelectionActions = function () {
             return {};
@@ -8593,91 +8603,8 @@ var Ui;
             }
             return undefined;
         };
-        Selectionable.prototype.onSelectionableDragStart = function () {
-            var selection = this.getParentSelectionHandler();
-            if (selection && (selection.elements.indexOf(this) == -1))
-                selection.elements = [this];
-        };
-        Selectionable.prototype.onSelectionableDragEnd = function () {
-            if (this.isSelected) {
-                var handler = this.getParentSelectionHandler();
-                if (handler !== undefined)
-                    handler.clear();
-            }
-        };
-        Selectionable.prototype.onSelectionableActivate = function () {
-            if (this.isLoaded) {
-                this.select();
-                var handler = this.getParentSelectionHandler();
-                if (handler !== undefined) {
-                    if (handler.getDefaultAction() !== undefined)
-                        handler.executeDefaultAction();
-                    else
-                        this.unselect();
-                }
-            }
-        };
-        Selectionable.prototype.select = function () {
-            console.log(this.getClassName() + ".select");
-            if (this.isLoaded) {
-                this.handler = this.getParentSelectionHandler();
-                if (this.handler)
-                    this.handler.elements = [this];
-            }
-        };
-        Selectionable.prototype.unselect = function () {
-            console.log(this.getClassName() + ".unselect");
-            if (this.handler)
-                this.handler.remove(this);
-        };
-        Selectionable.prototype.onUnload = function () {
-            if (this.handler)
-                this.handler.remove(this);
-            _super.prototype.onUnload.call(this);
-        };
-        Selectionable.prototype.onSelectionablePointerDown = function (event) {
-            if (this.isDisabled || event.pointer.type != 'mouse' || event.pointer.button != 2)
-                return;
-            var selection = this.getParentSelectionHandler();
-            if (selection == undefined)
-                return;
-            if (selection.elements.indexOf(this) == -1)
-                selection.elements = [this];
-            var actions = selection.getActions();
-            var count = 0;
-            for (var key in actions) {
-                count++;
-            }
-            if (count == 0)
-                return false;
-            var watcher = event.pointer.watch(this);
-            this.connect(watcher, 'move', function () {
-                if (watcher.pointer.getIsMove())
-                    watcher.cancel();
-            });
-            this.connect(watcher, 'up', function (event) {
-                watcher.capture();
-                watcher.cancel();
-            });
-            var popup = new Ui.MenuPopup();
-            var vbox = new Ui.VBox();
-            popup.content = vbox;
-            for (var actionName in actions) {
-                var action = actions[actionName];
-                if (action.hidden === true)
-                    continue;
-                var button = new Ui.ActionButton();
-                button.icon = action.icon;
-                button.text = action.text;
-                button.action = action;
-                button.selection = selection;
-                vbox.append(button);
-                this.connect(button, 'press', function () { return popup.close(); });
-            }
-            popup.openAt(event.pointer.x, event.pointer.y);
-        };
         return Selectionable;
-    }(Ui.Draggable));
+    }(Ui.LBox));
     Ui.Selectionable = Selectionable;
 })(Ui || (Ui = {}));
 var Ui;
@@ -8686,15 +8613,14 @@ var Ui;
         __extends(Selection, _super);
         function Selection() {
             var _this = _super.call(this) || this;
-            _this._elements = undefined;
             _this.addEvents('change');
-            _this._elements = [];
+            _this._watchers = [];
             return _this;
         }
         Selection.prototype.clear = function () {
             var change = false;
-            while (this._elements.length > 0) {
-                if (this.internalRemove(this._elements[0]))
+            while (this._watchers.length > 0) {
+                if (this.internalRemove(this._watchers[0]))
                     change = true;
             }
             if (change)
@@ -8706,49 +8632,48 @@ var Ui;
             var res = this.findRangeElements(start, end);
             res.forEach(function (el) { if (_this.internalAppend(el))
                 change = true; });
-            if (end.focusable)
-                end.focus();
+            if (end.element.focusable)
+                end.element.focus();
             if (change)
                 this.fireEvent('change', this);
         };
         Selection.prototype.append = function (elements) {
             var _this = this;
             var change = false;
-            if (elements instanceof Ui.Selectionable) {
+            if (elements instanceof Ui.SelectionableWatcher) {
                 if (this.internalAppend(elements))
                     change = true;
-                if (elements.focusable)
-                    elements.focus();
+                if (elements.element.focusable)
+                    elements.element.focus();
             }
             else {
                 elements.forEach(function (el) { if (_this.internalAppend(el))
                     change = true; });
-                if (elements[elements.length - 1].focusable)
-                    elements[elements.length - 1].focus();
+                if (elements[elements.length - 1].element.focusable)
+                    elements[elements.length - 1].element.focus();
             }
             if (change)
                 this.fireEvent('change', this);
         };
         Selection.prototype.extend = function (end) {
-            if (this._elements.length == 0)
+            if (this._watchers.length == 0)
                 this.append(end);
             else {
-                var focusElement = this._elements.find(function (el) { return el.hasFocus; });
+                var focusElement = this._watchers.find(function (el) { return el.element.hasFocus; });
                 if (!focusElement)
-                    focusElement = this._elements[0];
-                var res = this.findRangeElements(focusElement, end);
-                this.elements = res;
+                    focusElement = this._watchers[0];
+                this.watchers = this.findRangeElements(focusElement, end);
             }
         };
         Selection.prototype.findRangeElements = function (start, end) {
             var start_parents = new Array();
-            var parent = start.parent;
+            var parent = start.element.parent;
             while (parent) {
                 start_parents.push(parent);
                 parent = parent.parent;
             }
             var common_parent;
-            parent = end.parent;
+            parent = end.element.parent;
             while (parent && !common_parent) {
                 var pos = start_parents.indexOf(parent);
                 if (pos != -1)
@@ -8757,8 +8682,9 @@ var Ui;
             }
             var all = new Array();
             var add_selectionable = function (el) {
-                if (el instanceof Ui.Selectionable)
-                    all.push(el);
+                var w = Ui.SelectionableWatcher.getSelectionableWatcher(el);
+                if (w)
+                    all.push(w);
                 else if (el instanceof Ui.Container)
                     el.children.forEach(function (el2) { return add_selectionable(el2); });
             };
@@ -8770,69 +8696,79 @@ var Ui;
                 res.push(all[i]);
             return res;
         };
-        Selection.prototype.internalAppend = function (element) {
-            if (this._elements.indexOf(element) != -1)
+        Selection.prototype.internalAppend = function (watcher) {
+            if (this._watchers.indexOf(watcher) != -1)
                 return false;
-            this._elements.push(element);
-            this.connect(element, 'unload', this.onElementUnload);
-            element.onSelect(this);
+            this._watchers.push(watcher);
+            this.connect(watcher.element, 'unload', this.onElementUnload);
+            watcher.onSelect(this);
             return true;
         };
-        Selection.prototype.remove = function (element) {
+        Selection.prototype.remove = function (watcher) {
             var _this = this;
             var change = false;
-            if (element instanceof Ui.Selectionable) {
-                if (this.internalRemove(element))
+            if (watcher instanceof Ui.SelectionableWatcher) {
+                if (this.internalRemove(watcher))
                     change = true;
             }
             else
-                element.forEach(function (el) { if (_this.internalRemove(el))
+                watcher.forEach(function (w) { if (_this.internalRemove(w))
                     change = true; });
             if (change)
                 this.fireEvent('change', this);
         };
-        Selection.prototype.internalRemove = function (element) {
-            var foundPos = this.elements.indexOf(element);
+        Selection.prototype.internalRemove = function (watcher) {
+            var foundPos = this._watchers.indexOf(watcher);
             if (foundPos != -1) {
-                this._elements.splice(foundPos, 1);
-                this.disconnect(element, 'unload', this.onElementUnload);
-                element.onUnselect(this);
+                this._watchers.splice(foundPos, 1);
+                this.disconnect(watcher.element, 'unload', this.onElementUnload);
+                watcher.onUnselect(this);
                 return true;
             }
             return false;
         };
-        Object.defineProperty(Selection.prototype, "elements", {
+        Object.defineProperty(Selection.prototype, "watchers", {
             get: function () {
-                return this._elements.slice();
+                return this._watchers.slice();
             },
-            set: function (elements) {
+            set: function (watchers) {
                 var _this = this;
                 var removeList = new Array();
                 var addList = new Array();
-                elements.forEach(function (el) {
-                    if (_this._elements.indexOf(el) == -1)
-                        addList.push(el);
+                watchers.forEach(function (w) {
+                    if (_this._watchers.indexOf(w) == -1)
+                        addList.push(w);
                 });
-                this._elements.forEach(function (el) {
-                    if (elements.indexOf(el) == -1)
-                        removeList.push(el);
+                this._watchers.forEach(function (w) {
+                    if (watchers.indexOf(w) == -1)
+                        removeList.push(w);
                 });
                 removeList.forEach(function (el) { return _this.internalRemove(el); });
                 addList.forEach(function (el) { return _this.internalAppend(el); });
-                if (elements.length > 0 && elements[elements.length - 1].focusable)
-                    elements[elements.length - 1].focus();
+                if (watchers.length > 0 && watchers[watchers.length - 1].element.focusable)
+                    watchers[watchers.length - 1].element.focus();
                 if (addList.length > 0 || removeList.length > 0)
                     this.fireEvent('change', this);
             },
             enumerable: true,
             configurable: true
         });
-        Selection.prototype.getElementActions = function (element) {
-            var actions = Core.Util.clone(element.getSelectionActions());
-            var current = element.parent;
+        Object.defineProperty(Selection.prototype, "elements", {
+            get: function () {
+                return this._watchers.map(function (w) { return w.element; });
+            },
+            set: function (elements) {
+                this.watchers = elements.map(function (el) { return Ui.SelectionableWatcher.getSelectionableWatcher(el); });
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Selection.prototype.getElementActions = function (watcher) {
+            var actions = Core.Util.clone(watcher.selectionActions);
+            var current = watcher.element.parent;
             while (current != undefined) {
                 if ('getContextActions' in current)
-                    actions = current.getContextActions(element, actions);
+                    actions = current.getContextActions(watcher.element, actions);
                 current = current.parent;
             }
             return actions;
@@ -8842,29 +8778,29 @@ var Ui;
             var allActions;
             var actionName;
             var action;
-            if (this._elements.length === 0)
+            if (this._watchers.length === 0)
                 return undefined;
             else {
-                if (this._elements.length === 1) {
+                if (this._watchers.length === 1) {
                     actions = {};
-                    allActions = this.getElementActions(this._elements[0]);
+                    allActions = this.getElementActions(this._watchers[0]);
                     for (actionName in allActions) {
                         action = allActions[actionName];
-                        if (!('testRight' in action) || action.testRight.call(this._elements[0]))
+                        if (!('testRight' in action) || action.testRight.call(this._watchers[0]))
                             actions[actionName] = allActions[actionName];
                     }
                     return actions;
                 }
                 else {
                     actions = {};
-                    allActions = this.getElementActions(this._elements[0]);
+                    allActions = this.getElementActions(this._watchers[0]);
                     for (actionName in allActions) {
                         action = allActions[actionName];
                         if (action.multiple === true) {
                             var compat = true;
-                            for (var i = 1; compat && (i < this._elements.length); i++) {
+                            for (var i = 1; compat && (i < this._watchers.length); i++) {
                                 var otherCompat = false;
-                                var otherActions = this.getElementActions(this._elements[i]);
+                                var otherActions = this.getElementActions(this._watchers[i]);
                                 for (var otherActionKey in otherActions) {
                                     var otherAction = otherActions[otherActionKey];
                                     if ((otherAction.multiple === true) && (otherAction.callback === action.callback)) {
@@ -8877,8 +8813,8 @@ var Ui;
                             if (compat) {
                                 var allowed = true;
                                 if ('testRight' in action) {
-                                    for (var i = 0; allowed && (i < this._elements.length); i++) {
-                                        allowed = allowed && action.testRight.call(this._elements[i]);
+                                    for (var i = 0; allowed && (i < this._watchers.length); i++) {
+                                        allowed = allowed && action.testRight.call(this._watchers[i]);
                                     }
                                 }
                                 if (allowed)
@@ -8936,7 +8872,8 @@ var Ui;
             }
         };
         Selection.prototype.onElementUnload = function (element) {
-            this.remove(element);
+            var watcher = Ui.SelectionableWatcher.getSelectionableWatcher(element);
+            this.remove(watcher);
         };
         return Selection;
     }(Core.Object));
@@ -12111,7 +12048,7 @@ var Ui;
             showIcon: true
         };
         return Button;
-    }(Ui.Selectionable));
+    }(Ui.Pressable));
     Ui.Button = Button;
     var DefaultButton = (function (_super) {
         __extends(DefaultButton, _super);
@@ -19868,31 +19805,32 @@ var Ui;
                 return hoverlap && voverlap;
             };
             var addSelectionable = function (el) {
-                if (el instanceof Ui.Selectionable) {
-                    if (intersect(el))
-                        res.push(el);
+                var watcher = Ui.SelectionableWatcher.getSelectionableWatcher(el);
+                if (watcher) {
+                    if (intersect(watcher.element))
+                        res.push(watcher);
                 }
                 else if (el instanceof Ui.Container)
                     el.children.forEach(function (el2) { return addSelectionable(el2); });
             };
             addSelectionable(this);
             res = res.sort(function (a, b) {
-                var m = a.transformToElement(_this);
-                var c1 = (new Ui.Point(a.layoutWidth / 2, a.layoutHeight / 2)).multiply(m);
+                var m = a.element.transformToElement(_this);
+                var c1 = (new Ui.Point(a.element.layoutWidth / 2, a.element.layoutHeight / 2)).multiply(m);
                 var d1 = Math.sqrt(Math.pow((c1.x - p2.x), 2) + Math.pow((c1.y - p2.y), 2));
-                m = b.transformToElement(_this);
-                var c2 = (new Ui.Point(b.layoutWidth / 2, b.layoutHeight / 2)).multiply(m);
+                m = b.element.transformToElement(_this);
+                var c2 = (new Ui.Point(b.element.layoutWidth / 2, b.element.layoutHeight / 2)).multiply(m);
                 var d2 = Math.sqrt(Math.pow((c2.x - p2.x), 2) + Math.pow((c2.y - p2.y), 2));
                 return d2 - d1;
             });
             return res;
         };
-        SelectionArea.prototype.findSelectionableElements = function () {
+        SelectionArea.prototype.findSelectionableWatchers = function () {
             var res = new Array();
             var addSelectionable = function (el) {
-                if (el instanceof Ui.Selectionable) {
-                    res.push(el);
-                }
+                var watcher = Ui.SelectionableWatcher.getSelectionableWatcher(el);
+                if (watcher)
+                    res.push(watcher);
                 else if (el instanceof Ui.Container)
                     el.children.forEach(function (el2) { return addSelectionable(el2); });
             };
@@ -19901,7 +19839,7 @@ var Ui;
         };
         SelectionArea.prototype.findMatchSelectionable = function (element, filter) {
             var _this = this;
-            var all = this.findSelectionableElements();
+            var all = this.findSelectionableWatchers();
             if (all.length == 0)
                 return undefined;
             var m = element.transformToElement(this);
@@ -19912,7 +19850,8 @@ var Ui;
             var c = new Ui.Point((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
             var distance = 0;
             var found;
-            all.forEach(function (el) {
+            all.forEach(function (w) {
+                var el = w.element;
                 var m = el.transformToElement(_this);
                 var pe1 = (new Ui.Point(0, 0)).multiply(m);
                 var pe2 = (new Ui.Point(el.layoutWidth, el.layoutHeight)).multiply(m);
@@ -19924,7 +19863,7 @@ var Ui;
                 var d = Math.sqrt(Math.pow((c.x - ce.x), 2) + Math.pow((c.y - ce.y), 2));
                 if (!found || d < distance) {
                     distance = d;
-                    found = el;
+                    found = w;
                 }
             });
             return found;
@@ -19988,20 +19927,20 @@ var Ui;
                 if (watcher.pointer.shiftKey)
                     selection.append(res_1);
                 else if (watcher.pointer.ctrlKey) {
-                    var els_1 = selection.elements;
+                    var watchers_1 = selection.watchers;
                     var res2_1 = new Array();
-                    els_1.forEach(function (el) {
-                        if (res_1.indexOf(el) == -1)
-                            res2_1.push(el);
+                    watchers_1.forEach(function (w) {
+                        if (res_1.indexOf(w) == -1)
+                            res2_1.push(w);
                     });
-                    res_1.forEach(function (el) {
-                        if (els_1.indexOf(el) == -1)
-                            res2_1.push(el);
+                    res_1.forEach(function (w) {
+                        if (watchers_1.indexOf(w) == -1)
+                            res2_1.push(w);
                     });
-                    selection.elements = res2_1;
+                    selection.watchers = res2_1;
                 }
                 else
-                    selection.elements = res_1;
+                    selection.watchers = res_1;
                 if (this.rectangle.parent == this)
                     this.remove(this.rectangle);
             }
@@ -20039,12 +19978,14 @@ var Ui;
                 if (!selection)
                     return;
                 var ours = new Array();
-                ours = selection.elements.filter(function (el) { return el.getIsChildOf(_this); });
+                ours = selection.watchers.filter(function (w) { return w.element.getIsChildOf(_this); });
                 if (ours.length == 0)
                     return;
-                var focusElement = ours.find(function (el) { return el.hasFocus; });
-                if (!focusElement)
-                    focusElement = ours[0];
+                var focusElement = void 0;
+                var focusWatcher = ours.find(function (w) { return w.element.hasFocus; });
+                if (!focusWatcher)
+                    focusWatcher = ours[0];
+                focusElement = focusWatcher.element;
                 var found = void 0;
                 if (event.which == 37) {
                     found = this.findLeftSelectionable(focusElement);
@@ -20061,18 +20002,18 @@ var Ui;
                 if (found) {
                     event.stopPropagation();
                     event.preventDefault();
-                    var shiftStart = this.shiftStart || focusElement;
+                    var shiftStart = this.shiftStart || focusWatcher;
                     if (event.shiftKey)
-                        selection.elements = selection.findRangeElements(shiftStart, found);
+                        selection.watchers = selection.findRangeElements(shiftStart, found);
                     else
-                        selection.elements = [found];
-                    if (found.focusable)
-                        found.focus();
+                        selection.watchers = [found];
+                    if (found.element.focusable)
+                        found.element.focus();
                 }
                 if (event.which == 65 && event.ctrlKey)
-                    selection.elements = this.findSelectionableElements();
+                    selection.watchers = this.findSelectionableWatchers();
                 if (event.which == 16)
-                    this.shiftStart = focusElement;
+                    this.shiftStart = focusWatcher;
             }
         };
         return SelectionArea;
@@ -20241,7 +20182,6 @@ var Ui;
             var _this = _super.call(this) || this;
             _this.headers = init.headers;
             _this.data = init.data;
-            _this.draggableData = _this.data;
             _this.selectionActions = init.selectionActions;
             _this.cells = [];
             _this.background = new Ui.Rectangle();
@@ -20261,45 +20201,16 @@ var Ui;
                 _this.cells.push(cell);
                 _this.appendChild(cell);
             }
+            _this.selectionWatcher = new Ui.SelectionableWatcher({
+                element: _this,
+                selectionActions: _this.selectionActions,
+                select: function () { return _this.onStyleChange(); },
+                unselect: function () { return _this.onStyleChange(); }
+            });
             return _this;
         }
         ListViewRow.prototype.getData = function () {
             return this.data;
-        };
-        ListViewRow.prototype.getSelectionActions = function () {
-            return this.selectionActions;
-        };
-        ListViewRow.prototype.setSelectionActions = function (value) {
-            this.selectionActions = value;
-        };
-        ListViewRow.prototype.onPress = function (x, y, altKey, shiftKey, ctrlKey) {
-            _super.prototype.onPress.call(this, x, y, altKey, shiftKey, ctrlKey);
-            var selection = this.getParentSelectionHandler();
-            if (selection) {
-                if (ctrlKey) {
-                    if (this.isSelected)
-                        selection.remove(this);
-                    else
-                        selection.append(this);
-                }
-                else if (shiftKey)
-                    selection.extend(this);
-                else
-                    selection.elements = [this];
-            }
-        };
-        ListViewRow.prototype.onActivate = function (x, y) {
-            _super.prototype.onActivate.call(this, x, y);
-            var selection = this.getParentSelectionHandler();
-            console.log(selection.getDefaultAction());
-        };
-        ListViewRow.prototype.onSelect = function (selection) {
-            _super.prototype.onSelect.call(this, selection);
-            this.onStyleChange();
-        };
-        ListViewRow.prototype.onUnselect = function (selection) {
-            _super.prototype.onUnselect.call(this, selection);
-            this.onStyleChange();
         };
         ListViewRow.prototype.measureCore = function (width, height) {
             this.background.measure(width, height);
@@ -20324,7 +20235,7 @@ var Ui;
             }
         };
         ListViewRow.prototype.onStyleChange = function () {
-            if (this.isSelected)
+            if (this.selectionWatcher.isSelected)
                 this.background.fill = this.getStyleProperty('selectColor');
             else
                 this.background.fill = this.getStyleProperty('color');
@@ -20334,7 +20245,7 @@ var Ui;
             selectColor: new Ui.Color(0.88, 0.88, 0.88)
         };
         return ListViewRow;
-    }(Ui.Selectionable));
+    }(Ui.Container));
     Ui.ListViewRow = ListViewRow;
     var ListViewRowOdd = (function (_super) {
         __extends(ListViewRowOdd, _super);
@@ -20402,8 +20313,8 @@ var Ui;
             _this.selectionActions = {
                 edit: {
                     "default": true,
-                    text: 'Edit', icon: 'edit',
-                    scope: _this, callback: _this.onSelectionEdit, multiple: false
+                    text: 'Edit', icon: 'edit', multiple: false,
+                    callback: function (s) { return _this.onSelectionEdit(s); }
                 }
             };
             _this.headersBar = new ListViewHeadersBar({ headers: _this.headers });
@@ -20577,7 +20488,7 @@ var Ui;
             this.sortBy(key, (this.sortColKey === key) ? !this.sortInvert : false);
         };
         ListView.prototype.onSelectionEdit = function (selection) {
-            var data = selection.getElements()[0].getData();
+            var data = selection.elements[0].getData();
             this.fireEvent('activate', this, this.findDataRow(data), data);
         };
         ListView.prototype.onChildInvalidateArrange = function (child) {

@@ -1,9 +1,9 @@
 /// <reference path="../../era/era.d.ts" />
 
-interface SelectionableInit extends Ui.SelectionableInit {
+interface SelectionableInit extends Ui.LBoxInit {
 }
 	
-class Selectionable extends Ui.Selectionable implements SelectionableInit {
+class Selectionable extends Ui.LBox implements SelectionableInit {
 	selectedMark: Ui.Icon;
 
 	constructor(init?: Partial<SelectionableInit>) {
@@ -15,7 +15,14 @@ class Selectionable extends Ui.Selectionable implements SelectionableInit {
 		});
 		this.selectedMark.hide();
 		this.append(this.selectedMark);
-		this.draggableData = this;
+
+		new Ui.SelectionableWatcher({
+			element: this,
+			selectionActions: this.getSelectionActions(),
+			select: () => this.selectedMark.show(),
+			unselect: () => this.selectedMark.hide()
+		});
+
 		this.assign(init);
 	}
 
@@ -25,10 +32,6 @@ class Selectionable extends Ui.Selectionable implements SelectionableInit {
 
 	onItemEdit() {
 		Ui.Toast.send('Item edited');
-	}
-
-	protected onPress() {
-		this.isSelected = !this.isSelected;
 	}
 
 	onSelect() {
@@ -42,13 +45,13 @@ class Selectionable extends Ui.Selectionable implements SelectionableInit {
 	getSelectionActions() {
 		return {
 			remove: {
-				text: 'Remove', icon: 'trash',
-				scope: this, callback: this.onItemDelete, multiple: false
+				text: 'Remove', icon: 'trash', multiple: false,
+				callback: () => this.onItemDelete()
 			},
 			edit: {
-				"default": true,
+				"default": true, multiple: false,
 				text: 'Edit', icon: 'edit',
-				scope: this, callback: this.onItemEdit, multiple: false
+				callback: () => this.onItemEdit()
 			}
 		};
 	}

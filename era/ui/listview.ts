@@ -194,20 +194,19 @@ namespace Ui {
 		}
 	}
 
-	export class ListViewRow extends Selectionable {
-		headers: HeaderDef[];
+	export class ListViewRow extends Container {
+		private headers: HeaderDef[];
 		data: object;
-		cells: ListViewCell[];
-		background: Rectangle;
-		selectionActions: SelectionActions;
+		private cells: ListViewCell[];
+		private background: Rectangle;
+		private selectionActions: SelectionActions;
+		private selectionWatcher: SelectionableWatcher;
 
 		constructor(init: { headers: HeaderDef[], data: object, selectionActions?: SelectionActions }) {
 			super();
 			this.headers = init.headers;
 			this.data = init.data;
-			this.draggableData = this.data;
 			this.selectionActions = init.selectionActions;
-
 			this.cells = [];
 
 			this.background = new Rectangle();
@@ -227,51 +226,18 @@ namespace Ui {
 				this.cells.push(cell);
 				this.appendChild(cell);
 			}
+
+			this.selectionWatcher = new SelectionableWatcher({
+				element: this,
+				selectionActions: this.selectionActions,
+				select: () => this.onStyleChange(),
+				unselect: () => this.onStyleChange()
+			});
+			
 		}
 
 		getData(): object {
 			return this.data;
-		}
-
-		getSelectionActions(): SelectionActions {
-			return this.selectionActions;
-		}
-		
-		setSelectionActions(value: SelectionActions) {
-			this.selectionActions = value;
-		}
-
-		protected onPress(x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean) {
-			super.onPress(x, y, altKey, shiftKey, ctrlKey);
-			let selection = this.getParentSelectionHandler();
-			if (selection) {
-				if (ctrlKey) {
-					if (this.isSelected)
-						selection.remove(this);
-					else
-						selection.append(this);
-                }
-                else if (shiftKey)
-                    selection.extend(this);    
-				else
-					selection.elements = [this];	
-			}
-		}
-
-		protected onActivate(x?: number, y?: number) {
-			super.onActivate(x, y);
-			let selection = this.getParentSelectionHandler();
-			console.log(selection.getDefaultAction());
-		}
-
-		onSelect(selection: Selection) {
-			super.onSelect(selection);
-			this.onStyleChange();
-		}
-
-		onUnselect(selection: Selection) {
-			super.onUnselect(selection);
-			this.onStyleChange();
 		}
 
 		protected measureCore(width: number, height: number) {
@@ -299,7 +265,7 @@ namespace Ui {
 		}
 
 		protected onStyleChange() {
-			if (this.isSelected)
+			if (this.selectionWatcher.isSelected)
 				this.background.fill = this.getStyleProperty('selectColor');
 			else
 				this.background.fill = this.getStyleProperty('color');
@@ -315,8 +281,6 @@ namespace Ui {
 		static style: object = {
 			color: new Color(0.5, 0.5, 0.5, 0.05),
 			selectColor: 'rgba(8,160,229,0.6)'
-			//selectColor: 'rgba(144,216,249,0.6)'
-			//selectColor: new Color(0.88, 0.88, 0.88)
 		}
 	}
 
@@ -324,8 +288,6 @@ namespace Ui {
 		static style: object = {
 			color: new Color(0.5, 0.5, 0.5, 0.1),
 			selectColor: 'rgba(8,160,229,0.8)'
-			//selectColor: 'rgba(144,216,249,0.8)'
-			//selectColor: new Color(0.88, 0.88, 0.88)
 		}
 	}
 
@@ -401,8 +363,8 @@ namespace Ui {
 			this.selectionActions = {
 				edit: {
 					"default": true,
-					text: 'Edit', icon: 'edit',
-					scope: this, callback: this.onSelectionEdit, multiple: false
+					text: 'Edit', icon: 'edit', multiple: false,
+					callback: (s) => this.onSelectionEdit(s)
 				}
 			};
 
@@ -456,7 +418,7 @@ namespace Ui {
 			return this.selectionActions;
 		}
 
-		setSelectionActions(value) {
+		setSelectionActions(value: SelectionActions) {
 			this.selectionActions = value;
 		}
 
@@ -500,7 +462,7 @@ namespace Ui {
 				this.removeDataAt(row);
 		}
 
-		removeDataAt(position) {
+		removeDataAt(position: number) {
 			if (position < this._data.length) {
 				this._data.splice(position, 1);
 				if (this._scrolled)
@@ -561,7 +523,7 @@ namespace Ui {
 			});
 		}
 
-		sortBy(key, invert) {
+		sortBy(key: string, invert: boolean) {
 			this.sortColKey = key;
 			this.sortInvert = invert === true;
 			this.headersBar.sortBy(this.sortColKey, this.sortInvert);
@@ -590,8 +552,8 @@ namespace Ui {
 			this.sortBy(key, (this.sortColKey === key) ? !this.sortInvert : false);
 		}
 
-		onSelectionEdit(selection) {
-			let data = selection.getElements()[0].getData();
+		onSelectionEdit(selection: Selection) {
+			let data = (selection.elements[0] as ListViewRow).getData();
 			this.fireEvent('activate', this, this.findDataRow(data), data);
 		}
 
@@ -604,20 +566,6 @@ namespace Ui {
 					this.vbox.children.forEach(function (item) { item.invalidateArrange(); });
 			}
 		}
-
-		/*protected onKeyDown(event: KeyboardEvent) {
-			// Ctrl + A key
-			if (event.which == 65 && event.ctrlKey) {
-				// select all
-				if (this._scrolled)
-					this.scroll.getActiveItems().forEach((item: any) => item.select(true, false));
-				else
-					this.vbox.children.forEach((item: any) => item.select(true, false));
-
-				event.preventDefault();
-				event.stopPropagation();
-			}
-		}*/
 	}
 
 	export class ListViewCell extends LBox {

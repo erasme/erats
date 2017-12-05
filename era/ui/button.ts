@@ -136,7 +136,7 @@ namespace Ui
 		orientation: string;
 	}												
 
-	export class Button extends Selectionable implements ButtonInit
+	export class Button extends Pressable implements ButtonInit
 	{
 		private dropbox: DropBox;
 		private _isActive: boolean = false;
