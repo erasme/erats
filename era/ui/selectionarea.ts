@@ -255,7 +255,7 @@ namespace Ui {
         private onKeyDown(event: KeyboardEvent) {
             console.log(`onKeyDown ${event.which}`);
 
-            if ((event.which >= 37 && event.which <= 40) || event.which == 65 || event.which == 16) {
+            if ((event.which >= 37 && event.which <= 40) || event.which == 65 || event.which == 16 || event.which == 46) {
                 let selection = this.getParentSelectionHandler();
                 if (!selection)
                     return;
@@ -308,6 +308,9 @@ namespace Ui {
                 // Shift
                 if (event.which == 16)
                     this.shiftStart = focusWatcher;
+                // Del
+                if (event.which == 46)
+                    selection.executeDeleteAction();    
             }
         }
     }
