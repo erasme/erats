@@ -27,18 +27,28 @@ namespace Core
 		{
 			// encode arguments
 			let args = '';
+
+			let encodeArg = (arg: string, value: any) => {
+				if((typeof(value) !== 'number') && (typeof(value) !== 'string') &&  (typeof(value) !== 'boolean') && (typeof(value) !== 'object'))
+					return;							
+				if (args !== '')
+					args += '&';
+				args += encodeURIComponent(arg)+'=';
+				if(typeof(value) === 'object')
+					args += encodeURIComponent(JSON.stringify(value));
+				else
+					args += encodeURIComponent(value);
+			};
+
 			if((obj !== undefined) && (obj !== null)) {
-				for(var prop in obj) {
-					var propValue = obj[prop];
-					if((typeof(propValue) !== 'number') && (typeof(propValue) !== 'string') &&  (typeof(propValue) !== 'boolean') && (typeof(propValue) !== 'object'))
-						continue;
-					if(args !== '')
-						args += '&';
-					args += encodeURIComponent(prop)+'=';
-					if(typeof(propValue) === 'object')
-						args += encodeURIComponent(JSON.stringify(propValue));
+				for(let prop in obj) {
+					let propValue = obj[prop];
+					if (propValue instanceof Array) {
+						for (let value of (propValue as Array<any>))
+							encodeArg(prop, value);	
+					}
 					else
-						args += encodeURIComponent(propValue);
+						encodeArg(prop, propValue);	
 				}
 			}
 			return args;
