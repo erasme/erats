@@ -14,7 +14,7 @@ namespace Ui {
 			super();
 			this.addEvents('change');
 
-			this.padding = 2;
+			this.padding = 0;
 		
 			this.graphic = new TextBgGraphic();
 			this.append(this.graphic);
