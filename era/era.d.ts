@@ -1442,6 +1442,7 @@ declare namespace Ui {
         altKey?: boolean;
         shiftKey?: boolean;
         ctrlKey?: boolean;
+        lock: boolean;
         constructor(init: {
             element: Ui.Element;
             press?: (watcher: PressWatcher) => void;
@@ -1464,18 +1465,12 @@ declare namespace Ui {
         lock: boolean;
     }
     class Pressable extends Overable implements PressableInit {
-        private _lock;
-        private _isDown;
-        private lastTime;
-        private delayedTimer;
+        private pressWatcher;
         constructor(init?: Partial<PressableInit>);
         readonly isDown: boolean;
         lock: boolean;
         press(): void;
         activate(): void;
-        protected onPointerDown(event: PointerEvent): void;
-        protected onKeyDown(event: KeyboardEvent): void;
-        protected onKeyUp(event: KeyboardEvent): void;
         protected onDown(): void;
         protected onUp(): void;
         protected onPress(x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean): void;
@@ -1592,6 +1587,34 @@ declare namespace Ui {
         getDeleteAction(): any;
         executeDeleteAction(): boolean;
         onElementUnload(element: Element): void;
+    }
+}
+declare namespace Ui {
+    class ContextMenuWatcher extends Core.Object {
+        private element;
+        private press;
+        private down;
+        private up;
+        private _isDown;
+        x?: number;
+        y?: number;
+        altKey?: boolean;
+        shiftKey?: boolean;
+        ctrlKey?: boolean;
+        lock: boolean;
+        constructor(init: {
+            element: Ui.Element;
+            press?: (watcher: PressWatcher) => void;
+            down?: (watcher: PressWatcher) => void;
+            up?: (watcher: PressWatcher) => void;
+            lock?: boolean;
+        });
+        readonly isDown: boolean;
+        protected onPointerDown(event: PointerEvent): void;
+        protected onKeyUp(event: KeyboardEvent): void;
+        protected onDown(): void;
+        protected onUp(): void;
+        protected onPress(x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean): void;
     }
 }
 declare namespace Ui {

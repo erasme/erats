@@ -58,6 +58,7 @@
         "ui/draggable.ts",
         "ui/selectionable.ts",
         "ui/selection.ts",
+        "ui/contextmenuable.ts",
         "ui/label.ts",
         "ui/movablebase.ts",
         "ui/movable.ts",

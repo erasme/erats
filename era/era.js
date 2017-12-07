@@ -8126,6 +8126,7 @@ var Ui;
             var _this = _super.call(this) || this;
             _this._isDown = false;
             _this.lastTime = undefined;
+            _this.lock = false;
             _this.assign(init);
             _this.connect(_this.element, 'ptrdown', _this.onPointerDown);
             _this.connect(_this.element.drawing, 'keydown', _this.onKeyDown);
@@ -8141,7 +8142,7 @@ var Ui;
         });
         PressWatcher.prototype.onPointerDown = function (event) {
             var _this = this;
-            if (this.element.isDisabled || this._isDown)
+            if (this.lock || this.element.isDisabled || this._isDown)
                 return;
             if (event.pointer.type == 'mouse' && event.pointer.button != 0)
                 return;
@@ -8166,7 +8167,7 @@ var Ui;
         };
         PressWatcher.prototype.onKeyDown = function (event) {
             var key = event.which;
-            if (!this.element.isDisabled && key == 13) {
+            if (!this.lock && !this.element.isDisabled && key == 13) {
                 event.preventDefault();
                 event.stopPropagation();
                 this.onDown();
@@ -8174,7 +8175,7 @@ var Ui;
         };
         PressWatcher.prototype.onKeyUp = function (event) {
             var key = event.which;
-            if (!this.element.isDisabled && this._isDown && (key == 13)) {
+            if (!this.lock && !this.element.isDisabled && this._isDown && (key == 13)) {
                 event.preventDefault();
                 event.stopPropagation();
                 this.onUp();
@@ -8240,33 +8241,34 @@ var Ui;
         __extends(Pressable, _super);
         function Pressable(init) {
             var _this = _super.call(this) || this;
-            _this._lock = false;
-            _this._isDown = false;
-            _this.lastTime = undefined;
             _this.addEvents('press', 'down', 'up', 'activate', 'delayedpress');
             _this.drawing.style.cursor = 'pointer';
             _this.focusable = true;
             _this.role = 'button';
-            _this.connect(_this, 'ptrdown', _this.onPointerDown);
-            _this.connect(_this.drawing, 'keydown', _this.onKeyDown);
-            _this.connect(_this.drawing, 'keyup', _this.onKeyUp);
-            if (init)
-                _this.assign(init);
+            _this.pressWatcher = new PressWatcher({
+                element: _this,
+                press: function (watcher) { return _this.onPress(watcher.x, watcher.y, watcher.altKey, watcher.shiftKey, watcher.ctrlKey); },
+                down: function (watcher) { return _this.onDown(); },
+                up: function (watcher) { return _this.onUp(); },
+                activate: function (watcher) { return _this.onActivate(watcher.x, watcher.y); },
+                delayedpress: function (watcher) { return _this.onDelayedPress(watcher.x, watcher.y, watcher.altKey, watcher.shiftKey, watcher.ctrlKey); }
+            });
+            _this.assign(init);
             return _this;
         }
         Object.defineProperty(Pressable.prototype, "isDown", {
             get: function () {
-                return this._isDown;
+                return this.pressWatcher.isDown;
             },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(Pressable.prototype, "lock", {
             get: function () {
-                return this._lock;
+                return this.pressWatcher.lock;
             },
             set: function (lock) {
-                this._lock = lock;
+                this.pressWatcher.lock = lock;
                 if (lock)
                     this.drawing.style.cursor = '';
                 else
@@ -8281,83 +8283,19 @@ var Ui;
         Pressable.prototype.activate = function () {
             this.onActivate();
         };
-        Pressable.prototype.onPointerDown = function (event) {
-            var _this = this;
-            if (this.isDisabled || this._isDown || this._lock)
-                return;
-            if (event.pointer.type == 'mouse' && event.pointer.button != 0)
-                return;
-            var watcher = event.pointer.watch(this);
-            this.connect(watcher, 'move', function () {
-                if (watcher.pointer.getIsMove())
-                    watcher.cancel();
-            });
-            this.connect(watcher, 'up', function (event) {
-                _this.onUp();
-                var x = event.pointer.getX();
-                var y = event.pointer.getY();
-                var altKey = event.pointer.getAltKey();
-                var shiftKey = event.pointer.getShiftKey();
-                var ctrlKey = event.pointer.getCtrlKey();
-                _this.onPress(x, y, altKey, shiftKey, ctrlKey);
-                watcher.capture();
-                watcher.cancel();
-            });
-            this.connect(watcher, 'cancel', function () { return _this.onUp(); });
-            this.onDown();
-        };
-        Pressable.prototype.onKeyDown = function (event) {
-            var key = event.which;
-            if ((key == 13) && !this.isDisabled && !this._lock) {
-                event.preventDefault();
-                event.stopPropagation();
-                this.onDown();
-            }
-        };
-        Pressable.prototype.onKeyUp = function (event) {
-            var key = event.which;
-            if ((this._isDown) && (key == 13) && !this.isDisabled && !this._lock) {
-                event.preventDefault();
-                event.stopPropagation();
-                this.onUp();
-                this.onPress(undefined, undefined, event.altKey, event.shiftKey, event.ctrlKey);
-            }
-        };
         Pressable.prototype.onDown = function () {
-            this._isDown = true;
             this.fireEvent('down', this);
         };
         Pressable.prototype.onUp = function () {
-            this._isDown = false;
             this.fireEvent('up', this);
         };
         Pressable.prototype.onPress = function (x, y, altKey, shiftKey, ctrlKey) {
-            var _this = this;
             this.fireEvent('press', this, x, y, altKey, shiftKey, ctrlKey);
-            var currentTime = (new Date().getTime()) / 1000;
-            if ((this.lastTime !== undefined) && (currentTime - this.lastTime < 0.30)) {
-                this.onActivate(x, y);
-                if (this.delayedTimer != undefined) {
-                    this.delayedTimer.abort();
-                    this.delayedTimer = undefined;
-                }
-            }
-            else {
-                this.delayedTimer = new Core.DelayedTask(this, 0.30, function () {
-                    _this.onDelayedPress(x, y, altKey, shiftKey, ctrlKey);
-                });
-            }
-            this.lastTime = currentTime;
         };
         Pressable.prototype.onActivate = function (x, y) {
             this.fireEvent('activate', this);
         };
         Pressable.prototype.onDelayedPress = function (x, y, altKey, shiftKey, ctrlKey) {
-            if (this.delayedTimer) {
-                if (!this.delayedTimer.isDone)
-                    this.delayedTimer.abort();
-                this.delayedTimer = undefined;
-            }
             this.fireEvent('delayedpress', this, x, y, altKey, shiftKey, ctrlKey);
         };
         Pressable.prototype.onDisable = function () {
@@ -8366,7 +8304,7 @@ var Ui;
         };
         Pressable.prototype.onEnable = function () {
             _super.prototype.onEnable.call(this);
-            if (this._lock)
+            if (this.lock)
                 this.drawing.style.cursor = '';
             else
                 this.drawing.style.cursor = 'pointer';
@@ -8904,6 +8842,82 @@ var Ui;
         return Selection;
     }(Core.Object));
     Ui.Selection = Selection;
+})(Ui || (Ui = {}));
+var Ui;
+(function (Ui) {
+    var ContextMenuWatcher = (function (_super) {
+        __extends(ContextMenuWatcher, _super);
+        function ContextMenuWatcher(init) {
+            var _this = _super.call(this) || this;
+            _this._isDown = false;
+            _this.lock = false;
+            _this.assign(init);
+            _this.connect(_this.element.drawing, 'contextmenu', function (event) { return event.preventDefault(); });
+            _this.connect(_this.element, 'ptrdown', _this.onPointerDown);
+            _this.connect(_this.element.drawing, 'keyup', _this.onKeyUp);
+            return _this;
+        }
+        Object.defineProperty(ContextMenuWatcher.prototype, "isDown", {
+            get: function () {
+                return this._isDown;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        ContextMenuWatcher.prototype.onPointerDown = function (event) {
+            var _this = this;
+            if (this.lock || this.element.isDisabled || this._isDown)
+                return;
+            if (event.pointer.type != 'mouse' || event.pointer.button != 2)
+                return;
+            var watcher = event.pointer.watch(this);
+            this.connect(watcher, 'move', function () {
+                if (watcher.pointer.getIsMove())
+                    watcher.cancel();
+            });
+            this.connect(watcher, 'up', function (event) {
+                _this.onUp();
+                var x = event.pointer.getX();
+                var y = event.pointer.getY();
+                var altKey = event.pointer.getAltKey();
+                var shiftKey = event.pointer.getShiftKey();
+                var ctrlKey = event.pointer.getCtrlKey();
+                _this.onPress(x, y, altKey, shiftKey, ctrlKey);
+                watcher.capture();
+                watcher.cancel();
+            });
+            this.connect(watcher, 'cancel', function () { return _this.onUp(); });
+            this.onDown();
+        };
+        ContextMenuWatcher.prototype.onKeyUp = function (event) {
+            if (!this.lock && !this.element.isDisabled && event.ctrlKey && (event.which == 77)) {
+                event.preventDefault();
+                event.stopPropagation();
+                this.onPress(undefined, undefined, event.altKey, event.shiftKey, event.ctrlKey);
+            }
+        };
+        ContextMenuWatcher.prototype.onDown = function () {
+            this._isDown = true;
+            if (this.down)
+                this.down(this);
+        };
+        ContextMenuWatcher.prototype.onUp = function () {
+            this._isDown = false;
+            if (this.up)
+                this.up(this);
+        };
+        ContextMenuWatcher.prototype.onPress = function (x, y, altKey, shiftKey, ctrlKey) {
+            this.x = x;
+            this.y = y;
+            this.altKey = altKey;
+            this.shiftKey = shiftKey;
+            this.ctrlKey = ctrlKey;
+            if (this.press)
+                this.press(this);
+        };
+        return ContextMenuWatcher;
+    }(Core.Object));
+    Ui.ContextMenuWatcher = ContextMenuWatcher;
 })(Ui || (Ui = {}));
 var Ui;
 (function (Ui) {
@@ -18808,7 +18822,7 @@ var Ui;
         function TextButtonField(init) {
             var _this = _super.call(this) || this;
             _this.addEvents('change', 'validate', 'buttonpress');
-            _this.padding = 3;
+            _this.padding = 0;
             _this.graphic = new Ui.TextBgGraphic();
             _this.append(_this.graphic);
             _this._textholder = new Ui.Label({ opacity: 0.5, horizontalAlign: 'center', margin: 3 });
