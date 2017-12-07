@@ -254,6 +254,7 @@ declare namespace Core {
         field: string;
         service: string;
         destination: string;
+        arguments: object;
     }
     class FilePostUploader extends Object {
         protected _file: File;
@@ -275,8 +276,10 @@ declare namespace Core {
         file: File;
         service: string;
         setField(name: any, value: any): void;
+        arguments: object;
         destination: string;
         send(): void;
+        sendAsync(): Promise<FilePostUploader>;
         abort(): void;
         readonly responseText: string;
         readonly responseJSON: any;

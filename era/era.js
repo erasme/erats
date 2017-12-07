@@ -150,18 +150,28 @@ var Core;
         };
         Util.encodeURIQuery = function (obj) {
             var args = '';
+            var encodeArg = function (arg, value) {
+                if ((typeof (value) !== 'number') && (typeof (value) !== 'string') && (typeof (value) !== 'boolean') && (typeof (value) !== 'object'))
+                    return;
+                if (args !== '')
+                    args += '&';
+                args += encodeURIComponent(arg) + '=';
+                if (typeof (value) === 'object')
+                    args += encodeURIComponent(JSON.stringify(value));
+                else
+                    args += encodeURIComponent(value);
+            };
             if ((obj !== undefined) && (obj !== null)) {
                 for (var prop in obj) {
                     var propValue = obj[prop];
-                    if ((typeof (propValue) !== 'number') && (typeof (propValue) !== 'string') && (typeof (propValue) !== 'boolean') && (typeof (propValue) !== 'object'))
-                        continue;
-                    if (args !== '')
-                        args += '&';
-                    args += encodeURIComponent(prop) + '=';
-                    if (typeof (propValue) === 'object')
-                        args += encodeURIComponent(JSON.stringify(propValue));
+                    if (propValue instanceof Array) {
+                        for (var _i = 0, _a = propValue; _i < _a.length; _i++) {
+                            var value = _a[_i];
+                            encodeArg(prop, value);
+                        }
+                    }
                     else
-                        args += encodeURIComponent(propValue);
+                        encodeArg(prop, propValue);
                 }
             }
             return args;
@@ -1908,6 +1918,13 @@ var Core;
         FilePostUploader.prototype.setField = function (name, value) {
             this.fields[name] = value;
         };
+        Object.defineProperty(FilePostUploader.prototype, "arguments", {
+            set: function (args) {
+                this.fields = args;
+            },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(FilePostUploader.prototype, "destination", {
             set: function (destination) {
                 this.setField('destination', destination);
@@ -1974,6 +1991,15 @@ var Core;
                     }
                 }
             }
+        };
+        FilePostUploader.prototype.sendAsync = function () {
+            var _this = this;
+            return new Promise(function (resolve) {
+                _this.connect(_this, 'complete', function () {
+                    resolve(_this);
+                });
+                _this.send();
+            });
         };
         FilePostUploader.prototype.abort = function () {
             if (this.request !== undefined) {
@@ -15382,7 +15408,7 @@ var Ui;
         function TextField(init) {
             var _this = _super.call(this) || this;
             _this.addEvents('change');
-            _this.padding = 2;
+            _this.padding = 0;
             _this.graphic = new Ui.TextBgGraphic();
             _this.append(_this.graphic);
             _this.textholder = new Ui.Label();
@@ -19973,7 +19999,7 @@ var Ui;
         SelectionArea.prototype.onKeyDown = function (event) {
             var _this = this;
             console.log("onKeyDown " + event.which);
-            if ((event.which >= 37 && event.which <= 40) || event.which == 65 || event.which == 16) {
+            if ((event.which >= 37 && event.which <= 40) || event.which == 65 || event.which == 16 || event.which == 46) {
                 var selection = this.getParentSelectionHandler();
                 if (!selection)
                     return;
@@ -20014,6 +20040,8 @@ var Ui;
                     selection.watchers = this.findSelectionableWatchers();
                 if (event.which == 16)
                     this.shiftStart = focusWatcher;
+                if (event.which == 46)
+                    selection.executeDeleteAction();
             }
         };
         return SelectionArea;
