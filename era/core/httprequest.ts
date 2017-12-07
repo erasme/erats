@@ -59,13 +59,11 @@ module Core
 			this.arguments[argName] = argValue;
 		}
 
-		abort()
-		{
+		abort() {
 			this.request.abort();
 		}
 
-		send()
-		{
+		send() {
 			if(this.url === undefined)
 				throw('url MUST be given for an HttpRequest');
 			let header;
