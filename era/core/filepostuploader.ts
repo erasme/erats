@@ -5,6 +5,7 @@ namespace Core {
 		field: string;
 		service: string;
 		destination: string;
+		arguments: object;
 	}
 
 	export class FilePostUploader extends Object {
@@ -79,6 +80,10 @@ namespace Core {
 			this.fields[name] = value;
 		}
 
+		set arguments(args: object) {
+			this.fields = args;
+		}
+
 		set destination(destination: string) {
 			this.setField('destination', destination);
 		}
@@ -148,6 +153,15 @@ namespace Core {
 					}
 				}
 			}
+		}
+
+		sendAsync() {
+			return new Promise<Core.FilePostUploader>(resolve => {
+				this.connect(this, 'complete', () => {
+					resolve(this);
+				});
+				this.send();
+			});
 		}
 
 		abort() {
