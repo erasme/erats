@@ -26,7 +26,7 @@ namespace Ui {
 			super();
 			this.addEvents('change', 'validate', 'buttonpress');
 
-			this.padding = 3;
+			this.padding = 0;
 		
 			this.graphic = new TextBgGraphic();
 			this.append(this.graphic);
