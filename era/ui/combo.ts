@@ -149,7 +149,7 @@ namespace Ui {
 			this.autoClose =true;
 
 			let vbox = new VBox();
-			this.searchField = new TextField({ textHolder: 'Recherche' });
+			this.searchField = new TextField({ textHolder: 'Recherche', margin: 5 });
 			this.searchField.hide(true);
 			this.connect(this.searchField, 'change', this.onSearchChange);
 			vbox.append(this.searchField);
