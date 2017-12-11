@@ -194,6 +194,12 @@ namespace Ui {
 		}
 	}
 
+	export interface ListViewRowInit {
+		headers: HeaderDef[],
+		data: object,
+		selectionActions?: SelectionActions
+	}
+
 	export class ListViewRow extends Container {
 		private headers: HeaderDef[];
 		data: object;
@@ -202,7 +208,7 @@ namespace Ui {
 		private selectionActions: SelectionActions;
 		private selectionWatcher: SelectionableWatcher;
 
-		constructor(init: { headers: HeaderDef[], data: object, selectionActions?: SelectionActions }) {
+		constructor(init: ListViewRowInit) {
 			super();
 			this.headers = init.headers;
 			this.data = init.data;
@@ -242,14 +248,17 @@ namespace Ui {
 
 		protected measureCore(width: number, height: number) {
 			this.background.measure(width, height);
-			let  minHeight = 0;
+			let minHeight = 0;
+			let minWidth = 0;
 			for (let col = 0; col < this.headers.length; col++) {
-				let  child = this.cells[col];
-				let  size = child.measure(0, 0);
+				let header = this.headers[col];
+				let child = this.cells[col];
+				let size = child.measure(0, 0);
 				if (size.height > minHeight)
 					minHeight = size.height;
+				minWidth += (header['Ui.ListViewHeadersBar.ui'] as Element).measureWidth;
 			}
-			return { width: 0, height: minHeight };
+			return { width: minWidth, height: minHeight };
 		}
 
 		protected arrangeCore(width: number, height: number) {
@@ -277,14 +286,26 @@ namespace Ui {
 		}
 	}
 
+	export interface ListViewRowOddInit extends ListViewRowInit {}
+
 	export class ListViewRowOdd extends ListViewRow {
+		constructor(init: ListViewRowOddInit) {
+			super(init);
+		}
+
 		static style: object = {
 			color: new Color(0.5, 0.5, 0.5, 0.05),
 			selectColor: 'rgba(8,160,229,0.6)'
 		}
 	}
 
+	export interface ListViewRowEvenInit extends ListViewRowInit {}
+
 	export class ListViewRowEven extends ListViewRow {
+		constructor(init: ListViewRowEvenInit) {
+			super(init);
+		}
+
 		static style: object = {
 			color: new Color(0.5, 0.5, 0.5, 0.1),
 			selectColor: 'rgba(8,160,229,0.8)'
@@ -334,6 +355,7 @@ namespace Ui {
 		private _data: object[];
 		headers: HeaderDef[];
 		headersBar: ListViewHeadersBar;
+		headersScroll: ScrollingArea; 
 		firstRow: undefined;
 		firstCol: undefined;
 		cols: undefined;
@@ -348,6 +370,7 @@ namespace Ui {
 		selectionActions: SelectionActions;
 		private _scrolled: boolean = true;
 		vbox: VBox;
+		vboxScroll: ScrollingArea;
 
 		constructor(init?: Partial<ListViewInit>) {
 			super();
@@ -368,15 +391,36 @@ namespace Ui {
 				}
 			};
 
+			this.headersScroll = new ScrollingArea({
+				scrollVertical: false, scrollHorizontal: true
+			});
+			this.headersScroll.setScrollbarHorizontal(new Movable());
+			this.append(this.headersScroll);
+
 			this.headersBar = new ListViewHeadersBar({ headers: this.headers });
 			this.connect(this.headersBar, 'header', this.onHeaderPress);
-			this.append(this.headersBar);
+			this.headersScroll.content = this.headersBar;
 
 			this._data = [];
-			this.dataLoader = new ListViewScrollLoader(this, this._data);
-			this.scroll = new VBoxScrollingArea({ loader: this.dataLoader });
-			this.append(this.scroll, true);
+			//this.dataLoader = new ListViewScrollLoader(this, this._data);
+			//this.scroll = new VBoxScrollingArea({ loader: this.dataLoader });
+			//this.append(this.scroll, true);
 
+			this.vboxScroll = new ScrollingArea();
+			this.append(this.vboxScroll, true);
+
+			this.vbox = new VBox();
+			//this.append(this.vbox, true);
+			this.vboxScroll.content = this.vbox;
+
+			this.connect(this.vboxScroll, 'scroll', (s: ScrollingArea, offsetX: number, offsetY: number) => {
+				this.headersScroll.setOffset(offsetX, undefined, true, true);
+			});
+
+			this.connect(this.headersScroll, 'scroll', (s: ScrollingArea, offsetX: number, offsetY: number) => {
+				this.vboxScroll.setOffset(offsetX, undefined, true, true);
+			});
+			
 			// handle keyboard              
 			//this.connect(this.drawing, 'keydown', this.onKeyDown);
 
@@ -386,17 +430,20 @@ namespace Ui {
 		set scrolled(scrolled : boolean) {
 			if (this._scrolled !== (scrolled === true)) {
 				this._scrolled = scrolled;
-				if (this._scrolled) {
-					this.remove(this.vbox);
-					this.scroll = new VBoxScrollingArea({ loader: this.dataLoader });
-					this.append(this.scroll, true);
-				}
-				else {
-					this.remove(this.scroll);
-					this.vbox = new VBox();
-					this.append(this.vbox, true);
-					this.updateData(this._data);
-				}
+				this.headersScroll.scrollHorizontal = scrolled;
+				this.vboxScroll.scrollVertical = scrolled;
+				this.vboxScroll.scrollHorizontal = scrolled;
+//				if (this._scrolled) {
+//					this.remove(this.vbox);
+//					this.scroll = new VBoxScrollingArea({ loader: this.dataLoader });
+//					this.append(this.scroll, true);
+//				}
+//				else {
+//					this.remove(this.scroll);
+//					this.vbox = new VBox();
+//					this.append(this.vbox, true);
+//					this.updateData(this._data);
+//				}
 			}
 		}
 
@@ -438,22 +485,22 @@ namespace Ui {
 		appendData(data) {
 			this._data.push(data);
 			this.sortData();
-			if (this._scrolled)
-				this.dataLoader.signalChange();
-			else
+//			if (this._scrolled)
+//				this.dataLoader.signalChange();
+//			else
 				this.vbox.append(this.getElementAt(this._data.length - 1));
 		}
 
 		updateData(data) {
 			this.sortData();
-			if (this._scrolled)
+/*			if (this._scrolled)
 				this.scroll.reload();
-			else {
+			else {*/
 				this.vbox.clear();
 				for (let i = 0; i < this._data.length; i++) {
 					this.vbox.append(this.getElementAt(i));
 				}
-			}
+//			}
 		}
 
 		removeData(data) {
@@ -465,23 +512,23 @@ namespace Ui {
 		removeDataAt(position: number) {
 			if (position < this._data.length) {
 				this._data.splice(position, 1);
-				if (this._scrolled)
-					this.scroll.reload();
-				else {
+//				if (this._scrolled)
+//					this.scroll.reload();
+//				else {
 					this.vbox.clear();
 					for (let i = 0; i < this._data.length; i++) {
 						this.vbox.append(this.getElementAt(i));
 					}
-				}
+//				}
 			}
 		}
 
 		clearData() {
 			this._data = [];
 			this.dataLoader = new ListViewScrollLoader(this, this._data);
-			if (this._scrolled)
-				this.scroll.loader = this.dataLoader;
-			else
+//			if (this._scrolled)
+//				this.scroll.loader = this.dataLoader;
+//			else
 				this.vbox.clear();
 		}
 
@@ -494,14 +541,14 @@ namespace Ui {
 				this._data = data;
 				this.sortData();
 				this.dataLoader = new ListViewScrollLoader(this, this._data);
-				if (this._scrolled)
-					this.scroll.loader = this.dataLoader;
-				else {
+//				if (this._scrolled)
+//					this.scroll.loader = this.dataLoader;
+//				else {
 					this.vbox.clear();
 					for (let i = 0; i < this._data.length; i++) {
 						this.vbox.append(this.getElementAt(i));
 					}
-				}
+//				}
 			}
 			else {
 				this.clearData();
@@ -528,16 +575,16 @@ namespace Ui {
 			this.sortInvert = invert === true;
 			this.headersBar.sortBy(this.sortColKey, this.sortInvert);
 			this.sortData();
-			if (this._scrolled) {
-				this.scroll.reload();
-				this.invalidateArrange();
-			}
-			else {
+//			if (this._scrolled) {
+//				this.scroll.reload();
+//				this.invalidateArrange();
+//			}
+//			else {
 				this.vbox.clear();
 				for (let i = 0; i < this._data.length; i++) {
 					this.vbox.append(this.getElementAt(i));
 				}
-			}
+//			}
 		}
 
 		findDataRow(data) {
@@ -559,11 +606,12 @@ namespace Ui {
 
 		protected onChildInvalidateArrange(child: Element) {
 			super.onChildInvalidateArrange(child);
-			if (child === this.headersBar) {
-				if (this._scrolled && (this.scroll !== undefined))
-					this.scroll.getActiveItems().forEach(function (item) { item.invalidateArrange(); });
-				else if (!this._scrolled)
-					this.vbox.children.forEach(function (item) { item.invalidateArrange(); });
+			if (child === this.headersScroll) {
+//				if (this._scrolled && (this.scroll !== undefined))
+//					this.scroll.getActiveItems().forEach(function (item) { item.invalidateArrange(); });
+//				else if (!this._scrolled)
+				for (let item of this.vbox.children)				
+					item.invalidateArrange();
 			}
 		}
 	}
