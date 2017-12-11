@@ -409,7 +409,7 @@ declare namespace Anim {
         private _repeat;
         private _target;
         private _ease;
-        constructor(init?: Partial<Clock>);
+        constructor(init?: Partial<ClockInit>);
         animation: boolean;
         repeat: 'forever' | number;
         speed: number;
@@ -831,6 +831,52 @@ declare namespace Ui {
     }
 }
 declare namespace Ui {
+    interface CanvasRenderingContext2D {
+        fillStyle: string;
+        strokeStyle: string;
+        lineWidth: number;
+        lineDash: any;
+        globalAlpha: number;
+        currentTransform: SVGMatrix;
+        font: string;
+        textAlign: 'start' | 'end' | 'left' | 'right' | 'center';
+        textBaseline: 'top' | 'hanging' | 'middle' | 'alphabetic' | 'ideographic' | 'bottom';
+        direction: 'ltr' | 'rtl' | 'inherit';
+        beginPath(): any;
+        moveTo(x: number, y: number): any;
+        lineTo(x: number, y: number): any;
+        quadraticCurveTo(cpx: number, cpy: number, x: number, y: number): any;
+        bezierCurveTo(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number): any;
+        rect(x: number, y: number, w: number, h: number): any;
+        arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, anticlockwise: boolean): any;
+        ellipse(x: number, y: number, radiusX: number, radiusY: number, rotation: number, startAngle: number, endAngle: number, anticlockwise: boolean): any;
+        closePath(): any;
+        fill(): any;
+        stroke(): any;
+        clip(): any;
+        resetClip(): any;
+        getLineDash(): any;
+        setLineDash(lineDash: any): any;
+        drawImage(image: any, sx: number, sy: number, sw: number, sh: number, dx: number, dy: number, dw: number, dh: number): any;
+        fillText(text: string, x: number, y: number, maxWidth?: number): any;
+        strokeText(text: string, x: number, y: number, maxWidth?: number): any;
+        save(): any;
+        restore(): any;
+        scale(x: number, y: number): any;
+        rotate(angle: number): any;
+        translate(x: number, y: number): any;
+        transform(a: number, b: number, c: number, d: number, e: number, f: number): any;
+        setTransform(a: number, b: number, c: number, d: number, e: number, f: number): any;
+        resetTransform(): any;
+        clearRect(x: number, y: number, w: number, h: number): any;
+        fillRect(x: number, y: number, w: number, h: number): any;
+        strokeRect(x: number, y: number, w: number, h: number): any;
+        createLinearGradient(x0: number, y0: number, x1: number, y1: number): any;
+        measureText(text: string): any;
+        svgPath(path: string): any;
+        roundRect(x: number, y: number, w: number, h: number, radiusTopLeft: number, radiusTopRight: number, radiusBottomRight: number, radiusBottomLeft: number, antiClockwise: boolean): any;
+        roundRectFilledShadow(x: any, y: any, width: any, height: any, radiusTopLeft: any, radiusTopRight: any, radiusBottomRight: any, radiusBottomLeft: any, inner: any, shadowWidth: any, color: any): any;
+    }
     interface CanvasElementInit extends ContainerInit {
     }
     class CanvasElement extends Container implements CanvasElementInit {
@@ -840,8 +886,8 @@ declare namespace Ui {
         private dpiRatio;
         constructor(init?: Partial<ContainerInit>);
         update(): void;
-        readonly context: any;
-        protected updateCanvas(context: any): void;
+        readonly context: CanvasRenderingContext2D;
+        protected updateCanvas(context: Ui.CanvasRenderingContext2D): void;
         protected renderDrawing(): any;
         svgToDataURL(): any;
         protected arrangeCore(width: number, height: number): void;
@@ -876,7 +922,7 @@ declare namespace Core {
         addColorStop(offset: any, color: any): void;
         getSVG(): any;
     }
-    class SVG2DContext extends Object {
+    class SVG2DContext extends Object implements Ui.CanvasRenderingContext2D {
         fillStyle: any;
         strokeStyle: any;
         lineWidth: number;
@@ -1731,6 +1777,87 @@ declare namespace Ui {
     }
 }
 declare namespace Ui {
+    class TransformableWatcher extends Core.Object {
+        element: Ui.Element;
+        transform?: (watcher: TransformableWatcher, testOnly: boolean) => void;
+        inertiastart?: (watcher: TransformableWatcher) => void;
+        inertiaend?: (watcher: TransformableWatcher) => void;
+        up?: (watcher: TransformableWatcher) => void;
+        down?: (watcher: TransformableWatcher) => void;
+        private _inertia;
+        protected inertiaClock: Anim.Clock;
+        private _isDown;
+        private transformLock;
+        private watcher1;
+        private watcher2;
+        private _angle;
+        private _scale;
+        private _translateX;
+        private _translateY;
+        private startAngle;
+        private startScale;
+        private startTranslateX;
+        private startTranslateY;
+        private _allowScale;
+        private _minScale;
+        private _maxScale;
+        private _allowRotate;
+        private _allowTranslate;
+        private _allowLeftMouse;
+        private speedX;
+        private speedY;
+        constructor(init: {
+            element: Element;
+            transform?: (watcher: TransformableWatcher, testOnly: boolean) => void;
+            inertiastart?: (watcher: TransformableWatcher) => void;
+            inertiaend?: (watcher: TransformableWatcher) => void;
+            down?: (watcher: TransformableWatcher) => void;
+            up?: (watcher: TransformableWatcher) => void;
+            allowLeftMouse?: boolean;
+            allowScale?: boolean;
+            minScale?: number;
+            maxScale?: number;
+            allowRotate?: boolean;
+            allowTranslate?: boolean;
+            angle?: number;
+            scale?: number;
+            translateX?: number;
+            translateY?: number;
+            inertia?: boolean;
+        });
+        allowLeftMouse: boolean;
+        allowScale: boolean;
+        minScale: number;
+        maxScale: number;
+        allowRotate: boolean;
+        allowTranslate: boolean;
+        readonly isDown: boolean;
+        readonly isInertia: boolean;
+        angle: number;
+        scale: number;
+        translateX: number;
+        translateY: number;
+        private buildMatrix(translateX, translateY, scale, angle);
+        readonly matrix: Matrix;
+        getBoundaryBox(matrix: any): {
+            x: number;
+            y: number;
+            width: number;
+            height: number;
+        };
+        setContentTransform(translateX: any, translateY: any, scale: any, angle: any): void;
+        inertia: boolean;
+        protected onDown(): void;
+        protected onUp(): void;
+        protected onPointerDown(event: PointerEvent): void;
+        protected onPointerMove(watcher: any): void;
+        protected onPointerCancel(watcher: any): void;
+        protected onPointerUp(watcher: any): void;
+        protected onWheel(event: WheelEvent): void;
+        startInertia(): void;
+        protected onTimeupdate(clock: any, progress: any, delta: any): void;
+        stopInertia(): void;
+    }
     class Transformable extends LBox {
         private _inertia;
         protected inertiaClock: Anim.Clock;
@@ -2707,6 +2834,7 @@ declare namespace Ui {
         append(child: Element, x: number, y: number): void;
         remove(child: Element): void;
         protected updateItemTransform(child: Element): void;
+        private getItemPosition(child);
         protected measureCore(width: number, height: number): Size;
         protected arrangeCore(width: number, height: number): void;
         protected onChildInvalidateMeasure(child: Element, event: any): void;
@@ -3604,6 +3732,11 @@ declare namespace Ui {
         };
         protected arrangeCore(width: number, height: number): void;
     }
+    interface ListViewRowInit {
+        headers: HeaderDef[];
+        data: object;
+        selectionActions?: SelectionActions;
+    }
     class ListViewRow extends Container {
         private headers;
         data: object;
@@ -3611,11 +3744,7 @@ declare namespace Ui {
         private background;
         private selectionActions;
         private selectionWatcher;
-        constructor(init: {
-            headers: HeaderDef[];
-            data: object;
-            selectionActions?: SelectionActions;
-        });
+        constructor(init: ListViewRowInit);
         getData(): object;
         protected measureCore(width: number, height: number): {
             width: number;
@@ -3625,10 +3754,16 @@ declare namespace Ui {
         protected onStyleChange(): void;
         static style: object;
     }
+    interface ListViewRowOddInit extends ListViewRowInit {
+    }
     class ListViewRowOdd extends ListViewRow {
+        constructor(init: ListViewRowOddInit);
         static style: object;
     }
+    interface ListViewRowEvenInit extends ListViewRowInit {
+    }
     class ListViewRowEven extends ListViewRow {
+        constructor(init: ListViewRowEvenInit);
         static style: object;
     }
     class ListViewScrollLoader extends ScrollLoader {
@@ -3649,6 +3784,7 @@ declare namespace Ui {
         private _data;
         headers: HeaderDef[];
         headersBar: ListViewHeadersBar;
+        headersScroll: ScrollingArea;
         firstRow: undefined;
         firstCol: undefined;
         cols: undefined;
@@ -3663,6 +3799,7 @@ declare namespace Ui {
         selectionActions: SelectionActions;
         private _scrolled;
         vbox: VBox;
+        vboxScroll: ScrollingArea;
         constructor(init?: Partial<ListViewInit>);
         scrolled: boolean;
         showHeaders(): void;

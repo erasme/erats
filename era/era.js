@@ -4767,8 +4767,6 @@ var Ui;
         function CanvasElement(init) {
             var _this = _super.call(this) || this;
             _this.canvasEngine = 'svg';
-            _this._context = undefined;
-            _this.svgDrawing = undefined;
             _this.dpiRatio = 1;
             _this.selectable = false;
             if (init)
@@ -4848,11 +4846,12 @@ var Ui;
             var devicePixelRatio = window.devicePixelRatio || 1;
             var backingStoreRatio = 1;
             if (this._context !== undefined) {
-                backingStoreRatio = this._context.webkitBackingStorePixelRatio ||
-                    this._context.mozBackingStorePixelRatio ||
-                    this._context.msBackingStorePixelRatio ||
-                    this._context.oBackingStorePixelRatio ||
-                    this._context.backingStorePixelRatio || 1;
+                var context = this._context;
+                backingStoreRatio = context.webkitBackingStorePixelRatio ||
+                    context.mozBackingStorePixelRatio ||
+                    context.msBackingStorePixelRatio ||
+                    context.oBackingStorePixelRatio ||
+                    context.backingStorePixelRatio || 1;
             }
             this.dpiRatio = devicePixelRatio / backingStoreRatio;
             this.drawing.setAttribute('width', Math.ceil(width * this.dpiRatio), null);
@@ -9513,6 +9512,478 @@ var Ui;
 })(Ui || (Ui = {}));
 var Ui;
 (function (Ui) {
+    var TransformableWatcher = (function (_super) {
+        __extends(TransformableWatcher, _super);
+        function TransformableWatcher(init) {
+            var _this = _super.call(this) || this;
+            _this._inertia = false;
+            _this._isDown = false;
+            _this.transformLock = false;
+            _this._angle = 0;
+            _this._scale = 1;
+            _this._translateX = 0;
+            _this._translateY = 0;
+            _this.startAngle = 0;
+            _this.startScale = 0;
+            _this.startTranslateX = 0;
+            _this.startTranslateY = 0;
+            _this._allowScale = true;
+            _this._minScale = 0.1;
+            _this._maxScale = 10;
+            _this._allowRotate = true;
+            _this._allowTranslate = true;
+            _this._allowLeftMouse = true;
+            _this.speedX = 0;
+            _this.speedY = 0;
+            _this.element = init.element;
+            if (init.transform != undefined)
+                _this.transform = init.transform;
+            if (init.inertiastart != undefined)
+                _this.inertiastart = init.inertiastart;
+            if (init.inertiaend != undefined)
+                _this.inertiaend = init.inertiaend;
+            if (init.down != undefined)
+                _this.down = init.down;
+            if (init.up != undefined)
+                _this.up = init.up;
+            if (init.allowLeftMouse != undefined)
+                _this.allowLeftMouse = init.allowLeftMouse;
+            if (init.allowScale != undefined)
+                _this.allowScale = init.allowScale;
+            if (init.minScale != undefined)
+                _this.minScale = init.minScale;
+            if (init.maxScale != undefined)
+                _this.maxScale = init.maxScale;
+            if (init.allowRotate != undefined)
+                _this.allowRotate = init.allowRotate;
+            if (init.allowTranslate != undefined)
+                _this.allowTranslate = init.allowTranslate;
+            if (init.angle != undefined)
+                _this.angle = init.angle;
+            if (init.scale != undefined)
+                _this.scale = init.scale;
+            if (init.translateX != undefined)
+                _this.translateX = init.translateX;
+            if (init.translateY != undefined)
+                _this.translateY = init.translateY;
+            if (init.inertia != undefined)
+                _this.inertia = init.inertia;
+            _this.element.setTransformOrigin(0, 0, true);
+            _this.connect(_this.element, 'ptrdown', _this.onPointerDown);
+            _this.connect(_this.element, 'wheel', _this.onWheel);
+            return _this;
+        }
+        Object.defineProperty(TransformableWatcher.prototype, "allowLeftMouse", {
+            set: function (value) {
+                this._allowLeftMouse = value;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(TransformableWatcher.prototype, "allowScale", {
+            set: function (allow) {
+                this._allowScale = allow;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(TransformableWatcher.prototype, "minScale", {
+            set: function (minScale) {
+                this._minScale = minScale;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(TransformableWatcher.prototype, "maxScale", {
+            set: function (maxScale) {
+                this._maxScale = maxScale;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(TransformableWatcher.prototype, "allowRotate", {
+            set: function (allow) {
+                this._allowRotate = allow;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(TransformableWatcher.prototype, "allowTranslate", {
+            set: function (allow) {
+                this._allowTranslate = allow;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(TransformableWatcher.prototype, "isDown", {
+            get: function () {
+                return this._isDown;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(TransformableWatcher.prototype, "isInertia", {
+            get: function () {
+                return this.inertiaClock !== undefined;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(TransformableWatcher.prototype, "angle", {
+            get: function () {
+                return this._angle;
+            },
+            set: function (angle) {
+                this.setContentTransform(undefined, undefined, undefined, angle);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(TransformableWatcher.prototype, "scale", {
+            get: function () {
+                return this._scale;
+            },
+            set: function (scale) {
+                this.setContentTransform(undefined, undefined, scale, undefined);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(TransformableWatcher.prototype, "translateX", {
+            get: function () {
+                return this._translateX;
+            },
+            set: function (translateX) {
+                this.setContentTransform(translateX, undefined, undefined, undefined);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(TransformableWatcher.prototype, "translateY", {
+            get: function () {
+                return this._translateY;
+            },
+            set: function (translateY) {
+                this.setContentTransform(undefined, translateY, undefined, undefined);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        TransformableWatcher.prototype.buildMatrix = function (translateX, translateY, scale, angle) {
+            if (translateX === undefined)
+                translateX = this._translateX;
+            if (translateY === undefined)
+                translateY = this._translateY;
+            if (scale === undefined)
+                scale = this._scale;
+            if (angle === undefined)
+                angle = this._angle;
+            return Ui.Matrix.createTranslate(this.element.layoutWidth * this.element.transformOriginX, this.element.layoutHeight * this.element.transformOriginX).
+                translate(translateX, translateY).
+                scale(scale, scale).
+                rotate(angle).
+                translate(-this.element.layoutWidth * this.element.transformOriginX, -this.element.layoutHeight * this.element.transformOriginX);
+        };
+        Object.defineProperty(TransformableWatcher.prototype, "matrix", {
+            get: function () {
+                return ((new Ui.Matrix()).
+                    translate(this._translateX, this._translateY).
+                    scale(this._scale, this._scale).
+                    rotate(this._angle));
+            },
+            enumerable: true,
+            configurable: true
+        });
+        TransformableWatcher.prototype.getBoundaryBox = function (matrix) {
+            if (matrix === undefined)
+                matrix = this.matrix;
+            var p1 = (new Ui.Point(0, 0)).multiply(matrix);
+            var p2 = (new Ui.Point(this.element.layoutWidth, 0)).multiply(matrix);
+            var p3 = (new Ui.Point(this.element.layoutWidth, this.element.layoutHeight)).multiply(matrix);
+            var p4 = (new Ui.Point(0, this.element.layoutHeight)).multiply(matrix);
+            var minX = Math.min(p1.x, Math.min(p2.x, Math.min(p3.x, p4.x)));
+            var minY = Math.min(p1.y, Math.min(p2.y, Math.min(p3.y, p4.y)));
+            var maxX = Math.max(p1.x, Math.max(p2.x, Math.max(p3.x, p4.x)));
+            var maxY = Math.max(p1.y, Math.max(p2.y, Math.max(p3.y, p4.y)));
+            return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
+        };
+        TransformableWatcher.prototype.setContentTransform = function (translateX, translateY, scale, angle) {
+            if (translateX === undefined)
+                translateX = this._translateX;
+            if (translateY === undefined)
+                translateY = this._translateY;
+            if (scale === undefined)
+                scale = this._scale;
+            if (angle === undefined)
+                angle = this._angle;
+            this._translateX = translateX;
+            this._translateY = translateY;
+            this._scale = scale;
+            this._angle = angle;
+            if (!this.transformLock) {
+                this.transformLock = true;
+                var testOnly = !(((this.watcher1 === undefined) || this.watcher1.getIsCaptured()) &&
+                    ((this.watcher2 === undefined) || this.watcher2.getIsCaptured()));
+                if (this.transform)
+                    this.transform(this, testOnly);
+                this.transformLock = false;
+            }
+        };
+        Object.defineProperty(TransformableWatcher.prototype, "inertia", {
+            get: function () {
+                return this._inertia;
+            },
+            set: function (inertiaActive) {
+                this._inertia = inertiaActive;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        TransformableWatcher.prototype.onDown = function () {
+            this._isDown = true;
+            if (this.down)
+                this.down(this);
+        };
+        TransformableWatcher.prototype.onUp = function () {
+            this._isDown = false;
+            if (this.up)
+                this.up(this);
+        };
+        TransformableWatcher.prototype.onPointerDown = function (event) {
+            if (!this._allowLeftMouse && event.pointerType == 'mouse' && event.pointer.button == 0)
+                return;
+            this.stopInertia();
+            if (this.watcher1 === undefined) {
+                if (this._allowTranslate)
+                    this.onDown();
+                var watcher = event.pointer.watch(this);
+                this.watcher1 = watcher;
+                this.connect(watcher, 'move', this.onPointerMove);
+                this.connect(watcher, 'up', this.onPointerUp);
+                this.connect(watcher, 'cancel', this.onPointerCancel);
+                this.startAngle = this._angle;
+                this.startScale = this._scale;
+                this.startTranslateX = this._translateX;
+                this.startTranslateY = this._translateY;
+            }
+            else if (this.watcher2 === undefined) {
+                if (!this._allowTranslate)
+                    this.onDown();
+                this.watcher1.pointer.setInitialPosition(this.watcher1.pointer.getX(), this.watcher1.pointer.getY());
+                var watcher = event.pointer.watch(this);
+                this.watcher2 = watcher;
+                this.connect(watcher, 'move', this.onPointerMove);
+                this.connect(watcher, 'up', this.onPointerUp);
+                this.connect(watcher, 'cancel', this.onPointerUp);
+                this.startAngle = this._angle;
+                this.startScale = this._scale;
+                this.startTranslateX = this._translateX;
+                this.startTranslateY = this._translateY;
+            }
+        };
+        TransformableWatcher.prototype.onPointerMove = function (watcher) {
+            var pos1;
+            var pos2;
+            var start1;
+            var start2;
+            if ((this.watcher1 !== undefined) && (this.watcher2 !== undefined)) {
+                if (!this.watcher1.getIsCaptured() && this.watcher1.pointer.getIsMove())
+                    this.watcher1.capture();
+                if (!this.watcher2.getIsCaptured() && this.watcher2.pointer.getIsMove())
+                    this.watcher2.capture();
+                pos1 = this.element.parent.pointFromWindow(new Ui.Point(this.watcher1.pointer.getX(), this.watcher1.pointer.getY()));
+                pos2 = this.element.parent.pointFromWindow(new Ui.Point(this.watcher2.pointer.getX(), this.watcher2.pointer.getY()));
+                start1 = this.element.parent.pointFromWindow(new Ui.Point(this.watcher1.pointer.getInitialX(), this.watcher1.pointer.getInitialY()));
+                start2 = this.element.parent.pointFromWindow(new Ui.Point(this.watcher2.pointer.getInitialX(), this.watcher2.pointer.getInitialY()));
+                var startVector = { x: start2.x - start1.x, y: start2.y - start1.y };
+                var endVector = { x: pos2.x - pos1.x, y: pos2.y - pos1.y };
+                startVector.norm = Math.sqrt((startVector.x * startVector.x) + (startVector.y * startVector.y));
+                endVector.norm = Math.sqrt((endVector.x * endVector.x) + (endVector.y * endVector.y));
+                var scale = endVector.norm / startVector.norm;
+                startVector.x /= startVector.norm;
+                startVector.y /= startVector.norm;
+                endVector.x /= endVector.norm;
+                endVector.y /= endVector.norm;
+                var divVector = {
+                    x: (startVector.x * endVector.x + startVector.y * endVector.y),
+                    y: (startVector.y * endVector.x - startVector.x * endVector.y)
+                };
+                var angle = -(Math.atan2(divVector.y, divVector.x) * 180.0) / Math.PI;
+                var deltaMatrix = Ui.Matrix.createTranslate(pos1.x - start1.x, pos1.y - start1.y).translate(start1.x, start1.y);
+                if (this._allowScale) {
+                    if ((this._minScale !== undefined) || (this._maxScale !== undefined)) {
+                        var totalScale = this.startScale * scale;
+                        if ((this._minScale !== undefined) && (totalScale < this._minScale))
+                            totalScale = this._minScale;
+                        if ((this._maxScale !== undefined) && (totalScale > this._maxScale))
+                            totalScale = this._maxScale;
+                        scale = totalScale / this.startScale;
+                    }
+                    deltaMatrix = deltaMatrix.scale(scale, scale);
+                }
+                else
+                    scale = 1;
+                if (this._allowRotate)
+                    deltaMatrix = deltaMatrix.rotate(angle);
+                else
+                    angle = 0;
+                deltaMatrix = deltaMatrix.translate(-start1.x, -start1.y);
+                var origin = new Ui.Point(this.element.layoutWidth * this.element.transformOriginX, this.element.layoutHeight * this.element.transformOriginX);
+                deltaMatrix = deltaMatrix.translate(origin.x, origin.y).
+                    translate(this.startTranslateX, this.startTranslateY).
+                    scale(this.startScale, this.startScale).
+                    rotate(this.startAngle).
+                    translate(-origin.x, -origin.y);
+                origin = origin.multiply(deltaMatrix);
+                this.setContentTransform(origin.x - this.element.layoutWidth * this.element.transformOriginX, origin.y - this.element.layoutHeight * this.element.transformOriginY, this.startScale * scale, this.startAngle + angle);
+            }
+            else if ((this.watcher1 !== undefined) && this._allowTranslate) {
+                pos1 = this.element.parent.pointFromWindow(new Ui.Point(this.watcher1.pointer.getX(), this.watcher1.pointer.getY()));
+                start1 = this.element.parent.pointFromWindow(new Ui.Point(this.watcher1.pointer.getInitialX(), this.watcher1.pointer.getInitialY()));
+                var deltaX = pos1.x - start1.x;
+                var deltaY = pos1.y - start1.y;
+                var delta = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+                this.setContentTransform(this.startTranslateX + (pos1.x - start1.x), this.startTranslateY + (pos1.y - start1.y), this.startScale, this.startAngle);
+                var takenDeltaX = (this._translateX - this.startTranslateX);
+                var takenDeltaY = (this._translateY - this.startTranslateY);
+                var takenDelta = Math.sqrt(takenDeltaX * takenDeltaX + takenDeltaY * takenDeltaY);
+                var test = 0;
+                if (delta > 0)
+                    test = (takenDelta / delta);
+                if (!this.watcher1.getIsCaptured() && this.watcher1.pointer.getIsMove() && (test > 0.7))
+                    this.watcher1.capture();
+            }
+        };
+        TransformableWatcher.prototype.onPointerCancel = function (watcher) {
+            this.onPointerUp(watcher);
+            this.stopInertia();
+            this._angle = this.startAngle;
+            this._scale = this.startScale;
+            this._translateX = this.startTranslateX;
+            this._translateY = this.startTranslateY;
+        };
+        TransformableWatcher.prototype.onPointerUp = function (watcher) {
+            if ((this.watcher1 !== undefined) && (this.watcher1 === watcher)) {
+                if (this.watcher2 !== undefined) {
+                    this.watcher1 = this.watcher2;
+                    delete (this.watcher2);
+                    this.watcher1.pointer.setInitialPosition(this.watcher1.pointer.getX(), this.watcher1.pointer.getY());
+                    this.startAngle = this._angle;
+                    this.startScale = this._scale;
+                    this.startTranslateX = this._translateX;
+                    this.startTranslateY = this._translateY;
+                    if (!this._allowTranslate)
+                        this.onUp();
+                }
+                else {
+                    if (this._allowTranslate)
+                        this.onUp();
+                    var speed = this.watcher1.getSpeed();
+                    this.speedX = speed.x;
+                    this.speedY = speed.y;
+                    delete (this.watcher1);
+                    this.startInertia();
+                }
+            }
+            if ((this.watcher2 !== undefined) && (this.watcher2 === watcher)) {
+                delete (this.watcher2);
+                this.watcher1.pointer.setInitialPosition(this.watcher1.pointer.getX(), this.watcher1.pointer.getY());
+                this.startAngle = this._angle;
+                this.startScale = this._scale;
+                this.startTranslateX = this._translateX;
+                this.startTranslateY = this._translateY;
+                if (!this._allowTranslate)
+                    this.onUp();
+            }
+        };
+        TransformableWatcher.prototype.onWheel = function (event) {
+            var delta = 0;
+            delta = event.deltaX + event.deltaY;
+            if (event.altKey) {
+                if (this._allowRotate) {
+                    var angle = delta / 5;
+                    var pos = this.element.parent.pointFromWindow(new Ui.Point(event.clientX, event.clientY));
+                    var origin = new Ui.Point(this.element.layoutX + this.element.layoutWidth * this.element.transformOriginX, this.element.layoutY + this.element.layoutHeight * this.element.transformOriginY);
+                    var deltaMatrix = Ui.Matrix.createTranslate(pos.x, pos.y).
+                        rotate(angle).
+                        translate(origin.x, origin.y).
+                        translate(-pos.x, -pos.y).
+                        translate(this._translateX, this._translateY).
+                        scale(this._scale, this._scale).
+                        rotate(this._angle).
+                        translate(-origin.x, -origin.y);
+                    var newOrigin = origin.multiply(deltaMatrix);
+                    this.setContentTransform(newOrigin.x - origin.x, newOrigin.y - origin.y, this._scale, this._angle + angle);
+                }
+            }
+            else if (event.ctrlKey) {
+                if (this._allowScale) {
+                    var scale = Math.pow(2, (Math.log(this._scale) / Math.log(2)) - delta / 60);
+                    if ((this._minScale !== undefined) && (scale < this._minScale))
+                        scale = this._minScale;
+                    if ((this._maxScale !== undefined) && (scale > this._maxScale))
+                        scale = this._maxScale;
+                    var deltaScale = scale / this._scale;
+                    var pos = this.element.parent.pointFromWindow(new Ui.Point(event.clientX, event.clientY));
+                    var origin = new Ui.Point(this.element.layoutX + this.element.layoutWidth * this.element.transformOriginX, this.element.layoutY + this.element.layoutHeight * this.element.transformOriginY);
+                    var deltaMatrix = Ui.Matrix.createTranslate(pos.x, pos.y).
+                        scale(deltaScale, deltaScale).
+                        translate(-pos.x, -pos.y).
+                        translate(origin.x, origin.y).
+                        translate(this._translateX, this._translateY).
+                        scale(this._scale, this._scale).
+                        rotate(this._angle).
+                        translate(-origin.x, -origin.y);
+                    var newOrigin = origin.multiply(deltaMatrix);
+                    this.setContentTransform(newOrigin.x - origin.x, newOrigin.y - origin.y, scale, this._angle);
+                }
+            }
+            else
+                return;
+            event.stopPropagation();
+        };
+        TransformableWatcher.prototype.startInertia = function () {
+            if ((this.inertiaClock === undefined) && this.inertia) {
+                this.inertiaClock = new Anim.Clock({ duration: 'forever', target: this.element });
+                this.connect(this.inertiaClock, 'timeupdate', this.onTimeupdate);
+                this.inertiaClock.begin();
+                if (this.inertiastart)
+                    this.inertiastart(this);
+            }
+        };
+        TransformableWatcher.prototype.onTimeupdate = function (clock, progress, delta) {
+            if (delta === 0)
+                return;
+            var oldTranslateX = this._translateX;
+            var oldTranslateY = this._translateY;
+            var translateX = this._translateX + (this.speedX * delta);
+            var translateY = this._translateY + (this.speedY * delta);
+            this.setContentTransform(translateX, translateY, undefined, undefined);
+            if ((this._translateX === oldTranslateX) && (this._translateY === oldTranslateY)) {
+                this.stopInertia();
+                return;
+            }
+            this.speedX -= this.speedX * delta * 3;
+            this.speedY -= this.speedY * delta * 3;
+            if (Math.abs(this.speedX) < 0.1)
+                this.speedX = 0;
+            if (Math.abs(this.speedY) < 0.1)
+                this.speedY = 0;
+            if ((this.speedX === 0) && (this.speedY === 0))
+                this.stopInertia();
+        };
+        TransformableWatcher.prototype.stopInertia = function () {
+            if (this.inertiaClock !== undefined) {
+                this.inertiaClock.stop();
+                delete (this.inertiaClock);
+                this.setContentTransform(Math.round(this._translateX), Math.round(this._translateY), undefined, undefined);
+                if (this.inertiaend)
+                    this.inertiaend(this);
+            }
+        };
+        return TransformableWatcher;
+    }(Core.Object));
+    Ui.TransformableWatcher = TransformableWatcher;
     var Transformable = (function (_super) {
         __extends(Transformable, _super);
         function Transformable() {
@@ -15256,6 +15727,10 @@ var Ui;
             this.removeChild(child);
         };
         Fixed.prototype.updateItemTransform = function (child) {
+            var pos = this.getItemPosition(child);
+            child.arrange(pos.x, pos.y, child.measureWidth, child.measureHeight);
+        };
+        Fixed.prototype.getItemPosition = function (child) {
             var x = 0;
             if (child['Ui.Fixed.x'] !== undefined)
                 x = child['Ui.Fixed.x'];
@@ -15266,7 +15741,7 @@ var Ui;
                 y = child['Ui.Fixed.y'];
             if (child['Ui.Fixed.relativeY'] !== undefined)
                 y -= child['Ui.Fixed.relativeY'] * ((child['Ui.Fixed.relativeAbsolute'] === true) ? 1 : child.measureHeight);
-            child.transform = Ui.Matrix.createTranslate(x, y);
+            return new Ui.Point(x, y);
         };
         Fixed.prototype.measureCore = function (width, height) {
             for (var i = 0; i < this.children.length; i++)
@@ -15277,20 +15752,20 @@ var Ui;
             this.fireEvent('resize', this, width, height);
             for (var i = 0; i < this.children.length; i++) {
                 var child = this.children[i];
-                child.arrange(0, 0, child.measureWidth, child.measureHeight);
-                this.updateItemTransform(child);
+                var pos = this.getItemPosition(child);
+                child.arrange(pos.x, pos.y, child.measureWidth, child.measureHeight);
             }
         };
         Fixed.prototype.onChildInvalidateMeasure = function (child, event) {
             if (event !== 'remove') {
                 child.measure(this.layoutWidth, this.layoutHeight);
-                child.arrange(0, 0, child.measureWidth, child.measureHeight);
-                this.updateItemTransform(child);
+                var pos = this.getItemPosition(child);
+                child.arrange(pos.x, pos.y, child.measureWidth, child.measureHeight);
             }
         };
         Fixed.prototype.onChildInvalidateArrange = function (child) {
-            child.arrange(0, 0, child.measureWidth, child.measureHeight);
-            this.updateItemTransform(child);
+            var pos = this.getItemPosition(child);
+            child.arrange(pos.x, pos.y, child.measureWidth, child.measureHeight);
         };
         return Fixed;
     }(Ui.Container));
@@ -17085,7 +17560,7 @@ var Ui;
             _this.addEvents('item');
             _this.autoClose = true;
             var vbox = new Ui.VBox();
-            _this.searchField = new Ui.TextField({ textHolder: 'Recherche' });
+            _this.searchField = new Ui.TextField({ textHolder: 'Recherche', margin: 5 });
             _this.searchField.hide(true);
             _this.connect(_this.searchField, 'change', _this.onSearchChange);
             vbox.append(_this.searchField);
@@ -20257,13 +20732,16 @@ var Ui;
         ListViewRow.prototype.measureCore = function (width, height) {
             this.background.measure(width, height);
             var minHeight = 0;
+            var minWidth = 0;
             for (var col = 0; col < this.headers.length; col++) {
+                var header = this.headers[col];
                 var child = this.cells[col];
                 var size = child.measure(0, 0);
                 if (size.height > minHeight)
                     minHeight = size.height;
+                minWidth += header['Ui.ListViewHeadersBar.ui'].measureWidth;
             }
-            return { width: 0, height: minHeight };
+            return { width: minWidth, height: minHeight };
         };
         ListViewRow.prototype.arrangeCore = function (width, height) {
             this.background.arrange(0, 0, width, height);
@@ -20291,8 +20769,8 @@ var Ui;
     Ui.ListViewRow = ListViewRow;
     var ListViewRowOdd = (function (_super) {
         __extends(ListViewRowOdd, _super);
-        function ListViewRowOdd() {
-            return _super !== null && _super.apply(this, arguments) || this;
+        function ListViewRowOdd(init) {
+            return _super.call(this, init) || this;
         }
         ListViewRowOdd.style = {
             color: new Ui.Color(0.5, 0.5, 0.5, 0.05),
@@ -20303,8 +20781,8 @@ var Ui;
     Ui.ListViewRowOdd = ListViewRowOdd;
     var ListViewRowEven = (function (_super) {
         __extends(ListViewRowEven, _super);
-        function ListViewRowEven() {
-            return _super !== null && _super.apply(this, arguments) || this;
+        function ListViewRowEven(init) {
+            return _super.call(this, init) || this;
         }
         ListViewRowEven.style = {
             color: new Ui.Color(0.5, 0.5, 0.5, 0.1),
@@ -20359,13 +20837,25 @@ var Ui;
                     callback: function (s) { return _this.onSelectionEdit(s); }
                 }
             };
+            _this.headersScroll = new Ui.ScrollingArea({
+                scrollVertical: false, scrollHorizontal: true
+            });
+            _this.headersScroll.setScrollbarHorizontal(new Ui.Movable());
+            _this.append(_this.headersScroll);
             _this.headersBar = new ListViewHeadersBar({ headers: _this.headers });
             _this.connect(_this.headersBar, 'header', _this.onHeaderPress);
-            _this.append(_this.headersBar);
+            _this.headersScroll.content = _this.headersBar;
             _this._data = [];
-            _this.dataLoader = new ListViewScrollLoader(_this, _this._data);
-            _this.scroll = new Ui.VBoxScrollingArea({ loader: _this.dataLoader });
-            _this.append(_this.scroll, true);
+            _this.vboxScroll = new Ui.ScrollingArea();
+            _this.append(_this.vboxScroll, true);
+            _this.vbox = new Ui.VBox();
+            _this.vboxScroll.content = _this.vbox;
+            _this.connect(_this.vboxScroll, 'scroll', function (s, offsetX, offsetY) {
+                _this.headersScroll.setOffset(offsetX, undefined, true, true);
+            });
+            _this.connect(_this.headersScroll, 'scroll', function (s, offsetX, offsetY) {
+                _this.vboxScroll.setOffset(offsetX, undefined, true, true);
+            });
             _this.assign(init);
             return _this;
         }
@@ -20373,17 +20863,9 @@ var Ui;
             set: function (scrolled) {
                 if (this._scrolled !== (scrolled === true)) {
                     this._scrolled = scrolled;
-                    if (this._scrolled) {
-                        this.remove(this.vbox);
-                        this.scroll = new Ui.VBoxScrollingArea({ loader: this.dataLoader });
-                        this.append(this.scroll, true);
-                    }
-                    else {
-                        this.remove(this.scroll);
-                        this.vbox = new Ui.VBox();
-                        this.append(this.vbox, true);
-                        this.updateData(this._data);
-                    }
+                    this.headersScroll.scrollHorizontal = scrolled;
+                    this.vboxScroll.scrollVertical = scrolled;
+                    this.vboxScroll.scrollHorizontal = scrolled;
                 }
             },
             enumerable: true,
@@ -20422,20 +20904,13 @@ var Ui;
         ListView.prototype.appendData = function (data) {
             this._data.push(data);
             this.sortData();
-            if (this._scrolled)
-                this.dataLoader.signalChange();
-            else
-                this.vbox.append(this.getElementAt(this._data.length - 1));
+            this.vbox.append(this.getElementAt(this._data.length - 1));
         };
         ListView.prototype.updateData = function (data) {
             this.sortData();
-            if (this._scrolled)
-                this.scroll.reload();
-            else {
-                this.vbox.clear();
-                for (var i = 0; i < this._data.length; i++) {
-                    this.vbox.append(this.getElementAt(i));
-                }
+            this.vbox.clear();
+            for (var i = 0; i < this._data.length; i++) {
+                this.vbox.append(this.getElementAt(i));
             }
         };
         ListView.prototype.removeData = function (data) {
@@ -20446,23 +20921,16 @@ var Ui;
         ListView.prototype.removeDataAt = function (position) {
             if (position < this._data.length) {
                 this._data.splice(position, 1);
-                if (this._scrolled)
-                    this.scroll.reload();
-                else {
-                    this.vbox.clear();
-                    for (var i = 0; i < this._data.length; i++) {
-                        this.vbox.append(this.getElementAt(i));
-                    }
+                this.vbox.clear();
+                for (var i = 0; i < this._data.length; i++) {
+                    this.vbox.append(this.getElementAt(i));
                 }
             }
         };
         ListView.prototype.clearData = function () {
             this._data = [];
             this.dataLoader = new ListViewScrollLoader(this, this._data);
-            if (this._scrolled)
-                this.scroll.loader = this.dataLoader;
-            else
-                this.vbox.clear();
+            this.vbox.clear();
         };
         Object.defineProperty(ListView.prototype, "data", {
             get: function () {
@@ -20473,13 +20941,9 @@ var Ui;
                     this._data = data;
                     this.sortData();
                     this.dataLoader = new ListViewScrollLoader(this, this._data);
-                    if (this._scrolled)
-                        this.scroll.loader = this.dataLoader;
-                    else {
-                        this.vbox.clear();
-                        for (var i = 0; i < this._data.length; i++) {
-                            this.vbox.append(this.getElementAt(i));
-                        }
+                    this.vbox.clear();
+                    for (var i = 0; i < this._data.length; i++) {
+                        this.vbox.append(this.getElementAt(i));
                     }
                 }
                 else {
@@ -20508,15 +20972,9 @@ var Ui;
             this.sortInvert = invert === true;
             this.headersBar.sortBy(this.sortColKey, this.sortInvert);
             this.sortData();
-            if (this._scrolled) {
-                this.scroll.reload();
-                this.invalidateArrange();
-            }
-            else {
-                this.vbox.clear();
-                for (var i = 0; i < this._data.length; i++) {
-                    this.vbox.append(this.getElementAt(i));
-                }
+            this.vbox.clear();
+            for (var i = 0; i < this._data.length; i++) {
+                this.vbox.append(this.getElementAt(i));
             }
         };
         ListView.prototype.findDataRow = function (data) {
@@ -20535,11 +20993,11 @@ var Ui;
         };
         ListView.prototype.onChildInvalidateArrange = function (child) {
             _super.prototype.onChildInvalidateArrange.call(this, child);
-            if (child === this.headersBar) {
-                if (this._scrolled && (this.scroll !== undefined))
-                    this.scroll.getActiveItems().forEach(function (item) { item.invalidateArrange(); });
-                else if (!this._scrolled)
-                    this.vbox.children.forEach(function (item) { item.invalidateArrange(); });
+            if (child === this.headersScroll) {
+                for (var _i = 0, _a = this.vbox.children; _i < _a.length; _i++) {
+                    var item = _a[_i];
+                    item.invalidateArrange();
+                }
             }
         };
         return ListView;
@@ -21273,7 +21731,7 @@ var Ui;
             _this._mode = 'extend';
             _this.contentSize = 0;
             _this._animDuration = 0.5;
-            _this.addEvents('fold', 'unfold', 'positionchange');
+            _this.addEvents('fold', 'unfold', 'positionchange', 'progress');
             _this.headerBox = new Ui.LBox();
             _this.appendChild(_this.headerBox);
             _this.contentBox = new Ui.LBox();
@@ -21505,6 +21963,7 @@ var Ui;
                     destOffset = 1;
                 this.offset = destOffset - ((destOffset - offset) * (1 - progress));
             }
+            this.fireEvent('progress', this, this.offset);
             if ((progress == 1) && this._isFolded) {
                 this.contentBox.hide();
             }
