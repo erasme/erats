@@ -1,13 +1,62 @@
-namespace Ui
-{
+namespace Ui {
+
+	export interface CanvasRenderingContext2D {
+		fillStyle: string;
+		strokeStyle: string;
+		lineWidth: number;
+		lineDash: any;
+		globalAlpha: number;
+		currentTransform: SVGMatrix;
+		font: string;
+		textAlign: 'start' | 'end' | 'left' | 'right' | 'center';
+		textBaseline: 'top' | 'hanging' | 'middle' | 'alphabetic' | 'ideographic' | 'bottom';
+		direction: 'ltr' | 'rtl' | 'inherit';
+
+		beginPath();
+		moveTo(x: number, y: number);
+		lineTo(x: number, y: number);
+		quadraticCurveTo(cpx: number, cpy: number, x: number, y: number);
+		bezierCurveTo(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number);
+		rect(x: number, y: number, w: number, h: number);
+		arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, anticlockwise: boolean);
+		ellipse(x: number, y: number, radiusX: number, radiusY: number, rotation: number, startAngle: number, endAngle: number, anticlockwise: boolean);
+		closePath();
+		fill();
+		stroke();
+		clip();
+		resetClip();
+		getLineDash();
+		setLineDash(lineDash);
+		drawImage(image, sx: number, sy: number, sw: number, sh: number, dx: number, dy: number, dw: number, dh: number);
+		fillText(text: string, x: number, y: number, maxWidth?: number);
+		strokeText(text: string, x: number, y: number, maxWidth?: number);
+		save();
+		restore();
+		scale(x: number, y: number);
+		rotate(angle: number);
+		translate(x: number, y: number);
+		transform(a: number, b: number, c: number, d: number, e: number, f: number);
+		setTransform(a: number, b: number, c: number, d: number, e: number, f: number);
+		resetTransform();
+		clearRect(x: number, y: number, w: number, h: number);
+		fillRect(x: number, y: number, w: number, h: number);
+		strokeRect(x: number, y: number, w: number, h: number);
+		createLinearGradient(x0: number, y0: number, x1: number, y1: number);
+		measureText(text: string);
+		svgPath(path: string);
+		roundRect(x: number, y: number, w: number, h: number, radiusTopLeft: number, radiusTopRight: number, radiusBottomRight: number, radiusBottomLeft: number, antiClockwise: boolean);
+		roundRectFilledShadow(x, y, width, height, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, inner, shadowWidth, color);
+	}
+
+
 	export interface CanvasElementInit extends ContainerInit {
 	}
 
 	export class CanvasElement extends Container implements CanvasElementInit
 	{
 		private canvasEngine: any = 'svg';
-		private _context: any = undefined;
-		private svgDrawing: any = undefined;
+		private _context: CanvasRenderingContext2D;
+		private svgDrawing: any;
 		private dpiRatio: number = 1;
 
 		constructor(init?: Partial<ContainerInit>) {
@@ -46,7 +95,7 @@ namespace Ui
 				// the following events (like touchmove, touchend) will never raised
 				svgDrawing.setAttribute('pointer-events', 'none');
 				let ctx = new Core.SVG2DContext(svgDrawing);
-				this.updateCanvas(ctx);
+				this.updateCanvas(ctx as Ui.CanvasRenderingContext2D);
 				this.svgDrawing = svgDrawing;
 				this.svgDrawing.appendChild(ctx.getSVG());
 				this.drawing.appendChild(this.svgDrawing);
@@ -63,7 +112,7 @@ namespace Ui
 		//
 		// Override this method to provide the Canvas rendering
 		//
-		protected updateCanvas(context) {
+		protected updateCanvas(context: Ui.CanvasRenderingContext2D) {
 		}
 
 		protected renderDrawing() {
@@ -98,7 +147,7 @@ namespace Ui
 			let context = drawing.getContext('2d');
 			drawing.setAttribute('width', Math.ceil(this.layoutWidth).toString());
 			drawing.setAttribute('height', Math.ceil(this.layoutHeight).toString());
-			this.updateCanvas(context);
+			this.updateCanvas(context as any as Ui.CanvasRenderingContext2D);
 			return drawing.toDataURL.apply(drawing, arguments);
 		}
 
@@ -107,11 +156,12 @@ namespace Ui
 			let devicePixelRatio = window.devicePixelRatio || 1;
 			let backingStoreRatio = 1;
 			if (this._context !== undefined) {
-				backingStoreRatio = this._context.webkitBackingStorePixelRatio ||
-					this._context.mozBackingStorePixelRatio ||
-					this._context.msBackingStorePixelRatio ||
-					this._context.oBackingStorePixelRatio ||
-					this._context.backingStorePixelRatio || 1;
+				let context = this._context as any;
+				backingStoreRatio = context.webkitBackingStorePixelRatio ||
+					context.mozBackingStorePixelRatio ||
+					context.msBackingStorePixelRatio ||
+					context.oBackingStorePixelRatio ||
+					context.backingStorePixelRatio || 1;
 			}
 			this.dpiRatio = devicePixelRatio / backingStoreRatio;
 			this.drawing.setAttribute('width', Math.ceil(width * this.dpiRatio), null);
@@ -295,8 +345,8 @@ namespace Core {
 			return this.gradient;
 		}
 	}
-	
-	export class SVG2DContext extends Object {
+
+	export class SVG2DContext extends Object implements Ui.CanvasRenderingContext2D {
 		fillStyle: any = 'black';
 		strokeStyle: any = 'black';
 		lineWidth: number = 1;
