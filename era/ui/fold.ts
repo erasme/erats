@@ -31,7 +31,7 @@ namespace Ui {
 
 		constructor(init?: Partial<FoldInit>) {
 			super();
-			this.addEvents('fold', 'unfold', 'positionchange');
+			this.addEvents('fold', 'unfold', 'positionchange', 'progress');
 
 			this.headerBox = new Ui.LBox();
 			this.appendChild(this.headerBox);
@@ -303,6 +303,7 @@ namespace Ui {
 					destOffset = 1;
 				this.offset = destOffset - ((destOffset - offset) * (1 - progress));
 			}
+			this.fireEvent('progress', this, this.offset);
 			if ((progress == 1) && this._isFolded) {
 				this.contentBox.hide();
 			}
