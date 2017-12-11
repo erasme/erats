@@ -221,6 +221,12 @@ namespace Ui
 			meta.name = 'viewport';
 			meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
 			document.getElementsByTagName("head")[0].appendChild(meta);
+
+			style = document.createElement('style');
+			style.type = 'text/css';
+			style.innerHTML = '* { touch-action: none; }';
+			document.getElementsByTagName('head')[0].appendChild(style);
+
 			// hide scroll tap focus (webkit)
 			if (Core.Navigator.isWebkit) {
 				style = document.createElement('style');

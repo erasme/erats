@@ -618,7 +618,7 @@ namespace Ui
 
 		onPointerCancel(event) {
 			// TODO
-			//		console.log('onPointerCancel');
+			//	console.log('onPointerCancel');
 		}
 
 		updateTouches(event) {
