@@ -54,7 +54,7 @@ namespace Anim
 		private _target: Target = undefined;
 		private _ease: EasingFunction = undefined;
 
-		constructor(init?: Partial<Clock>) {
+		constructor(init?: Partial<ClockInit>) {
 			super();
 			this.addEvents('complete', 'timeupdate');
 			if (init)
