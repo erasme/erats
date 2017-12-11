@@ -43,6 +43,11 @@ namespace Ui
 		}
 
 		protected updateItemTransform(child: Element) {
+			let pos = this.getItemPosition(child);
+			child.arrange(pos.x, pos.y, child.measureWidth, child.measureHeight);
+		}
+
+		private getItemPosition(child: Element): Point {
 			let x = 0;
 			if (child['Ui.Fixed.x'] !== undefined)
 				x = child['Ui.Fixed.x'];
@@ -55,7 +60,7 @@ namespace Ui
 			if (child['Ui.Fixed.relativeY'] !== undefined)
 				y -= child['Ui.Fixed.relativeY'] * ((child['Ui.Fixed.relativeAbsolute'] === true) ? 1 : child.measureHeight);
 		
-			child.transform = Matrix.createTranslate(x, y);
+			return new Point(x, y);
 		}
 
 		protected measureCore(width: number, height: number): Size {
@@ -68,22 +73,22 @@ namespace Ui
 			this.fireEvent('resize', this, width, height);
 			for (let i = 0; i < this.children.length; i++) {
 				let child = this.children[i];
-				child.arrange(0, 0, child.measureWidth, child.measureHeight);
-				this.updateItemTransform(child);
+				let pos = this.getItemPosition(child);
+				child.arrange(pos.x, pos.y, child.measureWidth, child.measureHeight);
 			}
 		}
 
 		protected onChildInvalidateMeasure(child: Element, event) {
 			if (event !== 'remove') {
 				child.measure(this.layoutWidth, this.layoutHeight);
-				child.arrange(0, 0, child.measureWidth, child.measureHeight);
-				this.updateItemTransform(child);
+				let pos = this.getItemPosition(child);
+				child.arrange(pos.x, pos.y, child.measureWidth, child.measureHeight);
 			}
 		}
 
 		protected onChildInvalidateArrange(child: Element) {
-			child.arrange(0, 0, child.measureWidth, child.measureHeight);
-			this.updateItemTransform(child);
+			let pos = this.getItemPosition(child);
+			child.arrange(pos.x, pos.y, child.measureWidth, child.measureHeight);
 		}
 	}
 }	
