@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "none",
+    "strict": true,
+    "sourceMap": true,
+    "outFile": "./main.js"
+  },
+  "files": [
+    "graph.ts",
+    "timelinegraph.ts",
+    "main.ts"
+  ]
+}
