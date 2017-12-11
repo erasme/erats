@@ -555,7 +555,7 @@ namespace Core {
 			let font = this.parseFont(this.font);
 			t.style.fontFamily = font.family;
 			t.style.fontWeight = font.weight;
-			t.style.fontSize = font.size;
+			t.style.fontSize = font.size.toString() + 'px';
 			t.style.fontStyle = font.style;
 
 			if (!Core.Navigator.isWebkit) {
