@@ -64,7 +64,7 @@ class App extends Ui.App {
     constructor() {
         super();
 		let vbox = new Ui.VBox();
-		this.setContent(vbox);
+		this.content = vbox;
 
 		let button = new Ui.Button({ text: 'Reload' });
 		vbox.append(button);

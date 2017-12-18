@@ -12,7 +12,7 @@
 		private fixed: Fixed;
 		private markerOrientation: 'horizontal';
 
-		constructor(init?: Partial<DropAtBoxInit>) {
+		constructor(init?: DropAtBoxInit) {
 			super(init);
 			this.addEvents('drageffect', 'dragenter', 'dragleave', 'dropat', 'dropfileat');
 			this.fixed = new Fixed();
@@ -417,18 +417,24 @@
 	}
 
 	export interface FlowDropBoxInit extends DropAtBoxInit {
-		uniform: boolean;
-		spacing: number;
+		uniform?: boolean;
+		spacing?: number;
 	 }
 	
 	export class FlowDropBox extends DropAtBox {
 		private _flow: Flow;
 
-		constructor(init?: Partial<FlowDropBoxInit>) {
+		constructor(init?: FlowDropBoxInit) {
 			super(init);
 			this._flow = new Flow();
 			this.setContainer(this._flow);
 			this.setMarkerOrientation('horizontal');
+			if (init) {
+				if (init.uniform !== undefined)
+					this.uniform = init.uniform;
+				if (init.spacing !== undefined)
+					this.spacing = init.spacing;	
+			}
 		}
 
 		set uniform(uniform: boolean) {
@@ -441,23 +447,33 @@
 	}
 
 	export interface SFlowDropBoxInit extends DropAtBoxInit {
-		stretchMaxRatio: number;
-		uniform: boolean;
-		uniformRatio: number;
-		itemAlign: SFlowAlign;
-		spacing: number;
+		stretchMaxRatio?: number;
+		uniform?: boolean;
+		uniformRatio?: number;
+		itemAlign?: SFlowAlign;
+		spacing?: number;
 	}
 
 	export class SFlowDropBox extends DropAtBox {
 		private _sflow: SFlow;
 
-		constructor(init?: Partial<SFlowDropBoxInit>) {
-			super();
+		constructor(init?: SFlowDropBoxInit) {
+			super(init);
 			this._sflow = new Ui.SFlow();
 			this.setContainer(this._sflow);
 			this.setMarkerOrientation('horizontal');
-			if (init)
-				this.assign(init);
+			if (init) {
+				if (init.stretchMaxRatio !== undefined)
+					this.stretchMaxRatio = init.stretchMaxRatio;
+				if (init.uniform !== undefined)
+					this.uniform = init.uniform;
+				if (init.uniformRatio !== undefined)
+					this.uniformRatio = init.uniformRatio;
+				if (init.itemAlign !== undefined)
+					this.itemAlign = init.itemAlign;
+				if (init.spacing !== undefined)
+					this.spacing = init.spacing;
+			}
 		}
 
 		set stretchMaxRatio(ratio: number) {
@@ -486,7 +502,7 @@
 	export class VDropBox extends DropAtBox {
 		private _vbox: VBox;
 
-		constructor(init?: Partial<VDropBoxInit>) {
+		constructor(init?: VDropBoxInit) {
 			super(init);
 			this._vbox = new VBox();
 			this.setContainer(this._vbox);
@@ -507,7 +523,7 @@
 	export class HDropBox extends DropAtBox {
 		private _hbox: HBox;
 
-		constructor(init?: Partial<HDropBoxInit>) {
+		constructor(init?: HDropBoxInit) {
 			super(init);
 			this._hbox = new HBox();
 			this.setContainer(this._hbox);

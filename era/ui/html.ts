@@ -1,16 +1,16 @@
 namespace Ui
 {
 	export interface HtmlInit extends ElementInit {
-		html: string;
-		text: string;
-		textAlign: string;
-		fontSize: number;
-		fontFamily: string;
-		fontWeight: string;
-		interLine: number;
-		wordWrap: string;
-		whiteSpace: string;
-		color: Color | string;
+		html?: string;
+		text?: string;
+		textAlign?: string;
+		fontSize?: number;
+		fontFamily?: string;
+		fontWeight?: string;
+		interLine?: number;
+		wordWrap?: string;
+		whiteSpace?: string;
+		color?: Color | string;
 	}
 
 	export class Html extends Element implements HtmlInit
@@ -26,16 +26,36 @@ namespace Ui
 		private _wordWrap: string = undefined;
 		private _whiteSpace: string = undefined;
 
-		constructor(init?: Partial<HtmlInit>) {
-			super();
+		constructor(init?: HtmlInit) {
+			super(init);
 			this.addEvents('link');
 
 			this.bindedOnImageLoad = this.onImageLoad.bind(this);
 			this.connect(this.drawing, 'click', this.onClick);
 			//		this.connect(this.drawing, 'DOMSubtreeModified', this.onSubtreeModified);
 			this.connect(this.drawing, 'keypress', this.onKeyPress);
-			if (init)
-				this.assign(init);
+			if (init) {
+				if (init.text !== undefined)
+					this.text = init.text;	
+				if (init.html !== undefined)
+					this.html = init.html;	
+				if (init.textAlign !== undefined)
+					this.textAlign = init.textAlign;
+				if (init.fontSize !== undefined)
+					this.fontSize = init.fontSize;
+				if (init.fontFamily !== undefined)
+					this.fontFamily = init.fontFamily;
+				if (init.fontWeight !== undefined)
+					this.fontWeight = init.fontWeight;
+				if (init.interLine !== undefined)
+					this.interLine = init.interLine;	
+				if (init.wordWrap !== undefined)
+					this.wordWrap = init.wordWrap;	
+				if (init.whiteSpace !== undefined)
+					this.whiteSpace = init.whiteSpace;	
+				if (init.color !== undefined)
+					this.color = init.color;	
+			}
 		}
 	
 		getElements(tagName) {

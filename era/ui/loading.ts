@@ -1,6 +1,6 @@
 namespace Ui
 {
-	export interface LoadingInit extends CanvasElement {
+	export interface LoadingInit extends CanvasElementInit {
 	}
 
 	export class Loading extends CanvasElement implements LoadingInit
@@ -8,13 +8,11 @@ namespace Ui
 		private clock: Anim.Clock = undefined;
 		private ease: Anim.EasingFunction = undefined;
 
-		constructor(init?: Partial<LoadingInit>) {
-			super();
+		constructor(init?: LoadingInit) {
+			super(init);
 			this.ease = new Anim.PowerEase({ mode: 'inout' });
 			this.clock = new Anim.Clock({ repeat: 'forever', duration: 2 });
 			this.connect(this.clock, 'timeupdate', this.invalidateDraw);
-			if (init)
-				this.assign(init);
 		}
 
 		protected onVisible() {

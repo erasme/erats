@@ -15,7 +15,7 @@ var App = (function (_super) {
     function App() {
         var _this = _super.call(this) || this;
         var vbox = new Ui.VBox();
-        _this.setContent(vbox);
+        _this.content = vbox;
         var tb = new Ui.HBox();
         vbox.append(tb);
         tb.append(new Ui.Button({ text: 'test 1' }));

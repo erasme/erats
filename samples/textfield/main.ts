@@ -5,49 +5,39 @@ class Logs extends Ui.ScrollingArea {
 
     constructor() {
         super();
-        let vbox = new Ui.VBox();
-        vbox.spacing = 10;
-        this.setContent(vbox);
-        let l = new Ui.Label(); l.text = 'Logs:';
-        l.horizontalAlign = Ui.HorizontalAlign.left;
-        l.fontWeight = 'bold';
-		vbox.append(l);
+        let vbox = new Ui.VBox({ spacing: 10 });
+        this.content = vbox;
+		vbox.append(new Ui.Label({ text: 'Logs:', horizontalAlign: 'left', fontWeight: 'bold' }));
 		this.logs = new Ui.VBox();
 		vbox.append(this.logs);
 	}
 
-	log(text: string, color?: Ui.Color | string) {
-		if(color == undefined)
-            color = 'black';
-        let l = new Ui.Label();
-        l.text = text; l.color = color; l.horizontalAlign = Ui.HorizontalAlign.left;
-		this.logs.prepend(l);
+	log(text: string, color: Ui.Color | string = 'black') {
+        this.logs.prepend(new Ui.Label({
+            text: text, color: color, horizontalAlign: 'left'
+        }));
 	}
 }
 
 let app = new Ui.App();
 
-let vbox = new Ui.VBox();
-vbox.spacing = 10; vbox.margin = 5;
-app.setContent(vbox);
+let vbox = new Ui.VBox({ spacing: 10, margin: 5 });
+app.content = vbox;
 
-let hbox = new Ui.HBox();
-hbox.spacing = 10;
+let hbox = new Ui.HBox({ spacing: 10 });
 vbox.append(hbox);
 
-let textfield = new Ui.TextField();
-textfield.textHolder ='Text Holder';
+let textfield = new Ui.TextField({ textHolder: 'Text Holder' });
 hbox.append(textfield, true);
 
 app.connect(textfield, 'change', (tfield: Ui.TextField, value: string) => logs.log(`change: ${value}`));
 
-let getButton = new Ui.Button();
-getButton.setText('get text');
+let getButton = new Ui.Button({ text: 'get text' });
 hbox.append(getButton);
 
-app.connect(getButton, 'press', function() {
-	logs.log(`get text: ${textfield.value}`, 'blue');
-});
+app.connect(getButton, 'press', () =>
+	logs.log(`get text: ${textfield.value}`, 'blue')
+);
 
 let logs = new Logs();
 vbox.append(logs, true);

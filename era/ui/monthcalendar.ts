@@ -1,9 +1,9 @@
 namespace Ui {
 	export interface MonthCalendarInit extends VBoxInit {
-		date: Date;
-		selectedDate: Date;
-		dayFilter: number[];
-		dateFilter: string[];
+		date?: Date;
+		selectedDate?: Date;
+		dayFilter?: number[];
+		dateFilter?: string[];
 	}
 
 	export class MonthCalendar extends VBox {
@@ -20,8 +20,8 @@ namespace Ui {
 		// @class The MonthCalendar is a small month calendar which allow
 		// to select a day.
 		//
-		constructor(init?: Partial<MonthCalendarInit>) {
-			super();
+		constructor(init?: MonthCalendarInit) {
+			super(init);
 			this.addEvents('dayselect');
 
 			this._date = new Date();
@@ -45,16 +45,24 @@ namespace Ui {
 			this.connect(button, 'press', this.onRightButtonPress);
 
 			this.grid = new Grid({
-				cols: 'auto,auto,auto,auto,auto,auto,auto',
-				rows: 'auto,auto,auto,auto,auto,auto,auto',
-				horizontalAlign: 'center'
+				cols: '*,*,*,*,*,*,*',
+				rows: '*,*,*,*,*,*,*',
+				horizontalAlign: 'stretch'
 			});
 			this.append(this.grid);
 
 			this.updateDate();
 
-			if (init)
-				this.assign(init);
+			if (init) {
+				if (init.date !== undefined)
+					this.date = init.date;
+				if (init.selectedDate !== undefined)
+					this.selectedDate = init.selectedDate;	
+				if (init.dayFilter !== undefined)
+					this.dayFilter = init.dayFilter;
+				if (init.dateFilter !== undefined)
+					this.dateFilter = init.dateFilter;
+			}
 		}
 
 		//
@@ -213,8 +221,8 @@ namespace Ui {
 
 		static style: object = {
 			color: 'black',
-				dayColor: new Color(0.81, 0.81, 0.81, 0.5),
-					currentDayColor: new Color(1, 0.31, 0.66, 0.5)
+			dayColor: new Color(0.81, 0.81, 0.81, 0.5),
+			currentDayColor: new Color(1, 0.31, 0.66, 0.5)
 		}
 	}
 

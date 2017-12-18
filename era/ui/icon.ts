@@ -2,15 +2,17 @@
 namespace Ui
 {
 	export interface IconInit extends ShapeInit {
-		icon: string;
+		icon?: string;
 	}
 
 	export class Icon extends Shape implements IconInit
 	{
-		constructor(init?: Partial<IconInit>) {
-			super();
-			if (init)
-				this.assign(init);
+		constructor(init?: IconInit) {
+			super(init);
+			if (init) {
+				if (init.icon !== undefined)
+					this.icon = init.icon;	
+			}
 		}
 
 		set icon(icon: string) {

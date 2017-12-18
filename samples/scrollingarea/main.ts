@@ -3,7 +3,7 @@
 let app = new Ui.App();
 
 let vbox = new Ui.VBox();
-app.setContent(vbox);
+app.content = vbox;
 
 let tb = new Ui.ToolBar();
 vbox.append(tb);
@@ -37,7 +37,7 @@ grid.attach(rect3, 1,0);
 
 let button4 = new Ui.Button({ width: 200, height: 200, text: 'fun' });
 grid.attach(button4, 1, 1);
-app.connect(button4, 'press', function() {
+app.connect(button4, 'press', () => {
 	console.log('grid button press'); 
 });
 

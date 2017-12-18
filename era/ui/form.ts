@@ -3,12 +3,10 @@ namespace Ui {
 	}
 
 	export class Form extends LBox implements FormInit {
-		constructor(init?: Partial<FormInit>) {
-			super();
+		constructor(init?: FormInit) {
+			super(init);
 			this.addEvents('submit');
 			this.connect(this.drawing, 'submit', this.onSubmit);
-			if (init)
-				this.assign(init);
 		}
 	
 		onSubmit(event) {

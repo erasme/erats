@@ -1,5 +1,10 @@
 namespace Core
 {
+	export interface RemoteDebugInit {
+		host: string;
+		port: number;
+	}
+
 	export class RemoteDebug extends Object
 	{
 		host: string = undefined;
@@ -15,14 +20,12 @@ namespace Core
 		*	@class
 		*	@extends Core.Object
 		*/
-		constructor(config) {
+		constructor(init: RemoteDebugInit) {
 			super();
 			Core.RemoteDebug.current = this;
 
-			this.host = config.host;
-			delete (config.host);
-			this.port = config.port;
-			delete (config.port);
+			this.host = init.host;
+			this.port = init.port;
 
 			this.nativeConsole = window.console;
 			(window as any).console = {
@@ -63,7 +66,7 @@ namespace Core
 			this.disconnect(this.socket, 'error', this.onSocketError);
 			this.disconnect(this.socket, 'close', this.onSocketClose);
 			this.socket = undefined;
-			this.retryTask = new Core.DelayedTask(this, 5, this.startSocket);
+			this.retryTask = new Core.DelayedTask(5, this.startSocket);
 		}
 
 		onConsoleLog(message) {

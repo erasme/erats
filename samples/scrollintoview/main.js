@@ -16,7 +16,7 @@ var App = (function (_super) {
         var _this = _super.call(this) || this;
         var el;
         var hbox = new Ui.HBox();
-        _this.setContent(hbox);
+        _this.content = hbox;
         var button = new Ui.Button({
             text: 'click for scroll',
             verticalAlign: 'center',

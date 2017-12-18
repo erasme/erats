@@ -1,18 +1,22 @@
 namespace Anim
 {
 	export interface BounceEaseInit extends EasingFunctionInit {
-		bounces: number;
-		bounciness: number;
+		bounces?: number;
+		bounciness?: number;
 	}
 
 	export class BounceEase extends EasingFunction implements BounceEaseInit {
 		bounces: number = 3;
 		bounciness: number = 2.0;
 
-		constructor(init?: Partial<BounceEaseInit>) {
-			super();
-			if (init)
-				this.assign(init);
+		constructor(init?: BounceEaseInit) {
+			super(init);
+			if (init) {
+				if (init.bounces !== undefined)
+					this.bounces = init.bounces;	
+				if (init.bounciness !== undefined)
+					this.bounciness = init.bounciness;	
+			}
 		}
 
 		protected easeInCore(normalizedTime: number): number {

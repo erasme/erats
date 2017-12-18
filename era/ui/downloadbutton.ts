@@ -2,12 +2,10 @@ namespace Ui {
 	export interface DownloadButtonInit extends LinkButtonInit { }
 
 	export class DownloadButton extends LinkButton {
-		constructor(init?: Partial<DownloadButtonInit>) {
-			super();
+		constructor(init?: DownloadButtonInit) {
+			super(init);
 			this.addEvents('download');
 			this.connect(this, 'link', this.onLinkPress);
-			if (init)
-				this.assign(init);
 		}
 	
 		protected onLinkPress() {

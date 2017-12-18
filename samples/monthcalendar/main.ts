@@ -23,17 +23,15 @@ class App extends Ui.App {
     constructor() {
         super();
 
-        let app = new Ui.App();
-
         let vbox = new Ui.VBox();
-        app.setContent(vbox);
+        this.content = vbox;
 
         let toolbar = new Ui.ToolBar();
         vbox.append(toolbar);
 
         let button = new Ui.Button({ text: 'get date' });
         toolbar.append(button);
-        app.connect(button, 'press', function () {
+        this.connect(button, 'press', function () {
             let date = calendar.selectedDate;
             if (date == undefined)
                 logs.log('date is undefined');
@@ -49,7 +47,7 @@ class App extends Ui.App {
         calendar.dateFilter = ['2011/11/2[1-5]', '2011/12/*', '2012/0[2-3]/.[4]'];
         hbox.append(calendar, true);
 
-        app.connect(calendar, 'dayselect', function (calendar: Ui.MonthCalendar, date: Date) {
+        this.connect(calendar, 'dayselect', (calendar: Ui.MonthCalendar, date: Date) => {
             console.log('Day select: ' + date);
         });
 

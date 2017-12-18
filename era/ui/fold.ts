@@ -4,14 +4,14 @@ namespace Ui {
 	export type FoldMode = 'extend' | 'slide';
 
 	export interface FoldInit extends ContainerInit {
-		isFolded: boolean;
-		over: boolean;
-		mode: FoldMode;
-		header: Element;
-		content: Element;
-		background: Element;
-		position: FoldDirection;
-		animDuration: number;
+		isFolded?: boolean;
+		over?: boolean;
+		mode?: FoldMode;
+		header?: Element;
+		content?: Element;
+		background?: Element;
+		position?: FoldDirection;
+		animDuration?: number;
 	}
 
 	export class Fold extends Container {
@@ -29,8 +29,8 @@ namespace Ui {
 		private contentSize: number = 0;
 		private _animDuration: number = 0.5;
 
-		constructor(init?: Partial<FoldInit>) {
-			super();
+		constructor(init?: FoldInit) {
+			super(init);
 			this.addEvents('fold', 'unfold', 'positionchange', 'progress');
 
 			this.headerBox = new Ui.LBox();
@@ -39,7 +39,24 @@ namespace Ui {
 			this.contentBox = new Ui.LBox();
 			this.appendChild(this.contentBox);
 			this.contentBox.hide();
-			this.assign(init);
+			if (init) {
+				if (init.isFolded !== undefined)
+					this.isFolded = init.isFolded;
+				if (init.over !== undefined)
+					this.over = init.over;
+				if (init.mode !== undefined)
+					this.mode = init.mode;	
+				if (init.header !== undefined)
+					this.header = init.header;	
+				if (init.content !== undefined)
+					this.content = init.content;	
+				if (init.background !== undefined)
+					this.background = init.background;	
+				if (init.position !== undefined)
+					this.position = init.position;	
+				if (init.animDuration !== undefined)
+					this.animDuration = init.animDuration;	
+			}	
 		}
 
 		get isFolded(): boolean {

@@ -1,10 +1,10 @@
 namespace Ui {
 	export interface TransitionBoxInit extends LBoxInit {
-		duration: number;
-		ease: Anim.EasingFunction | string;
-		transition: Transition | string;
-		position: number;
-		current: Element;
+		duration?: number;
+		ease?: Anim.EasingFunction | string;
+		transition?: Transition | string;
+		position?: number;
+		current?: Element;
 	}
 
 	export class TransitionBox extends LBox {
@@ -27,8 +27,8 @@ namespace Ui {
 		 * @param {string} [config.ease] Transition ease behaviour [linear|bounce|elastic]
 		 * @param {string} [config.transition] Transition type [slide|fade|flip]
 		 */
-		constructor(init?: Partial<TransitionBoxInit>) {
-			super();
+		constructor(init?: TransitionBoxInit) {
+			super(init);
 			this.addEvents('change');
 
 			this.connect(this, 'load', this.onTransitionBoxLoad);
@@ -36,8 +36,18 @@ namespace Ui {
 
 			this.clipToBounds = true;
 			this.transition = 'fade';
-			if (init)
-				this.assign(init);
+			if (init) {
+				if (init.duration !== undefined)
+					this.duration = init.duration;
+				if (init.ease !== undefined)
+					this.ease = init.ease;
+				if (init.transition !== undefined)
+					this.transition = init.transition;
+				if (init.position !== undefined)
+					this.position = init.position;
+				if (init.current !== undefined)
+					this.current = init.current;
+			}
 		}
 
 		get position(): number {

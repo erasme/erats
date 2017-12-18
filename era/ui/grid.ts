@@ -19,8 +19,8 @@ namespace Ui {
 	}
 
 	export interface GridInit extends ContainerInit {
-		cols: string;
-		rows: string;
+		cols?: string;
+		rows?: string;
 	}
 	
 	export class Grid extends Container implements GridInit {
@@ -28,11 +28,16 @@ namespace Ui {
 		private _cols: GridCol[];
 		private _rows: GridRow[];
 
-		constructor(init?: Partial<GridInit>) {
-			super();
+		constructor(init?: GridInit) {
+			super(init);
 			this._cols = [{ auto: true, star: false, absolute: false, actualWidth: 0, offset: 0, width: 0 }];
 			this._rows = [{ auto: true, star: false, absolute: false, actualHeight: 0, offset: 0, height: 0 }];
-			this.assign(init);
+			if (init) {
+				if (init.cols !== undefined)
+					this.cols = init.cols;	
+				if (init.rows !== undefined)
+					this.rows = init.rows;	
+			}
 		}
 
 		set cols(colsDef: string) {

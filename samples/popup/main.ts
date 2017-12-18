@@ -5,7 +5,7 @@ let app = new Ui.App();
 let popup = new Ui.Popup();
 
 let vbox = new Ui.VBox({ verticalAlign: 'center', horizontalAlign: 'center', spacing: 5 });
-app.setContent(vbox);
+app.content = vbox;
 
 let selectable = new Ui.Pressable();
 vbox.append(selectable);

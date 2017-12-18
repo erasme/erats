@@ -89,7 +89,7 @@ class App extends Ui.App {
 		super();
 
 		let content = new Ui.VBox();
-		this.setContent(content);
+		this.content = content;
 
 		let toolbar = new Ui.ToolBar();
 		toolbar.append(new Ui.Button({ text: 'button1' }));

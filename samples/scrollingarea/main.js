@@ -2,7 +2,7 @@
 /// <reference path="../../era/era.d.ts" />
 var app = new Ui.App();
 var vbox = new Ui.VBox();
-app.setContent(vbox);
+app.content = vbox;
 var tb = new Ui.ToolBar();
 vbox.append(tb);
 var topLeftButton = new Ui.Button({ text: 'top left' });

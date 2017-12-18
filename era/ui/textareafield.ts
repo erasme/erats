@@ -1,11 +1,16 @@
 namespace Ui {
+	export interface TextAreaFieldInit extends LBoxInit {
+		textHolder?: string;
+		value?: string;
+	}
+
 	export class TextAreaField extends LBox {
 		textarea: TextArea;
 		graphic: TextBgGraphic;
 		textholder: Label;
 
-		constructor() {
-			super();
+		constructor(init?: TextAreaFieldInit) {
+			super(init);
 			this.addEvents('change');
 
 			this.padding = 3;
@@ -27,6 +32,13 @@ namespace Ui {
 			this.connect(this.textarea, 'focus', this.onTextAreaFocus);
 			this.connect(this.textarea, 'blur', this.onTextAreaBlur);
 			this.connect(this.textarea, 'change', this.onTextAreaChange);
+
+			if (init) {
+				if (init.textHolder !== undefined)
+					this.textHolder = init.textHolder;	
+				if (init.value !== undefined)
+					this.value = init.value;
+			}	
 		}
 
 		set textHolder(text: string) {

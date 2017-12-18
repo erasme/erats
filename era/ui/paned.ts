@@ -1,9 +1,9 @@
 namespace Ui {
 	export interface PanedInit extends ContainerInit {
-		orientation: Orientation;
-		pos: number;
-		content1: Element;
-		content2: Element;
+		orientation?: Orientation;
+		pos?: number;
+		content1?: Element;
+		content2?: Element;
 	}
 
 	export class Paned extends Container implements PanedInit {
@@ -17,8 +17,8 @@ namespace Ui {
 		private minContent2Size: number = 0;
 		private _pos: number = 0.5;
 
-		constructor(init?: Partial<PanedInit>) {
-			super();
+		constructor(init?: PanedInit) {
+			super(init);
 			this.addEvents('change');
 	
 			this.content1Box = new Ui.LBox();
@@ -32,8 +32,16 @@ namespace Ui {
 
 			this.cursor.setContent(new Ui.VPanedCursor());
 			this.connect(this.cursor, 'move', this.onCursorMove);
-			if (init)
-				this.assign(init);
+			if (init) {
+				if (init.orientation !== undefined)
+					this.orientation = init.orientation;
+				if (init.pos !== undefined)
+					this.pos = init.pos;	
+				if (init.content1 !== undefined)
+					this.content1 = init.content1;	
+				if (init.content2 !== undefined)
+					this.content2 = init.content2;	
+			}
 		}
 
 		//
@@ -202,16 +210,20 @@ namespace Ui {
 	}
 
 
+	export interface VPanedInit extends PanedInit { }
+
 	export class VPaned extends Paned {
-		constructor() {
-			super();
+		constructor(init?: VPanedInit) {
+			super(init);
 			this.orientation = 'vertical';
 		}
 	}
 
+	export interface HPanedInit extends PanedInit { }
+
 	export class HPaned extends Paned {
-		constructor() {
-			super();
+		constructor(init?: HPanedInit) {
+			super(init);
 			this.orientation = 'horizontal';
 		}
 	}

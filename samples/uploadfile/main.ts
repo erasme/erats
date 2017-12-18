@@ -19,7 +19,7 @@ class App extends Ui.App {
     constructor() {
         super();
         let vbox = new Ui.VBox({ verticalAlign: 'center', horizontalAlign: 'center', spacing: 20 });
-        this.setContent(vbox);
+        this.content = vbox;
 
         //
         // Define a DropBox. The DropBox is a possible target for a file drag.

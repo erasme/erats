@@ -16,7 +16,7 @@ namespace Ui
 	}
 
 	export interface ContextBarInit extends LBoxInit {
-		selection: Selection;
+		selection?: Selection;
 	}
 
 	export class ContextBar extends LBox implements ContextBarInit
@@ -26,8 +26,8 @@ namespace Ui
 		actionsBox: Box;
 		closeButton: ContextBarCloseButton;
 
-		constructor(init?: Partial<ContextBarInit>) {
-			super();
+		constructor(init?: ContextBarInit) {
+			super(init);
 
 			this.bg = new Ui.Rectangle();
 			this.append(this.bg);
@@ -48,7 +48,10 @@ namespace Ui
 			this.actionsBox.spacing = 5;
 			scroll.content = this.actionsBox;
 
-			this.assign(init);
+			if (init) {
+				if (init.selection !== undefined)
+					this.selection = init.selection;	
+			}
 		}
 
 		get selection(): Selection {

@@ -12,9 +12,10 @@ class App extends Ui.App {
     constructor() {
         super();
 
-        let vbox = new Ui.VBox();
-        vbox.padding = 10; vbox.spacing = 10;
-		this.setContent(vbox);
+		let vbox = new Ui.VBox({
+			padding: 10, spacing: 10
+		});
+		this.content = vbox;
 
         let text = new Ui.Text();
         text.text = 'Icon SVG path';
@@ -28,7 +29,7 @@ class App extends Ui.App {
 
 		this.pathTextField = new Ui.TextAreaField();
 		this.connect(this.pathTextField, 'change', this.onPathTextFieldChanged);
-		scroll.setContent(this.pathTextField);
+		scroll.content = this.pathTextField;
 
         this.sourceIcon = new Ui.Shape();
         this.sourceIcon.width = 192;
@@ -40,7 +41,7 @@ class App extends Ui.App {
 		vbox.append(hbox);
 
         let button = new Ui.Button();
-        button.setText('Clean');
+        button.text = 'Clean';
 		this.connect(button, 'press', this.onCleanPressed);
 		hbox.append(button);
 
@@ -63,7 +64,7 @@ class App extends Ui.App {
 
         this.cleanedPathTextField = new Ui.TextAreaField();
         this.cleanedPathTextField.setDisabled(true);
-		scroll.setContent(this.cleanedPathTextField);
+		scroll.content = this.cleanedPathTextField;
 
         this.destIcon = new Ui.Shape();
         this.destIcon.width = 192;

@@ -1,8 +1,8 @@
 namespace Ui {
 	export interface TextFieldInit extends LBoxInit {
-		textHolder: string;
-		passwordMode: boolean;
-		value: string;
+		textHolder?: string;
+		passwordMode?: boolean;
+		value?: string;
 	}
 
 	export class TextField extends LBox {
@@ -10,8 +10,8 @@ namespace Ui {
 		private graphic: TextBgGraphic;
 		private textholder: Label;
 
-		constructor(init?: Partial<TextFieldInit>) {
-			super();
+		constructor(init?: TextFieldInit) {
+			super(init);
 			this.addEvents('change');
 
 			this.padding = 0;
@@ -21,20 +21,30 @@ namespace Ui {
 
 			this.textholder = new Label();
 			this.textholder.opacity = 0.5;
-			this.textholder.horizontalAlign = 'center';
-			this.textholder.margin = 3;
+			this.textholder.horizontalAlign = 'left';
+			this.textholder.margin = 5;
+			this.textholder.marginLeft = 10;
+			this.textholder.marginRight = 10;
 			this.append(this.textholder);
 
 			this.entry = new Ui.Entry();
 			this.entry.margin = 5;
+			this.entry.marginLeft = 10;
+			this.entry.marginRight = 10;
 			this.entry.fontSize = 16;
 			this.connect(this.entry, 'focus', this.onEntryFocus);
 			this.connect(this.entry, 'blur', this.onEntryBlur);
 			this.append(this.entry);
 
 			this.connect(this.entry, 'change', this.onEntryChange);
-			if (init)
-				this.assign(init);
+			if (init) {
+				if (init.textHolder !== undefined)
+					this.textHolder = init.textHolder;
+				if (init.passwordMode !== undefined)
+					this.passwordMode = init.passwordMode;
+				if (init.value !== undefined)
+					this.value = init.value;	
+			}
 		}
 
 		set textHolder(text: string) {

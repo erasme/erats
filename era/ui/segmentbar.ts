@@ -1,9 +1,9 @@
 namespace Ui {
 	export interface SegmentBarInit extends LBoxInit {
-		orientation: 'horizontal' | 'vertical';
-		field: string;
-		data: Array<any>;
-		currentPosition: number;
+		orientation?: 'horizontal' | 'vertical';
+		field?: string;
+		data?: Array<any>;
+		currentPosition?: number;
 	}
 
 	export class SegmentBar extends LBox {
@@ -14,8 +14,8 @@ namespace Ui {
 		private _data: Array<any>;
 		private _orientation: 'horizontal' | 'vertical'  = 'horizontal';
 
-		constructor(init?: Partial<SegmentBarInit>) {
-			super();
+		constructor(init?: SegmentBarInit) {
+			super(init);
 			this.focusable = true;
 
 			this.addEvents('change');
@@ -29,7 +29,17 @@ namespace Ui {
 			this.connect(this, 'focus', this.onStyleChange);
 			this.connect(this, 'blur', this.onStyleChange);
 			this.connect(this.drawing, 'keydown', this.onKeyDown);
-			this.assign(init);
+			
+			if (init) {
+				if (init.orientation !== undefined)
+					this.orientation = init.orientation;
+				if (init.field !== undefined)
+					this.field = init.field;
+				if (init.data !== undefined)
+					this.data = init.data;	
+				if (init.currentPosition !== undefined)
+					this.currentPosition = init.currentPosition;	
+			}
 		}
 
 		set orientation(orientation: 'horizontal' | 'vertical') {
@@ -172,15 +182,15 @@ namespace Ui {
 	}
 
 	export interface SegmentButtonInit extends PressableInit {
-		textTransform: string;
-		foreground: Color | string;
-		data: any;
-		text: string;
-		textHeight: number;
-		mode: 'left' | 'right' | 'top' | 'bottom';	
-		radius: number;
-		spacing: number;
-		background: Color | string;
+		textTransform?: string;
+		foreground?: Color | string;
+		data?: any;
+		text?: string;
+		textHeight?: number;
+		mode?: 'left' | 'right' | 'top' | 'bottom';	
+		radius?: number;
+		spacing?: number;
+		background?: Color | string;
 	}
 	
 	export class SegmentButton extends Pressable implements SegmentButtonInit {
@@ -191,8 +201,8 @@ namespace Ui {
 		private _data: undefined;
 		private _radius: number = 3;
 
-		constructor(init?: Partial<SegmentButtonInit>) {
-			super();
+		constructor(init?: SegmentButtonInit) {
+			super(init);
 			this.focusable = false;
 			this.bg = new Rectangle();
 			this.append(this.bg);
@@ -200,7 +210,27 @@ namespace Ui {
 			this.append(this.textBox);
 			this.label = new CompactLabel({ verticalAlign: 'center', whiteSpace: 'nowrap', textAlign: 'center' });
 			this.textBox.content = this.label;
-			this.assign(init);
+			
+			if (init) {
+				if (init.textTransform !== undefined)
+					this.textTransform = init.textTransform;	
+				if (init.foreground !== undefined)
+					this.foreground = init.foreground;
+				if (init.data !== undefined)
+					this.data = init.data;
+				if (init.text !== undefined)
+					this.text = init.text;
+				if (init.textHeight !== undefined)
+					this.textHeight = init.textHeight;
+				if (init.mode !== undefined)
+					this.mode = init.mode;	
+				if (init.radius !== undefined)
+					this.radius = init.radius;	
+				if (init.spacing !== undefined)
+					this.spacing = init.spacing;	
+				if (init.background !== undefined)
+					this.background = init.background;	
+			}
 		}
 
 		set textTransform(textTransform: string) {

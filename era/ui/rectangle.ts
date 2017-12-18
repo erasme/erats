@@ -1,12 +1,12 @@
 namespace Ui
 {
 	export interface RectangleInit extends CanvasElementInit {
-		fill: Color | LinearGradient | string;
-		radius: number;
-		radiusTopLeft: number;
-		radiusTopRight: number;
-		radiusBottomLeft: number;
-		radiusBottomRight: number;
+		fill?: Color | LinearGradient | string;
+		radius?: number;
+		radiusTopLeft?: number;
+		radiusTopRight?: number;
+		radiusBottomLeft?: number;
+		radiusBottomRight?: number;
 	}
 
 	export class Rectangle extends CanvasElement implements RectangleInit
@@ -17,11 +17,23 @@ namespace Ui
 		private _radiusBottomLeft: number = 0;
 		private _radiusBottomRight: number = 0;
 
-		constructor(init?: Partial<RectangleInit>) {
-			super();
+		constructor(init?: RectangleInit) {
+			super(init);
 			this._fill = new Ui.Color(0, 0, 0);
-			if (init)
-				this.assign(init);
+			if (init) {
+				if (init.fill !== undefined)
+					this.fill = init.fill;	
+				if (init.radius !== undefined)
+					this.radius = init.radius;	
+				if (init.radiusTopLeft != undefined)
+					this.radiusTopLeft = init.radiusTopLeft;	
+				if (init.radiusTopRight !== undefined)
+					this.radiusTopLeft = init.radiusTopLeft;	
+				if (init.radiusBottomLeft !== undefined)
+					this.radiusBottomLeft = init.radiusBottomLeft;
+				if (init.radiusBottomRight !== undefined)
+					this.radiusBottomRight = init.radiusBottomRight;
+			}
 		}
 
 		set fill(fill: Color | LinearGradient | string) {

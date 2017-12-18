@@ -30,7 +30,7 @@ var App = (function (_super) {
         toolbar.append(button);
         var delayButton = new Ui.Button({ text: 'Send delayed toast' });
         _this.connect(delayButton, 'press', function () {
-            new Core.DelayedTask(_this, 2, function () { return Ui.Toast.send(textfield.value + ' DELAY'); });
+            new Core.DelayedTask(2, function () { return Ui.Toast.send(textfield.value + ' DELAY'); });
         });
         toolbar.append(delayButton);
         var dialogButton = new Ui.Button();

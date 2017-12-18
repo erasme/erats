@@ -544,7 +544,7 @@ var App = (function (_super) {
     function App() {
         var _this = _super.call(this) || this;
         var scroll = new Ui.ScrollingArea();
-        _this.setContent(scroll);
+        _this.content = scroll;
         _this.vbox = new Ui.VBox({ spacing: 20 });
         scroll.content = _this.vbox;
         var xAxis = ['lun', 'mar', 'mer', 'jeu', 'ven', 'sam', 'dim'];

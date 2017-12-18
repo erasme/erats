@@ -13,12 +13,14 @@ var __extends = (this && this.__extends) || (function () {
 var Item = (function (_super) {
     __extends(Item, _super);
     function Item(init) {
-        var _this = _super.call(this) || this;
+        var _this = _super.call(this, init) || this;
         _this.rect = new Ui.Rectangle({ width: 150, height: 150 });
         _this.append(_this.rect);
         _this.draggableData = _this;
-        if (init)
-            _this.assign(init);
+        if (init) {
+            if (init.fill !== undefined)
+                _this.fill = init.fill;
+        }
         return _this;
     }
     Object.defineProperty(Item.prototype, "fill", {
@@ -35,7 +37,7 @@ var App = (function (_super) {
     function App() {
         var _this = _super.call(this) || this;
         var scroll = new Ui.ScrollingArea();
-        _this.setContent(scroll);
+        _this.content = scroll;
         _this.container = new Ui.SFlowDropBox({
             spacing: 20, margin: 20,
             stretchMaxRatio: 2, itemAlign: 'stretch'

@@ -1,6 +1,12 @@
 
-namespace Ui
-{
+namespace Ui {
+	export interface DualIconInit extends CanvasElementInit {
+		icon?: string;
+		fill?: Color;
+		stroke?: Color;
+		strokeWidth?: number;
+	}
+
 	export class DualIcon extends CanvasElement
 	{
 		private _icon: string = undefined;
@@ -8,8 +14,18 @@ namespace Ui
 		private _stroke: Color = undefined;
 		private _strokeWidth: number = undefined;
 
-		constructor() {
-			super();
+		constructor(init?: DualIconInit) {
+			super(init);
+			if (init) {
+				if (init.icon !== undefined)
+					this.icon = init.icon;
+				if (init.fill !== undefined)
+					this.fill = init.fill;
+				if (init.stroke !== undefined)
+					this.stroke = init.stroke;
+				if (init.strokeWidth !== undefined)
+					this.strokeWidth = init.strokeWidth;	
+			}
 		}
 
 		set icon(icon: string) {

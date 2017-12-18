@@ -1,21 +1,27 @@
 namespace Ui {
 	export interface LinkButtonInit extends ButtonInit {
-		src: string;
-		openWindow: boolean ;
-		target: string;
+		src?: string;
+		openWindow?: boolean;
+		target?: string;
 	}
 
 	export class LinkButton extends Button implements LinkButtonInit {
 		src: string;
 		openWindow: boolean = true;
-		target: '_blank';
+		target: string = '_blank';
 
-		constructor(init?: Partial<LinkButtonInit>) {
-			super();
+		constructor(init?: LinkButtonInit) {
+			super(init);
 			this.addEvents('link');
 			this.connect(this, 'press', this.onLinkButtonPress);
-			if (init)
-				this.assign(init);
+			if (init) {
+				if (init.src !== undefined)
+					this.src = init.src;	
+				if (init.openWindow !== undefined)
+					this.openWindow = init.openWindow;	
+				if (init.target !== undefined)
+					this.target = init.target;	
+			}
 		}
 
 		protected onLinkButtonPress() {

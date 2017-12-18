@@ -33,14 +33,12 @@ var ListViewBoolCell = (function (_super) {
 var Logs = (function (_super) {
     __extends(Logs, _super);
     function Logs(init) {
-        var _this = _super.call(this) || this;
+        var _this = _super.call(this, init) || this;
         _this.append(new Ui.Label({ text: 'Logs:', horizontalAlign: 'left', fontWeight: 'bold' }));
         _this.scrolling = new Ui.ScrollingArea();
         _this.append(_this.scrolling, true);
         _this.logs = new Ui.VBox();
         _this.scrolling.content = _this.logs;
-        if (init)
-            _this.assign(init);
         return _this;
     }
     Logs.prototype.log = function (text, color) {
@@ -54,7 +52,7 @@ var App = (function (_super) {
     function App() {
         var _this = _super.call(this) || this;
         var vbox = new Ui.VBox();
-        _this.setContent(vbox);
+        _this.content = vbox;
         var toolbar = new Ui.ToolBar({ margin: 10 });
         vbox.append(toolbar);
         var checkbox = new Ui.CheckBox({ text: 'show headers', value: true, width: 200 });

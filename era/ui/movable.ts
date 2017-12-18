@@ -1,14 +1,14 @@
 namespace Ui {
 	export interface MovableInit extends MovableBaseInit {
-		cursor: string;
+		cursor?: string;
 	}
 
 	export class Movable extends MovableBase implements MovableInit {
 		private contentBox: LBox = undefined;
 		private _cursor: string = 'inherit';
 
-		constructor(init?: Partial<MovableInit>) {
-			super();
+		constructor(init?: MovableInit) {
+			super(init);
 			this.focusable = true;
 
 			this.contentBox = new LBox();
@@ -16,8 +16,10 @@ namespace Ui {
 
 			this.contentBox.drawing.style.cursor = this._cursor;
 			this.connect(this.drawing, 'keydown', this.onKeyDown);
-			if (init)
-				this.assign(init);
+			if (init) {
+				if (init.cursor !== undefined)
+					this.cursor = init.cursor;	
+			}
 		}
 
 		set cursor(cursor: string) {

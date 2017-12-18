@@ -192,7 +192,7 @@ namespace Ui
 			//console.log(`DragEmuDataTransfer delay? ${delayed}`);
 
 			if (this.delayed)
-				this.timer = new Core.DelayedTask(this, 0.5, this.onTimer);
+				this.timer = new Core.DelayedTask(0.5, this.onTimer);
 			//else
 			//	this.onTimer();
 		}

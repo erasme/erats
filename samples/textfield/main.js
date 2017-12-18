@@ -14,46 +14,33 @@ var Logs = (function (_super) {
     __extends(Logs, _super);
     function Logs() {
         var _this = _super.call(this) || this;
-        var vbox = new Ui.VBox();
-        vbox.spacing = 10;
-        _this.setContent(vbox);
-        var l = new Ui.Label();
-        l.text = 'Logs:';
-        l.horizontalAlign = Ui.HorizontalAlign.left;
-        l.fontWeight = 'bold';
-        vbox.append(l);
+        var vbox = new Ui.VBox({ spacing: 10 });
+        _this.content = vbox;
+        vbox.append(new Ui.Label({ text: 'Logs:', horizontalAlign: 'left', fontWeight: 'bold' }));
         _this.logs = new Ui.VBox();
         vbox.append(_this.logs);
         return _this;
     }
     Logs.prototype.log = function (text, color) {
-        if (color == undefined)
-            color = 'black';
-        var l = new Ui.Label();
-        l.text = text;
-        l.color = color;
-        l.horizontalAlign = Ui.HorizontalAlign.left;
-        this.logs.prepend(l);
+        if (color === void 0) { color = 'black'; }
+        this.logs.prepend(new Ui.Label({
+            text: text, color: color, horizontalAlign: 'left'
+        }));
     };
     return Logs;
 }(Ui.ScrollingArea));
 var app = new Ui.App();
-var vbox = new Ui.VBox();
-vbox.spacing = 10;
-vbox.margin = 5;
-app.setContent(vbox);
-var hbox = new Ui.HBox();
-hbox.spacing = 10;
+var vbox = new Ui.VBox({ spacing: 10, margin: 5 });
+app.content = vbox;
+var hbox = new Ui.HBox({ spacing: 10 });
 vbox.append(hbox);
-var textfield = new Ui.TextField();
-textfield.textHolder = 'Text Holder';
+var textfield = new Ui.TextField({ textHolder: 'Text Holder' });
 hbox.append(textfield, true);
 app.connect(textfield, 'change', function (tfield, value) { return logs.log("change: " + value); });
-var getButton = new Ui.Button();
-getButton.setText('get text');
+var getButton = new Ui.Button({ text: 'get text' });
 hbox.append(getButton);
 app.connect(getButton, 'press', function () {
-    logs.log("get text: " + textfield.value, 'blue');
+    return logs.log("get text: " + textfield.value, 'blue');
 });
 var logs = new Logs();
 vbox.append(logs, true);

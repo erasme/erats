@@ -5,7 +5,7 @@ namespace Ui
 
 	export class Fixed extends Container implements FixedInit
 	{
-		constructor(init?: Partial<FixedInit>) {
+		constructor(init?: FixedInit) {
 			super(init);
 			this.addEvents('resize');
 		}

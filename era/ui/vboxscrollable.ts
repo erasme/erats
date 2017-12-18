@@ -19,13 +19,13 @@
 	}
 
 	export interface VBoxScrollableInit extends ContainerInit {
-		loader: ScrollLoader;
-		maxScale: number;
-		content: Element;
-		scrollHorizontal: boolean;
-		scrollVertical: boolean;
-		scrollbarVertical: Element;
-		scrollbarHorizontal: Element;
+		loader?: ScrollLoader;
+		maxScale?: number;
+		content?: Element;
+		scrollHorizontal?: boolean;
+		scrollVertical?: boolean;
+		scrollbarVertical?: Movable;
+		scrollbarHorizontal?: Movable;
 	}
 
 	export class VBoxScrollable extends Container implements VBoxScrollableInit {
@@ -53,8 +53,8 @@
 		relativeOffsetX: number;
 		relativeOffsetY: number;
 
-		constructor(init?: Partial<VBoxScrollable>) {
-			super();
+		constructor(init?: VBoxScrollableInit) {
+			super(init);
 			this.addEvents('scroll');
 			this.contentBox = new VBoxScrollableContent();
 			this.connect(this.contentBox, 'scroll', this.onScroll);
@@ -89,8 +89,22 @@
 			});
 
 			this.connect(this, 'wheel', this.onWheel);
-			if (init)
-				this.assign(init);
+			if (init) {
+				if (init.loader !== undefined)
+					this.loader = init.loader;	
+				if (init.maxScale !== undefined)
+					this.maxScale = init.maxScale;	
+				if (init.content !== undefined)
+					this.content = init.content;
+				if (init.scrollHorizontal !== undefined)
+					this.scrollHorizontal = init.scrollHorizontal;
+				if (init.scrollVertical !== undefined)
+					this.scrollVertical = init.scrollVertical;
+				if (init.scrollbarVertical !== undefined)
+					this.scrollbarVertical = init.scrollbarVertical;
+				if (init.scrollbarHorizontal !== undefined)
+					this.scrollbarHorizontal = init.scrollbarHorizontal;
+			}
 		}
 
 		reload() {
@@ -719,14 +733,12 @@
 		horizontalScrollbar: Scrollbar;
 		verticalScrollbar: Scrollbar;
 
-		constructor(init?: Partial<VBoxScrollingAreaInit>) {
-			super();
+		constructor(init?: VBoxScrollingAreaInit) {
+			super(init);
 			this.horizontalScrollbar = new Scrollbar('horizontal');
 			this.scrollbarHorizontal = this.horizontalScrollbar;
 			this.verticalScrollbar = new Scrollbar('vertical');
 			this.scrollbarVertical = this.verticalScrollbar;
-			if (init)
-				this.assign(init);
 		}
 	
 		protected onStyleChange() {

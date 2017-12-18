@@ -1,10 +1,13 @@
 namespace Ui {
+	export interface UploadableInit extends PressableInit {
+	}
+
 	export class Uploadable extends Pressable {
 		protected _content: Element;
 		protected input: UploadableFileWrapper;
 
-		constructor(config) {
-			super();
+		constructor(init?: UploadableInit) {
+			super(init);
 			this.drawing.style.cursor = 'pointer';
 
 			this.focusable = true;

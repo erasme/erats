@@ -26,7 +26,17 @@ namespace Ui {
 			delayedpress?: (watcher: PressWatcher) => void
 		}) {
 			super();
-			this.assign(init);
+			this.element = init.element;
+			if (init.press)
+				this.press = init.press;
+			if (init.down)
+				this.down = init.down;
+			if (init.up)
+				this.up = init.up;
+			if (init.activate)
+				this.activate = init.activate;
+			if (init.delayedpress)
+				this.delayedpress = init.delayedpress;	
 
 			// handle pointers
 			this.connect(this.element, 'ptrdown', this.onPointerDown);
@@ -114,7 +124,7 @@ namespace Ui {
 				}
 			}
 			else {
-				this.delayedTimer = new Core.DelayedTask(this, 0.30, () => {
+				this.delayedTimer = new Core.DelayedTask(0.30, () => {
 					this.onDelayedPress(x, y, altKey, shiftKey, ctrlKey);
 				});
 			}
@@ -141,14 +151,14 @@ namespace Ui {
 
 
 	export interface PressableInit extends OverableInit {
-		lock: boolean;
+		lock?: boolean;
 	}
 
 	export class Pressable extends Overable implements PressableInit {
 		private pressWatcher: PressWatcher;
 
-		constructor(init?: Partial<PressableInit>) {
-			super();
+		constructor(init?: PressableInit) {
+			super(init);
 			this.addEvents('press', 'down', 'up', 'activate', 'delayedpress');
 
 			this.drawing.style.cursor = 'pointer';
@@ -165,7 +175,10 @@ namespace Ui {
 				delayedpress: (watcher) => this.onDelayedPress(watcher.x, watcher.y, watcher.altKey, watcher.shiftKey, watcher.ctrlKey)
 			});
 
-			this.assign(init);
+			if (init) {
+				if (init.lock !== undefined)
+					this.lock = init.lock;	
+			}
 		}
 	
 		get isDown(): boolean {

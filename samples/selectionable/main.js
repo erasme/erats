@@ -13,7 +13,7 @@ var __extends = (this && this.__extends) || (function () {
 var Selectionable = (function (_super) {
     __extends(Selectionable, _super);
     function Selectionable(init) {
-        var _this = _super.call(this) || this;
+        var _this = _super.call(this, init) || this;
         _this.content = new Ui.Rectangle({ fill: 'orange' });
         _this.selectedMark = new Ui.Icon({
             icon: 'check', fill: '#40d9f1', width: 24, height: 24,
@@ -27,7 +27,6 @@ var Selectionable = (function (_super) {
             select: function () { return _this.selectedMark.show(); },
             unselect: function () { return _this.selectedMark.hide(); }
         });
-        _this.assign(init);
         return _this;
     }
     Selectionable.prototype.onItemDelete = function () {
@@ -69,7 +68,7 @@ var App = (function (_super) {
                 _this.contextBar.show();
         });
         var vbox = new Ui.VBox();
-        _this.setContent(vbox);
+        _this.content = vbox;
         _this.contextBar = new Ui.ContextBar({ selection: _this.selection });
         _this.contextBar.hide();
         vbox.append(_this.contextBar);

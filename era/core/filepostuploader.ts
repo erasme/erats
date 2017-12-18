@@ -1,11 +1,11 @@
 namespace Core {
 	export interface FilePostUploaderInit {
-		method: string;
-		file: File;
-		field: string;
-		service: string;
-		destination: string;
-		arguments: object;
+		method?: string;
+		file?: File;
+		field?: string;
+		service?: string;
+		destination?: string;
+		arguments?: object;
 	}
 
 	export class FilePostUploader extends Object {
@@ -52,12 +52,24 @@ namespace Core {
 		* use the best technic (FileApi, FormData, input tag) depending on the browser capabilities.
 		*	@extends Core.Object
 		*/
-		constructor(init?: Partial<FilePostUploaderInit>) {
+		constructor(init?: FilePostUploaderInit) {
 			super();
 			this.addEvents('progress', 'complete', 'error');
 			this.fields = {};
-			if (init)
-				this.assign(init);
+			if (init) {
+				if (init.method !== undefined)
+					this.method = init.method;
+				if (init.file !== undefined)
+					this.file = init.file;	
+				if (init.field !== undefined)
+					this.field = init.field;
+				if (init.service !== undefined)
+					this.service = init.service;	
+				if (init.destination !== undefined)
+					this.destination = init.destination;	
+				if (init.arguments !== undefined)
+					this.arguments = init.arguments;
+			}
 		}
 
 		set method(method: string) {

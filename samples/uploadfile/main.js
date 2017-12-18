@@ -26,7 +26,7 @@ var App = (function (_super) {
     function App() {
         var _this = _super.call(this) || this;
         var vbox = new Ui.VBox({ verticalAlign: 'center', horizontalAlign: 'center', spacing: 20 });
-        _this.setContent(vbox);
+        _this.content = vbox;
         //
         // Define a DropBox. The DropBox is a possible target for a file drag.
         //

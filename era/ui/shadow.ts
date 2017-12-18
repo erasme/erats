@@ -1,14 +1,14 @@
 namespace Ui
 {
 	export interface ShadowInit extends CanvasElementInit {
-		color: Color | string;
-		inner: boolean;
-		shadowWidth: number;
-		radius: number;
-		radiusTopLeft: number;
-		radiusTopRight: number;
-		radiusBottomLeft: number;
-		radiusBottomRight: number;
+		color?: Color | string;
+		inner?: boolean;
+		shadowWidth?: number;
+		radius?: number;
+		radiusTopLeft?: number;
+		radiusTopRight?: number;
+		radiusBottomLeft?: number;
+		radiusBottomRight?: number;
 	}
 
 	export class Shadow extends CanvasElement implements ShadowInit
@@ -21,10 +21,26 @@ namespace Ui
 		private _inner: boolean = false;
 		private _color: Color = Color.create('black');
 
-		constructor(init?: Partial<ShadowInit>) {
-			super();
-			if (init)
-				this.assign(init);
+		constructor(init?: ShadowInit) {
+			super(init);
+			if (init) {
+				if (init.color !== undefined)
+					this.color = init.color;	
+				if (init.inner !== undefined)
+					this.inner = init.inner;	
+				if (init.shadowWidth !== undefined)
+					this.shadowWidth = init.shadowWidth;	
+				if (init.radius !== undefined)
+					this.radius = init.radius;	
+				if (init.radiusTopLeft !== undefined)
+					this.radiusTopLeft = init.radiusTopLeft;	
+				if (init.radiusTopRight !== undefined)
+					this.radiusTopRight = init.radiusTopRight;	
+				if (init.radiusBottomLeft !== undefined)
+					this.radiusBottomLeft = init.radiusBottomLeft;	
+				if (init.radiusBottomRight !== undefined)
+					this.radiusBottomRight = init.radiusBottomRight;
+			}
 		}
 
 		set color(color: Color | string) {

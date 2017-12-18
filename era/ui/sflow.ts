@@ -3,6 +3,17 @@ namespace Ui {
 	export type SFlowFlush = 'flush' | 'flushleft' | 'flushright' | 'newline';
 	export type SFlowAlign = 'left' | 'right' | 'center' | 'stretch';
 
+	interface SFlowStateInit {
+		width: number;
+		render: boolean;
+		spacing?: number;
+		align?: SFlowAlign;
+		uniform?: boolean;
+		uniformWidth?: number;
+		uniformHeight?: number;
+		stretchMaxRatio?: number;
+	}
+
 	class SFlowState extends Core.Object {
 		x: number = 0;
 		y: number = 0;
@@ -30,37 +41,24 @@ namespace Ui {
 		lastLine: boolean = false;
 		stretchUniformWidth: number;
 
-		constructor(config: Partial<SFlowState>) {
+		constructor(init: SFlowStateInit) {
 			super();
-			this.width = config.width;
-			delete (config.width);
-			this.render = config.render;
-			delete (config.render);
-			if ('spacing' in config) {
-				this.spacing = config.spacing;
-				delete (config.spacing);
-			}
-			if ('align' in config) {
-				this.align = config.align;
-				delete (config.align);
-			}
-			if ('uniform' in config) {
-				this.uniform = config.uniform;
-				delete (config.uniform);
-			}
-			if ('uniformWidth' in config) {
-				this.uniformWidth = config.uniformWidth;
+			this.width = init.width;
+			this.render = init.render;
+			if (init.spacing !== undefined)
+				this.spacing = init.spacing;
+			if (init.align !== undefined)
+				this.align = init.align;
+			if (init.uniform !== undefined)
+				this.uniform = init.uniform;
+			if (init.uniformWidth !== undefined) {
+				this.uniformWidth = init.uniformWidth;
 				this.stretchUniformWidth = this.uniformWidth;
-				delete (config.uniformWidth);
 			}
-			if ('uniformHeight' in config) {
-				this.uniformHeight = config.uniformHeight;
-				delete (config.uniformHeight);
-			}
-			if ('stretchMaxRatio' in config) {
-				this.stretchMaxRatio = config.stretchMaxRatio;
-				delete (config.stretchMaxRatio);
-			}
+			if (init.uniformHeight !== undefined)
+				this.uniformHeight = init.uniformHeight;
+			if (init.stretchMaxRatio !== undefined)
+				this.stretchMaxRatio = init.stretchMaxRatio;
 			this.zones = [{ xstart: 0, xend: this.width }];
 			this.currentZone = 0;
 			this.boxes = [];
@@ -341,12 +339,12 @@ namespace Ui {
 	}
 
 	export interface SFlowInit extends ContainerInit {
-		content: Element[] | undefined;
-		spacing: number;
-		itemAlign: SFlowAlign;
-		uniform: boolean;
-		uniformRatio: number;
-		stretchMaxRatio: number;
+		content?: Element[] | undefined;
+		spacing?: number;
+		itemAlign?: SFlowAlign;
+		uniform?: boolean;
+		uniformRatio?: number;
+		stretchMaxRatio?: number;
 	}
 
 	export class SFlow extends Container implements SFlowInit {
@@ -358,10 +356,22 @@ namespace Ui {
 		private _stretchMaxRatio: number = 1.3;
 		private _spacing: number = 0;
 
-		constructor(init?: Partial<SFlowInit>) {
-			super();
-			if (init)
-				this.assign(init);
+		constructor(init?: SFlowInit) {
+			super(init);
+			if (init) {
+				if (init.content !== undefined)
+					this.content = init.content;	
+				if (init.spacing !== undefined)
+					this.spacing = init.spacing;	
+				if (init.itemAlign !== undefined)
+					this.itemAlign = init.itemAlign;	
+				if (init.uniform !== undefined)
+					this.uniform = init.uniform;	
+				if (init.uniformRatio !== undefined)
+					this.uniformRatio = init.uniformRatio;	
+				if (init.stretchMaxRatio !== undefined)
+					this.stretchMaxRatio = init.stretchMaxRatio;	
+			}
 		}
 
 		//

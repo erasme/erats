@@ -1,12 +1,12 @@
 module Core
 {
 	export interface HttpRequestInit {
-		url: string;
-		method: string;
-		binary: boolean;
-		arguments: object;
-		content: any;
-		headers: object;
+		url?: string;
+		method?: string;
+		binary?: boolean;
+		arguments?: object;
+		content?: any;
+		headers?: object;
 	}
 
 	export class HttpRequest extends Object
@@ -25,7 +25,7 @@ module Core
 		*	@class
 		*	@extends Core.Object
 		*/
-		constructor(init?: Partial<HttpRequestInit>)
+		constructor(init?: HttpRequestInit)
 		{
 			super();
 			this.addEvents('error', 'done');
@@ -42,7 +42,20 @@ module Core
 				}
 			};
 			this.request.onreadystatechange = wrapper;
-			this.assign(init);
+			if (init) {
+				if (init.url !== undefined)
+					this.url = init.url;
+				if (init.method !== undefined)
+					this.method = init.method;	
+				if (init.binary !== undefined)
+					this.binary = init.binary;
+				if (init.arguments !== undefined)
+					this.arguments = init.arguments;	
+				if (init.content !== undefined)
+					this.content = init.content;	
+				if (init.headers !== undefined)
+					this.headers = init.headers;
+			}
 		}
 
 		setRequestHeader(header, value)

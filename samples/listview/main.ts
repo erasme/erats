@@ -22,18 +22,20 @@ class ListViewBoolCell extends Ui.ListViewCell
 	}
 }
 
+interface LogsInit extends Ui.VBoxInit {
+}
+
 class Logs extends Ui.VBox {
     logs: Ui.VBox;
     scrolling: Ui.ScrollingArea;
 
-    constructor(init?: Partial<Logs>) {
-        super();
+    constructor(init?: LogsInit) {
+        super(init);
 		this.append(new Ui.Label({ text: 'Logs:', horizontalAlign: 'left', fontWeight: 'bold' }));
 		this.scrolling = new Ui.ScrollingArea();
 		this.append(this.scrolling, true);
 		this.logs = new Ui.VBox();
         this.scrolling.content = this.logs;
-        if (init) this.assign(init);
 	}
 
 	log(text: string, color: string = 'black') {
@@ -45,7 +47,7 @@ class App extends Ui.App {
     constructor() {
         super();
 		let vbox = new Ui.VBox();
-		this.setContent(vbox);
+		this.content = vbox;
 
 		let toolbar = new Ui.ToolBar({ margin: 10 });
 		vbox.append(toolbar);

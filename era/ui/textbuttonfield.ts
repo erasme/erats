@@ -9,11 +9,11 @@ namespace Ui {
 	}
 
 	export interface TextButtonFieldInit extends FormInit {
-		textHolder: string;
-		widthText: number;
-		buttonIcon: string;
-		buttonText: string;
-		value: string;
+		textHolder?: string;
+		widthText?: number;
+		buttonIcon?: string;
+		buttonText?: string;
+		value?: string;
 	}
 
 	export class TextButtonField extends Form {
@@ -22,8 +22,8 @@ namespace Ui {
 		protected _textholder: Label;
 		protected button: TextFieldButton;
 
-		constructor(init?: Partial<TextButtonFieldInit>) {
-			super();
+		constructor(init?: TextButtonFieldInit) {
+			super(init);
 			this.addEvents('change', 'validate', 'buttonpress');
 
 			this.padding = 0;
@@ -31,13 +31,18 @@ namespace Ui {
 			this.graphic = new TextBgGraphic();
 			this.append(this.graphic);
 
-			this._textholder = new Label({ opacity: 0.5, horizontalAlign: 'center', margin: 3 });
+			this._textholder = new Label({
+				opacity: 0.5, horizontalAlign: 'left', margin: 5,
+				marginLeft: 10, marginRight: 10
+			});
 			this.append(this._textholder);
 
 			var hbox = new HBox();
 			this.append(hbox);
 
-			this.entry = new Entry({ margin: 4, fontSize: 16 });
+			this.entry = new Entry({
+				margin: 5, marginLeft: 10, marginRight: 10, fontSize: 16
+			});
 			this.connect(this.entry, 'focus', this.onEntryFocus);
 			this.connect(this.entry, 'blur', this.onEntryBlur);
 			hbox.append(this.entry, true);
@@ -49,8 +54,18 @@ namespace Ui {
 		
 			this.connect(this, 'submit', this.onFormSubmit);
 			this.connect(this.button, 'press', this.onButtonPress);
-			if (init)
-				this.assign(init);
+			if (init) {
+				if (init.textHolder !== undefined)
+					this.textHolder = init.textHolder;	
+				if (init.widthText !== undefined)
+					this.widthText = init.widthText;
+				if (init.buttonIcon !== undefined)
+					this.buttonIcon = init.buttonIcon;
+				if (init.buttonText !== undefined)
+					this.buttonText = init.buttonText;
+				if (init.value !== undefined)
+					this.value = init.value;
+			}
 		}
 
 		set textHolder(text: string) {
@@ -73,8 +88,10 @@ namespace Ui {
 			return this.entry.value;
 		}
 
-		set textValue(value: string) {
+		set textValue(value: string) {	
 			this.entry.value = value;
+			if (value && value != '')
+				this._textholder.hide();
 		}
 
 		get value(): string {

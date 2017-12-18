@@ -8,7 +8,7 @@ class App extends Ui.App {
 	constructor() {
 		super();
 		let vbox = new Ui.VBox();
-		this.setContent(vbox);
+		this.content = vbox;
 
 		let toolbar = new Ui.MenuToolBar({ spacing: 5, margin: 5 });
 		vbox.append(toolbar);

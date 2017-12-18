@@ -5,15 +5,15 @@ namespace Anim
 	}
 
 	export interface ClockInit {
-		animation: boolean;
-		repeat: 'forever' | number;
-		speed: number;
-		autoReverse: boolean;
-		beginTime: number;
-		ease: EasingFunction | string;
-		target: Target;
-		duration: number | 'forever' | 'automatic';
-		parent: Clock;
+		animation?: boolean;
+		repeat?: 'forever' | number;
+		speed?: number;
+		autoReverse?: boolean;
+		beginTime?: number;
+		ease?: EasingFunction | string;
+		target?: Target;
+		duration?: number | 'forever' | 'automatic';
+		parent?: Clock;
 	}
 
 	export class Clock extends Core.Object implements ClockInit
@@ -54,11 +54,29 @@ namespace Anim
 		private _target: Target = undefined;
 		private _ease: EasingFunction = undefined;
 
-		constructor(init?: Partial<ClockInit>) {
+		constructor(init?: ClockInit) {
 			super();
 			this.addEvents('complete', 'timeupdate');
-			if (init)
-				this.assign(init);
+			if (init) {
+				if (init.animation !== undefined)
+					this.animation = init.animation;	
+				if (init.repeat !== undefined)
+					this.repeat = init.repeat;	
+				if (init.speed !== undefined)
+					this.speed = init.speed;
+				if (init.autoReverse !== undefined)
+					this.autoReverse = init.autoReverse;	
+				if (init.beginTime !== undefined)
+					this.beginTime = init.beginTime;
+				if (init.ease !== undefined)
+					this.ease = init.ease;
+				if (init.target !== undefined)
+					this.target = init.target;	
+				if (init.duration !== undefined)
+					this.duration = init.duration;
+				if (init.parent !== undefined)
+					this.parent = init.parent;
+			}
 		}
 
 		set animation(animation: boolean) {

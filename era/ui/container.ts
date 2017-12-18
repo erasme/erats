@@ -8,13 +8,11 @@ namespace Ui
 		private _children: Element[];
 		private _containerDrawing: any = undefined;
 
-		constructor(init?: Partial<ContainerInit>) {
-			super();
+		constructor(init?: ContainerInit) {
+			super(init);
 			this._children = [];
 			if (this._containerDrawing === undefined)
 				this._containerDrawing = this.drawing;
-			if (init)
-				this.assign(init);
 		}
 
 		get containerDrawing() {

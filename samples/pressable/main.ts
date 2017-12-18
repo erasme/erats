@@ -4,7 +4,7 @@ class App extends Ui.App {
     constructor() {
         super();
         let vbox = new Ui.VBox({ verticalAlign: 'center', horizontalAlign: 'center', spacing: 5 });
-		this.setContent(vbox);
+		this.content = vbox;
 
 		let count = 0;
 		let activateCount = 0;

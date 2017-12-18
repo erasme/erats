@@ -6,7 +6,11 @@ namespace Ui {
 		private enter: (watcher: OverWatcher) => void;
 		private leave: (watcher: OverWatcher) => void;
 
-		constructor(init: { element: Ui.Element, enter?: (watcher: OverWatcher) => void, leave?: (watcher: OverWatcher) => void }) {
+		constructor(init: {
+			element: Ui.Element,
+			enter?: (watcher: OverWatcher) => void,
+			leave?: (watcher: OverWatcher) => void
+		}) {
 			super();
 			this.enter = init.enter;
 			this.leave = init.leave;
@@ -53,15 +57,14 @@ namespace Ui {
 	export class Overable extends LBox implements OverableInit {
 		watcher: OverWatcher;
 
-		constructor(init?: Partial<OverableInit>) {
-			super();
+		constructor(init?: OverableInit) {
+			super(init);
 			this.addEvents('enter', 'leave', 'move');
 			this.watcher = new OverWatcher({
 				element: this,
 				enter: () => this.fireEvent('enter', this),
 				leave: () => this.fireEvent('leave', this)
 			});
-			this.assign(init);
 		}
 
 		get isOver(): boolean {

@@ -1,25 +1,28 @@
 namespace Core
 {
+	export interface TimerInit {
+		interval?: number;
+		arguments?: Array<any>;
+	}
+
 	export class Timer extends Object
 	{
 		interval: number = 1;
-		arguments: any = undefined;
+		arguments: Array<any> = undefined;
 		handle: any = undefined;
 
-		constructor(config) {
+		constructor(init?: TimerInit) {
 			super();
 			this.addEvents('timeupdate');
 
-			if ('interval' in config) {
-				this.interval = config.interval;
-				delete (config.interval);
+			if (init) {
+				if (init.interval !== undefined)
+					this.interval = init.interval;
+				if (init.arguments !== undefined)
+					this.arguments = init.arguments;
+				else
+					this.arguments = [];
 			}
-			if ('arguments' in config) {
-				this.arguments = config.arguments;
-				delete (config.arguments);
-			}
-			else
-				this.arguments = [];
 
 			let wrapper = () => {
 				var startTime = (new Date().getTime()) / 1000;

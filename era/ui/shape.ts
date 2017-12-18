@@ -1,9 +1,9 @@
 namespace Ui
 {
 	export interface ShapeInit extends CanvasElementInit {
-		scale: number;
-		fill: string | undefined | Color | LinearGradient;
-		path: string;
+		scale?: number;
+		fill?: string | undefined | Color | LinearGradient;
+		path?: string;
 	}
 
 	export interface ShapeStyle {
@@ -16,10 +16,16 @@ namespace Ui
 		private _path: string = undefined;
 		private _scale: number = 1;
 
-		constructor(init?: Partial<ShapeInit>) {
-			super();
-			if (init)
-				this.assign(init);
+		constructor(init?: ShapeInit) {
+			super(init);
+			if (init) {
+				if (init.scale !== undefined)
+					this.scale = init.scale;
+				if (init.fill !== undefined)
+					this.fill = init.fill;
+				if (init.path !== undefined)
+					this.path = init.path;
+			}
 		}
 
 		set scale(scale: number) {

@@ -23,7 +23,7 @@ class App extends Ui.App {
 
 		let delayButton = new Ui.Button({ text: 'Send delayed toast' });
 		this.connect(delayButton, 'press', () => {
-			new Core.DelayedTask(this, 2, () => Ui.Toast.send(textfield.value+' DELAY'));
+			new Core.DelayedTask(2, () => Ui.Toast.send(textfield.value+' DELAY'));
 		});
 		toolbar.append(delayButton);
 

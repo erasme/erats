@@ -2,21 +2,19 @@ namespace Core
 {
 	export class DelayedTask extends Object
 	{
-		delay: number = 1;
-		scope: any = undefined;
-		callback: Function;
+		delay: number;
+		callback: (task: DelayedTask) => void;
 		isDone: boolean = false;
-		handle: number = undefined;
+		handle: number;
 
-		constructor(scope: any, delay: number, callback: Function) {
+		constructor(delay: number, callback: (task: DelayedTask) => void) {
 			super();
-			this.scope = scope;
 			this.delay = delay;
 			this.callback = callback;
 			this.handle = setTimeout(() => {
 				this.handle = undefined;
 				this.isDone = true;
-				this.callback.apply(this.scope, [this]);
+				this.callback(this);
 			}, this.delay * 1000);
 		}
 

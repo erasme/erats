@@ -33,7 +33,7 @@ var App = (function (_super) {
     function App() {
         var _this = _super.call(this) || this;
         var vbox = new Ui.VBox({ padding: 50, spacing: 10 });
-        _this.setContent(vbox);
+        _this.content = vbox;
         var textbuttonfield = new Ui.TextButtonField({ buttonIcon: 'search', textHolder: 'Search' });
         vbox.append(textbuttonfield);
         _this.connect(textbuttonfield, 'change', function (tbf, value) {

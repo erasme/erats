@@ -15,7 +15,7 @@ var App = (function (_super) {
     function App() {
         var _this = _super.call(this) || this;
         var vbox = new Ui.VBox({ verticalAlign: 'center', horizontalAlign: 'center', spacing: 5 });
-        _this.setContent(vbox);
+        _this.content = vbox;
         var count = 0;
         var activateCount = 0;
         var delayedCount = 0;

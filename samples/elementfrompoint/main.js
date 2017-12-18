@@ -20,7 +20,7 @@ var App = (function (_super) {
             Ui.Toast.send(Ui.App.current.elementFromPoint(new Ui.Point(event.pointer.x, event.pointer.y)).toString());
         }, true);
         var vbox = new Ui.VBox({ spacing: 10, margin: 10 });
-        _this.setContent(vbox);
+        _this.content = vbox;
         vbox.append(new Ui.Button({ text: 'Click me', icon: 'star' }));
         vbox.append(new Ui.Rectangle({ fill: 'purple', height: 100 }));
         vbox.append(new Ui.Text({ text: 'Some text sample' }));

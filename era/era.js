@@ -686,28 +686,20 @@ var Core;
 (function (Core) {
     var File = (function (_super) {
         __extends(File, _super);
-        function File(config) {
+        function File(init) {
             var _this = _super.call(this) || this;
             _this.iframe = undefined;
             _this.form = undefined;
             _this.fileInput = undefined;
             _this.fileApi = undefined;
-            if (config.form !== undefined) {
-                _this.form = config.form;
-                delete (config.form);
-            }
-            if (config.iframe !== undefined) {
-                _this.iframe = config.iframe;
-                delete (config.iframe);
-            }
-            if (config.fileInput !== undefined) {
-                _this.fileInput = config.fileInput;
-                delete (config.fileInput);
-            }
-            if (config.fileApi !== undefined) {
-                _this.fileApi = config.fileApi;
-                delete (config.fileApi);
-            }
+            if (init.form !== undefined)
+                _this.form = init.form;
+            if (init.iframe !== undefined)
+                _this.iframe = init.iframe;
+            if (init.fileInput !== undefined)
+                _this.fileInput = init.fileInput;
+            if (init.fileApi !== undefined)
+                _this.fileApi = init.fileApi;
             return _this;
         }
         File.prototype.getFileName = function () {
@@ -1256,7 +1248,20 @@ var Core;
                 }
             };
             _this.request.onreadystatechange = wrapper;
-            _this.assign(init);
+            if (init) {
+                if (init.url !== undefined)
+                    _this.url = init.url;
+                if (init.method !== undefined)
+                    _this.method = init.method;
+                if (init.binary !== undefined)
+                    _this.binary = init.binary;
+                if (init.arguments !== undefined)
+                    _this.arguments = init.arguments;
+                if (init.content !== undefined)
+                    _this.content = init.content;
+                if (init.headers !== undefined)
+                    _this.headers = init.headers;
+            }
             return _this;
         }
         HttpRequest.prototype.setRequestHeader = function (header, value) {
@@ -1385,19 +1390,15 @@ var Core;
 (function (Core) {
     var DelayedTask = (function (_super) {
         __extends(DelayedTask, _super);
-        function DelayedTask(scope, delay, callback) {
+        function DelayedTask(delay, callback) {
             var _this = _super.call(this) || this;
-            _this.delay = 1;
-            _this.scope = undefined;
             _this.isDone = false;
-            _this.handle = undefined;
-            _this.scope = scope;
             _this.delay = delay;
             _this.callback = callback;
             _this.handle = setTimeout(function () {
                 _this.handle = undefined;
                 _this.isDone = true;
-                _this.callback.apply(_this.scope, [_this]);
+                _this.callback(_this);
             }, _this.delay * 1000);
             return _this;
         }
@@ -1415,22 +1416,20 @@ var Core;
 (function (Core) {
     var Timer = (function (_super) {
         __extends(Timer, _super);
-        function Timer(config) {
+        function Timer(init) {
             var _this = _super.call(this) || this;
             _this.interval = 1;
             _this.arguments = undefined;
             _this.handle = undefined;
             _this.addEvents('timeupdate');
-            if ('interval' in config) {
-                _this.interval = config.interval;
-                delete (config.interval);
+            if (init) {
+                if (init.interval !== undefined)
+                    _this.interval = init.interval;
+                if (init.arguments !== undefined)
+                    _this.arguments = init.arguments;
+                else
+                    _this.arguments = [];
             }
-            if ('arguments' in config) {
-                _this.arguments = config.arguments;
-                delete (config.arguments);
-            }
-            else
-                _this.arguments = [];
             var wrapper = function () {
                 var startTime = (new Date().getTime()) / 1000;
                 _this.fireEvent('timeupdate', _this, _this.arguments);
@@ -1461,20 +1460,12 @@ var Core;
 (function (Core) {
     var Socket = (function (_super) {
         __extends(Socket, _super);
-        function Socket(config) {
+        function Socket(init) {
             var _this = _super.call(this) || this;
             _this.host = undefined;
             _this.service = '/';
             _this.port = 80;
-            _this.mode = undefined;
             _this.secure = false;
-            _this.websocket = undefined;
-            _this.websocketdelay = undefined;
-            _this.emuopenrequest = undefined;
-            _this.emupollrequest = undefined;
-            _this.emusendrequest = undefined;
-            _this.emuid = undefined;
-            _this.emumessages = undefined;
             _this.lastPosition = 0;
             _this.readSize = true;
             _this.size = 0;
@@ -1482,27 +1473,18 @@ var Core;
             _this.isClosed = false;
             _this.closeSent = false;
             _this.sep = '?';
-            _this.lastPoll = undefined;
-            _this.delayPollTask = undefined;
             _this.pollInterval = 2.5;
             _this.addEvents('error', 'message', 'close', 'open');
-            if ('host' in config) {
-                _this.host = config.host;
-                delete (config.host);
-            }
+            if (init.host !== undefined)
+                _this.host = init.host;
             else
                 _this.host = document.location.hostname;
-            if ('secure' in config) {
-                _this.secure = config.secure;
-                delete (config.secure);
-            }
-            else {
+            if (init.secure !== undefined)
+                _this.secure = init.secure;
+            else
                 _this.secure = (document.location.protocol === 'https:');
-            }
-            if ('port' in config) {
-                _this.port = config.port;
-                delete (config.port);
-            }
+            if (init.port !== undefined)
+                _this.port = init.port;
             else if ((document.location.port !== undefined) && (document.location.port !== ''))
                 _this.port = parseInt(document.location.port);
             else {
@@ -1511,18 +1493,15 @@ var Core;
                 else
                     _this.port = 80;
             }
-            if ('service' in config) {
-                _this.service = config.service;
-                delete (config.service);
+            if (init.service !== undefined) {
+                _this.service = init.service;
                 if (_this.service.indexOf('?') == -1)
                     _this.sep = '?';
                 else
                     _this.sep = '&';
             }
-            if ('mode' in config) {
-                _this.mode = config.mode;
-                delete (config.mode);
-            }
+            if (init.mode !== undefined)
+                _this.mode = init.mode;
             else {
                 if (Core.Socket.supportWebSocket)
                     _this.mode = 'websocket';
@@ -1531,7 +1510,7 @@ var Core;
             }
             if (_this.mode == 'websocket') {
                 _this.websocket = new WebSocket((_this.secure ? 'wss' : 'ws') + '://' + _this.host + ':' + _this.port + _this.service);
-                _this.websocketdelay = new Core.DelayedTask(_this, 30, _this.onWebSocketOpenTimeout);
+                _this.websocketdelay = new Core.DelayedTask(30, _this.onWebSocketOpenTimeout);
                 _this.connect(_this.websocket, 'open', _this.onWebSocketOpen);
                 _this.connect(_this.websocket, 'error', _this.onWebSocketError);
                 _this.connect(_this.websocket, 'message', _this.onWebSocketMessage);
@@ -1560,7 +1539,7 @@ var Core;
                     this.emusendrequest.send();
                     if (this.delayPollTask !== undefined) {
                         this.delayPollTask.abort();
-                        this.delayPollTask = new Core.DelayedTask(this, 0.1, this.delayPollDone);
+                        this.delayPollTask = new Core.DelayedTask(0.1, this.delayPollDone);
                     }
                 }
                 else
@@ -1751,7 +1730,7 @@ var Core;
                     if (deltaMs >= this.pollInterval * 1000)
                         this.sendPoll();
                     else
-                        this.delayPollTask = new Core.DelayedTask(this, this.pollInterval, this.delayPollDone);
+                        this.delayPollTask = new Core.DelayedTask(this.pollInterval, this.delayPollDone);
                 }
             }
         };
@@ -1783,7 +1762,7 @@ var Core;
 (function (Core) {
     var RemoteDebug = (function (_super) {
         __extends(RemoteDebug, _super);
-        function RemoteDebug(config) {
+        function RemoteDebug(init) {
             var _this = _super.call(this) || this;
             _this.host = undefined;
             _this.port = undefined;
@@ -1793,10 +1772,8 @@ var Core;
             _this.nativeConsole = undefined;
             _this.buffer = [];
             Core.RemoteDebug.current = _this;
-            _this.host = config.host;
-            delete (config.host);
-            _this.port = config.port;
-            delete (config.port);
+            _this.host = init.host;
+            _this.port = init.port;
             _this.nativeConsole = window.console;
             window.console = {
                 log: Core.RemoteDebug.onConsoleLog,
@@ -1832,7 +1809,7 @@ var Core;
             this.disconnect(this.socket, 'error', this.onSocketError);
             this.disconnect(this.socket, 'close', this.onSocketClose);
             this.socket = undefined;
-            this.retryTask = new Core.DelayedTask(this, 5, this.startSocket);
+            this.retryTask = new Core.DelayedTask(5, this.startSocket);
         };
         RemoteDebug.prototype.onConsoleLog = function (message) {
             if (this.socketAlive)
@@ -1887,8 +1864,20 @@ var Core;
             _this.field = 'file';
             _this.addEvents('progress', 'complete', 'error');
             _this.fields = {};
-            if (init)
-                _this.assign(init);
+            if (init) {
+                if (init.method !== undefined)
+                    _this.method = init.method;
+                if (init.file !== undefined)
+                    _this.file = init.file;
+                if (init.field !== undefined)
+                    _this.field = init.field;
+                if (init.service !== undefined)
+                    _this.service = init.service;
+                if (init.destination !== undefined)
+                    _this.destination = init.destination;
+                if (init.arguments !== undefined)
+                    _this.arguments = init.arguments;
+            }
             return _this;
         }
         Object.defineProperty(FilePostUploader.prototype, "method", {
@@ -2099,8 +2088,10 @@ var Anim;
         function EasingFunction(init) {
             var _this = _super.call(this) || this;
             _this.mode = 'in';
-            if (init)
-                _this.assign(init);
+            if (init) {
+                if (init.mode !== undefined)
+                    _this.mode = init.mode;
+            }
             return _this;
         }
         EasingFunction.prototype.ease = function (normalizedTime) {
@@ -2155,10 +2146,12 @@ var Anim;
     var PowerEase = (function (_super) {
         __extends(PowerEase, _super);
         function PowerEase(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this.power = 2;
-            if (init)
-                _this.assign(init);
+            if (init) {
+                if (init.power !== undefined)
+                    _this.power = init.power;
+            }
             return _this;
         }
         PowerEase.prototype.easeInCore = function (normalizedTime) {
@@ -2174,11 +2167,15 @@ var Anim;
     var BounceEase = (function (_super) {
         __extends(BounceEase, _super);
         function BounceEase(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this.bounces = 3;
             _this.bounciness = 2.0;
-            if (init)
-                _this.assign(init);
+            if (init) {
+                if (init.bounces !== undefined)
+                    _this.bounces = init.bounces;
+                if (init.bounciness !== undefined)
+                    _this.bounciness = init.bounciness;
+            }
             return _this;
         }
         BounceEase.prototype.easeInCore = function (normalizedTime) {
@@ -2197,11 +2194,15 @@ var Anim;
     var ElasticEase = (function (_super) {
         __extends(ElasticEase, _super);
         function ElasticEase(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this.oscillations = 3;
             _this.springiness = 3.0;
-            if (init)
-                _this.assign(init);
+            if (init) {
+                if (init.oscillations !== undefined)
+                    _this.oscillations = init.oscillations;
+                if (init.springiness !== undefined)
+                    _this.springiness = init.springiness;
+            }
             return _this;
         }
         ElasticEase.prototype.easeInCore = function (normalizedTime) {
@@ -2359,8 +2360,26 @@ var Anim;
             _this._target = undefined;
             _this._ease = undefined;
             _this.addEvents('complete', 'timeupdate');
-            if (init)
-                _this.assign(init);
+            if (init) {
+                if (init.animation !== undefined)
+                    _this.animation = init.animation;
+                if (init.repeat !== undefined)
+                    _this.repeat = init.repeat;
+                if (init.speed !== undefined)
+                    _this.speed = init.speed;
+                if (init.autoReverse !== undefined)
+                    _this.autoReverse = init.autoReverse;
+                if (init.beginTime !== undefined)
+                    _this.beginTime = init.beginTime;
+                if (init.ease !== undefined)
+                    _this.ease = init.ease;
+                if (init.target !== undefined)
+                    _this.target = init.target;
+                if (init.duration !== undefined)
+                    _this.duration = init.duration;
+                if (init.parent !== undefined)
+                    _this.parent = init.parent;
+            }
             return _this;
         }
         Object.defineProperty(Clock.prototype, "animation", {
@@ -3383,8 +3402,48 @@ var Ui;
             _this.connect(_this._drawing, 'blur', _this.onBlur);
             _this.selectable = false;
             _this.addEvents('focus', 'blur', 'load', 'unload', 'enable', 'disable', 'visible', 'hidden', 'ptrdown', 'ptrmove', 'ptrup', 'ptrcancel', 'wheel', 'dragover');
-            if (init)
-                _this.assign(init);
+            if (init) {
+                if (init.selectable !== undefined)
+                    _this.selectable = init.selectable;
+                if (init.id !== undefined)
+                    _this.id = init.id;
+                if (init.focusable !== undefined)
+                    _this.focusable = init.focusable;
+                if (init.role !== undefined)
+                    _this.role = init.role;
+                if (init.width !== undefined)
+                    _this.width = init.width;
+                if (init.height !== undefined)
+                    _this.height = init.height;
+                if (init.maxWidth !== undefined)
+                    _this.maxWidth = init.maxWidth;
+                if (init.maxHeight !== undefined)
+                    _this.maxHeight = init.maxHeight;
+                if (init.verticalAlign !== undefined)
+                    _this.verticalAlign = init.verticalAlign;
+                if (init.horizontalAlign !== undefined)
+                    _this.horizontalAlign = init.horizontalAlign;
+                if (init.clipToBounds !== undefined)
+                    _this.clipToBounds = init.clipToBounds;
+                if (init.margin !== undefined)
+                    _this.margin = init.margin;
+                if (init.marginTop !== undefined)
+                    _this.marginTop = init.marginTop;
+                if (init.marginBottom !== undefined)
+                    _this.marginBottom = init.marginBottom;
+                if (init.marginLeft !== undefined)
+                    _this.marginLeft = init.marginLeft;
+                if (init.marginRight !== undefined)
+                    _this.marginRight = init.marginRight;
+                if (init.opacity !== undefined)
+                    _this.opacity = init.opacity;
+                if (init.transform !== undefined)
+                    _this.transform = init.transform;
+                if (init.eventsHidden !== undefined)
+                    _this.eventsHidden = init.eventsHidden;
+                if (init.style !== undefined)
+                    _this.style = init.style;
+            }
             return _this;
         }
         Element.prototype.setDisabled = function (disabled) {
@@ -4475,13 +4534,11 @@ var Ui;
     var Container = (function (_super) {
         __extends(Container, _super);
         function Container(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this._containerDrawing = undefined;
             _this._children = [];
             if (_this._containerDrawing === undefined)
                 _this._containerDrawing = _this.drawing;
-            if (init)
-                _this.assign(init);
             return _this;
         }
         Object.defineProperty(Container.prototype, "containerDrawing", {
@@ -4765,12 +4822,10 @@ var Ui;
     var CanvasElement = (function (_super) {
         __extends(CanvasElement, _super);
         function CanvasElement(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this.canvasEngine = 'svg';
             _this.dpiRatio = 1;
             _this.selectable = false;
-            if (init)
-                _this.assign(init);
             return _this;
         }
         CanvasElement.prototype.update = function () {
@@ -5572,15 +5627,27 @@ var Ui;
     var Rectangle = (function (_super) {
         __extends(Rectangle, _super);
         function Rectangle(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this._fill = undefined;
             _this._radiusTopLeft = 0;
             _this._radiusTopRight = 0;
             _this._radiusBottomLeft = 0;
             _this._radiusBottomRight = 0;
             _this._fill = new Ui.Color(0, 0, 0);
-            if (init)
-                _this.assign(init);
+            if (init) {
+                if (init.fill !== undefined)
+                    _this.fill = init.fill;
+                if (init.radius !== undefined)
+                    _this.radius = init.radius;
+                if (init.radiusTopLeft != undefined)
+                    _this.radiusTopLeft = init.radiusTopLeft;
+                if (init.radiusTopRight !== undefined)
+                    _this.radiusTopLeft = init.radiusTopLeft;
+                if (init.radiusBottomLeft !== undefined)
+                    _this.radiusBottomLeft = init.radiusBottomLeft;
+                if (init.radiusBottomRight !== undefined)
+                    _this.radiusBottomRight = init.radiusBottomRight;
+            }
             return _this;
         }
         Object.defineProperty(Rectangle.prototype, "fill", {
@@ -5718,12 +5785,18 @@ var Ui;
     var Shape = (function (_super) {
         __extends(Shape, _super);
         function Shape(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this._fill = undefined;
             _this._path = undefined;
             _this._scale = 1;
-            if (init)
-                _this.assign(init);
+            if (init) {
+                if (init.scale !== undefined)
+                    _this.scale = init.scale;
+                if (init.fill !== undefined)
+                    _this.fill = init.fill;
+                if (init.path !== undefined)
+                    _this.path = init.path;
+            }
             return _this;
         }
         Object.defineProperty(Shape.prototype, "scale", {
@@ -5792,9 +5865,11 @@ var Ui;
     var Icon = (function (_super) {
         __extends(Icon, _super);
         function Icon(init) {
-            var _this = _super.call(this) || this;
-            if (init)
-                _this.assign(init);
+            var _this = _super.call(this, init) || this;
+            if (init) {
+                if (init.icon !== undefined)
+                    _this.icon = init.icon;
+            }
             return _this;
         }
         Object.defineProperty(Icon.prototype, "icon", {
@@ -5916,12 +5991,22 @@ var Ui;
 (function (Ui) {
     var DualIcon = (function (_super) {
         __extends(DualIcon, _super);
-        function DualIcon() {
-            var _this = _super.call(this) || this;
+        function DualIcon(init) {
+            var _this = _super.call(this, init) || this;
             _this._icon = undefined;
             _this._fill = undefined;
             _this._stroke = undefined;
             _this._strokeWidth = undefined;
+            if (init) {
+                if (init.icon !== undefined)
+                    _this.icon = init.icon;
+                if (init.fill !== undefined)
+                    _this.fill = init.fill;
+                if (init.stroke !== undefined)
+                    _this.stroke = init.stroke;
+                if (init.strokeWidth !== undefined)
+                    _this.strokeWidth = init.strokeWidth;
+            }
             return _this;
         }
         Object.defineProperty(DualIcon.prototype, "icon", {
@@ -6772,7 +6857,7 @@ var Ui;
             _this.connect(_this.watcher, 'up', _this.onPointerUp);
             _this.connect(_this.watcher, 'cancel', _this.onPointerCancel);
             if (_this.delayed)
-                _this.timer = new Core.DelayedTask(_this, 0.5, _this.onTimer);
+                _this.timer = new Core.DelayedTask(0.5, _this.onTimer);
             return _this;
         }
         DragEmuDataTransfer.prototype.setData = function (data) {
@@ -7356,13 +7441,25 @@ var Ui;
     var LBox = (function (_super) {
         __extends(LBox, _super);
         function LBox(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this._paddingTop = 0;
             _this._paddingBottom = 0;
             _this._paddingLeft = 0;
             _this._paddingRight = 0;
-            if (init)
-                _this.assign(init);
+            if (init) {
+                if (init.padding !== undefined)
+                    _this.padding = init.padding;
+                if (init.paddingTop !== undefined)
+                    _this.paddingTop = init.paddingTop;
+                if (init.paddingBottom !== undefined)
+                    _this.paddingBottom = init.paddingBottom;
+                if (init.paddingLeft !== undefined)
+                    _this.paddingLeft = init.paddingLeft;
+                if (init.paddingRight !== undefined)
+                    _this.paddingRight = init.paddingRight;
+                if (init.content !== undefined)
+                    _this.content = init.content;
+            }
             return _this;
         }
         LBox.prototype.setContent = function (content) {
@@ -7498,10 +7595,7 @@ var Ui;
     var LPBox = (function (_super) {
         __extends(LPBox, _super);
         function LPBox(init) {
-            var _this = _super.call(this) || this;
-            if (init)
-                _this.assign(init);
-            return _this;
+            return _super.call(this, init) || this;
         }
         LPBox.prototype.appendAtLayer = function (child, layer) {
             if (layer === undefined)
@@ -7529,7 +7623,7 @@ var Ui;
     var Box = (function (_super) {
         __extends(Box, _super);
         function Box(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this._paddingTop = 0;
             _this._paddingBottom = 0;
             _this._paddingLeft = 0;
@@ -7539,8 +7633,26 @@ var Ui;
             _this.star = 0;
             _this.vertical = true;
             _this.uniformSize = 0;
-            if (init)
-                _this.assign(init);
+            if (init) {
+                if (init.orientation !== undefined)
+                    _this.orientation = init.orientation;
+                if (init.padding !== undefined)
+                    _this.padding = init.padding;
+                if (init.paddingTop !== undefined)
+                    _this.paddingTop = init.padding;
+                if (init.paddingBottom !== undefined)
+                    _this.paddingBottom = init.paddingBottom;
+                if (init.paddingLeft !== undefined)
+                    _this.paddingLeft = init.paddingLeft;
+                if (init.paddingRight !== undefined)
+                    _this.paddingRight = init.paddingRight;
+                if (init.uniform !== undefined)
+                    _this.uniform = init.uniform;
+                if (init.spacing !== undefined)
+                    _this.spacing = init.spacing;
+                if (init.content !== undefined)
+                    _this.content = init.content;
+            }
             return _this;
         }
         Object.defineProperty(Box.prototype, "content", {
@@ -8025,10 +8137,8 @@ var Ui;
     var VBox = (function (_super) {
         __extends(VBox, _super);
         function VBox(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this.orientation = 'vertical';
-            if (init)
-                _this.assign(init);
             return _this;
         }
         return VBox;
@@ -8037,10 +8147,8 @@ var Ui;
     var HBox = (function (_super) {
         __extends(HBox, _super);
         function HBox(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this.orientation = 'horizontal';
-            if (init)
-                _this.assign(init);
             return _this;
         }
         return HBox;
@@ -8096,14 +8204,13 @@ var Ui;
     var Overable = (function (_super) {
         __extends(Overable, _super);
         function Overable(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this.addEvents('enter', 'leave', 'move');
             _this.watcher = new OverWatcher({
                 element: _this,
                 enter: function () { return _this.fireEvent('enter', _this); },
                 leave: function () { return _this.fireEvent('leave', _this); }
             });
-            _this.assign(init);
             return _this;
         }
         Object.defineProperty(Overable.prototype, "isOver", {
@@ -8126,7 +8233,17 @@ var Ui;
             _this._isDown = false;
             _this.lastTime = undefined;
             _this.lock = false;
-            _this.assign(init);
+            _this.element = init.element;
+            if (init.press)
+                _this.press = init.press;
+            if (init.down)
+                _this.down = init.down;
+            if (init.up)
+                _this.up = init.up;
+            if (init.activate)
+                _this.activate = init.activate;
+            if (init.delayedpress)
+                _this.delayedpress = init.delayedpress;
             _this.connect(_this.element, 'ptrdown', _this.onPointerDown);
             _this.connect(_this.element.drawing, 'keydown', _this.onKeyDown);
             _this.connect(_this.element.drawing, 'keyup', _this.onKeyUp);
@@ -8209,7 +8326,7 @@ var Ui;
                 }
             }
             else {
-                this.delayedTimer = new Core.DelayedTask(this, 0.30, function () {
+                this.delayedTimer = new Core.DelayedTask(0.30, function () {
                     _this.onDelayedPress(x, y, altKey, shiftKey, ctrlKey);
                 });
             }
@@ -8239,7 +8356,7 @@ var Ui;
     var Pressable = (function (_super) {
         __extends(Pressable, _super);
         function Pressable(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this.addEvents('press', 'down', 'up', 'activate', 'delayedpress');
             _this.drawing.style.cursor = 'pointer';
             _this.focusable = true;
@@ -8252,7 +8369,10 @@ var Ui;
                 activate: function (watcher) { return _this.onActivate(watcher.x, watcher.y); },
                 delayedpress: function (watcher) { return _this.onDelayedPress(watcher.x, watcher.y, watcher.altKey, watcher.shiftKey, watcher.ctrlKey); }
             });
-            _this.assign(init);
+            if (init) {
+                if (init.lock !== undefined)
+                    _this.lock = init.lock;
+            }
             return _this;
         }
         Object.defineProperty(Pressable.prototype, "isDown", {
@@ -8319,7 +8439,12 @@ var Ui;
         function DraggableWatcher(init) {
             var _this = _super.call(this) || this;
             _this.allowedMode = 'all';
-            _this.assign(init);
+            _this.element = init.element;
+            _this.data = init.data;
+            if (init.start !== undefined)
+                _this.start = init.start;
+            if (init.end !== undefined)
+                _this.end = init.end;
             _this.connect(_this.element, 'ptrdown', _this.onDraggablePointerDown);
             return _this;
         }
@@ -8364,15 +8489,13 @@ var Ui;
     var Draggable = (function (_super) {
         __extends(Draggable, _super);
         function Draggable(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this.allowedMode = 'all';
             _this.draggableData = undefined;
             _this._dragDelta = undefined;
             _this.dataTransfer = undefined;
             _this.addEvents('dragstart', 'dragend');
             _this.connect(_this, 'ptrdown', _this.onDraggablePointerDown);
-            if (init)
-                _this.assign(init);
             return _this;
         }
         Draggable.prototype.setAllowedMode = function (allowedMode) {
@@ -8493,8 +8616,6 @@ var Ui;
             return Selectionable.getParentSelectionHandler(this.element);
         };
         SelectionableWatcher.prototype.onSelectionableDragStart = function (watcher) {
-            console.log('SelectionableWatcher.onSelectionableDragStart');
-            console.log(this);
             var selection = this.getParentSelectionHandler();
             if (selection && (selection.watchers.indexOf(this) == -1))
                 selection.watchers = [this];
@@ -8524,7 +8645,7 @@ var Ui;
     var Selectionable = (function (_super) {
         __extends(Selectionable, _super);
         function Selectionable(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this.addEvents('select', 'unselect');
             _this.selectionWatcher = new SelectionableWatcher({
                 element: _this,
@@ -8532,7 +8653,6 @@ var Ui;
                 select: function (s) { return _this.onSelect(s); },
                 unselect: function (s) { return _this.onUnselect(s); }
             });
-            _this.assign(init);
             return _this;
         }
         Object.defineProperty(Selectionable.prototype, "isSelected", {
@@ -8850,7 +8970,15 @@ var Ui;
             var _this = _super.call(this) || this;
             _this._isDown = false;
             _this.lock = false;
-            _this.assign(init);
+            _this.element = init.element;
+            if (init.press !== undefined)
+                _this.press = init.press;
+            if (init.down !== undefined)
+                _this.down = init.down;
+            if (init.up !== undefined)
+                _this.up = init.up;
+            if (init.lock !== undefined)
+                _this.lock = init.lock;
             _this.connect(_this.element.drawing, 'contextmenu', function (event) { return event.preventDefault(); });
             _this.connect(_this.element, 'ptrdown', _this.onPointerDown);
             _this.connect(_this.element.drawing, 'keyup', _this.onKeyUp);
@@ -8923,7 +9051,7 @@ var Ui;
     var Label = (function (_super) {
         __extends(Label, _super);
         function Label(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this._text = '';
             _this._orientation = 'horizontal';
             _this._fontSize = undefined;
@@ -8933,11 +9061,26 @@ var Ui;
             _this.textMeasureValid = false;
             _this.textWidth = 0;
             _this.textHeight = 0;
-            _this.verticalAlign = 'center';
-            _this.horizontalAlign = 'center';
-            _this.selectable = false;
-            if (init)
-                _this.assign(init);
+            if (!init || init.verticalAlign == undefined)
+                _this.verticalAlign = 'center';
+            if (!init || init.horizontalAlign == undefined)
+                _this.horizontalAlign = 'center';
+            if (!init || init.selectable == undefined)
+                _this.selectable = false;
+            if (init) {
+                if (init.text !== undefined)
+                    _this.text = init.text;
+                if (init.fontSize !== undefined)
+                    _this.fontSize = init.fontSize;
+                if (init.fontFamily !== undefined)
+                    _this.fontFamily = init.fontFamily;
+                if (init.fontWeight !== undefined)
+                    _this.fontWeight = init.fontWeight;
+                if (init.color !== undefined)
+                    _this.color = init.color;
+                if (init.orientation !== undefined)
+                    _this.orientation = init.orientation;
+            }
             return _this;
         }
         Object.defineProperty(Label.prototype, "text", {
@@ -9230,7 +9373,7 @@ var Ui;
     var MovableBase = (function (_super) {
         __extends(MovableBase, _super);
         function MovableBase(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this._moveHorizontal = true;
             _this._moveVertical = true;
             _this.posX = 0;
@@ -9247,8 +9390,16 @@ var Ui;
             _this.cumulMove = 0;
             _this.addEvents('down', 'up', 'move');
             _this.connect(_this, 'ptrdown', _this.onPointerDown);
-            if (init)
-                _this.assign(init);
+            if (init) {
+                if (init.lock !== undefined)
+                    _this.lock = init.lock;
+                if (init.inertia !== undefined)
+                    _this.inertia = init.inertia;
+                if (init.moveHorizontal !== undefined)
+                    _this.moveHorizontal = init.moveHorizontal;
+                if (init.moveVertical !== undefined)
+                    _this.moveVertical = init.moveVertical;
+            }
             return _this;
         }
         Object.defineProperty(MovableBase.prototype, "lock", {
@@ -9440,7 +9591,7 @@ var Ui;
     var Movable = (function (_super) {
         __extends(Movable, _super);
         function Movable(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this.contentBox = undefined;
             _this._cursor = 'inherit';
             _this.focusable = true;
@@ -9448,8 +9599,10 @@ var Ui;
             _this.appendChild(_this.contentBox);
             _this.contentBox.drawing.style.cursor = _this._cursor;
             _this.connect(_this.drawing, 'keydown', _this.onKeyDown);
-            if (init)
-                _this.assign(init);
+            if (init) {
+                if (init.cursor !== undefined)
+                    _this.cursor = init.cursor;
+            }
             return _this;
         }
         Object.defineProperty(Movable.prototype, "cursor", {
@@ -9986,8 +10139,8 @@ var Ui;
     Ui.TransformableWatcher = TransformableWatcher;
     var Transformable = (function (_super) {
         __extends(Transformable, _super);
-        function Transformable() {
-            var _this = _super.call(this) || this;
+        function Transformable(init) {
+            var _this = _super.call(this, init) || this;
             _this._inertia = false;
             _this._isDown = false;
             _this.transformLock = false;
@@ -10014,6 +10167,28 @@ var Ui;
             _this.appendChild(_this.contentBox);
             _this.connect(_this, 'ptrdown', _this.onPointerDown);
             _this.connect(_this, 'wheel', _this.onWheel);
+            if (init) {
+                if (init.allowLeftMouse !== undefined)
+                    _this.allowLeftMouse = init.allowLeftMouse;
+                if (init.allowScale !== undefined)
+                    _this.allowScale = init.allowScale;
+                if (init.minScale !== undefined)
+                    _this.minScale = init.minScale;
+                if (init.maxScale !== undefined)
+                    _this.maxScale = init.maxScale;
+                if (init.allowRotate !== undefined)
+                    _this.allowRotate = init.allowRotate;
+                if (init.allowTranslate !== init.allowTranslate)
+                    _this.allowTranslate = init.allowTranslate;
+                if (init.angle !== undefined)
+                    _this.angle = init.angle;
+                if (init.scale !== undefined)
+                    _this.scale = init.scale;
+                if (init.translateX !== undefined)
+                    _this.translateX = init.translateX;
+                if (init.translateY !== undefined)
+                    _this.translateY = init.translateY;
+            }
             return _this;
         }
         Object.defineProperty(Transformable.prototype, "allowLeftMouse", {
@@ -10449,7 +10624,7 @@ var Ui;
     var Scrollable = (function (_super) {
         __extends(Scrollable, _super);
         function Scrollable(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this.contentBox = undefined;
             _this._scrollHorizontal = true;
             _this._scrollVertical = true;
@@ -10489,7 +10664,20 @@ var Ui;
             });
             _this.connect(_this, 'wheel', _this.onWheel);
             _this.connect(_this.drawing, 'keydown', _this.onKeyDown);
-            _this.assign(init);
+            if (init) {
+                if (init.maxScale !== undefined)
+                    _this.maxScale = init.maxScale;
+                if (init.content !== undefined)
+                    _this.content = init.content;
+                if (init.inertia !== undefined)
+                    _this.inertia = init.inertia;
+                if (init.scrollHorizontal !== undefined)
+                    _this.scrollHorizontal = init.scrollHorizontal;
+                if (init.scrollVertical !== undefined)
+                    _this.scrollVertical = init.scrollVertical;
+                if (init.scale !== undefined)
+                    _this.scale = init.scale;
+            }
             return _this;
         }
         Object.defineProperty(Scrollable.prototype, "maxScale", {
@@ -11033,13 +11221,11 @@ var Ui;
     var ScrollingArea = (function (_super) {
         __extends(ScrollingArea, _super);
         function ScrollingArea(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this.horizontalScrollbar = new Scrollbar('horizontal');
             _this.setScrollbarHorizontal(_this.horizontalScrollbar);
             _this.verticalScrollbar = new Scrollbar('vertical');
             _this.setScrollbarVertical(_this.verticalScrollbar);
-            if (init)
-                _this.assign(init);
             return _this;
         }
         ScrollingArea.prototype.onStyleChange = function () {
@@ -11356,27 +11542,39 @@ var Ui;
     var CompactLabel = (function (_super) {
         __extends(CompactLabel, _super);
         function CompactLabel(init) {
-            var _this = _super.call(this) || this;
-            _this._fontSize = undefined;
-            _this._fontFamily = undefined;
-            _this._fontWeight = undefined;
-            _this._color = undefined;
-            _this._maxLine = undefined;
-            _this._interLine = undefined;
-            _this._textAlign = undefined;
+            var _this = _super.call(this, init) || this;
             _this.isMeasureValid = false;
             _this.isArrangeValid = false;
             _this.lastMeasureWidth = 0;
             _this.lastMeasureHeight = 0;
             _this.lastAvailableWidth = 0;
-            _this.textContext = undefined;
-            _this._whiteSpace = undefined;
-            _this._wordWrap = undefined;
-            _this._textTransform = undefined;
-            _this.selectable = false;
+            if (!init || init.selectable == undefined)
+                _this.selectable = false;
             _this.textContext = new Ui.CompactLabelContext();
-            if (init)
-                _this.assign(init);
+            if (init) {
+                if (init.maxLine !== undefined)
+                    _this.maxLine = init.maxLine;
+                if (init.text !== undefined)
+                    _this.text = init.text;
+                if (init.textAlign !== undefined)
+                    _this.textAlign = init.textAlign;
+                if (init.interLine !== undefined)
+                    _this.interLine = init.interLine;
+                if (init.fontSize !== undefined)
+                    _this.fontSize = init.fontSize;
+                if (init.fontFamily !== undefined)
+                    _this.fontFamily = init.fontFamily;
+                if (init.fontWeight !== undefined)
+                    _this.fontWeight = init.fontWeight;
+                if (init.whiteSpace !== undefined)
+                    _this.whiteSpace = init.whiteSpace;
+                if (init.wordWrap !== undefined)
+                    _this.wordWrap = init.wordWrap;
+                if (init.textTransform !== undefined)
+                    _this.textTransform = init.textTransform;
+                if (init.color !== undefined)
+                    _this.color = init.color;
+            }
             return _this;
         }
         Object.defineProperty(CompactLabel.prototype, "maxLine", {
@@ -11648,7 +11846,17 @@ var Ui;
         __extends(DropableWatcher, _super);
         function DropableWatcher(init) {
             var _this = _super.call(this) || this;
-            _this.assign(init);
+            _this.element = init.element;
+            if (init.enter)
+                _this.enter = init.enter;
+            if (init.leave)
+                _this.leave = init.leave;
+            if (init.drop)
+                _this.drop = init.drop;
+            if (init.dropfile)
+                _this.dropfile = init.dropfile;
+            if (init.types)
+                _this.types = init.types;
             _this.watchers = [];
             _this.connect(_this.element, 'dragover', _this.onDragOver);
             return _this;
@@ -12155,7 +12363,7 @@ var Ui;
     var Button = (function (_super) {
         __extends(Button, _super);
         function Button(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this._isActive = false;
             _this._icon = undefined;
             _this._text = undefined;
@@ -12180,7 +12388,22 @@ var Ui;
             _this.connect(_this, 'blur', _this.updateColors);
             _this.connect(_this, 'enter', _this.updateColors);
             _this.connect(_this, 'leave', _this.updateColors);
-            _this.assign(init);
+            if (init) {
+                if (init.text !== undefined)
+                    _this.text = init.text;
+                if (init.icon !== undefined)
+                    _this.icon = init.icon;
+                if (init.background !== undefined)
+                    _this.background = init.background;
+                if (init.marker !== undefined)
+                    _this.marker = init.marker;
+                if (init.isActive !== undefined)
+                    _this.isActive = init.isActive;
+                if (init.badge !== undefined)
+                    _this.badge = init.badge;
+                if (init.orientation !== undefined)
+                    _this.orientation = init.orientation;
+            }
             return _this;
         }
         Object.defineProperty(Button.prototype, "dropBox", {
@@ -12656,7 +12879,7 @@ var Ui;
     var ContextBar = (function (_super) {
         __extends(ContextBar, _super);
         function ContextBar(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this._selection = undefined;
             _this.bg = new Ui.Rectangle();
             _this.append(_this.bg);
@@ -12672,7 +12895,10 @@ var Ui;
             _this.actionsBox = new Ui.HBox();
             _this.actionsBox.spacing = 5;
             scroll.content = _this.actionsBox;
-            _this.assign(init);
+            if (init) {
+                if (init.selection !== undefined)
+                    _this.selection = init.selection;
+            }
             return _this;
         }
         Object.defineProperty(ContextBar.prototype, "selection", {
@@ -12726,7 +12952,7 @@ var Ui;
     var Popup = (function (_super) {
         __extends(Popup, _super);
         function Popup(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this.posX = undefined;
             _this.posY = undefined;
             _this.attachedElement = undefined;
@@ -12764,8 +12990,14 @@ var Ui;
             _this.contentBox.append(_this.contextBox);
             _this.connect(_this.popupSelection, 'change', _this.onPopupSelectionChange);
             _this.connect(_this.shadow, 'press', _this.onShadowPress);
-            if (init)
-                _this.assign(init);
+            if (init) {
+                if (init.preferredWidth !== undefined)
+                    _this.preferredWidth = init.preferredWidth;
+                if (init.preferredHeight !== undefined)
+                    _this.preferredHeight = init.preferredHeight;
+                if (init.autoClose !== undefined)
+                    _this.autoClose = init.autoClose;
+            }
             return _this;
         }
         Object.defineProperty(Popup.prototype, "preferredWidth", {
@@ -13227,10 +13459,7 @@ var Ui;
     var MenuPopup = (function (_super) {
         __extends(MenuPopup, _super);
         function MenuPopup(init) {
-            var _this = _super.call(this) || this;
-            if (init)
-                _this.assign(init);
-            return _this;
+            return _super.call(this, init) || this;
         }
         return MenuPopup;
     }(Popup));
@@ -13294,6 +13523,24 @@ var Ui;
             _this.menuButton = new Ui.MenuToolBarButton();
             _this.connect(_this.menuButton, 'press', _this.onMenuButtonPress);
             _this.appendChild(_this.menuButton);
+            if (init) {
+                if (init.paddingTop !== undefined)
+                    _this.paddingTop = init.paddingTop;
+                if (init.paddingBottom !== undefined)
+                    _this.paddingBottom = init.paddingBottom;
+                if (init.paddingLeft !== undefined)
+                    _this.paddingLeft = init.paddingLeft;
+                if (init.paddingRight !== undefined)
+                    _this.paddingRight = init.paddingRight;
+                if (init.itemsAlign !== undefined)
+                    _this.itemsAlign = init.itemsAlign;
+                if (init.menuPosition !== undefined)
+                    _this.menuPosition = init.menuPosition;
+                if (init.uniform !== undefined)
+                    _this.uniform = init.uniform;
+                if (init.spacing !== undefined)
+                    _this.spacing = init.spacing;
+            }
             return _this;
         }
         Object.defineProperty(MenuToolBar.prototype, "uniform", {
@@ -13700,7 +13947,7 @@ var Ui;
     var App = (function (_super) {
         __extends(App, _super);
         function App(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this.styles = undefined;
             _this.updateTask = false;
             _this.loaded = false;
@@ -13759,7 +14006,7 @@ var Ui;
                 new Core.RemoteDebug({ host: args[0], port: args[1] });
             }
             _this.contentBox = new Ui.VBox();
-            _this.append(_this.contentBox);
+            _this.appendChild(_this.contentBox);
             _this.setTransformOrigin(0, 0);
             _this.connect(window, 'load', _this.onWindowLoad);
             _this.connect(window, 'resize', _this.onWindowResize);
@@ -13784,9 +14031,12 @@ var Ui;
                 _this.connect(window, 'orientationchange', _this.onOrientationChange);
             _this.connect(window, 'message', _this.onMessage);
             _this.bindedUpdate = _this.update.bind(_this);
-            _this.assign(init);
             if (window['loaded'] === true)
                 _this.onWindowLoad();
+            if (init) {
+                if (init.content !== undefined)
+                    _this.content = init.content;
+            }
             return _this;
         }
         App.prototype.setWebApp = function (webApp) {
@@ -13816,7 +14066,7 @@ var Ui;
                 if (test)
                     this.forceInvalidateMeasure(this);
                 else if (this.isReady && !test && (this.testFontTask === undefined))
-                    this.testFontTask = new Core.DelayedTask(this, 0.25, this.testRequireFonts);
+                    this.testFontTask = new Core.DelayedTask(0.25, this.testRequireFonts);
             }
         };
         App.prototype.testRequireFonts = function () {
@@ -13836,7 +14086,7 @@ var Ui;
                 }
             }
             if (!allDone)
-                this.testFontTask = new Core.DelayedTask(this, 0.25, this.testRequireFonts);
+                this.testFontTask = new Core.DelayedTask(0.25, this.testRequireFonts);
             else
                 this.testFontTask = undefined;
         };
@@ -13848,6 +14098,19 @@ var Ui;
         };
         App.prototype.getOrientation = function () {
             return this.orientation;
+        };
+        App.prototype.measureCore = function (width, height) {
+            var minWidth = 0;
+            var minHeight = 0;
+            for (var _i = 0, _a = this.children; _i < _a.length; _i++) {
+                var child = _a[_i];
+                var size = child.measure(width, height);
+                if (size.width > minWidth)
+                    minWidth = size.width;
+                if (size.height > minHeight)
+                    minHeight = size.height;
+            }
+            return { width: minWidth, height: minHeight };
         };
         App.prototype.onSelectionChange = function (selection) {
         };
@@ -13952,9 +14215,9 @@ var Ui;
                 this.dialogs = new Ui.LBox();
                 this.dialogs.eventsHidden = true;
                 if (this.topLayers !== undefined)
-                    this.insertBefore(this.dialogs, this.topLayers);
+                    this.insertChildBefore(this.dialogs, this.topLayers);
                 else
-                    this.append(this.dialogs);
+                    this.appendChild(this.dialogs);
             }
             this.dialogs.append(dialog);
             this.contentBox.disable();
@@ -13965,7 +14228,7 @@ var Ui;
             if (this.dialogs !== undefined) {
                 this.dialogs.remove(dialog);
                 if (this.dialogs.children.length === 0) {
-                    this.remove(this.dialogs);
+                    this.removeChild(this.dialogs);
                     this.dialogs = undefined;
                     this.contentBox.enable();
                 }
@@ -13977,7 +14240,7 @@ var Ui;
             if (this.topLayers === undefined) {
                 this.topLayers = new Ui.LBox();
                 this.topLayers.eventsHidden = true;
-                this.append(this.topLayers);
+                this.appendChild(this.topLayers);
             }
             this.topLayers.append(layer);
         };
@@ -13985,7 +14248,7 @@ var Ui;
             if (this.topLayers !== undefined) {
                 this.topLayers.remove(layer);
                 if (this.topLayers.children.length === 0) {
-                    this.remove(this.topLayers);
+                    this.removeChild(this.topLayers);
                     this.topLayers = undefined;
                 }
             }
@@ -14135,7 +14398,10 @@ var Ui;
                 }
             }
             this.lastArrangeHeight = h;
-            _super.prototype.arrangeCore.call(this, w, h);
+            for (var _i = 0, _a = this.children; _i < _a.length; _i++) {
+                var child = _a[_i];
+                child.arrange(0, 0, w, h);
+            }
         };
         App.getWindowIFrame = function (currentWindow) {
             if (currentWindow === undefined)
@@ -14163,7 +14429,7 @@ var Ui;
         };
         App.current = undefined;
         return App;
-    }(Ui.LBox));
+    }(Ui.Container));
     Ui.App = App;
 })(Ui || (Ui = {}));
 window.addEventListener('load', function () { return window['loaded'] = true; });
@@ -14172,11 +14438,9 @@ var Ui;
     var Form = (function (_super) {
         __extends(Form, _super);
         function Form(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this.addEvents('submit');
             _this.connect(_this.drawing, 'submit', _this.onSubmit);
-            if (init)
-                _this.assign(init);
             return _this;
         }
         Form.prototype.onSubmit = function (event) {
@@ -14208,11 +14472,9 @@ var Ui;
     var DialogCloseButton = (function (_super) {
         __extends(DialogCloseButton, _super);
         function DialogCloseButton(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this.icon = 'backarrow';
             _this.text = 'Fermer';
-            if (init)
-                _this.assign(init);
             return _this;
         }
         DialogCloseButton.style = {
@@ -14331,7 +14593,7 @@ var Ui;
     var Dialog = (function (_super) {
         __extends(Dialog, _super);
         function Dialog(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this.dialogSelection = undefined;
             _this.shadow = undefined;
             _this.shadowGraphic = undefined;
@@ -14390,8 +14652,24 @@ var Ui;
             _this.connect(_this.dialogSelection, 'change', _this.onDialogSelectionChange);
             _this.connect(_this.drawing, 'keydown', _this.onKeyDown);
             _this.connect(_this.shadow, 'press', _this.onShadowPress);
-            if (init)
-                _this.assign(init);
+            if (init) {
+                if (init.preferredWidth !== undefined)
+                    _this.preferredWidth = init.preferredWidth;
+                if (init.preferredHeight !== undefined)
+                    _this.preferredHeight = init.preferredHeight;
+                if (init.fullScrolling !== undefined)
+                    _this.fullScrolling = init.fullScrolling;
+                if (init.title !== undefined)
+                    _this.title = init.title;
+                if (init.cancelButton !== undefined)
+                    _this.cancelButton = init.cancelButton;
+                if (init.actionButtons !== undefined)
+                    _this.actionButtons = init.actionButtons;
+                if (init.autoClose !== undefined)
+                    _this.autoClose = init.autoClose;
+                if (init.content !== undefined)
+                    _this.content = init.content;
+            }
             return _this;
         }
         Dialog.prototype.getSelectionHandler = function () {
@@ -14603,7 +14881,7 @@ var Ui;
     var Html = (function (_super) {
         __extends(Html, _super);
         function Html(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this.bindedOnImageLoad = undefined;
             _this._fontSize = undefined;
             _this._fontFamily = undefined;
@@ -14617,8 +14895,28 @@ var Ui;
             _this.bindedOnImageLoad = _this.onImageLoad.bind(_this);
             _this.connect(_this.drawing, 'click', _this.onClick);
             _this.connect(_this.drawing, 'keypress', _this.onKeyPress);
-            if (init)
-                _this.assign(init);
+            if (init) {
+                if (init.text !== undefined)
+                    _this.text = init.text;
+                if (init.html !== undefined)
+                    _this.html = init.html;
+                if (init.textAlign !== undefined)
+                    _this.textAlign = init.textAlign;
+                if (init.fontSize !== undefined)
+                    _this.fontSize = init.fontSize;
+                if (init.fontFamily !== undefined)
+                    _this.fontFamily = init.fontFamily;
+                if (init.fontWeight !== undefined)
+                    _this.fontWeight = init.fontWeight;
+                if (init.interLine !== undefined)
+                    _this.interLine = init.interLine;
+                if (init.wordWrap !== undefined)
+                    _this.wordWrap = init.wordWrap;
+                if (init.whiteSpace !== undefined)
+                    _this.whiteSpace = init.whiteSpace;
+                if (init.color !== undefined)
+                    _this.color = init.color;
+            }
             return _this;
         }
         Html.prototype.getElements = function (tagName) {
@@ -14918,11 +15216,13 @@ var Ui;
     var Text = (function (_super) {
         __extends(Text, _super);
         function Text(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this.drawing.style.whiteSpace = 'pre-wrap';
             _this.selectable = false;
-            if (init)
-                _this.assign(init);
+            if (init) {
+                if (init.textTransform !== undefined)
+                    _this.textTransform = init.textTransform;
+            }
             return _this;
         }
         Object.defineProperty(Text.prototype, "textTransform", {
@@ -14942,7 +15242,7 @@ var Ui;
     var Shadow = (function (_super) {
         __extends(Shadow, _super);
         function Shadow(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this._radiusTopLeft = 0;
             _this._radiusTopRight = 0;
             _this._radiusBottomLeft = 0;
@@ -14950,8 +15250,24 @@ var Ui;
             _this._shadowWidth = 4;
             _this._inner = false;
             _this._color = Ui.Color.create('black');
-            if (init)
-                _this.assign(init);
+            if (init) {
+                if (init.color !== undefined)
+                    _this.color = init.color;
+                if (init.inner !== undefined)
+                    _this.inner = init.inner;
+                if (init.shadowWidth !== undefined)
+                    _this.shadowWidth = init.shadowWidth;
+                if (init.radius !== undefined)
+                    _this.radius = init.radius;
+                if (init.radiusTopLeft !== undefined)
+                    _this.radiusTopLeft = init.radiusTopLeft;
+                if (init.radiusTopRight !== undefined)
+                    _this.radiusTopRight = init.radiusTopRight;
+                if (init.radiusBottomLeft !== undefined)
+                    _this.radiusBottomLeft = init.radiusBottomLeft;
+                if (init.radiusBottomRight !== undefined)
+                    _this.radiusBottomRight = init.radiusBottomRight;
+            }
             return _this;
         }
         Object.defineProperty(Shadow.prototype, "color", {
@@ -15198,6 +15514,7 @@ var Ui;
             configurable: true
         });
         Toast.prototype.open = function () {
+            var _this = this;
             if (this._isClosed) {
                 this._isClosed = false;
                 if (this.openClock == undefined) {
@@ -15208,7 +15525,7 @@ var Ui;
                     this.connect(this.openClock, 'timeupdate', this.onOpenTick);
                     this.opacity = 0;
                 }
-                new Core.DelayedTask(this, 2, this.close);
+                new Core.DelayedTask(2, function () { return _this.close(); });
                 Ui.Toaster.appendToast(this);
             }
         };
@@ -15278,7 +15595,7 @@ var Ui;
     var Image = (function (_super) {
         __extends(Image, _super);
         function Image(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this._src = undefined;
             _this.loaddone = false;
             _this._naturalWidth = undefined;
@@ -15288,8 +15605,10 @@ var Ui;
             _this.connect(_this.imageDrawing, 'contextmenu', function (event) { return event.preventDefault(); });
             _this.connect(_this.imageDrawing, 'load', _this.onImageLoad);
             _this.connect(_this.imageDrawing, 'error', _this.onImageError);
-            if (init)
-                _this.assign(init);
+            if (init) {
+                if (init.src !== undefined)
+                    _this.src = init.src;
+            }
             return _this;
         }
         Object.defineProperty(Image.prototype, "src", {
@@ -15351,7 +15670,7 @@ var Ui;
             }
             else {
                 if (this.setSrcLock)
-                    new Core.DelayedTask(this, 0, this.onImageDelayReady);
+                    new Core.DelayedTask(0, this.onImageDelayReady);
                 else
                     this.onImageDelayReady();
             }
@@ -15435,14 +15754,12 @@ var Ui;
     var Loading = (function (_super) {
         __extends(Loading, _super);
         function Loading(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this.clock = undefined;
             _this.ease = undefined;
             _this.ease = new Anim.PowerEase({ mode: 'inout' });
             _this.clock = new Anim.Clock({ repeat: 'forever', duration: 2 });
             _this.connect(_this.clock, 'timeupdate', _this.invalidateDraw);
-            if (init)
-                _this.assign(init);
             return _this;
         }
         Loading.prototype.onVisible = function () {
@@ -15489,7 +15806,7 @@ var Ui;
     var Entry = (function (_super) {
         __extends(Entry, _super);
         function Entry(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this._fontSize = undefined;
             _this._fontFamily = undefined;
             _this._fontWeight = undefined;
@@ -15503,8 +15820,20 @@ var Ui;
             _this.connect(_this.drawing, 'paste', _this.onPaste);
             _this.connect(_this.drawing, 'keyup', _this.onKeyUp);
             _this.connect(_this.drawing, 'keydown', _this.onKeyDown);
-            if (init)
-                _this.assign(init);
+            if (init) {
+                if (init.passwordMode !== undefined)
+                    _this.passwordMode = init.passwordMode;
+                if (init.fontSize !== undefined)
+                    _this.fontSize = init.fontSize;
+                if (init.fontFamily !== undefined)
+                    _this.fontFamily = init.fontFamily;
+                if (init.fontWeight !== undefined)
+                    _this.fontWeight = init.fontWeight;
+                if (init.color !== undefined)
+                    _this.color = init.color;
+                if (init.value !== undefined)
+                    _this.value = init.value;
+            }
             return _this;
         }
         Object.defineProperty(Entry.prototype, "passwordMode", {
@@ -15605,7 +15934,7 @@ var Ui;
         });
         Entry.prototype.onPaste = function (event) {
             event.stopPropagation();
-            new Core.DelayedTask(this, 0, this.onAfterPaste);
+            new Core.DelayedTask(0, this.onAfterPaste);
         };
         Entry.prototype.onAfterPaste = function () {
             if (this.drawing.value != this._value) {
@@ -15780,14 +16109,11 @@ var Ui;
     var ToolBar = (function (_super) {
         __extends(ToolBar, _super);
         function ToolBar(init) {
-            var _this = _super.call(this) || this;
-            _this.verticalAlign = 'center';
+            var _this = _super.call(this, init) || this;
             _this.scrollVertical = false;
             _this.hbox = new Ui.HBox();
             _this.hbox.eventsHidden = true;
             _super.prototype.setContent.call(_this, _this.hbox);
-            if (init)
-                _this.assign(init);
             return _this;
         }
         ToolBar.prototype.append = function (child, resizable) {
@@ -15899,25 +16225,35 @@ var Ui;
     var TextField = (function (_super) {
         __extends(TextField, _super);
         function TextField(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this.addEvents('change');
             _this.padding = 0;
             _this.graphic = new Ui.TextBgGraphic();
             _this.append(_this.graphic);
             _this.textholder = new Ui.Label();
             _this.textholder.opacity = 0.5;
-            _this.textholder.horizontalAlign = 'center';
-            _this.textholder.margin = 3;
+            _this.textholder.horizontalAlign = 'left';
+            _this.textholder.margin = 5;
+            _this.textholder.marginLeft = 10;
+            _this.textholder.marginRight = 10;
             _this.append(_this.textholder);
             _this.entry = new Ui.Entry();
             _this.entry.margin = 5;
+            _this.entry.marginLeft = 10;
+            _this.entry.marginRight = 10;
             _this.entry.fontSize = 16;
             _this.connect(_this.entry, 'focus', _this.onEntryFocus);
             _this.connect(_this.entry, 'blur', _this.onEntryBlur);
             _this.append(_this.entry);
             _this.connect(_this.entry, 'change', _this.onEntryChange);
-            if (init)
-                _this.assign(init);
+            if (init) {
+                if (init.textHolder !== undefined)
+                    _this.textHolder = init.textHolder;
+                if (init.passwordMode !== undefined)
+                    _this.passwordMode = init.passwordMode;
+                if (init.value !== undefined)
+                    _this.value = init.value;
+            }
             return _this;
         }
         Object.defineProperty(TextField.prototype, "textHolder", {
@@ -16109,8 +16445,14 @@ var Ui;
             _this.connect(_this, 'focus', _this.onCheckFocus);
             _this.connect(_this, 'blur', _this.onCheckBlur);
             _this.connect(_this, 'press', _this.onCheckPress);
-            if (init)
-                _this.assign(init);
+            if (init) {
+                if (init.value !== undefined)
+                    _this.value = init.value;
+                if (init.text !== undefined)
+                    _this.text = init.text;
+                if (init.content !== undefined)
+                    _this.content = init.content;
+            }
             return _this;
         }
         Object.defineProperty(CheckBox.prototype, "isToggled", {
@@ -16281,15 +16623,29 @@ var Ui;
     var Frame = (function (_super) {
         __extends(Frame, _super);
         function Frame(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this._fill = new Ui.Color();
             _this._radiusTopLeft = 0;
             _this._radiusTopRight = 0;
             _this._radiusBottomLeft = 0;
             _this._radiusBottomRight = 0;
             _this._frameWidth = 10;
-            if (init)
-                _this.assign(init);
+            if (init) {
+                if (init.frameWidth !== undefined)
+                    _this.frameWidth = init.frameWidth;
+                if (init.fill !== undefined)
+                    _this.fill = init.fill;
+                if (init.radius !== undefined)
+                    _this.radius = init.radius;
+                if (init.radiusTopLeft !== undefined)
+                    _this.radiusTopLeft = init.radiusTopLeft;
+                if (init.radiusTopRight !== undefined)
+                    _this.radiusTopRight = init.radiusTopRight;
+                if (init.radiusBottomLeft !== undefined)
+                    _this.radiusBottomLeft = init.radiusBottomLeft;
+                if (init.radiusBottomRight !== undefined)
+                    _this.radiusBottomRight = init.radiusBottomRight;
+            }
             return _this;
         }
         Object.defineProperty(Frame.prototype, "frameWidth", {
@@ -16424,6 +16780,12 @@ var Ui;
             var _this = _super.call(this, init) || this;
             _this._fixedWidth = 400;
             _this._fixedHeight = 300;
+            if (init) {
+                if (init.fixedWidth !== undefined)
+                    _this.fixedWidth = init.fixedWidth;
+                if (init.fixedHeight !== undefined)
+                    _this.fixedHeight = init.fixedHeight;
+            }
             return _this;
         }
         ScaleBox.prototype.setFixedSize = function (width, height) {
@@ -16516,8 +16878,8 @@ var Ui;
 (function (Ui) {
     var TextArea = (function (_super) {
         __extends(TextArea, _super);
-        function TextArea() {
-            var _this = _super.call(this) || this;
+        function TextArea(init) {
+            var _this = _super.call(this, init) || this;
             _this._fontSize = undefined;
             _this._fontFamily = undefined;
             _this._fontWeight = undefined;
@@ -16530,6 +16892,18 @@ var Ui;
             _this.connect(_this.drawing, 'paste', _this.onPaste);
             _this.connect(_this.drawing, 'keydown', _this.onKeyDown);
             _this.connect(_this.drawing, 'keyup', _this.onKeyUp);
+            if (init) {
+                if (init.fontSize !== undefined)
+                    _this.fontSize = init.fontSize;
+                if (init.fontFamily !== undefined)
+                    _this.fontFamily = init.fontFamily;
+                if (init.fontWeight !== undefined)
+                    _this.fontWeight = init.fontWeight;
+                if (init.color !== undefined)
+                    _this.color = init.color;
+                if (init.value !== undefined)
+                    _this.value = init.value;
+            }
             return _this;
         }
         Object.defineProperty(TextArea.prototype, "fontSize", {
@@ -16636,7 +17010,7 @@ var Ui;
         });
         TextArea.prototype.onPaste = function (event) {
             event.stopPropagation();
-            new Core.DelayedTask(this, 0, this.onAfterPaste);
+            new Core.DelayedTask(0, this.onAfterPaste);
         };
         TextArea.prototype.onAfterPaste = function () {
             if (this.drawing.value != this._value) {
@@ -16740,8 +17114,8 @@ var Ui;
 (function (Ui) {
     var TextAreaField = (function (_super) {
         __extends(TextAreaField, _super);
-        function TextAreaField() {
-            var _this = _super.call(this) || this;
+        function TextAreaField(init) {
+            var _this = _super.call(this, init) || this;
             _this.addEvents('change');
             _this.padding = 3;
             _this.graphic = new Ui.TextBgGraphic();
@@ -16758,6 +17132,12 @@ var Ui;
             _this.connect(_this.textarea, 'focus', _this.onTextAreaFocus);
             _this.connect(_this.textarea, 'blur', _this.onTextAreaBlur);
             _this.connect(_this.textarea, 'change', _this.onTextAreaChange);
+            if (init) {
+                if (init.textHolder !== undefined)
+                    _this.textHolder = init.textHolder;
+                if (init.value !== undefined)
+                    _this.value = init.value;
+            }
             return _this;
         }
         Object.defineProperty(TextAreaField.prototype, "textHolder", {
@@ -16802,10 +17182,15 @@ var Ui;
     var Grid = (function (_super) {
         __extends(Grid, _super);
         function Grid(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this._cols = [{ auto: true, star: false, absolute: false, actualWidth: 0, offset: 0, width: 0 }];
             _this._rows = [{ auto: true, star: false, absolute: false, actualHeight: 0, offset: 0, height: 0 }];
-            _this.assign(init);
+            if (init) {
+                if (init.cols !== undefined)
+                    _this.cols = init.cols;
+                if (init.rows !== undefined)
+                    _this.rows = init.rows;
+            }
             return _this;
         }
         Object.defineProperty(Grid.prototype, "cols", {
@@ -17174,14 +17559,22 @@ var Ui;
     var Flow = (function (_super) {
         __extends(Flow, _super);
         function Flow(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this._uniform = false;
             _this.uniformWidth = undefined;
             _this.uniformHeight = undefined;
             _this._itemAlign = 'left';
             _this._spacing = 0;
-            if (init)
-                _this.assign(init);
+            if (init) {
+                if (init.spacing !== undefined)
+                    _this.spacing = init.spacing;
+                if (init.itemAlign !== undefined)
+                    _this.itemAlign = init.itemAlign;
+                if (init.uniform !== undefined)
+                    _this.uniform = init.uniform;
+                if (init.content !== undefined)
+                    _this.content = init.content;
+            }
             return _this;
         }
         Object.defineProperty(Flow.prototype, "content", {
@@ -17374,14 +17767,16 @@ var Ui;
     var ProgressBar = (function (_super) {
         __extends(ProgressBar, _super);
         function ProgressBar(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this._value = 0;
             _this.background = new Ui.Rectangle({ height: 4 });
             _this.appendChild(_this.background);
             _this.bar = new Ui.Rectangle({ height: 4 });
             _this.appendChild(_this.bar);
-            if (init)
-                _this.assign(init);
+            if (init) {
+                if (init.value !== undefined)
+                    _this.value = init.value;
+            }
             return _this;
         }
         Object.defineProperty(ProgressBar.prototype, "value", {
@@ -17447,7 +17842,7 @@ var Ui;
     var Combo = (function (_super) {
         __extends(Combo, _super);
         function Combo(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this._position = -1;
             _this._placeHolder = '...';
             _this.addEvents('change');
@@ -17457,7 +17852,20 @@ var Ui;
                 verticalAlign: 'center', marginRight: 5,
                 content: [_this.arrowbottom]
             });
-            _this.assign(init);
+            if (init) {
+                if (init.placeHolder !== undefined)
+                    _this.placeHolder = init.placeHolder;
+                if (init.field !== undefined)
+                    _this.field = init.field;
+                if (init.data !== undefined)
+                    _this.data = init.data;
+                if (init.position !== undefined)
+                    _this.position = init.position;
+                if (init.current !== undefined)
+                    _this.current = init.current;
+                if (init.search !== undefined)
+                    _this.search = init.search;
+            }
             return _this;
         }
         Object.defineProperty(Combo.prototype, "placeHolder", {
@@ -17560,7 +17968,7 @@ var Ui;
     var ComboPopup = (function (_super) {
         __extends(ComboPopup, _super);
         function ComboPopup(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this.addEvents('item');
             _this.autoClose = true;
             var vbox = new Ui.VBox();
@@ -17571,7 +17979,16 @@ var Ui;
             _this.content = vbox;
             _this.list = new Ui.VBox();
             vbox.append(_this.list);
-            _this.assign(init);
+            if (init) {
+                if (init.search !== undefined)
+                    _this.search = init.search;
+                if (init.field !== undefined)
+                    _this.field = init.field;
+                if (init.data !== undefined)
+                    _this.data = init.data;
+                if (init.position !== undefined)
+                    _this.position = init.position;
+            }
             return _this;
         }
         ComboPopup.prototype.onSearchChange = function (field, value) {
@@ -17670,7 +18087,7 @@ var Ui;
     var Paned = (function (_super) {
         __extends(Paned, _super);
         function Paned(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this.vertical = true;
             _this.minContent1Size = 0;
             _this.minContent2Size = 0;
@@ -17684,8 +18101,16 @@ var Ui;
             _this.appendChild(_this.cursor);
             _this.cursor.setContent(new Ui.VPanedCursor());
             _this.connect(_this.cursor, 'move', _this.onCursorMove);
-            if (init)
-                _this.assign(init);
+            if (init) {
+                if (init.orientation !== undefined)
+                    _this.orientation = init.orientation;
+                if (init.pos !== undefined)
+                    _this.pos = init.pos;
+                if (init.content1 !== undefined)
+                    _this.content1 = init.content1;
+                if (init.content2 !== undefined)
+                    _this.content2 = init.content2;
+            }
             return _this;
         }
         Object.defineProperty(Paned.prototype, "orientation", {
@@ -17839,8 +18264,8 @@ var Ui;
     Ui.Paned = Paned;
     var VPaned = (function (_super) {
         __extends(VPaned, _super);
-        function VPaned() {
-            var _this = _super.call(this) || this;
+        function VPaned(init) {
+            var _this = _super.call(this, init) || this;
             _this.orientation = 'vertical';
             return _this;
         }
@@ -17849,8 +18274,8 @@ var Ui;
     Ui.VPaned = VPaned;
     var HPaned = (function (_super) {
         __extends(HPaned, _super);
-        function HPaned() {
-            var _this = _super.call(this) || this;
+        function HPaned(init) {
+            var _this = _super.call(this, init) || this;
             _this.orientation = 'horizontal';
             return _this;
         }
@@ -17889,7 +18314,7 @@ var Ui;
     var Slider = (function (_super) {
         __extends(Slider, _super);
         function Slider(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this._value = 0;
             _this._orientation = 'horizontal';
             _this.addEvents('change');
@@ -17906,8 +18331,12 @@ var Ui;
             _this.connect(_this.button, 'up', _this.updateColors);
             _this.buttonContent = new Ui.Rectangle({ radius: 10, width: 20, height: 20, margin: 10 });
             _this.button.setContent(_this.buttonContent);
-            if (init)
-                _this.assign(init);
+            if (init) {
+                if (init.value !== undefined)
+                    _this.value = init.value;
+                if (init.orientation !== undefined)
+                    _this.orientation = init.orientation;
+            }
             return _this;
         }
         Object.defineProperty(Slider.prototype, "value", {
@@ -18116,7 +18545,10 @@ var Ui;
                     else if (init.aacSrc && Ui.Audio.supportAac)
                         _this.src = init.aacSrc;
                 }
-                _this.assign(init);
+                if (init.volume !== undefined)
+                    _this.volume = init.volume;
+                if (init.currentTime !== undefined)
+                    _this.currentTime = init.currentTime;
             }
             return _this;
         }
@@ -18322,12 +18754,19 @@ var Ui;
     var LinkButton = (function (_super) {
         __extends(LinkButton, _super);
         function LinkButton(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this.openWindow = true;
+            _this.target = '_blank';
             _this.addEvents('link');
             _this.connect(_this, 'press', _this.onLinkButtonPress);
-            if (init)
-                _this.assign(init);
+            if (init) {
+                if (init.src !== undefined)
+                    _this.src = init.src;
+                if (init.openWindow !== undefined)
+                    _this.openWindow = init.openWindow;
+                if (init.target !== undefined)
+                    _this.target = init.target;
+            }
             return _this;
         }
         LinkButton.prototype.onLinkButtonPress = function () {
@@ -18348,7 +18787,7 @@ var Ui;
 (function (Ui) {
     var SFlowState = (function (_super) {
         __extends(SFlowState, _super);
-        function SFlowState(config) {
+        function SFlowState(init) {
             var _this = _super.call(this) || this;
             _this.x = 0;
             _this.y = 0;
@@ -18367,35 +18806,22 @@ var Ui;
             _this.uniform = false;
             _this.firstLine = true;
             _this.lastLine = false;
-            _this.width = config.width;
-            delete (config.width);
-            _this.render = config.render;
-            delete (config.render);
-            if ('spacing' in config) {
-                _this.spacing = config.spacing;
-                delete (config.spacing);
-            }
-            if ('align' in config) {
-                _this.align = config.align;
-                delete (config.align);
-            }
-            if ('uniform' in config) {
-                _this.uniform = config.uniform;
-                delete (config.uniform);
-            }
-            if ('uniformWidth' in config) {
-                _this.uniformWidth = config.uniformWidth;
+            _this.width = init.width;
+            _this.render = init.render;
+            if (init.spacing !== undefined)
+                _this.spacing = init.spacing;
+            if (init.align !== undefined)
+                _this.align = init.align;
+            if (init.uniform !== undefined)
+                _this.uniform = init.uniform;
+            if (init.uniformWidth !== undefined) {
+                _this.uniformWidth = init.uniformWidth;
                 _this.stretchUniformWidth = _this.uniformWidth;
-                delete (config.uniformWidth);
             }
-            if ('uniformHeight' in config) {
-                _this.uniformHeight = config.uniformHeight;
-                delete (config.uniformHeight);
-            }
-            if ('stretchMaxRatio' in config) {
-                _this.stretchMaxRatio = config.stretchMaxRatio;
-                delete (config.stretchMaxRatio);
-            }
+            if (init.uniformHeight !== undefined)
+                _this.uniformHeight = init.uniformHeight;
+            if (init.stretchMaxRatio !== undefined)
+                _this.stretchMaxRatio = init.stretchMaxRatio;
             _this.zones = [{ xstart: 0, xend: _this.width }];
             _this.currentZone = 0;
             _this.boxes = [];
@@ -18649,13 +19075,25 @@ var Ui;
     var SFlow = (function (_super) {
         __extends(SFlow, _super);
         function SFlow(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this._uniform = false;
             _this._itemAlign = 'left';
             _this._stretchMaxRatio = 1.3;
             _this._spacing = 0;
-            if (init)
-                _this.assign(init);
+            if (init) {
+                if (init.content !== undefined)
+                    _this.content = init.content;
+                if (init.spacing !== undefined)
+                    _this.spacing = init.spacing;
+                if (init.itemAlign !== undefined)
+                    _this.itemAlign = init.itemAlign;
+                if (init.uniform !== undefined)
+                    _this.uniform = init.uniform;
+                if (init.uniformRatio !== undefined)
+                    _this.uniformRatio = init.uniformRatio;
+                if (init.stretchMaxRatio !== undefined)
+                    _this.stretchMaxRatio = init.stretchMaxRatio;
+            }
             return _this;
         }
         Object.defineProperty(SFlow.prototype, "content", {
@@ -18845,22 +19283,31 @@ var Ui;
     var Video = (function (_super) {
         __extends(Video, _super);
         function Video(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this.loaddone = false;
             _this.canplaythrough = false;
             _this._state = 'initial';
             _this.addEvents('ready', 'ended', 'timeupdate', 'bufferingupdate', 'statechange', 'error');
             _this.connect(_this, 'unload', _this.onVideoUnload);
             if (init) {
+                if (init.src !== undefined)
+                    _this.src = init.src;
                 if (init.oggSrc || init.mp4Src || init.webmSrc) {
-                    if (init.oggSrc && Ui.Video.supportOgg)
-                        _this.src = init.oggSrc;
-                    else if (init.mp4Src && Ui.Video.supportMp4)
+                    if (init.mp4Src && Ui.Video.supportMp4)
                         _this.src = init.mp4Src;
                     else if (init.webmSrc && Ui.Video.supportWebm)
                         _this.src = init.webmSrc;
+                    else if (init.oggSrc && Ui.Video.supportOgg)
+                        _this.src = init.oggSrc;
                 }
-                _this.assign(init);
+                if (init.poster !== undefined)
+                    _this.poster = init.poster;
+                if (init.autoplay !== undefined)
+                    _this.autoplay = init.autoplay;
+                if (init.volume !== undefined)
+                    _this.volume = init.volume;
+                if (init.currentTime !== undefined)
+                    _this.currentTime = init.currentTime;
             }
             return _this;
         }
@@ -19096,7 +19543,7 @@ var Ui;
     var MonthCalendar = (function (_super) {
         __extends(MonthCalendar, _super);
         function MonthCalendar(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this.addEvents('dayselect');
             _this._date = new Date();
             var hbox = new Ui.HBox();
@@ -19114,14 +19561,22 @@ var Ui;
             hbox.append(button);
             _this.connect(button, 'press', _this.onRightButtonPress);
             _this.grid = new Ui.Grid({
-                cols: 'auto,auto,auto,auto,auto,auto,auto',
-                rows: 'auto,auto,auto,auto,auto,auto,auto',
-                horizontalAlign: 'center'
+                cols: '*,*,*,*,*,*,*',
+                rows: '*,*,*,*,*,*,*',
+                horizontalAlign: 'stretch'
             });
             _this.append(_this.grid);
             _this.updateDate();
-            if (init)
-                _this.assign(init);
+            if (init) {
+                if (init.date !== undefined)
+                    _this.date = init.date;
+                if (init.selectedDate !== undefined)
+                    _this.selectedDate = init.selectedDate;
+                if (init.dayFilter !== undefined)
+                    _this.dayFilter = init.dayFilter;
+                if (init.dateFilter !== undefined)
+                    _this.dateFilter = init.dateFilter;
+            }
             return _this;
         }
         Object.defineProperty(MonthCalendar.prototype, "dayFilter", {
@@ -19299,16 +19754,21 @@ var Ui;
     var TextButtonField = (function (_super) {
         __extends(TextButtonField, _super);
         function TextButtonField(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this.addEvents('change', 'validate', 'buttonpress');
             _this.padding = 0;
             _this.graphic = new Ui.TextBgGraphic();
             _this.append(_this.graphic);
-            _this._textholder = new Ui.Label({ opacity: 0.5, horizontalAlign: 'center', margin: 3 });
+            _this._textholder = new Ui.Label({
+                opacity: 0.5, horizontalAlign: 'left', margin: 5,
+                marginLeft: 10, marginRight: 10
+            });
             _this.append(_this._textholder);
             var hbox = new Ui.HBox();
             _this.append(hbox);
-            _this.entry = new Ui.Entry({ margin: 4, fontSize: 16 });
+            _this.entry = new Ui.Entry({
+                margin: 5, marginLeft: 10, marginRight: 10, fontSize: 16
+            });
             _this.connect(_this.entry, 'focus', _this.onEntryFocus);
             _this.connect(_this.entry, 'blur', _this.onEntryBlur);
             hbox.append(_this.entry, true);
@@ -19317,8 +19777,18 @@ var Ui;
             hbox.append(_this.button);
             _this.connect(_this, 'submit', _this.onFormSubmit);
             _this.connect(_this.button, 'press', _this.onButtonPress);
-            if (init)
-                _this.assign(init);
+            if (init) {
+                if (init.textHolder !== undefined)
+                    _this.textHolder = init.textHolder;
+                if (init.widthText !== undefined)
+                    _this.widthText = init.widthText;
+                if (init.buttonIcon !== undefined)
+                    _this.buttonIcon = init.buttonIcon;
+                if (init.buttonText !== undefined)
+                    _this.buttonText = init.buttonText;
+                if (init.value !== undefined)
+                    _this.value = init.value;
+            }
             return _this;
         }
         Object.defineProperty(TextButtonField.prototype, "textHolder", {
@@ -19355,6 +19825,8 @@ var Ui;
             },
             set: function (value) {
                 this.entry.value = value;
+                if (value && value != '')
+                    this._textholder.hide();
             },
             enumerable: true,
             configurable: true
@@ -19397,15 +19869,20 @@ var Ui;
     var DatePicker = (function (_super) {
         __extends(DatePicker, _super);
         function DatePicker(init) {
-            var _this = _super.call(this) || this;
-            _this.lastValid = '';
+            var _this = _super.call(this, init) || this;
             _this._isValid = false;
             _this.buttonIcon = 'calendar';
             _this.widthText = 9;
             _this.connect(_this, 'buttonpress', _this.onDatePickerButtonPress);
             _this.connect(_this, 'change', _this.onDatePickerChange);
-            if (init)
-                _this.assign(init);
+            if (init) {
+                if (init.dayFilter !== undefined)
+                    _this.dayFilter = init.dayFilter;
+                if (init.dateFilter !== undefined)
+                    _this.dateFilter = init.dateFilter;
+                if (init.selectedDate !== undefined)
+                    _this.selectedDate = init.selectedDate;
+            }
             return _this;
         }
         Object.defineProperty(DatePicker.prototype, "dayFilter", {
@@ -19434,14 +19911,10 @@ var Ui;
                 return this._selectedDate;
             },
             set: function (date) {
-                if (date === undefined) {
+                if (date === undefined)
                     this._selectedDate = undefined;
-                }
-                else {
-                    this.lastValid = ((date.getDate() < 10) ? '0' : '') + date.getDate() + '/' + ((date.getMonth() < 9) ? '0' : '') + (date.getMonth() + 1) + '/' + date.getFullYear();
+                else
                     this._selectedDate = date;
-                    this.textValue = this.lastValid;
-                }
                 this._isValid = true;
                 this.fireEvent('change', this, this.selectedDate);
             },
@@ -19476,24 +19949,22 @@ var Ui;
                 var date = new Date();
                 date.setFullYear(parseInt(splitDate[3]), parseInt(splitDate[2]) - 1, parseInt(splitDate[1]));
                 var newStr = ((date.getDate() < 10) ? '0' : '') + date.getDate() + '/' + ((date.getMonth() < 9) ? '0' : '') + (date.getMonth() + 1) + '/' + date.getFullYear();
-                if ((parseInt(splitDate[3]) != date.getFullYear()) || (parseInt(splitDate[2]) - 1 != date.getMonth()) || (parseInt(splitDate[1]) != date.getDate())) {
-                    this.lastValid = newStr;
-                    this.textValue = this.lastValid;
+                if (!((parseInt(splitDate[3]) != date.getFullYear()) || (parseInt(splitDate[2]) - 1 != date.getMonth()) || (parseInt(splitDate[1]) != date.getDate()))) {
+                    this._selectedDate = date;
+                    this._isValid = true;
                 }
-                this._selectedDate = date;
-                this._isValid = true;
             }
-            else if (dateStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{0,4})$/))
-                this.lastValid = dateStr;
-            else if (dateStr.match(/^(\d{1,2})\/(\d{0,2})$/))
-                this.lastValid = dateStr;
-            else if (dateStr.match(/^(\d{0,2})$/))
-                this.lastValid = dateStr;
-            else
-                this.textValue = this.lastValid;
+        };
+        DatePicker.prototype.zeroPad = function (val, size) {
+            if (size === void 0) { size = 2; }
+            var s = val.toString();
+            while (s.length < size)
+                s = "0" + s;
+            return s;
         };
         DatePicker.prototype.onDaySelect = function (monthcalendar, date) {
             this.selectedDate = date;
+            this.textValue = this.zeroPad(date.getDate(), 2) + "/" + this.zeroPad(date.getMonth() + 1, 2) + "/" + date.getFullYear();
             this.popup.close();
             this.popup = undefined;
         };
@@ -19506,14 +19977,12 @@ var Ui;
     var DownloadButton = (function (_super) {
         __extends(DownloadButton, _super);
         function DownloadButton(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this.style = {
                 background: '#a4f4a4'
             };
             _this.addEvents('download');
             _this.connect(_this, 'link', _this.onLinkPress);
-            if (init)
-                _this.assign(init);
             return _this;
         }
         DownloadButton.prototype.onLinkPress = function () {
@@ -19549,12 +20018,14 @@ var Ui;
     var IFrame = (function (_super) {
         __extends(IFrame, _super);
         function IFrame(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this._isReady = false;
             _this.connect(_this.iframeDrawing, 'load', _this.onIFrameLoad);
             _this.addEvents('ready');
-            if (init)
-                _this.assign(init);
+            if (init) {
+                if (init.src !== undefined)
+                    _this.src = init.src;
+            }
             return _this;
         }
         Object.defineProperty(IFrame.prototype, "src", {
@@ -19619,15 +20090,13 @@ var Ui;
     var ContentEditable = (function (_super) {
         __extends(ContentEditable, _super);
         function ContentEditable(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this.anchorOffset = 0;
             _this.addEvents('anchorchange');
             _this.selectable = true;
             _this.drawing.setAttribute('contenteditable', 'true');
             _this.connect(_this.drawing, 'keyup', _this.onKeyUp);
             _this.connect(_this.drawing, 'DOMSubtreeModified', _this.onContentSubtreeModified);
-            if (init)
-                _this.assign(init);
             return _this;
         }
         ContentEditable.prototype.onKeyUp = function (event) {
@@ -19673,7 +20142,7 @@ var Ui;
     var VBoxScrollable = (function (_super) {
         __extends(VBoxScrollable, _super);
         function VBoxScrollable(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this._scrollHorizontal = true;
             _this._scrollVertical = true;
             _this.scrollbarHorizontalNeeded = false;
@@ -19717,8 +20186,22 @@ var Ui;
                 }
             });
             _this.connect(_this, 'wheel', _this.onWheel);
-            if (init)
-                _this.assign(init);
+            if (init) {
+                if (init.loader !== undefined)
+                    _this.loader = init.loader;
+                if (init.maxScale !== undefined)
+                    _this.maxScale = init.maxScale;
+                if (init.content !== undefined)
+                    _this.content = init.content;
+                if (init.scrollHorizontal !== undefined)
+                    _this.scrollHorizontal = init.scrollHorizontal;
+                if (init.scrollVertical !== undefined)
+                    _this.scrollVertical = init.scrollVertical;
+                if (init.scrollbarVertical !== undefined)
+                    _this.scrollbarVertical = init.scrollbarVertical;
+                if (init.scrollbarHorizontal !== undefined)
+                    _this.scrollbarHorizontal = init.scrollbarHorizontal;
+            }
             return _this;
         }
         VBoxScrollable.prototype.reload = function () {
@@ -20264,13 +20747,11 @@ var Ui;
     var VBoxScrollingArea = (function (_super) {
         __extends(VBoxScrollingArea, _super);
         function VBoxScrollingArea(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this.horizontalScrollbar = new Ui.Scrollbar('horizontal');
             _this.scrollbarHorizontal = _this.horizontalScrollbar;
             _this.verticalScrollbar = new Ui.Scrollbar('vertical');
             _this.scrollbarVertical = _this.verticalScrollbar;
-            if (init)
-                _this.assign(init);
             return _this;
         }
         VBoxScrollingArea.prototype.onStyleChange = function () {
@@ -20546,15 +21027,17 @@ var Ui;
     var ListViewHeader = (function (_super) {
         __extends(ListViewHeader, _super);
         function ListViewHeader(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this.background = new Ui.Rectangle({ verticalAlign: 'bottom', height: 4 });
             _this.append(_this.background);
             _this.uiTitle = new Ui.Label({ margin: 8, fontWeight: 'bold' });
             _this.append(_this.uiTitle);
             _this.connect(_this, 'down', _this.onListViewHeaderDown);
             _this.connect(_this, 'up', _this.onListViewHeaderUp);
-            if (init)
-                _this.assign(init);
+            if (init) {
+                if (init.title !== undefined)
+                    _this.title = init.title;
+            }
             return _this;
         }
         Object.defineProperty(ListViewHeader.prototype, "title", {
@@ -20821,7 +21304,7 @@ var Ui;
     var ListView = (function (_super) {
         __extends(ListView, _super);
         function ListView(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this.rowsHeight = 0;
             _this.headersHeight = 0;
             _this.headersVisible = true;
@@ -20860,7 +21343,14 @@ var Ui;
             _this.connect(_this.headersScroll, 'scroll', function (s, offsetX, offsetY) {
                 _this.vboxScroll.setOffset(offsetX, undefined, true, true);
             });
-            _this.assign(init);
+            if (init) {
+                if (init.headers !== undefined)
+                    _this.headers = init.headers;
+                if (init.scrolled !== undefined)
+                    _this.scrolled = init.scrolled;
+                if (init.selectionActions !== undefined)
+                    _this.selectionActions = init.selectionActions;
+            }
             return _this;
         }
         Object.defineProperty(ListView.prototype, "scrolled", {
@@ -21120,8 +21610,8 @@ var Ui;
 (function (Ui) {
     var Uploadable = (function (_super) {
         __extends(Uploadable, _super);
-        function Uploadable(config) {
-            var _this = _super.call(this) || this;
+        function Uploadable(init) {
+            var _this = _super.call(this, init) || this;
             _this.drawing.style.cursor = 'pointer';
             _this.focusable = true;
             _this.role = 'button';
@@ -21352,7 +21842,7 @@ var Ui;
     var UploadButton = (function (_super) {
         __extends(UploadButton, _super);
         function UploadButton(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this.addEvents('file');
             _this.input = new Ui.UploadableFileWrapper();
             _this.prepend(_this.input);
@@ -21360,8 +21850,10 @@ var Ui;
             _this.connect(_this, 'press', _this.onUploadButtonPress);
             _this.dropBox.addType('files', 'copy');
             _this.connect(_this.dropBox, 'dropfile', _this.onFile);
-            if (init)
-                _this.assign(init);
+            if (init) {
+                if (init.directoryMode !== undefined)
+                    _this.directoryMode = init.directoryMode;
+            }
             return _this;
         }
         Object.defineProperty(UploadButton.prototype, "directoryMode", {
@@ -21438,8 +21930,10 @@ var Ui;
         function Slide(init) {
             var _this = _super.call(this) || this;
             _this._direction = 'right';
-            if (init)
-                _this.assign(init);
+            if (init) {
+                if (init.direction !== undefined)
+                    _this.direction = init.direction;
+            }
             return _this;
         }
         Object.defineProperty(Slide.prototype, "direction", {
@@ -21498,8 +21992,10 @@ var Ui;
         function Flip(init) {
             var _this = _super.call(this) || this;
             _this.orientation = 'horizontal';
-            if (init)
-                _this.assign(init);
+            if (init) {
+                if (init.orientation !== undefined)
+                    _this.orientation = init.orientation;
+            }
             return _this;
         }
         Flip.prototype.run = function (current, next, progress) {
@@ -21547,7 +22043,7 @@ var Ui;
     var TransitionBox = (function (_super) {
         __extends(TransitionBox, _super);
         function TransitionBox(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this._duration = 0.5;
             _this._position = -1;
             _this.replaceMode = false;
@@ -21556,8 +22052,18 @@ var Ui;
             _this.connect(_this, 'unload', _this.onTransitionBoxUnload);
             _this.clipToBounds = true;
             _this.transition = 'fade';
-            if (init)
-                _this.assign(init);
+            if (init) {
+                if (init.duration !== undefined)
+                    _this.duration = init.duration;
+                if (init.ease !== undefined)
+                    _this.ease = init.ease;
+                if (init.transition !== undefined)
+                    _this.transition = init.transition;
+                if (init.position !== undefined)
+                    _this.position = init.position;
+                if (init.current !== undefined)
+                    _this.current = init.current;
+            }
             return _this;
         }
         Object.defineProperty(TransitionBox.prototype, "position", {
@@ -21727,7 +22233,7 @@ var Ui;
     var Fold = (function (_super) {
         __extends(Fold, _super);
         function Fold(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this._offset = 0;
             _this._position = 'bottom';
             _this._isFolded = true;
@@ -21741,7 +22247,24 @@ var Ui;
             _this.contentBox = new Ui.LBox();
             _this.appendChild(_this.contentBox);
             _this.contentBox.hide();
-            _this.assign(init);
+            if (init) {
+                if (init.isFolded !== undefined)
+                    _this.isFolded = init.isFolded;
+                if (init.over !== undefined)
+                    _this.over = init.over;
+                if (init.mode !== undefined)
+                    _this.mode = init.mode;
+                if (init.header !== undefined)
+                    _this.header = init.header;
+                if (init.content !== undefined)
+                    _this.content = init.content;
+                if (init.background !== undefined)
+                    _this.background = init.background;
+                if (init.position !== undefined)
+                    _this.position = init.position;
+                if (init.animDuration !== undefined)
+                    _this.animDuration = init.animDuration;
+            }
             return _this;
         }
         Object.defineProperty(Fold.prototype, "isFolded", {
@@ -22060,6 +22583,12 @@ var Ui;
             _this.buttonContent = new Ui.Rectangle({ radius: 10, width: 20, height: 20, margin: 10 });
             _this.button.setContent(_this.buttonContent);
             _this.ease = new Anim.PowerEase({ mode: 'out' });
+            if (init) {
+                if (init.value !== undefined)
+                    _this.value = init.value;
+                if (init.ease !== undefined)
+                    _this.ease = init.ease;
+            }
             return _this;
         }
         Object.defineProperty(Switch.prototype, "value", {
@@ -22963,6 +23492,12 @@ var Ui;
             _this._flow = new Ui.Flow();
             _this.setContainer(_this._flow);
             _this.setMarkerOrientation('horizontal');
+            if (init) {
+                if (init.uniform !== undefined)
+                    _this.uniform = init.uniform;
+                if (init.spacing !== undefined)
+                    _this.spacing = init.spacing;
+            }
             return _this;
         }
         Object.defineProperty(FlowDropBox.prototype, "uniform", {
@@ -22985,12 +23520,22 @@ var Ui;
     var SFlowDropBox = (function (_super) {
         __extends(SFlowDropBox, _super);
         function SFlowDropBox(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this._sflow = new Ui.SFlow();
             _this.setContainer(_this._sflow);
             _this.setMarkerOrientation('horizontal');
-            if (init)
-                _this.assign(init);
+            if (init) {
+                if (init.stretchMaxRatio !== undefined)
+                    _this.stretchMaxRatio = init.stretchMaxRatio;
+                if (init.uniform !== undefined)
+                    _this.uniform = init.uniform;
+                if (init.uniformRatio !== undefined)
+                    _this.uniformRatio = init.uniformRatio;
+                if (init.itemAlign !== undefined)
+                    _this.itemAlign = init.itemAlign;
+                if (init.spacing !== undefined)
+                    _this.spacing = init.spacing;
+            }
             return _this;
         }
         Object.defineProperty(SFlowDropBox.prototype, "stretchMaxRatio", {
@@ -23089,7 +23634,7 @@ var Ui;
     var SegmentBar = (function (_super) {
         __extends(SegmentBar, _super);
         function SegmentBar(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this._field = 'text';
             _this._orientation = 'horizontal';
             _this.focusable = true;
@@ -23101,7 +23646,16 @@ var Ui;
             _this.connect(_this, 'focus', _this.onStyleChange);
             _this.connect(_this, 'blur', _this.onStyleChange);
             _this.connect(_this.drawing, 'keydown', _this.onKeyDown);
-            _this.assign(init);
+            if (init) {
+                if (init.orientation !== undefined)
+                    _this.orientation = init.orientation;
+                if (init.field !== undefined)
+                    _this.field = init.field;
+                if (init.data !== undefined)
+                    _this.data = init.data;
+                if (init.currentPosition !== undefined)
+                    _this.currentPosition = init.currentPosition;
+            }
             return _this;
         }
         Object.defineProperty(SegmentBar.prototype, "orientation", {
@@ -23249,7 +23803,7 @@ var Ui;
     var SegmentButton = (function (_super) {
         __extends(SegmentButton, _super);
         function SegmentButton(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this._mode = undefined;
             _this._radius = 3;
             _this.focusable = false;
@@ -23259,7 +23813,26 @@ var Ui;
             _this.append(_this.textBox);
             _this.label = new Ui.CompactLabel({ verticalAlign: 'center', whiteSpace: 'nowrap', textAlign: 'center' });
             _this.textBox.content = _this.label;
-            _this.assign(init);
+            if (init) {
+                if (init.textTransform !== undefined)
+                    _this.textTransform = init.textTransform;
+                if (init.foreground !== undefined)
+                    _this.foreground = init.foreground;
+                if (init.data !== undefined)
+                    _this.data = init.data;
+                if (init.text !== undefined)
+                    _this.text = init.text;
+                if (init.textHeight !== undefined)
+                    _this.textHeight = init.textHeight;
+                if (init.mode !== undefined)
+                    _this.mode = init.mode;
+                if (init.radius !== undefined)
+                    _this.radius = init.radius;
+                if (init.spacing !== undefined)
+                    _this.spacing = init.spacing;
+                if (init.background !== undefined)
+                    _this.background = init.background;
+            }
             return _this;
         }
         Object.defineProperty(SegmentButton.prototype, "textTransform", {
@@ -23380,6 +23953,10 @@ var Ui;
             _this.addEvents('change');
             _this.connect(_this, 'focus', _this.updateColors);
             _this.connect(_this, 'blur', _this.updateColors);
+            if (init) {
+                if (init.path !== undefined)
+                    _this.path = init.path;
+            }
             return _this;
         }
         Object.defineProperty(Locator.prototype, "path", {
@@ -23680,6 +24257,12 @@ var Ui;
             var _this = _super.call(this, init) || this;
             _this._radius = 8;
             _this._length = 10;
+            if (init) {
+                if (init.radius !== undefined)
+                    _this.radius = init.radius;
+                if (init.arrowLength !== undefined)
+                    _this.arrowLength = init.arrowLength;
+            }
             return _this;
         }
         Object.defineProperty(LocatorLeftArrow.prototype, "radius", {
@@ -23710,8 +24293,14 @@ var Ui;
     var LocatorLeftRightArrow = (function (_super) {
         __extends(LocatorLeftRightArrow, _super);
         function LocatorLeftRightArrow(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this._length = 10;
+            if (init) {
+                if (init.radius !== undefined)
+                    _this.radius = init.radius;
+                if (init.arrowLength !== undefined)
+                    _this.arrowLength = init.arrowLength;
+            }
             return _this;
         }
         Object.defineProperty(LocatorLeftRightArrow.prototype, "radius", {

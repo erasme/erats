@@ -4,11 +4,11 @@
 // Play with Ui.Label, the simplest text element
 //
 
-let app = new Ui.App();
+new Ui.App({
+    content: new Ui.Label({
+        text: 'hello world',
+        verticalAlign: 'center',
+        horizontalAlign: 'center'
+    })
+});
 
-let label = new Ui.Label();
-label.text = 'hello world';
-label.verticalAlign = 'center';
-label.horizontalAlign = 'center';
-
-app.setContent(label);

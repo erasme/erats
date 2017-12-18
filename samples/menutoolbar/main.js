@@ -18,7 +18,7 @@ var App = (function (_super) {
     function App() {
         var _this = _super.call(this) || this;
         var vbox = new Ui.VBox();
-        _this.setContent(vbox);
+        _this.content = vbox;
         var toolbar = new Ui.MenuToolBar({ spacing: 5, margin: 5 });
         vbox.append(toolbar);
         toolbar.append(new Ui.Button({ text: 'Button1' }));

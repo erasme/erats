@@ -95,7 +95,7 @@ var App = (function (_super) {
     function App() {
         var _this = _super.call(this) || this;
         var content = new Ui.VBox();
-        _this.setContent(content);
+        _this.content = content;
         var toolbar = new Ui.ToolBar();
         toolbar.append(new Ui.Button({ text: 'button1' }));
         toolbar.append(new Ui.Element(), true);

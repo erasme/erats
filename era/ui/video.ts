@@ -1,14 +1,13 @@
 namespace Ui {
 	export interface VideoInit extends ElementInit {
-		oggSrc: string;
-		mp4Src: string;
-		webmSrc: string;
-		src: string;
-		poster: string;
-		autoplay: boolean;
-		volume: number;
-		duration: number;
-		currentTime: number;
+		oggSrc?: string;
+		mp4Src?: string;
+		webmSrc?: string;
+		src?: string;
+		poster?: string;
+		autoplay?: boolean;
+		volume?: number;
+		currentTime?: number;
 	}
 
 	export class Video extends Element {
@@ -28,20 +27,29 @@ namespace Ui {
 		static supportMp4:boolean = false;
 		static supportWebm:boolean = false;
 
-		constructor(init?: Partial<VideoInit>) {
-			super();
+		constructor(init?: VideoInit) {
+			super(init);
 			this.addEvents('ready', 'ended', 'timeupdate', 'bufferingupdate', 'statechange', 'error');
 			this.connect(this, 'unload', this.onVideoUnload);
 			if (init) {
+				if (init.src !== undefined)
+					this.src = init.src;	
 				if (init.oggSrc || init.mp4Src || init.webmSrc) {
-					if (init.oggSrc && Ui.Video.supportOgg)
-						this.src = init.oggSrc;
-					else if (init.mp4Src && Ui.Video.supportMp4)
+					if (init.mp4Src && Ui.Video.supportMp4)
 						this.src = init.mp4Src;
 					else if (init.webmSrc && Ui.Video.supportWebm)
 						this.src = init.webmSrc;
+					else if (init.oggSrc && Ui.Video.supportOgg)
+						this.src = init.oggSrc;
 				}
-				this.assign(init);
+				if (init.poster !== undefined)
+					this.poster = init.poster;	
+				if (init.autoplay !== undefined)
+					this.autoplay = init.autoplay;
+				if (init.volume !== undefined)
+					this.volume = init.volume;	
+				if (init.currentTime !== undefined)
+					this.currentTime = init.currentTime;
 			}	
 		}
 

@@ -4,17 +4,19 @@ namespace Anim
 	export type EaseMode = 'in' | 'out' | 'inout';
 
 	export interface EasingFunctionInit {
-		mode: EaseMode;
+		mode?: EaseMode;
 	}
 
 	export class EasingFunction extends Core.Object
 	{
 		mode: EaseMode = 'in';
 	
-		constructor(init?: Partial<EasingFunctionInit>) {
+		constructor(init?: EasingFunctionInit) {
 			super();
-			if (init)
-				this.assign(init);
+			if (init) {
+				if (init.mode !== undefined)
+					this.mode = init.mode;	
+			}
 		}
 
 		ease(normalizedTime: number): number {

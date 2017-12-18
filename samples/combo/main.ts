@@ -5,7 +5,7 @@ class App extends Ui.App {
 	constructor() {
         super();
 		let vbox = new Ui.VBox({ verticalAlign: 'center', horizontalAlign: 'center' });
-		this.setContent(vbox);
+		this.content = vbox;
 
         interface MyData { text: string; id: number; }
 

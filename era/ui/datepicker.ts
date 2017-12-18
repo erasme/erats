@@ -1,15 +1,14 @@
 namespace Ui {
 	export interface DatePickerInit extends TextButtonFieldInit {
-		dayFilter: number[];
-		dateFilter: string[];
-		selectedDate: Date;
+		dayFilter?: number[];
+		dateFilter?: string[];
+		selectedDate?: Date;
 	}
 
 	export class DatePicker extends TextButtonField implements DatePickerInit {
 		protected popup: Popup;
 		protected calendar: MonthCalendar;
 		protected _selectedDate: Date;
-		protected lastValid: string = '';
 		protected _isValid: boolean = false;
 		protected _dayFilter: number[];
 		protected _dateFilter: string[];
@@ -17,15 +16,21 @@ namespace Ui {
 		//
 		// @class TextButtonField that open a calendar to choose a day and then display it in a DD/MM/YYYY format 
 		//
-		constructor(init?: Partial<DatePickerInit>) {
-			super();
+		constructor(init?: DatePickerInit) {
+			super(init);
 			this.buttonIcon = 'calendar';
 			this.widthText = 9;
 
 			this.connect(this, 'buttonpress', this.onDatePickerButtonPress);
 			this.connect(this, 'change', this.onDatePickerChange);
-			if (init)
-				this.assign(init);
+			if (init) {
+				if (init.dayFilter !== undefined)
+					this.dayFilter = init.dayFilter;	
+				if (init.dateFilter !== undefined)
+					this.dateFilter = init.dateFilter;	
+				if (init.selectedDate !== undefined)
+					this.selectedDate = init.selectedDate;	
+			}
 		}
 
 		set dayFilter(dayFilter: number[]) {
@@ -45,14 +50,11 @@ namespace Ui {
 		}
 
 		set selectedDate(date: Date) {
-			if (date === undefined) {
+			if (date === undefined)
 				this._selectedDate = undefined;
-			}
-			else {
-				this.lastValid = ((date.getDate() < 10) ? '0' : '') + date.getDate() + '/' + ((date.getMonth() < 9) ? '0' : '') + (date.getMonth() + 1) + '/' + date.getFullYear();
+			else 
 				this._selectedDate = date;
-				this.textValue = this.lastValid;
-			}
+
 			this._isValid = true;
 			this.fireEvent('change', this, this.selectedDate);
 		}
@@ -87,25 +89,24 @@ namespace Ui {
 				var date = new Date();
 				date.setFullYear(parseInt(splitDate[3]), parseInt(splitDate[2]) - 1, parseInt(splitDate[1]));
 				var newStr = ((date.getDate() < 10) ? '0' : '') + date.getDate() + '/' + ((date.getMonth() < 9) ? '0' : '') + (date.getMonth() + 1) + '/' + date.getFullYear();
-				if ((parseInt(splitDate[3]) != date.getFullYear()) || (parseInt(splitDate[2]) - 1 != date.getMonth()) || (parseInt(splitDate[1]) != date.getDate())) {
-					this.lastValid = newStr;
-					this.textValue = this.lastValid;
+				if (!((parseInt(splitDate[3]) != date.getFullYear()) || (parseInt(splitDate[2]) - 1 != date.getMonth()) || (parseInt(splitDate[1]) != date.getDate()))) {
+					this._selectedDate = date;
+					this._isValid = true;
 				}
-				this._selectedDate = date;
-				this._isValid = true;
 			}
-			else if (dateStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{0,4})$/))
-				this.lastValid = dateStr;
-			else if (dateStr.match(/^(\d{1,2})\/(\d{0,2})$/))
-				this.lastValid = dateStr;
-			else if (dateStr.match(/^(\d{0,2})$/))
-				this.lastValid = dateStr;
-			else
-				this.textValue = this.lastValid;
+
 		}
 
-		protected onDaySelect(monthcalendar, date) {
+		private zeroPad(val: number, size: number = 2) {
+			let s = val.toString();
+			while (s.length < size)
+				s = "0" + s;
+			return s;
+		}
+
+		protected onDaySelect(monthcalendar, date: Date) {
 			this.selectedDate = date;
+			this.textValue = `${this.zeroPad(date.getDate(), 2)}/${this.zeroPad(date.getMonth()+1,2)}/${date.getFullYear()}`;
 			this.popup.close();
 			this.popup = undefined;
 		}

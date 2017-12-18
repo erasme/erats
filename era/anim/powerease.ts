@@ -1,16 +1,18 @@
 namespace Anim
 {
 	export interface PowerEaseInit extends EasingFunctionInit {
-		power: number;
+		power?: number;
 	}
 
 	export class PowerEase extends EasingFunction implements PowerEaseInit {
 		power: number = 2;
 
-		constructor(init?: Partial<PowerEaseInit>) {
-			super();
-			if (init)
-				this.assign(init);
+		constructor(init?: PowerEaseInit) {
+			super(init);
+			if (init) {
+				if (init.power !== undefined)
+					this.power = init.power;
+			}
 		}
 
 		protected easeInCore(normalizedTime: number): number {

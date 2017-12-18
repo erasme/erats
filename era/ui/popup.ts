@@ -1,9 +1,9 @@
 namespace Ui
 {
 	export interface PopupInit extends ContainerInit {
-		preferredWidth: number;
-		preferredHeight: number;
-		autoClose: boolean;
+		preferredWidth?: number;
+		preferredHeight?: number;
+		autoClose?: boolean;
 	}
 
 	export type AttachBorder = 'right' | 'left' | 'top' | 'bottom' | 'center';
@@ -27,8 +27,8 @@ namespace Ui
 		openClock: Anim.Clock = undefined;
 		isClosed: boolean = true;
 
-		constructor(init?: Partial<PopupInit>) {
-			super();
+		constructor(init?: PopupInit) {
+			super(init);
 			this.addEvents('close');
 
 			this.horizontalAlign = 'stretch';
@@ -69,8 +69,14 @@ namespace Ui
 			// handle auto hide
 			this.connect(this.shadow, 'press', this.onShadowPress);
 
-			if (init)
-				this.assign(init);
+			if (init) {
+				if (init.preferredWidth !== undefined)
+					this.preferredWidth = init.preferredWidth;	
+				if (init.preferredHeight !== undefined)
+					this.preferredHeight = init.preferredHeight;
+				if (init.autoClose !== undefined)
+					this.autoClose = init.autoClose;	
+			}
 		}
 
 		set preferredWidth(width: number) {
@@ -584,10 +590,8 @@ namespace Ui
 
 	export class MenuPopup extends Popup implements MenuPopupInit
 	{
-		constructor(init?: Partial<MenuPopupInit>) {
-			super();
-			if (init)
-				this.assign(init);
+		constructor(init?: MenuPopupInit) {
+			super(init);
 		}
 	}
 

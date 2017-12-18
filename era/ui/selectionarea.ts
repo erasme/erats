@@ -8,7 +8,7 @@ namespace Ui {
         startPos: Ui.Point;
         private shiftStart: Ui.SelectionableWatcher;
 
-        constructor(init?: Partial<SelectionAreaInit>) {
+        constructor(init?: SelectionAreaInit) {
             super(init);
 
             // handle pointers

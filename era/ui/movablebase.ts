@@ -1,9 +1,9 @@
 namespace Ui {
 	export interface MovableBaseInit extends ContainerInit {
-		lock: boolean;
-		inertia: boolean;
-		moveHorizontal: boolean;
-		moveVertical: boolean;
+		lock?: boolean;
+		inertia?: boolean;
+		moveHorizontal?: boolean;
+		moveVertical?: boolean;
 	}
 
 	export class MovableBase extends Container implements MovableBaseInit {
@@ -22,12 +22,20 @@ namespace Ui {
 		protected isInMoveEvent: boolean = false;
 		protected cumulMove: number = 0;
 
-		constructor(init?: Partial<MovableBaseInit>) {
-			super();
+		constructor(init?: MovableBaseInit) {
+			super(init);
 			this.addEvents('down', 'up', 'move');
 			this.connect(this, 'ptrdown', this.onPointerDown);
-			if (init)
-				this.assign(init);
+			if (init) {
+				if (init.lock !== undefined)
+					this.lock = init.lock;	
+				if (init.inertia !== undefined)
+					this.inertia = init.inertia;
+				if (init.moveHorizontal !== undefined)
+					this.moveHorizontal = init.moveHorizontal;	
+				if (init.moveVertical !== undefined)
+					this.moveVertical = init.moveVertical;	
+			}
 		}
 
 		set lock(lock: boolean) {

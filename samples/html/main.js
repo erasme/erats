@@ -15,7 +15,7 @@ var App = (function (_super) {
     function App() {
         var _this = _super.call(this) || this;
         var mainvbox = new Ui.VBox();
-        _this.setContent(mainvbox);
+        _this.content = mainvbox;
         var toolbar = new Ui.ToolBar();
         mainvbox.append(toolbar);
         var button = new Ui.CheckBox();

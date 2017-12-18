@@ -5,7 +5,7 @@ class App extends Ui.App {
         super();
         let lbox = new Ui.LBox();
         lbox.margin = 100;
-        this.setContent(lbox);
+        this.content = lbox;
 
         let scalebox = new Ui.ScaleBox({ fixedWidth: 800, fixedHeight: 600 });
 	    lbox.content = scalebox;

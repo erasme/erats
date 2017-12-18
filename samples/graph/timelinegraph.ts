@@ -2,12 +2,12 @@
 namespace Graph {
 
 	export interface TimeLineGraphInit extends Ui.CanvasElementInit {
-		data: Array<any>;
-		startTime: Date;
-		endTime: Date;
-		maxY: number;
-		unit: 'none' | 'bps' | 'percent' | 'seconds';
-		mode: 'diff';
+		data?: Array<any>;
+		startTime?: Date;
+		endTime?: Date;
+		maxY?: number;
+		unit?: 'none' | 'bps' | 'percent' | 'seconds';
+		mode?: 'diff';
 	}
 
 	export class TimeLineGraph extends Ui.CanvasElement {
@@ -20,7 +20,7 @@ namespace Graph {
 		mode: 'diff';
 		private transformWatcher: Ui.TransformableWatcher;
 
-		constructor(init: Partial<TimeLineGraphInit>) {
+		constructor(init: TimeLineGraphInit) {
 			super(init);
 			if (init.data != undefined)
 				this.data = init.data;

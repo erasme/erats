@@ -15,7 +15,7 @@ var App = (function (_super) {
     function App() {
         var _this = _super.call(this) || this;
         var scroll = new Ui.ScrollingArea();
-        _this.setContent(scroll);
+        _this.content = scroll;
         var vbox = new Ui.VBox();
         scroll.content = vbox;
         vbox.append(new Ui.Rectangle({ fill: 'orange', height: 350 }));

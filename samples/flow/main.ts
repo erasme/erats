@@ -1,27 +1,15 @@
 /// <reference path="../../era/era.d.ts" />
 
-let app = new Ui.App();
+new Ui.App({
+    content: new Ui.Flow({
+        spacing: 10,
+        content: [
+            new Ui.Rectangle({ width: 150, height: 150, fill: 'pink' }),
+            new Ui.Rectangle({ width: 100, height: 50, fill: 'purple', verticalAlign: 'center' }),
+            new Ui.Rectangle({ width: 150, height: 150, fill: 'brown' }),
+            new Ui.Rectangle({ width: 200, height: 15, fill: 'orange' }),
+            new Ui.Rectangle({ width: 150, height: 150, fill: 'lightblue' })
+        ]
+    })
+});
 
-let flow = new Ui.Flow();
-flow.spacing = 10;
-app.setContent(flow);
-
-let r = new Ui.Rectangle();
-r.width = 150; r.height = 150; r.fill = 'pink';
-flow.append(r);
-
-r = new Ui.Rectangle();
-r.width = 100; r.height = 50; r.fill = 'purple'; r.verticalAlign = Ui.VerticalAlign.center;
-flow.append(r);
-
-r = new Ui.Rectangle();
-r.width = 150; r.height = 150; r.fill = 'brown';
-flow.append(r);
-
-r = new Ui.Rectangle();
-r.width = 200; r.height = 15; r.fill = 'orange';
-flow.append(r);
-
-r = new Ui.Rectangle();
-r.width = 150; r.height = 150; r.fill = 'lightblue';
-flow.append(r);

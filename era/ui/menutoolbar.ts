@@ -15,14 +15,14 @@ namespace Ui
 	}
 
 	export interface MenuToolBarInit extends ContainerInit {
-		paddingTop: number;
-		paddingBottom: number;
-		paddingLeft: number;
-		paddingRight: number;
-		itemsAlign: 'left' | 'right';
-		menuPosition: 'left' | 'right';
-		uniform: boolean;
-		spacing: number;
+		paddingTop?: number;
+		paddingBottom?: number;
+		paddingLeft?: number;
+		paddingRight?: number;
+		itemsAlign?: 'left' | 'right';
+		menuPosition?: 'left' | 'right';
+		uniform?: boolean;
+		spacing?: number;
 	}
 
 	export class MenuToolBar extends Container implements MenuToolBarInit
@@ -45,7 +45,7 @@ namespace Ui
 		private menuNeeded: boolean = false;
 		private bg: Rectangle = undefined;
 
-		constructor(init?: Partial<MenuToolBarInit>) {
+		constructor(init?: MenuToolBarInit) {
 			super(init);
 			this.items = [];
 
@@ -55,6 +55,25 @@ namespace Ui
 			this.menuButton = new Ui.MenuToolBarButton();
 			this.connect(this.menuButton, 'press', this.onMenuButtonPress);
 			this.appendChild(this.menuButton);
+
+			if (init) {
+				if (init.paddingTop !== undefined)
+					this.paddingTop = init.paddingTop;
+				if (init.paddingBottom !== undefined)
+					this.paddingBottom = init.paddingBottom;
+				if (init.paddingLeft !== undefined)
+					this.paddingLeft = init.paddingLeft;
+				if (init.paddingRight !== undefined)
+					this.paddingRight = init.paddingRight;	
+				if (init.itemsAlign !== undefined)
+					this.itemsAlign = init.itemsAlign;	
+				if (init.menuPosition !== undefined)
+					this.menuPosition = init.menuPosition;	
+				if (init.uniform !== undefined)
+					this.uniform = init.uniform;
+				if (init.spacing !== undefined)
+					this.spacing = init.spacing;	
+			}
 		}
 	
 		get uniform(): boolean {

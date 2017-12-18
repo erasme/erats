@@ -1,7 +1,7 @@
 namespace Ui {
 
 	export interface LocatorInit extends ContainerInit {
-		path: string;
+		path?: string;
 	}
 
 	export class Locator extends Container implements LocatorInit {
@@ -11,11 +11,15 @@ namespace Ui {
 		private border: Rectangle;
 		private focusedPart: Pressable;
 	
-		constructor(init?: Partial<LocatorInit>) {
+		constructor(init?: LocatorInit) {
 			super(init);
 			this.addEvents('change');
 			this.connect(this, 'focus', this.updateColors);
 			this.connect(this, 'blur', this.updateColors);
+			if (init) {
+				if (init.path !== undefined)
+					this.path = init.path;	
+			}
 		}
 
 		set path(path: string) {
@@ -337,16 +341,22 @@ namespace Ui {
 	}
 
 	export interface LocatorLeftArrowInit extends ShapeInit {
-		radius: number;
-		arrowLength: number;
+		radius?: number;
+		arrowLength?: number;
 	}
 	
 	export class LocatorLeftArrow extends Shape implements LocatorLeftArrowInit {
 		private _radius: number = 8;
 		private _length: number = 10;
 
-		constructor(init?: Partial<LocatorLeftArrowInit>) {
+		constructor(init?: LocatorLeftArrowInit) {
 			super(init);
+			if (init) {
+				if (init.radius !== undefined)
+					this.radius = init.radius;
+				if (init.arrowLength !== undefined)
+					this.arrowLength = init.arrowLength;	
+			}
 		}
 
 		set radius(radius: number) {
@@ -368,15 +378,21 @@ namespace Ui {
 	}
 
 	export interface LocatorLeftRightArrowInit extends ShapeInit {
-		radius: number;
-		arrowLength: number;
+		radius?: number;
+		arrowLength?: number;
 	}
 	
 	export class LocatorLeftRightArrow extends Shape implements LocatorLeftRightArrowInit {
 		private _length: number = 10;
 
-		constructor(init?: Partial<LocatorLeftRightArrowInit>) {
-			super();
+		constructor(init?: LocatorLeftRightArrowInit) {
+			super(init);
+			if (init) {
+				if (init.radius !== undefined)
+					this.radius = init.radius;
+				if (init.arrowLength !== undefined)
+					this.arrowLength = init.arrowLength;	
+			}
 		}
 
 		set radius(radius: number) {

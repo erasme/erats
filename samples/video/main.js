@@ -15,7 +15,7 @@ var App = (function (_super) {
     function App() {
         var _this = _super.call(this) || this;
         var vbox = new Ui.VBox();
-        _this.setContent(vbox);
+        _this.content = vbox;
         var toolbar = new Ui.ToolBar({ verticalAlign: 'top' });
         vbox.append(toolbar);
         var playButton = new Ui.Button({ text: 'play' });
@@ -36,9 +36,7 @@ var App = (function (_super) {
         var delayplayButton = new Ui.Button({ text: 'delay play 1s' });
         toolbar.append(delayplayButton);
         _this.connect(delayplayButton, 'press', function () {
-            return new Core.DelayedTask(_this, 1, function () {
-                video.play();
-            });
+            return new Core.DelayedTask(1, function () { return video.play(); });
         });
         var progressbar = new Ui.ProgressBar({ verticalAlign: 'center' });
         toolbar.append(progressbar, true);

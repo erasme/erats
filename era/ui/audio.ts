@@ -3,12 +3,12 @@ namespace Ui {
 	export type MediaState = 'initial' | 'playing' | 'paused' | 'buffering' | 'error';
 
 	export interface AudioInit extends ElementInit {
-		src: string;
-		oggSrc: string;
-		mp3Src: string;
-		aacSrc: string;
-		volume: number;
-		currentTime: number;
+		src?: string;
+		oggSrc?: string;
+		mp3Src?: string;
+		aacSrc?: string;
+		volume?: number;
+		currentTime?: number;
 	}
 
 	export class Audio extends Element {
@@ -24,7 +24,7 @@ namespace Ui {
 		static supportWav: boolean = false;
 		static supportAac: boolean = false;
 
-		constructor(init?: Partial<AudioInit>) {
+		constructor(init?: AudioInit) {
 			super();
 			this.addEvents('ready', 'ended', 'timeupdate', 'bufferingupdate', 'statechange', 'error');
 			this.connect(this, 'unload', this.onAudioUnload);
@@ -39,7 +39,10 @@ namespace Ui {
 					else if (init.aacSrc && Ui.Audio.supportAac)
 						this.src = init.aacSrc;
 				}
-				this.assign(init);
+				if (init.volume !== undefined)
+					this.volume = init.volume;
+				if (init.currentTime !== undefined)
+					this.currentTime = init.currentTime;
 			}
 		}
 

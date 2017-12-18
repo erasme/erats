@@ -1,19 +1,27 @@
 namespace Core
 {
+	export interface SocketInit {
+		host?: string;
+		secure?: boolean;
+		port?: number;
+		service?: string;
+		mode?: 'websocket' | 'poll';
+	}
+
 	export class Socket extends Object
 	{
 		host: string = undefined;
 		service: string = '/';
 		port: number = 80;
-		mode: any = undefined;
+		mode: 'websocket' | 'poll';
 		secure: boolean = false;
-		websocket: any = undefined;
-		websocketdelay: any = undefined;
-		emuopenrequest: any = undefined;
-		emupollrequest: any = undefined;
-		emusendrequest: any = undefined;
-		emuid: any = undefined;
-		emumessages: any = undefined;
+		websocket: any;
+		websocketdelay: any;
+		emuopenrequest: any;
+		emupollrequest: any;
+		emusendrequest: any;
+		emuid: any;
+		emumessages: any;
 		lastPosition: number = 0;
 		readSize: boolean = true;
 		size: number = 0;
@@ -21,32 +29,26 @@ namespace Core
 		isClosed: boolean = false;
 		closeSent: boolean = false;
 		sep: string = '?';
-		lastPoll: any = undefined;
-		delayPollTask: any = undefined;
+		lastPoll: any;
+		delayPollTask: any;
 		pollInterval: number = 2.5;
 
 		static supportWebSocket: boolean = true;
 
-		constructor(config) {
+		constructor(init: SocketInit) {
 			super();
 			this.addEvents('error', 'message', 'close', 'open');
-			if ('host' in config) {
-				this.host = config.host;
-				delete (config.host);
-			}
+			if (init.host !== undefined)
+				this.host = init.host;
 			else
 				this.host = document.location.hostname;
-			if ('secure' in config) {
-				this.secure = config.secure;
-				delete (config.secure);
-			}
-			else {
+			if (init.secure !== undefined)
+				this.secure = init.secure;
+			else
 				this.secure = (document.location.protocol === 'https:');
-			}
-			if ('port' in config) {
-				this.port = config.port;
-				delete (config.port);
-			}
+			
+			if (init.port !== undefined)
+				this.port = init.port;
 			else if ((document.location.port !== undefined) && (document.location.port !== ''))
 				this.port = parseInt(document.location.port);
 			else {
@@ -55,18 +57,15 @@ namespace Core
 				else
 					this.port = 80;
 			}
-			if ('service' in config) {
-				this.service = config.service;
-				delete (config.service);
+			if (init.service !== undefined) {
+				this.service = init.service;
 				if (this.service.indexOf('?') == -1)
 					this.sep = '?';
 				else
 					this.sep = '&';
 			}
-			if ('mode' in config) {
-				this.mode = config.mode;
-				delete (config.mode);
-			}
+			if (init.mode !== undefined)
+				this.mode = init.mode;
 			else {
 				if (Core.Socket.supportWebSocket)
 					this.mode = 'websocket';
@@ -75,7 +74,7 @@ namespace Core
 			}
 			if (this.mode == 'websocket') {
 				this.websocket = new WebSocket((this.secure ? 'wss' : 'ws') + '://' + this.host + ':' + this.port + this.service);
-				this.websocketdelay = new Core.DelayedTask(this, 30, this.onWebSocketOpenTimeout);
+				this.websocketdelay = new Core.DelayedTask(30, this.onWebSocketOpenTimeout);
 				this.connect(this.websocket, 'open', this.onWebSocketOpen);
 				this.connect(this.websocket, 'error', this.onWebSocketError);
 				this.connect(this.websocket, 'message', this.onWebSocketMessage);
@@ -106,7 +105,7 @@ namespace Core
 					// force a short delay (100ms) poll task if the server has a response to send
 					if (this.delayPollTask !== undefined) {
 						this.delayPollTask.abort();
-						this.delayPollTask = new Core.DelayedTask(this, 0.1, this.delayPollDone);
+						this.delayPollTask = new Core.DelayedTask(0.1, this.delayPollDone);
 					}
 				}
 				else
@@ -314,7 +313,7 @@ namespace Core
 					if (deltaMs >= this.pollInterval * 1000)
 						this.sendPoll();
 					else
-						this.delayPollTask = new Core.DelayedTask(this, this.pollInterval, this.delayPollDone);
+						this.delayPollTask = new Core.DelayedTask(this.pollInterval, this.delayPollDone);
 				}
 			}
 		}

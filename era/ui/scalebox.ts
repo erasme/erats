@@ -1,8 +1,8 @@
 ﻿namespace Ui
 {
 	export interface ScaleBoxInit extends ContainerInit {
-		fixedWidth: number;
-		fixedHeight: number;
+		fixedWidth?: number;
+		fixedHeight?: number;
 	}
 
 	export class ScaleBox extends Container
@@ -10,8 +10,14 @@
 		private _fixedWidth: number = 400;
 		private _fixedHeight: number = 300
 
-		constructor(init?: Partial<ScaleBoxInit>) {
+		constructor(init?: ScaleBoxInit) {
 			super(init);
+			if (init) {
+				if (init.fixedWidth !== undefined)
+					this.fixedWidth = init.fixedWidth;
+				if (init.fixedHeight !== undefined)
+					this.fixedHeight = init.fixedHeight;	
+			}
 		}
 
 		setFixedSize(width: number, height: number) {

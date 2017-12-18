@@ -28,7 +28,17 @@ namespace Ui
 			types?: Array<{ type: string | Function, effects: string | string[] | DropEffect[] | DropEffectFunc }>
 		}) {
 			super();
-			this.assign(init);
+			this.element = init.element;
+			if (init.enter)
+				this.enter = init.enter;
+			if (init.leave)
+				this.leave = init.leave;
+			if (init.drop)
+				this.drop = init.drop;
+			if (init.dropfile)
+				this.dropfile = init.dropfile;
+			if (init.types)
+				this.types = init.types;	
 			this.watchers = [];
 			this.connect(this.element, 'dragover', this.onDragOver);
 		}
@@ -244,7 +254,7 @@ namespace Ui
 		watchers: DragWatcher[] = undefined;
 		allowedTypes: { type: string | Function, effect: DropEffect[] | DropEffectFunc }[] = undefined;
 
-		constructor(init?: Partial<DropBoxInit>) {
+		constructor(init?: DropBoxInit) {
 			super(init);
 			this.addEvents('drageffect', 'dragenter', 'dragleave', 'drop', 'dropfile');
 			this.watchers = [];

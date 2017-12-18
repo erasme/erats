@@ -6,8 +6,8 @@ interface SelectionableInit extends Ui.LBoxInit {
 class Selectionable extends Ui.LBox implements SelectionableInit {
 	selectedMark: Ui.Icon;
 
-	constructor(init?: Partial<SelectionableInit>) {
-		super();
+	constructor(init?: SelectionableInit) {
+		super(init);
 		this.content = new Ui.Rectangle({ fill: 'orange' });
 		this.selectedMark = new Ui.Icon({
 			icon: 'check', fill: '#40d9f1', width: 24, height: 24,
@@ -22,8 +22,6 @@ class Selectionable extends Ui.LBox implements SelectionableInit {
 			select: () => this.selectedMark.show(),
 			unselect: () => this.selectedMark.hide()
 		});
-
-		this.assign(init);
 	}
 
 	onItemDelete() {
@@ -69,8 +67,8 @@ class App extends Ui.App {
 				this.contextBar.show();
 		});
 
-		var vbox = new Ui.VBox();
-		this.setContent(vbox);
+		let vbox = new Ui.VBox();
+		this.content = vbox;
 
 		this.contextBar = new Ui.ContextBar({ selection: this.selection });
 		this.contextBar.hide();

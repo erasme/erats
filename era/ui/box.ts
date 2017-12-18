@@ -4,15 +4,15 @@ namespace Ui
 	export type Orientation = 'vertical' | 'horizontal';
 
 	export interface BoxInit extends ContainerInit {
-		orientation: Orientation;
-		padding: number;
-		paddingTop: number;
-		paddingBottom: number;
-		paddingLeft: number;
-		paddingRight: number;
-		uniform: boolean;
-		spacing: number;
-		content: Element | Element[];
+		orientation?: Orientation;
+		padding?: number;
+		paddingTop?: number;
+		paddingBottom?: number;
+		paddingLeft?: number;
+		paddingRight?: number;
+		uniform?: boolean;
+		spacing?: number;
+		content?: Element | Element[];
 	}
 
 	export class Box extends Container implements BoxInit
@@ -27,10 +27,28 @@ namespace Ui
 		private vertical: boolean = true;
 		private uniformSize: number = 0;
 
-		constructor(init?: Partial<BoxInit>) {
-			super();
-			if (init)
-				this.assign(init);
+		constructor(init?: BoxInit) {
+			super(init);
+			if (init) {
+				if (init.orientation !== undefined)
+					this.orientation = init.orientation;
+				if (init.padding !== undefined)
+					this.padding = init.padding;	
+				if (init.paddingTop !== undefined)
+					this.paddingTop = init.padding;
+				if (init.paddingBottom !== undefined)
+					this.paddingBottom = init.paddingBottom;
+				if (init.paddingLeft !== undefined)
+					this.paddingLeft = init.paddingLeft;
+				if (init.paddingRight !== undefined)
+					this.paddingRight = init.paddingRight;
+				if (init.uniform !== undefined)
+					this.uniform = init.uniform;	
+				if (init.spacing !== undefined)
+					this.spacing = init.spacing;	
+				if (init.content !== undefined)
+					this.content = init.content;
+			}
 		}
 
 		set content(content: Element | Element[]) {
@@ -589,11 +607,9 @@ namespace Ui
 
 	export class VBox extends Box implements VBoxInit
 	{
-		constructor(init?: Partial<VBoxInit>) {
-			super();
+		constructor(init?: VBoxInit) {
+			super(init);
 			this.orientation = 'vertical';
-			if (init)
-				this.assign(init);
 		}
 	}
 
@@ -601,11 +617,9 @@ namespace Ui
 
 	export class HBox extends Box implements HBoxInit
 	{
-		constructor(init?: Partial<HBoxInit>) {
-			super();
+		constructor(init?: HBoxInit) {
+			super(init);
 			this.orientation = 'horizontal';
-			if (init)
-				this.assign(init);
 		}
 	}
 }

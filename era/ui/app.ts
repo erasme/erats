@@ -1,10 +1,10 @@
 namespace Ui
 {
-	export interface AppInit extends LBoxInit {
-		content: Element;
+	export interface AppInit extends ContainerInit {
+		content?: Element;
 	}
 
-	export class App extends LBox
+	export class App extends Container
 	{
 		styles: any = undefined;
 		private updateTask: boolean = false;
@@ -39,8 +39,8 @@ namespace Ui
 		// with a App class as the main container
 		// @extends Ui.LBox
 		//
-		constructor(init?: Partial<AppInit>) {
-			super();
+		constructor(init?: AppInit) {
+			super(init);
 			let args;
 			this.addEvents('resize', 'ready', 'parentmessage', 'orientationchange');
 			this.clipToBounds = true;
@@ -84,7 +84,7 @@ namespace Ui
 			}
 
 			this.contentBox = new Ui.VBox();
-			this.append(this.contentBox);
+			this.appendChild(this.contentBox);
 
 			this.setTransformOrigin(0, 0);
 
@@ -119,9 +119,12 @@ namespace Ui
 
 			this.bindedUpdate = this.update.bind(this);
 
-			this.assign(init);
 			if (window['loaded'] === true)
-				this.onWindowLoad();	
+				this.onWindowLoad();
+			if (init) {
+				if (init.content !== undefined)
+					this.content = init.content;
+			}
 		}
 
 		setWebApp(webApp: boolean) {
@@ -155,7 +158,7 @@ namespace Ui
 				if (test)
 					this.forceInvalidateMeasure(this);
 				else if (this.isReady && !test && (this.testFontTask === undefined))
-					this.testFontTask = new Core.DelayedTask(this, 0.25, this.testRequireFonts);
+					this.testFontTask = new Core.DelayedTask(0.25, this.testRequireFonts);
 			}
 		}
 	
@@ -176,7 +179,7 @@ namespace Ui
 				}
 			}
 			if (!allDone)
-				this.testFontTask = new Core.DelayedTask(this, 0.25, this.testRequireFonts);
+				this.testFontTask = new Core.DelayedTask(0.25, this.testRequireFonts);
 			else
 				this.testFontTask = undefined;
 		}
@@ -190,6 +193,22 @@ namespace Ui
 
 		getOrientation() {
 			return this.orientation;
+		}
+
+		//
+		// Return the required size for the current element
+		//
+		protected measureCore(width: number, height: number) {
+			let minWidth = 0;
+			let minHeight = 0;
+			for (let child of this.children) {
+				let size = child.measure(width, height);
+				if (size.width > minWidth)
+					minWidth = size.width;
+				if (size.height > minHeight)
+					minHeight = size.height;
+			}
+			return { width: minWidth, height: minHeight };
 		}
 
 		protected onSelectionChange(selection) {
@@ -360,9 +379,9 @@ namespace Ui
 				this.dialogs = new Ui.LBox();
 				this.dialogs.eventsHidden = true;
 				if (this.topLayers !== undefined)
-					this.insertBefore(this.dialogs, this.topLayers);
+					this.insertChildBefore(this.dialogs, this.topLayers);
 				else
-					this.append(this.dialogs);
+					this.appendChild(this.dialogs);
 			}
 			this.dialogs.append(dialog);
 			this.contentBox.disable();
@@ -374,7 +393,7 @@ namespace Ui
 			if (this.dialogs !== undefined) {
 				this.dialogs.remove(dialog);
 				if (this.dialogs.children.length === 0) {
-					this.remove(this.dialogs);
+					this.removeChild(this.dialogs);
 					this.dialogs = undefined;
 					this.contentBox.enable();
 				}
@@ -387,7 +406,7 @@ namespace Ui
 			if (this.topLayers === undefined) {
 				this.topLayers = new Ui.LBox();
 				this.topLayers.eventsHidden = true;
-				this.append(this.topLayers);
+				this.appendChild(this.topLayers);
 			}
 			this.topLayers.append(layer);
 		}
@@ -396,7 +415,7 @@ namespace Ui
 			if (this.topLayers !== undefined) {
 				this.topLayers.remove(layer);
 				if (this.topLayers.children.length === 0) {
-					this.remove(this.topLayers);
+					this.removeChild(this.topLayers);
 					this.topLayers = undefined;
 				}
 			}
@@ -611,7 +630,9 @@ namespace Ui
 				}
 			}
 			this.lastArrangeHeight = h;
-			super.arrangeCore(w, h);
+
+			for (let child of this.children)
+				child.arrange(0, 0, w, h);
 		}
 
 		// {Ui.App} Reference to the current application instance

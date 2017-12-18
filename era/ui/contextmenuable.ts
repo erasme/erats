@@ -14,13 +14,21 @@ namespace Ui {
     
         constructor(init: {
             element: Ui.Element,
-            press?: (watcher: PressWatcher) => void,
-            down?: (watcher: PressWatcher) => void,
-            up?: (watcher: PressWatcher) => void,
+            press?: (watcher: ContextMenuWatcher) => void,
+            down?: (watcher: ContextMenuWatcher) => void,
+            up?: (watcher: ContextMenuWatcher) => void,
             lock?: boolean
         }) {
             super();
-            this.assign(init);
+            this.element = init.element;
+            if (init.press !== undefined)
+                this.press = init.press;
+            if (init.down !== undefined)
+                this.down = init.down;
+            if (init.up !== undefined)
+                this.up = init.up;
+            if (init.lock !== undefined)
+                this.lock = init.lock;
     
             // disable native context menu
             this.connect(this.element.drawing, 'contextmenu', (event) => event.preventDefault());

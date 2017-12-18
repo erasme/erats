@@ -74,15 +74,13 @@ namespace Ui {
 		private horizontalScrollbar: Scrollbar;
 		private verticalScrollbar: Scrollbar;
 
-		constructor(init?: Partial<ScrollingAreaInit>) {
-			super();
+		constructor(init?: ScrollingAreaInit) {
+			super(init);
 			this.horizontalScrollbar = new Scrollbar('horizontal');
 			this.setScrollbarHorizontal(this.horizontalScrollbar);
 
 			this.verticalScrollbar = new Scrollbar('vertical');
 			this.setScrollbarVertical(this.verticalScrollbar);
-			if (init)
-				this.assign(init);
 		}
 
 		protected onStyleChange() {

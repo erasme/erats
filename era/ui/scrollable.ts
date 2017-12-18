@@ -2,12 +2,12 @@ namespace Ui
 {
 	export interface ScrollableInit extends ContainerInit
 	{
-		maxScale: number;
-		content: Element;
-		inertia: boolean;
-		scrollHorizontal: boolean;
-		scrollVertical: boolean;
-		scale: number;
+		maxScale?: number;
+		content?: Element;
+		inertia?: boolean;
+		scrollHorizontal?: boolean;
+		scrollVertical?: boolean;
+		scale?: number;
 	}
 
 	export class Scrollable extends Container implements ScrollableInit
@@ -35,8 +35,8 @@ namespace Ui
 		scrollbarVerticalHeight: number = 0;
 		scrollbarHorizontalWidth: number = 0;
 
-		constructor(init?: Partial<ScrollableInit>) {
-			super();
+		constructor(init?: ScrollableInit) {
+			super(init);
 			this.addEvents('scroll');
 			this.contentBox = new Ui.ScrollableContent();
 			this.connect(this.contentBox, 'scroll', this.onScroll);
@@ -59,7 +59,20 @@ namespace Ui
 			this.connect(this, 'wheel', this.onWheel);
 			this.connect(this.drawing, 'keydown', this.onKeyDown);
 
-			this.assign(init);
+			if (init) {
+				if (init.maxScale !== undefined)
+					this.maxScale = init.maxScale;	
+				if (init.content !== undefined)
+					this.content = init.content;	
+				if (init.inertia !== undefined)
+					this.inertia = init.inertia;
+				if (init.scrollHorizontal !== undefined)
+					this.scrollHorizontal = init.scrollHorizontal;	
+				if (init.scrollVertical !== undefined)
+					this.scrollVertical = init.scrollVertical;	
+				if (init.scale !== undefined)
+					this.scale = init.scale;	
+			}	
 		}
 
 		set maxScale(maxScale: number) {

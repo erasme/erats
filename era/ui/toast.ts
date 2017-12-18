@@ -1,8 +1,6 @@
-﻿
-namespace Ui
-{
-	export class Toaster extends Container
-	{
+﻿namespace Ui {
+
+	export class Toaster extends Container {
 		static current: Toaster;
 		private arrangeClock: Anim.Clock;
 
@@ -84,8 +82,7 @@ namespace Ui
 		}
 	}
 
-	export class Toast extends LBox
-	{
+	export class Toast extends LBox {
 		private _isClosed: boolean = true;
 		private openClock: Anim.Clock;
 		private toastContentBox: LBox;
@@ -131,7 +128,7 @@ namespace Ui
 					this.opacity = 0;
 					// the start of the animation is delayed to the next arrange
 				}
-				new Core.DelayedTask(this, 2, this.close);
+				new Core.DelayedTask(2, () => this.close());
 				Ui.Toaster.appendToast(this);
 			}
 		}

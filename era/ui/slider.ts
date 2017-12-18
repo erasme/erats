@@ -1,7 +1,7 @@
 namespace Ui {
 	export interface SliderInit extends ContainerInit {
-		value: number;
-		orientation: Orientation;
+		value?: number;
+		orientation?: Orientation;
 	}
 
 	export class Slider extends Container implements SliderInit {
@@ -13,8 +13,8 @@ namespace Ui {
 		protected _orientation: Orientation = 'horizontal';
 		protected updateLock: boolean;
 
-		constructor(init?: Partial<SliderInit>) {
-			super();
+		constructor(init?: SliderInit) {
+			super(init);
 			this.addEvents('change');
 
 			this.background = new Rectangle({ width: 4, height: 4 });
@@ -33,8 +33,12 @@ namespace Ui {
 
 			this.buttonContent = new Rectangle({ radius: 10, width: 20, height: 20, margin: 10 });
 			this.button.setContent(this.buttonContent);
-			if (init)
-				this.assign(init);
+			if (init) {
+				if (init.value !== undefined)
+					this.value = init.value;	
+				if (init.orientation !== undefined)
+					this.orientation = init.orientation;
+			}
 		}
 
 		get value(): number {

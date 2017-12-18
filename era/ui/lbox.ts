@@ -1,12 +1,12 @@
 namespace Ui {
 
 	export interface LBoxInit extends ContainerInit {
-		padding: number;
-		paddingTop: number;
-		paddingBottom: number;
-		paddingLeft: number;
-		paddingRight: number;
-		content: Element[] | Element;
+		padding?: number;
+		paddingTop?: number;
+		paddingBottom?: number;
+		paddingLeft?: number;
+		paddingRight?: number;
+		content?: Element[] | Element;
 	}
 
 	export class LBox extends Container implements LBoxInit {
@@ -17,10 +17,22 @@ namespace Ui {
 
 		// @constructs
 		// @class LBox stands for Layer Box, a container that "pile" elements like layers        		
-		constructor(init?: Partial<LBoxInit>) {
-			super();
-			if (init)
-				this.assign(init);
+		constructor(init?: LBoxInit) {
+			super(init);
+			if (init) {
+				if (init.padding !== undefined)
+					this.padding = init.padding;	
+				if (init.paddingTop !== undefined)
+					this.paddingTop = init.paddingTop;	
+				if (init.paddingBottom !== undefined)
+					this.paddingBottom = init.paddingBottom;	
+				if (init.paddingLeft !== undefined)
+					this.paddingLeft = init.paddingLeft;	
+				if (init.paddingRight !== undefined)
+					this.paddingRight = init.paddingRight;	
+				if (init.content !== undefined)
+					this.content = init.content;
+			}
 		}
 
 		protected setContent(content: Element | Element[]) {
@@ -191,10 +203,8 @@ namespace Ui {
 
 	export class LPBox extends LBox implements LPBoxInit
 	{
-		constructor(init?: Partial<LPBoxInit>) {
-			super();
-			if (init)
-				this.assign(init);
+		constructor(init?: LPBoxInit) {
+			super(init);
 		}
 
 		//

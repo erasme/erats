@@ -1,12 +1,13 @@
 namespace Ui {
 	export interface UploadButtonInit extends ButtonInit {
+		directoryMode?: boolean;
 	}	
 
 	export class UploadButton extends Button implements UploadButtonInit {
 		input: UploadableFileWrapper;
 
-		constructor(init?: Partial<UploadButtonInit>) {
-			super();
+		constructor(init?: UploadButtonInit) {
+			super(init);
 			this.addEvents('file');
 
 			this.input = new UploadableFileWrapper();
@@ -17,8 +18,10 @@ namespace Ui {
 
 			this.dropBox.addType('files', 'copy');
 			this.connect(this.dropBox, 'dropfile', this.onFile);
-			if (init)
-				this.assign(init);
+			if (init) {
+				if (init.directoryMode !== undefined)
+					this.directoryMode = init.directoryMode;	
+			}
 		}
 
 		set directoryMode(active: boolean) {

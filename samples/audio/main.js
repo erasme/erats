@@ -41,12 +41,12 @@ var App = (function (_super) {
         var delayplayButton = new Ui.Button({ text: 'delay play 1s' });
         toolbar.append(delayplayButton);
         _this.connect(delayplayButton, 'press', function () {
-            new Core.DelayedTask(undefined, 1, function () { return audio.play(); });
+            new Core.DelayedTask(1, function () { return audio.play(); });
         });
         var progressbar = new Ui.ProgressBar({ verticalAlign: 'center' });
         toolbar.append(progressbar, true);
         var audio = new Ui.Audio({ src: 'sound.mp3', volume: 1 });
-        _this.append(audio);
+        vbox.append(audio);
         _this.connect(audio, 'ready', function () {
             //	console.log('audio ready');
         });

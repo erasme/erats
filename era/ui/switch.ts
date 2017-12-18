@@ -1,7 +1,7 @@
 namespace Ui {
 	export interface SwitchInit extends ContainerInit {
-		value: boolean;
-		ease: Anim.EasingFunction;
+		value?: boolean;
+		ease?: Anim.EasingFunction;
 	}
 
 	export class Switch extends Container {
@@ -17,7 +17,7 @@ namespace Ui {
 		private animStart: number = 0;
 		ease: Anim.EasingFunction;
 	
-		constructor(init?: Partial<SwitchInit>) {
+		constructor(init?: SwitchInit) {
 			super(init);
 			this.addEvents('change');
 
@@ -39,6 +39,13 @@ namespace Ui {
 			this.button.setContent(this.buttonContent);
 
 			this.ease = new Anim.PowerEase({ mode: 'out' });
+
+			if (init) {
+				if (init.value !== undefined)
+					this.value = init.value;
+				if (init.ease !== undefined)
+					this.ease = init.ease;
+			}	
 		}
 
 		get value(): boolean {

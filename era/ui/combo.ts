@@ -1,11 +1,11 @@
 namespace Ui {
 	export interface ComboInit extends ButtonInit {
-		placeHolder: string;
-		field: string;
-		data: object[];
-		position: number;
-		current: object;
-		search: boolean;
+		placeHolder?: string;
+		field?: string;
+		data?: object[];
+		position?: number;
+		current?: object;
+		search?: boolean;
 	}
 
 	export class Combo extends Button implements ComboInit {
@@ -29,8 +29,8 @@ namespace Ui {
 		 * @param [current] Default selected object
 		 * @param [placeHolder] Text displays when no selection
 		 */
-		constructor(init?: Partial<ComboInit>) {
-			super();
+		constructor(init?: ComboInit) {
+			super(init);
 			this.addEvents('change');
 
 			this.text = '';
@@ -42,7 +42,20 @@ namespace Ui {
 				//content: [ this.arrowtop, this.arrowbottom ]
 				content: [ this.arrowbottom ]
 			});
-			this.assign(init);
+			if (init) {
+				if (init.placeHolder !== undefined)
+					this.placeHolder = init.placeHolder;
+				if (init.field !== undefined)
+					this.field = init.field;
+				if (init.data !== undefined)
+					this.data = init.data;	
+				if (init.position !== undefined)
+					this.position = init.position;
+				if (init.current !== undefined)
+					this.current = init.current;	
+				if (init.search !== undefined)
+					this.search = init.search;
+			}
 		}
 
 		set placeHolder(placeHolder: string) {
@@ -131,10 +144,10 @@ namespace Ui {
 	}
 
 	export interface ComboPopupInit extends MenuPopupInit {
-		search: boolean;
-		field: string;
-		data: object[];
-		position: number;
+		search?: boolean;
+		field?: string;
+		data?: object[];
+		position?: number;
 	}
 
 	export class ComboPopup extends MenuPopup {
@@ -143,8 +156,8 @@ namespace Ui {
 		private _field: string;
 		private searchField: TextField;
 
-		constructor(init?: Partial<ComboPopupInit>) {
-			super();
+		constructor(init?: ComboPopupInit) {
+			super(init);
 			this.addEvents('item');
 			this.autoClose =true;
 
@@ -159,7 +172,16 @@ namespace Ui {
 			vbox.append(this.list);
 			//this.content = this.list;
 
-			this.assign(init);
+			if (init) {
+				if (init.search !== undefined)
+					this.search = init.search;
+				if (init.field !== undefined)
+					this.field = init.field;	
+				if (init.data !== undefined)
+					this.data = init.data;	
+				if (init.position !== undefined)
+					this.position = init.position;
+			}	
 		}
 
 		private onSearchChange(field: TextField, value: string) {

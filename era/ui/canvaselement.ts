@@ -59,11 +59,9 @@ namespace Ui {
 		private svgDrawing: any;
 		private dpiRatio: number = 1;
 
-		constructor(init?: Partial<ContainerInit>) {
-			super();
+		constructor(init?: ContainerInit) {
+			super(init);
 			this.selectable = false;
-			if (init)
-				this.assign(init);
 		}
 
 		//

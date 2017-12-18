@@ -36,14 +36,14 @@ class App extends Ui.App {
         let delayplayButton = new Ui.Button({ text: 'delay play 1s' });
         toolbar.append(delayplayButton);
         this.connect(delayplayButton, 'press', function () {
-            new Core.DelayedTask(undefined, 1, () => audio.play());
+            new Core.DelayedTask(1, () => audio.play());
         });
 
         let progressbar = new Ui.ProgressBar({ verticalAlign: 'center' });
         toolbar.append(progressbar, true);
 
         let audio = new Ui.Audio({ src: 'sound.mp3', volume: 1 });
-        this.append(audio);
+        vbox.append(audio);
 
         this.connect(audio, 'ready', function () {
             //	console.log('audio ready');

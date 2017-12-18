@@ -7,7 +7,7 @@ class App extends Ui.App {
 		let el: Ui.Element;
 
 		let hbox = new Ui.HBox();
-		this.setContent(hbox);
+		this.content = hbox;
 
 		let button = new Ui.Button({
 			text: 'click for scroll',

@@ -4,12 +4,10 @@ namespace Ui {
 
 	export class DialogCloseButton extends Button implements DialogCloseButtonInit {
 	
-		constructor(init?: Partial<DialogCloseButtonInit>) {
-			super();
+		constructor(init?: DialogCloseButtonInit) {
+			super(init);
 			this.icon = 'backarrow';
 			this.text = 'Fermer';
-			if (init)
-				this.assign(init);
 		}
 
 		static style: object = {
@@ -137,14 +135,14 @@ namespace Ui {
 	}
 
 	export interface DialogInit extends ContainerInit {
-		preferredWidth: number;
-		preferredHeight: number;
-		fullScrolling: boolean;
-		title: string;
-		cancelButton: Pressable;
-		actionButtons: Pressable[];
-		autoClose: boolean;
-		content: Element;
+		preferredWidth?: number;
+		preferredHeight?: number;
+		fullScrolling?: boolean;
+		title?: string;
+		cancelButton?: Pressable;
+		actionButtons?: Pressable[];
+		autoClose?: boolean;
+		content?: Element;
 	}
 
 	export class Dialog extends Container implements DialogInit {
@@ -170,8 +168,8 @@ namespace Ui {
 		isClosed: boolean = true;
 		scroll: ScrollingArea = undefined;
 
-		constructor(init?: Partial<DialogInit>) {
-			super();
+		constructor(init?: DialogInit) {
+			super(init);
 			this.addEvents('close');
 
 			this.dialogSelection = new Ui.Selection();
@@ -229,8 +227,24 @@ namespace Ui {
 			// handle auto hide
 			this.connect(this.shadow, 'press', this.onShadowPress);
 
-			if (init)
-				this.assign(init);
+			if (init) {
+				if (init.preferredWidth !== undefined)
+					this.preferredWidth = init.preferredWidth;	
+				if (init.preferredHeight !== undefined)
+					this.preferredHeight = init.preferredHeight;	
+				if (init.fullScrolling !== undefined)
+					this.fullScrolling = init.fullScrolling;	
+				if (init.title !== undefined)
+					this.title = init.title;
+				if (init.cancelButton !== undefined)
+					this.cancelButton = init.cancelButton;	
+				if (init.actionButtons !== undefined)
+					this.actionButtons = init.actionButtons;
+				if (init.autoClose !== undefined)
+					this.autoClose = init.autoClose;
+				if (init.content !== undefined)
+					this.content = init.content;	
+			}
 		}
 
 		// implement a selection handler for Selectionable elements

@@ -6,7 +6,7 @@ class App extends Ui.App {
         super();
 
 		let vbox = new Ui.VBox();
-		this.setContent(vbox);
+		this.content = vbox;
 
 		let toolbar = new Ui.ToolBar({ verticalAlign: 'top' });
 		vbox.append(toolbar);
@@ -32,9 +32,7 @@ class App extends Ui.App {
 		let delayplayButton = new Ui.Button({ text: 'delay play 1s' });
 		toolbar.append(delayplayButton);
 		this.connect(delayplayButton, 'press', () => 
-			new Core.DelayedTask(this, 1, function() {
-				video.play();
-			})
+			new Core.DelayedTask(1, () => video.play())
 		);
 
 		let progressbar = new Ui.ProgressBar({ verticalAlign: 'center' });

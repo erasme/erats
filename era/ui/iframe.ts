@@ -1,18 +1,20 @@
 namespace Ui {
 	export interface IFrameInit extends ElementInit {
-		src: string;
+		src?: string;
 	}
 
 	export class IFrame extends Element {
 		protected iframeDrawing: HTMLIFrameElement;
 		protected _isReady: boolean = false;
 
-		constructor(init?: Partial<IFrameInit>) {
-			super();
+		constructor(init?: IFrameInit) {
+			super(init);
 			this.connect(this.iframeDrawing, 'load', this.onIFrameLoad);
 			this.addEvents('ready');
-			if (init)
-				this.assign(init);
+			if (init) {
+				if (init.src !== undefined)
+					this.src = init.src;
+			}
 		}
 
 		get src(): string {

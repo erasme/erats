@@ -4,7 +4,6 @@ namespace Ui {
 		default?: boolean;
 		text: string;
 		icon: string;
-		//scope?: any;
 		callback?: (selection: Selection) => void;
 		multiple?: boolean;
 		hidden?: boolean;
@@ -48,12 +47,6 @@ namespace Ui {
 				start: (w) => this.onSelectionableDragStart(w),
 				end: (w) => this.onSelectionableDragEnd(w)
 			});
-
-			//this.connect(this, 'activate', this.onSelectionableActivate);
-			//this.connect(this, 'dragstart', this.onSelectionableDragStart);
-			//this.connect(this, 'dragend', this.onSelectionableDragEnd);
-			//this.connect(this, 'ptrdown', this.onSelectionablePointerDown);
-			//this.connect(this.element.drawing, 'contextmenu', (event) => event.preventDefault());
 		}
 
 		static getSelectionableWatcher(element: Element): SelectionableWatcher | undefined {
@@ -116,8 +109,6 @@ namespace Ui {
 		}
 
 		private onSelectionableDragStart(watcher: DraggableWatcher) {
-			console.log('SelectionableWatcher.onSelectionableDragStart');
-			console.log(this);
 			let selection = this.getParentSelectionHandler();
 			if (selection && (selection.watchers.indexOf(this) == -1))
 				selection.watchers = [this];
@@ -143,57 +134,6 @@ namespace Ui {
 				}
 			}
 		}
-
-		/*private onSelectionablePointerDown(event: PointerEvent) {
-			// if not mouse right click or element not enable return
-			if (this.element.isDisabled || event.pointer.type != 'mouse' || event.pointer.button != 2)
-				return;
-						
-			let selection = this.getParentSelectionHandler();
-			if (selection == undefined)
-				return;
-
-			if (selection.elements.indexOf(this) == -1)
-				selection.elements = [this];
-			
-			let actions = selection.getActions();
-			
-			let count = 0;
-			for (let key in actions) { count++; }
-			// if not action possible, return
-			if (count == 0)
-				return false;
-						
-			let watcher = event.pointer.watch(this);
-			this.connect(watcher, 'move', function () {
-				if (watcher.pointer.getIsMove())
-					watcher.cancel();
-			});
-			this.connect(watcher, 'up', (event) => {
-				watcher.capture();
-				watcher.cancel();
-			});
-
-
-			let popup = new MenuPopup();
-			let vbox = new Ui.VBox();
-			popup.content = vbox;
-
-			for (let actionName in actions) {
-				let action = actions[actionName];
-				if (action.hidden === true)
-					continue;
-				let button = new ActionButton();
-				button.icon = action.icon;
-				button.text = action.text;
-				button.action = action;
-				button.selection = selection;
-				vbox.append(button);
-				this.connect(button, 'press', () => popup.close());
-			}
-
-			popup.openAt(event.pointer.x, event.pointer.y);
-		}*/
 	}
 
 	export interface SelectionableInit extends LBoxInit {
@@ -205,8 +145,8 @@ namespace Ui {
 		//private handler: Selection | undefined;
 		private selectionWatcher: SelectionableWatcher;
 
-		constructor(init?: Partial<SelectionableInit>) {
-			super();
+		constructor(init?: SelectionableInit) {
+			super(init);
 			this.addEvents('select', 'unselect');
 
 			this.selectionWatcher = new SelectionableWatcher({
@@ -221,7 +161,6 @@ namespace Ui {
 //			this.connect(this, 'dragend', this.onSelectionableDragEnd);
 //			this.connect(this, 'ptrdown', this.onSelectionablePointerDown);
 //			this.connect(this.drawing, 'contextmenu', (event) => event.preventDefault());
-			this.assign(init);
 		}
 
 		get isSelected(): boolean {

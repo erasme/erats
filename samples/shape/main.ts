@@ -1,13 +1,13 @@
 /// <reference path="../../era/era.d.ts" />
 
-let app = new Ui.App();
+new Ui.App({
+    content: new Ui.Shape({
+        width: 48,
+        height: 48,
+        fill: 'orange',
+        path: 'm 9.2,24 7,-7 7,7 14,-14 7,7 -21,21 z',
+        verticalAlign: 'center',
+        horizontalAlign: 'center'
+    })
+})
 
-let shape = new Ui.Shape();
-shape.width = 48;
-shape.height = 48;
-shape.fill = 'orange';
-shape.path = 'm 9.2,24 7,-7 7,7 14,-14 7,7 -21,21 z';
-shape.verticalAlign = Ui.VerticalAlign.center;
-shape.horizontalAlign = Ui.HorizontalAlign.center;
-
-app.setContent(shape);

@@ -13,7 +13,7 @@ var __extends = (this && this.__extends) || (function () {
 var TextField = (function (_super) {
     __extends(TextField, _super);
     function TextField(init) {
-        var _this = _super.call(this) || this;
+        var _this = _super.call(this, init) || this;
         _this.margin = 5;
         var title = new Ui.Text({ text: init.title });
         _this.append(title);
@@ -21,7 +21,6 @@ var TextField = (function (_super) {
         _this.append(field);
         if (init.desc)
             _this.append(new Ui.Text({ text: init.desc, color: '#aaaaaa' }));
-        _this.assign(init);
         return _this;
     }
     return TextField;

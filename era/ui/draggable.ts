@@ -17,7 +17,12 @@ namespace Ui {
 			end?: (watcher: DraggableWatcher, effect: 'none' | 'copy' | 'link' | 'move' | string) => void
 		}) {
 			super();
-			this.assign(init);
+			this.element = init.element;
+			this.data = init.data;
+			if (init.start !== undefined)
+				this.start = init.start;
+			if (init.end !== undefined)
+				this.end = init.end;	
 			this.connect(this.element, 'ptrdown', this.onDraggablePointerDown);
 		}
 
@@ -89,12 +94,10 @@ namespace Ui {
 		private _dragDelta: Point = undefined;
 		private dataTransfer: DragDataTransfer = undefined;
 
-		constructor(init?: Partial<DraggableInit>) {
-			super();
+		constructor(init?: DraggableInit) {
+			super(init);
 			this.addEvents('dragstart', 'dragend');
 			this.connect(this, 'ptrdown', this.onDraggablePointerDown);
-			if (init)
-				this.assign(init);
 		}
 
 		//

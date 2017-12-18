@@ -553,8 +553,20 @@ namespace Ui {
 		}
 	}
 
-	export class Transformable extends LBox
-	{
+	export interface TransformableInit extends LBoxInit {
+		allowLeftMouse?: boolean;
+		allowScale?: boolean;
+		minScale?: number;
+		maxScale?: number;
+		allowRotate?: boolean;
+		allowTranslate?: boolean;
+		angle?: number;
+		scale?: number;
+		translateX?: number;
+		translateY?: number;
+	}
+
+	export class Transformable extends LBox {
 		private _inertia: boolean = false;
 		protected inertiaClock: Anim.Clock;
 		protected contentBox: LBox;
@@ -585,8 +597,8 @@ namespace Ui {
 		private speedX: number = 0;
 		private speedY: number = 0;
 
-		constructor() {
-			super();
+		constructor(init?: TransformableInit) {
+			super(init);
 			this.addEvents('down', 'up', 'transform', 'inertiastart', 'inertiaend');
 			this.focusable = true;
 
@@ -597,6 +609,29 @@ namespace Ui {
 			this.connect(this, 'ptrdown', this.onPointerDown);
 
 			this.connect(this, 'wheel', this.onWheel);
+
+			if (init) {
+				if (init.allowLeftMouse !== undefined)
+					this.allowLeftMouse = init.allowLeftMouse;	
+				if (init.allowScale !== undefined)
+					this.allowScale = init.allowScale;
+				if (init.minScale !== undefined)
+					this.minScale = init.minScale;	
+				if (init.maxScale !== undefined)
+					this.maxScale = init.maxScale;	
+				if (init.allowRotate !== undefined)
+					this.allowRotate = init.allowRotate;
+				if (init.allowTranslate !== init.allowTranslate)
+					this.allowTranslate = init.allowTranslate;	
+				if (init.angle !== undefined)
+					this.angle = init.angle;
+				if (init.scale !== undefined)
+					this.scale = init.scale;
+				if (init.translateX !== undefined)
+					this.translateX = init.translateX;
+				if (init.translateY !== undefined)
+					this.translateY = init.translateY;
+			}
 		}
 
 		set allowLeftMouse(value: boolean) {

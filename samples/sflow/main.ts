@@ -1,8 +1,13 @@
 /// <reference path="../../era/era.d.ts" />
 
+interface TextFieldInit extends Ui.VBoxInit {
+    title: string;
+    desc?: string;
+}
+
 class TextField extends Ui.VBox {
-    constructor(init: Partial<Ui.VBoxInit> & { title: string, desc?: string }) {
-        super();
+    constructor(init: Ui.VBoxInit & { title: string, desc?: string }) {
+        super(init);
         this.margin = 5;
    
 		let title = new Ui.Text({ text: init.title });
@@ -13,7 +18,6 @@ class TextField extends Ui.VBox {
 
 		if(init.desc)
 			this.append(new Ui.Text({ text: init.desc, color: '#aaaaaa' }));
-        this.assign(init);
 	}
 }
 

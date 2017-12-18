@@ -1,15 +1,21 @@
-namespace Ui
-{
-	export class TextArea extends Element
-	{
+namespace Ui {
+	export interface TextAreaInit extends ElementInit {
+		fontSize?: number;
+		fontFamily?: string;
+		fontWeight?: string;
+		color?: Color | string;
+		value?: string;
+	}
+
+	export class TextArea extends Element {
 		private _fontSize: number = undefined;
 		private _fontFamily: string = undefined;
 		private _fontWeight: string = undefined;
 		private _color: Color = undefined;
 		private _value: string = '';
 
-		constructor() {
-			super();
+		constructor(init?: TextAreaInit) {
+			super(init);
 			this.addEvents('change');
 			this.selectable = true;
 			this.focusable = true;
@@ -23,6 +29,19 @@ namespace Ui
 			// handle keyboard
 			this.connect(this.drawing, 'keydown', this.onKeyDown);
 			this.connect(this.drawing, 'keyup', this.onKeyUp);
+
+			if (init) {
+				if (init.fontSize !== undefined)
+					this.fontSize = init.fontSize;	
+				if (init.fontFamily !== undefined)
+					this.fontFamily = init.fontFamily;	
+				if (init.fontWeight !== undefined)
+					this.fontWeight = init.fontWeight;	
+				if (init.color !== undefined)
+					this.color = init.color;	
+				if (init.value !== undefined)
+					this.value = init.value;	
+			}
 		}
 
 		set fontSize(fontSize: number) {
@@ -114,7 +133,7 @@ namespace Ui
 	
 		protected onPaste(event) {
 			event.stopPropagation();
-			new Core.DelayedTask(this, 0, this.onAfterPaste);
+			new Core.DelayedTask(0, this.onAfterPaste);
 		}
 
 		protected onAfterPaste() {

@@ -328,45 +328,68 @@ namespace Ui
 	}
 	
 	export interface CompactLabelInit extends ElementInit {
-		maxLine: number;
-		text: string;
-		textAlign: string;
-		interLine: number;
-		fontSize: number;
-		fontFamily: string;
-		fontWeight: string;
-		whiteSpace: string;
-		wordWrap: string;
-		textTransform: string;
-		color: Color;
+		maxLine?: number;
+		text?: string;
+		textAlign?: string;
+		interLine?: number;
+		fontSize?: number;
+		fontFamily?: string;
+		fontWeight?: string;
+		whiteSpace?: string;
+		wordWrap?: string;
+		textTransform?: string;
+		color?: Color;
 	}
 
 	export class CompactLabel extends Element implements CompactLabelInit
 	{
-		private _fontSize: number = undefined;
-		private _fontFamily: string = undefined;
-		private _fontWeight: string = undefined;
-		private _color: any = undefined;
+		private _fontSize: number;
+		private _fontFamily: string;
+		private _fontWeight: string;
+		private _color: any;
 		private textDrawing: HTMLElement;
-		private _maxLine: number = undefined;
-		private _interLine: number = undefined;
-		private _textAlign: string = undefined;
+		private _maxLine: number;
+		private _interLine: number;
+		private _textAlign: string;
 		isMeasureValid: boolean = false;
 		isArrangeValid: boolean = false;
 		lastMeasureWidth: number = 0;
 		lastMeasureHeight: number = 0;
 		lastAvailableWidth: number = 0;
-		textContext: any = undefined;
-		private _whiteSpace: string = undefined;
-		private _wordWrap: string = undefined;
-		private _textTransform: string = undefined;
+		textContext: any;
+		private _whiteSpace: string;
+		private _wordWrap: string ;
+		private _textTransform: string;
 
-		constructor(init?: Partial<CompactLabelInit>) {
-			super();
-			this.selectable = false;
+		constructor(init?: CompactLabelInit) {
+			super(init);
+			if (!init || init.selectable == undefined)
+				this.selectable = false;
 			this.textContext = new Ui.CompactLabelContext();
-			if (init)
-				this.assign(init);
+			if (init) {
+				if (init.maxLine !== undefined)
+					this.maxLine = init.maxLine;	
+				if (init.text !== undefined)
+					this.text = init.text;	
+				if (init.textAlign !== undefined)
+					this.textAlign = init.textAlign;	
+				if (init.interLine !== undefined)
+					this.interLine = init.interLine;	
+				if (init.fontSize !== undefined)
+					this.fontSize = init.fontSize;
+				if (init.fontFamily !== undefined)
+					this.fontFamily = init.fontFamily;	
+				if (init.fontWeight !== undefined)
+					this.fontWeight = init.fontWeight;
+				if (init.whiteSpace !== undefined)
+					this.whiteSpace = init.whiteSpace;
+				if (init.wordWrap !== undefined)
+					this.wordWrap = init.wordWrap;	
+				if (init.textTransform !== undefined)
+					this.textTransform = init.textTransform;
+				if (init.color !== undefined)
+					this.color = init.color;	
+			}
 		}
 
 		get maxLine(): number {

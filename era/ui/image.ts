@@ -1,7 +1,7 @@
 namespace Ui
 {
 	export interface ImageInit extends ElementInit {
-		src: string;
+		src?: string;
 	}
 
 	export class Image extends Element implements ImageInit
@@ -13,15 +13,17 @@ namespace Ui
 		private imageDrawing: HTMLImageElement;
 		private setSrcLock: boolean = false;
 
-		constructor(init?: Partial<ImageInit>) {
-			super();
+		constructor(init?: ImageInit) {
+			super(init);
 			this.addEvents('ready', 'error');
 			// no context menu
 			this.connect(this.imageDrawing, 'contextmenu', (event) => event.preventDefault());
 			this.connect(this.imageDrawing, 'load', this.onImageLoad);
 			this.connect(this.imageDrawing, 'error', this.onImageError);
-			if (init)
-				this.assign(init);
+			if (init) {
+				if (init.src !== undefined)
+					this.src = init.src;
+			}
 		}
 
 		//
@@ -94,7 +96,7 @@ namespace Ui
 			}
 			else {
 				if (this.setSrcLock)
-					new Core.DelayedTask(this, 0, this.onImageDelayReady);
+					new Core.DelayedTask(0, this.onImageDelayReady);
 				else
 					this.onImageDelayReady();
 			}

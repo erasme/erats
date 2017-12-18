@@ -127,13 +127,13 @@ namespace Ui
 	}
 
 	export interface ButtonInit extends SelectionableInit {
-		text: string | undefined;
-		icon: string | undefined;
-		background: Element;
-		marker: Element;
-		isActive: boolean;
-		badge: string;
-		orientation: string;
+		text?: string | undefined;
+		icon?: string | undefined;
+		background?: Element;
+		marker?: Element;
+		isActive?: boolean;
+		badge?: string;
+		orientation?: Orientation;
 	}												
 
 	export class Button extends Pressable implements ButtonInit
@@ -151,8 +151,8 @@ namespace Ui
 		private bg: Element;
 		private _orientation: Orientation = undefined;
 
-		constructor(init?: Partial<ButtonInit>) {
-			super();
+		constructor(init?: ButtonInit) {
+			super(init);
 			this.dropbox = new DropBox();
 			this.setContent(this.dropbox);
 
@@ -178,7 +178,23 @@ namespace Ui
 			this.connect(this, 'blur', this.updateColors);
 			this.connect(this, 'enter', this.updateColors);
 			this.connect(this, 'leave', this.updateColors);
-			this.assign(init);
+
+			if (init) {
+				if (init.text !== undefined)
+					this.text = init.text;	
+				if (init.icon !== undefined)
+					this.icon = init.icon;	
+				if (init.background !== undefined)
+					this.background = init.background;
+				if (init.marker !== undefined)
+					this.marker = init.marker;	
+				if (init.isActive !== undefined)
+					this.isActive = init.isActive;	
+				if (init.badge !== undefined)
+					this.badge = init.badge;
+				if (init.orientation !== undefined)
+					this.orientation = init.orientation;
+			}
 		}
 
 		get dropBox(): DropBox {

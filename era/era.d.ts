@@ -110,12 +110,18 @@ declare namespace Core {
     }
 }
 declare namespace Core {
+    interface FileInit {
+        form?: any;
+        iframe?: any;
+        fileInput?: any;
+        fileApi?: any;
+    }
     class File extends Object {
         iframe: any;
         form: any;
         fileInput: any;
         fileApi: any;
-        constructor(config: any);
+        constructor(init: FileInit);
         getFileName(): any;
         getRelativePath(): any;
         getMimetype(): any;
@@ -125,12 +131,12 @@ declare namespace Core {
 }
 declare module Core {
     interface HttpRequestInit {
-        url: string;
-        method: string;
-        binary: boolean;
-        arguments: object;
-        content: any;
-        headers: object;
+        url?: string;
+        method?: string;
+        binary?: boolean;
+        arguments?: object;
+        content?: any;
+        headers?: object;
     }
     class HttpRequest extends Object {
         url: string;
@@ -141,7 +147,7 @@ declare module Core {
         headers: object;
         private request;
         static requestHeaders: object;
-        constructor(init?: Partial<HttpRequestInit>);
+        constructor(init?: HttpRequestInit);
         setRequestHeader(header: any, value: any): void;
         addArgument(argName: any, argValue: any): void;
         abort(): void;
@@ -159,29 +165,39 @@ declare module Core {
 declare namespace Core {
     class DelayedTask extends Object {
         delay: number;
-        scope: any;
-        callback: Function;
+        callback: (task: DelayedTask) => void;
         isDone: boolean;
         handle: number;
-        constructor(scope: any, delay: number, callback: Function);
+        constructor(delay: number, callback: (task: DelayedTask) => void);
         abort(): void;
     }
 }
 declare namespace Core {
+    interface TimerInit {
+        interval?: number;
+        arguments?: Array<any>;
+    }
     class Timer extends Object {
         interval: number;
-        arguments: any;
+        arguments: Array<any>;
         handle: any;
-        constructor(config: any);
+        constructor(init?: TimerInit);
         abort(): void;
     }
 }
 declare namespace Core {
+    interface SocketInit {
+        host?: string;
+        secure?: boolean;
+        port?: number;
+        service?: string;
+        mode?: 'websocket' | 'poll';
+    }
     class Socket extends Object {
         host: string;
         service: string;
         port: number;
-        mode: any;
+        mode: 'websocket' | 'poll';
         secure: boolean;
         websocket: any;
         websocketdelay: any;
@@ -201,7 +217,7 @@ declare namespace Core {
         delayPollTask: any;
         pollInterval: number;
         static supportWebSocket: boolean;
-        constructor(config: any);
+        constructor(init: SocketInit);
         send(msg: any): void;
         close(): void;
         private onWebSocketOpenTimeout();
@@ -222,6 +238,10 @@ declare namespace Core {
     }
 }
 declare namespace Core {
+    interface RemoteDebugInit {
+        host: string;
+        port: number;
+    }
     class RemoteDebug extends Object {
         host: string;
         port: number;
@@ -230,7 +250,7 @@ declare namespace Core {
         retryTask: any;
         nativeConsole: any;
         buffer: Array<any>;
-        constructor(config: any);
+        constructor(init: RemoteDebugInit);
         startSocket(): void;
         onSocketOpen(): void;
         onSocketMessage(socket: any, message: any): void;
@@ -249,12 +269,12 @@ declare namespace Core {
 }
 declare namespace Core {
     interface FilePostUploaderInit {
-        method: string;
-        file: File;
-        field: string;
-        service: string;
-        destination: string;
-        arguments: object;
+        method?: string;
+        file?: File;
+        field?: string;
+        service?: string;
+        destination?: string;
+        arguments?: object;
     }
     class FilePostUploader extends Object {
         protected _file: File;
@@ -271,7 +291,7 @@ declare namespace Core {
         field: string;
         protected loadedOctets: number;
         protected totalOctets: number;
-        constructor(init?: Partial<FilePostUploaderInit>);
+        constructor(init?: FilePostUploaderInit);
         method: string;
         file: File;
         service: string;
@@ -296,11 +316,11 @@ declare namespace Core {
 declare namespace Anim {
     type EaseMode = 'in' | 'out' | 'inout';
     interface EasingFunctionInit {
-        mode: EaseMode;
+        mode?: EaseMode;
     }
     class EasingFunction extends Core.Object {
         mode: EaseMode;
-        constructor(init?: Partial<EasingFunctionInit>);
+        constructor(init?: EasingFunctionInit);
         ease(normalizedTime: number): number;
         protected easeInCore(normalizedTime: number): number;
         static eases: any;
@@ -316,35 +336,35 @@ declare namespace Anim {
 }
 declare namespace Anim {
     interface PowerEaseInit extends EasingFunctionInit {
-        power: number;
+        power?: number;
     }
     class PowerEase extends EasingFunction implements PowerEaseInit {
         power: number;
-        constructor(init?: Partial<PowerEaseInit>);
+        constructor(init?: PowerEaseInit);
         protected easeInCore(normalizedTime: number): number;
     }
 }
 declare namespace Anim {
     interface BounceEaseInit extends EasingFunctionInit {
-        bounces: number;
-        bounciness: number;
+        bounces?: number;
+        bounciness?: number;
     }
     class BounceEase extends EasingFunction implements BounceEaseInit {
         bounces: number;
         bounciness: number;
-        constructor(init?: Partial<BounceEaseInit>);
+        constructor(init?: BounceEaseInit);
         protected easeInCore(normalizedTime: number): number;
     }
 }
 declare namespace Anim {
     interface ElasticEaseInit extends EasingFunctionInit {
-        oscillations: number;
-        springiness: number;
+        oscillations?: number;
+        springiness?: number;
     }
     class ElasticEase extends EasingFunction implements ElasticEaseInit {
         oscillations: number;
         springiness: number;
-        constructor(init?: Partial<ElasticEaseInit>);
+        constructor(init?: ElasticEaseInit);
         protected easeInCore(normalizedTime: number): number;
     }
 }
@@ -380,15 +400,15 @@ declare namespace Anim {
         setAnimClock(clock: Clock): void;
     }
     interface ClockInit {
-        animation: boolean;
-        repeat: 'forever' | number;
-        speed: number;
-        autoReverse: boolean;
-        beginTime: number;
-        ease: EasingFunction | string;
-        target: Target;
-        duration: number | 'forever' | 'automatic';
-        parent: Clock;
+        animation?: boolean;
+        repeat?: 'forever' | number;
+        speed?: number;
+        autoReverse?: boolean;
+        beginTime?: number;
+        ease?: EasingFunction | string;
+        target?: Target;
+        duration?: number | 'forever' | 'automatic';
+        parent?: Clock;
     }
     class Clock extends Core.Object implements ClockInit {
         private _animation;
@@ -409,7 +429,7 @@ declare namespace Anim {
         private _repeat;
         private _target;
         private _ease;
-        constructor(init?: Partial<ClockInit>);
+        constructor(init?: ClockInit);
         animation: boolean;
         repeat: 'forever' | number;
         speed: number;
@@ -587,26 +607,26 @@ declare namespace Ui {
     type VerticalAlign = 'top' | 'center' | 'bottom' | 'stretch';
     type HorizontalAlign = 'left' | 'center' | 'right' | 'stretch';
     interface ElementInit {
-        selectable: boolean;
-        id: string;
-        focusable: boolean;
-        role: string;
-        width: number | undefined;
-        height: number | undefined;
-        maxWidth: number;
-        maxHeight: number;
-        verticalAlign: VerticalAlign;
-        horizontalAlign: HorizontalAlign;
-        clipToBounds: boolean;
-        margin: number;
-        marginTop: number;
-        marginBottom: number;
-        marginLeft: number;
-        marginRight: number;
-        opacity: number;
-        transform: Matrix;
-        eventsHidden: boolean;
-        style: object | undefined;
+        selectable?: boolean;
+        id?: string;
+        focusable?: boolean;
+        role?: string;
+        width?: number | undefined;
+        height?: number | undefined;
+        maxWidth?: number;
+        maxHeight?: number;
+        verticalAlign?: VerticalAlign;
+        horizontalAlign?: HorizontalAlign;
+        clipToBounds?: boolean;
+        margin?: number;
+        marginTop?: number;
+        marginBottom?: number;
+        marginLeft?: number;
+        marginRight?: number;
+        opacity?: number;
+        transform?: Matrix;
+        eventsHidden?: boolean;
+        style?: object | undefined;
     }
     class Element extends Core.Object implements ElementInit, Anim.Target {
         name: string;
@@ -669,7 +689,7 @@ declare namespace Ui {
         private _style;
         private _parentStyle;
         mergeStyle: object | undefined;
-        constructor(init?: Partial<ElementInit>);
+        constructor(init?: ElementInit);
         setDisabled(disabled: boolean): void;
         readonly drawing: any;
         selectable: boolean;
@@ -787,7 +807,7 @@ declare namespace Ui {
     class Container extends Element implements ContainerInit {
         private _children;
         private _containerDrawing;
-        constructor(init?: Partial<ContainerInit>);
+        constructor(init?: ContainerInit);
         containerDrawing: any;
         appendChild(child: Element): void;
         prependChild(child: Element): void;
@@ -884,7 +904,7 @@ declare namespace Ui {
         private _context;
         private svgDrawing;
         private dpiRatio;
-        constructor(init?: Partial<ContainerInit>);
+        constructor(init?: ContainerInit);
         update(): void;
         readonly context: CanvasRenderingContext2D;
         protected updateCanvas(context: Ui.CanvasRenderingContext2D): void;
@@ -986,12 +1006,12 @@ declare namespace Core {
 }
 declare namespace Ui {
     interface RectangleInit extends CanvasElementInit {
-        fill: Color | LinearGradient | string;
-        radius: number;
-        radiusTopLeft: number;
-        radiusTopRight: number;
-        radiusBottomLeft: number;
-        radiusBottomRight: number;
+        fill?: Color | LinearGradient | string;
+        radius?: number;
+        radiusTopLeft?: number;
+        radiusTopRight?: number;
+        radiusBottomLeft?: number;
+        radiusBottomRight?: number;
     }
     class Rectangle extends CanvasElement implements RectangleInit {
         private _fill;
@@ -999,7 +1019,7 @@ declare namespace Ui {
         private _radiusTopRight;
         private _radiusBottomLeft;
         private _radiusBottomRight;
-        constructor(init?: Partial<RectangleInit>);
+        constructor(init?: RectangleInit);
         fill: Color | LinearGradient | string;
         radius: number;
         radiusTopLeft: number;
@@ -1018,9 +1038,9 @@ declare namespace Ui {
 }
 declare namespace Ui {
     interface ShapeInit extends CanvasElementInit {
-        scale: number;
-        fill: string | undefined | Color | LinearGradient;
-        path: string;
+        scale?: number;
+        fill?: string | undefined | Color | LinearGradient;
+        path?: string;
     }
     interface ShapeStyle {
         color: string | undefined | Color | LinearGradient;
@@ -1029,7 +1049,7 @@ declare namespace Ui {
         private _fill;
         private _path;
         private _scale;
-        constructor(init?: Partial<ShapeInit>);
+        constructor(init?: ShapeInit);
         scale: number;
         fill: Color | LinearGradient | string | undefined;
         path: string;
@@ -1040,10 +1060,10 @@ declare namespace Ui {
 }
 declare namespace Ui {
     interface IconInit extends ShapeInit {
-        icon: string;
+        icon?: string;
     }
     class Icon extends Shape implements IconInit {
-        constructor(init?: Partial<IconInit>);
+        constructor(init?: IconInit);
         icon: string;
         protected arrangeCore(width: number, height: number): void;
         static icons: object;
@@ -1058,12 +1078,18 @@ declare namespace Ui {
     }
 }
 declare namespace Ui {
+    interface DualIconInit extends CanvasElementInit {
+        icon?: string;
+        fill?: Color;
+        stroke?: Color;
+        strokeWidth?: number;
+    }
     class DualIcon extends CanvasElement {
         private _icon;
         private _fill;
         private _stroke;
         private _strokeWidth;
-        constructor();
+        constructor(init?: DualIconInit);
         icon: string;
         fill: Color;
         stroke: Color;
@@ -1353,19 +1379,19 @@ declare namespace Ui {
 }
 declare namespace Ui {
     interface LBoxInit extends ContainerInit {
-        padding: number;
-        paddingTop: number;
-        paddingBottom: number;
-        paddingLeft: number;
-        paddingRight: number;
-        content: Element[] | Element;
+        padding?: number;
+        paddingTop?: number;
+        paddingBottom?: number;
+        paddingLeft?: number;
+        paddingRight?: number;
+        content?: Element[] | Element;
     }
     class LBox extends Container implements LBoxInit {
         private _paddingTop;
         private _paddingBottom;
         private _paddingLeft;
         private _paddingRight;
-        constructor(init?: Partial<LBoxInit>);
+        constructor(init?: LBoxInit);
         protected setContent(content: Element | Element[]): void;
         content: Element | Element[];
         padding: number;
@@ -1386,7 +1412,7 @@ declare namespace Ui {
     interface LPBoxInit extends LBoxInit {
     }
     class LPBox extends LBox implements LPBoxInit {
-        constructor(init?: Partial<LPBoxInit>);
+        constructor(init?: LPBoxInit);
         appendAtLayer(child: Element, layer: number): void;
         prependAtLayer(child: Element, layer: number): void;
     }
@@ -1394,15 +1420,15 @@ declare namespace Ui {
 declare namespace Ui {
     type Orientation = 'vertical' | 'horizontal';
     interface BoxInit extends ContainerInit {
-        orientation: Orientation;
-        padding: number;
-        paddingTop: number;
-        paddingBottom: number;
-        paddingLeft: number;
-        paddingRight: number;
-        uniform: boolean;
-        spacing: number;
-        content: Element | Element[];
+        orientation?: Orientation;
+        padding?: number;
+        paddingTop?: number;
+        paddingBottom?: number;
+        paddingLeft?: number;
+        paddingRight?: number;
+        uniform?: boolean;
+        spacing?: number;
+        content?: Element | Element[];
     }
     class Box extends Container implements BoxInit {
         private _paddingTop;
@@ -1414,7 +1440,7 @@ declare namespace Ui {
         private star;
         private vertical;
         private uniformSize;
-        constructor(init?: Partial<BoxInit>);
+        constructor(init?: BoxInit);
         content: Element | Element[];
         orientation: Orientation;
         padding: number;
@@ -1440,12 +1466,12 @@ declare namespace Ui {
     interface VBoxInit extends BoxInit {
     }
     class VBox extends Box implements VBoxInit {
-        constructor(init?: Partial<VBoxInit>);
+        constructor(init?: VBoxInit);
     }
     interface HBoxInit extends BoxInit {
     }
     class HBox extends Box implements HBoxInit {
-        constructor(init?: Partial<HBoxInit>);
+        constructor(init?: HBoxInit);
     }
 }
 declare namespace Ui {
@@ -1468,7 +1494,7 @@ declare namespace Ui {
     }
     class Overable extends LBox implements OverableInit {
         watcher: OverWatcher;
-        constructor(init?: Partial<OverableInit>);
+        constructor(init?: OverableInit);
         readonly isOver: boolean;
     }
 }
@@ -1508,11 +1534,11 @@ declare namespace Ui {
         protected onDelayedPress(x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean): void;
     }
     interface PressableInit extends OverableInit {
-        lock: boolean;
+        lock?: boolean;
     }
     class Pressable extends Overable implements PressableInit {
         private pressWatcher;
-        constructor(init?: Partial<PressableInit>);
+        constructor(init?: PressableInit);
         readonly isDown: boolean;
         lock: boolean;
         press(): void;
@@ -1553,7 +1579,7 @@ declare namespace Ui {
         draggableData: any;
         private _dragDelta;
         private dataTransfer;
-        constructor(init?: Partial<DraggableInit>);
+        constructor(init?: DraggableInit);
         setAllowedMode(allowedMode: any): void;
         readonly dragDelta: Point;
         private onDraggablePointerDown(event);
@@ -1603,7 +1629,7 @@ declare namespace Ui {
     }
     class Selectionable extends LBox implements SelectionableInit {
         private selectionWatcher;
-        constructor(init?: Partial<SelectionableInit>);
+        constructor(init?: SelectionableInit);
         isSelected: boolean;
         protected onSelect(selection: Selection): void;
         protected onUnselect(selection: Selection): void;
@@ -1650,9 +1676,9 @@ declare namespace Ui {
         lock: boolean;
         constructor(init: {
             element: Ui.Element;
-            press?: (watcher: PressWatcher) => void;
-            down?: (watcher: PressWatcher) => void;
-            up?: (watcher: PressWatcher) => void;
+            press?: (watcher: ContextMenuWatcher) => void;
+            down?: (watcher: ContextMenuWatcher) => void;
+            up?: (watcher: ContextMenuWatcher) => void;
             lock?: boolean;
         });
         readonly isDown: boolean;
@@ -1665,12 +1691,12 @@ declare namespace Ui {
 }
 declare namespace Ui {
     interface LabelInit extends ElementInit {
-        text: string;
-        fontSize: number;
-        fontFamily: string;
-        fontWeight: string | number;
-        color: Color | string;
-        orientation: Orientation;
+        text?: string;
+        fontSize?: number;
+        fontFamily?: string;
+        fontWeight?: string | number;
+        color?: Color | string;
+        orientation?: Orientation;
     }
     interface LabelStyle {
         color: Color;
@@ -1689,7 +1715,7 @@ declare namespace Ui {
         private textMeasureValid;
         private textWidth;
         private textHeight;
-        constructor(init?: Partial<LabelInit>);
+        constructor(init?: LabelInit);
         text: string;
         fontSize: number;
         fontFamily: string;
@@ -1720,10 +1746,10 @@ declare namespace Ui {
 }
 declare namespace Ui {
     interface MovableBaseInit extends ContainerInit {
-        lock: boolean;
-        inertia: boolean;
-        moveHorizontal: boolean;
-        moveVertical: boolean;
+        lock?: boolean;
+        inertia?: boolean;
+        moveHorizontal?: boolean;
+        moveVertical?: boolean;
     }
     class MovableBase extends Container implements MovableBaseInit {
         private _moveHorizontal;
@@ -1740,7 +1766,7 @@ declare namespace Ui {
         private _lock;
         protected isInMoveEvent: boolean;
         protected cumulMove: number;
-        constructor(init?: Partial<MovableBaseInit>);
+        constructor(init?: MovableBaseInit);
         lock: boolean;
         readonly isDown: boolean;
         inertia: boolean;
@@ -1759,12 +1785,12 @@ declare namespace Ui {
 }
 declare namespace Ui {
     interface MovableInit extends MovableBaseInit {
-        cursor: string;
+        cursor?: string;
     }
     class Movable extends MovableBase implements MovableInit {
         private contentBox;
         private _cursor;
-        constructor(init?: Partial<MovableInit>);
+        constructor(init?: MovableInit);
         cursor: string;
         protected onKeyDown(event: any): void;
         protected onMove(x: number, y: number): void;
@@ -1858,6 +1884,18 @@ declare namespace Ui {
         protected onTimeupdate(clock: any, progress: any, delta: any): void;
         stopInertia(): void;
     }
+    interface TransformableInit extends LBoxInit {
+        allowLeftMouse?: boolean;
+        allowScale?: boolean;
+        minScale?: number;
+        maxScale?: number;
+        allowRotate?: boolean;
+        allowTranslate?: boolean;
+        angle?: number;
+        scale?: number;
+        translateX?: number;
+        translateY?: number;
+    }
     class Transformable extends LBox {
         private _inertia;
         protected inertiaClock: Anim.Clock;
@@ -1882,7 +1920,7 @@ declare namespace Ui {
         private _allowLeftMouse;
         private speedX;
         private speedY;
-        constructor();
+        constructor(init?: TransformableInit);
         allowLeftMouse: boolean;
         allowScale: boolean;
         minScale: number;
@@ -1922,12 +1960,12 @@ declare namespace Ui {
 }
 declare namespace Ui {
     interface ScrollableInit extends ContainerInit {
-        maxScale: number;
-        content: Element;
-        inertia: boolean;
-        scrollHorizontal: boolean;
-        scrollVertical: boolean;
-        scale: number;
+        maxScale?: number;
+        content?: Element;
+        inertia?: boolean;
+        scrollHorizontal?: boolean;
+        scrollVertical?: boolean;
+        scale?: number;
     }
     class Scrollable extends Container implements ScrollableInit {
         private contentBox;
@@ -1952,7 +1990,7 @@ declare namespace Ui {
         scrollbarHorizontalNeeded: boolean;
         scrollbarVerticalHeight: number;
         scrollbarHorizontalWidth: number;
-        constructor(init?: Partial<ScrollableInit>);
+        constructor(init?: ScrollableInit);
         maxScale: number;
         content: Element;
         protected setContent(content: Element): void;
@@ -2015,7 +2053,7 @@ declare namespace Ui {
     class ScrollingArea extends Scrollable implements ScrollingAreaInit {
         private horizontalScrollbar;
         private verticalScrollbar;
-        constructor(init?: Partial<ScrollingAreaInit>);
+        constructor(init?: ScrollingAreaInit);
         protected onStyleChange(): void;
         static style: any;
     }
@@ -2069,17 +2107,17 @@ declare namespace Ui {
         drawText(width: any, render: any): any;
     }
     interface CompactLabelInit extends ElementInit {
-        maxLine: number;
-        text: string;
-        textAlign: string;
-        interLine: number;
-        fontSize: number;
-        fontFamily: string;
-        fontWeight: string;
-        whiteSpace: string;
-        wordWrap: string;
-        textTransform: string;
-        color: Color;
+        maxLine?: number;
+        text?: string;
+        textAlign?: string;
+        interLine?: number;
+        fontSize?: number;
+        fontFamily?: string;
+        fontWeight?: string;
+        whiteSpace?: string;
+        wordWrap?: string;
+        textTransform?: string;
+        color?: Color;
     }
     class CompactLabel extends Element implements CompactLabelInit {
         private _fontSize;
@@ -2099,7 +2137,7 @@ declare namespace Ui {
         private _whiteSpace;
         private _wordWrap;
         private _textTransform;
-        constructor(init?: Partial<CompactLabelInit>);
+        constructor(init?: CompactLabelInit);
         maxLine: number;
         text: string;
         textAlign: string;
@@ -2173,7 +2211,7 @@ declare namespace Ui {
             type: string | Function;
             effect: DropEffect[] | DropEffectFunc;
         }[];
-        constructor(init?: Partial<DropBoxInit>);
+        constructor(init?: DropBoxInit);
         addType(type: string | Function, effects: string | string[] | DropEffect[] | DropEffectFunc): void;
         protected onDragOver(event: DragEvent): void;
         protected onWatcherEnter(watcher: DragWatcher): void;
@@ -2218,13 +2256,13 @@ declare namespace Ui {
         updateCanvas(ctx: any): void;
     }
     interface ButtonInit extends SelectionableInit {
-        text: string | undefined;
-        icon: string | undefined;
-        background: Element;
-        marker: Element;
-        isActive: boolean;
-        badge: string;
-        orientation: string;
+        text?: string | undefined;
+        icon?: string | undefined;
+        background?: Element;
+        marker?: Element;
+        isActive?: boolean;
+        badge?: string;
+        orientation?: Orientation;
     }
     class Button extends Pressable implements ButtonInit {
         private dropbox;
@@ -2239,7 +2277,7 @@ declare namespace Ui {
         private _badge;
         private bg;
         private _orientation;
-        constructor(init?: Partial<ButtonInit>);
+        constructor(init?: ButtonInit);
         readonly dropBox: DropBox;
         background: Element;
         readonly textBox: Element;
@@ -2286,14 +2324,14 @@ declare namespace Ui {
         static style: any;
     }
     interface ContextBarInit extends LBoxInit {
-        selection: Selection;
+        selection?: Selection;
     }
     class ContextBar extends LBox implements ContextBarInit {
         bg: Rectangle;
         private _selection;
         actionsBox: Box;
         closeButton: ContextBarCloseButton;
-        constructor(init?: Partial<ContextBarInit>);
+        constructor(init?: ContextBarInit);
         selection: Selection;
         onClosePress(): void;
         onSelectionChange(): void;
@@ -2303,9 +2341,9 @@ declare namespace Ui {
 }
 declare namespace Ui {
     interface PopupInit extends ContainerInit {
-        preferredWidth: number;
-        preferredHeight: number;
-        autoClose: boolean;
+        preferredWidth?: number;
+        preferredHeight?: number;
+        autoClose?: boolean;
     }
     type AttachBorder = 'right' | 'left' | 'top' | 'bottom' | 'center';
     class Popup extends Container implements PopupInit {
@@ -2325,7 +2363,7 @@ declare namespace Ui {
         private _preferredHeight;
         openClock: Anim.Clock;
         isClosed: boolean;
-        constructor(init?: Partial<PopupInit>);
+        constructor(init?: PopupInit);
         preferredWidth: number;
         preferredHeight: number;
         getSelectionHandler(): Selection;
@@ -2372,7 +2410,7 @@ declare namespace Ui {
     interface MenuPopupInit extends PopupInit {
     }
     class MenuPopup extends Popup implements MenuPopupInit {
-        constructor(init?: Partial<MenuPopupInit>);
+        constructor(init?: MenuPopupInit);
     }
     class MenuPopupSeparator extends Separator {
         constructor();
@@ -2386,14 +2424,14 @@ declare namespace Ui {
         static style: any;
     }
     interface MenuToolBarInit extends ContainerInit {
-        paddingTop: number;
-        paddingBottom: number;
-        paddingLeft: number;
-        paddingRight: number;
-        itemsAlign: 'left' | 'right';
-        menuPosition: 'left' | 'right';
-        uniform: boolean;
-        spacing: number;
+        paddingTop?: number;
+        paddingBottom?: number;
+        paddingLeft?: number;
+        paddingRight?: number;
+        itemsAlign?: 'left' | 'right';
+        menuPosition?: 'left' | 'right';
+        uniform?: boolean;
+        spacing?: number;
     }
     class MenuToolBar extends Container implements MenuToolBarInit {
         private _paddingTop;
@@ -2413,7 +2451,7 @@ declare namespace Ui {
         private keepItems;
         private menuNeeded;
         private bg;
-        constructor(init?: Partial<MenuToolBarInit>);
+        constructor(init?: MenuToolBarInit);
         uniform: boolean;
         menuPosition: 'left' | 'right';
         itemsAlign: 'left' | 'right';
@@ -2440,10 +2478,10 @@ declare namespace Ui {
     }
 }
 declare namespace Ui {
-    interface AppInit extends LBoxInit {
-        content: Element;
+    interface AppInit extends ContainerInit {
+        content?: Element;
     }
-    class App extends LBox {
+    class App extends Container {
         styles: any;
         private updateTask;
         loaded: boolean;
@@ -2465,7 +2503,7 @@ declare namespace Ui {
         testFontTask: any;
         bindedUpdate: any;
         selection: Selection;
-        constructor(init?: Partial<AppInit>);
+        constructor(init?: AppInit);
         setWebApp(webApp: boolean): void;
         getSelectionHandler(): Selection;
         forceInvalidateMeasure(element: any): void;
@@ -2473,6 +2511,10 @@ declare namespace Ui {
         testRequireFonts(): void;
         checkWindowSize(): void;
         getOrientation(): number;
+        protected measureCore(width: number, height: number): {
+            width: number;
+            height: number;
+        };
         protected onSelectionChange(selection: any): void;
         protected onWindowLoad(): void;
         protected onWindowResize(event: any): void;
@@ -2510,7 +2552,7 @@ declare namespace Ui {
     interface FormInit extends LBoxInit {
     }
     class Form extends LBox implements FormInit {
-        constructor(init?: Partial<FormInit>);
+        constructor(init?: FormInit);
         onSubmit(event: any): void;
         submit(): void;
         renderDrawing(): any;
@@ -2520,7 +2562,7 @@ declare namespace Ui {
     interface DialogCloseButtonInit extends ButtonInit {
     }
     class DialogCloseButton extends Button implements DialogCloseButtonInit {
-        constructor(init?: Partial<DialogCloseButtonInit>);
+        constructor(init?: DialogCloseButtonInit);
         static style: object;
     }
     class DialogGraphic extends CanvasElement {
@@ -2549,14 +2591,14 @@ declare namespace Ui {
         static style: object;
     }
     interface DialogInit extends ContainerInit {
-        preferredWidth: number;
-        preferredHeight: number;
-        fullScrolling: boolean;
-        title: string;
-        cancelButton: Pressable;
-        actionButtons: Pressable[];
-        autoClose: boolean;
-        content: Element;
+        preferredWidth?: number;
+        preferredHeight?: number;
+        fullScrolling?: boolean;
+        title?: string;
+        cancelButton?: Pressable;
+        actionButtons?: Pressable[];
+        autoClose?: boolean;
+        content?: Element;
     }
     class Dialog extends Container implements DialogInit {
         dialogSelection: Selection;
@@ -2579,7 +2621,7 @@ declare namespace Ui {
         openClock: Anim.Clock;
         isClosed: boolean;
         scroll: ScrollingArea;
-        constructor(init?: Partial<DialogInit>);
+        constructor(init?: DialogInit);
         getSelectionHandler(): Selection;
         preferredWidth: number;
         preferredHeight: number;
@@ -2613,16 +2655,16 @@ declare namespace Ui {
 }
 declare namespace Ui {
     interface HtmlInit extends ElementInit {
-        html: string;
-        text: string;
-        textAlign: string;
-        fontSize: number;
-        fontFamily: string;
-        fontWeight: string;
-        interLine: number;
-        wordWrap: string;
-        whiteSpace: string;
-        color: Color | string;
+        html?: string;
+        text?: string;
+        textAlign?: string;
+        fontSize?: number;
+        fontFamily?: string;
+        fontWeight?: string;
+        interLine?: number;
+        wordWrap?: string;
+        whiteSpace?: string;
+        color?: Color | string;
     }
     class Html extends Element implements HtmlInit {
         private htmlDrawing;
@@ -2635,7 +2677,7 @@ declare namespace Ui {
         private _interLine;
         private _wordWrap;
         private _whiteSpace;
-        constructor(init?: Partial<HtmlInit>);
+        constructor(init?: HtmlInit);
         getElements(tagName: any): any[];
         searchElements(tagName: any, element: any, res: any): void;
         getParentElement(tagName: any, element: any): any;
@@ -2668,23 +2710,23 @@ declare namespace Ui {
 }
 declare namespace Ui {
     interface TextInit extends HtmlInit {
-        textTransform: string;
+        textTransform?: string;
     }
     class Text extends Html implements TextInit {
-        constructor(init?: Partial<TextInit>);
+        constructor(init?: TextInit);
         textTransform: string;
     }
 }
 declare namespace Ui {
     interface ShadowInit extends CanvasElementInit {
-        color: Color | string;
-        inner: boolean;
-        shadowWidth: number;
-        radius: number;
-        radiusTopLeft: number;
-        radiusTopRight: number;
-        radiusBottomLeft: number;
-        radiusBottomRight: number;
+        color?: Color | string;
+        inner?: boolean;
+        shadowWidth?: number;
+        radius?: number;
+        radiusTopLeft?: number;
+        radiusTopRight?: number;
+        radiusBottomLeft?: number;
+        radiusBottomRight?: number;
     }
     class Shadow extends CanvasElement implements ShadowInit {
         private _radiusTopLeft;
@@ -2694,7 +2736,7 @@ declare namespace Ui {
         private _shadowWidth;
         private _inner;
         private _color;
-        constructor(init?: Partial<ShadowInit>);
+        constructor(init?: ShadowInit);
         color: Color | string;
         inner: boolean;
         shadowWidth: number;
@@ -2743,7 +2785,7 @@ declare namespace Ui {
 }
 declare namespace Ui {
     interface ImageInit extends ElementInit {
-        src: string;
+        src?: string;
     }
     class Image extends Element implements ImageInit {
         private _src;
@@ -2752,7 +2794,7 @@ declare namespace Ui {
         private _naturalHeight;
         private imageDrawing;
         private setSrcLock;
-        constructor(init?: Partial<ImageInit>);
+        constructor(init?: ImageInit);
         src: string;
         readonly naturalWidth: number;
         readonly naturalHeight: number;
@@ -2767,12 +2809,12 @@ declare namespace Ui {
     }
 }
 declare namespace Ui {
-    interface LoadingInit extends CanvasElement {
+    interface LoadingInit extends CanvasElementInit {
     }
     class Loading extends CanvasElement implements LoadingInit {
         private clock;
         private ease;
-        constructor(init?: Partial<LoadingInit>);
+        constructor(init?: LoadingInit);
         protected onVisible(): void;
         protected onHidden(): void;
         protected updateCanvas(ctx: any): void;
@@ -2785,12 +2827,12 @@ declare namespace Ui {
 }
 declare namespace Ui {
     interface EntryInit extends ElementInit {
-        passwordMode: boolean;
-        fontSize: number;
-        fontFamily: string;
-        fontWeight: string;
-        color: Color | string;
-        value: string;
+        passwordMode?: boolean;
+        fontSize?: number;
+        fontFamily?: string;
+        fontWeight?: string;
+        color?: Color | string;
+        value?: string;
     }
     class Entry extends Element implements EntryInit {
         private _fontSize;
@@ -2799,7 +2841,7 @@ declare namespace Ui {
         private _color;
         private _value;
         private _passwordMode;
-        constructor(init?: Partial<EntryInit>);
+        constructor(init?: EntryInit);
         passwordMode: boolean;
         fontSize: number;
         fontFamily: string;
@@ -2828,7 +2870,7 @@ declare namespace Ui {
     interface FixedInit extends ContainerInit {
     }
     class Fixed extends Container implements FixedInit {
-        constructor(init?: Partial<FixedInit>);
+        constructor(init?: FixedInit);
         setPosition(item: Element, x: number, y: number): void;
         setRelativePosition(item: Element, x: number, y: number, absolute?: boolean): void;
         append(child: Element, x: number, y: number): void;
@@ -2847,7 +2889,7 @@ declare namespace Ui {
     class ToolBar extends ScrollingArea implements ToolBarInit {
         private scroll;
         private hbox;
-        constructor(init?: Partial<ToolBarInit>);
+        constructor(init?: ToolBarInit);
         append(child: Element, resizable?: boolean): void;
         remove(child: Element): void;
         content: Element;
@@ -2877,15 +2919,15 @@ declare namespace Ui {
 }
 declare namespace Ui {
     interface TextFieldInit extends LBoxInit {
-        textHolder: string;
-        passwordMode: boolean;
-        value: string;
+        textHolder?: string;
+        passwordMode?: boolean;
+        value?: string;
     }
     class TextField extends LBox {
         private entry;
         private graphic;
         private textholder;
-        constructor(init?: Partial<TextFieldInit>);
+        constructor(init?: TextFieldInit);
         textHolder: string;
         passwordMode: boolean;
         value: string;
@@ -2925,9 +2967,9 @@ declare namespace Ui {
 }
 declare namespace Ui {
     interface CheckBoxInit extends PressableInit {
-        value: boolean;
-        text: string;
-        content: Element;
+        value?: boolean;
+        text?: string;
+        content?: Element;
     }
     class CheckBox extends Pressable implements CheckBoxInit {
         private graphic;
@@ -2936,7 +2978,7 @@ declare namespace Ui {
         private _content;
         private _text;
         private _isToggled;
-        constructor(init?: Partial<CheckBoxInit>);
+        constructor(init?: CheckBoxInit);
         readonly isToggled: boolean;
         value: boolean;
         text: string;
@@ -2956,13 +2998,13 @@ declare namespace Ui {
 }
 declare namespace Ui {
     interface FrameInit extends CanvasElementInit {
-        frameWidth: number;
-        fill: Color | LinearGradient | string;
-        radius: number;
-        radiusTopLeft: number;
-        radiusTopRight: number;
-        radiusBottomLeft: number;
-        radiusBottomRight: number;
+        frameWidth?: number;
+        fill?: Color | LinearGradient | string;
+        radius?: number;
+        radiusTopLeft?: number;
+        radiusTopRight?: number;
+        radiusBottomLeft?: number;
+        radiusBottomRight?: number;
     }
     class Frame extends CanvasElement implements FrameInit {
         private _fill;
@@ -2971,7 +3013,7 @@ declare namespace Ui {
         private _radiusBottomLeft;
         private _radiusBottomRight;
         private _frameWidth;
-        constructor(init?: Partial<FrameInit>);
+        constructor(init?: FrameInit);
         frameWidth: number;
         fill: Color | LinearGradient | string;
         radius: number;
@@ -2984,13 +3026,13 @@ declare namespace Ui {
 }
 declare namespace Ui {
     interface ScaleBoxInit extends ContainerInit {
-        fixedWidth: number;
-        fixedHeight: number;
+        fixedWidth?: number;
+        fixedHeight?: number;
     }
     class ScaleBox extends Container {
         private _fixedWidth;
         private _fixedHeight;
-        constructor(init?: Partial<ScaleBoxInit>);
+        constructor(init?: ScaleBoxInit);
         setFixedSize(width: number, height: number): void;
         fixedWidth: number;
         fixedHeight: number;
@@ -3005,13 +3047,20 @@ declare namespace Ui {
     }
 }
 declare namespace Ui {
+    interface TextAreaInit extends ElementInit {
+        fontSize?: number;
+        fontFamily?: string;
+        fontWeight?: string;
+        color?: Color | string;
+        value?: string;
+    }
     class TextArea extends Element {
         private _fontSize;
         private _fontFamily;
         private _fontWeight;
         private _color;
         private _value;
-        constructor();
+        constructor(init?: TextAreaInit);
         fontSize: number;
         fontFamily: string;
         fontWeight: string;
@@ -3045,11 +3094,15 @@ declare namespace Ui {
     }
 }
 declare namespace Ui {
+    interface TextAreaFieldInit extends LBoxInit {
+        textHolder?: string;
+        value?: string;
+    }
     class TextAreaField extends LBox {
         textarea: TextArea;
         graphic: TextBgGraphic;
         textholder: Label;
-        constructor();
+        constructor(init?: TextAreaFieldInit);
         textHolder: string;
         value: string;
         protected onTextAreaFocus(): void;
@@ -3059,13 +3112,13 @@ declare namespace Ui {
 }
 declare namespace Ui {
     interface GridInit extends ContainerInit {
-        cols: string;
-        rows: string;
+        cols?: string;
+        rows?: string;
     }
     class Grid extends Container implements GridInit {
         private _cols;
         private _rows;
-        constructor(init?: Partial<GridInit>);
+        constructor(init?: GridInit);
         cols: string;
         rows: string;
         setContent(content: any): void;
@@ -3090,10 +3143,10 @@ declare namespace Ui {
 }
 declare namespace Ui {
     interface FlowInit extends ContainerInit {
-        spacing: number;
-        itemAlign: 'left' | 'right';
-        uniform: boolean;
-        content: Element[] | undefined;
+        spacing?: number;
+        itemAlign?: 'left' | 'right';
+        uniform?: boolean;
+        content?: Element[] | undefined;
     }
     class Flow extends Container implements FlowInit {
         private _uniform;
@@ -3101,7 +3154,7 @@ declare namespace Ui {
         private uniformHeight;
         private _itemAlign;
         private _spacing;
-        constructor(init?: Partial<FlowInit>);
+        constructor(init?: FlowInit);
         content: Element[] | undefined;
         spacing: number;
         itemAlign: 'left' | 'right';
@@ -3122,13 +3175,13 @@ declare namespace Ui {
 }
 declare namespace Ui {
     interface ProgressBarInit extends ContainerInit {
-        value: number;
+        value?: number;
     }
     class ProgressBar extends Container implements ProgressBarInit {
         private _value;
         private bar;
         private background;
-        constructor(init?: Partial<ProgressBarInit>);
+        constructor(init?: ProgressBarInit);
         value: number;
         protected measureCore(width: number, height: number): {
             width: number;
@@ -3141,12 +3194,12 @@ declare namespace Ui {
 }
 declare namespace Ui {
     interface ComboInit extends ButtonInit {
-        placeHolder: string;
-        field: string;
-        data: object[];
-        position: number;
-        current: object;
-        search: boolean;
+        placeHolder?: string;
+        field?: string;
+        data?: object[];
+        position?: number;
+        current?: object;
+        search?: boolean;
     }
     class Combo extends Button implements ComboInit {
         private _field;
@@ -3158,7 +3211,7 @@ declare namespace Ui {
         arrowtop: Icon;
         arrowbottom: Icon;
         search: boolean;
-        constructor(init?: Partial<ComboInit>);
+        constructor(init?: ComboInit);
         placeHolder: string;
         field: string;
         data: object[];
@@ -3171,17 +3224,17 @@ declare namespace Ui {
         static style: object;
     }
     interface ComboPopupInit extends MenuPopupInit {
-        search: boolean;
-        field: string;
-        data: object[];
-        position: number;
+        search?: boolean;
+        field?: string;
+        data?: object[];
+        position?: number;
     }
     class ComboPopup extends MenuPopup {
         private list;
         private _data;
         private _field;
         private searchField;
-        constructor(init?: Partial<ComboPopupInit>);
+        constructor(init?: ComboPopupInit);
         private onSearchChange(field, value);
         search: boolean;
         field: string;
@@ -3195,10 +3248,10 @@ declare namespace Ui {
 }
 declare namespace Ui {
     interface PanedInit extends ContainerInit {
-        orientation: Orientation;
-        pos: number;
-        content1: Element;
-        content2: Element;
+        orientation?: Orientation;
+        pos?: number;
+        content1?: Element;
+        content2?: Element;
     }
     class Paned extends Container implements PanedInit {
         private vertical;
@@ -3210,7 +3263,7 @@ declare namespace Ui {
         private _content2;
         private minContent2Size;
         private _pos;
-        constructor(init?: Partial<PanedInit>);
+        constructor(init?: PanedInit);
         orientation: Orientation;
         pos: number;
         content1: Element;
@@ -3226,11 +3279,15 @@ declare namespace Ui {
         };
         protected arrangeCore(width: number, height: number): void;
     }
+    interface VPanedInit extends PanedInit {
+    }
     class VPaned extends Paned {
-        constructor();
+        constructor(init?: VPanedInit);
+    }
+    interface HPanedInit extends PanedInit {
     }
     class HPaned extends Paned {
-        constructor();
+        constructor(init?: HPanedInit);
     }
     class HPanedCursor extends LBox {
         constructor();
@@ -3241,8 +3298,8 @@ declare namespace Ui {
 }
 declare namespace Ui {
     interface SliderInit extends ContainerInit {
-        value: number;
-        orientation: Orientation;
+        value?: number;
+        orientation?: Orientation;
     }
     class Slider extends Container implements SliderInit {
         protected _value: number;
@@ -3252,7 +3309,7 @@ declare namespace Ui {
         protected buttonContent: Rectangle;
         protected _orientation: Orientation;
         protected updateLock: boolean;
-        constructor(init?: Partial<SliderInit>);
+        constructor(init?: SliderInit);
         value: number;
         setValue(value: number, dontSignal?: boolean): void;
         orientation: Orientation;
@@ -3274,12 +3331,12 @@ declare namespace Ui {
 declare namespace Ui {
     type MediaState = 'initial' | 'playing' | 'paused' | 'buffering' | 'error';
     interface AudioInit extends ElementInit {
-        src: string;
-        oggSrc: string;
-        mp3Src: string;
-        aacSrc: string;
-        volume: number;
-        currentTime: number;
+        src?: string;
+        oggSrc?: string;
+        mp3Src?: string;
+        aacSrc?: string;
+        volume?: number;
+        currentTime?: number;
     }
     class Audio extends Element {
         private _src;
@@ -3291,7 +3348,7 @@ declare namespace Ui {
         static supportMp3: boolean;
         static supportWav: boolean;
         static supportAac: boolean;
-        constructor(init?: Partial<AudioInit>);
+        constructor(init?: AudioInit);
         src: string;
         play(): void;
         pause(): void;
@@ -3316,15 +3373,15 @@ declare namespace Ui {
 }
 declare namespace Ui {
     interface LinkButtonInit extends ButtonInit {
-        src: string;
-        openWindow: boolean;
-        target: string;
+        src?: string;
+        openWindow?: boolean;
+        target?: string;
     }
     class LinkButton extends Button implements LinkButtonInit {
         src: string;
         openWindow: boolean;
-        target: '_blank';
-        constructor(init?: Partial<LinkButtonInit>);
+        target: string;
+        constructor(init?: LinkButtonInit);
         protected onLinkButtonPress(): void;
         static style: object;
     }
@@ -3334,12 +3391,12 @@ declare namespace Ui {
     type SFlowFlush = 'flush' | 'flushleft' | 'flushright' | 'newline';
     type SFlowAlign = 'left' | 'right' | 'center' | 'stretch';
     interface SFlowInit extends ContainerInit {
-        content: Element[] | undefined;
-        spacing: number;
-        itemAlign: SFlowAlign;
-        uniform: boolean;
-        uniformRatio: number;
-        stretchMaxRatio: number;
+        content?: Element[] | undefined;
+        spacing?: number;
+        itemAlign?: SFlowAlign;
+        uniform?: boolean;
+        uniformRatio?: number;
+        stretchMaxRatio?: number;
     }
     class SFlow extends Container implements SFlowInit {
         private _uniform;
@@ -3349,7 +3406,7 @@ declare namespace Ui {
         private _itemAlign;
         private _stretchMaxRatio;
         private _spacing;
-        constructor(init?: Partial<SFlowInit>);
+        constructor(init?: SFlowInit);
         content: Element[] | undefined;
         spacing: number;
         itemAlign: SFlowAlign;
@@ -3374,15 +3431,14 @@ declare namespace Ui {
 }
 declare namespace Ui {
     interface VideoInit extends ElementInit {
-        oggSrc: string;
-        mp4Src: string;
-        webmSrc: string;
-        src: string;
-        poster: string;
-        autoplay: boolean;
-        volume: number;
-        duration: number;
-        currentTime: number;
+        oggSrc?: string;
+        mp4Src?: string;
+        webmSrc?: string;
+        src?: string;
+        poster?: string;
+        autoplay?: boolean;
+        volume?: number;
+        currentTime?: number;
     }
     class Video extends Element {
         oggSrc: string;
@@ -3397,7 +3453,7 @@ declare namespace Ui {
         static supportOgg: boolean;
         static supportMp4: boolean;
         static supportWebm: boolean;
-        constructor(init?: Partial<VideoInit>);
+        constructor(init?: VideoInit);
         src: string;
         poster: string;
         autoplay: boolean;
@@ -3427,10 +3483,10 @@ declare namespace Ui {
 }
 declare namespace Ui {
     interface MonthCalendarInit extends VBoxInit {
-        date: Date;
-        selectedDate: Date;
-        dayFilter: number[];
-        dateFilter: string[];
+        date?: Date;
+        selectedDate?: Date;
+        dayFilter?: number[];
+        dateFilter?: string[];
     }
     class MonthCalendar extends VBox {
         private _selectedDate;
@@ -3441,7 +3497,7 @@ declare namespace Ui {
         private grid;
         private _dayFilter;
         private _dateFilter;
-        constructor(init?: Partial<MonthCalendarInit>);
+        constructor(init?: MonthCalendarInit);
         dayFilter: number[];
         dateFilter: string[];
         date: Date;
@@ -3459,18 +3515,18 @@ declare namespace Ui {
         style: object;
     }
     interface TextButtonFieldInit extends FormInit {
-        textHolder: string;
-        widthText: number;
-        buttonIcon: string;
-        buttonText: string;
-        value: string;
+        textHolder?: string;
+        widthText?: number;
+        buttonIcon?: string;
+        buttonText?: string;
+        value?: string;
     }
     class TextButtonField extends Form {
         protected graphic: TextBgGraphic;
         protected entry: Entry;
         protected _textholder: Label;
         protected button: TextFieldButton;
-        constructor(init?: Partial<TextButtonFieldInit>);
+        constructor(init?: TextButtonFieldInit);
         textHolder: string;
         widthText: number;
         buttonIcon: string;
@@ -3486,33 +3542,33 @@ declare namespace Ui {
 }
 declare namespace Ui {
     interface DatePickerInit extends TextButtonFieldInit {
-        dayFilter: number[];
-        dateFilter: string[];
-        selectedDate: Date;
+        dayFilter?: number[];
+        dateFilter?: string[];
+        selectedDate?: Date;
     }
     class DatePicker extends TextButtonField implements DatePickerInit {
         protected popup: Popup;
         protected calendar: MonthCalendar;
         protected _selectedDate: Date;
-        protected lastValid: string;
         protected _isValid: boolean;
         protected _dayFilter: number[];
         protected _dateFilter: string[];
-        constructor(init?: Partial<DatePickerInit>);
+        constructor(init?: DatePickerInit);
         dayFilter: number[];
         dateFilter: string[];
         readonly isValid: boolean;
         selectedDate: Date;
         protected onDatePickerButtonPress(): void;
         protected onDatePickerChange(): void;
-        protected onDaySelect(monthcalendar: any, date: any): void;
+        private zeroPad(val, size?);
+        protected onDaySelect(monthcalendar: any, date: Date): void;
     }
 }
 declare namespace Ui {
     interface DownloadButtonInit extends LinkButtonInit {
     }
     class DownloadButton extends LinkButton {
-        constructor(init?: Partial<DownloadButtonInit>);
+        constructor(init?: DownloadButtonInit);
         protected onLinkPress(): void;
         style: object;
     }
@@ -3527,12 +3583,12 @@ declare namespace Ui {
 }
 declare namespace Ui {
     interface IFrameInit extends ElementInit {
-        src: string;
+        src?: string;
     }
     class IFrame extends Element {
         protected iframeDrawing: HTMLIFrameElement;
         protected _isReady: boolean;
-        constructor(init?: Partial<IFrameInit>);
+        constructor(init?: IFrameInit);
         src: string;
         readonly isReady: boolean;
         protected onIFrameLoad(): void;
@@ -3546,7 +3602,7 @@ declare namespace Ui {
     class ContentEditable extends Html {
         anchorNode: Node;
         anchorOffset: number;
-        constructor(init?: Partial<ContentEditableInit>);
+        constructor(init?: ContentEditableInit);
         protected onKeyUp(event: any): void;
         protected testAnchorChange(): void;
         protected onContentSubtreeModified(event: any): void;
@@ -3560,13 +3616,13 @@ declare namespace Ui {
         getElementAt(position: number): any;
     }
     interface VBoxScrollableInit extends ContainerInit {
-        loader: ScrollLoader;
-        maxScale: number;
-        content: Element;
-        scrollHorizontal: boolean;
-        scrollVertical: boolean;
-        scrollbarVertical: Element;
-        scrollbarHorizontal: Element;
+        loader?: ScrollLoader;
+        maxScale?: number;
+        content?: Element;
+        scrollHorizontal?: boolean;
+        scrollVertical?: boolean;
+        scrollbarVertical?: Movable;
+        scrollbarHorizontal?: Movable;
     }
     class VBoxScrollable extends Container implements VBoxScrollableInit {
         contentBox: VBoxScrollableContent;
@@ -3592,7 +3648,7 @@ declare namespace Ui {
         scrollLock: boolean;
         relativeOffsetX: number;
         relativeOffsetY: number;
-        constructor(init?: Partial<VBoxScrollable>);
+        constructor(init?: VBoxScrollableInit);
         reload(): void;
         getActiveItems(): Element[];
         loader: ScrollLoader;
@@ -3660,7 +3716,7 @@ declare namespace Ui {
     class VBoxScrollingArea extends VBoxScrollable implements VBoxScrollingAreaInit {
         horizontalScrollbar: Scrollbar;
         verticalScrollbar: Scrollbar;
-        constructor(init?: Partial<VBoxScrollingAreaInit>);
+        constructor(init?: VBoxScrollingAreaInit);
         protected onStyleChange(): void;
         static style: object;
     }
@@ -3673,7 +3729,7 @@ declare namespace Ui {
         rectangle: Ui.Rectangle;
         startPos: Ui.Point;
         private shiftStart;
-        constructor(init?: Partial<SelectionAreaInit>);
+        constructor(init?: SelectionAreaInit);
         getParentSelectionHandler(): Ui.Selection | undefined;
         private findAreaElements(p1, p2);
         private findSelectionableWatchers();
@@ -3698,13 +3754,13 @@ declare namespace Ui {
         ui?: typeof ListViewCell;
     }
     interface ListViewHeaderInit extends PressableInit {
-        title: string;
+        title?: string;
     }
     class ListViewHeader extends Pressable {
         protected _title: string;
         protected uiTitle: Label;
         protected background: Rectangle;
-        constructor(init?: Partial<ListViewHeaderInit>);
+        constructor(init?: ListViewHeaderInit);
         title: string;
         protected getColor(): Color;
         protected getColorDown(): Color;
@@ -3776,9 +3832,9 @@ declare namespace Ui {
         getElementAt(position: any): ListViewRow;
     }
     interface ListViewInit extends VBoxInit {
-        headers: HeaderDef[];
-        scrolled: boolean;
-        selectionActions: SelectionActions;
+        headers?: HeaderDef[];
+        scrolled?: boolean;
+        selectionActions?: SelectionActions;
     }
     class ListView extends VBox implements ListViewInit {
         private _data;
@@ -3800,7 +3856,7 @@ declare namespace Ui {
         private _scrolled;
         vbox: VBox;
         vboxScroll: ScrollingArea;
-        constructor(init?: Partial<ListViewInit>);
+        constructor(init?: ListViewInit);
         scrolled: boolean;
         showHeaders(): void;
         hideHeaders(): void;
@@ -3860,10 +3916,12 @@ declare namespace Ui {
     }
 }
 declare namespace Ui {
+    interface UploadableInit extends PressableInit {
+    }
     class Uploadable extends Pressable {
         protected _content: Element;
         protected input: UploadableFileWrapper;
-        constructor(config: any);
+        constructor(init?: UploadableInit);
         setDirectoryMode(active: any): void;
         protected onFile(fileWrapper: any, file: any): void;
         protected onPress(): void;
@@ -3897,10 +3955,11 @@ declare namespace Ui {
 }
 declare namespace Ui {
     interface UploadButtonInit extends ButtonInit {
+        directoryMode?: boolean;
     }
     class UploadButton extends Button implements UploadButtonInit {
         input: UploadableFileWrapper;
-        constructor(init?: Partial<UploadButtonInit>);
+        constructor(init?: UploadButtonInit);
         directoryMode: boolean;
         protected onUploadButtonPress(): void;
         protected onFile(fileWrapper: UploadableFileWrapper, file: Core.File): void;
@@ -3924,32 +3983,32 @@ declare namespace Ui {
 declare namespace Ui {
     type SlideDirection = 'top' | 'bottom' | 'left' | 'right';
     interface SlideInit {
-        direction: SlideDirection;
+        direction?: SlideDirection;
     }
     class Slide extends Transition implements SlideInit {
         protected _direction: SlideDirection;
-        constructor(init?: Partial<SlideInit>);
+        constructor(init?: SlideInit);
         direction: SlideDirection;
         run(current: Element, next: Element, progress: number): void;
     }
 }
 declare namespace Ui {
     interface FlipInit {
-        orientation: 'horizontal' | 'vertical';
+        orientation?: 'horizontal' | 'vertical';
     }
     class Flip extends Transition implements FlipInit {
         orientation: 'horizontal' | 'vertical';
-        constructor(init?: Partial<FlipInit>);
+        constructor(init?: FlipInit);
         run(current: Element, next: Element, progress: number): void;
     }
 }
 declare namespace Ui {
     interface TransitionBoxInit extends LBoxInit {
-        duration: number;
-        ease: Anim.EasingFunction | string;
-        transition: Transition | string;
-        position: number;
-        current: Element;
+        duration?: number;
+        ease?: Anim.EasingFunction | string;
+        transition?: Transition | string;
+        position?: number;
+        current?: Element;
     }
     class TransitionBox extends LBox {
         protected _transition: Transition;
@@ -3962,7 +4021,7 @@ declare namespace Ui {
         protected replaceMode: boolean;
         protected progress: number;
         children: TransitionBoxContent[];
-        constructor(init?: Partial<TransitionBoxInit>);
+        constructor(init?: TransitionBoxInit);
         position: number;
         duration: number;
         ease: Anim.EasingFunction | string;
@@ -3987,14 +4046,14 @@ declare namespace Ui {
     type FoldDirection = 'top' | 'bottom' | 'left' | 'right';
     type FoldMode = 'extend' | 'slide';
     interface FoldInit extends ContainerInit {
-        isFolded: boolean;
-        over: boolean;
-        mode: FoldMode;
-        header: Element;
-        content: Element;
-        background: Element;
-        position: FoldDirection;
-        animDuration: number;
+        isFolded?: boolean;
+        over?: boolean;
+        mode?: FoldMode;
+        header?: Element;
+        content?: Element;
+        background?: Element;
+        position?: FoldDirection;
+        animDuration?: number;
     }
     class Fold extends Container {
         private headerBox;
@@ -4010,7 +4069,7 @@ declare namespace Ui {
         private clock;
         private contentSize;
         private _animDuration;
-        constructor(init?: Partial<FoldInit>);
+        constructor(init?: FoldInit);
         isFolded: boolean;
         fold(): void;
         unfold(): void;
@@ -4032,8 +4091,8 @@ declare namespace Ui {
 }
 declare namespace Ui {
     interface SwitchInit extends ContainerInit {
-        value: boolean;
-        ease: Anim.EasingFunction;
+        value?: boolean;
+        ease?: Anim.EasingFunction;
     }
     class Switch extends Container {
         private _value;
@@ -4047,7 +4106,7 @@ declare namespace Ui {
         private animNext;
         private animStart;
         ease: Anim.EasingFunction;
-        constructor(init?: Partial<SwitchInit>);
+        constructor(init?: SwitchInit);
         value: boolean;
         private onButtonMove(button);
         private updatePos();
@@ -4080,7 +4139,7 @@ declare namespace Ui {
         private headersSize;
         private contentSize;
         private _orientation;
-        constructor(init?: Partial<AccordeonableInit>);
+        constructor(init?: AccordeonableInit);
         orientation: AccordeonOrientation;
         readonly pages: AccordeonPage[];
         currentPage: AccordeonPage;
@@ -4142,7 +4201,7 @@ declare namespace Ui {
         private container;
         private fixed;
         private markerOrientation;
-        constructor(init?: Partial<DropAtBoxInit>);
+        constructor(init?: DropAtBoxInit);
         addType(type: string | Function, effects: string | string[] | DropEffect[] | DropAtEffectFunc): void;
         setContainer(container: any): void;
         getContainer(): Container;
@@ -4173,25 +4232,25 @@ declare namespace Ui {
         static style: object;
     }
     interface FlowDropBoxInit extends DropAtBoxInit {
-        uniform: boolean;
-        spacing: number;
+        uniform?: boolean;
+        spacing?: number;
     }
     class FlowDropBox extends DropAtBox {
         private _flow;
-        constructor(init?: Partial<FlowDropBoxInit>);
+        constructor(init?: FlowDropBoxInit);
         uniform: boolean;
         spacing: number;
     }
     interface SFlowDropBoxInit extends DropAtBoxInit {
-        stretchMaxRatio: number;
-        uniform: boolean;
-        uniformRatio: number;
-        itemAlign: SFlowAlign;
-        spacing: number;
+        stretchMaxRatio?: number;
+        uniform?: boolean;
+        uniformRatio?: number;
+        itemAlign?: SFlowAlign;
+        spacing?: number;
     }
     class SFlowDropBox extends DropAtBox {
         private _sflow;
-        constructor(init?: Partial<SFlowDropBoxInit>);
+        constructor(init?: SFlowDropBoxInit);
         stretchMaxRatio: number;
         uniform: boolean;
         uniformRatio: number;
@@ -4202,7 +4261,7 @@ declare namespace Ui {
     }
     class VDropBox extends DropAtBox {
         private _vbox;
-        constructor(init?: Partial<VDropBoxInit>);
+        constructor(init?: VDropBoxInit);
         uniform: boolean;
         spacing: number;
     }
@@ -4210,17 +4269,17 @@ declare namespace Ui {
     }
     class HDropBox extends DropAtBox {
         private _hbox;
-        constructor(init?: Partial<HDropBoxInit>);
+        constructor(init?: HDropBoxInit);
         uniform: boolean;
         spacing: number;
     }
 }
 declare namespace Ui {
     interface SegmentBarInit extends LBoxInit {
-        orientation: 'horizontal' | 'vertical';
-        field: string;
-        data: Array<any>;
-        currentPosition: number;
+        orientation?: 'horizontal' | 'vertical';
+        field?: string;
+        data?: Array<any>;
+        currentPosition?: number;
     }
     class SegmentBar extends LBox {
         private border;
@@ -4229,7 +4288,7 @@ declare namespace Ui {
         private _field;
         private _data;
         private _orientation;
-        constructor(init?: Partial<SegmentBarInit>);
+        constructor(init?: SegmentBarInit);
         orientation: 'horizontal' | 'vertical';
         field: string;
         data: Array<any>;
@@ -4242,15 +4301,15 @@ declare namespace Ui {
         static style: any;
     }
     interface SegmentButtonInit extends PressableInit {
-        textTransform: string;
-        foreground: Color | string;
-        data: any;
-        text: string;
-        textHeight: number;
-        mode: 'left' | 'right' | 'top' | 'bottom';
-        radius: number;
-        spacing: number;
-        background: Color | string;
+        textTransform?: string;
+        foreground?: Color | string;
+        data?: any;
+        text?: string;
+        textHeight?: number;
+        mode?: 'left' | 'right' | 'top' | 'bottom';
+        radius?: number;
+        spacing?: number;
+        background?: Color | string;
     }
     class SegmentButton extends Pressable implements SegmentButtonInit {
         private textBox;
@@ -4259,7 +4318,7 @@ declare namespace Ui {
         private _mode;
         private _data;
         private _radius;
-        constructor(init?: Partial<SegmentButtonInit>);
+        constructor(init?: SegmentButtonInit);
         textTransform: string;
         foreground: Color | string;
         data: any;
@@ -4275,7 +4334,7 @@ declare namespace Ui {
 }
 declare namespace Ui {
     interface LocatorInit extends ContainerInit {
-        path: string;
+        path?: string;
     }
     class Locator extends Container implements LocatorInit {
         private _path;
@@ -4283,7 +4342,7 @@ declare namespace Ui {
         private backgrounds;
         private border;
         private focusedPart;
-        constructor(init?: Partial<LocatorInit>);
+        constructor(init?: LocatorInit);
         path: string;
         private getBackground();
         private getLightColor();
@@ -4318,24 +4377,24 @@ declare namespace Ui {
         protected updateCanvas(ctx: any): void;
     }
     interface LocatorLeftArrowInit extends ShapeInit {
-        radius: number;
-        arrowLength: number;
+        radius?: number;
+        arrowLength?: number;
     }
     class LocatorLeftArrow extends Shape implements LocatorLeftArrowInit {
         private _radius;
         private _length;
-        constructor(init?: Partial<LocatorLeftArrowInit>);
+        constructor(init?: LocatorLeftArrowInit);
         radius: number;
         arrowLength: number;
         protected arrangeCore(width: number, height: number): void;
     }
     interface LocatorLeftRightArrowInit extends ShapeInit {
-        radius: number;
-        arrowLength: number;
+        radius?: number;
+        arrowLength?: number;
     }
     class LocatorLeftRightArrow extends Shape implements LocatorLeftRightArrowInit {
         private _length;
-        constructor(init?: Partial<LocatorLeftRightArrowInit>);
+        constructor(init?: LocatorLeftRightArrowInit);
         radius: number;
         arrowLength: number;
         protected arrangeCore(width: number, height: number): void;

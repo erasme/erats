@@ -16,7 +16,7 @@ var App = (function (_super) {
         var _this = _super.call(this) || this;
         var lbox = new Ui.LBox();
         lbox.margin = 100;
-        _this.setContent(lbox);
+        _this.content = lbox;
         var scalebox = new Ui.ScaleBox({ fixedWidth: 800, fixedHeight: 600 });
         lbox.content = scalebox;
         var rect = new Ui.Rectangle({ fill: 'orange' });

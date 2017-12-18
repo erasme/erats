@@ -116,9 +116,7 @@ app.connect(dropbox, 'dropfile', function() {
 app.connect(dropbox, 'drop', function(dropbox: Ui.DropBox, data: any, effect: string) {
 	console.log('drop effect: '+effect);
 	droplabel.text = data.toString();
-	new Core.DelayedTask(app, 2, function() {
-		droplabel.text = 'drop here';
-	});
+	new Core.DelayedTask(2, () => droplabel.text = 'drop here');
 });
 
 
@@ -134,9 +132,7 @@ dropbox2.append(droplabel2);
 dropbox.append(dropbox2);
 app.connect(dropbox2, 'drop', function(dropbox: Ui.DropBox, data: any) {
 	droplabel2.text = data.toString();
-	new Core.DelayedTask(app, 2, function() {
-		droplabel2.text = 'drop here';
-	});
+	new Core.DelayedTask(2, () => droplabel2.text = 'drop here');
 });
 
 let dropbox3 = new DropBox3();
@@ -147,7 +143,5 @@ dropbox3.append(droplabel3);
 vbox.append(dropbox3);
 app.connect(dropbox3, 'drop', function(dropbox: Ui.DropBox, data: any) {
 	droplabel3.text = data.toString();
-	new Core.DelayedTask(app, 2, function() {
-		droplabel3.text = 'drop here';
-	});
+	new Core.DelayedTask(2, () => droplabel3.text = 'drop here');
 });

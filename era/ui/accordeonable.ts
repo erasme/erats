@@ -19,7 +19,7 @@ namespace Ui {
 		* page is visible.
 		*	@extends Ui.Container
 		*/
-		constructor(init?: Partial<AccordeonableInit>) {
+		constructor(init?: AccordeonableInit) {
 			super(init);
 			this.addEvents('change');
 			this.clipToBounds = true;

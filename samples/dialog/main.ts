@@ -4,7 +4,7 @@ class App extends Ui.App {
 	constructor() {
 		super();
 		let vbox = new Ui.VBox();
-		this.setContent(vbox);
+		this.content = vbox;
 
 		let tb = new Ui.HBox();
 		vbox.append(tb);

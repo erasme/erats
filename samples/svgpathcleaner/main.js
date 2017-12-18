@@ -14,10 +14,10 @@ var App = (function (_super) {
     __extends(App, _super);
     function App() {
         var _this = _super.call(this) || this;
-        var vbox = new Ui.VBox();
-        vbox.padding = 10;
-        vbox.spacing = 10;
-        _this.setContent(vbox);
+        var vbox = new Ui.VBox({
+            padding: 10, spacing: 10
+        });
+        _this.content = vbox;
         var text = new Ui.Text();
         text.text = 'Icon SVG path';
         vbox.append(text);
@@ -27,7 +27,7 @@ var App = (function (_super) {
         hbox.append(scroll, true);
         _this.pathTextField = new Ui.TextAreaField();
         _this.connect(_this.pathTextField, 'change', _this.onPathTextFieldChanged);
-        scroll.setContent(_this.pathTextField);
+        scroll.content = _this.pathTextField;
         _this.sourceIcon = new Ui.Shape();
         _this.sourceIcon.width = 192;
         _this.sourceIcon.height = 192;
@@ -36,7 +36,7 @@ var App = (function (_super) {
         hbox = new Ui.HBox();
         vbox.append(hbox);
         var button = new Ui.Button();
-        button.setText('Clean');
+        button.text = 'Clean';
         _this.connect(button, 'press', _this.onCleanPressed);
         hbox.append(button);
         _this.decimalField = new Ui.TextField();
@@ -54,7 +54,7 @@ var App = (function (_super) {
         hbox.append(scroll, true);
         _this.cleanedPathTextField = new Ui.TextAreaField();
         _this.cleanedPathTextField.setDisabled(true);
-        scroll.setContent(_this.cleanedPathTextField);
+        scroll.content = _this.cleanedPathTextField;
         _this.destIcon = new Ui.Shape();
         _this.destIcon.width = 192;
         _this.destIcon.height = 192;

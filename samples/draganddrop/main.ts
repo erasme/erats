@@ -83,7 +83,5 @@ app.connect(dropbox, 'drop', function (dropbox: Ui.DropBox, data: any, effect: s
             data = data.getData('text/plain');
     }
     droplabel.text = `message: ${data}`;
-    new Core.DelayedTask(app, 1, function () {
-        droplabel.text = 'drop here';
-    });
+    new Core.DelayedTask(1, () => droplabel.text = 'drop here');
 });

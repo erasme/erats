@@ -1,12 +1,12 @@
 namespace Ui {
 
 	export interface LabelInit extends ElementInit {
-		text: string;
-		fontSize: number;
-		fontFamily: string;
-		fontWeight: string | number;
-		color: Color | string;
-		orientation: Orientation;
+		text?: string;
+		fontSize?: number;
+		fontFamily?: string;
+		fontWeight?: string | number;
+		color?: Color | string;
+		orientation?: Orientation;
 	}
 
 	export interface LabelStyle {
@@ -28,13 +28,28 @@ namespace Ui {
 		private textWidth: number = 0;
 		private textHeight: number = 0;
 
-		constructor(init?: Partial<LabelInit>) {
-			super();
-			this.verticalAlign = 'center';
-			this.horizontalAlign = 'center';
-			this.selectable = false;
-			if (init)
-				this.assign(init);
+		constructor(init?: LabelInit) {
+			super(init);
+			if (!init || init.verticalAlign == undefined)
+				this.verticalAlign = 'center';
+			if (!init || init.horizontalAlign == undefined)
+				this.horizontalAlign = 'center';
+			if (!init || init.selectable == undefined)
+				this.selectable = false;
+			if (init) {
+				if (init.text !== undefined)
+					this.text = init.text;	
+				if (init.fontSize !== undefined)
+					this.fontSize = init.fontSize;
+				if (init.fontFamily !== undefined)
+					this.fontFamily = init.fontFamily;
+				if (init.fontWeight !== undefined)
+					this.fontWeight = init.fontWeight;	
+				if (init.color !== undefined)
+					this.color = init.color;	
+				if (init.orientation !== undefined)
+					this.orientation = init.orientation;
+			}
 		}
 
 		get text(): string {

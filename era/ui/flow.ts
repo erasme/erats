@@ -1,10 +1,10 @@
 
 namespace Ui {
 	export interface FlowInit extends ContainerInit {
-		spacing: number;
-		itemAlign: 'left' | 'right';
-		uniform: boolean;
-		content: Element[] | undefined;
+		spacing?: number;
+		itemAlign?: 'left' | 'right';
+		uniform?: boolean;
+		content?: Element[] | undefined;
 	}
 
 	export class Flow extends Container implements FlowInit {
@@ -14,10 +14,18 @@ namespace Ui {
 		private _itemAlign: 'left' | 'right' = 'left';
 		private _spacing: number = 0;
 
-		constructor(init?: Partial<FlowInit>) {
-			super();
-			if (init)
-				this.assign(init);
+		constructor(init?: FlowInit) {
+			super(init);
+			if (init) {
+				if (init.spacing !== undefined)
+					this.spacing = init.spacing;
+				if (init.itemAlign !== undefined)
+					this.itemAlign = init.itemAlign;
+				if (init.uniform !== undefined)
+					this.uniform = init.uniform;	
+				if (init.content !== undefined)
+					this.content = init.content;	
+			}
 		}
 
 		//

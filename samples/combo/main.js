@@ -15,7 +15,7 @@ var App = (function (_super) {
     function App() {
         var _this = _super.call(this) || this;
         var vbox = new Ui.VBox({ verticalAlign: 'center', horizontalAlign: 'center' });
-        _this.setContent(vbox);
+        _this.content = vbox;
         var data = [];
         for (var i = 0; i < 25; i++)
             data.push({ text: 'item ' + i, id: i });

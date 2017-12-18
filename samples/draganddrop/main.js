@@ -91,7 +91,5 @@ app.connect(dropbox, 'drop', function (dropbox, data, effect, x, y) {
             data = data.getData('text/plain');
     }
     droplabel.text = "message: " + data;
-    new Core.DelayedTask(app, 1, function () {
-        droplabel.text = 'drop here';
-    });
+    new Core.DelayedTask(1, function () { return droplabel.text = 'drop here'; });
 });

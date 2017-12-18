@@ -10,7 +10,7 @@ class App extends Ui.App {
 		}, true);
 
 		let vbox = new Ui.VBox({ spacing: 10, margin: 10 });
-		this.setContent(vbox);
+		this.content = vbox;
 
 		vbox.append(new Ui.Button({ text: 'Click me', icon: 'star' }));
 

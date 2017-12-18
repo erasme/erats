@@ -7,26 +7,26 @@ namespace Ui
 	export type HorizontalAlign = 'left' | 'center' | 'right' | 'stretch';
 
 	export interface ElementInit {
-		selectable: boolean;
-		id: string;
-		focusable: boolean;
-		role: string;
-		width: number | undefined;
-		height: number | undefined;
-		maxWidth: number;
-		maxHeight: number;
-		verticalAlign: VerticalAlign;
-		horizontalAlign: HorizontalAlign;
-		clipToBounds: boolean;
-		margin: number;
-		marginTop: number;
-		marginBottom: number;
-		marginLeft: number;
-		marginRight: number;
-		opacity: number;
-		transform: Matrix;
-		eventsHidden: boolean;
-		style: object | undefined;
+		selectable?: boolean;
+		id?: string;
+		focusable?: boolean;
+		role?: string;
+		width?: number | undefined;
+		height?: number | undefined;
+		maxWidth?: number;
+		maxHeight?: number;
+		verticalAlign?: VerticalAlign;
+		horizontalAlign?: HorizontalAlign;
+		clipToBounds?: boolean;
+		margin?: number;
+		marginTop?: number;
+		marginBottom?: number;
+		marginLeft?: number;
+		marginRight?: number;
+		opacity?: number;
+		transform?: Matrix;
+		eventsHidden?: boolean;
+		style?: object | undefined;
 	}
 
 	export class Element extends Core.Object implements ElementInit, Anim.Target
@@ -130,7 +130,7 @@ namespace Ui
 
 	    // @constructs
 		// @class Define the base class for all GUI elements
-		constructor(init?: Partial<ElementInit>)
+		constructor(init?: ElementInit)
 		{
 			super();
 			// create the drawing container
@@ -166,8 +166,48 @@ namespace Ui
 				'enable', 'disable', 'visible', 'hidden',
 				'ptrdown', 'ptrmove', 'ptrup', 'ptrcancel',
 				'wheel', 'dragover');
-			if (init)
-				this.assign(init);
+			if (init) {
+				if (init.selectable !== undefined)
+					this.selectable = init.selectable;
+				if (init.id !== undefined)
+					this.id = init.id;
+				if (init.focusable !== undefined)
+					this.focusable = init.focusable;
+				if (init.role !== undefined)
+					this.role = init.role;
+				if (init.width !== undefined)
+					this.width = init.width;
+				if (init.height !== undefined)
+					this.height = init.height;
+				if (init.maxWidth !== undefined)
+					this.maxWidth = init.maxWidth;
+				if (init.maxHeight !== undefined)
+					this.maxHeight = init.maxHeight;
+				if (init.verticalAlign !== undefined)
+					this.verticalAlign = init.verticalAlign;
+				if (init.horizontalAlign !== undefined)
+					this.horizontalAlign = init.horizontalAlign;
+				if (init.clipToBounds !== undefined)
+					this.clipToBounds = init.clipToBounds;
+				if (init.margin !== undefined)
+					this.margin = init.margin;
+				if (init.marginTop !== undefined)
+					this.marginTop = init.marginTop;
+				if (init.marginBottom !== undefined)
+					this.marginBottom = init.marginBottom;	
+				if (init.marginLeft !== undefined)
+					this.marginLeft = init.marginLeft;
+				if (init.marginRight !== undefined)
+					this.marginRight = init.marginRight;
+				if (init.opacity !== undefined)
+					this.opacity = init.opacity;	
+				if (init.transform !== undefined)
+					this.transform = init.transform;	
+				if (init.eventsHidden !== undefined)
+					this.eventsHidden = init.eventsHidden;
+				if (init.style !== undefined)
+					this.style = init.style;
+			}
 		}
 
 		setDisabled(disabled : boolean) {

@@ -1,15 +1,17 @@
 namespace Ui {
 	export interface FlipInit {
-		orientation: 'horizontal' | 'vertical';
+		orientation?: 'horizontal' | 'vertical';
 	}
 
 	export class Flip extends Transition implements FlipInit {
 		orientation: 'horizontal' | 'vertical' = 'horizontal';
 
-		constructor(init?: Partial<FlipInit>) {
+		constructor(init?: FlipInit) {
 			super();
-			if (init)
-				this.assign(init);
+			if (init) {
+				if (init.orientation !== undefined)
+					this.orientation = init.orientation;	
+			}
 		}
 
 		run(current: Element, next: Element, progress: number) {

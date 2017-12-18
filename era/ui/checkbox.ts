@@ -1,8 +1,8 @@
 namespace Ui {
 	export interface CheckBoxInit extends PressableInit {
-		value: boolean;
-		text: string;
-		content: Element;
+		value?: boolean;
+		text?: string;
+		content?: Element;
 	}
 
 	export class CheckBox extends Pressable implements CheckBoxInit {
@@ -13,7 +13,7 @@ namespace Ui {
 		private _text: string = undefined;
 		private _isToggled: boolean = false;
 
-		constructor(init?: Partial<CheckBoxInit>) {
+		constructor(init?: CheckBoxInit) {
 			super();
 			this.addEvents('change', 'toggle', 'untoggle');
 
@@ -34,8 +34,14 @@ namespace Ui {
 			this.connect(this, 'blur', this.onCheckBlur);
 			this.connect(this, 'press', this.onCheckPress);
 
-			if (init)
-				this.assign(init);
+			if (init) {
+				if (init.value !== undefined)
+					this.value = init.value;
+				if (init.text !== undefined)
+					this.text = init.text;
+				if (init.content !== undefined)
+					this.content = init.content;	
+			}
 		}
 
 		get isToggled() {

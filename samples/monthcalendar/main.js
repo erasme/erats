@@ -32,14 +32,13 @@ var App = (function (_super) {
     __extends(App, _super);
     function App() {
         var _this = _super.call(this) || this;
-        var app = new Ui.App();
         var vbox = new Ui.VBox();
-        app.setContent(vbox);
+        _this.content = vbox;
         var toolbar = new Ui.ToolBar();
         vbox.append(toolbar);
         var button = new Ui.Button({ text: 'get date' });
         toolbar.append(button);
-        app.connect(button, 'press', function () {
+        _this.connect(button, 'press', function () {
             var date = calendar.selectedDate;
             if (date == undefined)
                 logs.log('date is undefined');
@@ -52,7 +51,7 @@ var App = (function (_super) {
         calendar.dayFilter = [6, 0];
         calendar.dateFilter = ['2011/11/2[1-5]', '2011/12/*', '2012/0[2-3]/.[4]'];
         hbox.append(calendar, true);
-        app.connect(calendar, 'dayselect', function (calendar, date) {
+        _this.connect(calendar, 'dayselect', function (calendar, date) {
             console.log('Day select: ' + date);
         });
         var logs = new Logs();

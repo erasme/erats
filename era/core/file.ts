@@ -1,6 +1,12 @@
 
-namespace Core
-{
+namespace Core {
+	export interface FileInit {
+		form?: any;
+		iframe?: any;
+		fileInput?: any;
+		fileApi?: any;
+	}
+
 	export class File extends Object
 	{
 		iframe: any = undefined;
@@ -9,24 +15,16 @@ namespace Core
 
 		fileApi: any = undefined;
 
-		constructor(config) {
+		constructor(init: FileInit) {
 			super();
-			if (config.form !== undefined) {
-				this.form = config.form;
-				delete (config.form);
-			}
-			if (config.iframe !== undefined) {
-				this.iframe = config.iframe;
-				delete (config.iframe);
-			}
-			if (config.fileInput !== undefined) {
-				this.fileInput = config.fileInput;
-				delete (config.fileInput);
-			}
-			if (config.fileApi !== undefined) {
-				this.fileApi = config.fileApi;
-				delete (config.fileApi);
-			}
+			if (init.form !== undefined)
+				this.form = init.form;
+			if (init.iframe !== undefined)
+				this.iframe = init.iframe;
+			if (init.fileInput !== undefined)
+				this.fileInput = init.fileInput;
+			if (init.fileApi !== undefined)
+				this.fileApi = init.fileApi;
 		}
 
 		//

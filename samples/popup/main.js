@@ -3,7 +3,7 @@
 var app = new Ui.App();
 var popup = new Ui.Popup();
 var vbox = new Ui.VBox({ verticalAlign: 'center', horizontalAlign: 'center', spacing: 5 });
-app.setContent(vbox);
+app.content = vbox;
 var selectable = new Ui.Pressable();
 vbox.append(selectable);
 selectable.append(new Ui.Rectangle({ width: 50, height: 50, radius: 8, fill: 'lightgreen' }));

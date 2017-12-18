@@ -1,12 +1,12 @@
 namespace Ui {
 	export interface FrameInit extends CanvasElementInit {
-		frameWidth: number;
-		fill: Color | LinearGradient | string;
-		radius: number;
-		radiusTopLeft: number;
-		radiusTopRight: number;
-		radiusBottomLeft: number;
-		radiusBottomRight: number;
+		frameWidth?: number;
+		fill?: Color | LinearGradient | string;
+		radius?: number;
+		radiusTopLeft?: number;
+		radiusTopRight?: number;
+		radiusBottomLeft?: number;
+		radiusBottomRight?: number;
 	}
 
 	export class Frame extends CanvasElement implements FrameInit {
@@ -17,10 +17,24 @@ namespace Ui {
 		private _radiusBottomRight: number = 0;
 		private _frameWidth: number = 10;
 
-		constructor(init?: Partial<FrameInit>) {
-			super();
-			if (init)
-				this.assign(init);
+		constructor(init?: FrameInit) {
+			super(init);
+			if (init) {
+				if (init.frameWidth !== undefined)
+					this.frameWidth = init.frameWidth;	
+				if (init.fill !== undefined)
+					this.fill = init.fill;	
+				if (init.radius !== undefined)
+					this.radius = init.radius;	
+				if (init.radiusTopLeft !== undefined)
+					this.radiusTopLeft = init.radiusTopLeft;	
+				if (init.radiusTopRight !== undefined)
+					this.radiusTopRight = init.radiusTopRight;	
+				if (init.radiusBottomLeft !== undefined)
+					this.radiusBottomLeft = init.radiusBottomLeft;	
+				if (init.radiusBottomRight !== undefined)
+					this.radiusBottomRight = init.radiusBottomRight;	
+			}
 		}
 
 		get frameWidth(): number {

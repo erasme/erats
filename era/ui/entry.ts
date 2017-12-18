@@ -1,12 +1,12 @@
 namespace Ui
 {
 	export interface EntryInit extends ElementInit {
-		passwordMode: boolean;
-		fontSize: number;
-		fontFamily: string;
-		fontWeight: string;
-		color: Color | string;
-		value: string;
+		passwordMode?: boolean;
+		fontSize?: number;
+		fontFamily?: string;
+		fontWeight?: string;
+		color?: Color | string;
+		value?: string;
 	}
 
 	export class Entry extends Element implements EntryInit
@@ -18,8 +18,8 @@ namespace Ui
 		private _value: string = '';
 		private _passwordMode: boolean = false;
 
-		constructor(init?: Partial<EntryInit>) {
-			super();
+		constructor(init?: EntryInit) {
+			super(init);
 			this.addEvents('change', 'validate');
 			this.selectable = true;
 			this.focusable = true;
@@ -34,8 +34,20 @@ namespace Ui
 			this.connect(this.drawing, 'keyup', this.onKeyUp);
 			this.connect(this.drawing, 'keydown', this.onKeyDown);
 			
-			if (init)
-				this.assign(init);
+			if (init) {
+				if (init.passwordMode !== undefined)
+					this.passwordMode = init.passwordMode;
+				if (init.fontSize !== undefined)
+					this.fontSize = init.fontSize;	
+				if (init.fontFamily !== undefined)
+					this.fontFamily = init.fontFamily;
+				if (init.fontWeight !== undefined)
+					this.fontWeight = init.fontWeight;	
+				if (init.color !== undefined)
+					this.color = init.color;	
+				if (init.value !== undefined)
+					this.value = init.value;
+			}
 		}
 
 		set passwordMode(passwordMode: boolean) {
@@ -123,7 +135,7 @@ namespace Ui
 
 		private onPaste(event) {
 			event.stopPropagation();
-			new Core.DelayedTask(this, 0, this.onAfterPaste);
+			new Core.DelayedTask(0, this.onAfterPaste);
 		}
 
 		private onAfterPaste() {

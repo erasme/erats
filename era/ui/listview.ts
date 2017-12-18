@@ -10,7 +10,7 @@ namespace Ui {
 	}
 
 	export interface ListViewHeaderInit extends PressableInit {
-		title: string;
+		title?: string;
 	}
 
 	export class ListViewHeader extends Pressable {
@@ -18,8 +18,8 @@ namespace Ui {
 		protected uiTitle: Label;
 		protected background: Rectangle;
 
-		constructor(init?: Partial<ListViewHeaderInit>) {
-			super();
+		constructor(init?: ListViewHeaderInit) {
+			super(init);
 			this.background = new Rectangle({ verticalAlign: 'bottom', height: 4 });
 			this.append(this.background);
 			this.uiTitle = new Label({ margin: 8, fontWeight: 'bold' });
@@ -27,8 +27,10 @@ namespace Ui {
 
 			this.connect(this, 'down', this.onListViewHeaderDown);
 			this.connect(this, 'up', this.onListViewHeaderUp);
-			if (init)
-				this.assign(init);
+			if (init) {
+				if (init.title !== undefined)
+					this.title = init.title;	
+			}
 		}
 
 		get title(): string {
@@ -346,9 +348,9 @@ namespace Ui {
 	}*/
 
 	export interface ListViewInit extends VBoxInit {
-		headers: HeaderDef[];
-		scrolled: boolean;
-		selectionActions: SelectionActions;		
+		headers?: HeaderDef[];
+		scrolled?: boolean;
+		selectionActions?: SelectionActions;		
 	}	
 
 	export class ListView extends VBox implements ListViewInit {
@@ -372,8 +374,8 @@ namespace Ui {
 		vbox: VBox;
 		vboxScroll: ScrollingArea;
 
-		constructor(init?: Partial<ListViewInit>) {
-			super();
+		constructor(init?: ListViewInit) {
+			super(init);
 			this.addEvents('select', 'unselect', 'activate', 'header');
 
 			if (init && init.headers != undefined) {
@@ -424,7 +426,14 @@ namespace Ui {
 			// handle keyboard              
 			//this.connect(this.drawing, 'keydown', this.onKeyDown);
 
-			this.assign(init);
+			if (init) {
+				if (init.headers !== undefined)
+					this.headers = init.headers;
+				if (init.scrolled !== undefined)
+					this.scrolled = init.scrolled;	
+				if (init.selectionActions !== undefined)
+					this.selectionActions = init.selectionActions;	
+			}
 		}
 
 		set scrolled(scrolled : boolean) {

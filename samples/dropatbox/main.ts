@@ -1,22 +1,24 @@
 /// <reference path="../../era/era.d.ts" />
 
 interface ItemInit extends Ui.DraggableInit {
-	fill: Ui.Color | string;
+	fill?: Ui.Color | string;
 }
 
 class Item extends Ui.Draggable {
 	private rect: Ui.Rectangle;
 
-	constructor(init?: Partial<ItemInit>) {
-		super();
+	constructor(init?: ItemInit) {
+		super(init);
 		this.rect = new Ui.Rectangle({ width: 150, height: 150 });
 		this.append(this.rect);
 		this.draggableData = this;
-		if (init)
-			this.assign(init);	
+		if (init) {
+			if (init.fill !== undefined)
+				this.fill = init.fill;	
+		}
 	}
 
-	set fill(color: Ui.Color) {
+	set fill(color: Ui.Color | string) {
 		this.rect.fill = color;
 	}
 }
@@ -28,7 +30,7 @@ class App extends Ui.App {
 		super();
 
 		var scroll = new Ui.ScrollingArea();
-		this.setContent(scroll);
+		this.content = scroll;
 
 		this.container = new Ui.SFlowDropBox({
 			spacing: 20, margin: 20,

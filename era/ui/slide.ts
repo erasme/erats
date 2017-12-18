@@ -2,16 +2,18 @@ namespace Ui {
 	export type SlideDirection = 'top' | 'bottom' | 'left' | 'right';
 
 	export interface SlideInit {
-		direction: SlideDirection;
+		direction?: SlideDirection;
 	}
 
 	export class Slide extends Transition implements SlideInit {
 		protected _direction: SlideDirection = 'right';
 
-		constructor(init?: Partial<SlideInit>) {
+		constructor(init?: SlideInit) {
 			super();
-			if (init)
-				this.assign(init);
+			if (init) {
+				if (init.direction !== undefined)
+					this.direction = init.direction;	
+			}
 		}
 
 		set direction(direction: SlideDirection) {

@@ -23,7 +23,7 @@ class App extends Ui.App {
     constructor() {
         super();
         let vbox = new Ui.VBox({ padding: 50, spacing: 10 });
-        this.setContent(vbox);
+        this.content = vbox;
 
         let textbuttonfield = new Ui.TextButtonField({ buttonIcon: 'search', textHolder: 'Search' });
         vbox.append(textbuttonfield);

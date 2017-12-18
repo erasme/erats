@@ -6,7 +6,7 @@ class App extends Ui.App {
 	constructor() {
 		super();
 		let scroll = new Ui.ScrollingArea();
-		this.setContent(scroll);
+		this.content = scroll;
 
 		this.vbox = new Ui.VBox({ spacing: 20 });
 		scroll.content = this.vbox;

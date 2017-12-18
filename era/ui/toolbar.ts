@@ -6,15 +6,12 @@ namespace Ui {
 		private scroll: ScrollingArea;
 		private hbox: HBox;
 
-		constructor(init?: Partial<ToolBarInit>) {
-			super();
-			this.verticalAlign = 'center';
+		constructor(init?: ToolBarInit) {
+			super(init);
 			this.scrollVertical = false;
 			this.hbox = new HBox();
 			this.hbox.eventsHidden = true;
 			super.setContent(this.hbox);
-			if (init)
-				this.assign(init);
 		}
 
 		append(child: Element, resizable: boolean = false) {

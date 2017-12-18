@@ -1,6 +1,6 @@
 namespace Ui {
 	export interface ProgressBarInit extends ContainerInit {
-		value: number;
+		value?: number;
 	}
 
 	export class ProgressBar extends Container implements ProgressBarInit {
@@ -8,14 +8,16 @@ namespace Ui {
 		private bar: Rectangle;
 		private background: Rectangle;
 
-		constructor(init?: Partial<ProgressBarInit>) {
-			super();
+		constructor(init?: ProgressBarInit) {
+			super(init);
 			this.background = new Ui.Rectangle({ height: 4 });
 			this.appendChild(this.background);
 			this.bar = new Ui.Rectangle({ height: 4 });
 			this.appendChild(this.bar);
-			if (init)
-				this.assign(init);
+			if (init) {
+				if (init.value !== undefined)
+					this.value = init.value;
+			}
 		}
 
 		set value(value: number) {
