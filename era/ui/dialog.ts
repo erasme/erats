@@ -392,8 +392,8 @@ namespace Ui {
 			this.defaultAction();
 		}
 	
-		protected onDialogSelectionChange(selection) {
-			if (selection.getElements().length === 0) {
+		protected onDialogSelectionChange(selection: Ui.Selection) {
+			if (selection.elements.length === 0) {
 				this.contextBox.hide();
 				this.actionBox.show();
 			}
@@ -427,17 +427,17 @@ namespace Ui {
 			this.graphic.background = this.getStyleProperty('background');
 		}
 
-		protected onChildInvalidateMeasure(child, type) {
+		protected onChildInvalidateMeasure(child: Element, type) {
 			// Ui.Dialog is a layout root and can handle layout (measure/arrange) for its children
 			this.invalidateLayout();
 		}
 
-		protected onChildInvalidateArrange(child) {
+		protected onChildInvalidateArrange(child: Element) {
 			// Ui.Dialog is a layout root and can handle layout (measure/arrange) for its children
 			this.invalidateLayout();
 		}
 
-		protected measureCore(width, height) {
+		protected measureCore(width: number, height: number): Size {
 			this.shadow.measure(width, height);
 			this.lbox.measure((width < this._preferredWidth) ? width : this._preferredWidth,
 				(height < this._preferredHeight) ? height : this._preferredHeight);
