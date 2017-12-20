@@ -59,6 +59,9 @@ namespace Ui
 			this.connect(this, 'wheel', this.onWheel);
 			this.connect(this.drawing, 'keydown', this.onKeyDown);
 
+			this.setScrollbarHorizontal(new Movable());
+			this.setScrollbarVertical(new Movable());
+
 			if (init) {
 				if (init.maxScale !== undefined)
 					this.maxScale = init.maxScale;	
