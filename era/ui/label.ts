@@ -1,19 +1,23 @@
 namespace Ui {
 
+	export type FontWeight = 'normal' | 'bold' | 'bolder' | 'lighter' |
+		'100' | '200' | '300' | '400' | '500' | '600' | '700' | '800' | '900';
+
 	export interface LabelInit extends ElementInit {
 		text?: string;
 		fontSize?: number;
 		fontFamily?: string;
-		fontWeight?: string | number;
+		fontWeight?: FontWeight;
 		color?: Color | string;
 		orientation?: Orientation;
+		textTransform?: string;
 	}
 
 	export interface LabelStyle {
 		color: Color;
 		fontSize: number;
 		fontFamily: string;
-		fontWeight: string;
+		fontWeight: FontWeight;
 	}
 
 	export class Label extends Element implements LabelInit {
@@ -21,12 +25,13 @@ namespace Ui {
 		private _orientation: Orientation = 'horizontal';
 		private _fontSize: number = undefined;
 		private _fontFamily: string = undefined;
-		private _fontWeight: string | number = undefined;
+		private _fontWeight: FontWeight = undefined;
 		private _color: Color = undefined;
-		labelDrawing: any;
+		labelDrawing: HTMLElement;
 		private textMeasureValid: boolean = false;
 		private textWidth: number = 0;
 		private textHeight: number = 0;
+		private _textTransform: string;
 
 		constructor(init?: LabelInit) {
 			super(init);
@@ -49,6 +54,8 @@ namespace Ui {
 					this.color = init.color;	
 				if (init.orientation !== undefined)
 					this.orientation = init.orientation;
+				if (init.textTransform !== undefined)
+					this.textTransform = init.textTransform;
 			}
 		}
 
@@ -100,7 +107,7 @@ namespace Ui {
 				return this.getStyleProperty('fontFamily');
 		}
 
-		set fontWeight(fontWeight: string | number) {
+		set fontWeight(fontWeight: FontWeight) {
 			if (this._fontWeight !== fontWeight) {
 				this._fontWeight = fontWeight;
 				this.labelDrawing.style.fontWeight = this.fontWeight;
@@ -109,11 +116,27 @@ namespace Ui {
 			}
 		}
 
-		get fontWeight(): string | number {
+		get fontWeight(): FontWeight {
 			if (this._fontWeight !== undefined)
 				return this._fontWeight;
 			else
 				return this.getStyleProperty('fontWeight');
+		}
+
+		set textTransform(textTransform: string) {
+			if (this._textTransform !== textTransform) {
+				this._textTransform = textTransform;
+				this.labelDrawing.style.textTransform = this.textTransform;
+				this.textMeasureValid = false;
+				this.invalidateMeasure();
+			}
+		}
+
+		get textTransform(): string {
+			if (this._textTransform !== undefined)
+				return this._textTransform;
+			else
+				return this.getStyleProperty('textTransform');
 		}
 
 		set color(color: Color | string) {
@@ -148,6 +171,7 @@ namespace Ui {
 			this.labelDrawing.style.fontSize = this.fontSize + 'px';
 			this.labelDrawing.style.fontFamily = this.fontFamily;
 			this.labelDrawing.style.fontWeight = this.fontWeight;
+			this.labelDrawing.style.textTransform = this.textTransform;
 			if (Core.Navigator.supportRgba)
 				this.labelDrawing.style.color = this.getColor().getCssRgba();
 			else
@@ -169,6 +193,11 @@ namespace Ui {
 		measureCore(width: number, height: number) {
 			if (!this.textMeasureValid) {
 				this.textMeasureValid = true;
+				let text = this._text;
+				if (this._textTransform == 'uppercase')
+					text = text.toUpperCase();
+				else (this._textTransform == 'lowercase')
+					text = text.toLowerCase();
 				let size = Ui.Label.measureText(this._text, this.fontSize, this.fontFamily, this.fontWeight);
 				this.textWidth = size.width;
 				this.textHeight = size.height;
@@ -185,20 +214,20 @@ namespace Ui {
 				matrix = Ui.Matrix.createTranslate(this.labelDrawing.offsetHeight, 0);
 				matrix.rotate(90);
 				if (Core.Navigator.isIE) {
-					this.labelDrawing.style.msTransform = matrix.toString();
-					this.labelDrawing.style.msTransformOrigin = '0% 0%';
+					(this.labelDrawing.style as any).msTransform = matrix.toString();
+					(this.labelDrawing.style as any).msTransformOrigin = '0% 0%';
 				}
 				else if (Core.Navigator.isGecko) {
-					this.labelDrawing.style.MozTransform = 'matrix(' + matrix.svgMatrix.a.toFixed(4) + ', ' + matrix.svgMatrix.b.toFixed(4) + ', ' + matrix.svgMatrix.c.toFixed(4) + ', ' + matrix.svgMatrix.d.toFixed(4) + ', ' + matrix.svgMatrix.e.toFixed(0) + 'px, ' + matrix.svgMatrix.f.toFixed(0) + 'px)';
-					this.labelDrawing.style.MozTransformOrigin = '0% 0%';
+					(this.labelDrawing.style as any).MozTransform = 'matrix(' + matrix.svgMatrix.a.toFixed(4) + ', ' + matrix.svgMatrix.b.toFixed(4) + ', ' + matrix.svgMatrix.c.toFixed(4) + ', ' + matrix.svgMatrix.d.toFixed(4) + ', ' + matrix.svgMatrix.e.toFixed(0) + 'px, ' + matrix.svgMatrix.f.toFixed(0) + 'px)';
+					(this.labelDrawing.style as any).MozTransformOrigin = '0% 0%';
 				}
 				else if (Core.Navigator.isWebkit) {
 					this.labelDrawing.style.webkitTransform = matrix.toString();
 					this.labelDrawing.style.webkitTransformOrigin = '0% 0%';
 				}
 				else if (Core.Navigator.isOpera) {
-					this.labelDrawing.style.OTransform = matrix.toString();
-					this.labelDrawing.style.OTransformOrigin = '0% 0%';
+					(this.labelDrawing.style as any).OTransform = matrix.toString();
+					(this.labelDrawing.style as any).OTransformOrigin = '0% 0%';
 				}
 			}
 			else {
@@ -246,7 +275,7 @@ namespace Ui {
 			Ui.Label.measureContext = Ui.Label.measureBox.getContext('2d');
 		}
 	
-		static isFontAvailable(fontFamily: string, fontWeight) {
+		static isFontAvailable(fontFamily: string, fontWeight: string) {
 			let i;
 			if (!Core.Navigator.supportCanvas)
 				return true;
@@ -291,7 +320,7 @@ namespace Ui {
 			return false;
 		}
 
-		static measureTextHtml(text, fontSize, fontFamily, fontWeight) {
+		static measureTextHtml(text: string, fontSize: number, fontFamily: string, fontWeight: string) {
 			if (Ui.Label.measureBox === undefined)
 				this.createMeasureHtml();
 			Ui.Label.measureBox.style.fontSize = fontSize + 'px';
@@ -324,7 +353,7 @@ namespace Ui {
 			measureWindow.document.body.appendChild(Ui.Label.measureBox);
 		}
 
-		static measureText(text, fontSize, fontFamily, fontWeight) {
+		static measureText(text: string, fontSize: number, fontFamily: string, fontWeight: string) {
 			if ((text === '') ||  (text === undefined))
 				return { width: 0, height: 0 };
 			if (Core.Navigator.supportCanvas)
@@ -337,7 +366,8 @@ namespace Ui {
 			color: Color.create('#444444'),
 			fontSize: 16,
 			fontFamily: 'Sans-serif',
-			fontWeight: 'normal'
+			fontWeight: 'normal',
+			textTransform: 'none'
 		}
 	}
 }
