@@ -71,11 +71,8 @@ namespace Ui
 		}
 	
 		onSelectionChange() {
-			console.log('ContextBar.onSelectionChange');
 			this.closeButton.text = this._selection.elements.length.toString();
 			let actions = this._selection.getActions();
-			console.log(actions);
-		
 			this.actionsBox.clear();
 			this.actionsBox.append(new Element(), true);
 			for (let actionName in actions) {
