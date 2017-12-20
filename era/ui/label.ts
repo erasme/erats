@@ -3,6 +3,8 @@ namespace Ui {
 	export type FontWeight = 'normal' | 'bold' | 'bolder' | 'lighter' |
 		'100' | '200' | '300' | '400' | '500' | '600' | '700' | '800' | '900';
 
+	export type TextTransform = 'none' | 'uppercase' | 'lowercase';
+	
 	export interface LabelInit extends ElementInit {
 		text?: string;
 		fontSize?: number;
@@ -10,7 +12,7 @@ namespace Ui {
 		fontWeight?: FontWeight;
 		color?: Color | string;
 		orientation?: Orientation;
-		textTransform?: string;
+		textTransform?: TextTransform;
 	}
 
 	export interface LabelStyle {
@@ -31,7 +33,7 @@ namespace Ui {
 		private textMeasureValid: boolean = false;
 		private textWidth: number = 0;
 		private textHeight: number = 0;
-		private _textTransform: string;
+		private _textTransform: TextTransform;
 
 		constructor(init?: LabelInit) {
 			super(init);
@@ -123,7 +125,7 @@ namespace Ui {
 				return this.getStyleProperty('fontWeight');
 		}
 
-		set textTransform(textTransform: string) {
+		set textTransform(textTransform: TextTransform) {
 			if (this._textTransform !== textTransform) {
 				this._textTransform = textTransform;
 				this.labelDrawing.style.textTransform = this.textTransform;
@@ -132,7 +134,7 @@ namespace Ui {
 			}
 		}
 
-		get textTransform(): string {
+		get textTransform(): TextTransform {
 			if (this._textTransform !== undefined)
 				return this._textTransform;
 			else
@@ -194,11 +196,11 @@ namespace Ui {
 			if (!this.textMeasureValid) {
 				this.textMeasureValid = true;
 				let text = this._text;
-				if (this._textTransform == 'uppercase')
+				if (this.textTransform == 'uppercase')
 					text = text.toUpperCase();
-				else (this._textTransform == 'lowercase')
+				else if (this.textTransform == 'lowercase')
 					text = text.toLowerCase();
-				let size = Ui.Label.measureText(this._text, this.fontSize, this.fontFamily, this.fontWeight);
+				let size = Ui.Label.measureText(text, this.fontSize, this.fontFamily, this.fontWeight);
 				this.textWidth = size.width;
 				this.textHeight = size.height;
 			}

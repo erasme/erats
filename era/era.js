@@ -9242,12 +9242,11 @@ var Ui;
             if (!this.textMeasureValid) {
                 this.textMeasureValid = true;
                 var text = this._text;
-                if (this._textTransform == 'uppercase')
+                if (this.textTransform == 'uppercase')
                     text = text.toUpperCase();
-                else
-                    (this._textTransform == 'lowercase');
-                text = text.toLowerCase();
-                var size = Ui.Label.measureText(this._text, this.fontSize, this.fontFamily, this.fontWeight);
+                else if (this.textTransform == 'lowercase')
+                    text = text.toLowerCase();
+                var size = Ui.Label.measureText(text, this.fontSize, this.fontFamily, this.fontWeight);
                 this.textWidth = size.width;
                 this.textHeight = size.height;
             }

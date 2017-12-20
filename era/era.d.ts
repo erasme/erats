@@ -1697,6 +1697,7 @@ declare namespace Ui {
 }
 declare namespace Ui {
     type FontWeight = 'normal' | 'bold' | 'bolder' | 'lighter' | '100' | '200' | '300' | '400' | '500' | '600' | '700' | '800' | '900';
+    type TextTransform = 'none' | 'uppercase' | 'lowercase';
     interface LabelInit extends ElementInit {
         text?: string;
         fontSize?: number;
@@ -1704,7 +1705,7 @@ declare namespace Ui {
         fontWeight?: FontWeight;
         color?: Color | string;
         orientation?: Orientation;
-        textTransform?: string;
+        textTransform?: TextTransform;
     }
     interface LabelStyle {
         color: Color;
@@ -1729,7 +1730,7 @@ declare namespace Ui {
         fontSize: number;
         fontFamily: string;
         fontWeight: FontWeight;
-        textTransform: string;
+        textTransform: TextTransform;
         color: Color | string;
         private getColor();
         orientation: Orientation;
@@ -2102,7 +2103,7 @@ declare namespace Ui {
         getFontFamily(): string;
         setFontWeight(fontWeight: any): void;
         getFontWeight(): string;
-        getTextTransform(): "none" | "uppercase" | "lowercase";
+        getTextTransform(): TextTransform;
         setTextTransform(textTransform: any): void;
         getTransformedText(): string;
         flushLine(y: any, line: any, width: any, render: any, lastLine?: boolean): number;
