@@ -8372,6 +8372,16 @@ var Ui;
             if (init) {
                 if (init.lock !== undefined)
                     _this.lock = init.lock;
+                if (init.onpress !== undefined)
+                    _this.connect(_this, 'press', init.onpress);
+                if (init.ondown !== undefined)
+                    _this.connect(_this, 'down', init.ondown);
+                if (init.onup !== undefined)
+                    _this.connect(_this, 'up', init.onup);
+                if (init.onactivate !== undefined)
+                    _this.connect(_this, 'activate', init.onactivate);
+                if (init.ondelayedpress !== undefined)
+                    _this.connect(_this, 'delayedpress', init.ondelayedpress);
             }
             return _this;
         }
@@ -9080,6 +9090,8 @@ var Ui;
                     _this.color = init.color;
                 if (init.orientation !== undefined)
                     _this.orientation = init.orientation;
+                if (init.textTransform !== undefined)
+                    _this.textTransform = init.textTransform;
             }
             return _this;
         }
@@ -9155,6 +9167,24 @@ var Ui;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(Label.prototype, "textTransform", {
+            get: function () {
+                if (this._textTransform !== undefined)
+                    return this._textTransform;
+                else
+                    return this.getStyleProperty('textTransform');
+            },
+            set: function (textTransform) {
+                if (this._textTransform !== textTransform) {
+                    this._textTransform = textTransform;
+                    this.labelDrawing.style.textTransform = this.textTransform;
+                    this.textMeasureValid = false;
+                    this.invalidateMeasure();
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(Label.prototype, "color", {
             set: function (color) {
                 if (this._color !== color) {
@@ -9191,6 +9221,7 @@ var Ui;
             this.labelDrawing.style.fontSize = this.fontSize + 'px';
             this.labelDrawing.style.fontFamily = this.fontFamily;
             this.labelDrawing.style.fontWeight = this.fontWeight;
+            this.labelDrawing.style.textTransform = this.textTransform;
             if (Core.Navigator.supportRgba)
                 this.labelDrawing.style.color = this.getColor().getCssRgba();
             else
@@ -9210,6 +9241,12 @@ var Ui;
         Label.prototype.measureCore = function (width, height) {
             if (!this.textMeasureValid) {
                 this.textMeasureValid = true;
+                var text = this._text;
+                if (this._textTransform == 'uppercase')
+                    text = text.toUpperCase();
+                else
+                    (this._textTransform == 'lowercase');
+                text = text.toLowerCase();
                 var size = Ui.Label.measureText(this._text, this.fontSize, this.fontFamily, this.fontWeight);
                 this.textWidth = size.width;
                 this.textHeight = size.height;
@@ -9362,7 +9399,8 @@ var Ui;
             color: Ui.Color.create('#444444'),
             fontSize: 16,
             fontFamily: 'Sans-serif',
-            fontWeight: 'normal'
+            fontWeight: 'normal',
+            textTransform: 'none'
         };
         return Label;
     }(Ui.Element));
@@ -14827,7 +14865,6 @@ var Ui;
             var preferredWidth = this._preferredWidth ? this._preferredWidth : width;
             var preferredHeight = this._preferredHeight ? this._preferredHeight : height;
             this.lbox.measure((width < preferredWidth) ? width : preferredWidth, (height < preferredHeight) ? height : preferredHeight);
-            console.log(this + ".measureCore(" + width + ", " + height + ") => " + this.lbox.measureWidth + " x " + this.lbox.measureHeight);
             return { width: width, height: height };
         };
         Dialog.prototype.arrangeCore = function (width, height) {

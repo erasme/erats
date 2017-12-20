@@ -1535,6 +1535,11 @@ declare namespace Ui {
     }
     interface PressableInit extends OverableInit {
         lock?: boolean;
+        onpress?: (pressable: Pressable, x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean) => void;
+        ondown?: (pressable: Pressable) => void;
+        onup?: (pressable: Pressable) => void;
+        onactivate?: (pressable: Pressable, x?: number, y?: number) => void;
+        ondelayedpress?: (pressable: Pressable, x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean) => void;
     }
     class Pressable extends Overable implements PressableInit {
         private pressWatcher;
@@ -1662,8 +1667,15 @@ declare namespace Ui {
     }
 }
 declare namespace Ui {
+    interface ContextMenuWatcherInit {
+        element: Ui.Element;
+        press?: (watcher: ContextMenuWatcher) => void;
+        down?: (watcher: ContextMenuWatcher) => void;
+        up?: (watcher: ContextMenuWatcher) => void;
+        lock?: boolean;
+    }
     class ContextMenuWatcher extends Core.Object {
-        private element;
+        readonly element: Ui.Element;
         private press;
         private down;
         private up;
@@ -1674,13 +1686,7 @@ declare namespace Ui {
         shiftKey?: boolean;
         ctrlKey?: boolean;
         lock: boolean;
-        constructor(init: {
-            element: Ui.Element;
-            press?: (watcher: ContextMenuWatcher) => void;
-            down?: (watcher: ContextMenuWatcher) => void;
-            up?: (watcher: ContextMenuWatcher) => void;
-            lock?: boolean;
-        });
+        constructor(init: ContextMenuWatcherInit);
         readonly isDown: boolean;
         protected onPointerDown(event: PointerEvent): void;
         protected onKeyUp(event: KeyboardEvent): void;
@@ -1690,19 +1696,21 @@ declare namespace Ui {
     }
 }
 declare namespace Ui {
+    type FontWeight = 'normal' | 'bold' | 'bolder' | 'lighter' | '100' | '200' | '300' | '400' | '500' | '600' | '700' | '800' | '900';
     interface LabelInit extends ElementInit {
         text?: string;
         fontSize?: number;
         fontFamily?: string;
-        fontWeight?: string | number;
+        fontWeight?: FontWeight;
         color?: Color | string;
         orientation?: Orientation;
+        textTransform?: string;
     }
     interface LabelStyle {
         color: Color;
         fontSize: number;
         fontFamily: string;
-        fontWeight: string;
+        fontWeight: FontWeight;
     }
     class Label extends Element implements LabelInit {
         private _text;
@@ -1711,20 +1719,22 @@ declare namespace Ui {
         private _fontFamily;
         private _fontWeight;
         private _color;
-        labelDrawing: any;
+        labelDrawing: HTMLElement;
         private textMeasureValid;
         private textWidth;
         private textHeight;
+        private _textTransform;
         constructor(init?: LabelInit);
         text: string;
         fontSize: number;
         fontFamily: string;
-        fontWeight: string | number;
+        fontWeight: FontWeight;
+        textTransform: string;
         color: Color | string;
         private getColor();
         orientation: Orientation;
         onStyleChange(): void;
-        renderDrawing(): any;
+        renderDrawing(): HTMLElement;
         measureCore(width: number, height: number): {
             width: number;
             height: number;
@@ -1734,13 +1744,13 @@ declare namespace Ui {
         static measureContext: any;
         static measureTextCanvas(text: any, fontSize: any, fontFamily: any, fontWeight: any): any;
         static createMeasureCanvas(): void;
-        static isFontAvailable(fontFamily: string, fontWeight: any): boolean;
-        static measureTextHtml(text: any, fontSize: any, fontFamily: any, fontWeight: any): {
+        static isFontAvailable(fontFamily: string, fontWeight: string): boolean;
+        static measureTextHtml(text: string, fontSize: number, fontFamily: string, fontWeight: string): {
             width: any;
             height: any;
         };
         static createMeasureHtml(): void;
-        static measureText(text: any, fontSize: any, fontFamily: any, fontWeight: any): any;
+        static measureText(text: string, fontSize: number, fontFamily: string, fontWeight: string): any;
         static style: object;
     }
 }
@@ -2092,7 +2102,7 @@ declare namespace Ui {
         getFontFamily(): string;
         setFontWeight(fontWeight: any): void;
         getFontWeight(): string;
-        getTextTransform(): "none" | "lowercase" | "uppercase";
+        getTextTransform(): "none" | "uppercase" | "lowercase";
         setTextTransform(textTransform: any): void;
         getTransformedText(): string;
         flushLine(y: any, line: any, width: any, render: any, lastLine?: boolean): number;
@@ -2133,7 +2143,7 @@ declare namespace Ui {
         lastMeasureWidth: number;
         lastMeasureHeight: number;
         lastAvailableWidth: number;
-        textContext: any;
+        textContext: CompactLabelContext;
         private _whiteSpace;
         private _wordWrap;
         private _textTransform;
@@ -2255,7 +2265,7 @@ declare namespace Ui {
         fill: Color | string;
         updateCanvas(ctx: any): void;
     }
-    interface ButtonInit extends SelectionableInit {
+    interface ButtonInit extends PressableInit {
         text?: string | undefined;
         icon?: string | undefined;
         background?: Element;

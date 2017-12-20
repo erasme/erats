@@ -130,7 +130,6 @@ namespace Ui {
 	export interface DialogInit extends ContainerInit {
 		preferredWidth?: number;
 		preferredHeight?: number;
-//		fullScrolling?: boolean;
 		title?: string;
 		cancelButton?: Pressable;
 		actionButtons?: Pressable[];
@@ -223,8 +222,6 @@ namespace Ui {
 					this.preferredWidth = init.preferredWidth;	
 				if (init.preferredHeight !== undefined)
 					this.preferredHeight = init.preferredHeight;	
-//				if (init.fullScrolling !== undefined)
-//					this.fullScrolling = init.fullScrolling;
 				if (init.title !== undefined)
 					this.title = init.title;
 				if (init.cancelButton !== undefined)
@@ -323,11 +320,6 @@ namespace Ui {
 			if (defaultButton !== undefined)
 				defaultButton.press();
 		}
-
-//		set fullScrolling(fullScrolling: boolean) {
-//			this.scroll.scrollHorizontal = fullScrolling;
-//			this.scroll.scrollVertical = fullScrolling;
-//		}
 
 		get title(): string {
 			return this.actionBox.getTitle();
@@ -434,7 +426,6 @@ namespace Ui {
 			let preferredHeight = this._preferredHeight ? this._preferredHeight : height;
 			this.lbox.measure((width < preferredWidth) ? width : preferredWidth,
 				(height < preferredHeight) ? height : preferredHeight);
-			console.log(`${this}.measureCore(${width}, ${height}) => ${this.lbox.measureWidth} x ${this.lbox.measureHeight}`);
 			return { width: width, height: height };
 		}
 
