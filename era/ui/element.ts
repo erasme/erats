@@ -452,8 +452,8 @@ namespace Ui
 				height = 0;
 			x = Math.round(x);
 			y = Math.round(y);
-			width = Math.round(width);
-			height = Math.round(height);
+			width = Math.ceil(width);
+			height = Math.ceil(height);
 
 			if(!this.arrangeValid || (this.arrangeX != x) || (this.arrangeY != y) ||
 				(this.arrangeWidth != width) ||	(this.arrangeHeight != height) ||
