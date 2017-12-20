@@ -1,6 +1,15 @@
 namespace Ui {
+
+    export interface ContextMenuWatcherInit {
+        element: Ui.Element;
+        press?: (watcher: ContextMenuWatcher) => void;
+        down?: (watcher: ContextMenuWatcher) => void;
+        up?: (watcher: ContextMenuWatcher) => void;
+        lock?: boolean;
+    }
+
     export class ContextMenuWatcher extends Core.Object {
-        private element: Ui.Element;
+        readonly element: Ui.Element;
         private press: (watcher: ContextMenuWatcher) => void;
         private down: (watcher: ContextMenuWatcher) => void;
         private up: (watcher: ContextMenuWatcher) => void;
@@ -12,13 +21,7 @@ namespace Ui {
         ctrlKey?: boolean;
         lock: boolean = false;
     
-        constructor(init: {
-            element: Ui.Element,
-            press?: (watcher: ContextMenuWatcher) => void,
-            down?: (watcher: ContextMenuWatcher) => void,
-            up?: (watcher: ContextMenuWatcher) => void,
-            lock?: boolean
-        }) {
+        constructor(init: ContextMenuWatcherInit) {
             super();
             this.element = init.element;
             if (init.press !== undefined)
