@@ -356,7 +356,7 @@ namespace Ui
 		lastMeasureWidth: number = 0;
 		lastMeasureHeight: number = 0;
 		lastAvailableWidth: number = 0;
-		textContext: any;
+		textContext: CompactLabelContext;
 		private _whiteSpace: string;
 		private _wordWrap: string ;
 		private _textTransform: string;
