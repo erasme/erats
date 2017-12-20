@@ -126,7 +126,7 @@ namespace Ui
 		}
 	}
 
-	export interface ButtonInit extends SelectionableInit {
+	export interface ButtonInit extends PressableInit {
 		text?: string | undefined;
 		icon?: string | undefined;
 		background?: Element;
