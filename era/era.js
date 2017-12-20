@@ -12958,10 +12958,8 @@ var Ui;
             this._selection.clear();
         };
         ContextBar.prototype.onSelectionChange = function () {
-            console.log('ContextBar.onSelectionChange');
             this.closeButton.text = this._selection.elements.length.toString();
             var actions = this._selection.getActions();
-            console.log(actions);
             this.actionsBox.clear();
             this.actionsBox.append(new Ui.Element(), true);
             for (var actionName in actions) {
@@ -19919,10 +19917,14 @@ var Ui;
                 return this._selectedDate;
             },
             set: function (date) {
-                if (date === undefined)
+                if (date === undefined) {
                     this._selectedDate = undefined;
-                else
+                    this.textValue = '';
+                }
+                else {
                     this._selectedDate = date;
+                    this.textValue = this.zeroPad(date.getDate(), 2) + "/" + this.zeroPad(date.getMonth() + 1, 2) + "/" + date.getFullYear();
+                }
                 this._isValid = true;
                 this.fireEvent('change', this, this.selectedDate);
             },
@@ -19972,7 +19974,6 @@ var Ui;
         };
         DatePicker.prototype.onDaySelect = function (monthcalendar, date) {
             this.selectedDate = date;
-            this.textValue = this.zeroPad(date.getDate(), 2) + "/" + this.zeroPad(date.getMonth() + 1, 2) + "/" + date.getFullYear();
             this.popup.close();
             this.popup = undefined;
         };

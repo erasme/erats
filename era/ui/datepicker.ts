@@ -50,10 +50,14 @@ namespace Ui {
 		}
 
 		set selectedDate(date: Date) {
-			if (date === undefined)
+			if (date === undefined) {
 				this._selectedDate = undefined;
-			else 
+				this.textValue = '';
+			}
+			else {
 				this._selectedDate = date;
+				this.textValue = `${this.zeroPad(date.getDate(), 2)}/${this.zeroPad(date.getMonth()+1,2)}/${date.getFullYear()}`;
+			}
 
 			this._isValid = true;
 			this.fireEvent('change', this, this.selectedDate);
@@ -106,7 +110,6 @@ namespace Ui {
 
 		protected onDaySelect(monthcalendar, date: Date) {
 			this.selectedDate = date;
-			this.textValue = `${this.zeroPad(date.getDate(), 2)}/${this.zeroPad(date.getMonth()+1,2)}/${date.getFullYear()}`;
 			this.popup.close();
 			this.popup = undefined;
 		}
