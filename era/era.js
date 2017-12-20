@@ -3644,8 +3644,8 @@ var Ui;
                 height = 0;
             x = Math.round(x);
             y = Math.round(y);
-            width = Math.round(width);
-            height = Math.round(height);
+            width = Math.ceil(width);
+            height = Math.ceil(height);
             if (!this.arrangeValid || (this.arrangeX != x) || (this.arrangeY != y) ||
                 (this.arrangeWidth != width) || (this.arrangeHeight != height) ||
                 (this.arrangePixelRatio != (window.devicePixelRatio || 1))) {
@@ -10664,6 +10664,8 @@ var Ui;
             });
             _this.connect(_this, 'wheel', _this.onWheel);
             _this.connect(_this.drawing, 'keydown', _this.onKeyDown);
+            _this.setScrollbarHorizontal(new Ui.Movable());
+            _this.setScrollbarVertical(new Ui.Movable());
             if (init) {
                 if (init.maxScale !== undefined)
                     _this.maxScale = init.maxScale;
@@ -14821,7 +14823,7 @@ var Ui;
             this.defaultAction();
         };
         Dialog.prototype.onDialogSelectionChange = function (selection) {
-            if (selection.getElements().length === 0) {
+            if (selection.elements.length === 0) {
                 this.contextBox.hide();
                 this.actionBox.show();
             }
@@ -15194,7 +15196,7 @@ var Ui;
             };
         };
         Html.prototype.arrangeCore = function (width, height) {
-            this.htmlDrawing.style.width = width + 'px';
+            this.htmlDrawing.style.width = (width + 1).toString() + 'px';
             this.htmlDrawing.style.height = height + 'px';
         };
         Html.style = {
@@ -21184,6 +21186,7 @@ var Ui;
         __extends(ListViewRow, _super);
         function ListViewRow(init) {
             var _this = _super.call(this) || this;
+            _this.listView = init.listView;
             _this.headers = init.headers;
             _this.data = init.data;
             _this.selectionActions = init.selectionActions;
@@ -21193,15 +21196,13 @@ var Ui;
             for (var col = 0; col < _this.headers.length; col++) {
                 var key = _this.headers[col].key;
                 var cell = void 0;
-                if (_this.headers[col].ui !== undefined) {
+                if (_this.headers[col].ui !== undefined)
                     cell = new _this.headers[col].ui();
-                    cell.setKey(key);
-                }
-                else {
+                else
                     cell = new ListViewCellString();
-                    cell.setKey(key);
-                }
-                cell.setValue(_this.data[_this.headers[col].key]);
+                cell.setKey(key);
+                cell.setRow(_this);
+                cell.setValue((key != undefined) ? _this.data[_this.headers[col].key] : _this.data);
                 _this.cells.push(cell);
                 _this.appendChild(cell);
             }
@@ -21386,12 +21387,12 @@ var Ui;
         ListView.prototype.getElementAt = function (position) {
             if ((position % 2) === 0)
                 return new ListViewRowOdd({
-                    headers: this.headers,
+                    headers: this.headers, listView: this,
                     data: this._data[position], selectionActions: this.selectionActions
                 });
             else
                 return new ListViewRowEven({
-                    headers: this.headers,
+                    headers: this.headers, listView: this,
                     data: this._data[position], selectionActions: this.selectionActions
                 });
         };
@@ -21511,6 +21512,9 @@ var Ui;
         };
         ListViewCell.prototype.setKey = function (key) {
             this.key = key;
+        };
+        ListViewCell.prototype.setRow = function (row) {
+            this.row = row;
         };
         ListViewCell.prototype.getValue = function () {
             return this.value;

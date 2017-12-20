@@ -2639,16 +2639,13 @@ declare namespace Ui {
         autoClose: boolean;
         protected onCancelPress(): void;
         protected onFormSubmit(): void;
-        protected onDialogSelectionChange(selection: any): void;
+        protected onDialogSelectionChange(selection: Ui.Selection): void;
         protected onKeyDown(event: any): void;
         protected onShadowPress(): void;
         protected onStyleChange(): void;
-        protected onChildInvalidateMeasure(child: any, type: any): void;
-        protected onChildInvalidateArrange(child: any): void;
-        protected measureCore(width: any, height: any): {
-            width: any;
-            height: any;
-        };
+        protected onChildInvalidateMeasure(child: Element, type: any): void;
+        protected onChildInvalidateArrange(child: Element): void;
+        protected measureCore(width: number, height: number): Size;
         protected arrangeCore(width: number, height: number): void;
         static style: object;
     }
@@ -3749,7 +3746,7 @@ declare namespace Ui {
         width?: number;
         type: string;
         title: string;
-        key: string;
+        key?: string;
         colWidth?: number;
         ui?: typeof ListViewCell;
     }
@@ -3789,6 +3786,7 @@ declare namespace Ui {
         protected arrangeCore(width: number, height: number): void;
     }
     interface ListViewRowInit {
+        listView: ListView;
         headers: HeaderDef[];
         data: object;
         selectionActions?: SelectionActions;
@@ -3800,6 +3798,7 @@ declare namespace Ui {
         private background;
         private selectionActions;
         private selectionWatcher;
+        listView: ListView;
         constructor(init: ListViewRowInit);
         getData(): object;
         protected measureCore(width: number, height: number): {
@@ -3880,9 +3879,11 @@ declare namespace Ui {
         value: any;
         ui: Element;
         key: string;
+        row: ListViewRow;
         constructor();
         getKey(): string;
         setKey(key: any): void;
+        setRow(row: ListViewRow): void;
         getValue(): any;
         setValue(value: any): void;
         protected generateUi(): Element;
