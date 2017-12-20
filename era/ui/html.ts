@@ -340,7 +340,8 @@ namespace Ui
 		protected arrangeCore(width: number, height: number) {
 			//		console.log(this+'.arrangeCore('+width+','+height+')');
 			//		this.htmlDrawing.style.width = width+'px';// '100%';
-			this.htmlDrawing.style.width = width + 'px';
+			// add 1px to the width because of Chrome pixel bug
+			this.htmlDrawing.style.width = (width + 1).toString() + 'px';
 			this.htmlDrawing.style.height = height + 'px';
 		}
 
