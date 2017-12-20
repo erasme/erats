@@ -4,7 +4,7 @@ namespace Ui {
 		width?: number;
 		type: string;
 		title: string;
-		key: string;
+		key?: string;
 		colWidth?: number;
 		ui?: typeof ListViewCell;
 	}
@@ -197,9 +197,10 @@ namespace Ui {
 	}
 
 	export interface ListViewRowInit {
-		headers: HeaderDef[],
-		data: object,
-		selectionActions?: SelectionActions
+		listView: ListView;
+		headers: HeaderDef[];
+		data: object;
+		selectionActions?: SelectionActions;
 	}
 
 	export class ListViewRow extends Container {
@@ -209,9 +210,11 @@ namespace Ui {
 		private background: Rectangle;
 		private selectionActions: SelectionActions;
 		private selectionWatcher: SelectionableWatcher;
+		listView: ListView;
 
 		constructor(init: ListViewRowInit) {
 			super();
+			this.listView = init.listView;
 			this.headers = init.headers;
 			this.data = init.data;
 			this.selectionActions = init.selectionActions;
@@ -220,17 +223,15 @@ namespace Ui {
 			this.background = new Rectangle();
 			this.appendChild(this.background);
 			for (let  col = 0; col < this.headers.length; col++) {
-				let  key = this.headers[col].key;
-				let  cell;
-				if (this.headers[col].ui !== undefined) {
+				let key = this.headers[col].key;
+				let cell;
+				if (this.headers[col].ui !== undefined)
 					cell = new this.headers[col].ui();
-					cell.setKey(key);
-				}
-				else {
+				else
 					cell = new ListViewCellString();
-					cell.setKey(key);
-				}	
-				cell.setValue(this.data[this.headers[col].key]);
+				cell.setKey(key);
+				cell.setRow(this);
+				cell.setValue((key != undefined) ? this.data[this.headers[col].key] : this.data);
 				this.cells.push(cell);
 				this.appendChild(cell);
 			}
@@ -481,12 +482,12 @@ namespace Ui {
 		getElementAt(position: number): ListViewRow {
 			if ((position % 2) === 0)
 				return new ListViewRowOdd({
-					headers: this.headers,
+					headers: this.headers, listView: this,
 					data: this._data[position], selectionActions: this.selectionActions
 				});
 			else
 				return new ListViewRowEven({
-					headers: this.headers,
+					headers: this.headers, listView: this,
 					data: this._data[position], selectionActions: this.selectionActions
 				});
 		}
@@ -629,6 +630,7 @@ namespace Ui {
 		value: any;
 		ui: Element;
 		key: string;
+		row: ListViewRow;
 	
 		constructor() {
 			super();
@@ -643,6 +645,10 @@ namespace Ui {
 
 		setKey(key) {
 			this.key = key;
+		}
+
+		setRow(row: ListViewRow) {
+			this.row = row;
 		}
 
 		getValue(): any {
