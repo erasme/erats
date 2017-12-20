@@ -25,18 +25,24 @@ var App = (function (_super) {
         vbox.append(label2);
         var label3 = new Ui.Label({ text: 'delayed press count: 0' });
         vbox.append(label3);
-        var pressable = new Ui.Pressable();
+        var pressable = new Ui.Pressable({
+            onpress: function () { return label.text = "press count: " + ++count; },
+            onactivate: function () { return label2.text = "activate count: " + ++activateCount; },
+            ondelayedpress: function () { return label3.text = "delayed press count: " + ++delayedCount; },
+            ondown: function () { return rectangle.fill = 'blue'; },
+            onup: function () { return rectangle.fill = 'lightblue'; }
+        });
         vbox.append(pressable);
         var rectangle = new Ui.Rectangle({
             width: 100, height: 100, fill: 'lightblue', horizontalAlign: 'center'
         });
         pressable.append(rectangle);
-        _this.connect(pressable, 'press', function () { return label.text = "press count: " + ++count; });
-        _this.connect(pressable, 'activate', function () { return label2.text = "activate count: " + ++activateCount; });
-        _this.connect(pressable, 'delayedpress', function () { return label3.text = "delayed press count: " + ++delayedCount; });
-        _this.connect(pressable, 'down', function () { return rectangle.fill = 'blue'; });
-        _this.connect(pressable, 'up', function () { return rectangle.fill = 'lightblue'; });
         return _this;
+        //this.connect(pressable, 'press', () => label.text = `press count: ${++count}`);
+        //this.connect(pressable, 'activate', () => label2.text = `activate count: ${++activateCount}`);
+        //this.connect(pressable, 'delayedpress', () => label3.text = `delayed press count: ${++delayedCount}`);
+        //this.connect(pressable, 'down', () => rectangle.fill = 'blue');
+        //this.connect(pressable, 'up', () => rectangle.fill = 'lightblue');
     }
     return App;
 }(Ui.App));

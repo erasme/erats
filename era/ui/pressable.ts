@@ -152,6 +152,11 @@ namespace Ui {
 
 	export interface PressableInit extends OverableInit {
 		lock?: boolean;
+		onpress?: (pressable: Pressable, x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean) => void;
+		ondown?: (pressable: Pressable) => void;
+		onup?: (pressable: Pressable) => void;
+		onactivate?: (pressable: Pressable, x?: number, y?: number) => void;
+		ondelayedpress?: (pressable: Pressable, x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean) => void;
 	}
 
 	export class Pressable extends Overable implements PressableInit {
@@ -177,7 +182,17 @@ namespace Ui {
 
 			if (init) {
 				if (init.lock !== undefined)
-					this.lock = init.lock;	
+					this.lock = init.lock;
+				if (init.onpress !== undefined)
+					this.connect(this, 'press', init.onpress);
+				if (init.ondown !== undefined)
+					this.connect(this, 'down', init.ondown);
+				if (init.onup !== undefined)
+					this.connect(this, 'up', init.onup);
+				if (init.onactivate !== undefined)
+					this.connect(this, 'activate', init.onactivate);
+				if (init.ondelayedpress !== undefined)
+					this.connect(this, 'delayedpress', init.ondelayedpress);
 			}
 		}
 	
