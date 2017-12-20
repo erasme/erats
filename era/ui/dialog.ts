@@ -46,14 +46,12 @@ namespace Ui {
 		}
 	}
 
-	export class DialogTitle extends CompactLabel
+	export class DialogTitle extends Label
 	{
 		static style: object = {
-			color: '#666666',
-			textAlign: 'left',
+			color: Color.create('#666666'),
 			fontWeight: 'bold',
-			fontSize: 18,
-			maxLine: 2
+			fontSize: 18
 		}
 	}
 
@@ -62,7 +60,7 @@ namespace Ui {
 		bg: Rectangle;
 		actionBox: HBox;
 		cancelButton: Pressable = undefined;
-		actionButtonsBox: MenuToolBar;
+		actionButtonsBox: HBox;
 		titleLabel: DialogTitle;
 	
 		constructor() {
@@ -75,15 +73,13 @@ namespace Ui {
 			this.actionBox = new HBox();
 			this.actionBox.margin = 5;
 			this.actionBox.spacing = 10;
-			this.append(this.actionBox);
+			this.append(new Ui.ScrollingArea({ content: this.actionBox, scrollVertical: false }));
 
-			this.actionButtonsBox = new MenuToolBar();
+			this.actionButtonsBox = new HBox();
 			this.actionButtonsBox.spacing = 5;
 			this.actionBox.append(this.actionButtonsBox, true);
 
-			this.titleLabel = new DialogTitle();
-			this.titleLabel.width = 50;
-			this.titleLabel.verticalAlign = 'center';
+			this.titleLabel = new DialogTitle({ verticalAlign: 'center', horizontalAlign: 'left' });
 			this.actionButtonsBox.append(this.titleLabel, true);
 		}
 
@@ -109,16 +105,13 @@ namespace Ui {
 			}
 		}
 
-		setActionButtons(buttons) {
-			this.actionButtonsBox.setContent(buttons);
+		setActionButtons(buttons: Array<Element>) {
+			this.actionButtonsBox.content = buttons;
 			this.actionButtonsBox.prepend(this.titleLabel, true);
 		}
 
 		getActionButtons() {
-			let buttons = [];
-			for (let i = 1; i < this.actionButtonsBox.logicalChildren.length; i++)
-				buttons.push(this.actionButtonsBox.logicalChildren[i]);
-			return buttons;
+			return this.actionButtonsBox.children.slice(1);
 		}
 
 		onCancelPress() {
@@ -137,7 +130,7 @@ namespace Ui {
 	export interface DialogInit extends ContainerInit {
 		preferredWidth?: number;
 		preferredHeight?: number;
-		fullScrolling?: boolean;
+//		fullScrolling?: boolean;
 		title?: string;
 		cancelButton?: Pressable;
 		actionButtons?: Pressable[];
@@ -147,26 +140,26 @@ namespace Ui {
 
 	export class Dialog extends Container implements DialogInit {
 
-		dialogSelection: Selection = undefined;
-		shadow: Pressable = undefined;
-		shadowGraphic: Rectangle = undefined;
-		graphic: DialogGraphic = undefined;
-		lbox: LBox = undefined;
-		vbox: VBox = undefined;
-		contentBox: LBox = undefined;
-		contentVBox: VBox = undefined;
-		private _actionButtons: Pressable[] = undefined;
-		private _cancelButton: Pressable = undefined;
-		private buttonsBox: LBox = undefined;
+		dialogSelection: Selection;
+		shadow: Pressable;
+		shadowGraphic: Rectangle;
+		graphic: DialogGraphic;
+		lbox: LBox;
+		vbox: VBox;
+		contentBox: LBox;
+		contentVBox: VBox;
+		private _actionButtons: Pressable[];
+		private _cancelButton: Pressable;
+		private buttonsBox: LBox;
 		buttonsVisible: boolean = false;
-		private _preferredWidth: number = 100;
-		private _preferredHeight: number = 100;
-		actionBox: DialogButtonBox = undefined;
+		private _preferredWidth: number | undefined;
+		private _preferredHeight: number | undefined;
+		actionBox: DialogButtonBox;
 		contextBox: ContextBar;
 		private _autoClose: boolean = true;
-		openClock: Anim.Clock = undefined;
+		openClock: Anim.Clock;
 		isClosed: boolean = true;
-		scroll: ScrollingArea = undefined;
+		scroll: ScrollingArea;
 
 		constructor(init?: DialogInit) {
 			super(init);
@@ -199,8 +192,6 @@ namespace Ui {
 			this.vbox.append(this.buttonsBox);
 
 			this.scroll = new Ui.ScrollingArea();
-			this.scroll.scrollHorizontal = false;
-			this.scroll.scrollVertical = false;
 			this.vbox.append(this.scroll, true);
 		
 			this.contentVBox = new Ui.VBox();
@@ -232,8 +223,8 @@ namespace Ui {
 					this.preferredWidth = init.preferredWidth;	
 				if (init.preferredHeight !== undefined)
 					this.preferredHeight = init.preferredHeight;	
-				if (init.fullScrolling !== undefined)
-					this.fullScrolling = init.fullScrolling;	
+//				if (init.fullScrolling !== undefined)
+//					this.fullScrolling = init.fullScrolling;
 				if (init.title !== undefined)
 					this.title = init.title;
 				if (init.cancelButton !== undefined)
@@ -333,10 +324,10 @@ namespace Ui {
 				defaultButton.press();
 		}
 
-		set fullScrolling(fullScrolling: boolean) {
-			this.scroll.scrollHorizontal = fullScrolling;
-			this.scroll.scrollVertical = fullScrolling;
-		}
+//		set fullScrolling(fullScrolling: boolean) {
+//			this.scroll.scrollHorizontal = fullScrolling;
+//			this.scroll.scrollVertical = fullScrolling;
+//		}
 
 		get title(): string {
 			return this.actionBox.getTitle();
@@ -439,8 +430,11 @@ namespace Ui {
 
 		protected measureCore(width: number, height: number): Size {
 			this.shadow.measure(width, height);
-			this.lbox.measure((width < this._preferredWidth) ? width : this._preferredWidth,
-				(height < this._preferredHeight) ? height : this._preferredHeight);
+			let preferredWidth = this._preferredWidth ? this._preferredWidth : width;
+			let preferredHeight = this._preferredHeight ? this._preferredHeight : height;
+			this.lbox.measure((width < preferredWidth) ? width : preferredWidth,
+				(height < preferredHeight) ? height : preferredHeight);
+			console.log(`${this}.measureCore(${width}, ${height}) => ${this.lbox.measureWidth} x ${this.lbox.measureHeight}`);
 			return { width: width, height: height };
 		}
 
@@ -453,8 +447,16 @@ namespace Ui {
 				this.openClock.begin();
 
 			this.shadow.arrange(0, 0, width, height);
-			let usedWidth = Math.max((width < this._preferredWidth) ? width : this._preferredWidth, this.lbox.measureWidth);
-			let usedHeight = Math.max((height < this._preferredHeight) ? height : this._preferredHeight, this.lbox.measureHeight);
+
+			let maxWidth = (this._preferredWidth && this._preferredWidth < width) ? this._preferredWidth : width;
+
+			let usedWidth = Math.min(this.lbox.measureWidth, width);
+			//let usedWidth = Math.min(this.lbox.measureWidth, maxWidth);
+			//let usedWidth = Math.max((width < this._preferredWidth) ? width : this._preferredWidth, this.lbox.measureWidth);
+
+			let maxHeight = (this._preferredHeight && this._preferredHeight < height) ? this._preferredHeight : height;
+			let usedHeight = Math.min(this.lbox.measureHeight, maxHeight);
+			//let usedHeight = Math.max((height < this._preferredHeight) ? height : this._preferredHeight, this.lbox.measureHeight);
 			this.lbox.arrange((width - usedWidth) / 2, (height - usedHeight) / 2, usedWidth, usedHeight);
 		}
 

@@ -14521,14 +14521,12 @@ var Ui;
             return _super !== null && _super.apply(this, arguments) || this;
         }
         DialogTitle.style = {
-            color: '#666666',
-            textAlign: 'left',
+            color: Ui.Color.create('#666666'),
             fontWeight: 'bold',
-            fontSize: 18,
-            maxLine: 2
+            fontSize: 18
         };
         return DialogTitle;
-    }(Ui.CompactLabel));
+    }(Ui.Label));
     Ui.DialogTitle = DialogTitle;
     var DialogButtonBox = (function (_super) {
         __extends(DialogButtonBox, _super);
@@ -14541,13 +14539,11 @@ var Ui;
             _this.actionBox = new Ui.HBox();
             _this.actionBox.margin = 5;
             _this.actionBox.spacing = 10;
-            _this.append(_this.actionBox);
-            _this.actionButtonsBox = new Ui.MenuToolBar();
+            _this.append(new Ui.ScrollingArea({ content: _this.actionBox, scrollVertical: false }));
+            _this.actionButtonsBox = new Ui.HBox();
             _this.actionButtonsBox.spacing = 5;
             _this.actionBox.append(_this.actionButtonsBox, true);
-            _this.titleLabel = new DialogTitle();
-            _this.titleLabel.width = 50;
-            _this.titleLabel.verticalAlign = 'center';
+            _this.titleLabel = new DialogTitle({ verticalAlign: 'center', horizontalAlign: 'left' });
             _this.actionButtonsBox.append(_this.titleLabel, true);
             return _this;
         }
@@ -14571,14 +14567,11 @@ var Ui;
             }
         };
         DialogButtonBox.prototype.setActionButtons = function (buttons) {
-            this.actionButtonsBox.setContent(buttons);
+            this.actionButtonsBox.content = buttons;
             this.actionButtonsBox.prepend(this.titleLabel, true);
         };
         DialogButtonBox.prototype.getActionButtons = function () {
-            var buttons = [];
-            for (var i = 1; i < this.actionButtonsBox.logicalChildren.length; i++)
-                buttons.push(this.actionButtonsBox.logicalChildren[i]);
-            return buttons;
+            return this.actionButtonsBox.children.slice(1);
         };
         DialogButtonBox.prototype.onCancelPress = function () {
             this.fireEvent('cancel', this);
@@ -14596,25 +14589,9 @@ var Ui;
         __extends(Dialog, _super);
         function Dialog(init) {
             var _this = _super.call(this, init) || this;
-            _this.dialogSelection = undefined;
-            _this.shadow = undefined;
-            _this.shadowGraphic = undefined;
-            _this.graphic = undefined;
-            _this.lbox = undefined;
-            _this.vbox = undefined;
-            _this.contentBox = undefined;
-            _this.contentVBox = undefined;
-            _this._actionButtons = undefined;
-            _this._cancelButton = undefined;
-            _this.buttonsBox = undefined;
             _this.buttonsVisible = false;
-            _this._preferredWidth = 100;
-            _this._preferredHeight = 100;
-            _this.actionBox = undefined;
             _this._autoClose = true;
-            _this.openClock = undefined;
             _this.isClosed = true;
-            _this.scroll = undefined;
             _this.addEvents('close');
             _this.dialogSelection = new Ui.Selection();
             _this.shadow = new Ui.Pressable();
@@ -14636,8 +14613,6 @@ var Ui;
             _this.buttonsBox.hide(true);
             _this.vbox.append(_this.buttonsBox);
             _this.scroll = new Ui.ScrollingArea();
-            _this.scroll.scrollHorizontal = false;
-            _this.scroll.scrollVertical = false;
             _this.vbox.append(_this.scroll, true);
             _this.contentVBox = new Ui.VBox();
             _this.scroll.content = _this.contentVBox;
@@ -14659,8 +14634,6 @@ var Ui;
                     _this.preferredWidth = init.preferredWidth;
                 if (init.preferredHeight !== undefined)
                     _this.preferredHeight = init.preferredHeight;
-                if (init.fullScrolling !== undefined)
-                    _this.fullScrolling = init.fullScrolling;
                 if (init.title !== undefined)
                     _this.title = init.title;
                 if (init.cancelButton !== undefined)
@@ -14751,14 +14724,6 @@ var Ui;
             if (defaultButton !== undefined)
                 defaultButton.press();
         };
-        Object.defineProperty(Dialog.prototype, "fullScrolling", {
-            set: function (fullScrolling) {
-                this.scroll.scrollHorizontal = fullScrolling;
-                this.scroll.scrollVertical = fullScrolling;
-            },
-            enumerable: true,
-            configurable: true
-        });
         Object.defineProperty(Dialog.prototype, "title", {
             get: function () {
                 return this.actionBox.getTitle();
@@ -14859,15 +14824,20 @@ var Ui;
         };
         Dialog.prototype.measureCore = function (width, height) {
             this.shadow.measure(width, height);
-            this.lbox.measure((width < this._preferredWidth) ? width : this._preferredWidth, (height < this._preferredHeight) ? height : this._preferredHeight);
+            var preferredWidth = this._preferredWidth ? this._preferredWidth : width;
+            var preferredHeight = this._preferredHeight ? this._preferredHeight : height;
+            this.lbox.measure((width < preferredWidth) ? width : preferredWidth, (height < preferredHeight) ? height : preferredHeight);
+            console.log(this + ".measureCore(" + width + ", " + height + ") => " + this.lbox.measureWidth + " x " + this.lbox.measureHeight);
             return { width: width, height: height };
         };
         Dialog.prototype.arrangeCore = function (width, height) {
             if ((this.openClock !== undefined) && !this.openClock.isActive)
                 this.openClock.begin();
             this.shadow.arrange(0, 0, width, height);
-            var usedWidth = Math.max((width < this._preferredWidth) ? width : this._preferredWidth, this.lbox.measureWidth);
-            var usedHeight = Math.max((height < this._preferredHeight) ? height : this._preferredHeight, this.lbox.measureHeight);
+            var maxWidth = (this._preferredWidth && this._preferredWidth < width) ? this._preferredWidth : width;
+            var usedWidth = Math.min(this.lbox.measureWidth, width);
+            var maxHeight = (this._preferredHeight && this._preferredHeight < height) ? this._preferredHeight : height;
+            var usedHeight = Math.min(this.lbox.measureHeight, maxHeight);
             this.lbox.arrange((width - usedWidth) / 2, (height - usedHeight) / 2, usedWidth, usedHeight);
         };
         Dialog.style = {

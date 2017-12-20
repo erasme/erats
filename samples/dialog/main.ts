@@ -20,7 +20,7 @@ class App extends Ui.App {
 
 		this.connect(button, 'press', () => {
 			let dialog = new Ui.Dialog({
-				title: 'Test Dialogue',
+				title: 'Test Dialog',
 				cancelButton: new Ui.DialogCloseButton({ text: 'Annuler' }),
 				actionButtons: [
 					new Ui.Button({ text: 'Previous' }),

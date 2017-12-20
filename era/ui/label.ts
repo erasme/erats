@@ -333,7 +333,7 @@ namespace Ui {
 				return Ui.Label.measureTextHtml(text, fontSize, fontFamily, fontWeight);
 		}
 
-		static style: LabelStyle = {
+		static style: object = {
 			color: Color.create('#444444'),
 			fontSize: 16,
 			fontFamily: 'Sans-serif',

@@ -1741,7 +1741,7 @@ declare namespace Ui {
         };
         static createMeasureHtml(): void;
         static measureText(text: any, fontSize: any, fontFamily: any, fontWeight: any): any;
-        static style: LabelStyle;
+        static style: object;
     }
 }
 declare namespace Ui {
@@ -2571,21 +2571,21 @@ declare namespace Ui {
         background: Color | string;
         updateCanvas(ctx: any): void;
     }
-    class DialogTitle extends CompactLabel {
+    class DialogTitle extends Label {
         static style: object;
     }
     class DialogButtonBox extends LBox {
         bg: Rectangle;
         actionBox: HBox;
         cancelButton: Pressable;
-        actionButtonsBox: MenuToolBar;
+        actionButtonsBox: HBox;
         titleLabel: DialogTitle;
         constructor();
         getTitle(): string;
         setTitle(title: string): void;
         setCancelButton(button: Pressable): void;
-        setActionButtons(buttons: any): void;
-        getActionButtons(): any[];
+        setActionButtons(buttons: Array<Element>): void;
+        getActionButtons(): Element[];
         onCancelPress(): void;
         onStyleChange(): void;
         static style: object;
@@ -2593,7 +2593,6 @@ declare namespace Ui {
     interface DialogInit extends ContainerInit {
         preferredWidth?: number;
         preferredHeight?: number;
-        fullScrolling?: boolean;
         title?: string;
         cancelButton?: Pressable;
         actionButtons?: Pressable[];
@@ -2630,7 +2629,6 @@ declare namespace Ui {
         onOpenTick(clock: any, progress: any, delta: any): void;
         getDefaultButton(): any;
         defaultAction(): void;
-        fullScrolling: boolean;
         title: string;
         updateButtonsBoxVisible(): void;
         cancelButton: Pressable;

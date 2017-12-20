@@ -27,7 +27,7 @@ var App = (function (_super) {
         vbox.append(button, true);
         _this.connect(button, 'press', function () {
             var dialog = new Ui.Dialog({
-                title: 'Test Dialogue',
+                title: 'Test Dialog',
                 cancelButton: new Ui.DialogCloseButton({ text: 'Annuler' }),
                 actionButtons: [
                     new Ui.Button({ text: 'Previous' }),
