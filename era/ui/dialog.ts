@@ -138,7 +138,6 @@ namespace Ui {
 	}
 
 	export class Dialog extends Container implements DialogInit {
-
 		dialogSelection: Selection;
 		shadow: Pressable;
 		shadowGraphic: Rectangle;
@@ -212,7 +211,7 @@ namespace Ui {
 			this.connect(this.dialogSelection, 'change', this.onDialogSelectionChange);
 
 			// handle keyboard		
-			this.connect(this.drawing, 'keydown', this.onKeyDown);
+			this.connect(this.drawing, 'keyup', this.onKeyUp);
 
 			// handle auto hide
 			this.connect(this.shadow, 'press', this.onShadowPress);
@@ -387,7 +386,7 @@ namespace Ui {
 			this.updateButtonsBoxVisible();
 		}
 	
-		protected onKeyDown(event) {
+		protected onKeyUp(event) {
 			// delete key
 			if (event.which === 46) {
 				// selection is not empty
@@ -397,7 +396,7 @@ namespace Ui {
 						event.stopPropagation();
 					}
 				}
-			}
+			}			
 		}
 
 		protected onShadowPress() {

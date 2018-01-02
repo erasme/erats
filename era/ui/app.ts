@@ -485,10 +485,16 @@ namespace Ui
 			// escape
 			if ((key == 27) && (this.dialogs !== undefined) && (this.dialogs.children.length > 0)) {
 				let dialog = this.dialogs.children[this.dialogs.children.length - 1] as Dialog;
-				if ('close' in dialog)
-					dialog.close();
-				else
-					dialog.hide();
+				// if selection is not empty, empty the selection
+				if (dialog.dialogSelection.watchers.length > 0) {
+					dialog.dialogSelection.watchers = [];
+				}
+				else {
+					if ('close' in dialog)
+						dialog.close();
+					else
+						dialog.hide();
+				}
 				event.preventDefault();
 				event.stopPropagation();
 			}
