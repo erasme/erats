@@ -2276,7 +2276,6 @@ declare namespace Ui {
         orientation?: Orientation;
     }
     class Button extends Pressable implements ButtonInit {
-        private dropbox;
         private _isActive;
         private mainBox;
         private buttonPartsBox;
@@ -2289,7 +2288,6 @@ declare namespace Ui {
         private bg;
         private _orientation;
         constructor(init?: ButtonInit);
-        readonly dropBox: DropBox;
         background: Element;
         readonly textBox: Element;
         text: string | undefined;
@@ -2321,11 +2319,12 @@ declare namespace Ui {
     class ActionButton extends Button {
         private _action;
         private _selection;
+        private _dropWatcher;
         constructor();
         action: any;
         selection: Selection;
-        protected onActionButtonEffect(data: any, dataTransfer: any): string[];
-        protected onActionButtonDrop(): void;
+        protected onActionButtonEffect(data: any, dataTransfer: any): DropEffect[];
+        protected onActionButtonDrop(): boolean;
         static style: object;
     }
 }
@@ -2649,7 +2648,7 @@ declare namespace Ui {
         protected onCancelPress(): void;
         protected onFormSubmit(): void;
         protected onDialogSelectionChange(selection: Ui.Selection): void;
-        protected onKeyDown(event: any): void;
+        protected onKeyUp(event: any): void;
         protected onShadowPress(): void;
         protected onStyleChange(): void;
         protected onChildInvalidateMeasure(child: Element, type: any): void;
@@ -3858,7 +3857,6 @@ declare namespace Ui {
         sortColKey: string;
         sortInvert: boolean;
         sortArrow: undefined;
-        dataLoader: ListViewScrollLoader;
         scroll: VBoxScrollingArea;
         selectionActions: SelectionActions;
         private _scrolled;
@@ -3972,7 +3970,7 @@ declare namespace Ui {
         constructor(init?: UploadButtonInit);
         directoryMode: boolean;
         protected onUploadButtonPress(): void;
-        protected onFile(fileWrapper: UploadableFileWrapper, file: Core.File): void;
+        protected onFile(wrapper: UploadableFileWrapper, file: Core.File): void;
     }
 }
 declare namespace Ui {

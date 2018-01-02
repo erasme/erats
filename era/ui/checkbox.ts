@@ -14,7 +14,7 @@ namespace Ui {
 		private _isToggled: boolean = false;
 
 		constructor(init?: CheckBoxInit) {
-			super();
+			super(init);
 			this.addEvents('change', 'toggle', 'untoggle');
 
 			this.role = 'checkbox';

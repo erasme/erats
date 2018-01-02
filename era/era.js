@@ -9310,8 +9310,8 @@ var Ui;
             Ui.Label.measureBox.style.left = '0px';
             Ui.Label.measureBox.style.top = '0px';
             Ui.Label.measureBox.style.outline = 'none';
-            Ui.Label.measureBox.setAttribute('width', 10, null);
-            Ui.Label.measureBox.setAttribute('height', 10, null);
+            Ui.Label.measureBox.setAttribute('width', '10');
+            Ui.Label.measureBox.setAttribute('height', '10');
             measureWindow.document.body.appendChild(Ui.Label.measureBox);
             Ui.Label.measureContext = Ui.Label.measureBox.getContext('2d');
         };
@@ -12409,14 +12409,12 @@ var Ui;
             _this._marker = undefined;
             _this._badge = undefined;
             _this._orientation = undefined;
-            _this.dropbox = new Ui.DropBox();
-            _this.setContent(_this.dropbox);
             _this.bg = new ButtonBackground();
-            _this.dropbox.content = _this.bg;
+            _this.content = _this.bg;
             _this.mainBox = new Ui.HBox();
             _this.mainBox.verticalAlign = 'center';
             _this.mainBox.horizontalAlign = 'stretch';
-            _this.dropbox.append(_this.mainBox);
+            _this.append(_this.mainBox);
             _this.buttonPartsBox = new Ui.Box();
             _this.mainBox.append(_this.buttonPartsBox, true);
             _this._textBox = new Ui.LBox();
@@ -12445,24 +12443,17 @@ var Ui;
             }
             return _this;
         }
-        Object.defineProperty(Button.prototype, "dropBox", {
-            get: function () {
-                return this.dropbox;
-            },
-            enumerable: true,
-            configurable: true
-        });
         Object.defineProperty(Button.prototype, "background", {
             get: function () {
                 return this.bg;
             },
             set: function (bg) {
-                this.dropbox.remove(this.bg);
+                this.remove(this.bg);
                 if (bg === undefined)
                     this.bg = new ButtonBackground();
                 else
                     this.bg = bg;
-                this.dropbox.prepend(this.bg);
+                this.prepend(this.bg);
                 this.onStyleChange();
             },
             enumerable: true,
@@ -12844,11 +12835,17 @@ var Ui;
         __extends(ActionButton, _super);
         function ActionButton() {
             var _this = _super.call(this) || this;
-            _this._action = undefined;
-            _this._selection = undefined;
-            _this.connect(_this.dropBox, 'drop', _this.onActionButtonDrop);
             _this.connect(_this, 'press', _this.onActionButtonDrop);
-            _this.dropBox.addType('all', _this.onActionButtonEffect.bind(_this));
+            new Ui.DropableWatcher({
+                element: _this,
+                drop: function () { return _this.onActionButtonDrop(); },
+                types: [
+                    {
+                        type: 'all',
+                        effects: function (data, dataTransfer) { return _this.onActionButtonEffect(data, dataTransfer); }
+                    }
+                ]
+            });
             return _this;
         }
         Object.defineProperty(ActionButton.prototype, "action", {
@@ -12874,7 +12871,7 @@ var Ui;
                         found = elements[i];
                 }
                 if (found !== undefined)
-                    return ['run'];
+                    return [{ action: 'run' }];
             }
             return [];
         };
@@ -12884,6 +12881,7 @@ var Ui;
                 scope = this._action.scope;
             this._action.callback.call(scope, this._selection);
             this._selection.clear();
+            return false;
         };
         ActionButton.style = {
             textTransform: 'uppercase',
@@ -14338,10 +14336,15 @@ var Ui;
             var key = event.which;
             if ((key == 27) && (this.dialogs !== undefined) && (this.dialogs.children.length > 0)) {
                 var dialog = this.dialogs.children[this.dialogs.children.length - 1];
-                if ('close' in dialog)
-                    dialog.close();
-                else
-                    dialog.hide();
+                if (dialog.dialogSelection.watchers.length > 0) {
+                    dialog.dialogSelection.watchers = [];
+                }
+                else {
+                    if ('close' in dialog)
+                        dialog.close();
+                    else
+                        dialog.hide();
+                }
                 event.preventDefault();
                 event.stopPropagation();
             }
@@ -14662,7 +14665,7 @@ var Ui;
             _this.connect(_this.actionBox, 'cancel', _this.close);
             _this.buttonsBox.append(_this.actionBox);
             _this.connect(_this.dialogSelection, 'change', _this.onDialogSelectionChange);
-            _this.connect(_this.drawing, 'keydown', _this.onKeyDown);
+            _this.connect(_this.drawing, 'keyup', _this.onKeyUp);
             _this.connect(_this.shadow, 'press', _this.onShadowPress);
             if (init) {
                 if (init.preferredWidth !== undefined)
@@ -14833,7 +14836,7 @@ var Ui;
             }
             this.updateButtonsBoxVisible();
         };
-        Dialog.prototype.onKeyDown = function (event) {
+        Dialog.prototype.onKeyUp = function (event) {
             if (event.which === 46) {
                 if (this.dialogSelection.elements.length !== 0) {
                     if (this.dialogSelection.executeDeleteAction()) {
@@ -16433,7 +16436,7 @@ var Ui;
     var CheckBox = (function (_super) {
         __extends(CheckBox, _super);
         function CheckBox(init) {
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, init) || this;
             _this.contentBox = undefined;
             _this._content = undefined;
             _this._text = undefined;
@@ -21431,7 +21434,6 @@ var Ui;
         };
         ListView.prototype.clearData = function () {
             this._data = [];
-            this.dataLoader = new ListViewScrollLoader(this, this._data);
             this.vbox.clear();
         };
         Object.defineProperty(ListView.prototype, "data", {
@@ -21442,7 +21444,6 @@ var Ui;
                 if (data !== undefined) {
                     this._data = data;
                     this.sortData();
-                    this.dataLoader = new ListViewScrollLoader(this, this._data);
                     this.vbox.clear();
                     for (var i = 0; i < this._data.length; i++) {
                         this.vbox.append(this.getElementAt(i));
@@ -21859,8 +21860,11 @@ var Ui;
             _this.prepend(_this.input);
             _this.connect(_this.input, 'file', _this.onFile);
             _this.connect(_this, 'press', _this.onUploadButtonPress);
-            _this.dropBox.addType('files', 'copy');
-            _this.connect(_this.dropBox, 'dropfile', _this.onFile);
+            new Ui.DropableWatcher({
+                element: _this,
+                dropfile: function (w, f) { _this.onFile(undefined, f); return true; },
+                types: [{ type: 'file', effects: 'copy' }]
+            });
             if (init) {
                 if (init.directoryMode !== undefined)
                     _this.directoryMode = init.directoryMode;
@@ -21877,7 +21881,7 @@ var Ui;
         UploadButton.prototype.onUploadButtonPress = function () {
             this.input.select();
         };
-        UploadButton.prototype.onFile = function (fileWrapper, file) {
+        UploadButton.prototype.onFile = function (wrapper, file) {
             this.fireEvent('file', this, file);
         };
         return UploadButton;

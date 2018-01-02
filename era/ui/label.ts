@@ -271,8 +271,8 @@ namespace Ui {
 			Ui.Label.measureBox.style.left = '0px';
 			Ui.Label.measureBox.style.top = '0px';
 			Ui.Label.measureBox.style.outline = 'none';
-			Ui.Label.measureBox.setAttribute('width', 10, null);
-			Ui.Label.measureBox.setAttribute('height', 10, null);
+			Ui.Label.measureBox.setAttribute('width', '10');
+			Ui.Label.measureBox.setAttribute('height', '10');
 			measureWindow.document.body.appendChild(Ui.Label.measureBox);
 			Ui.Label.measureContext = Ui.Label.measureBox.getContext('2d');
 		}

@@ -368,7 +368,7 @@ namespace Ui {
 		sortColKey: string;
 		sortInvert: boolean = false;
 		sortArrow: undefined;
-		dataLoader: ListViewScrollLoader;
+//		dataLoader: ListViewScrollLoader;
 		scroll: VBoxScrollingArea;
 		selectionActions: SelectionActions;
 		private _scrolled: boolean = true;
@@ -535,7 +535,7 @@ namespace Ui {
 
 		clearData() {
 			this._data = [];
-			this.dataLoader = new ListViewScrollLoader(this, this._data);
+//			this.dataLoader = new ListViewScrollLoader(this, this._data);
 //			if (this._scrolled)
 //				this.scroll.loader = this.dataLoader;
 //			else
@@ -550,10 +550,10 @@ namespace Ui {
 			if (data !== undefined) {
 				this._data = data;
 				this.sortData();
-				this.dataLoader = new ListViewScrollLoader(this, this._data);
+//				this.dataLoader = new ListViewScrollLoader(this, this._data);
 //				if (this._scrolled)
 //					this.scroll.loader = this.dataLoader;
-//				else {
+//				else {				
 					this.vbox.clear();
 					for (let i = 0; i < this._data.length; i++) {
 						this.vbox.append(this.getElementAt(i));
