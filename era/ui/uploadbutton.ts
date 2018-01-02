@@ -16,8 +16,11 @@ namespace Ui {
 			this.connect(this.input, 'file', this.onFile);
 			this.connect(this, 'press', this.onUploadButtonPress);
 
-			this.dropBox.addType('files', 'copy');
-			this.connect(this.dropBox, 'dropfile', this.onFile);
+			new DropableWatcher({
+				element: this,
+				dropfile: (w, f) => { this.onFile(undefined, f); return true; },
+				types: [ { type: 'file', effects: 'copy' } ]
+			});
 			if (init) {
 				if (init.directoryMode !== undefined)
 					this.directoryMode = init.directoryMode;	
@@ -32,7 +35,7 @@ namespace Ui {
 			this.input.select();
 		}
 
-		protected onFile(fileWrapper: UploadableFileWrapper, file: Core.File) {
+		protected onFile(wrapper: UploadableFileWrapper, file: Core.File) {
 			this.fireEvent('file', this, file);
 		}
 	}

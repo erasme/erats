@@ -2,15 +2,24 @@ namespace Ui
 {
 	export class ActionButton extends Button
 	{
-		private _action: any = undefined;
-		private _selection: Selection = undefined;
+		private _action: any;
+		private _selection: Selection;
+		private _dropWatcher: DropableWatcher;
 
 		constructor() {
 			super();
-			this.connect(this.dropBox, 'drop', this.onActionButtonDrop);
 			this.connect(this, 'press', this.onActionButtonDrop);
 
-			this.dropBox.addType('all', this.onActionButtonEffect.bind(this));
+			new DropableWatcher({
+				element: this,
+				drop: () => this.onActionButtonDrop(),
+				types: [
+					{
+						type: 'all',
+						effects: (data, dataTransfer) => this.onActionButtonEffect(data, dataTransfer)
+					}
+				]
+			});
 		}
 
 		set action(action) {
@@ -21,7 +30,7 @@ namespace Ui
 			this._selection = selection;
 		}
 
-		protected onActionButtonEffect(data, dataTransfer) {
+		protected onActionButtonEffect(data, dataTransfer): DropEffect[] {
 			if ('draggable' in dataTransfer) {
 				let elements = this._selection.elements;
 				let found = undefined;
@@ -30,7 +39,7 @@ namespace Ui
 						found = elements[i];
 				}
 				if (found !== undefined)
-					return ['run'];
+					return [{ action: 'run' }];
 			}
 			return [];
 		}
@@ -42,6 +51,7 @@ namespace Ui
 			this._action.callback.call(scope, this._selection);
 			// clear the selection after the action done
 			this._selection.clear();
+			return false;
 		}
 
 		static style: object = {

@@ -136,9 +136,7 @@ namespace Ui
 		orientation?: Orientation;
 	}												
 
-	export class Button extends Pressable implements ButtonInit
-	{
-		private dropbox: DropBox;
+	export class Button extends Pressable implements ButtonInit	{
 		private _isActive: boolean = false;
 		private mainBox: HBox;
 		private buttonPartsBox: Box;
@@ -153,17 +151,14 @@ namespace Ui
 
 		constructor(init?: ButtonInit) {
 			super(init);
-			this.dropbox = new DropBox();
-			this.setContent(this.dropbox);
-
 			this.bg = new ButtonBackground();
-
-			this.dropbox.content = this.bg;
+			this.content = this.bg;
 
 			this.mainBox = new HBox();
 			this.mainBox.verticalAlign = 'center';
 			this.mainBox.horizontalAlign = 'stretch';
-			this.dropbox.append(this.mainBox);
+			this.append(this.mainBox);
+
 
 			this.buttonPartsBox = new Box();
 			this.mainBox.append(this.buttonPartsBox, true);
@@ -197,21 +192,17 @@ namespace Ui
 			}
 		}
 
-		get dropBox(): DropBox {
-			return this.dropbox;
-		}
-
 		get background(): Element {
 			return this.bg;
 		}
 
 		set background(bg: Element) {
-			this.dropbox.remove(this.bg);
+			this.remove(this.bg);
 			if (bg === undefined)
 				this.bg = new ButtonBackground();
 			else
 				this.bg = bg;
-			this.dropbox.prepend(this.bg);
+			this.prepend(this.bg);
 			this.onStyleChange();
 		}
 
