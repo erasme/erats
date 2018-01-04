@@ -1232,7 +1232,7 @@ var Core;
         function HttpRequest(init) {
             var _this = _super.call(this) || this;
             _this.url = null;
-            _this.method = "GET";
+            _this.method = 'GET';
             _this.binary = false;
             _this.arguments = undefined;
             _this.content = undefined;
@@ -12632,7 +12632,7 @@ var Ui;
                 deltaY = -0.20;
             else if (this.isOver) {
                 deltaY = 0.10;
-                yuv.a = Math.max(0.4, yuv.a);
+                yuv.a = Math.max(0.2, yuv.a);
             }
             return Ui.Color.createFromYuv(yuv.y + deltaY, yuv.u, yuv.v, yuv.a);
         };
@@ -13290,8 +13290,9 @@ var Ui;
             }
         };
         Popup.prototype.setRight = function (x, y, width, height) {
+            var ofs = Math.max(10, Math.min(30, this.contentBox.measureHeight / 2));
             var px = x + 10;
-            var py = y - 30;
+            var py = y - ofs;
             this.background.arrowBorder = 'left';
             if (py + this.contentBox.measureHeight > height) {
                 py = height - this.contentBox.measureHeight;
@@ -13301,13 +13302,14 @@ var Ui;
                 this.background.arrowOffset = offset;
             }
             else
-                this.background.arrowOffset = 30;
+                this.background.arrowOffset = ofs;
             this.background.arrange(px - 10, py, this.contentBox.measureWidth + 10, this.contentBox.measureHeight);
             this.contentBox.arrange(px, py, this.contentBox.measureWidth, this.contentBox.measureHeight);
         };
         Popup.prototype.setLeft = function (x, y, width, height) {
+            var ofs = Math.max(10, Math.min(30, this.contentBox.measureHeight / 2));
             var px = x - (10 + this.contentBox.measureWidth);
-            var py = y - 30;
+            var py = y - ofs;
             this.background.arrowBorder = 'right';
             if (py + this.contentBox.measureHeight > height) {
                 py = height - this.contentBox.measureHeight;
@@ -13317,7 +13319,7 @@ var Ui;
                 this.background.arrowOffset = offset;
             }
             else
-                this.background.arrowOffset = 30;
+                this.background.arrowOffset = ofs;
             this.background.arrange(px, py, this.contentBox.measureWidth + 10, this.contentBox.measureHeight);
             this.contentBox.arrange(px, py, this.contentBox.measureWidth, this.contentBox.measureHeight);
         };
@@ -15970,6 +15972,8 @@ var Ui;
                 this._value = this.drawing.value;
                 this.fireEvent('change', this, this._value);
             }
+            if (key == 13)
+                this.fireEvent('validate', this, this._value);
         };
         Entry.prototype.renderDrawing = function () {
             var drawing = document.createElement('input');
@@ -16235,7 +16239,7 @@ var Ui;
         __extends(TextField, _super);
         function TextField(init) {
             var _this = _super.call(this, init) || this;
-            _this.addEvents('change');
+            _this.addEvents('change', 'validate');
             _this.padding = 0;
             _this.graphic = new Ui.TextBgGraphic();
             _this.append(_this.graphic);
@@ -16255,6 +16259,7 @@ var Ui;
             _this.connect(_this.entry, 'blur', _this.onEntryBlur);
             _this.append(_this.entry);
             _this.connect(_this.entry, 'change', _this.onEntryChange);
+            _this.connect(_this.entry, 'validate', function () { return _this.fireEvent('validate', _this); });
             if (init) {
                 if (init.textHolder !== undefined)
                     _this.textHolder = init.textHolder;

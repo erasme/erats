@@ -130,9 +130,10 @@ declare namespace Core {
     }
 }
 declare module Core {
+    type MethodType = 'POST' | 'PUT' | 'GET' | 'DELETE';
     interface HttpRequestInit {
         url?: string;
-        method?: string;
+        method?: MethodType;
         binary?: boolean;
         arguments?: object;
         content?: any;
@@ -140,7 +141,7 @@ declare module Core {
     }
     class HttpRequest extends Object {
         url: string;
-        method: string;
+        method: MethodType;
         binary: boolean;
         arguments: object;
         content: any;
