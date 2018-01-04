@@ -1,18 +1,19 @@
 module Core
 {
+	export type MethodType = 'POST' | 'PUT' | 'GET' | 'DELETE';
+
 	export interface HttpRequestInit {
 		url?: string;
-		method?: string;
+		method?: MethodType;
 		binary?: boolean;
 		arguments?: object;
 		content?: any;
 		headers?: object;
 	}
 
-	export class HttpRequest extends Object
-	{
+	export class HttpRequest extends Object {
 		url: string = null;
-		method: string = "GET";
+		method: MethodType = 'GET';
 		binary: boolean = false;
 		arguments: object = undefined;
 		content: any = undefined;
@@ -20,13 +21,7 @@ module Core
 		private request: XMLHttpRequest;
 		static requestHeaders: object = undefined;
 
-		/**
-		*	@constructs
-		*	@class
-		*	@extends Core.Object
-		*/
-		constructor(init?: HttpRequestInit)
-		{
+		constructor(init?: HttpRequestInit) {
 			super();
 			this.addEvents('error', 'done');
 
@@ -58,15 +53,13 @@ module Core
 			}
 		}
 
-		setRequestHeader(header, value)
-		{
+		setRequestHeader(header, value) {
 			if(this.headers === undefined)
 				this.headers = {};
 			this.headers[header] = value;
 		}
 
-		addArgument(argName, argValue)
-		{
+		addArgument(argName, argValue) {
 			if(this.arguments === undefined)
 				this.arguments = {};
 			this.arguments[argName] = argValue;
@@ -132,23 +125,19 @@ module Core
 			});
 		}
 
-		getResponseHeader(header: string)
-		{
+		getResponseHeader(header: string) {
 			return this.request.getResponseHeader(header);
 		}
 
-		get responseText(): string
-		{
+		get responseText(): string {
 			return this.request.responseText;
 		}
 
-		get responseBase64(): string
-		{
+		get responseBase64(): string {
 			return Util.toBase64(this.request.responseText);
 		}
 
-		get responseJSON(): any
-		{
+		get responseJSON(): any {
 			let res;
 			try {
 				res = JSON.parse(this.responseText);
@@ -159,8 +148,7 @@ module Core
 			return res;
 		}
 
-		get responseXML(): Document
-		{
+		get responseXML(): Document {
 			let parser = new DOMParser();
 			try {
 				let xmlDoc = parser.parseFromString(this.responseText, 'text/xml');
@@ -169,13 +157,11 @@ module Core
 			return undefined;
 		}
 
-		get status(): number
-		{
+		get status(): number {
 			return this.request.status;
 		}
 
-		static setRequestHeader(header, value)
-		{
+		static setRequestHeader(header, value) {
 			if(HttpRequest.requestHeaders === undefined)
 				HttpRequest.requestHeaders =  {};
 			HttpRequest.requestHeaders[header] = value;
