@@ -375,8 +375,9 @@ namespace Ui
 		}
 
 		setRight(x, y, width, height) {
+			let ofs = Math.max(10, Math.min(30, this.contentBox.measureHeight / 2));
 			let px = x + 10;
-			let py = y - 30;
+			let py = y - ofs;
 
 			this.background.arrowBorder = 'left';
 
@@ -389,14 +390,15 @@ namespace Ui
 				this.background.arrowOffset = offset;
 			}
 			else
-				this.background.arrowOffset = 30;
+				this.background.arrowOffset = ofs;
 			this.background.arrange(px - 10, py, this.contentBox.measureWidth + 10, this.contentBox.measureHeight);
 			this.contentBox.arrange(px, py, this.contentBox.measureWidth, this.contentBox.measureHeight);
 		}
 
 		setLeft(x, y, width, height) {
+			let ofs = Math.max(10, Math.min(30, this.contentBox.measureHeight / 2));
 			let px = x - (10 + this.contentBox.measureWidth);
-			let py = y - 30;
+			let py = y - ofs;
 
 			this.background.arrowBorder = 'right';
 
@@ -409,7 +411,7 @@ namespace Ui
 				this.background.arrowOffset = offset;
 			}
 			else
-				this.background.arrowOffset = 30;
+				this.background.arrowOffset = ofs;
 			this.background.arrange(px, py, this.contentBox.measureWidth + 10, this.contentBox.measureHeight);
 			this.contentBox.arrange(px, py, this.contentBox.measureWidth, this.contentBox.measureHeight);
 		}
