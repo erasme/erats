@@ -169,6 +169,8 @@ namespace Ui
 				this._value = this.drawing.value;
 				this.fireEvent('change', this, this._value);
 			}
+			if (key == 13)
+				this.fireEvent('validate', this, this._value);
 		}
 
 		renderDrawing() {
