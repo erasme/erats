@@ -12,7 +12,7 @@ namespace Ui {
 
 		constructor(init?: TextFieldInit) {
 			super(init);
-			this.addEvents('change');
+			this.addEvents('change', 'validate');
 
 			this.padding = 0;
 		
@@ -37,6 +37,7 @@ namespace Ui {
 			this.append(this.entry);
 
 			this.connect(this.entry, 'change', this.onEntryChange);
+			this.connect(this.entry, 'validate', () => this.fireEvent('validate', this));
 			if (init) {
 				if (init.textHolder !== undefined)
 					this.textHolder = init.textHolder;
