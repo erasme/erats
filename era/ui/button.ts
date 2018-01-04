@@ -363,7 +363,7 @@ namespace Ui
 				deltaY = -0.20;
 			else if (this.isOver) {
 				deltaY = 0.10;
-				yuv.a = Math.max(0.4, yuv.a);
+				yuv.a = Math.max(0.2, yuv.a);
 			}
 			return Color.createFromYuv(yuv.y + deltaY, yuv.u, yuv.v, yuv.a);
 		}
