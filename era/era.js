@@ -19941,10 +19941,8 @@ var Ui;
         });
         DatePicker.prototype.onDatePickerButtonPress = function () {
             var splitDate = this.textValue.match(/^(\d{1,2})\/(\d{1,2})\/(\d{1,4})$/);
-            if (splitDate !== null) {
-                this.selectedDate = new Date();
-                this.selectedDate.setFullYear(parseInt(splitDate[3]), parseInt(splitDate[2]) - 1, parseInt(splitDate[1]));
-            }
+            if (splitDate !== null)
+                this.selectedDate = new Date(parseInt(splitDate[3]), parseInt(splitDate[2]) - 1, parseInt(splitDate[1]));
             this.popup = new Ui.Popup();
             if (this.selectedDate !== undefined)
                 this.calendar = new Ui.MonthCalendar({ horizontalAlign: 'center', margin: 10, selectedDate: this.selectedDate, date: this.selectedDate });
@@ -19964,8 +19962,7 @@ var Ui;
             var dateStr = this.textValue;
             if (dateStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{1,4})$/)) {
                 var splitDate = this.textValue.match(/^(\d{1,2})\/(\d{1,2})\/(\d{1,4})$/);
-                var date = new Date();
-                date.setFullYear(parseInt(splitDate[3]), parseInt(splitDate[2]) - 1, parseInt(splitDate[1]));
+                var date = new Date(parseInt(splitDate[3]), parseInt(splitDate[2]) - 1, parseInt(splitDate[1]));
                 var newStr = ((date.getDate() < 10) ? '0' : '') + date.getDate() + '/' + ((date.getMonth() < 9) ? '0' : '') + (date.getMonth() + 1) + '/' + date.getFullYear();
                 if (!((parseInt(splitDate[3]) != date.getFullYear()) || (parseInt(splitDate[2]) - 1 != date.getMonth()) || (parseInt(splitDate[1]) != date.getDate()))) {
                     this._selectedDate = date;
