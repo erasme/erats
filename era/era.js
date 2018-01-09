@@ -21865,7 +21865,7 @@ var Ui;
             new Ui.DropableWatcher({
                 element: _this,
                 dropfile: function (w, f) { _this.onFile(undefined, f); return true; },
-                types: [{ type: 'file', effects: 'copy' }]
+                types: [{ type: 'files', effects: 'copy' }]
             });
             if (init) {
                 if (init.directoryMode !== undefined)
