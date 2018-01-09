@@ -15944,8 +15944,9 @@ var Ui;
             configurable: true
         });
         Entry.prototype.onPaste = function (event) {
+            var _this = this;
             event.stopPropagation();
-            new Core.DelayedTask(0, this.onAfterPaste);
+            new Core.DelayedTask(0, function () { return _this.onAfterPaste(); });
         };
         Entry.prototype.onAfterPaste = function () {
             if (this.drawing.value != this._value) {

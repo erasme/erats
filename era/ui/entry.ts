@@ -135,7 +135,7 @@ namespace Ui
 
 		private onPaste(event) {
 			event.stopPropagation();
-			new Core.DelayedTask(0, this.onAfterPaste);
+			new Core.DelayedTask(0, () => this.onAfterPaste());
 		}
 
 		private onAfterPaste() {
