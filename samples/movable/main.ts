@@ -33,7 +33,16 @@ lbox.append(l);
 movable.setContent(lbox);
 fixed.append(movable, 250, 0);
 
-movable = new Ui.Movable({ moveVertical: false });
+movable = new Ui.Movable({
+	moveVertical: false,
+	onmoved: e => {
+		let m = e.target;
+		if(m.positionX < 0)
+			m.setPosition(0, undefined);
+		else if(m.positionX > 100)
+			m.setPosition(100, undefined);
+	}
+});
 lbox = new Ui.LBox();
 r = new Ui.Rectangle({ width: 200, height: 100, fill: 'lightgreen', radius: 8 });
 lbox.append(r);
@@ -41,10 +50,3 @@ l = new Ui.Label({ text: 'horizontal limited 0-100' });
 lbox.append(l);
 movable.setContent(lbox);
 fixed.append(movable, 0, 400);
-movable.connect(movable, 'move', function(m:Ui.Movable) {
-	if(m.positionX < 0)
-		m.setPosition(0, undefined);
-	else if(m.positionX > 100)
-		m.setPosition(100, undefined);
-});
-

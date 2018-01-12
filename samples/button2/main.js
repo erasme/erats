@@ -19,79 +19,92 @@ var App = (function (_super) {
         _this.content = vbox;
         var toolbar = new Ui.ToolBar();
         vbox.append(toolbar);
-        var verticalButton = new Ui.Button({ text: 'vertical' });
-        toolbar.append(verticalButton);
-        _this.connect(verticalButton, 'press', function () { return button.orientation = 'vertical'; });
-        var horizontalButton = new Ui.Button({ text: 'horizontal' });
-        toolbar.append(horizontalButton);
-        _this.connect(horizontalButton, 'press', function () { return button.orientation = 'horizontal'; });
-        var textButton = new Ui.Button({ text: 'text' });
-        toolbar.append(textButton);
-        _this.connect(textButton, 'press', function () {
-            button.text = 'click me';
-            button.icon = undefined;
-        });
-        var iconButton = new Ui.Button({ text: 'icon' });
-        toolbar.append(iconButton);
-        _this.connect(iconButton, 'press', function () {
-            button.text = undefined;
-            button.icon = iconName;
-        });
-        var textIconButton = new Ui.Button({ text: 'text + icon' });
-        toolbar.append(textIconButton);
-        _this.connect(textIconButton, 'press', function () {
-            button.text = 'click me';
-            button.icon = iconName;
-        });
-        var enableButton = new Ui.Button({ text: 'enable' });
-        toolbar.append(enableButton);
-        _this.connect(enableButton, 'press', function () { return button.enable(); });
-        var disableButton = new Ui.Button({ text: 'disable' });
-        toolbar.append(disableButton);
-        _this.connect(disableButton, 'press', function () { return button.disable(); });
-        var badgeButton = new Ui.Button({ text: 'badge' });
-        toolbar.append(badgeButton);
-        _this.connect(badgeButton, 'press', function () { return button.badge = '12'; });
-        var markerButton = new Ui.Button({ text: 'marker' });
-        toolbar.append(markerButton);
-        _this.connect(markerButton, 'press', function () {
-            button.marker = new Ui.Icon({
-                verticalAlign: 'center', horizontalAlign: 'center',
-                icon: 'arrowbottom', width: 16, height: 16, marginRight: 5
-            });
-        });
-        var widthButton = new Ui.Button({ text: '200 width' });
-        toolbar.append(widthButton);
-        _this.connect(widthButton, 'press', function () { return button.width = 200; });
-        var autoWidthButton = new Ui.Button({ text: 'auto width' });
-        toolbar.append(autoWidthButton);
-        _this.connect(autoWidthButton, 'press', function () { return button.width = undefined; });
+        toolbar.append(new Ui.Button({
+            text: 'vertical',
+            onpressed: function () { return button.orientation = 'vertical'; }
+        }));
+        toolbar.append(new Ui.Button({
+            text: 'horizontal',
+            onpressed: function () { return button.orientation = 'horizontal'; }
+        }));
+        toolbar.append(new Ui.Button({
+            text: 'text',
+            onpressed: function () {
+                button.text = 'click me';
+                button.icon = undefined;
+            }
+        }));
+        toolbar.append(new Ui.Button({
+            text: 'icon',
+            onpressed: function () {
+                button.text = undefined;
+                button.icon = iconName;
+            }
+        }));
+        toolbar.append(new Ui.Button({
+            text: 'text + icon',
+            onpressed: function () {
+                button.text = 'click me';
+                button.icon = iconName;
+            }
+        }));
+        toolbar.append(new Ui.Button({
+            text: 'enable',
+            onpressed: function () { return button.enable(); }
+        }));
+        toolbar.append(new Ui.Button({
+            text: 'disable',
+            onpressed: function () { return button.disable(); }
+        }));
+        toolbar.append(new Ui.Button({
+            text: 'badge',
+            onpressed: function () { return button.badge = '12'; }
+        }));
+        toolbar.append(new Ui.Button({
+            text: 'marker',
+            onpressed: function () {
+                button.marker = new Ui.Icon({
+                    verticalAlign: 'center', horizontalAlign: 'center',
+                    icon: 'arrowbottom', width: 16, height: 16, marginRight: 5
+                });
+            }
+        }));
+        toolbar.append(new Ui.Button({
+            text: '200 width',
+            onpressed: function () { return button.width = 200; }
+        }));
+        toolbar.append(new Ui.Button({
+            text: 'auto width',
+            onpressed: function () { return button.width = undefined; }
+        }));
         var toolbar2 = new Ui.ToolBar();
         vbox.append(toolbar2);
-        var defaultButton = new Ui.Button({ text: 'default' });
-        defaultButton.style = undefined;
-        toolbar2.append(defaultButton);
-        _this.connect(defaultButton, 'press', function () {
-            button.style = undefined;
-            toolbar2.style = undefined;
-        });
+        toolbar2.append(new Ui.Button({
+            text: 'default',
+            onpressed: function () {
+                button.style = undefined;
+                toolbar2.style = undefined;
+            }
+        }));
         for (var i = 0; i < App.buttonStyles.length; i++) {
             var style = App.buttonStyles[i];
-            var styleButton = new Ui.Button({ text: style.name });
+            var styleButton = new Ui.Button({
+                text: style.name,
+                onpressed: function (e) {
+                    button.style = e.target['Test.App.styleDef'];
+                }
+            });
             styleButton['Test.App.styleDef'] = style.style;
             styleButton.style = styleButton['Test.App.styleDef'];
-            _this.connect(styleButton, 'press', function (b) {
-                button.style = b['Test.App.styleDef'];
-            });
             toolbar2.append(styleButton);
         }
         ;
         var button = new Ui.Button({
             icon: 'exit', text: 'click me', orientation: 'horizontal',
-            verticalAlign: 'center', horizontalAlign: 'center'
+            verticalAlign: 'center', horizontalAlign: 'center',
+            onpressed: function () { return Ui.Toast.send('button pressed'); }
         });
         vbox.append(button, true);
-        _this.connect(button, 'press', function () { return Ui.Toast.send('button pressed'); });
         return _this;
     }
     App.buttonStyles = [

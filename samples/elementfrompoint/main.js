@@ -14,7 +14,7 @@ var App = (function (_super) {
     __extends(App, _super);
     function App() {
         var _this = _super.call(this) || this;
-        _this.connect(_this, 'ptrdown', function (event) {
+        _this.ptrdowned.connect(function (event) {
             console.log('ptrdown at: ' + event.pointer.getX() + ',' + event.pointer.getY() + ' found: ' +
                 Ui.App.current.elementFromPoint(new Ui.Point(event.pointer.x, event.pointer.y)));
             Ui.Toast.send(Ui.App.current.elementFromPoint(new Ui.Point(event.pointer.x, event.pointer.y)).toString());

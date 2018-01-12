@@ -87,11 +87,12 @@ namespace Ui
 		element: Element;
 		x: number = 0;
 		y: number = 0;
+		readonly dropped = new Core.Events<{ target: DragWatcher, effect: string, x: number, y: number }>();
+		readonly leaved = new Core.Events<{ target: DragWatcher }>();
+		readonly moved = new Core.Events<{ target: DragWatcher, x: number, y: number }>();
 
 		constructor(element: Element, dataTransfer: DragDataTransfer) {
 			super();
-			this.addEvents('drop', 'leave', 'move');
-
 			this.dataTransfer = dataTransfer;
 			this.element = element;
 		}
@@ -119,15 +120,15 @@ namespace Ui
 		move(x: number, y: number) {
 			this.x = x;
 			this.y = y;
-			this.fireEvent('move', this, x, y);
+			this.moved.fire({ target: this, x: x, y: y });
 		}
 
 		leave() {
-			this.fireEvent('leave', this);
+			this.leaved.fire({ target: this });
 		}
 
 		drop(dropEffect: string) {
-			this.fireEvent('drop', this, dropEffect, this.x, this.y);
+			this.dropped.fire({ target: this, effect: dropEffect, x: this.x, y: this.y });
 		}
 
 		release() {
@@ -169,11 +170,11 @@ namespace Ui
 		delayed: boolean = false;
 
 		dragWatcher: DragWatcher;
+		readonly started = new Core.Events<{ target: DragEmuDataTransfer }>();
+		readonly ended = new Core.Events<{ target: DragEmuDataTransfer }>();
 
 		constructor(draggable: Element, x: number, y: number, delayed: boolean, pointer: Pointer) {
 			super();
-			this.addEvents('start', 'end');
-
 			this.dropEffect = [];
 			this.effectAllowed = [];
 			this.draggable = draggable;
@@ -185,9 +186,9 @@ namespace Ui
 
 			this.dragDelta = this.draggable.pointFromWindow(new Point(this.startX, this.startY));
 
-			this.connect(this.watcher, 'move', this.onPointerMove);
-			this.connect(this.watcher, 'up', this.onPointerUp);
-			this.connect(this.watcher, 'cancel', this.onPointerCancel);
+			this.watcher.moved.connect(this.onPointerMove);
+			this.watcher.upped.connect(this.onPointerUp);
+			this.watcher.cancelled.connect(this.onPointerCancel);
 
 			//console.log(`DragEmuDataTransfer delay? ${delayed}`);
 
@@ -265,7 +266,7 @@ namespace Ui
 		protected onTimer() {
 			this.timer = undefined;
 	
-			this.fireEvent('start', this);
+			this.started.fire({ target: this });
 
 			if (this.hasData()) {
 				this.hasStarted = true;
@@ -372,8 +373,9 @@ namespace Ui
 			}
 		}
 	
-		protected onPointerMove(watcher: PointerWatcher) {
+		protected onPointerMove(e: { target: PointerWatcher }) {
 			let deltaX; let deltaY; let delta; let dragEvent; let ofs;
+			let watcher = e.target;
 
 			//console.log('onPointerMove isMove: ' + watcher.pointer.getIsMove());
 
@@ -474,11 +476,12 @@ namespace Ui
 			}
 		}
 
-		protected onPointerUp(watcher: PointerWatcher) {
+		protected onPointerUp(e: { target: PointerWatcher }) {
+			let watcher = e.target;
 			//console.log('onPointerUp isCaptured: ' + watcher.getIsCaptured());
-			this.disconnect(this.watcher, 'move', this.onPointerMove);
-			this.disconnect(this.watcher, 'up', this.onPointerUp);
-			this.disconnect(this.watcher, 'cancel', this.onPointerCancel);
+			this.watcher.moved.disconnect(this.onPointerMove);
+			this.watcher.upped.disconnect(this.onPointerUp);
+			this.watcher.cancelled.disconnect(this.onPointerCancel);
 
 			if (!watcher.getIsCaptured())
 				watcher.cancel();
@@ -499,8 +502,8 @@ namespace Ui
 							let button = new Button();
 							button.text = this.dropEffect[i].text;
 							button['Ui.DragEvent.dropEffect'] = this.dropEffect[i];
-							this.connect(button, 'press', function (b) {
-								this.dragWatcher.drop(b['Ui.DragEvent.dropEffect'].action);
+							button.pressed.connect((e) => {
+								this.dragWatcher.drop(e.target['Ui.DragEvent.dropEffect'].action);
 								popup.close();
 							});
 							vbox.append(button);
@@ -518,14 +521,14 @@ namespace Ui
 					this.dropFailsTimer = new Anim.Clock({
 						duration: 0.25, ease: new Anim.PowerEase({ mode: 'out' })
 					});
-					this.connect(this.dropFailsTimer, 'timeupdate', this.onDropFailsTimerUpdate);
+					this.dropFailsTimer.timeupdate.connect((e) => this.onDropFailsTimerUpdate(e.target, e.progress));
 					this.dropFailsTimer.begin();
 				}
-				this.fireEvent('end', this);
+				this.ended.fire({ target: this });
 			}
 		}
 
-		protected onPointerCancel(watcher: PointerWatcher) {
+		protected onPointerCancel(e: { target: PointerWatcher }) {
 			//console.log('onPointerCancel');
 			if (this.timer !== undefined) {
 				this.timer.abort();
@@ -663,10 +666,10 @@ namespace Ui
 			this.app = app;
 			this.dataTransfer = new DragNativeDataTransfer();
 
-			this.connect(this.app.drawing, 'dragover', this.onDragOver);
-			this.connect(this.app.drawing, 'dragenter', this.onDragEnter);
-			this.connect(this.app.drawing, 'dragleave', this.onDragLeave);
-			this.connect(this.app.drawing, 'drop', this.onDrop);
+			this.app.drawing.addEventListener('dragover', (e) => this.onDragOver(e));
+			this.app.drawing.addEventListener('dragenter', (e) => this.onDragEnter(e));
+			this.app.drawing.addEventListener('dragleave', (e) => this.onDragLeave(e));
+			this.app.drawing.addEventListener('drop', (e) => this.onDrop(e));
 		}
 
 		protected onDragOver(event) {

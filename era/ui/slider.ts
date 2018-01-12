@@ -2,6 +2,7 @@ namespace Ui {
 	export interface SliderInit extends ContainerInit {
 		value?: number;
 		orientation?: Orientation;
+		onchanged?: (event: { target: Slider, value: number }) => void;
 	}
 
 	export class Slider extends Container implements SliderInit {
@@ -12,10 +13,10 @@ namespace Ui {
 		protected buttonContent: Rectangle;
 		protected _orientation: Orientation = 'horizontal';
 		protected updateLock: boolean;
+		readonly changed = new Core.Events<{ target: Slider, value: number }>();
 
 		constructor(init?: SliderInit) {
 			super(init);
-			this.addEvents('change');
 
 			this.background = new Rectangle({ width: 4, height: 4 });
 			this.appendChild(this.background);
@@ -25,11 +26,11 @@ namespace Ui {
 
 			this.button = new Movable({ moveVertical: false });
 			this.appendChild(this.button);
-			this.connect(this.button, 'move', this.onButtonMove);
-			this.connect(this.button, 'focus', this.updateColors);
-			this.connect(this.button, 'blur', this.updateColors);
-			this.connect(this.button, 'down', this.updateColors);
-			this.connect(this.button, 'up', this.updateColors);
+			this.button.moved.connect(this.onButtonMove);
+			this.button.focused.connect(() => this.updateColors());
+			this.button.blurred.connect(() => this.updateColors());
+			this.button.downed.connect(() => this.updateColors());
+			this.button.upped.connect(() => this.updateColors());
 
 			this.buttonContent = new Rectangle({ radius: 10, width: 20, height: 20, margin: 10 });
 			this.button.setContent(this.buttonContent);
@@ -38,6 +39,8 @@ namespace Ui {
 					this.value = init.value;	
 				if (init.orientation !== undefined)
 					this.orientation = init.orientation;
+				if (init.onchanged)
+					this.changed.connect(init.onchanged);
 			}
 		}
 
@@ -53,11 +56,11 @@ namespace Ui {
 			value = Math.min(1, Math.max(0, value));
 			if (this._value !== value) {
 				this._value = value;
-				this.disconnect(this.button, 'move', this.onButtonMove);
+				this.button.moved.disconnect(this.onButtonMove);
 				this.updateValue();
-				this.connect(this.button, 'move', this.onButtonMove);
+				this.button.moved.connect(this.onButtonMove);
 				if (dontSignal !== true)
-					this.fireEvent('change', this, this._value);
+					this.changed.fire({ target: this, value: this._value });
 			}
 		}
 	
@@ -84,7 +87,7 @@ namespace Ui {
 			}
 		}
 
-		protected onButtonMove(button) {
+		protected onButtonMove = () => {
 			var oldValue = this._value;
 
 			// get the new value only if its a user move
@@ -111,11 +114,11 @@ namespace Ui {
 				this._value = pos / max;
 			}
 
-			this.disconnect(this.button, 'move', this.onButtonMove);
+			this.button.moved.disconnect(this.onButtonMove);
 			this.updateValue();
-			this.connect(this.button, 'move', this.onButtonMove);
+			this.button.moved.connect(this.onButtonMove);
 			if (oldValue != this._value)
-				this.fireEvent('change', this, this._value);
+				this.changed.fire({ target: this, value: this._value });
 		}
 
 		protected updateValue() {

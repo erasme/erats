@@ -32,19 +32,21 @@ var Data = (function (_super) {
 //
 // Put some content to see something
 //
-var draggable = new Ui.Draggable({ width: 64, height: 64, horizontalAlign: 'center' });
+var draggable = new Ui.Draggable({
+    width: 64, height: 64, horizontalAlign: 'center',
+    content: [
+        new Ui.Rectangle({ fill: 'lightblue', radius: 8 }),
+        new Ui.Label({ text: 'drag me', horizontalAlign: 'center', verticalAlign: 'center', margin: 10 })
+    ],
+    // Connect to the dragstart event. This is not needed but might be usefull
+    // to return some feedback to the user.
+    //
+    // Here, the opacity of the drag element is changed
+    ondragstarted: function (e) { return e.target.opacity = 0.5; },
+    ondragended: function (e) { return e.target.opacity = 1; }
+});
 draggable.draggableData = new Data();
-draggable.append(new Ui.Rectangle({ fill: 'lightblue', radius: 8 }));
-draggable.append(new Ui.Label({ text: 'drag me', horizontalAlign: 'center', verticalAlign: 'center', margin: 10 }));
 vbox.append(draggable);
-//
-// Connect to the dragstart event. This is not needed but might be usefull
-// to return some feedback to the user.
-//
-// Here, the opacity of the drag element is changed
-//
-app.connect(draggable, 'dragstart', function () { return draggable.opacity = 0.5; });
-app.connect(draggable, 'dragend', function () { return draggable.opacity = 1; });
 //
 // Connect to the dragend event. This is called when the drag is done.
 // operation let us known what has happened:
@@ -53,18 +55,20 @@ app.connect(draggable, 'dragend', function () { return draggable.opacity = 1; })
 //  - move: drag has negociated a move of the element in a drop element.
 //          in this case, the original element should be suppressed
 //
-app.connect(draggable, 'dragend', function (draggable, operation) {
-    if ((operation == 'none') || (operation == 'copy'))
+draggable.dragended.connect(function (e) {
+    if ((e.effect == 'none') || (e.effect == 'copy'))
         draggable.opacity = 1;
-    if (operation == 'move')
+    if (e.effect == 'move')
         draggable.opacity = 0;
 });
 //
 // Define a DropBox. The DropBox is a possible target for a drag element.
 //
-var dropbox = new Ui.DropBox();
-dropbox.width = 200;
-dropbox.height = 200;
+var dropbox = new Ui.DropBox({
+    width: 200, height: 200,
+    ondragentered: function () { return dropBg.fill = 'orange'; },
+    ondragleaved: function () { return dropBg.fill = 'lightgreen'; }
+});
 dropbox.addType(Data, 'copy');
 dropbox.addType('text/uri-list', 'copy');
 dropbox.addType('text', function (data) { return [{ action: 'copy' }]; });
@@ -77,13 +81,12 @@ var droplabel = new Ui.Label({
 });
 dropbox.append(droplabel);
 vbox.append(dropbox);
-app.connect(dropbox, 'dragenter', function () { return dropBg.fill = 'orange'; });
-app.connect(dropbox, 'dragleave', function () { return dropBg.fill = 'lightgreen'; });
 //
 // Connect to the drop event called when a compatible element is
 // dropped in the box.
 //
-app.connect(dropbox, 'drop', function (dropbox, data, effect, x, y) {
+dropbox.dropped.connect(function (e) {
+    var data = e.data;
     if (data instanceof Ui.DragNativeData) {
         if (data.hasType('text/uri-list'))
             data = data.getData('text/uri-list');

@@ -23,7 +23,7 @@ namespace Ui {
 				this.start = init.start;
 			if (init.end !== undefined)
 				this.end = init.end;	
-			this.connect(this.element, 'ptrdown', this.onDraggablePointerDown);
+			this.element.ptrdowned.connect(e => this.onDraggablePointerDown(e));
 		}
 
 		get dragDelta(): Point {
@@ -39,11 +39,12 @@ namespace Ui {
 
 			let delayed = !(event.pointerType == 'mouse' && event.pointer.button == 0);
 			
-			this.dataTransfer = new DragEmuDataTransfer(
+			let dataTransfer = new DragEmuDataTransfer(
 				this.element, event.clientX, event.clientY, delayed, event.pointer);
+			this.dataTransfer = dataTransfer;
 			this._dragDelta = this.element.pointFromWindow(new Point(event.clientX, event.clientY));
-			this.connect(this.dataTransfer, 'start', this.onDragStart);
-			this.connect(this.dataTransfer, 'end', this.onDragEnd);
+			dataTransfer.started.connect(e => this.onDragStart(dataTransfer));
+			dataTransfer.ended.connect(e => this.onDragEnd(dataTransfer));
 		}
 
 		private onDragStart(dataTransfer: DragEmuDataTransfer): void {
@@ -69,6 +70,8 @@ namespace Ui {
 	}
 
 	export interface DraggableInit extends PressableInit {
+		ondragstarted?: (event: { target: Draggable, dataTransfer: DragEmuDataTransfer }) => void;
+		ondragended?: (event: { target: Draggable, effect: string }) => void;
 	}
 
 	export class Draggable extends Pressable implements DraggableInit
@@ -90,14 +93,21 @@ namespace Ui {
 
 		allowedMode: any = 'all';
 		// the data that we drag & drop
-		draggableData: any = undefined;
-		private _dragDelta: Point = undefined;
-		private dataTransfer: DragDataTransfer = undefined;
+		draggableData: any;
+		private _dragDelta: Point;
+		private dataTransfer: DragDataTransfer;
+		readonly dragstarted = new Core.Events<{ target: Draggable, dataTransfer: DragEmuDataTransfer }>();
+		readonly dragended = new Core.Events<{ target: Draggable, effect: string }>();
 
 		constructor(init?: DraggableInit) {
 			super(init);
-			this.addEvents('dragstart', 'dragend');
-			this.connect(this, 'ptrdown', this.onDraggablePointerDown);
+			this.ptrdowned.connect((e) => this.onDraggablePointerDown(e));
+			if (init) {
+				if (init.ondragstarted)
+					this.dragstarted.connect(init.ondragstarted);	
+				if (init.ondragended)
+					this.dragended.connect(init.ondragended);	
+			}
 		}
 
 		//
@@ -121,11 +131,12 @@ namespace Ui {
 
 			let delayed = !(event.pointerType == 'mouse' && event.pointer.button == 0);
 			
-			this.dataTransfer = new DragEmuDataTransfer(
+			let dataTransfer = new DragEmuDataTransfer(
 				this, event.clientX, event.clientY, delayed, event.pointer);
+			this.dataTransfer = dataTransfer;
 			this._dragDelta = this.pointFromWindow(new Point(event.clientX, event.clientY));
-			this.connect(this.dataTransfer, 'start', this.onDragStart);
-			this.connect(this.dataTransfer, 'end', this.onDragEnd);
+			dataTransfer.started.connect(e => this.onDragStart(dataTransfer));
+			dataTransfer.ended.connect(e => this.onDragEnd(dataTransfer));
 		}
 
 		protected onDragStart(dataTransfer: DragEmuDataTransfer): void {
@@ -135,12 +146,12 @@ namespace Ui {
 			else
 				dataTransfer.setData(this.draggableData);
 			dataTransfer.effectAllowed = this.allowedMode;
-			this.fireEvent('dragstart', this, dataTransfer);
+			this.dragstarted.fire({ target: this, dataTransfer: dataTransfer });
 		}
 
 		protected onDragEnd(dataTransfer: DragEmuDataTransfer): void {
 			// dropEffect give the operation done: [none|copy|link|move]
-			this.fireEvent('dragend', this, dataTransfer.dropEffect);
+			this.dragended.fire({ target: this, effect: dataTransfer.dropEffect });
 		}
 	}
 }	

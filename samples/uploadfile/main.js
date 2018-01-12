@@ -30,7 +30,12 @@ var App = (function (_super) {
         //
         // Define a DropBox. The DropBox is a possible target for a file drag.
         //
-        var dropbox = new Ui.DropBox({ width: 200, height: 200 });
+        var dropbox = new Ui.DropBox({
+            width: 200, height: 200,
+            // Connect to the dropfiles event called when files are
+            // dropped in the box.
+            ondroppedfile: function (e) { return _this.onUploadFile(e.target, e.file); }
+        });
         // allow drop of files
         dropbox.addType('files', ['copy']);
         // fill with content to see something
@@ -44,30 +49,27 @@ var App = (function (_super) {
         content.append(_this.progressbar);
         vbox.append(dropbox);
         //
-        // Connect to the dropfiles event called when files are
-        // dropped in the box.
-        //
-        _this.connect(dropbox, 'dropfile', _this.onUploadFile);
-        //
         // For browser that dont support drag and drop, add and upload button
         //
-        var uploadButton = new Ui.UploadButton({ icon: 'upload', text: 'Upload', orientation: 'horizontal' });
+        var uploadButton = new Ui.UploadButton({
+            icon: 'upload', text: 'Upload', orientation: 'horizontal',
+            onfile: function (e) { return _this.onUploadFile(dropbox, e.file); }
+        });
         vbox.append(uploadButton);
-        _this.connect(uploadButton, 'file', _this.onUploadFile);
         return _this;
     }
     App.prototype.onUploadFile = function (element, file) {
         var _this = this;
-        var uploader = new Core.FilePostUploader({ file: file, service: 'upload.php' });
+        var uploader = new Core.FilePostUploader({
+            file: file, service: 'upload.php',
+            onprogress: function (e) { return _this.progressbar.value = e.loaded / e.total; },
+            oncompleted: function (e) {
+                _this.progressbar.hide();
+                _this.droplabel.text = 'drop file here';
+            }
+        });
         this.droplabel.text = file.getFileName();
         this.progressbar.show();
-        this.connect(uploader, 'progress', function (uploader, current, total) {
-            return _this.progressbar.value = current / total;
-        });
-        this.connect(uploader, 'complete', function (uploader) {
-            _this.progressbar.hide();
-            _this.droplabel.text = 'drop file here';
-        });
         uploader.send();
     };
     return App;

@@ -6,11 +6,11 @@ namespace Ui {
 	export class IFrame extends Element {
 		protected iframeDrawing: HTMLIFrameElement;
 		protected _isReady: boolean = false;
+		readonly ready = new Core.Events<{ target: IFrame }>();
 
 		constructor(init?: IFrameInit) {
 			super(init);
-			this.connect(this.iframeDrawing, 'load', this.onIFrameLoad);
-			this.addEvents('ready');
+			this.iframeDrawing.addEventListener('load', () => this.onIFrameLoad());
 			if (init) {
 				if (init.src !== undefined)
 					this.src = init.src;
@@ -32,7 +32,7 @@ namespace Ui {
 		protected onIFrameLoad() {
 			if (!this._isReady) {
 				this._isReady = true;
-				this.fireEvent('ready', this);
+				this.ready.fire({ target: this });
 			}
 		}
 

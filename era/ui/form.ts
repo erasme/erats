@@ -3,16 +3,17 @@ namespace Ui {
 	}
 
 	export class Form extends LBox implements FormInit {
+		readonly submited = new Core.Events<{ target: Form }>();
+
 		constructor(init?: FormInit) {
 			super(init);
-			this.addEvents('submit');
-			this.connect(this.drawing, 'submit', this.onSubmit);
+			this.drawing.addEventListener('submit', (e) => this.onSubmit(e));
 		}
 	
-		onSubmit(event) {
+		protected onSubmit(event) {
 			event.preventDefault();
 			event.stopPropagation();
-			this.fireEvent('submit', this);
+			this.submited.fire({ target: this });
 		}
 
 		submit() {

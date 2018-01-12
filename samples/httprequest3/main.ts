@@ -10,17 +10,18 @@ class App extends Ui.App {
 		let toolbar = new Ui.ToolBar();
 		vbox.append(toolbar);
 		
-		let sendButton = new Ui.Button({ text: 'send' });
-		toolbar.append(sendButton);
-
 		let text = new Ui.Text();
-		vbox.append(text, true);
 
-		this.connect(sendButton, 'press', async () => {
-			let req = new Core.HttpRequest({ url: 'service.php' });
-			await req.sendAsync();
-			text.text = req.responseText;
-		});		
+		toolbar.append(new Ui.Button({
+			text: 'send',
+			onpressed: async () => {
+				let req = new Core.HttpRequest({ url: 'service.php' });
+				await req.sendAsync();
+				text.text = req.responseText;
+			}
+		}));
+
+		vbox.append(text, true);
 	}
 }
 

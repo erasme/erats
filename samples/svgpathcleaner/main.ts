@@ -27,8 +27,9 @@ class App extends Ui.App {
 		let scroll = new Ui.ScrollingArea();
 		hbox.append(scroll, true);
 
-		this.pathTextField = new Ui.TextAreaField();
-		this.connect(this.pathTextField, 'change', this.onPathTextFieldChanged);
+		this.pathTextField = new Ui.TextAreaField({
+			onchanged: e => this.onPathTextFieldChanged()
+		});
 		scroll.content = this.pathTextField;
 
         this.sourceIcon = new Ui.Shape();
@@ -40,10 +41,10 @@ class App extends Ui.App {
 		hbox = new Ui.HBox();
 		vbox.append(hbox);
 
-        let button = new Ui.Button();
-        button.text = 'Clean';
-		this.connect(button, 'press', this.onCleanPressed);
-		hbox.append(button);
+		hbox.append(new Ui.Button({
+			text: 'Clean',
+			onpressed: () => this.onCleanPressed()
+		}));
 
         this.decimalField = new Ui.TextField();
         this.decimalField.width = 40;
@@ -63,7 +64,7 @@ class App extends Ui.App {
 		hbox.append(scroll, true);
 
         this.cleanedPathTextField = new Ui.TextAreaField();
-        this.cleanedPathTextField.setDisabled(true);
+        this.cleanedPathTextField.disable();
 		scroll.content = this.cleanedPathTextField;
 
         this.destIcon = new Ui.Shape();

@@ -28,15 +28,16 @@ class App extends Ui.App {
 		let toolbar = new Ui.ToolBar();
 		vbox.append(toolbar);
 
-		let button = new Ui.Button({ text: 'get date' });
-		toolbar.append(button);
-		this.connect(button, 'press', function() {
-			let date = datepicker.selectedDate;
-			if(date == undefined)
-				logs.log('date is undefined');
-			else
-				logs.log('date: '+date);
-		});
+		toolbar.append(new Ui.Button({
+			text: 'get date',
+			onpressed: () => {
+				let date = datepicker.selectedDate;
+				if(date == undefined)
+					logs.log('date is undefined');
+				else
+					logs.log('date: '+date);
+			}
+		}));
 
 		let hbox = new Ui.HBox();
 		vbox.append(hbox, true);

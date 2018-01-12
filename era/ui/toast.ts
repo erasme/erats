@@ -68,7 +68,7 @@
 			}
 			if (this.arrangeClock === undefined) {
 				this.arrangeClock = new Anim.Clock({ duration: 1, speed: 5 });
-				this.connect(this.arrangeClock, 'timeupdate', this.onArrangeTick);
+				this.arrangeClock.timeupdate.connect((e) => this.onArrangeTick(e.target, e.progress, e.deltaTick));
 				this.arrangeClock.begin();
 			}
 		}
@@ -91,10 +91,10 @@
 		lastLayoutY: number;
 		lastLayoutWidth: number;
 		lastLayoutHeight: number;
+		readonly closed = new Core.Events<{ target: Toast }>();
 
 		constructor() {
 			super();
-			this.addEvents('close');
 
 			let sha = new Ui.Shadow();
 			sha.shadowWidth = 3; sha.radius = 1; sha.inner = false; sha.opacity = 0.4;
@@ -123,7 +123,7 @@
 						duration: 1, target: this, speed: 5,
 						ease: new Anim.PowerEase({ mode: 'out' })
 					});
-					this.connect(this.openClock, 'timeupdate', this.onOpenTick);
+					this.openClock.timeupdate.connect((e) => this.onOpenTick(e.target, e.progress, e.deltaTick));
 					// set the initial state
 					this.opacity = 0;
 					// the start of the animation is delayed to the next arrange
@@ -142,7 +142,7 @@
 						duration: 1, target: this, speed: 5,
 						ease: new Anim.PowerEase({ mode: 'out' })
 					});
-					this.connect(this.openClock, 'timeupdate', this.onOpenTick);
+					this.openClock.timeupdate.connect((e) => this.onOpenTick(e.target, e.progress, e.deltaTick));
 					this.openClock.begin();
 				}
 			}
@@ -162,7 +162,7 @@
 				this.openClock = undefined;
 				if (this._isClosed) {
 					this.enable();
-					this.fireEvent('close', this);
+					this.closed.fire({ target: this });
 					Ui.Toaster.removeToast(this);
 				}
 			}

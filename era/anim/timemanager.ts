@@ -5,12 +5,12 @@ namespace Anim
 		clocks: any = undefined;
 		timer: any = undefined;
 		start: number = 0;
+		readonly tick: Core.Events<{ target: TimeManager }> = new Core.Events();
 
 		constructor() {
 			super();
 			this.clocks = [];
 			this.start = new Date().getTime();
-			this.addEvents('tick');
 		}
 
 		add(clock) {
@@ -22,7 +22,7 @@ namespace Anim
 				this.clocks.push(clock);
 				if (this.clocks.length === 1) {
 					this.timer = new Core.Timer({ interval: 1 / 60 });
-					this.connect(this.timer, 'timeupdate', this.onTick);
+					this.timer.timeupdate.connect(this.onTick);
 				}
 			}
 		}
@@ -43,7 +43,7 @@ namespace Anim
 			current /= 1000;
 			for (var i = 0; i < this.clocks.length; i++)
 				this.clocks[i].update(current);
-			this.fireEvent('tick');
+			this.tick.fire({ target: this });
 		}
 
 		static current: TimeManager = null;

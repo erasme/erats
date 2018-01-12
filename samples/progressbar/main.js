@@ -18,18 +18,17 @@ var App = (function (_super) {
         _this.content = vbox;
         var toolbar = new Ui.ToolBar();
         vbox.append(toolbar);
-        var beginButton = new Ui.Button({ text: 'begin' });
-        toolbar.append(beginButton);
-        _this.connect(beginButton, 'press', function () {
-            clock.begin();
-        });
+        toolbar.append(new Ui.Button({
+            text: 'begin',
+            onpressed: function () { return clock.begin(); }
+        }));
         var progressbar = new Ui.ProgressBar({
             verticalAlign: 'center', horizontalAlign: 'center', width: 200
         });
         vbox.append(progressbar, true);
-        var clock = new Anim.Clock({ duration: 4.0 });
-        _this.connect(clock, 'timeupdate', function (clock, progress) {
-            progressbar.value = progress;
+        var clock = new Anim.Clock({
+            duration: 4.0,
+            ontimeupdate: function (e) { return progressbar.value = e.progress; }
         });
         return _this;
     }

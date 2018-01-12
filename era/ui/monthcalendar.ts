@@ -4,6 +4,7 @@ namespace Ui {
 		selectedDate?: Date;
 		dayFilter?: number[];
 		dateFilter?: string[];
+		ondayselected?: (event: { target: MonthCalendar, value: Date }) => void;
 	}
 
 	export class MonthCalendar extends VBox {
@@ -15,6 +16,7 @@ namespace Ui {
 		private grid: Grid;
 		private _dayFilter: number[];
 		private _dateFilter: string[];
+		readonly dayselected = new Core.Events<{ target: MonthCalendar, value: Date }>();
 
 		//
 		// @class The MonthCalendar is a small month calendar which allow
@@ -22,27 +24,29 @@ namespace Ui {
 		//
 		constructor(init?: MonthCalendarInit) {
 			super(init);
-			this.addEvents('dayselect');
-
 			this._date = new Date();
 
 			let hbox = new HBox();
 			this.append(hbox);
 
-			let button = new Pressable({ verticalAlign: 'center' });
+			let button = new Pressable({
+				verticalAlign: 'center',
+				onpressed: () => this.onLeftButtonPress()
+			});
 			this.leftarrow = new Icon({ icon: 'arrowleft', width: 24, height: 24 });
 			button.append(this.leftarrow);
 			hbox.append(button);
-			this.connect(button, 'press', this.onLeftButtonPress);
 
 			this.title = new Label({ fontWeight: 'bold', fontSize: 18, margin: 5 });
 			hbox.append(this.title, true);
 
-			button = new Pressable({ verticalAlign: 'center' });
+			button = new Pressable({
+				verticalAlign: 'center',
+				onpressed: () => this.onRightButtonPress()
+			});
 			this.rightarrow = new Icon({ icon: 'arrowright', width: 24, height: 24 });
 			button.append(this.rightarrow);
 			hbox.append(button);
-			this.connect(button, 'press', this.onRightButtonPress);
 
 			this.grid = new Grid({
 				cols: '*,*,*,*,*,*,*',
@@ -62,6 +66,8 @@ namespace Ui {
 					this.dayFilter = init.dayFilter;
 				if (init.dateFilter !== undefined)
 					this.dateFilter = init.dateFilter;
+				if (init.ondayselected)
+					this.dayselected.connect(init.ondayselected);
 			}
 		}
 
@@ -112,7 +118,7 @@ namespace Ui {
 		protected onDaySelect(button) {
 			this._selectedDate = button.monthCalendarDate;
 			this.updateDate();
-			this.fireEvent('dayselect', this, this._selectedDate);
+			this.dayselected.fire({ target: this, value: this._selectedDate });
 		}
 
 		protected updateDate() {
@@ -135,9 +141,10 @@ namespace Ui {
 			let row = 1;
 			let now = new Date();
 			do {
-				let day = new DayButton();
+				let day = new DayButton({
+					onpressed: () => this.onDaySelect(day)
+				});
 				day.monthCalendarDate = current;
-				this.connect(day, 'press', this.onDaySelect);
 
 				let bg;
 				if ((current.getFullYear() == now.getFullYear()) && (current.getMonth() == now.getMonth()) && (current.getDate() == now.getDate())) {

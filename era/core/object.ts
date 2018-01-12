@@ -7,7 +7,7 @@ namespace Core
 	//
 	export class Object
 	{
-		events: any = undefined;
+		/*events: any = undefined;
 
 		addEvents(...args: string[]) {
 			if(this.events === undefined)
@@ -99,7 +99,7 @@ namespace Core
 			else
 				return [];
 		}
-
+		
 		disconnect(obj, eventName: string, method: Function) {
 			let wrapper; let signal;
 			if ('removeEventListener' in obj) {
@@ -125,7 +125,7 @@ namespace Core
 					}
 				}
 			}
-		}
+		}*/
 
 		//
 		// Serialize a javascript object into a string

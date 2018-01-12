@@ -39,32 +39,32 @@ namespace Core
 
 		startSocket() {
 			this.socket = new Core.Socket({ service: '/', host: this.host, port: this.port });
-			this.connect(this.socket, 'open', this.onSocketOpen);
-			this.connect(this.socket, 'message', this.onSocketMessage);
-			this.connect(this.socket, 'error', this.onSocketError);
-			this.connect(this.socket, 'close', this.onSocketClose);
+			this.socket.opened.connect(this.onSocketOpen);
+			this.socket.message.connect(this.onSocketMessage);
+			this.socket.error.connect(this.onSocketError);
+			this.socket.closed.connect(this.onSocketClose);
 		}
 
-		onSocketOpen() {
+		protected onSocketOpen = () => {
 			this.socketAlive = true;
 			while (this.buffer.length > 0) {
 				this.socket.send(this.buffer.shift());
 			}
 		}
 
-		onSocketMessage(socket, message) {
-			eval(message);
+		protected onSocketMessage = (e: { target: any, message: string }) => {
+			eval(e.message);
 		}
 
-		onSocketError() {
+		protected onSocketError = () => {
 			this.socketAlive = false;
 			this.socket.close();
 		}
 
-		onSocketClose() {
+		protected onSocketClose = () => {
 			this.socketAlive = false;
-			this.disconnect(this.socket, 'error', this.onSocketError);
-			this.disconnect(this.socket, 'close', this.onSocketClose);
+			this.socket.error.disconnect(this.onSocketError);
+			this.socket.closed.disconnect(this.onSocketClose);
 			this.socket = undefined;
 			this.retryTask = new Core.DelayedTask(5, this.startSocket);
 		}

@@ -62,10 +62,10 @@ namespace Ui {
 		cancelButton: Pressable = undefined;
 		actionButtonsBox: HBox;
 		titleLabel: DialogTitle;
+		readonly cancelled: Core.Events<{ target: DialogButtonBox }> = new Core.Events();
 	
 		constructor() {
 			super();
-			this.addEvents('cancel');
 
 			this.bg = new Rectangle();
 			this.append(this.bg);
@@ -94,13 +94,13 @@ namespace Ui {
 		setCancelButton(button: Pressable) {
 			if (this.cancelButton !== undefined) {
 				if (this.cancelButton instanceof Pressable)
-					this.disconnect(this.cancelButton, 'press', this.onCancelPress);
+					this.cancelButton.pressed.disconnect(this.onCancelPress);
 				this.actionBox.remove(this.cancelButton);
 			}
 			this.cancelButton = button;
 			if (this.cancelButton !== undefined) {
 				if (this.cancelButton instanceof Pressable)
-					this.connect(this.cancelButton, 'press', this.onCancelPress);
+					this.cancelButton.pressed.connect(this.onCancelPress);
 				this.actionBox.prepend(this.cancelButton);
 			}
 		}
@@ -114,8 +114,8 @@ namespace Ui {
 			return this.actionButtonsBox.children.slice(1);
 		}
 
-		onCancelPress() {
-			this.fireEvent('cancel', this);
+		onCancelPress = () => {
+			this.cancelled.fire({ target: this });
 		}
 
 		onStyleChange() {
@@ -142,7 +142,7 @@ namespace Ui {
 		shadow: Pressable;
 		shadowGraphic: Rectangle;
 		graphic: DialogGraphic;
-		lbox: LBox;
+		lbox: Form;
 		vbox: VBox;
 		contentBox: LBox;
 		contentVBox: VBox;
@@ -158,11 +158,10 @@ namespace Ui {
 		openClock: Anim.Clock;
 		isClosed: boolean = true;
 		scroll: ScrollingArea;
+		readonly closed = new Core.Events<{ target: Dialog }>();
 
 		constructor(init?: DialogInit) {
 			super(init);
-			this.addEvents('close');
-
 			this.dialogSelection = new Ui.Selection();
 
 			this.shadow = new Ui.Pressable();
@@ -174,7 +173,7 @@ namespace Ui {
 			this.shadow.content = this.shadowGraphic;
 
 			this.lbox = new Ui.Form();
-			this.connect(this.lbox, 'submit', this.onFormSubmit);
+			this.lbox.submited.connect(() => this.onFormSubmit());
 			this.appendChild(this.lbox);
 
 			this.graphic = new Ui.DialogGraphic();
@@ -205,16 +204,16 @@ namespace Ui {
 			this.buttonsBox.append(this.contextBox);
 
 			this.actionBox = new Ui.DialogButtonBox();
-			this.connect(this.actionBox, 'cancel', this.close);
+			this.actionBox.cancelled.connect(() => this.close());
 			this.buttonsBox.append(this.actionBox);
 
-			this.connect(this.dialogSelection, 'change', this.onDialogSelectionChange);
+			this.dialogSelection.changed.connect((e) => this.onDialogSelectionChange(e.target));
 
 			// handle keyboard		
-			this.connect(this.drawing, 'keyup', this.onKeyUp);
+			this.drawing.addEventListener('keyup', (e) => this.onKeyUp(e));
 
 			// handle auto hide
-			this.connect(this.shadow, 'press', this.onShadowPress);
+			this.shadow.pressed.connect((e) => this.onShadowPress());
 
 			if (init) {
 				if (init.preferredWidth !== undefined)
@@ -259,7 +258,7 @@ namespace Ui {
 						duration: 1, target: this, speed: 5,
 						ease: new Anim.PowerEase({ mode: 'out' })
 					});
-					this.connect(this.openClock, 'timeupdate', this.onOpenTick);
+					this.openClock.timeupdate.connect((e) => this.onOpenTick(e.target, e.progress, e.deltaTick));
 					// set the initial state
 					this.onOpenTick(this.openClock, 0, 0);
 					// the start of the animation is delayed to the next arrange
@@ -270,7 +269,7 @@ namespace Ui {
 		close() {
 			if (!this.isClosed) {
 				// the removal of the dialog is delayed to the end of the animation
-				this.fireEvent('close', this);
+				this.closed.fire({ target: this });
 
 				this.isClosed = true;
 				this.lbox.disable();
@@ -280,7 +279,7 @@ namespace Ui {
 						duration: 1, target: this, speed: 5,
 						ease: new Anim.PowerEase({ mode: 'out' })
 					});
-					this.connect(this.openClock, 'timeupdate', this.onOpenTick);
+					this.openClock.timeupdate.connect((e) => this.onOpenTick(e.target, e.progress, e.deltaTick));
 					this.openClock.begin();
 				}
 			}

@@ -27,17 +27,17 @@ app.content = vbox;
 let hbox = new Ui.HBox({ spacing: 10 });
 vbox.append(hbox);
 
-let textfield = new Ui.TextField({ textHolder: 'Text Holder' });
+let textfield = new Ui.TextField({
+    textHolder: 'Text Holder',
+    onchanged: e => logs.log(`change: ${e.value}`)
+});
 hbox.append(textfield, true);
 
-app.connect(textfield, 'change', (tfield: Ui.TextField, value: string) => logs.log(`change: ${value}`));
-
-let getButton = new Ui.Button({ text: 'get text' });
+let getButton = new Ui.Button({
+    text: 'get text',
+    onpressed: () => logs.log(`get text: ${textfield.value}`, 'blue')
+});
 hbox.append(getButton);
-
-app.connect(getButton, 'press', () =>
-	logs.log(`get text: ${textfield.value}`, 'blue')
-);
 
 let logs = new Logs();
 vbox.append(logs, true);

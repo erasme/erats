@@ -53,7 +53,7 @@ namespace Ui
 			this.appendChild(this.bg);
 
 			this.menuButton = new Ui.MenuToolBarButton();
-			this.connect(this.menuButton, 'press', this.onMenuButtonPress);
+			this.menuButton.pressed.connect(() => this.onMenuButtonPress());
 			this.appendChild(this.menuButton);
 
 			if (init) {

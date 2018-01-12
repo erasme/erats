@@ -245,12 +245,10 @@ Ui.App.extend('Test.App', {
 		this.contextBox.hide();
 		this.menuBox.append(this.contextBox);
 
-		var logo = new Ui.Image({ src: 'logo.svg', height: 36 });
-		var logoLink = new Ui.Pressable();
-		this.connect(logoLink, 'press', function() {
-			window.location = '/';
+		let logoLink = new Ui.Pressable({
+			content: new Ui.Image({ src: 'logo.svg', height: 36 }),
+			onpressed: () => window.location = '/'
 		});
-		logoLink.setContent(logo);
 		this.actionBox.append(logoLink);
 
 		this.searchField = new Ui.TextButtonField({ buttonIcon: 'search' });

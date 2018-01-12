@@ -12,24 +12,22 @@ class App extends Ui.App {
 		tb.append(new Ui.Button({ text: 'test 1' }));
 		tb.append(new Ui.Button({ text: 'test 2' }));
 
-		let button = new Ui.Button({
+		vbox.append(new Ui.Button({
 			text: 'Open dialog',
-			verticalAlign: 'center', horizontalAlign: 'center'
-		});
-		vbox.append(button, true);
-
-		this.connect(button, 'press', () => {
-			let dialog = new Ui.Dialog({
-				title: 'Test Dialog',
-				cancelButton: new Ui.DialogCloseButton({ text: 'Annuler' }),
-				actionButtons: [
-					new Ui.Button({ text: 'Previous' }),
-					new Ui.Button({ text: 'Next' })
-				],
-				content: new Ui.Rectangle({ fill: 'lightgreen', width: 350, height: 200 })
-			});
-			dialog.open();
-		});
+			verticalAlign: 'center', horizontalAlign: 'center',
+			onpressed: () => {
+				let dialog = new Ui.Dialog({
+					title: 'Test Dialog',
+					cancelButton: new Ui.DialogCloseButton({ text: 'Annuler' }),
+					actionButtons: [
+						new Ui.Button({ text: 'Previous' }),
+						new Ui.Button({ text: 'Next' })
+					],
+					content: new Ui.Rectangle({ fill: 'lightgreen', width: 350, height: 200 })
+				});
+				dialog.open();
+			}
+		}), true);
 	}
 }
 

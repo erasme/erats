@@ -11,29 +11,25 @@ class App extends Ui.App {
 		let toolbar = new Ui.ToolBar({ verticalAlign: 'top' });
 		vbox.append(toolbar);
 
-		let playButton = new Ui.Button({ text: 'play' });
-		toolbar.append(playButton);
-		this.connect(playButton, 'press', function() {
-			video.play();
-		});
+		toolbar.append(new Ui.Button({
+			text: 'play',
+			onpressed: () => video.play()
+		}));
 
-		let pauseButton = new Ui.Button({ text: 'pause' });
-		toolbar.append(pauseButton);
-		this.connect(pauseButton, 'press', function() {
-			video.pause();
-		});
+		toolbar.append(new Ui.Button({
+			text: 'pause',
+			onpressed: () => video.pause()
+		}));
 
-		let stopButton = new Ui.Button({ text: 'stop' });
-		toolbar.append(stopButton);
-		this.connect(stopButton, 'press', function() {
-			video.stop();
-		});
+		toolbar.append(new Ui.Button({
+			text: 'stop',
+			onpressed: () => video.stop()
+		}));
 
-		let delayplayButton = new Ui.Button({ text: 'delay play 1s' });
-		toolbar.append(delayplayButton);
-		this.connect(delayplayButton, 'press', () => 
-			new Core.DelayedTask(1, () => video.play())
-		);
+		toolbar.append(new Ui.Button({
+			text: 'delay play 1s',
+			onpressed: () => new Core.DelayedTask(1, () => video.play())
+		}));
 
 		let progressbar = new Ui.ProgressBar({ verticalAlign: 'center' });
 		toolbar.append(progressbar, true);
@@ -49,17 +45,11 @@ class App extends Ui.App {
         });
 		lbox.append(video);
 
-		this.connect(video, 'ready', function() {
-		//	console.log('video ready');
-		});
+		video.ready.connect(() => console.log('video ready'));
 
-		this.connect(video, 'ended', function() {
-		//	console.log('video ended');
-		});
+		video.ended.connect(() => console.log('video ended'));
 
-		this.connect(video, 'timeupdate', (v: Ui.Video, time: number) => {
-			progressbar.value = time/video.duration;
-		});
+		video.timeupdated.connect(e => progressbar.value = e.time / video.duration);
 	}
 }
 

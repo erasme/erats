@@ -17,11 +17,10 @@ var App = (function (_super) {
     __extends(App, _super);
     function App() {
         var _this = _super.call(this) || this;
-        var button = new Ui.Button({ text: 'hello world', verticalAlign: 'center', horizontalAlign: 'center' });
-        _this.content = button;
-        _this.connect(button, 'press', function () {
-            console.log('button pressed');
-            //			Ui.Toast.send('button pressed');
+        _this.content = new Ui.Button({
+            text: 'hello world',
+            verticalAlign: 'center', horizontalAlign: 'center',
+            onpressed: function () { return console.log('button pressed'); }
         });
         return _this;
     }

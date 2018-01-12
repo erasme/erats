@@ -19,11 +19,13 @@ var App = (function (_super) {
         var data = [];
         for (var i = 0; i < 25; i++)
             data.push({ text: 'item ' + i, id: i });
-        var combo = new Ui.Combo({ field: 'text', data: data, placeHolder: 'choice...', search: true });
+        var combo = new Ui.Combo({
+            field: 'text', data: data, placeHolder: 'choice...', search: true
+        });
         vbox.append(combo);
-        _this.connect(combo, 'change', function (combo, val, position) {
-            console.log('Combo change: ' + val.text);
-            Ui.Toast.send(val.text);
+        combo.changed.connect(function (e) {
+            console.log('Combo change: ' + e.value.text);
+            Ui.Toast.send(e.value.text);
         });
         return _this;
     }

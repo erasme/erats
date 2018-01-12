@@ -94,9 +94,8 @@ namespace Ui {
 
 			this.element.setTransformOrigin(0, 0, true);
 
-			this.connect(this.element, 'ptrdown', this.onPointerDown);
-
-			this.connect(this.element, 'wheel', this.onWheel);
+			this.element.ptrdowned.connect(e => this.onPointerDown(e));
+			this.element.wheelchanged.connect(e => this.onWheel(e));
 		}
 
 		set allowLeftMouse(value: boolean) {
@@ -270,9 +269,9 @@ namespace Ui {
 			
 				let watcher = event.pointer.watch(this);
 				this.watcher1 = watcher;
-				this.connect(watcher, 'move', this.onPointerMove);
-				this.connect(watcher, 'up', this.onPointerUp);
-				this.connect(watcher, 'cancel', this.onPointerCancel);
+				watcher.moved.connect((e) => this.onPointerMove(e.target));
+				watcher.upped.connect((e) => this.onPointerUp(e.target));
+				watcher.cancelled.connect((e) => this.onPointerCancel(e.target));
 
 				this.startAngle = this._angle;
 				this.startScale = this._scale;
@@ -287,9 +286,9 @@ namespace Ui {
 
 				let watcher = event.pointer.watch(this);
 				this.watcher2 = watcher;
-				this.connect(watcher, 'move', this.onPointerMove);
-				this.connect(watcher, 'up', this.onPointerUp);
-				this.connect(watcher, 'cancel', this.onPointerUp);
+				watcher.moved.connect((e) => this.onPointerMove(e.target));
+				watcher.upped.connect((e) => this.onPointerUp(e.target));
+				watcher.cancelled.connect((e) => this.onPointerUp(e.target));
 
 				this.startAngle = this._angle;
 				this.startScale = this._scale;
@@ -505,7 +504,7 @@ namespace Ui {
 		startInertia() {
 			if ((this.inertiaClock === undefined) && this.inertia) {
 				this.inertiaClock = new Anim.Clock({ duration: 'forever', target: this.element });
-				this.connect(this.inertiaClock, 'timeupdate', this.onTimeupdate);
+				this.inertiaClock.timeupdate.connect((e) => this.onTimeupdate(e.target, e.progress, e.deltaTick));
 				this.inertiaClock.begin();
 				if (this.inertiastart)
 					this.inertiastart(this);
@@ -597,18 +596,23 @@ namespace Ui {
 		private speedX: number = 0;
 		private speedY: number = 0;
 
+		readonly downed = new Core.Events<{ target: Transformable }>();
+		readonly uped = new Core.Events<{ target: Transformable }>();
+		readonly transformed = new Core.Events<{ target: Transformable }>();
+		readonly inertiastarted = new Core.Events<{ target: Transformable }>();
+		readonly inertiaended = new Core.Events<{ target: Transformable }>();
+
 		constructor(init?: TransformableInit) {
 			super(init);
-			this.addEvents('down', 'up', 'transform', 'inertiastart', 'inertiaend');
 			this.focusable = true;
 
 			this.contentBox = new Ui.LBox();
 			this.contentBox.setTransformOrigin(0, 0, true);
 			this.appendChild(this.contentBox);
 
-			this.connect(this, 'ptrdown', this.onPointerDown);
+			this.ptrdowned.connect((e) => this.onPointerDown(e));
 
-			this.connect(this, 'wheel', this.onWheel);
+			this.wheelchanged.connect(e => this.onWheel(e));
 
 			if (init) {
 				if (init.allowLeftMouse !== undefined)
@@ -755,7 +759,7 @@ namespace Ui {
 
 			if (!this.transformLock) {
 				this.transformLock = true;
-				this.fireEvent('transform', this);
+				this.transformed.fire({ target: this });
 
 				let testOnly = !(((this.watcher1 === undefined) || this.watcher1.getIsCaptured()) &&
 					((this.watcher2 === undefined) || this.watcher2.getIsCaptured()));
@@ -780,12 +784,12 @@ namespace Ui {
 
 		protected onDown() {
 			this._isDown = true;
-			this.fireEvent('down', this);
+			this.downed.fire({ target: this });
 		}
 
 		protected onUp() {
 			this._isDown = false;
-			this.fireEvent('up', this);
+			this.uped.fire({ target: this });
 		}
 	
 		protected onPointerDown(event: PointerEvent) {
@@ -800,9 +804,9 @@ namespace Ui {
 			
 				let watcher = event.pointer.watch(this);
 				this.watcher1 = watcher;
-				this.connect(watcher, 'move', this.onPointerMove);
-				this.connect(watcher, 'up', this.onPointerUp);
-				this.connect(watcher, 'cancel', this.onPointerCancel);
+				watcher.moved.connect(e => this.onPointerMove(e.target));
+				watcher.upped.connect(e => this.onPointerUp(e.target));
+				watcher.cancelled.connect(e => this.onPointerCancel(e.target));
 
 				this.startAngle = this._angle;
 				this.startScale = this._scale;
@@ -817,9 +821,9 @@ namespace Ui {
 
 				let watcher = event.pointer.watch(this);
 				this.watcher2 = watcher;
-				this.connect(watcher, 'move', this.onPointerMove);
-				this.connect(watcher, 'up', this.onPointerUp);
-				this.connect(watcher, 'cancel', this.onPointerUp);
+				watcher.moved.connect(e => this.onPointerMove(e.target));
+				watcher.upped.connect(e => this.onPointerUp(e.target));
+				watcher.cancelled.connect(e => this.onPointerUp(e.target));
 
 				this.startAngle = this._angle;
 				this.startScale = this._scale;
@@ -1037,9 +1041,9 @@ namespace Ui {
 		startInertia() {
 			if ((this.inertiaClock === undefined) && this.inertia) {
 				this.inertiaClock = new Anim.Clock({ duration: 'forever', target: this });
-				this.connect(this.inertiaClock, 'timeupdate', this.onTimeupdate);
+				this.inertiaClock.timeupdate.connect((e) => this.onTimeupdate(e.target, e.progress, e.deltaTick));
 				this.inertiaClock.begin();
-				this.fireEvent('inertiastart', this);
+				this.inertiastarted.fire({ target: this });
 			}
 		}
 
@@ -1078,7 +1082,7 @@ namespace Ui {
 				// to avoid fuzzy graphics. Might be a bad idea when scale is used
 				this.setContentTransform(Math.round(this._translateX), Math.round(this._translateY), undefined, undefined);
 
-				this.fireEvent('inertiaend', this);
+				this.inertiaended.fire({ target: this });
 			}
 		}
 

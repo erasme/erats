@@ -24,22 +24,14 @@ class App extends Ui.App {
         });
 
 		let pressable = new Ui.Pressable({
-			onpress: () => label.text = `press count: ${++count}`,
-			onactivate: () => label2.text = `activate count: ${++activateCount}`,
+			onpressed: () => label.text = `press count: ${++count}`,
+			onactivated: () => label2.text = `activate count: ${++activateCount}`,
 			ondelayedpress: () => label3.text = `delayed press count: ${++delayedCount}`,
-			ondown: () => rectangle.fill = 'blue',
-			onup: () => rectangle.fill = 'lightblue',
+			ondowned: () => rectangle.fill = 'blue',
+			onupped: () => rectangle.fill = 'lightblue',
 			content: rectangle
 		});
 		vbox.append(pressable);
-
-		
-		//pressable.append(rectangle);
-		//this.connect(pressable, 'press', () => label.text = `press count: ${++count}`);
-		//this.connect(pressable, 'activate', () => label2.text = `activate count: ${++activateCount}`);
-		//this.connect(pressable, 'delayedpress', () => label3.text = `delayed press count: ${++delayedCount}`);
-		//this.connect(pressable, 'down', () => rectangle.fill = 'blue');
-		//this.connect(pressable, 'up', () => rectangle.fill = 'lightblue');
 	}	
 }
 

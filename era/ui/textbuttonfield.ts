@@ -14,6 +14,9 @@ namespace Ui {
 		buttonIcon?: string;
 		buttonText?: string;
 		value?: string;
+		onchanged?: (event: { target: TextButtonField, value: string }) => void;
+		onbuttonpressed?: (event: { target: TextButtonField }) => void;
+		onvalidated?: (event: { target: TextButtonField, value: string }) => void;
 	}
 
 	export class TextButtonField extends Form {
@@ -21,11 +24,12 @@ namespace Ui {
 		protected entry: Entry;
 		protected _textholder: Label;
 		protected button: TextFieldButton;
+		readonly changed = new Core.Events<{ target: TextButtonField, value: string }>()
+		readonly buttonpressed = new Core.Events<{ target: TextButtonField }>();
+		readonly validated = new Core.Events<{ target: TextButtonField, value: string }>()
 
 		constructor(init?: TextButtonFieldInit) {
 			super(init);
-			this.addEvents('change', 'validate', 'buttonpress');
-
 			this.padding = 0;
 		
 			this.graphic = new TextBgGraphic();
@@ -43,17 +47,17 @@ namespace Ui {
 			this.entry = new Entry({
 				margin: 5, marginLeft: 10, marginRight: 10, fontSize: 16
 			});
-			this.connect(this.entry, 'focus', this.onEntryFocus);
-			this.connect(this.entry, 'blur', this.onEntryBlur);
+			this.entry.focused.connect(() => this.onEntryFocus());
+			this.entry.blurred.connect(() => this.onEntryBlur());
 			hbox.append(this.entry, true);
 
-			this.connect(this.entry, 'change', this.onEntryChange);
+			this.entry.changed.connect((e) => this.onEntryChange(e.target, e.value));
 		
 			this.button = new TextFieldButton({ orientation: 'horizontal', margin: 1 });
 			hbox.append(this.button);
 		
-			this.connect(this, 'submit', this.onFormSubmit);
-			this.connect(this.button, 'press', this.onButtonPress);
+			this.submited.connect(() => this.onFormSubmit());
+			this.button.pressed.connect(() => this.onButtonPress());
 			if (init) {
 				if (init.textHolder !== undefined)
 					this.textHolder = init.textHolder;	
@@ -65,6 +69,12 @@ namespace Ui {
 					this.buttonText = init.buttonText;
 				if (init.value !== undefined)
 					this.value = init.value;
+				if (init.onchanged)
+					this.changed.connect(init.onchanged);
+				if (init.onbuttonpressed)
+					this.buttonpressed.connect(init.onbuttonpressed);
+				if (init.onvalidated)
+					this.validated.connect(init.onvalidated);
 			}
 		}
 
@@ -103,16 +113,16 @@ namespace Ui {
 		}
 	
 		protected onButtonPress() {
-			this.fireEvent('buttonpress', this);
-			this.fireEvent('validate', this, this.value);
+			this.buttonpressed.fire({ target: this });
+			this.validated.fire({ target: this, value: this.value });
 		}
 
 		protected onEntryChange(entry: Entry, value: string) {
-			this.fireEvent('change', this, value);
+			this.changed.fire({ target: this, value: value });
 		}
 
 		protected onFormSubmit() {
-			this.fireEvent('validate', this, this.value);
+			this.validated.fire({ target: this, value: this.value });
 		}
 
 		protected onEntryFocus() {

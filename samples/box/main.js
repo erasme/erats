@@ -18,25 +18,31 @@ var App = (function (_super) {
         _this.content = vbox;
         var toolbar = new Ui.ToolBar();
         vbox.append(toolbar);
-        var orientationButton = new Ui.Button({ text: 'change orientation' });
+        var orientationButton = new Ui.Button({
+            text: 'change orientation',
+            onpressed: function () {
+                if (box.orientation == 'horizontal')
+                    box.orientation = 'vertical';
+                else
+                    box.orientation = 'horizontal';
+            }
+        });
         toolbar.append(orientationButton, true);
-        _this.connect(orientationButton, 'press', function () {
-            if (box.orientation == 'horizontal')
-                box.orientation = 'vertical';
-            else
-                box.orientation = 'horizontal';
+        var uniformButton = new Ui.Button({
+            text: 'change uniform',
+            onpressed: function () { return box.uniform = !box.uniform; }
         });
-        var uniformButton = new Ui.Button({ text: 'change uniform' });
         toolbar.append(uniformButton, true);
-        _this.connect(uniformButton, 'press', function () { return box.uniform = !box.uniform; });
-        var resizableButton = new Ui.Button({ text: 'change resizable (green)' });
-        toolbar.append(resizableButton, true);
-        _this.connect(resizableButton, 'press', function () {
-            if (Ui.Box.getResizable(greenRect))
-                Ui.Box.setResizable(greenRect, false);
-            else
-                Ui.Box.setResizable(greenRect, true);
+        var resizableButton = new Ui.Button({
+            text: 'change resizable (green)',
+            onpressed: function () {
+                if (Ui.Box.getResizable(greenRect))
+                    Ui.Box.setResizable(greenRect, false);
+                else
+                    Ui.Box.setResizable(greenRect, true);
+            }
         });
+        toolbar.append(resizableButton, true);
         var box = new Ui.Box();
         vbox.append(box, true);
         box.append(new Ui.Rectangle({ width: 50, height: 50, fill: 'lightblue' }));

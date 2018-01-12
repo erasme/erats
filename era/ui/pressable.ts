@@ -19,31 +19,31 @@ namespace Ui {
 
 		constructor(init: {
 			element: Ui.Element,
-			press?: (watcher: PressWatcher) => void,
-			down?: (watcher: PressWatcher) => void,
-			up?: (watcher: PressWatcher) => void,
-			activate?: (watcher: PressWatcher) => void,
-			delayedpress?: (watcher: PressWatcher) => void
+			onpressed?: (watcher: PressWatcher) => void,
+			ondowned?: (watcher: PressWatcher) => void,
+			onupped?: (watcher: PressWatcher) => void,
+			onactivated?: (watcher: PressWatcher) => void,
+			ondelayedpress?: (watcher: PressWatcher) => void
 		}) {
 			super();
 			this.element = init.element;
-			if (init.press)
-				this.press = init.press;
-			if (init.down)
-				this.down = init.down;
-			if (init.up)
-				this.up = init.up;
-			if (init.activate)
-				this.activate = init.activate;
-			if (init.delayedpress)
-				this.delayedpress = init.delayedpress;	
+			if (init.onpressed)
+				this.press = init.onpressed;
+			if (init.ondowned)
+				this.down = init.ondowned;
+			if (init.onupped)
+				this.up = init.onupped;
+			if (init.onactivated)
+				this.activate = init.onactivated;
+			if (init.ondelayedpress)
+				this.delayedpress = init.ondelayedpress;	
 
 			// handle pointers
-			this.connect(this.element, 'ptrdown', this.onPointerDown);
+			this.element.ptrdowned.connect((e) => this.onPointerDown(e));
 
 			// handle keyboard
-			this.connect(this.element.drawing, 'keydown', this.onKeyDown);
-			this.connect(this.element.drawing, 'keyup', this.onKeyUp);
+			this.element.drawing.addEventListener('keydown', (e) => this.onKeyDown(e));
+			this.element.drawing.addEventListener('keyup', (e) => this.onKeyUp(e));
 		}
 	
 		get isDown(): boolean {
@@ -57,11 +57,11 @@ namespace Ui {
 				return;
 		
 			let watcher = event.pointer.watch(this);
-			this.connect(watcher, 'move', ()  => {
+			watcher.moved.connect(()  => {
 				if (watcher.pointer.getIsMove())
 					watcher.cancel();
 			});
-			this.connect(watcher, 'up', (event: PointerEvent) => {
+			watcher.upped.connect(() => {
 				this.onUp();
 				let x = event.pointer.getX();
 				let y = event.pointer.getY();
@@ -73,7 +73,7 @@ namespace Ui {
 				watcher.capture();
 				watcher.cancel();
 			});
-			this.connect(watcher, 'cancel', () => this.onUp());
+			watcher.cancelled.connect(() => this.onUp());
 			this.onDown();
 		}
 
@@ -152,20 +152,24 @@ namespace Ui {
 
 	export interface PressableInit extends OverableInit {
 		lock?: boolean;
-		onpress?: (pressable: Pressable, x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean) => void;
-		ondown?: (pressable: Pressable) => void;
-		onup?: (pressable: Pressable) => void;
-		onactivate?: (pressable: Pressable, x?: number, y?: number) => void;
-		ondelayedpress?: (pressable: Pressable, x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean) => void;
+		onpressed?: (event: { target: Pressable, x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean }) => void;
+		ondowned?: (event: { target: Pressable }) => void;
+		onupped?: (event: { target: Pressable }) => void;
+		onactivated?: (event: { target: Pressable, x?: number, y?: number }) => void;
+		ondelayedpress?: (event: { target: Pressable, x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean }) => void;
 	}
 
 	export class Pressable extends Overable implements PressableInit {
 		private pressWatcher: PressWatcher;
 
+		readonly downed: Core.Events<{ target: Pressable }> = new Core.Events();
+		readonly upped: Core.Events<{ target: Pressable }> = new Core.Events();
+		readonly pressed: Core.Events<{ target: Pressable, x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean }> = new Core.Events();
+		readonly activated: Core.Events<{ target: Pressable, x?: number, y?: number }> = new Core.Events();
+		readonly delayedpress: Core.Events<{ target: Pressable, x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean }> = new Core.Events();
+
 		constructor(init?: PressableInit) {
 			super(init);
-			this.addEvents('press', 'down', 'up', 'activate', 'delayedpress');
-
 			this.drawing.style.cursor = 'pointer';
 
 			this.focusable = true;
@@ -173,26 +177,26 @@ namespace Ui {
 
 			this.pressWatcher = new PressWatcher({
 				element: this,
-				press: (watcher) => this.onPress(watcher.x, watcher.y, watcher.altKey, watcher.shiftKey, watcher.ctrlKey),
-				down: (watcher) => this.onDown(),
-				up: (watcher) => this.onUp(),
-				activate: (watcher) => this.onActivate(watcher.x, watcher.y),
-				delayedpress: (watcher) => this.onDelayedPress(watcher.x, watcher.y, watcher.altKey, watcher.shiftKey, watcher.ctrlKey)
+				onpressed: (watcher) => this.onPress(watcher.x, watcher.y, watcher.altKey, watcher.shiftKey, watcher.ctrlKey),
+				ondowned: (watcher) => this.onDown(),
+				onupped: (watcher) => this.onUp(),
+				onactivated: (watcher) => this.onActivate(watcher.x, watcher.y),
+				ondelayedpress: (watcher) => this.onDelayedPress(watcher.x, watcher.y, watcher.altKey, watcher.shiftKey, watcher.ctrlKey)
 			});
 
 			if (init) {
 				if (init.lock !== undefined)
 					this.lock = init.lock;
-				if (init.onpress !== undefined)
-					this.connect(this, 'press', init.onpress);
-				if (init.ondown !== undefined)
-					this.connect(this, 'down', init.ondown);
-				if (init.onup !== undefined)
-					this.connect(this, 'up', init.onup);
-				if (init.onactivate !== undefined)
-					this.connect(this, 'activate', init.onactivate);
+				if (init.onpressed !== undefined)
+					this.pressed.connect(init.onpressed);
+				if (init.ondowned !== undefined)
+					this.downed.connect(init.ondowned);	
+				if (init.onupped !== undefined)
+					this.upped.connect(init.onupped);
+				if (init.onactivated !== undefined)
+					this.activated.connect(init.onactivated);
 				if (init.ondelayedpress !== undefined)
-					this.connect(this, 'delayedpress', init.ondelayedpress);
+					this.delayedpress.connect(init.ondelayedpress);
 			}
 		}
 	
@@ -212,32 +216,24 @@ namespace Ui {
 			return this.pressWatcher.lock;
 		}
 
-		press() {
-			this.onPress();
-		}
-
-		activate() {
-			this.onActivate();
-		}
-
 		protected onDown() {
-			this.fireEvent('down', this);
+			this.downed.fire({ target: this });
 		}
 
 		protected onUp() {
-			this.fireEvent('up', this);
+			this.upped.fire({ target: this });
 		}
 
 		protected onPress(x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean) {
-			this.fireEvent('press', this, x, y, altKey, shiftKey, ctrlKey);
+			this.pressed.fire({ target: this, x: x, y: y, altKey: altKey, shiftKey: shiftKey, ctrlKey: ctrlKey });
 		}
 
 		protected onActivate(x?: number, y?: number) {
-			this.fireEvent('activate', this);
+			this.activated.fire({ target: this, x: x, y: y });
 		}
 
 		protected onDelayedPress(x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean) {
-			this.fireEvent('delayedpress', this, x, y, altKey, shiftKey, ctrlKey);
+			this.delayedpress.fire({ target: this, x: x, y: y, altKey: altKey, shiftKey: shiftKey, ctrlKey: ctrlKey });
 		}
 
 		protected onDisable() {

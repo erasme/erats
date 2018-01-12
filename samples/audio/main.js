@@ -18,44 +18,44 @@ var App = (function (_super) {
         _this.content = vbox;
         var toolbar = new Ui.ToolBar();
         vbox.append(toolbar);
-        var playButton = new Ui.Button({ text: 'play' });
+        var playButton = new Ui.Button({
+            text: 'play',
+            onpressed: function () { return audio.play(); }
+        });
         toolbar.append(playButton);
-        _this.connect(playButton, 'press', function () {
-            audio.play();
+        var pauseButton = new Ui.Button({
+            text: 'pause',
+            onpressed: function () { return audio.pause(); }
         });
-        var pauseButton = new Ui.Button({ text: 'pause' });
         toolbar.append(pauseButton);
-        _this.connect(pauseButton, 'press', function () {
-            audio.pause();
+        var resumeButton = new Ui.Button({
+            text: 'resume',
+            onpressed: function () { return audio.play(); }
         });
-        var resumeButton = new Ui.Button({ text: 'resume' });
         toolbar.append(resumeButton);
-        _this.connect(resumeButton, 'press', function () {
-            audio.play();
+        var stopButton = new Ui.Button({
+            text: 'stop',
+            onpressed: function () { return audio.stop(); }
         });
-        var stopButton = new Ui.Button({ text: 'stop' });
         toolbar.append(stopButton);
-        _this.connect(stopButton, 'press', function () {
-            audio.stop();
+        var delayplayButton = new Ui.Button({
+            text: 'delay play 1s',
+            onpressed: function () { return new Core.DelayedTask(1, function () { return audio.play(); }); }
         });
-        var delayplayButton = new Ui.Button({ text: 'delay play 1s' });
         toolbar.append(delayplayButton);
-        _this.connect(delayplayButton, 'press', function () {
-            new Core.DelayedTask(1, function () { return audio.play(); });
-        });
         var progressbar = new Ui.ProgressBar({ verticalAlign: 'center' });
         toolbar.append(progressbar, true);
         var audio = new Ui.Audio({ src: 'sound.mp3', volume: 1 });
         vbox.append(audio);
-        _this.connect(audio, 'ready', function () {
+        audio.ready.connect(function () {
             //	console.log('audio ready');
         });
-        _this.connect(audio, 'ended', function () {
+        audio.ended.connect(function () {
             //	console.log('audio ended');
         });
-        _this.connect(audio, 'timeupdate', function (audio, time) {
+        audio.timeupdate.connect(function (e) {
             //	console.log('audio pos: '+time);
-            progressbar.value = time / audio.duration;
+            progressbar.value = e.time / e.target.duration;
         });
         return _this;
     }

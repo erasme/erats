@@ -25,8 +25,9 @@ var App = (function (_super) {
         vbox.append(hbox, true);
         var scroll = new Ui.ScrollingArea();
         hbox.append(scroll, true);
-        _this.pathTextField = new Ui.TextAreaField();
-        _this.connect(_this.pathTextField, 'change', _this.onPathTextFieldChanged);
+        _this.pathTextField = new Ui.TextAreaField({
+            onchanged: function (e) { return _this.onPathTextFieldChanged(); }
+        });
         scroll.content = _this.pathTextField;
         _this.sourceIcon = new Ui.Shape();
         _this.sourceIcon.width = 192;
@@ -35,10 +36,10 @@ var App = (function (_super) {
         hbox.append(_this.sourceIcon);
         hbox = new Ui.HBox();
         vbox.append(hbox);
-        var button = new Ui.Button();
-        button.text = 'Clean';
-        _this.connect(button, 'press', _this.onCleanPressed);
-        hbox.append(button);
+        hbox.append(new Ui.Button({
+            text: 'Clean',
+            onpressed: function () { return _this.onCleanPressed(); }
+        }));
         _this.decimalField = new Ui.TextField();
         _this.decimalField.width = 40;
         _this.decimalField.value = '2';
@@ -53,7 +54,7 @@ var App = (function (_super) {
         scroll = new Ui.ScrollingArea();
         hbox.append(scroll, true);
         _this.cleanedPathTextField = new Ui.TextAreaField();
-        _this.cleanedPathTextField.setDisabled(true);
+        _this.cleanedPathTextField.disable();
         scroll.content = _this.cleanedPathTextField;
         _this.destIcon = new Ui.Shape();
         _this.destIcon.width = 192;

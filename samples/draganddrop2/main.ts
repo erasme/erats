@@ -109,16 +109,15 @@ dropbox.width = 200; dropbox.height = 200;
 let droplabel = new Ui.Label({ text: 'drop here', horizontalAlign: 'center', verticalAlign: 'center', margin: 10 });
 dropbox.append(droplabel);
 vbox.append(dropbox);
-app.connect(dropbox, 'dropfile', function() {
+dropbox.droppedfile.connect(() => {
 	console.log('dropfile');
 	return false;
 });
-app.connect(dropbox, 'drop', function(dropbox: Ui.DropBox, data: any, effect: string) {
-	console.log('drop effect: '+effect);
-	droplabel.text = data.toString();
+dropbox.dropped.connect(e => {
+	console.log('drop effect: '+e.effect);
+	droplabel.text = e.data.toString();
 	new Core.DelayedTask(2, () => droplabel.text = 'drop here');
 });
-
 
 let dropbox2 = new DropBox2();
 dropbox2.height = 50; dropbox2.margin = 10;
@@ -130,8 +129,8 @@ droplabel2.verticalAlign = 'center';
 droplabel2.margin = 10;
 dropbox2.append(droplabel2);
 dropbox.append(dropbox2);
-app.connect(dropbox2, 'drop', function(dropbox: Ui.DropBox, data: any) {
-	droplabel2.text = data.toString();
+dropbox2.dropped.connect(e => {
+	droplabel2.text = e.data.toString();
 	new Core.DelayedTask(2, () => droplabel2.text = 'drop here');
 });
 
@@ -141,7 +140,7 @@ dropbox3.verticalAlign = 'bottom';
 let droplabel3 = new Ui.Label({	text: 'drop here', horizontalAlign: 'center', verticalAlign: 'center', margin: 10 })
 dropbox3.append(droplabel3);
 vbox.append(dropbox3);
-app.connect(dropbox3, 'drop', function(dropbox: Ui.DropBox, data: any) {
-	droplabel3.text = data.toString();
+dropbox3.dropped.connect(e => {
+	droplabel3.text = e.data.toString();
 	new Core.DelayedTask(2, () => droplabel3.text = 'drop here');
 });

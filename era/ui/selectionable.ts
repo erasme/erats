@@ -26,20 +26,20 @@ namespace Ui {
 			selectionActions?: SelectionActions,			
 			dragSelect?: boolean,
 			pressSelect?: boolean,
-			select?: (selection: Selection) => void,
-			unselect?: (selection: Selection) => void
+			onselected?: (selection: Selection) => void,
+			onunselected?: (selection: Selection) => void
 		}) {
 			super();
 			this.element = init.element;
 			this.element.focusable = true;
 			this.selectionActions = init.selectionActions;			
 			this.element['Ui.SelectionableWatcher.watcher'] = this;
-			this.select = init.select;
-			this.unselect = init.unselect;
+			this.select = init.onselected;
+			this.unselect = init.onunselected;
 			new PressWatcher({
 				element: this.element,
-				delayedpress: (w) => this.onDelayedPress(w),
-				activate: (w) => this.onSelectionableActivate(w)
+				ondelayedpress: (w) => this.onDelayedPress(w),
+				onactivated: (w) => this.onSelectionableActivate(w)
 			});
 			new DraggableWatcher({
 				element: this.element,
@@ -144,23 +144,18 @@ namespace Ui {
 		//private _isSelected: boolean = false;
 		//private handler: Selection | undefined;
 		private selectionWatcher: SelectionableWatcher;
+		readonly selected = new Core.Events<{ target: Selectionable }>();
+		readonly unselected = new Core.Events<{ target: Selectionable }>();
 
 		constructor(init?: SelectionableInit) {
 			super(init);
-			this.addEvents('select', 'unselect');
 
 			this.selectionWatcher = new SelectionableWatcher({
 				element: this,
 				selectionActions: this.getSelectionActions(),
-				select: (s) => this.onSelect(s),
-				unselect: (s) => this.onUnselect(s)
+				onselected: (s) => this.onSelect(s),
+				onunselected: (s) => this.onUnselect(s)
 			});
-
-//			this.connect(this, 'activate', this.onSelectionableActivate);
-//			this.connect(this, 'dragstart', this.onSelectionableDragStart);
-//			this.connect(this, 'dragend', this.onSelectionableDragEnd);
-//			this.connect(this, 'ptrdown', this.onSelectionablePointerDown);
-//			this.connect(this.drawing, 'contextmenu', (event) => event.preventDefault());
 		}
 
 		get isSelected(): boolean {
@@ -172,11 +167,11 @@ namespace Ui {
 		}
 
 		protected onSelect(selection: Selection) {
-			this.fireEvent('select', this);
+			this.selected.fire({ target: this });
 		}
 
 		protected onUnselect(selection: Selection) {
-			this.fireEvent('unselect', this);
+			this.unselected.fire({ target: this });
 		}
 		
 		// ex:
@@ -202,105 +197,5 @@ namespace Ui {
 			}
 			return undefined;
 		}
-/*
-		onSelectionableDragStart() {
-			let selection = this.getParentSelectionHandler();
-			if (selection && (selection.elements.indexOf(this) == -1))
-				selection.elements = [this];
-		}
-	
-		onSelectionableDragEnd() {
-			if (this.isSelected) {
-				let handler = this.getParentSelectionHandler();
-				if (handler !== undefined)
-					handler.clear();
-			}
-		}
-		
-		onSelectionableActivate() {
-			if (this.isLoaded) {
-				this.select();
-				let handler = this.getParentSelectionHandler();
-				if (handler !== undefined) {
-					if (handler.getDefaultAction() !== undefined)
-						handler.executeDefaultAction();
-					else
-						this.unselect();
-				}
-			}
-		}
-
-		select() {
-			console.log(`${this.getClassName()}.select`);
-			
-			if (this.isLoaded) {
-				this.handler = this.getParentSelectionHandler();
-				if (this.handler)
-					this.handler.elements = [this];
-			}
-		}
-	
-		unselect() {
-			console.log(`${this.getClassName()}.unselect`);
-//			if (this.handler)
-//				this.handler.remove(this);
-		}
-
-		onUnload() {
-//			if (this.handler)
-//				this.handler.remove(this);
-			super.onUnload();
-		}
-
-		private onSelectionablePointerDown(event: PointerEvent) {
-			// if not mouse right click or element not enable return
-			if (this.isDisabled || event.pointer.type != 'mouse' || event.pointer.button != 2)
-				return;	
-						
-			let selection = this.getParentSelectionHandler();
-			if (selection == undefined)
-				return;	
-
-			if (selection.elements.indexOf(this) == -1)
-				selection.elements = [this];
-			
-			let actions = selection.getActions();
-			
-			let count = 0;
-			for (let key in actions) { count++; }
-			// if not action possible, return
-			if (count == 0)
-				return false;
-						
-			let watcher = event.pointer.watch(this);
-			this.connect(watcher, 'move', function () {
-				if (watcher.pointer.getIsMove())
-					watcher.cancel();
-			});
-			this.connect(watcher, 'up', (event) => {
-				watcher.capture();
-				watcher.cancel();
-			});
-
-
-			let popup = new MenuPopup();
-			let vbox = new Ui.VBox();
-			popup.content = vbox;
-
-			for (let actionName in actions) {
-				let action = actions[actionName];
-				if (action.hidden === true)
-					continue;
-				let button = new ActionButton();
-				button.icon = action.icon;
-				button.text = action.text;
-				button.action = action;
-				button.selection = selection;
-				vbox.append(button);
-				this.connect(button, 'press', () => popup.close());
-			}
-
-			popup.openAt(event.pointer.x, event.pointer.y);
-		}*/
 	}
 }

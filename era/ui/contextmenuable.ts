@@ -34,13 +34,13 @@ namespace Ui {
                 this.lock = init.lock;
     
             // disable native context menu
-            this.connect(this.element.drawing, 'contextmenu', (event) => event.preventDefault());
+            this.element.drawing.addEventListener('contextmenu', (event) => event.preventDefault());
 
             // handle pointers
-            this.connect(this.element, 'ptrdown', this.onPointerDown);
+            this.element.ptrdowned.connect(e => this.onPointerDown(e));
     
             // handle keyboard
-            this.connect(this.element.drawing, 'keyup', this.onKeyUp);
+            this.element.drawing.addEventListener('keyup', e => this.onKeyUp(e));
         }
         
         get isDown(): boolean {
@@ -54,11 +54,11 @@ namespace Ui {
                 return;
             
             let watcher = event.pointer.watch(this);
-            this.connect(watcher, 'move', () => {
+            watcher.moved.connect(() => {
                 if (watcher.pointer.getIsMove())
                     watcher.cancel();
             });
-            this.connect(watcher, 'up', (event: PointerEvent) => {
+            watcher.upped.connect(() => {
                 this.onUp();
                 let x = event.pointer.getX();
                 let y = event.pointer.getY();
@@ -70,7 +70,7 @@ namespace Ui {
                 watcher.capture();
                 watcher.cancel();
             });
-            this.connect(watcher, 'cancel', () => this.onUp());
+            watcher.cancelled.connect(() => this.onUp());
             this.onDown();
         }
     

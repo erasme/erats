@@ -2,6 +2,7 @@ namespace Ui {
 	export interface SwitchInit extends ContainerInit {
 		value?: boolean;
 		ease?: Anim.EasingFunction;
+		onchanged?: (event: { target: Switch, value: boolean }) => void;
 	}
 
 	export class Switch extends Container {
@@ -16,10 +17,10 @@ namespace Ui {
 		private animNext: number = 0;
 		private animStart: number = 0;
 		ease: Anim.EasingFunction;
+		readonly changed = new Core.Events<{ target: Switch, value: boolean }>();
 	
 		constructor(init?: SwitchInit) {
 			super(init);
-			this.addEvents('change');
 
 			this.background = new Rectangle({ width: 4, height: 14, radius: 7 });
 			this.appendChild(this.background);
@@ -29,11 +30,11 @@ namespace Ui {
 
 			this.button = new Movable({ moveVertical: false });
 			this.appendChild(this.button);
-			this.connect(this.button, 'move', this.onButtonMove);
-			this.connect(this.button, 'focus', this.updateColors);
-			this.connect(this.button, 'blur', this.updateColors);
-			this.connect(this.button, 'down', this.onDown);
-			this.connect(this.button, 'up', this.onUp);
+			this.button.moved.connect(this.onButtonMove);
+			this.button.focused.connect(() => this.updateColors());
+			this.button.blurred.connect(() => this.updateColors());
+			this.button.downed.connect(() => this.onDown());
+			this.button.upped.connect((e) => this.onUp(e.speedX, e.cumulMove, e.abort));
 
 			this.buttonContent = new Rectangle({ radius: 10, width: 20, height: 20, margin: 10 });
 			this.button.setContent(this.buttonContent);
@@ -45,6 +46,8 @@ namespace Ui {
 					this.value = init.value;
 				if (init.ease !== undefined)
 					this.ease = init.ease;
+				if (init.onchanged)
+					this.changed.connect(init.onchanged);
 			}	
 		}
 
@@ -66,7 +69,7 @@ namespace Ui {
 			}
 		}
 	
-		private onButtonMove(button) {
+		private onButtonMove = () => {
 			let pos = this.button.positionX;
 			let size = this.layoutWidth;
 			let max = size - this.button.layoutWidth;
@@ -77,9 +80,9 @@ namespace Ui {
 				pos = max;
 
 			this.pos = pos / max;
-			this.disconnect(this.button, 'move', this.onButtonMove);
+			this.button.moved.disconnect(this.onButtonMove);
 			this.updatePos();
-			this.connect(this.button, 'move', this.onButtonMove);
+			this.button.moved.connect(this.onButtonMove);
 		}
 
 		private updatePos() {
@@ -129,12 +132,12 @@ namespace Ui {
 			this.buttonContent.fill = this.getForeground();
 		}
 	
-		private onDown(movable) {
+		private onDown() {
 			this.stopAnimation();
 			this.updateColors();
 		}
 
-		private onUp(movable: Movable, speedX: number, speedY: number, deltaX: number, deltaY: number, cumulMove: number, abort) {
+		private onUp(speedX: number, cumulMove: number, abort: boolean) {
 			if (abort)
 				return;	
 			// if move is very low consider a click and invert the value
@@ -163,13 +166,13 @@ namespace Ui {
 		
 			if (this.animStart !== this.animNext) {
 				this.alignClock = new Anim.Clock({ duration: 'forever', target: this });
-				this.connect(this.alignClock, 'timeupdate', this.onAlignTick);
+				this.alignClock.timeupdate.connect((e) => this.onAlignTick(e.target, e.progress, e.deltaTick));
 				this.alignClock.begin();
 			}
 			else {
 				if (this._value !== (this.animNext === 1)) {
 					this._value = (this.animNext === 1);
-					this.fireEvent('change', this, this._value);
+					this.changed.fire({ target: this, value: this._value });
 				}
 			}
 		}
@@ -191,7 +194,7 @@ namespace Ui {
 				this.alignClock = undefined;
 				relprogress = 1;
 				this._value = (this.animNext === 1);
-				this.fireEvent('change', this, this._value);
+				this.changed.fire({ target: this, value: this._value });
 			}
 			relprogress = this.ease.ease(relprogress);
 			this.pos = (this.animStart + relprogress * (this.animNext - this.animStart));

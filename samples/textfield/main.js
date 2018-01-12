@@ -34,13 +34,15 @@ var vbox = new Ui.VBox({ spacing: 10, margin: 5 });
 app.content = vbox;
 var hbox = new Ui.HBox({ spacing: 10 });
 vbox.append(hbox);
-var textfield = new Ui.TextField({ textHolder: 'Text Holder' });
-hbox.append(textfield, true);
-app.connect(textfield, 'change', function (tfield, value) { return logs.log("change: " + value); });
-var getButton = new Ui.Button({ text: 'get text' });
-hbox.append(getButton);
-app.connect(getButton, 'press', function () {
-    return logs.log("get text: " + textfield.value, 'blue');
+var textfield = new Ui.TextField({
+    textHolder: 'Text Holder',
+    onchanged: function (e) { return logs.log("change: " + e.value); }
 });
+hbox.append(textfield, true);
+var getButton = new Ui.Button({
+    text: 'get text',
+    onpressed: function () { return logs.log("get text: " + textfield.value, 'blue'); }
+});
+hbox.append(getButton);
 var logs = new Logs();
 vbox.append(logs, true);

@@ -1,13 +1,11 @@
-namespace Ui
-{
+namespace Ui {
 	export interface FixedInit extends ContainerInit {
 	}
 
-	export class Fixed extends Container implements FixedInit
-	{
+	export class Fixed extends Container implements FixedInit {
+		readonly resize: Core.Events<{ target: Fixed, width: number, height: number }> = new Core.Events();
 		constructor(init?: FixedInit) {
 			super(init);
-			this.addEvents('resize');
 		}
 
 		setPosition(item: Element, x: number, y: number) {
@@ -70,7 +68,7 @@ namespace Ui
 		}
 
 		protected arrangeCore(width: number, height: number) {
-			this.fireEvent('resize', this, width, height);
+			this.resize.fire({ target: this, width: width, height: height });
 			for (let i = 0; i < this.children.length; i++) {
 				let child = this.children[i];
 				let pos = this.getItemPosition(child);

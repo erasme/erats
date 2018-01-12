@@ -9,35 +9,36 @@ class App extends Ui.App {
         let toolbar = new Ui.ToolBar();
         vbox.append(toolbar);
 
-        let playButton = new Ui.Button({ text: 'play' });
+        let playButton = new Ui.Button({
+            text: 'play',
+            onpressed: () => audio.play()
+
+        });
         toolbar.append(playButton);
-        this.connect(playButton, 'press', function () {
-            audio.play();
-        });
 
-        let pauseButton = new Ui.Button({ text: 'pause' });
+        let pauseButton = new Ui.Button({
+            text: 'pause',
+            onpressed: () => audio.pause()
+        });
         toolbar.append(pauseButton);
-        this.connect(pauseButton, 'press', function () {
-            audio.pause();
-        });
 
-        let resumeButton = new Ui.Button({ text: 'resume' });
+        let resumeButton = new Ui.Button({
+            text: 'resume',
+            onpressed: () => audio.play()
+        });
         toolbar.append(resumeButton);
-        this.connect(resumeButton, 'press', function () {
-            audio.play();
-        });
 
-        let stopButton = new Ui.Button({ text: 'stop' });
+        let stopButton = new Ui.Button({
+            text: 'stop',
+            onpressed: () => audio.stop()
+        });
         toolbar.append(stopButton);
-        this.connect(stopButton, 'press', function () {
-            audio.stop();
-        });
 
-        let delayplayButton = new Ui.Button({ text: 'delay play 1s' });
-        toolbar.append(delayplayButton);
-        this.connect(delayplayButton, 'press', function () {
-            new Core.DelayedTask(1, () => audio.play());
+        let delayplayButton = new Ui.Button({
+            text: 'delay play 1s',
+            onpressed: () => new Core.DelayedTask(1, () => audio.play())
         });
+        toolbar.append(delayplayButton);
 
         let progressbar = new Ui.ProgressBar({ verticalAlign: 'center' });
         toolbar.append(progressbar, true);
@@ -45,17 +46,17 @@ class App extends Ui.App {
         let audio = new Ui.Audio({ src: 'sound.mp3', volume: 1 });
         vbox.append(audio);
 
-        this.connect(audio, 'ready', function () {
+        audio.ready.connect(() => {
             //	console.log('audio ready');
         });
 
-        this.connect(audio, 'ended', function () {
+        audio.ended.connect(() => {
             //	console.log('audio ended');
         });
 
-        this.connect(audio, 'timeupdate', function (audio: Ui.Audio, time: number) {
+        audio.timeupdate.connect(e => {
             //	console.log('audio pos: '+time);
-            progressbar.value = time / audio.duration;
+            progressbar.value = e.time / e.target.duration;
         });
     }
 }

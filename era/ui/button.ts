@@ -167,12 +167,12 @@ namespace Ui
 
 			this._iconBox = new LBox();
 
-			this.connect(this, 'down', this.updateColors);
-			this.connect(this, 'up', this.updateColors);
-			this.connect(this, 'focus', this.updateColors);
-			this.connect(this, 'blur', this.updateColors);
-			this.connect(this, 'enter', this.updateColors);
-			this.connect(this, 'leave', this.updateColors);
+			this.downed.connect(() => this.updateColors());
+			this.upped.connect(() => this.updateColors());
+			this.focused.connect(() => this.updateColors());
+			this.blurred.connect(() => this.updateColors());
+			this.entered.connect(() => this.updateColors());
+			this.leaved.connect(() => this.updateColors());
 
 			if (init) {
 				if (init.text !== undefined)

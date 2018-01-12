@@ -3,7 +3,7 @@
 class TestScrollLoader extends Ui.ScrollLoader {
 
 	signalChange() {
-		this.fireEvent('change', this);
+		this.changed.fire({ target: this });
 	}
 
 	getMin() {
@@ -43,7 +43,7 @@ class TestScrollLoader extends Ui.ScrollLoader {
 class TestScrollLoader2 extends Ui.ScrollLoader {
 
 	signalChange() {
-		this.fireEvent('change', this);
+		this.changed.fire({ target: this });
 	}
 
     getMin() {
@@ -76,12 +76,12 @@ class App extends Ui.App {
 
 		let loader = new TestScrollLoader();
 
-        let scroll = new Ui.VBoxScrollingArea({ margin: 2, maxScale: 2, loader: loader });
+		let scroll = new Ui.VBoxScrollingArea({
+			margin: 2, maxScale: 2, loader: loader
+		});
 		lbox.append(scroll);
 
-		this.connect(button, 'press', function() {
-			loader.signalChange();
-		});
+		button.pressed.connect(e => loader.signalChange());
 	}
 }
 

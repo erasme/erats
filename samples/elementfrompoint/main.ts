@@ -3,7 +3,7 @@
 class App extends Ui.App {
 	constructor() {
 		super();
-		this.connect(this, 'ptrdown', (event: Ui.PointerEvent) => {
+		this.ptrdowned.connect((event: Ui.PointerEvent) => {
 			console.log('ptrdown at: '+event.pointer.getX()+','+event.pointer.getY()+' found: '+
 				Ui.App.current.elementFromPoint(new Ui.Point(event.pointer.x, event.pointer.y)));
 			Ui.Toast.send(Ui.App.current.elementFromPoint(new Ui.Point(event.pointer.x, event.pointer.y)).toString());

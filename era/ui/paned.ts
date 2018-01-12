@@ -16,10 +16,10 @@ namespace Ui {
 		private _content2: Element;
 		private minContent2Size: number = 0;
 		private _pos: number = 0.5;
+		readonly changed = new Core.Events<{ target: Paned, position: number }>();
 
 		constructor(init?: PanedInit) {
 			super(init);
-			this.addEvents('change');
 	
 			this.content1Box = new Ui.LBox();
 			this.appendChild(this.content1Box);
@@ -31,7 +31,7 @@ namespace Ui {
 			this.appendChild(this.cursor);
 
 			this.cursor.setContent(new Ui.VPanedCursor());
-			this.connect(this.cursor, 'move', this.onCursorMove);
+			this.cursor.moved.connect(() => this.onCursorMove());
 			if (init) {
 				if (init.orientation !== undefined)
 					this.orientation = init.orientation;
@@ -124,8 +124,8 @@ namespace Ui {
 			this.invalidateArrange();
 		}
 
-		protected onCursorMove() {
-			this.disconnect(this.cursor, 'move', this.onCursorMove);
+		protected onCursorMove = () => {
+			this.cursor.moved.disconnect(this.onCursorMove);
 			var p;
 			var aSize;
 			if (this.vertical) {
@@ -156,8 +156,8 @@ namespace Ui {
 				this.cursor.setPosition(p, 0);
 
 			this.invalidateMeasure();
-			this.connect(this.cursor, 'move', this.onCursorMove);
-			this.fireEvent('change', this, this._pos);
+			this.cursor.moved.connect(this.onCursorMove);
+			this.changed.fire({ target: this, position: this._pos });
 		}
 
 		protected measureCore(width: number, height: number) {

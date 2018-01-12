@@ -1,17 +1,17 @@
 
 namespace Core {
 	export interface FileInit {
-		form?: any;
-		iframe?: any;
-		fileInput?: any;
+		form?: HTMLFormElement;
+		iframe?: HTMLIFrameElement;
+		fileInput?: HTMLInputElement;
 		fileApi?: any;
 	}
 
 	export class File extends Object
 	{
-		iframe: any = undefined;
-		form: any = undefined;
-		fileInput: any = undefined;
+		iframe: HTMLIFrameElement = undefined;
+		form: HTMLFormElement = undefined;
+		fileInput: HTMLInputElement = undefined;
 
 		fileApi: any = undefined;
 
@@ -34,7 +34,7 @@ namespace Core {
 			if (this.fileApi !== undefined)
 				return (this.fileApi.fileName !== undefined) ? this.fileApi.fileName : this.fileApi.name;
 			else
-				return (this.fileInput.fileName !== undefined) ? this.fileInput.fileName : this.fileInput.name;
+				return ((this.fileInput as any).fileName !== undefined) ? (this.fileInput as any).fileName : this.fileInput.name;
 		}
 
 		//

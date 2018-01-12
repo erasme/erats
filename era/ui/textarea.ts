@@ -13,22 +13,22 @@ namespace Ui {
 		private _fontWeight: string = undefined;
 		private _color: Color = undefined;
 		private _value: string = '';
+		readonly changed = new Core.Events<{ target: TextArea, value: string }>();
 
 		constructor(init?: TextAreaInit) {
 			super(init);
-			this.addEvents('change');
 			this.selectable = true;
 			this.focusable = true;
 
 			// handle change
-			this.connect(this.drawing, 'change', this.onChange);
+			this.drawing.addEventListener('change', (e) => this.onChange(e));
 
 			// handle paste
-			this.connect(this.drawing, 'paste', this.onPaste);
+			this.drawing.addEventListener('paste', (e) => this.onPaste(e));
 
 			// handle keyboard
-			this.connect(this.drawing, 'keydown', this.onKeyDown);
-			this.connect(this.drawing, 'keyup', this.onKeyUp);
+			this.drawing.addEventListener('keydown', (e) => this.onKeyDown(e));
+			this.drawing.addEventListener('keyup', (e) => this.onKeyUp(e));
 
 			if (init) {
 				if (init.fontSize !== undefined)
@@ -139,14 +139,14 @@ namespace Ui {
 		protected onAfterPaste() {
 			if (this.drawing.value != this._value) {
 				this._value = this.drawing.value;
-				this.fireEvent('change', this, this._value);
+				this.changed.fire({ target: this, value: this._value });
 			}
 		}
 	
 		protected onChange(event) {
 			if (this.drawing.value != this._value) {
 				this._value = this.drawing.value;
-				this.fireEvent('change', this, this._value);
+				this.changed.fire({ target: this, value: this._value });
 				this.invalidateMeasure();
 			}
 		}
@@ -166,7 +166,7 @@ namespace Ui {
 			// test if content changed
 			if (this.drawing.value !== this._value) {
 				this._value = this.drawing.value;
-				this.fireEvent('change', this, this._value);
+				this.changed.fire({ target: this, value: this._value });
 				this.invalidateMeasure();
 			}
 		}

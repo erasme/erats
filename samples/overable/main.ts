@@ -4,17 +4,19 @@ class App extends Ui.App {
 	constructor() {
 		super();
 
-		let overable = new Ui.Overable({ verticalAlign: 'center', horizontalAlign: 'center' });
+		let overable = new Ui.Overable({
+			verticalAlign: 'center', horizontalAlign: 'center',
+			onentered: () => {
+				console.log('enter');
+				label.show();
+			},
+			onleaved: () => {
+				console.log('leave');
+				label.hide();
+			}
+		});
 		this.content = overable;
 
-		this.connect(overable, 'enter', function () {
-			console.log('enter');
-			label.show();
-		});
-		this.connect(overable, 'leave', function () {
-			console.log('leave');
-			label.hide();
-		});
 
 		let lbox = new Ui.LBox({ width: 400, height: 400 });
 		overable.append(lbox);

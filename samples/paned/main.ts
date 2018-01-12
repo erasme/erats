@@ -10,19 +10,16 @@ class App extends Ui.App {
         let toolbar = new Ui.ToolBar();
         vbox.append(toolbar);
 
-        let button = new Ui.Button({ text: 'horizontal' });
-        toolbar.append(button);
-        this.connect(button, 'press', function () {
-            paned.orientation = 'horizontal';;
-        });
+        toolbar.append(new Ui.Button({
+            text: 'horizontal',
+            onpressed: () => paned.orientation = 'horizontal'
+        }));
 
-        button = new Ui.Button({ text: 'vertical' });
-        toolbar.append(button);
-        this.connect(button, 'press', function () {
-            paned.orientation = 'vertical';
-        });
-
-
+        toolbar.append(new Ui.Button({
+            text: 'vertical',
+            onpressed: () => paned.orientation = 'vertical'
+        }));
+        
         let paned = new Ui.Paned();
         vbox.append(paned, true);
 
@@ -35,7 +32,7 @@ class App extends Ui.App {
         //	text: 'hello, this is a simple text, long enought to test the line break feature\n\nwith 2 chapters\n\n'+
         //		'hello, this is a simple text, long enought to test the line break feature\n\nwith 2 chapters'
         //}));
-        scroll.content =new Ui.Text({
+        scroll.content = new Ui.Text({
             margin: 5,
             text: 'hello, this is a simple text, long enought to test the line break feature\n\nwith 2 chapters\n\n' +
             'hello, this is a simple text, long enought to test the line break feature\n\nwith 2 chapters\n\n' +

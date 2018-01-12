@@ -11,18 +11,20 @@ class App extends Ui.App {
 		vbox.append(toolbar);
 		
 		let request: Core.HttpRequest;
-		
-		let sendButton = new Ui.Button({ text: 'send' });
-		toolbar.append(sendButton);
-		this.connect(sendButton, 'press', () => {
-
-			request = new Core.HttpRequest({ url: 'service.php', method: 'POST', arguments: { toto: 12, dan: 'super', complex: { t1: 1, t2: 2 } } });
-			this.connect(request, 'done', () => text.text = request.responseText);
-			request.send();
-
-		});
-		
 		let text = new Ui.Text();
+		
+		toolbar.append(new Ui.Button({
+			text: 'send',
+			onpressed: () => {
+				request = new Core.HttpRequest({
+					url: 'service.php', method: 'POST',
+					arguments: { toto: 12, dan: 'super', complex: { t1: 1, t2: 2 } },
+					ondone: () => text.text = request.responseText
+				});
+				request.send();
+			}
+		}));
+		
 		vbox.append(text, true);
 	}
 }

@@ -15,29 +15,29 @@ class App extends Ui.App {
 		});
 		vbox.append(checkbox, true);
 
-		let button = new Ui.Button({ text: 'check' });
-		toolbar.append(button);
-		this.connect(button, 'press', function() {
-			checkbox.value = true;
+		let button = new Ui.Button({
+			text: 'check',
+			onpressed: () => checkbox.value = true
 		});
+		toolbar.append(button);
 
-		button = new Ui.Button({ text: 'uncheck' });
-		toolbar.append(button);
-		this.connect(button, 'press', function() {
-			checkbox.value = false;
+		button = new Ui.Button({
+			text: 'uncheck',
+			onpressed: () => checkbox.value = false
 		});
+		toolbar.append(button);
 
-		button = new Ui.Button({ text: 'enable' });
-		toolbar.append(button);
-		this.connect(button, 'press', function() {
-			checkbox.enable();
+		button = new Ui.Button({
+			text: 'enable',
+			onpressed: () => checkbox.enable()
 		});
+		toolbar.append(button);
 
-		button = new Ui.Button({ text: 'disable' });
-		toolbar.append(button);
-		this.connect(button, 'press', function() {
-			checkbox.disable();
+		button = new Ui.Button({
+			text: 'disable',
+			onpressed: () => checkbox.disable()
 		});
+		toolbar.append(button);
 	}
 }
 

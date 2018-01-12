@@ -17,13 +17,12 @@ r = new Ui.Rectangle();
 r.fill = 'purple'; r.width = 50; r.height = 50;
 grid.attach(r, 0, 1, 1, 1);
 
-var button = new Ui.Button();
-button.text = 'salut';
+var button = new Ui.Button({
+  text: 'salut',
+  onpressed: () => console.log('press')
+});
 grid.attach(button, 0, 2, 2, 1);
 
-app.connect(button, 'press', function() {
-	console.log('press');
-});
 
 r = new Ui.Rectangle();
 r.fill = 'green'; r.width = 50; r.height = 50; r.verticalAlign = 'stretch';

@@ -19,6 +19,12 @@ namespace Ui {
 		canplaythrough: boolean = false;
 		// possible values [initial|playing|paused|buffering|error]
 		private _state: MediaState = 'initial';
+		readonly statechanged = new Core.Events<{ target: Video, state: MediaState }>();
+		readonly ready = new Core.Events<{ target: Video }>();
+		readonly ended = new Core.Events<{ target: Video }>();
+		readonly error = new Core.Events<{ target: Video, code: number }>();
+		readonly timeupdated = new Core.Events<{ target: Video, time: number }>();
+		readonly bufferingupdated = new Core.Events<{ target: Video, buffer: number }>();
 
 		// detect what video system is supported
 		static htmlVideo: boolean = false;
@@ -29,8 +35,6 @@ namespace Ui {
 
 		constructor(init?: VideoInit) {
 			super(init);
-			this.addEvents('ready', 'ended', 'timeupdate', 'bufferingupdate', 'statechange', 'error');
-			this.connect(this, 'unload', this.onVideoUnload);
 			if (init) {
 				if (init.src !== undefined)
 					this.src = init.src;	
@@ -88,7 +92,7 @@ namespace Ui {
 		//
 		play() {
 			this._state = 'playing';
-			this.fireEvent('statechange', this, this._state);
+			this.statechanged.fire({ target: this, state: this._state });
 			if (this.canplaythrough)
 				this.videoDrawing.play();
 			else
@@ -101,7 +105,7 @@ namespace Ui {
 		//
 		pause() {
 			this._state = 'paused';
-			this.fireEvent('statechange', this, this._state);
+			this.statechanged.fire({ target: this, state: this._state });
 			if (this.canplaythrough)
 				this.videoDrawing.pause();
 			else
@@ -199,11 +203,11 @@ namespace Ui {
 				this.videoDrawing.play();
 			else if (this._state == 'paused')
 				this.videoDrawing.pause();
-			this.fireEvent('ready');
+			this.ready.fire({ target: this });
 		}
 
 		protected onTimeUpdate(): void {
-			this.fireEvent('timeupdate', this, this.videoDrawing.currentTime);
+			this.timeupdated.fire({ target: this, time: this.videoDrawing.currentTime });
 			this.checkBuffering();
 		}
 
@@ -211,8 +215,8 @@ namespace Ui {
 			this.videoDrawing.pause();
 			this._state = 'initial';
 			this.videoDrawing.currentTime = 0;
-			this.fireEvent('ended', this);
-			this.fireEvent('statechange', this, this._state);
+			this.ended.fire({ target: this });
+			this.statechanged.fire({ target: this, state: this._state });
 		}
 
 		protected onProgress(): void {
@@ -255,7 +259,7 @@ namespace Ui {
 						if((timebuffer >= 5) || (this.videoDrawing.networkState == 1) || (time + timebuffer >= duration)) {
 							this.state = 'playing';
 							this.videoDrawing.play();
-							this.fireEvent('statechange', this, this.state);
+							this.statechanged.fire({ target: this, state: this.state });
 						}
 					}
 					else if(this.state == 'playing') {
@@ -264,16 +268,16 @@ namespace Ui {
 						if((timebuffer <= 0.1) && (time + timebuffer < duration)) {
 							this.state = 'buffering';
 							this.videoDrawing.pause();
-							this.fireEvent('statechange', this, this.state);
+							this.statechanged.fire({ target: this, state: this.state });
 						}
 					}*/
-			this.fireEvent('bufferingupdate', this, timebuffer);
+			this.bufferingupdated.fire({ target: this, buffer: timebuffer });
 		}
 
 		protected onError(): void {
 			this._state = 'error';
-			this.fireEvent('error', this, this.videoDrawing.error.code);
-			this.fireEvent('statechange', this, this._state);
+			this.error.fire({ target: this, code: this.videoDrawing.error.code });
+			this.statechanged.fire({ target: this, state: this._state });
 		}
 
 		protected onWaiting(): void {
@@ -281,7 +285,8 @@ namespace Ui {
 				this.videoDrawing.load();
 		}
 
-		protected onVideoUnload(): void {
+		protected onUnload(): void {
+			super.onUnload();
 			if (this.canplaythrough)
 				this.pause();
 			// to force closing the possible connection to the server
@@ -295,12 +300,12 @@ namespace Ui {
 		protected renderDrawing() {
 			if (Ui.Video.htmlVideo) {
 				this.videoDrawing = document.createElement('video');
-				this.connect(this.videoDrawing, 'canplaythrough', this.onReady);
-				this.connect(this.videoDrawing, 'ended', this.onEnded);
-				this.connect(this.videoDrawing, 'timeupdate', this.onTimeUpdate);
-				this.connect(this.videoDrawing, 'error', this.onError);
-				this.connect(this.videoDrawing, 'progress', this.onProgress);
-				this.connect(this.videoDrawing, 'waiting', this.onWaiting);
+				this.videoDrawing.addEventListener('canplaythrough', () => this.onReady());
+				this.videoDrawing.addEventListener('ended', () => this.onEnded());
+				this.videoDrawing.addEventListener('timeupdate', () => this.onTimeUpdate());
+				this.videoDrawing.addEventListener('error', () => this.onError());
+				this.videoDrawing.addEventListener('progress', () => this.onProgress());
+				this.videoDrawing.addEventListener('waiting', () => this.onWaiting());
 				this.videoDrawing.setAttribute('preload', 'auto');
 				this.videoDrawing.load();
 				this.videoDrawing.style.position = 'absolute';

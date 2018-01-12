@@ -12,7 +12,7 @@ namespace Ui
 			super(init);
 			this.ease = new Anim.PowerEase({ mode: 'inout' });
 			this.clock = new Anim.Clock({ repeat: 'forever', duration: 2 });
-			this.connect(this.clock, 'timeupdate', this.invalidateDraw);
+			this.clock.timeupdate.connect((e) => this.invalidateDraw());
 		}
 
 		protected onVisible() {

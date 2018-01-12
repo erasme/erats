@@ -53,24 +53,25 @@ var App = (function (_super) {
         _this.content = vbox;
         var toolbar = new Ui.ToolBar();
         vbox.append(toolbar);
-        var sendButton = new Ui.Button({ text: 'send' });
-        toolbar.append(sendButton);
         var text = new Ui.Text();
+        toolbar.append(new Ui.Button({
+            text: 'send',
+            onpressed: function () { return __awaiter(_this, void 0, void 0, function () {
+                var req;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            req = new Core.HttpRequest({ url: 'service.php' });
+                            return [4 /*yield*/, req.sendAsync()];
+                        case 1:
+                            _a.sent();
+                            text.text = req.responseText;
+                            return [2 /*return*/];
+                    }
+                });
+            }); }
+        }));
         vbox.append(text, true);
-        _this.connect(sendButton, 'press', function () { return __awaiter(_this, void 0, void 0, function () {
-            var req;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        req = new Core.HttpRequest({ url: 'service.php' });
-                        return [4 /*yield*/, req.sendAsync()];
-                    case 1:
-                        _a.sent();
-                        text.text = req.responseText;
-                        return [2 /*return*/];
-                }
-            });
-        }); });
         return _this;
     }
     return App;

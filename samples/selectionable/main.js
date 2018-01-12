@@ -24,8 +24,8 @@ var Selectionable = (function (_super) {
         new Ui.SelectionableWatcher({
             element: _this,
             selectionActions: _this.getSelectionActions(),
-            select: function () { return _this.selectedMark.show(); },
-            unselect: function () { return _this.selectedMark.hide(); }
+            onselected: function () { return _this.selectedMark.show(); },
+            onunselected: function () { return _this.selectedMark.hide(); }
         });
         return _this;
     }
@@ -61,7 +61,7 @@ var App = (function (_super) {
     __extends(App, _super);
     function App() {
         var _this = _super.call(this) || this;
-        _this.connect(_this.selection, 'change', function () {
+        _this.selection.changed.connect(function () {
             if (_this.selection.elements.length === 0)
                 _this.contextBar.hide();
             else

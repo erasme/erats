@@ -28,10 +28,13 @@ namespace Ui {
 		private clock: Anim.Clock;
 		private contentSize: number = 0;
 		private _animDuration: number = 0.5;
+		readonly folded = new Core.Events<{ target: Fold }>();
+		readonly unfolded = new Core.Events<{ target: Fold }>();
+		readonly positionchanged = new Core.Events<{ target: Fold, position: FoldDirection }>();
+		readonly progress = new Core.Events<{ target: Fold, offset: number }>();
 
 		constructor(init?: FoldInit) {
 			super(init);
-			this.addEvents('fold', 'unfold', 'positionchange', 'progress');
 
 			this.headerBox = new Ui.LBox();
 			this.appendChild(this.headerBox);
@@ -69,12 +72,12 @@ namespace Ui {
 				if (this._isFolded) {
 					this.offset = 0;
 					this.contentBox.hide();
-					this.fireEvent('fold', this);
+					this.folded.fire({ target: this });
 				}
 				else {
 					this.offset = 1;
 					this.contentBox.show();
-					this.fireEvent('unfold', this);
+					this.unfolded.fire({ target: this });
 				}
 			}
 		}
@@ -86,7 +89,7 @@ namespace Ui {
 			if (!this._isFolded) {
 				this._isFolded = true;
 				this.startAnimation();
-				this.fireEvent('fold', this);
+				this.folded.fire({ target: this });
 			}
 		}
 
@@ -97,7 +100,7 @@ namespace Ui {
 			if (this._isFolded) {
 				this._isFolded = false;
 				this.startAnimation();
-				this.fireEvent('unfold', this);
+				this.unfolded.fire({ target: this });
 			}
 		}
 
@@ -211,7 +214,7 @@ namespace Ui {
 		set position(position: FoldDirection) {
 			if (this._position != position) {
 				this._position = position;
-				this.fireEvent('positionchange', this, position);
+				this.positionchanged.fire({ target: this, position: position });
 				this.invalidateMeasure();
 			}
 		}
@@ -290,7 +293,7 @@ namespace Ui {
 				this.contentBox.show();
 
 			this.clock = new Anim.Clock({ duration: this._animDuration, target: this });
-			this.connect(this.clock, 'timeupdate', this.onClockTick);
+			this.clock.timeupdate.connect((e) => this.onClockTick(e.target, e.progress));
 			this.clock.begin();
 		}
 
@@ -301,7 +304,7 @@ namespace Ui {
 			}
 		}
 
-		protected onClockTick(clock, progress) {
+		protected onClockTick(clock: Anim.Clock, progress: number) {
 			if (this.content === undefined) {
 				if (this.clock !== undefined) {
 					this.clock.stop();
@@ -320,7 +323,7 @@ namespace Ui {
 					destOffset = 1;
 				this.offset = destOffset - ((destOffset - offset) * (1 - progress));
 			}
-			this.fireEvent('progress', this, this.offset);
+			this.progress.fire({ target: this, offset: this.offset });
 			if ((progress == 1) && this._isFolded) {
 				this.contentBox.hide();
 			}

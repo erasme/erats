@@ -18,26 +18,22 @@ var App = (function (_super) {
         _this.content = vbox;
         var toolbar = new Ui.ToolBar({ verticalAlign: 'top' });
         vbox.append(toolbar);
-        var playButton = new Ui.Button({ text: 'play' });
-        toolbar.append(playButton);
-        _this.connect(playButton, 'press', function () {
-            video.play();
-        });
-        var pauseButton = new Ui.Button({ text: 'pause' });
-        toolbar.append(pauseButton);
-        _this.connect(pauseButton, 'press', function () {
-            video.pause();
-        });
-        var stopButton = new Ui.Button({ text: 'stop' });
-        toolbar.append(stopButton);
-        _this.connect(stopButton, 'press', function () {
-            video.stop();
-        });
-        var delayplayButton = new Ui.Button({ text: 'delay play 1s' });
-        toolbar.append(delayplayButton);
-        _this.connect(delayplayButton, 'press', function () {
-            return new Core.DelayedTask(1, function () { return video.play(); });
-        });
+        toolbar.append(new Ui.Button({
+            text: 'play',
+            onpressed: function () { return video.play(); }
+        }));
+        toolbar.append(new Ui.Button({
+            text: 'pause',
+            onpressed: function () { return video.pause(); }
+        }));
+        toolbar.append(new Ui.Button({
+            text: 'stop',
+            onpressed: function () { return video.stop(); }
+        }));
+        toolbar.append(new Ui.Button({
+            text: 'delay play 1s',
+            onpressed: function () { return new Core.DelayedTask(1, function () { return video.play(); }); }
+        }));
         var progressbar = new Ui.ProgressBar({ verticalAlign: 'center' });
         toolbar.append(progressbar, true);
         var lbox = new Ui.LBox({ horizontalAlign: 'center', verticalAlign: 'center' });
@@ -48,15 +44,9 @@ var App = (function (_super) {
             oggSrc: 'video.ogv', mp4Src: 'video.m4v', webmSrc: 'video.webm', volume: 1
         });
         lbox.append(video);
-        _this.connect(video, 'ready', function () {
-            //	console.log('video ready');
-        });
-        _this.connect(video, 'ended', function () {
-            //	console.log('video ended');
-        });
-        _this.connect(video, 'timeupdate', function (v, time) {
-            progressbar.value = time / video.duration;
-        });
+        video.ready.connect(function () { return console.log('video ready'); });
+        video.ended.connect(function () { return console.log('video ended'); });
+        video.timeupdated.connect(function (e) { return progressbar.value = e.time / video.duration; });
         return _this;
     }
     return App;

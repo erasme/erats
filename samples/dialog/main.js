@@ -20,23 +20,22 @@ var App = (function (_super) {
         vbox.append(tb);
         tb.append(new Ui.Button({ text: 'test 1' }));
         tb.append(new Ui.Button({ text: 'test 2' }));
-        var button = new Ui.Button({
+        vbox.append(new Ui.Button({
             text: 'Open dialog',
-            verticalAlign: 'center', horizontalAlign: 'center'
-        });
-        vbox.append(button, true);
-        _this.connect(button, 'press', function () {
-            var dialog = new Ui.Dialog({
-                title: 'Test Dialog',
-                cancelButton: new Ui.DialogCloseButton({ text: 'Annuler' }),
-                actionButtons: [
-                    new Ui.Button({ text: 'Previous' }),
-                    new Ui.Button({ text: 'Next' })
-                ],
-                content: new Ui.Rectangle({ fill: 'lightgreen', width: 350, height: 200 })
-            });
-            dialog.open();
-        });
+            verticalAlign: 'center', horizontalAlign: 'center',
+            onpressed: function () {
+                var dialog = new Ui.Dialog({
+                    title: 'Test Dialog',
+                    cancelButton: new Ui.DialogCloseButton({ text: 'Annuler' }),
+                    actionButtons: [
+                        new Ui.Button({ text: 'Previous' }),
+                        new Ui.Button({ text: 'Next' })
+                    ],
+                    content: new Ui.Rectangle({ fill: 'lightgreen', width: 350, height: 200 })
+                });
+                dialog.open();
+            }
+        }), true);
         return _this;
     }
     return App;

@@ -9,11 +9,11 @@ namespace Ui {
 		src: string;
 		openWindow: boolean = true;
 		target: string = '_blank';
+		readonly link = new Core.Events<{ target: LinkButton }>();
 
 		constructor(init?: LinkButtonInit) {
 			super(init);
-			this.addEvents('link');
-			this.connect(this, 'press', this.onLinkButtonPress);
+			this.pressed.connect(() => this.onLinkButtonPress());
 			if (init) {
 				if (init.src !== undefined)
 					this.src = init.src;	
@@ -25,7 +25,7 @@ namespace Ui {
 		}
 
 		protected onLinkButtonPress() {
-			this.fireEvent('link', this);
+			this.link.fire({ target: this });
 			if (this.openWindow)
 				window.open(this.src, this.target);
 			else

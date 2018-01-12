@@ -6,6 +6,9 @@ namespace Core {
 		service?: string;
 		destination?: string;
 		arguments?: object;
+		onprogress?: (event: { target: FilePostUploader, loaded: number, total: number }) => void;
+		oncompleted?: (event: { target: FilePostUploader }) => void;
+		onerror?: (event: { target: FilePostUploader, status: number }) => void;
 	}
 
 	export class FilePostUploader extends Object {
@@ -46,6 +49,10 @@ namespace Core {
 		protected loadedOctets: number;
 		protected totalOctets: number;
 
+		readonly progress = new Core.Events<{ target: FilePostUploader, loaded: number, total: number }>();
+		readonly completed = new Core.Events<{ target: FilePostUploader }>();
+		readonly error = new Core.Events<{ target: FilePostUploader, status: number }>();
+
 		/**
 		*	@constructs
 		*	@class Helper to allow file uploading with progress report and which
@@ -54,7 +61,6 @@ namespace Core {
 		*/
 		constructor(init?: FilePostUploaderInit) {
 			super();
-			this.addEvents('progress', 'complete', 'error');
 			this.fields = {};
 			if (init) {
 				if (init.method !== undefined)
@@ -69,6 +75,12 @@ namespace Core {
 					this.destination = init.destination;	
 				if (init.arguments !== undefined)
 					this.arguments = init.arguments;
+				if (init.onprogress)
+					this.progress.connect(init.onprogress);
+				if (init.oncompleted)
+					this.completed.connect(init.oncompleted);
+				if (init.onerror)
+					this.error.connect(init.onerror);	
 			}
 		}
 
@@ -115,7 +127,7 @@ namespace Core {
 	
 					this.request = new XMLHttpRequest();
 					if ('upload' in this.request)
-						this.connect(this.request.upload, 'progress', this.onUpdateProgress);
+						this.request.upload.addEventListener('progress', e => this.onUpdateProgress(e));
 					this.request.open(this._method, this._service);
 					this.request.send(formData);
 					this.request.onreadystatechange = (event) => this.onStateChange(event);
@@ -124,7 +136,7 @@ namespace Core {
 					this.fileReader = new FileReader();
 					this.request = new XMLHttpRequest();
 					if ('upload' in this.request)
-						this.connect(this.request.upload, 'progress', this.onUpdateProgress);
+						this.request.upload.addEventListener('progress', e => this.onUpdateProgress(e));
 					this.request.open(this._method, this._service);
 
 					this.boundary = '----';
@@ -152,7 +164,7 @@ namespace Core {
 					fieldDrawing.setAttribute('value', this.fields[field]);
 					this._file.form.insertBefore(fieldDrawing, this._file.form.firstChild);
 				}
-				this.connect(this._file.iframe, 'load', this.onIFrameLoad);
+				this._file.iframe.addEventListener('load', e => this.onIFrameLoad(e));
 				let errorCount = 0;
 				let done = false;
 				while (!done && (errorCount < 5)) {
@@ -169,9 +181,7 @@ namespace Core {
 
 		sendAsync() {
 			return new Promise<Core.FilePostUploader>(resolve => {
-				this.connect(this, 'complete', () => {
-					resolve(this);
-				});
+				this.completed.connect(() => resolve(this));
 				this.send();
 			});
 		}
@@ -215,11 +225,11 @@ namespace Core {
 				this._isCompleted = true;
 				if (this.request.status == 200) {
 					this._responseText = this.request.responseText;
-					this.fireEvent('complete', this);
+					this.completed.fire({ target: this });
 				}
 				else {
 					this._responseText = this.request.responseText;
-					this.fireEvent('error', this, this.request.status);
+					this.error.fire({ target: this, status: this.request.status });
 				}
 				this.request = undefined;
 			}
@@ -228,13 +238,13 @@ namespace Core {
 		protected onUpdateProgress(event) {
 			this.loadedOctets = event.loaded;
 			this.totalOctets = event.total;
-			this.fireEvent('progress', this, event.loaded, event.total);
+			this.progress.fire({ target: this, loaded: event.loaded, total: event.total });
 		}
 
 		protected onFileReaderError(event) {
 			this.request.abort();
 			this.request = undefined;
-			this.fireEvent('error', this);
+			this.error.fire({ target: this, status: event.status });
 			this.fileReader = undefined;
 		}
 
@@ -252,7 +262,7 @@ namespace Core {
 		protected onIFrameLoad(event) {
 			this._responseText = event.target.contentWindow.document.body.innerText;
 			document.body.removeChild(this._file.iframe);
-			this.fireEvent('complete', this);
+			this.completed.fire({ target: this });
 		}
 	}
 }	

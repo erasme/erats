@@ -12,14 +12,15 @@ namespace Ui
 		private _naturalHeight: number = undefined;
 		private imageDrawing: HTMLImageElement;
 		private setSrcLock: boolean = false;
+		readonly ready = new Core.Events<{ target: Image }>();
+		readonly error = new Core.Events<{ target: Image }>();
 
 		constructor(init?: ImageInit) {
 			super(init);
-			this.addEvents('ready', 'error');
 			// no context menu
-			this.connect(this.imageDrawing, 'contextmenu', (event) => event.preventDefault());
-			this.connect(this.imageDrawing, 'load', this.onImageLoad);
-			this.connect(this.imageDrawing, 'error', this.onImageError);
+			this.imageDrawing.addEventListener('contextmenu', (event) => event.preventDefault());
+			this.imageDrawing.addEventListener('load', (e) => this.onImageLoad(e));
+			this.imageDrawing.addEventListener('error', (e) => this.onImageError(e));
 			if (init) {
 				if (init.src !== undefined)
 					this.src = init.src;
@@ -51,7 +52,7 @@ namespace Ui
 				this.loaddone = true;
 				this._naturalWidth = this.imageDrawing.naturalWidth;
 				this._naturalHeight = this.imageDrawing.naturalHeight;
-				this.fireEvent('ready', this);
+				this.ready.fire({ target: this });
 				this.invalidateMeasure();
 			}
 			this.setSrcLock = false;
@@ -83,7 +84,7 @@ namespace Ui
 		}
 
 		private onImageError(event) {
-			this.fireEvent('error', this);
+			this.error.fire({ target: this });
 		}
 
 		private onImageLoad(event) {
@@ -91,7 +92,7 @@ namespace Ui
 				this.loaddone = true;
 				this._naturalWidth = event.target.naturalWidth;
 				this._naturalHeight = event.target.naturalHeight;
-				this.fireEvent('ready', this);
+				this.error.fire({ target: this });
 				this.invalidateMeasure();
 			}
 			else {
@@ -102,14 +103,14 @@ namespace Ui
 			}
 		}
 
-		private onAppReady() {
-			this.disconnect(Ui.App.current, 'ready', this.onAppReady);
+		private onAppReady = () => {
+			Ui.App.current.ready.disconnect(this.onAppReady);
 			this.onImageDelayReady();
 		}
 
 		private onImageDelayReady() {
 			if (!Ui.App.current.isReady)
-				this.connect(Ui.App.current, 'ready', this.onAppReady);
+				Ui.App.current.ready.connect(this.onAppReady);
 			else {
 				this.loaddone = true;
 				if (document.body == undefined) {
@@ -122,7 +123,7 @@ namespace Ui
 				this._naturalWidth = imgClone.width;
 				this._naturalHeight = imgClone.height;
 				document.body.removeChild(imgClone);
-				this.fireEvent('ready', this);
+				this.ready.fire({ target: this });
 				this.invalidateMeasure();
 			}
 		}
@@ -145,7 +146,7 @@ namespace Ui
 			else if (Core.Navigator.isGecko)
 				this.imageDrawing.style['MozUserSelect'] = 'none';
 			else if (Core.Navigator.isIE)
-				this.connect(this.imageDrawing, 'selectstart', function (event) { event.preventDefault(); });
+				this.imageDrawing.addEventListener('selectstart', (e) => e.preventDefault());
 			return this.imageDrawing;
 		}
 

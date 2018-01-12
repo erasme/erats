@@ -15,7 +15,7 @@ namespace Ui {
 			this.appendChild(this.contentBox);
 
 			this.contentBox.drawing.style.cursor = this._cursor;
-			this.connect(this.drawing, 'keydown', this.onKeyDown);
+			this.drawing.addEventListener('keydown', (e) => this.onKeyDown(e));
 			if (init) {
 				if (init.cursor !== undefined)
 					this.cursor = init.cursor;	

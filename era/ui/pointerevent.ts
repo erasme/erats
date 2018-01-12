@@ -21,10 +21,13 @@ namespace Ui
 	{
 		element: Element;
 		pointer: Pointer;
+		readonly downed = new Core.Events<{ target: PointerWatcher }>()
+		readonly moved = new Core.Events<{ target: PointerWatcher }>()
+		readonly upped = new Core.Events<{ target: PointerWatcher }>()
+		readonly cancelled = new Core.Events<{ target: PointerWatcher }>()
 
 		constructor(element: Element, pointer: Pointer) {
 			super();
-			this.addEvents('down', 'move', 'up', 'cancel');
 			this.element = element;
 			this.pointer = pointer;
 		}
@@ -108,7 +111,7 @@ namespace Ui
 	
 		cancel() {
 			if (this.pointer != undefined) {
-				this.fireEvent('cancel', this);
+				this.cancelled.fire({ target: this });
 				this.pointer.unwatch(this);
 				// no more events must happened, ensure the watcher
 				// will no more be used
@@ -118,17 +121,17 @@ namespace Ui
 
 		down() {
 			if (this.pointer != undefined)
-				this.fireEvent('down', this);
+				this.downed.fire({ target: this });
 		}
 
 		move() {
 			if (this.pointer != undefined)
-				this.fireEvent('move', this);
+				this.moved.fire({ target: this });
 		}
 
 		up() {
 			if (this.pointer != undefined)
-				this.fireEvent('up', this);
+				this.upped.fire({ target: this });
 		}
 
 		//
@@ -160,16 +163,17 @@ namespace Ui
 		buttons: number = 0;
 		button: number = 0;
 
+		readonly ptrmoved = new Core.Events<{ target: Pointer }>();
+		readonly ptrupped = new Core.Events<{ target: Pointer }>();
+		readonly ptrdowned = new Core.Events<{ target: Pointer }>();
+
 		constructor(type: string, id: number) {
 			super();
-			this.addEvents('ptrmove', 'ptrup', 'ptrdown');
-
 			this.type = type;
 			this.id = id;
 			this.start = (new Date().getTime()) / 1000;
 			this.watchers = [];
 			this.history = [];
-			//console.log(`new Pointer ${this.id}`);
 		}
 	
 		capture(watcher) {
@@ -292,11 +296,11 @@ namespace Ui
 			if (this.captureWatcher === undefined) {
 				let target = App.current.elementFromPoint(new Point(this.x, this.y));
 				if (target != undefined) {
-					let pointerEvent = new PointerEvent('ptrmove', this);
+					let pointerEvent = new PointerEvent('ptrmoved', this);
 					pointerEvent.dispatchEvent(target);
 				}
 			}
-			this.fireEvent('ptrmove', this);
+			this.ptrmoved.fire({ target: this });
 		}
 
 		getIsHold() {
@@ -355,10 +359,10 @@ namespace Ui
 				watchers[i].down();
 
 			let target = App.current.elementFromPoint(new Point(this.x, this.y));
-			let pointerEvent = new PointerEvent('ptrdown', this);
+			let pointerEvent = new PointerEvent('ptrdowned', this);
 			if (target !== undefined)
 				pointerEvent.dispatchEvent(target);
-			this.fireEvent('ptrdown', this);
+			this.ptrdowned.fire({ target: this });
 		}
 
 		up() {
@@ -369,14 +373,14 @@ namespace Ui
 				this.watchers = [];
 			this.buttons = 0;
 
-			let pointerEvent = new PointerEvent('ptrup', this);
+			let pointerEvent = new PointerEvent('ptrupped', this);
 			if (this.captureWatcher === undefined) {
 				let target = App.current.elementFromPoint(new Point(this.x, this.y));
 				if (target != undefined)
 					pointerEvent.dispatchEvent(target);
 			}
 			this.captureWatcher = undefined;
-			this.fireEvent('ptrup', this);
+			this.ptrupped.fire({ target: this });
 		}
 
 		watch(element) {
@@ -417,55 +421,52 @@ namespace Ui
 			this.app = app;
 
 			if ('PointerEvent' in window) {
-				this.connect(window, 'pointerdown', this.onPointerDown);
-				this.connect(window, 'pointermove', this.onPointerMove);
-				this.connect(window, 'pointerup', this.onPointerUp);
-				this.connect(window, 'pointercancel', this.onPointerCancel);
+				window.addEventListener('pointerdown', e => this.onPointerDown(e));
+				window.addEventListener('pointermove', e => this.onPointerMove(e));
+				window.addEventListener('pointerup', e => this.onPointerUp(e));
+				window.addEventListener('pointercancel', e => this.onPointerCancel(e));
 			}
 			else {
 				this.mouse = new Pointer('mouse', 0);
 
-				this.connect(window, 'mousedown', this.onMouseDown);
-				this.connect(window, 'mousemove', this.onMouseMove);
-				this.connect(window, 'mouseup', this.onMouseUp);
-				//			this.connect(document, 'select', function(event) {
-				//				console.log('select '+event.target+' START '+this.mouse.getIsCaptured());
-				//			});
-				this.connect(document, 'selectstart', this.onSelectStart);
-				//			this.connect(document, 'dragstart', function(event) {
+				window.addEventListener('mousedown', e => this.onMouseDown(e));
+				window.addEventListener('mousemove', e => this.onMouseMove(e));
+				window.addEventListener('mouseup', e => this.onMouseUp(e));
+				document.addEventListener('selectstart', e => this.onSelectStart(e));
+				// document.addEventListener('dragstart', (event) => {
 				//				console.log('ondragstart');
 				//				if(this.mouse !== undefined)
 				//					this.mouse.capture(undefined);
 				//			}, true);
 
-				this.connect(window, 'keydown', function (event) {
+				window.addEventListener('keydown', (event) => {
 					// if Ctrl, Alt or Shift change signal to the mouse
 					if ((event.which === 16) || (event.which === 17) || (event.which === 18)) {
 						this.mouse.setControls(event.altKey, event.ctrlKey, event.shiftKey);
-						this.mouse.move(event);
+						this.mouse.move(this.mouse.x, this.mouse.y);
 					}
 				});
-				this.connect(window, 'keyup', function (event) {
+				window.addEventListener('keyup', (event) => {
 					// if Ctrl, Alt or Shift change signal to the mouse
 					if ((event.which === 16) || (event.which === 17) || (event.which === 18)) {
 						this.mouse.setControls(event.altKey, event.ctrlKey, event.shiftKey);
-						this.mouse.move(event);
+						this.mouse.move(this.mouse.x, this.mouse.y);
 					}
 				});
 
-				this.connect(document, 'contextmenu', function (event) {
+				document.addEventListener('contextmenu', (event) => {
 					if (this.mouse !== undefined) {
 						this.mouse.capture(undefined);
-						this.mouse.up(event);
+						this.mouse.up();
 					}
 				});
 
-				this.connect(document.body, 'touchstart', this.updateTouches, true);
-				this.connect(document.body, 'touchmove', this.updateTouches, true);
-				this.connect(document.body, 'touchend', this.updateTouches, true);
-				this.connect(document.body, 'touchcancel', this.updateTouches, true);
+				document.body.addEventListener('touchstart', e => this.updateTouches(e), true);
+				document.body.addEventListener('touchmove', e => this.updateTouches(e), true);
+				document.body.addEventListener('touchend', e => this.updateTouches(e), true);
+				document.body.addEventListener('touchcancel', e => this.updateTouches(e), true);
 
-				//			this.connect(document.body, 'touchcancel', function() {	console.log('touchcancel');	});
+				// document.body.addEventListener('touchcancel', e => {	console.log('touchcancel');	});
 			}
 		}
 

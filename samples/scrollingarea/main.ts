@@ -8,17 +8,17 @@ app.content = vbox;
 let tb = new Ui.ToolBar();
 vbox.append(tb);
 
-let topLeftButton = new Ui.Button({ text: 'top left' });
+let topLeftButton = new Ui.Button({
+	text: 'top left',
+	onpressed: () => scl.setOffset(0, 0)
+});
 tb.append(topLeftButton);
-app.connect(topLeftButton, 'press', function() {
-	scl.setOffset(0, 0);
-});
 
-let bottomRightButton = new Ui.Button({ text: 'bottom right' });
-tb.append(bottomRightButton);
-app.connect(bottomRightButton, 'press', function() {
-	scl.setOffset(1, 1);
+let bottomRightButton = new Ui.Button({
+	text: 'bottom right',
+	onpressed: () => scl.setOffset(1, 1)
 });
+tb.append(bottomRightButton);
 
 let scl = new Ui.ScrollingArea();
 vbox.append(scl, true);
@@ -35,11 +35,11 @@ grid.attach(rect2, 0,1);
 let rect3 = new Ui.Rectangle({ width: 200, height: 400, fill: 'purple' });
 grid.attach(rect3, 1,0);
 
-let button4 = new Ui.Button({ width: 200, height: 200, text: 'fun' });
-grid.attach(button4, 1, 1);
-app.connect(button4, 'press', () => {
-	console.log('grid button press'); 
+let button4 = new Ui.Button({
+	width: 200, height: 200, text: 'fun',
+	onpressed: () => console.log('grid button press')
 });
+grid.attach(button4, 1, 1);
 
 let rect5 = new Ui.Rectangle({ width: 400, height: 400, fill: 'pink' });
 grid.attach(rect5, 2,0);

@@ -26,10 +26,10 @@ namespace Ui
 		private _preferredHeight: number = undefined;
 		openClock: Anim.Clock = undefined;
 		isClosed: boolean = true;
+		readonly closed = new Core.Events<{ target: Popup }>();
 
 		constructor(init?: PopupInit) {
 			super(init);
-			this.addEvents('close');
 
 			this.horizontalAlign = 'stretch';
 			this.verticalAlign = 'stretch';
@@ -64,10 +64,10 @@ namespace Ui
 			this.contextBox.hide(true);
 			this.contentBox.append(this.contextBox);
 
-			this.connect(this.popupSelection, 'change', this.onPopupSelectionChange);
+			this.popupSelection.changed.connect((e) => this.onPopupSelectionChange(e.target));
 
 			// handle auto hide
-			this.connect(this.shadow, 'press', this.onShadowPress);
+			this.shadow.pressed.connect((e) => this.onShadowPress());
 
 			if (init) {
 				if (init.preferredWidth !== undefined)
@@ -106,17 +106,12 @@ namespace Ui
 			this.scroll.content = content;
 		}
 
-		protected onWindowResize() {
-//			if (this._autoClose && (this.posX !== undefined))
-//				this.close();
-		}
-
 		protected onShadowPress() {
 			if (this._autoClose)
 				this.close();
 		}
 
-		protected onOpenTick(clock, progress, delta) {
+		protected onOpenTick(clock: Anim.Clock, progress: number, delta: number) {
 			let end = (progress >= 1);
 
 			if (this.isClosed)
@@ -219,14 +214,12 @@ namespace Ui
 						duration: 1, target: this, speed: 5,
 						ease: new Anim.PowerEase({ mode: 'out' })
 					});
-					this.connect(this.openClock, 'timeupdate', this.onOpenTick);
+					this.openClock.timeupdate.connect((e) => this.onOpenTick(e.target, e.progress, e.deltaTick));
 					// set the initial state
 					this.opacity = 0;
 					// the start of the animation is delayed to the next arrange
 				}
-
 				this.invalidateArrange();
-				this.connect(window, 'resize', this.onWindowResize);
 			}
 		}
 
@@ -234,10 +227,7 @@ namespace Ui
 			if (!this.isClosed) {
 				this.isClosed = true;
 
-				this.fireEvent('close', this);
-
-				//App.current.removeDialog(this);
-				this.disconnect(window, 'resize', this.onWindowResize);
+				this.closed.fire({ target: this });
 
 				this.disable();
 				if (this.openClock === undefined) {
@@ -245,7 +235,7 @@ namespace Ui
 						duration: 1, target: this, speed: 5,
 						ease: new Anim.PowerEase({ mode: 'out' })
 					});
-					this.connect(this.openClock, 'timeupdate', this.onOpenTick);
+					this.openClock.timeupdate.connect((e) => this.onOpenTick(e.target, e.progress, e.deltaTick));
 					this.openClock.begin();
 				}
 			}

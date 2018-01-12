@@ -36,24 +36,26 @@ var App = (function (_super) {
         _this.content = vbox;
         var toolbar = new Ui.ToolBar();
         vbox.append(toolbar);
-        var button = new Ui.Button({ text: 'get date' });
-        toolbar.append(button);
-        _this.connect(button, 'press', function () {
-            var date = calendar.selectedDate;
-            if (date == undefined)
-                logs.log('date is undefined');
-            else
-                logs.log('date: ' + date);
+        var button = new Ui.Button({
+            text: 'get date',
+            onpressed: function () {
+                var date = calendar.selectedDate;
+                if (date == undefined)
+                    logs.log('date is undefined');
+                else
+                    logs.log('date: ' + date);
+            }
         });
+        toolbar.append(button);
         var hbox = new Ui.HBox();
         vbox.append(hbox, true);
-        var calendar = new Ui.MonthCalendar({ verticalAlign: 'center', horizontalAlign: 'center' });
+        var calendar = new Ui.MonthCalendar({
+            verticalAlign: 'center', horizontalAlign: 'center',
+            ondayselected: function (e) { return console.log("Day select: " + e.value); }
+        });
         calendar.dayFilter = [6, 0];
         calendar.dateFilter = ['2011/11/2[1-5]', '2011/12/*', '2012/0[2-3]/.[4]'];
         hbox.append(calendar, true);
-        _this.connect(calendar, 'dayselect', function (calendar, date) {
-            console.log('Day select: ' + date);
-        });
         var logs = new Logs();
         hbox.append(logs, true);
         return _this;

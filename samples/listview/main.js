@@ -55,63 +55,65 @@ var App = (function (_super) {
         _this.content = vbox;
         var toolbar = new Ui.ToolBar({ margin: 10 });
         vbox.append(toolbar);
-        var checkbox = new Ui.CheckBox({ text: 'show headers', value: true, width: 200 });
-        toolbar.append(checkbox);
-        _this.connect(checkbox, 'change', function (checkbox, value) {
-            if (value)
-                listview.showHeaders();
-            else
-                listview.hideHeaders();
-        });
-        checkbox = new Ui.CheckBox({ text: 'data scrolled (best perf)', value: true, width: 250 });
-        toolbar.append(checkbox);
-        _this.connect(checkbox, 'change', function (checkbox, value) {
-            listview.scrolled = value;
-        });
-        var button = new Ui.Button({ text: 'set 1500', verticalAlign: 'center' });
-        toolbar.append(button);
-        _this.connect(button, 'press', function () {
-            var data = [];
-            for (var i = 0; i < 1500; i++) {
-                data.push({
-                    data0: ((i % 3) === 0),
-                    data1: 'hi number ' + i,
-                    data2: 'col 2 ' + i,
-                    data3: Math.random() * 50,
-                    data4: i
-                });
+        toolbar.append(new Ui.CheckBox({
+            text: 'show headers', value: true, width: 200,
+            onchanged: function (e) {
+                if (e.value)
+                    listview.showHeaders();
+                else
+                    listview.hideHeaders();
             }
-            listview.data = data;
-        });
-        button = new Ui.Button({ text: 'clear all', verticalAlign: 'center' });
-        toolbar.append(button);
-        _this.connect(button, 'press', function () {
-            listview.clearData();
-        });
-        button = new Ui.Button({ text: 'append 70', verticalAlign: 'center' });
-        toolbar.append(button);
-        _this.connect(button, 'press', function () {
-            var count = listview.data.length;
-            for (var i = 0; i < 70; i++) {
-                listview.appendData({
-                    data0: ((i % 3) === 0),
-                    data1: 'hi number ' + i,
-                    data2: 'col 2 ' + i,
-                    data3: Math.random() * 50,
-                    data4: count + i
-                });
+        }));
+        toolbar.append(new Ui.CheckBox({
+            text: 'data scrolled (best perf)', value: true, width: 250,
+            onchanged: function (e) { return listview.scrolled = e.value; }
+        }));
+        toolbar.append(new Ui.Button({
+            text: 'set 1500', verticalAlign: 'center',
+            onpressed: function () {
+                var data = [];
+                for (var i = 0; i < 1500; i++) {
+                    data.push({
+                        data0: ((i % 3) === 0),
+                        data1: 'hi number ' + i,
+                        data2: 'col 2 ' + i,
+                        data3: Math.random() * 50,
+                        data4: i
+                    });
+                }
+                listview.data = data;
             }
-        });
-        button = new Ui.Button({ text: 'update numbers', verticalAlign: 'center' });
-        toolbar.append(button);
-        _this.connect(button, 'press', function () {
-            var data = listview.data;
-            for (var i = 0; i < data.length; i++) {
-                var obj = data[i];
-                data[i].data3 = Math.random() * 50;
+        }));
+        toolbar.append(new Ui.Button({
+            text: 'clear all', verticalAlign: 'center',
+            onpressed: function () { return listview.clearData(); }
+        }));
+        toolbar.append(new Ui.Button({
+            text: 'append 70', verticalAlign: 'center',
+            onpressed: function () {
+                var count = listview.data.length;
+                for (var i = 0; i < 70; i++) {
+                    listview.appendData({
+                        data0: ((i % 3) === 0),
+                        data1: 'hi number ' + i,
+                        data2: 'col 2 ' + i,
+                        data3: Math.random() * 50,
+                        data4: count + i
+                    });
+                }
             }
-            listview.updateData(data);
-        });
+        }));
+        toolbar.append(new Ui.Button({
+            text: 'update numbers', verticalAlign: 'center',
+            onpressed: function () {
+                var data = listview.data;
+                for (var i = 0; i < data.length; i++) {
+                    var obj = data[i];
+                    data[i].data3 = Math.random() * 50;
+                }
+                listview.updateData(data);
+            }
+        }));
         var hbox = new Ui.HBox({ spacing: 5 });
         vbox.append(hbox, true);
         var scroll = new Ui.ScrollingArea();
@@ -125,12 +127,10 @@ var App = (function (_super) {
                 { type: 'string', title: 'Data 2', key: 'data2', width: 200 },
                 { type: 'string', title: 'Numbers', key: 'data3' },
                 { type: 'string', title: 'Pos', key: 'data4' }
-            ]
+            ],
+            onactivated: function (e) { return logs.log('activate row: ' + e.value); }
         });
         scroll.content = listview;
-        _this.connect(listview, 'activate', function (listview, row) {
-            logs.log('activate row: ' + row);
-        });
         for (var i = 0; i < 50; i++) {
             listview.appendData({
                 data0: ((i % 3) === 0),

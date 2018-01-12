@@ -10,17 +10,12 @@ class App extends Ui.App {
 		let toolbar = new Ui.ToolBar();
 		vbox.append(toolbar);
 		
-		let button = new Ui.CheckBox({ text: 'selectable' });
-		toolbar.append(button);
-		
-		this.connect(button, 'toggle', () =>
-			text.selectable = true
-		);
-		
-		this.connect(button, 'untoggle', () =>
-			text.selectable = false
-		);
-		
+		toolbar.append(new Ui.CheckBox({
+			text: 'selectable',
+			ontoggled: () => text.selectable = true,
+			onuntoggled: () => text.selectable = false
+		}));
+				
 		let lbox = new Ui.LBox({ verticalAlign: 'center', horizontalAlign: 'stretch', margin: 100 });
 		vbox.append(lbox, true);
 		

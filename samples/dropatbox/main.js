@@ -40,12 +40,12 @@ var App = (function (_super) {
         _this.content = scroll;
         _this.container = new Ui.SFlowDropBox({
             spacing: 20, margin: 20,
-            stretchMaxRatio: 2, itemAlign: 'stretch'
+            stretchMaxRatio: 2, itemAlign: 'stretch',
+            ondroppedat: function (e) { return _this.onDropAt(_this.container, e.data, e.effect, e.position, e.x, e.y); }
         });
         _this.container.addType(Item, _this.onDragEffect);
         _this.container.addType('files', _this.onDragEffect);
         scroll.content = _this.container;
-        _this.connect(_this.container, 'dropat', _this.onDropAt);
         _this.container.append(new Item({ width: 150, height: 150, fill: 'red' }));
         _this.container.append(new Item({ width: 150, height: 150, fill: 'green' }));
         _this.container.append(new Item({ width: 150, height: 150, fill: 'pink' }));

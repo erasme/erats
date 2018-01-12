@@ -25,16 +25,11 @@ class App extends Ui.App {
         let vbox = new Ui.VBox({ padding: 50, spacing: 10 });
         this.content = vbox;
 
-        let textbuttonfield = new Ui.TextButtonField({ buttonIcon: 'search', textHolder: 'Search' });
-        vbox.append(textbuttonfield);
-
-        this.connect(textbuttonfield, 'change', (tbf: Ui.TextButtonField, value: string) =>
-            logs.log('change: ' + value)
-        );
-
-        this.connect(textbuttonfield, 'validate', (tbf: Ui.TextButtonField) =>
-            logs.log('validate: ' + textbuttonfield.value, 'green')
-        );
+        vbox.append(new Ui.TextButtonField({
+            buttonIcon: 'search', textHolder: 'Search',
+            onchanged: e => logs.log(`change: ${e.value}`),
+            onvalidated: e => logs.log(`validate: ${e.value}`, 'green')
+        }));
 
         let logs = new Logs();
         vbox.append(logs, true);

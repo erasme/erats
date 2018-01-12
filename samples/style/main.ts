@@ -102,15 +102,17 @@ class App extends Ui.App {
 		let vbox = new Ui.VBox({ verticalAlign: 'center', horizontalAlign: 'center', spacing: 10 });
 		content.append(vbox, true);
 
-		let button = new Ui.Button({ text: 'default', width: 200 });
-		vbox.append(button);
-		this.connect(button, 'press', () => this.style = undefined);
+		vbox.append(new Ui.Button({
+			text: 'default', width: 200,
+			onpressed: () => this.style = undefined
+		}));
 
 		for (let i = 0; i < styles.length; i++) {
 			let style = styles[i];
-			let button = new Ui.Button({ text: `style${i}`, width: 200 });
-			vbox.append(button);
-			this.connect(button, 'press', () => this.style = style);
+			vbox.append(new Ui.Button({
+				text: `style${i}`, width: 200,
+				onpressed: () => this.style = style
+			}));
 		}
 	}
 }

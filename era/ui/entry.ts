@@ -17,22 +17,23 @@ namespace Ui
 		private _color: Color = undefined;
 		private _value: string = '';
 		private _passwordMode: boolean = false;
+		readonly changed = new Core.Events<{ target: Entry, value: string }>();
+		readonly validated = new Core.Events<{ target: Entry, value: string }>();
 
 		constructor(init?: EntryInit) {
 			super(init);
-			this.addEvents('change', 'validate');
 			this.selectable = true;
 			this.focusable = true;
 
 			// handle change
-			this.connect(this.drawing, 'change', this.onChange);
+			this.drawing.addEventListener('change', (e) => this.onChange(e));
 
 			// handle paste
-			this.connect(this.drawing, 'paste', this.onPaste);
+			this.drawing.addEventListener('paste', (e) => this.onPaste(e));
 
 			// handle keyboard
-			this.connect(this.drawing, 'keyup', this.onKeyUp);
-			this.connect(this.drawing, 'keydown', this.onKeyDown);
+			this.drawing.addEventListener('keyup', (e) => this.onKeyUp(e));
+			this.drawing.addEventListener('keydown', (e) => this.onKeyDown(e));
 			
 			if (init) {
 				if (init.passwordMode !== undefined)
@@ -141,14 +142,14 @@ namespace Ui
 		private onAfterPaste() {
 			if (this.drawing.value != this._value) {
 				this._value = this.drawing.value;
-				this.fireEvent('change', this, this._value);
+				this.changed.fire({ target: this, value: this._value });
 			}
 		}
 
 		private onChange(event) {
 			if (this.drawing.value != this._value) {
 				this._value = this.drawing.value;
-				this.fireEvent('change', this, this._value);
+				this.changed.fire({ target: this, value: this._value });
 			}
 		}
 
@@ -167,10 +168,10 @@ namespace Ui
 			// check if value changed
 			if (this.drawing.value !== this._value) {
 				this._value = this.drawing.value;
-				this.fireEvent('change', this, this._value);
+				this.changed.fire({ target: this, value: this._value });
 			}
 			if (key == 13)
-				this.fireEvent('validate', this, this._value);
+				this.validated.fire({ target: this, value: this._value });
 		}
 
 		renderDrawing() {

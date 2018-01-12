@@ -18,6 +18,7 @@ namespace Ui {
 		arrowtop: Icon;
 		arrowbottom: Icon;
 		search: boolean;
+		readonly changed = new Core.Events<{ target: Combo, value: any, position: number}>();
 
 		/**
 		 * @constructs
@@ -31,7 +32,6 @@ namespace Ui {
 		 */
 		constructor(init?: ComboInit) {
 			super(init);
-			this.addEvents('change');
 
 			this.text = '';
 			//this.arrowtop = new Icon({ icon: 'arrowtop', width: 10, height: 10 });
@@ -87,13 +87,13 @@ namespace Ui {
 				this._position = -1;
 				this._current = undefined;
 				this.text = this._placeHolder;
-				this.fireEvent('change', this, this._current, this._position);
+				this.changed.fire({ target: this, value: this._current, position: this._position });
 			}
 			else if ((position >= 0) && (position < this._data.length)) {
 				this._current = this._data[position];
 				this._position = position;
 				this.text = this._current[this._field];
-				this.fireEvent('change', this, this._current, this._position);
+				this.changed.fire({ target: this, value: this._current, position: this._position });
 			}
 		}
 
@@ -127,7 +127,7 @@ namespace Ui {
 			let popup = new Ui.ComboPopup({ field: this._field, data: this._data, search: this.search });
 			if (this._position !== -1)
 				popup.position = this._position;
-			this.connect(popup, 'item', this.onItemPress);
+			popup.item.connect(e => this.onItemPress(e.target, e.item, e.position));
 			popup.openElement(this, 'bottom');
 		}
 
@@ -146,7 +146,7 @@ namespace Ui {
 	export interface ComboPopupInit extends MenuPopupInit {
 		search?: boolean;
 		field?: string;
-		data?: object[];
+		data?: any[];
 		position?: number;
 	}
 
@@ -155,16 +155,16 @@ namespace Ui {
 		private _data: object[];
 		private _field: string;
 		private searchField: TextField;
+		readonly item = new Core.Events<{ target: ComboPopup, item: ComboItem, position: number }>();
 
 		constructor(init?: ComboPopupInit) {
 			super(init);
-			this.addEvents('item');
 			this.autoClose =true;
 
 			let vbox = new VBox();
 			this.searchField = new TextField({ textHolder: 'Recherche', margin: 5 });
 			this.searchField.hide(true);
-			this.connect(this.searchField, 'change', this.onSearchChange);
+			this.searchField.changed.connect((e) => this.onSearchChange(e.target, e.value));
 			vbox.append(this.searchField);
 			this.content = vbox;
 
@@ -221,13 +221,15 @@ namespace Ui {
 				this.data = this._data;
 		}
 
-		set data(data: object[]) {
+		set data(data: any[]) {
 			this._data = data;
 			if (this._field === undefined)
 				return;
 			for (let i = 0; i < data.length; i++) {
-				let item = new ComboItem({ text: data[i][this._field] });
-				this.connect(item, 'press', this.onItemPress);
+				let item = new ComboItem({
+					text: data[i][this._field],
+					onpressed: () => this.onItemPress(item)
+				});
 				this.list.append(item);
 			}
 		}
@@ -244,7 +246,7 @@ namespace Ui {
 					break;
 				}
 			}
-			this.fireEvent('item', this, item, position);
+			this.item.fire({ target: this, item: item, position: position });
 			this.close();
 		}
 	}

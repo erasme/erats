@@ -4,6 +4,7 @@ namespace Ui {
 		field?: string;
 		data?: Array<any>;
 		currentPosition?: number;
+		onchanged?: (event: { target: SegmentBar, value: any }) => void;
 	}
 
 	export class SegmentBar extends LBox {
@@ -12,13 +13,12 @@ namespace Ui {
 		private current: SegmentButton;
 		private _field: string = 'text';
 		private _data: Array<any>;
-		private _orientation: 'horizontal' | 'vertical'  = 'horizontal';
+		private _orientation: 'horizontal' | 'vertical' = 'horizontal';
+		readonly changed = new Core.Events<{ target: SegmentBar, value: any }>();
 
 		constructor(init?: SegmentBarInit) {
 			super(init);
 			this.focusable = true;
-
-			this.addEvents('change');
 
 			this.border = new Frame();
 			this.append(this.border);
@@ -26,9 +26,9 @@ namespace Ui {
 			this.box = new Ui.Box({ uniform: true, margin: 1, spacing: 1, orientation: this._orientation });
 			this.append(this.box);
 
-			this.connect(this, 'focus', this.onStyleChange);
-			this.connect(this, 'blur', this.onStyleChange);
-			this.connect(this.drawing, 'keydown', this.onKeyDown);
+			this.focused.connect(() => this.onStyleChange());
+			this.blurred.connect(() => this.onStyleChange());
+			this.drawing.addEventListener('keydown', (e) => this.onKeyDown(e));
 			
 			if (init) {
 				if (init.orientation !== undefined)
@@ -39,6 +39,8 @@ namespace Ui {
 					this.data = init.data;	
 				if (init.currentPosition !== undefined)
 					this.currentPosition = init.currentPosition;	
+				if (init.onchanged)
+					this.changed.connect(init.onchanged);
 			}
 		}
 
@@ -53,7 +55,7 @@ namespace Ui {
 
 		set data(data: Array<any>) {
 			while (this.box.firstChild !== undefined) {
-				this.disconnect(this.box.firstChild, 'toggle', this.onSegmentSelect);
+				(this.box.firstChild as Ui.SegmentButton).pressed.disconnect(this.onSegmentSelect);
 				this.box.remove(this.box.firstChild);
 			}
 			this._data = data;
@@ -65,14 +67,14 @@ namespace Ui {
 					mode = (i === 0) ? 'top' : (i === data.length - 1) ? 'bottom' : 'middle';
 				let segment = new Ui.SegmentButton({ data: data[i], text: data[i][this._field], mode: mode });
 				this.box.append(segment, true);
-				this.connect(segment, 'press', this.onSegmentSelect);
+				segment.pressed.connect(this.onSegmentSelect);
 			}
 		}
 
 		set currentPosition(position: number) {
 			if ((position >= 0) && (position < this.box.children.length)) {
 				this.current = this.box.children[position] as SegmentButton;
-				this.onSegmentSelect(this.current);
+				this.onSegmentSelect({ target: this.current });
 			}
 		}
 
@@ -103,10 +105,10 @@ namespace Ui {
 			}
 		}
 
-		private onSegmentSelect(segment: SegmentButton) {
-			this.current = segment;
+		private onSegmentSelect = (e: { target: SegmentButton }) => {
+			this.current = e.target;
 			this.onStyleChange();
-			this.fireEvent('change', this, segment.data);
+			this.changed.fire({ target: this, value: e.target.data });
 		}
 
 		private onKeyDown(event) {

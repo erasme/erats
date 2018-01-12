@@ -25,8 +25,8 @@ namespace Ui {
 			this.uiTitle = new Label({ margin: 8, fontWeight: 'bold' });
 			this.append(this.uiTitle);
 
-			this.connect(this, 'down', this.onListViewHeaderDown);
-			this.connect(this, 'up', this.onListViewHeaderUp);
+			this.downed.connect(() => this.onListViewHeaderDown());
+			this.upped.connect(() => this.onListViewHeaderUp());
 			if (init) {
 				if (init.title !== undefined)
 					this.title = init.title;	
@@ -81,10 +81,10 @@ namespace Ui {
 		cols: ListViewColBar[];
 		rowsHeight: number = 0;
 		headersHeight: number = 0;
+		readonly headerpressed = new Core.Events<{ target: ListViewHeadersBar, key: string }>();
 
 		constructor(config) {
 			super();
-			this.addEvents('header');
 
 			this.headers = config.headers;
 			delete (config.headers);
@@ -96,9 +96,11 @@ namespace Ui {
 
 			for (let i = 0; i < this.headers.length; i++) {
 				let header = this.headers[i];
-				let headerUi = new ListViewHeader({ title: header.title, width: header.width });
+				let headerUi = new ListViewHeader({
+					title: header.title, width: header.width,
+					onpressed: e => this.onHeaderPress(headerUi)
+				});
 				header['Ui.ListViewHeadersBar.ui'] = headerUi;
-				this.connect(header['Ui.ListViewHeadersBar.ui'], 'press', this.onHeaderPress);
 				header.colWidth = header.width;
 				this.appendChild(header['Ui.ListViewHeadersBar.ui']);
 
@@ -127,15 +129,15 @@ namespace Ui {
 		}
 
 		protected onHeaderPress(header) {
-			let  key;
-			for (let  col = 0; col < this.headers.length; col++) {
+			let key: string;
+			for (let col = 0; col < this.headers.length; col++) {
 				let  h = this.headers[col];
 				if (h['Ui.ListViewHeadersBar.ui'] === header) {
 					key = h.key;
 				}
 			}
 			if (key !== undefined) {
-				this.fireEvent('header', this, key);
+				this.headerpressed.fire({ target: this, key: key });
 
 			}
 		}
@@ -239,8 +241,8 @@ namespace Ui {
 			this.selectionWatcher = new SelectionableWatcher({
 				element: this,
 				selectionActions: this.selectionActions,
-				select: () => this.onStyleChange(),
-				unselect: () => this.onStyleChange()
+				onselected: () => this.onStyleChange(),
+				onunselected: () => this.onStyleChange()
 			});
 			
 		}
@@ -326,7 +328,7 @@ namespace Ui {
 		}
 
 		signalChange() {
-			this.fireEvent('change', this);
+			this.changed.fire({ target: this });
 		}
 
 		getMin() {
@@ -351,7 +353,10 @@ namespace Ui {
 	export interface ListViewInit extends VBoxInit {
 		headers?: HeaderDef[];
 		scrolled?: boolean;
-		selectionActions?: SelectionActions;		
+		selectionActions?: SelectionActions;	
+		onselected?: (event: { target: ListView }) => void;
+		onunselected?: (event: { target: ListView }) => void;
+		onactivated?: (event: { target: ListView, position: number, value: any }) => void;
 	}	
 
 	export class ListView extends VBox implements ListViewInit {
@@ -375,10 +380,12 @@ namespace Ui {
 		vbox: VBox;
 		vboxScroll: ScrollingArea;
 
+		readonly selected = new Core.Events<{ target: ListView }>();
+		readonly unselected = new Core.Events<{ target: ListView }>();
+		readonly activated = new Core.Events<{ target: ListView, position: number, value: any }>();
+
 		constructor(init?: ListViewInit) {
 			super(init);
-			this.addEvents('select', 'unselect', 'activate', 'header');
-
 			if (init && init.headers != undefined) {
 				this.headers = init.headers;
 				delete (init.headers);
@@ -401,7 +408,7 @@ namespace Ui {
 			this.append(this.headersScroll);
 
 			this.headersBar = new ListViewHeadersBar({ headers: this.headers });
-			this.connect(this.headersBar, 'header', this.onHeaderPress);
+			this.headersBar.headerpressed.connect((e) => this.onHeaderPress(e.target, e.key));
 			this.headersScroll.content = this.headersBar;
 
 			this._data = [];
@@ -416,16 +423,11 @@ namespace Ui {
 			//this.append(this.vbox, true);
 			this.vboxScroll.content = this.vbox;
 
-			this.connect(this.vboxScroll, 'scroll', (s: ScrollingArea, offsetX: number, offsetY: number) => {
-				this.headersScroll.setOffset(offsetX, undefined, true, true);
-			});
-
-			this.connect(this.headersScroll, 'scroll', (s: ScrollingArea, offsetX: number, offsetY: number) => {
-				this.vboxScroll.setOffset(offsetX, undefined, true, true);
-			});
+			this.vboxScroll.scrolled.connect((e) =>	this.headersScroll.setOffset(e.offsetX, undefined, true, true));
+			this.headersScroll.scrolled.connect((e) => this.vboxScroll.setOffset(e.offsetX, undefined, true, true));
 			
 			// handle keyboard              
-			//this.connect(this.drawing, 'keydown', this.onKeyDown);
+			// this.drawing.addEventListener('keydown', (e) => this.onKeyDown(e));
 
 			if (init) {
 				if (init.headers !== undefined)
@@ -434,6 +436,12 @@ namespace Ui {
 					this.scrolled = init.scrolled;	
 				if (init.selectionActions !== undefined)
 					this.selectionActions = init.selectionActions;	
+				if (init.onselected)
+					this.selected.connect(init.onselected);
+				if (init.onunselected)
+					this.unselected.connect(init.onunselected);	
+				if (init.onactivated)
+					this.activated.connect(init.onactivated);	
 			}
 		}
 
@@ -611,7 +619,7 @@ namespace Ui {
 
 		onSelectionEdit(selection: Selection) {
 			let data = (selection.elements[0] as ListViewRow).getData();
-			this.fireEvent('activate', this, this.findDataRow(data), data);
+			this.activated.fire({ target: this, position: this.findDataRow(data), value: data });
 		}
 
 		protected onChildInvalidateArrange(child: Element) {
@@ -708,8 +716,8 @@ namespace Ui {
 			this.header = header;
 			this.grip = new Movable({ moveVertical: false });
 			this.appendChild(this.grip);
-			this.connect(this.grip, 'move', this.onMove);
-			this.connect(this.grip, 'up', this.onUp);
+			this.grip.moved.connect(() => this.onMove());
+			this.grip.upped.connect(() => this.onUp());
 
 			let  lbox = new LBox();
 			this.grip.setContent(lbox);

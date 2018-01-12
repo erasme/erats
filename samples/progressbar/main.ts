@@ -10,21 +10,20 @@ class App extends Ui.App {
         let toolbar = new Ui.ToolBar();
         vbox.append(toolbar);
 
-        let beginButton = new Ui.Button({ text: 'begin' });
-        toolbar.append(beginButton);
-        this.connect(beginButton, 'press', function () {
-            clock.begin();
-        });
-
+        toolbar.append(new Ui.Button({
+            text: 'begin',
+            onpressed: () => clock.begin()
+        }));
+        
         let progressbar = new Ui.ProgressBar({
             verticalAlign: 'center', horizontalAlign: 'center', width: 200
         });
 
         vbox.append(progressbar, true);
 
-        let clock = new Anim.Clock({ duration: 4.0 });
-        this.connect(clock, 'timeupdate', function (clock: Anim.Clock, progress: number) {
-            progressbar.value = progress;
+        let clock = new Anim.Clock({
+            duration: 4.0,
+            ontimeupdate: e => progressbar.value = e.progress
         });
     }
 }

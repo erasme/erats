@@ -39,7 +39,7 @@ namespace Ui
 			this.closeButton = new Ui.ContextBarCloseButton();
 			this.closeButton.icon = 'backarrow';
 			hbox.append(this.closeButton);
-			this.connect(this.closeButton, 'press', this.onClosePress);
+			this.closeButton.pressed.connect(() => this.onClosePress());
 
 			let scroll = new Ui.ScrollingArea();
 			hbox.append(scroll, true);
@@ -60,17 +60,17 @@ namespace Ui
 
 		set selection(selection: Selection) {
 			if (this._selection != undefined)
-				this.disconnect(this._selection, 'change', this.onSelectionChange);
+				this._selection.changed.disconnect(this.onSelectionChange);
 			this._selection = selection;
 			if (this._selection != undefined)
-				this.connect(this._selection, 'change', this.onSelectionChange);
+				this._selection.changed.connect(this.onSelectionChange);
 		}
 	
 		onClosePress() {
 			this._selection.clear();
 		}
 	
-		onSelectionChange() {
+		onSelectionChange = () => {
 			this.closeButton.text = this._selection.elements.length.toString();
 			let actions = this._selection.getActions();
 			this.actionsBox.clear();

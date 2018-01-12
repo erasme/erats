@@ -9,6 +9,8 @@ module Core
 		arguments?: object;
 		content?: any;
 		headers?: object;
+		onerror?: (event: { target: HttpRequest, code: number }) => void;
+		ondone?: (event: { target: HttpRequest }) => void;
 	}
 
 	export class HttpRequest extends Object {
@@ -20,20 +22,20 @@ module Core
 		headers: object = undefined;
 		private request: XMLHttpRequest;
 		static requestHeaders: object = undefined;
+		readonly error = new Core.Events<{ target: HttpRequest, code: number }>();
+		readonly done = new Core.Events<{ target: HttpRequest }>();
 
 		constructor(init?: HttpRequestInit) {
 			super();
-			this.addEvents('error', 'done');
-
 			this.request = new XMLHttpRequest();
 
 			let wrapper = () => {
 				if(this.request.readyState == 4)
 				{
 					if((this.request.status >= 200) && (this.request.status < 300))
-						this.fireEvent('done', this);
+						this.done.fire({ target: this });
 					else
-						this.fireEvent('error', this, this.request.status);
+						this.error.fire({ target: this, code: this.request.status });
 				}
 			};
 			this.request.onreadystatechange = wrapper;
@@ -50,6 +52,10 @@ module Core
 					this.content = init.content;	
 				if (init.headers !== undefined)
 					this.headers = init.headers;
+				if (init.ondone)
+					this.done.connect(init.ondone);
+				if (init.onerror)
+					this.error.connect(init.onerror);	
 			}
 		}
 
@@ -118,9 +124,7 @@ module Core
 
 		sendAsync() {
 			return new Promise<Core.HttpRequest>(resolve => {
-				this.connect(this, 'done', () => {
-					resolve(this);
-				});
+				this.done.connect(() => resolve(this));
 				this.send();
 			});
 		}

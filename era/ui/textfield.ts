@@ -3,16 +3,19 @@ namespace Ui {
 		textHolder?: string;
 		passwordMode?: boolean;
 		value?: string;
+		onchanged?: (event: { target: TextField, value: string }) => void;
+		onvalidated?: (event: { target: TextField }) => void;
 	}
 
 	export class TextField extends LBox {
 		private entry: Entry;
 		private graphic: TextBgGraphic;
 		private textholder: Label;
+		readonly changed = new Core.Events<{ target: TextField, value: string }>();
+		readonly validated = new Core.Events<{ target: TextField }>();
 
 		constructor(init?: TextFieldInit) {
 			super(init);
-			this.addEvents('change', 'validate');
 
 			this.padding = 0;
 		
@@ -32,12 +35,12 @@ namespace Ui {
 			this.entry.marginLeft = 10;
 			this.entry.marginRight = 10;
 			this.entry.fontSize = 16;
-			this.connect(this.entry, 'focus', this.onEntryFocus);
-			this.connect(this.entry, 'blur', this.onEntryBlur);
+			this.entry.focused.connect(() => this.onEntryFocus());
+			this.entry.blurred.connect(() => this.onEntryBlur());
 			this.append(this.entry);
 
-			this.connect(this.entry, 'change', this.onEntryChange);
-			this.connect(this.entry, 'validate', () => this.fireEvent('validate', this));
+			this.entry.changed.connect((e) => this.onEntryChange(e.target, e.value));
+			this.entry.validated.connect(() => this.validated.fire({ target: this }));
 			if (init) {
 				if (init.textHolder !== undefined)
 					this.textHolder = init.textHolder;
@@ -45,6 +48,10 @@ namespace Ui {
 					this.passwordMode = init.passwordMode;
 				if (init.value !== undefined)
 					this.value = init.value;	
+				if (init.onchanged)
+					this.changed.connect(init.onchanged);
+				if (init.onvalidated)
+					this.validated.connect(init.onvalidated);
 			}
 		}
 
@@ -80,7 +87,7 @@ namespace Ui {
 		}
 
 		private onEntryChange(entry, value) {
-			this.fireEvent('change', this, value);
+			this.changed.fire({ target: this, value: value });
 		}
 	}
 }	

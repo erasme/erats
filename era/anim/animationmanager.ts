@@ -5,10 +5,10 @@ namespace Anim
 		clocks: any = undefined;
 		start: number = 0;
 		onTickBind: any = undefined;
+		readonly tick: Core.Events<{ target: AnimationManager }> = new Core.Events();
 
 		constructor() {
 			super();
-			this.addEvents('tick');
 			this.clocks = [];
 			this.start = new Date().getTime();
 			this.onTickBind = this.onTick.bind(this);
@@ -45,7 +45,7 @@ namespace Anim
 			current /= 1000;
 			for (var i = 0; i < this.clocks.length; i++)
 				this.clocks[i].update(current);
-			this.fireEvent('tick');
+			this.tick.fire({ target: this });
 
 			if (this.clocks.length > 0)
 				requestAnimationFrame(this.onTickBind);

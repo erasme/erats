@@ -5,15 +5,14 @@ namespace Ui {
 	export class ContentEditable extends Html {
 		anchorNode: Node;
 		anchorOffset: number = 0;
+		readonly anchorchanged = new Core.Events<{ target: ContentEditable }>();
 	
 		constructor(init?: ContentEditableInit) {
 			super(init);
-			this.addEvents('anchorchange');
-
 			this.selectable = true;
 			this.drawing.setAttribute('contenteditable', 'true');
-			this.connect(this.drawing, 'keyup', this.onKeyUp);
-			this.connect(this.drawing, 'DOMSubtreeModified', this.onContentSubtreeModified);
+			this.drawing.addEventListener('keyup', (e) => this.onKeyUp(e));
+			this.drawing.addEventListener('DOMSubtreeModified', (e) => this.onContentSubtreeModified(e));
 		}
 
 		protected onKeyUp(event) {
@@ -25,7 +24,7 @@ namespace Ui {
 				(window.getSelection().anchorOffset != this.anchorOffset)) {
 				this.anchorNode = window.getSelection().anchorNode;
 				this.anchorOffset = window.getSelection().anchorOffset;
-				this.fireEvent('anchorchange', this);
+				this.anchorchanged.fire({ target: this });
 			}
 		}
 

@@ -19,8 +19,8 @@ class Selectionable extends Ui.LBox implements SelectionableInit {
 		new Ui.SelectionableWatcher({
 			element: this,
 			selectionActions: this.getSelectionActions(),
-			select: () => this.selectedMark.show(),
-			unselect: () => this.selectedMark.hide()
+			onselected: () => this.selectedMark.show(),
+			onunselected: () => this.selectedMark.hide()
 		});
 	}
 
@@ -60,7 +60,7 @@ class App extends Ui.App {
 
 	constructor() {
 		super();
-		this.connect(this.selection, 'change', () => {
+		this.selection.changed.connect(() => {
 			if(this.selection.elements.length === 0)
 				this.contextBar.hide();
 			else

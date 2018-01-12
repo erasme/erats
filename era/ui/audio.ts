@@ -17,6 +17,13 @@ namespace Ui {
 		private canplaythrough: boolean = false;
 		private _state: MediaState = 'initial';
 
+		readonly ready = new Core.Events<{ target: Audio }>();
+		readonly ended = new Core.Events<{ target: Audio }>();
+		readonly timeupdate = new Core.Events<{ target: Audio, time: number }>();
+		readonly bufferingupdate = new Core.Events<{ target: Audio, buffer: number }>();
+		readonly statechange = new Core.Events<{target: Audio, state: MediaState }>();
+		readonly error = new Core.Events<{ target: Audio, code: number }>();
+
 		// detect what audio system is supported
 		static htmlAudio: boolean = false;
 		static supportOgg: boolean = false;
@@ -26,8 +33,6 @@ namespace Ui {
 
 		constructor(init?: AudioInit) {
 			super();
-			this.addEvents('ready', 'ended', 'timeupdate', 'bufferingupdate', 'statechange', 'error');
-			this.connect(this, 'unload', this.onAudioUnload);
 			this.verticalAlign = 'top';
 			this.horizontalAlign = 'left';
 			if (init) {
@@ -65,7 +70,7 @@ namespace Ui {
 		//
 		play() {
 			this._state = 'playing';
-			this.fireEvent('statechange', this, this._state);
+			this.statechange.fire({ target: this, state: this._state });
 			if (this.canplaythrough)
 				this.audioDrawing.play();
 			else
@@ -78,7 +83,7 @@ namespace Ui {
 		//
 		pause() {
 			this._state = 'paused';
-			this.fireEvent('statechange', this, this._state);
+			this.statechange.fire({ target: this, state: this._state });
 			if (this.canplaythrough)
 				this.audioDrawing.pause();
 			else
@@ -160,11 +165,11 @@ namespace Ui {
 				this.audioDrawing.play();
 			else if (this._state == 'paused')
 				this.audioDrawing.pause();
-			this.fireEvent('ready');
+			this.ready.fire({ target: this });
 		}
 
 		protected onTimeUpdate(): void {
-			this.fireEvent('timeupdate', this, this.audioDrawing.currentTime);
+			this.timeupdate.fire({ target: this, time: this.audioDrawing.currentTime });
 			this.checkBuffering();
 		}
 
@@ -172,8 +177,8 @@ namespace Ui {
 			this.audioDrawing.pause();
 			this._state = 'initial';
 			this.audioDrawing.currentTime = 0;
-			this.fireEvent('ended', this);
-			this.fireEvent('statechange', this, this._state);
+			this.ended.fire({ target: this });
+			this.statechange.fire({ target: this, state: this._state });
 		}
 
 		protected onProgress(): void {
@@ -217,7 +222,7 @@ namespace Ui {
 						if((timebuffer >= 5) || (this.audioDrawing.networkState == 1) || (time + timebuffer >= duration)) {
 							this.state = 'playing';
 							this.audioDrawing.play();
-							this.fireEvent('statechange', this, this.state);
+							this.statechange.fire({ target: this, state:  this.state });
 						}
 					}
 					else if(this.state == 'playing') {
@@ -226,16 +231,16 @@ namespace Ui {
 						if((timebuffer <= 0.1) && (time + timebuffer < duration)) {
 							this.state = 'buffering';
 							this.audioDrawing.pause();
-							this.fireEvent('statechange', this, this.state);
+							this.statechange.fire({ target: this, state: this.state });
 						}
 					}*/
-			this.fireEvent('bufferingupdate', this, timebuffer);
+			this.bufferingupdate.fire({ target: this, buffer: timebuffer });
 		}
 
 		protected onError(): void {
 			this._state = 'error';
-			this.fireEvent('error', this, this.audioDrawing.error.code);
-			this.fireEvent('statechange', this, this._state);
+			this.error.fire({ target: this, code: this.audioDrawing.error.code });
+			this.statechange.fire({ target: this, state: this._state });
 		}
 
 		protected onWaiting(): void {
@@ -243,7 +248,8 @@ namespace Ui {
 				this.audioDrawing.load();
 		}
 
-		protected onAudioUnload(): void {
+		protected onUnload(): void {
+			super.onUnload();
 			if (this.canplaythrough)
 				this.pause();
 			// to force closing the possible connection to the server
@@ -259,12 +265,12 @@ namespace Ui {
 			if (Ui.Audio.htmlAudio) {
 				this.audioDrawing = document.createElement('audio');
 				this.audioDrawing.style.display = 'none';
-				this.connect(this.audioDrawing, 'canplaythrough', this.onReady);
-				this.connect(this.audioDrawing, 'ended', this.onEnded);
-				this.connect(this.audioDrawing, 'timeupdate', this.onTimeUpdate);
-				this.connect(this.audioDrawing, 'error', this.onError);
-				this.connect(this.audioDrawing, 'progress', this.onProgress);
-				this.connect(this.audioDrawing, 'waiting', this.onWaiting);
+				this.audioDrawing.addEventListener('canplaythrough', () => this.onReady());
+				this.audioDrawing.addEventListener('ended', () => this.onEnded());
+				this.audioDrawing.addEventListener('timeupdate', () => this.onTimeUpdate());
+				this.audioDrawing.addEventListener('error', () => this.onError());
+				this.audioDrawing.addEventListener('progress', () => this.onProgress());
+				this.audioDrawing.addEventListener('waiting', () => this.onWaiting());
 				this.audioDrawing.setAttribute('preload', 'auto');
 				this.audioDrawing.load();
 				drawing = this.audioDrawing;

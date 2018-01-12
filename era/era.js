@@ -2,112 +2,7 @@ var Core;
 (function (Core) {
     var Object = (function () {
         function Object() {
-            this.events = undefined;
         }
-        Object.prototype.addEvents = function () {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            if (this.events === undefined)
-                this.events = [];
-            for (var i = 0; i < args.length; i++)
-                this.events[args[i]] = [];
-        };
-        Object.prototype.hasEvent = function (eventName) {
-            return (this.events !== undefined) && (eventName in this.events);
-        };
-        Object.prototype.fireEvent = function (eventName) {
-            var args = [];
-            for (var _i = 1; _i < arguments.length; _i++) {
-                args[_i - 1] = arguments[_i];
-            }
-            var handled = false;
-            var eventListeners = this.events[eventName];
-            if (eventListeners !== undefined) {
-                eventListeners = eventListeners.slice();
-                for (var i = 0; (i < eventListeners.length) && !handled; i++) {
-                    if (eventListeners[i].capture === true) {
-                        handled = eventListeners[i].method.apply(eventListeners[i].scope, args);
-                        if (handled === undefined)
-                            handled = false;
-                    }
-                }
-                for (var i = 0; (i < eventListeners.length) && !handled; i++) {
-                    if (eventListeners[i].capture !== true) {
-                        handled = eventListeners[i].method.apply(eventListeners[i].scope, args);
-                        if (handled === undefined)
-                            handled = false;
-                    }
-                }
-            }
-            else if (DEBUG)
-                throw ('Event \'' + eventName + '\' not found on ' + this);
-            return handled;
-        };
-        Object.prototype.connect = function (obj, eventName, method, capture) {
-            if (capture === void 0) { capture = false; }
-            var wrapper;
-            if (capture === undefined)
-                capture = false;
-            if (DEBUG && (typeof (method) !== 'function'))
-                throw ('Invalid method to connect on event \'' + eventName + '\'');
-            if ('addEventListener' in obj) {
-                wrapper = function () {
-                    return wrapper.callback.apply(wrapper.scope, arguments);
-                };
-                wrapper.scope = this;
-                wrapper.callback = method;
-                wrapper.eventName = eventName;
-                wrapper.capture = capture;
-                obj.addEventListener(eventName, wrapper, capture);
-                if (obj.events === undefined)
-                    obj.events = [];
-                obj.events.push(wrapper);
-            }
-            else {
-                var signal = { scope: this, method: method, capture: capture };
-                var eventListeners = obj.events[eventName];
-                if (eventListeners !== undefined)
-                    eventListeners.push(signal);
-                else if (DEBUG)
-                    throw ('Event \'' + eventName + '\' not found on ' + obj);
-            }
-        };
-        Object.prototype.getEventHandlers = function (eventName) {
-            var eventListeners = this.events[eventName];
-            if (eventListeners !== undefined)
-                return eventListeners.slice();
-            else
-                return [];
-        };
-        Object.prototype.disconnect = function (obj, eventName, method) {
-            var wrapper;
-            var signal;
-            if ('removeEventListener' in obj) {
-                for (var i = 0; (obj.events !== undefined) && (i < obj.events.length); i++) {
-                    wrapper = obj.events[i];
-                    if ((wrapper.scope === this) && (wrapper.eventName === eventName)) {
-                        if ((method !== undefined) && (wrapper.callback !== method))
-                            continue;
-                        obj.removeEventListener(wrapper.eventName, wrapper, wrapper.capture);
-                        obj.events.splice(i, 1);
-                        i--;
-                    }
-                }
-            }
-            else {
-                for (var i = 0; (obj.events !== undefined) && (i < obj.events[eventName].length); i++) {
-                    signal = obj.events[eventName][i];
-                    if (signal.scope == this) {
-                        if ((method !== undefined) && (signal.method !== method))
-                            continue;
-                        obj.events[eventName].splice(i, 1);
-                        i--;
-                    }
-                }
-            }
-        };
         Object.prototype.serialize = function () {
             return JSON.stringify(this);
         };
@@ -129,6 +24,37 @@ var Core;
         return Object;
     }());
     Core.Object = Object;
+})(Core || (Core = {}));
+var Core;
+(function (Core) {
+    var Events = (function () {
+        function Events() {
+            this.list = new Array();
+        }
+        Events.prototype.connect = function (handler, capture) {
+            if (capture === void 0) { capture = false; }
+            var id = ++Events.handlerGenerator;
+            this.list.push({ handler: handler, capture: capture, id: id });
+            return id;
+        };
+        Events.prototype.disconnect = function (handler) {
+            for (var i = 0; i < this.list.length; i++) {
+                if (this.list[i].handler === handler || this.list[i].id === handler) {
+                    this.list.splice(i, 1);
+                    break;
+                }
+            }
+        };
+        Events.prototype.fire = function (event) {
+            for (var _i = 0, _a = this.list; _i < _a.length; _i++) {
+                var handler = _a[_i];
+                handler.handler(event);
+            }
+        };
+        Events.handlerGenerator = 0;
+        return Events;
+    }());
+    Core.Events = Events;
 })(Core || (Core = {}));
 var DEBUG = true;
 var htmlNS = "http://www.w3.org/1999/xhtml";
@@ -1237,14 +1163,15 @@ var Core;
             _this.arguments = undefined;
             _this.content = undefined;
             _this.headers = undefined;
-            _this.addEvents('error', 'done');
+            _this.error = new Core.Events();
+            _this.done = new Core.Events();
             _this.request = new XMLHttpRequest();
             var wrapper = function () {
                 if (_this.request.readyState == 4) {
                     if ((_this.request.status >= 200) && (_this.request.status < 300))
-                        _this.fireEvent('done', _this);
+                        _this.done.fire({ target: _this });
                     else
-                        _this.fireEvent('error', _this, _this.request.status);
+                        _this.error.fire({ target: _this, code: _this.request.status });
                 }
             };
             _this.request.onreadystatechange = wrapper;
@@ -1261,6 +1188,10 @@ var Core;
                     _this.content = init.content;
                 if (init.headers !== undefined)
                     _this.headers = init.headers;
+                if (init.ondone)
+                    _this.done.connect(init.ondone);
+                if (init.onerror)
+                    _this.error.connect(init.onerror);
             }
             return _this;
         }
@@ -1319,9 +1250,7 @@ var Core;
         HttpRequest.prototype.sendAsync = function () {
             var _this = this;
             return new Promise(function (resolve) {
-                _this.connect(_this, 'done', function () {
-                    resolve(_this);
-                });
+                _this.done.connect(function () { return resolve(_this); });
                 _this.send();
             });
         };
@@ -1419,9 +1348,7 @@ var Core;
         function Timer(init) {
             var _this = _super.call(this) || this;
             _this.interval = 1;
-            _this.arguments = undefined;
-            _this.handle = undefined;
-            _this.addEvents('timeupdate');
+            _this.timeupdated = new Core.Events();
             if (init) {
                 if (init.interval !== undefined)
                     _this.interval = init.interval;
@@ -1432,7 +1359,7 @@ var Core;
             }
             var wrapper = function () {
                 var startTime = (new Date().getTime()) / 1000;
-                _this.fireEvent('timeupdate', _this, _this.arguments);
+                _this.timeupdated.fire({ target: _this, arguments: _this.arguments });
                 var endTime = (new Date().getTime()) / 1000;
                 var deltaTime = endTime - startTime;
                 if (deltaTime < 0)
@@ -1474,7 +1401,37 @@ var Core;
             _this.closeSent = false;
             _this.sep = '?';
             _this.pollInterval = 2.5;
-            _this.addEvents('error', 'message', 'close', 'open');
+            _this.error = new Core.Events();
+            _this.message = new Core.Events();
+            _this.closed = new Core.Events();
+            _this.opened = new Core.Events();
+            _this.onWebSocketOpen = function () {
+                if (_this.websocketdelay !== undefined) {
+                    _this.websocketdelay.abort();
+                    _this.websocketdelay = undefined;
+                }
+                _this.opened.fire({ target: _this });
+            };
+            _this.onWebSocketError = function () {
+                if (_this.websocketdelay !== undefined) {
+                    _this.websocketdelay.abort();
+                    _this.websocketdelay = undefined;
+                }
+                _this.error.fire({ target: _this });
+            };
+            _this.onWebSocketMessage = function (msg) {
+                if (msg.data === 'PING')
+                    _this.websocket.send('PONG');
+                else
+                    _this.message.fire({ target: _this, message: msg.data });
+            };
+            _this.onWebSocketClose = function (msg) {
+                if (_this.websocketdelay !== undefined) {
+                    _this.websocketdelay.abort();
+                    _this.websocketdelay = undefined;
+                }
+                _this.closed.fire({ target: _this });
+            };
             if (init.host !== undefined)
                 _this.host = init.host;
             else
@@ -1511,31 +1468,36 @@ var Core;
             if (_this.mode == 'websocket') {
                 _this.websocket = new WebSocket((_this.secure ? 'wss' : 'ws') + '://' + _this.host + ':' + _this.port + _this.service);
                 _this.websocketdelay = new Core.DelayedTask(30, _this.onWebSocketOpenTimeout);
-                _this.connect(_this.websocket, 'open', _this.onWebSocketOpen);
-                _this.connect(_this.websocket, 'error', _this.onWebSocketError);
-                _this.connect(_this.websocket, 'message', _this.onWebSocketMessage);
-                _this.connect(_this.websocket, 'close', _this.onWebSocketClose);
+                _this.websocket.addEventListener('open', _this.onWebSocketOpen);
+                _this.websocket.addEventListener('error', _this.onWebSocketError);
+                _this.websocket.addEventListener('message', _this.onWebSocketMessage);
+                _this.websocket.addEventListener('close', _this.onWebSocketClose);
             }
             else {
                 _this.emumessages = [];
                 var url = (_this.secure ? 'https' : 'http') + '://' + _this.host + ':' + _this.port + _this.service + _this.sep + 'socket=poll&command=open';
-                _this.emuopenrequest = new Core.HttpRequest({ url: url });
-                _this.connect(_this.emuopenrequest, 'done', _this.onEmuSocketOpenDone);
-                _this.connect(_this.emuopenrequest, 'error', _this.onEmuSocketOpenError);
+                _this.emuopenrequest = new Core.HttpRequest({
+                    url: url,
+                    ondone: function (e) { return _this.onEmuSocketOpenDone(); },
+                    onerror: function (e) { return _this.onEmuSocketOpenError(e.target, e.code); }
+                });
                 _this.emuopenrequest.send();
             }
             return _this;
         }
         Socket.prototype.send = function (msg) {
+            var _this = this;
             if (this.websocket !== undefined) {
                 this.websocket.send(msg);
             }
             else {
                 if (this.emusendrequest === undefined) {
                     var url = (this.secure ? 'https' : 'http') + '://' + this.host + ':' + this.port + this.service + this.sep + 'socket=' + this.mode + '&command=send&id=' + this.emuid + '&messages=' + encodeURIComponent(msg.toBase64());
-                    this.emusendrequest = new Core.HttpRequest({ url: url });
-                    this.connect(this.emusendrequest, 'done', this.onEmuSocketSendDone);
-                    this.connect(this.emusendrequest, 'error', this.onEmuSocketSendError);
+                    this.emusendrequest = new Core.HttpRequest({
+                        url: url,
+                        ondone: function (e) { return _this.onEmuSocketSendDone(); },
+                        onerror: function (e) { return _this.onEmuSocketSendError(); }
+                    });
                     this.emusendrequest.send();
                     if (this.delayPollTask !== undefined) {
                         this.delayPollTask.abort();
@@ -1547,6 +1509,7 @@ var Core;
             }
         };
         Socket.prototype.close = function () {
+            var _this = this;
             if (this.delayPollTask !== undefined) {
                 this.delayPollTask.abort();
                 this.delayPollTask = undefined;
@@ -1565,9 +1528,11 @@ var Core;
                     else if (this.emuid !== undefined) {
                         if (this.emusendrequest === undefined) {
                             this.closeSent = true;
-                            this.emusendrequest = new Core.HttpRequest({ url: (this.secure ? 'https' : 'http') + '://' + this.host + ':' + this.port + this.service + this.sep + 'socket=' + this.mode + '&command=close&id=' + this.emuid });
-                            this.connect(this.emusendrequest, 'done', this.onEmuSocketSendDone);
-                            this.connect(this.emusendrequest, 'error', this.onEmuSocketSendError);
+                            this.emusendrequest = new Core.HttpRequest({
+                                url: (this.secure ? 'https' : 'http') + '://' + this.host + ':' + this.port + this.service + this.sep + 'socket=' + this.mode + '&command=close&id=' + this.emuid,
+                                ondone: function (e) { return _this.onEmuSocketSendDone(); },
+                                onerror: function (e) { return _this.onEmuSocketSendError(); }
+                            });
                             this.emusendrequest.send();
                         }
                     }
@@ -1575,55 +1540,31 @@ var Core;
             }
         };
         Socket.prototype.onWebSocketOpenTimeout = function () {
+            var _this = this;
             this.websocketdelay = undefined;
-            this.disconnect(this.websocket, 'open', this.onWebSocketOpen);
-            this.disconnect(this.websocket, 'error', this.onWebSocketError);
-            this.disconnect(this.websocket, 'message', this.onWebSocketMessage);
-            this.disconnect(this.websocket, 'close', this.onWebSocketClose);
+            this.websocket.removeEventListener('open', this.onWebSocketOpen);
+            this.websocket.removeEventListener('error', this.onWebSocketError);
+            this.websocket.removeEventListener('message', this.onWebSocketMessage);
+            this.websocket.removeEventListener('close', this.onWebSocketClose);
             this.websocket.close();
             this.websocket = undefined;
             this.mode = 'poll';
             this.emumessages = [];
-            this.emuopenrequest = new Core.HttpRequest({ url: (this.secure ? 'https' : 'http') + '://' + this.host + ':' + this.port + this.service + this.sep + 'socket=poll&command=open' });
-            this.connect(this.emuopenrequest, 'done', this.onEmuSocketOpenDone);
-            this.connect(this.emuopenrequest, 'error', this.onEmuSocketOpenError);
+            this.emuopenrequest = new Core.HttpRequest({
+                url: (this.secure ? 'https' : 'http') + '://' + this.host + ':' + this.port + this.service + this.sep + 'socket=poll&command=open',
+                ondone: function (e) { return _this.onEmuSocketOpenDone(); },
+                onerror: function (e) { return _this.onEmuSocketOpenError(e.target, e.code); }
+            });
             this.emuopenrequest.send();
-        };
-        Socket.prototype.onWebSocketOpen = function () {
-            if (this.websocketdelay !== undefined) {
-                this.websocketdelay.abort();
-                this.websocketdelay = undefined;
-            }
-            this.fireEvent('open', this);
-        };
-        Socket.prototype.onWebSocketError = function () {
-            if (this.websocketdelay !== undefined) {
-                this.websocketdelay.abort();
-                this.websocketdelay = undefined;
-            }
-            this.fireEvent('error', this);
-        };
-        Socket.prototype.onWebSocketMessage = function (msg) {
-            if (msg.data === 'PING')
-                this.websocket.send('PONG');
-            else
-                this.fireEvent('message', this, msg.data);
-        };
-        Socket.prototype.onWebSocketClose = function (msg) {
-            if (this.websocketdelay !== undefined) {
-                this.websocketdelay.abort();
-                this.websocketdelay = undefined;
-            }
-            this.fireEvent('close', this);
         };
         Socket.prototype.emuSocketDataAvailable = function (data) {
             if (this.emuid === undefined) {
                 this.emuid = data;
-                this.fireEvent('open', this);
+                this.opened.fire({ target: this });
             }
             else {
                 if (data !== 'keepalive')
-                    this.fireEvent('message', this, data.fromBase64());
+                    this.message.fire({ target: this, message: data.fromBase64() });
             }
         };
         Socket.prototype.emuSocketUpdate = function (delta) {
@@ -1649,6 +1590,7 @@ var Core;
             }
         };
         Socket.prototype.onEmuSocketSendDone = function () {
+            var _this = this;
             var response = this.emusendrequest.getResponseJSON();
             if (this.emumessages.length > 0) {
                 var messages = '';
@@ -1657,16 +1599,20 @@ var Core;
                         messages += ';';
                     messages += this.emumessages[i];
                 }
-                this.emusendrequest = new Core.HttpRequest({ url: (this.secure ? 'https' : 'http') + '://' + this.host + ':' + this.port + this.service + this.sep + 'socket=' + this.mode + '&command=send&id=' + this.emuid + '&messages=' + encodeURIComponent(messages) });
-                this.connect(this.emusendrequest, 'done', this.onEmuSocketSendDone);
-                this.connect(this.emusendrequest, 'error', this.onEmuSocketSendError);
+                this.emusendrequest = new Core.HttpRequest({
+                    url: (this.secure ? 'https' : 'http') + '://' + this.host + ':' + this.port + this.service + this.sep + 'socket=' + this.mode + '&command=send&id=' + this.emuid + '&messages=' + encodeURIComponent(messages),
+                    ondone: function (e) { return _this.onEmuSocketSendDone(); },
+                    onerror: function (e) { return _this.onEmuSocketSendError(); }
+                });
                 this.emusendrequest.send();
                 this.emumessages = [];
             }
             else if (this.isClosed && !this.closeSent) {
-                this.emusendrequest = new Core.HttpRequest({ url: (this.secure ? 'https' : 'http') + '://' + this.host + ':' + this.port + this.service + this.sep + 'socket=' + this.mode + '&command=close&id=' + this.emuid });
-                this.connect(this.emusendrequest, 'done', this.onEmuSocketSendDone);
-                this.connect(this.emusendrequest, 'error', this.onEmuSocketSendError);
+                this.emusendrequest = new Core.HttpRequest({
+                    url: (this.secure ? 'https' : 'http') + '://' + this.host + ':' + this.port + this.service + this.sep + 'socket=' + this.mode + '&command=close&id=' + this.emuid,
+                    ondone: function (e) { return _this.onEmuSocketSendDone(); },
+                    onerror: function (e) { return _this.onEmuSocketSendError(); }
+                });
                 this.emusendrequest.send();
             }
             else
@@ -1676,52 +1622,55 @@ var Core;
             this.emusendrequest = undefined;
         };
         Socket.prototype.onEmuSocketOpenDone = function () {
+            var _this = this;
             this.lastPoll = new Date();
             var response = this.emuopenrequest.getResponseJSON();
             this.emuopenrequest = undefined;
             if (response === undefined) {
-                this.fireEvent('error', this);
-                this.fireEvent('close', this);
+                this.error.fire({ target: this });
+                this.closed.fire({ target: this });
             }
             else {
                 this.emuid = response.id;
                 if ('keepAliveInterval' in response)
                     this.pollInterval = Math.min(response.keepAliveInterval, 2.5);
                 if (response.status != 'open') {
-                    this.fireEvent('error', this);
-                    this.fireEvent('close', this);
+                    this.error.fire({ target: this });
+                    this.closed.fire({ target: this });
                 }
                 else {
-                    this.fireEvent('open', this);
-                    this.emupollrequest = new Core.HttpRequest({ url: (this.secure ? 'https' : 'http') + '://' + this.host + ':' + this.port + this.service + this.sep + 'socket=poll&command=poll&id=' + this.emuid });
-                    this.connect(this.emupollrequest, 'done', this.onEmuSocketPollDone);
-                    this.connect(this.emupollrequest, 'error', this.onEmuSocketPollError);
+                    this.opened.fire({ target: this });
+                    this.emupollrequest = new Core.HttpRequest({
+                        url: (this.secure ? 'https' : 'http') + '://' + this.host + ':' + this.port + this.service + this.sep + 'socket=poll&command=poll&id=' + this.emuid,
+                        ondone: function (e) { return _this.onEmuSocketPollDone(); },
+                        onerror: function (e) { return _this.onEmuSocketPollError(); }
+                    });
                     this.emupollrequest.send();
                 }
             }
         };
         Socket.prototype.onEmuSocketOpenError = function (request, status) {
             this.emuopenrequest = undefined;
-            this.fireEvent('error', this);
-            this.fireEvent('close', this);
+            this.error.fire({ target: this });
+            this.closed.fire({ target: this });
         };
         Socket.prototype.onEmuSocketPollDone = function () {
             var response = this.emupollrequest.getResponseJSON();
             this.emupollrequest = undefined;
             if (response === undefined) {
                 this.close();
-                this.fireEvent('close', this);
+                this.closed.fire({ target: this });
             }
             else {
                 if (response.messages !== undefined) {
                     for (var i = 0; i < response.messages.length; i++) {
                         var msg = response.messages[i].fromBase64();
-                        this.fireEvent('message', this, msg);
+                        this.message.fire({ target: this, message: msg });
                     }
                 }
                 if (response.status !== 'open') {
                     this.close();
-                    this.fireEvent('close', this);
+                    this.closed.fire({ target: this });
                 }
                 else {
                     var now = new Date();
@@ -1736,7 +1685,7 @@ var Core;
         };
         Socket.prototype.onEmuSocketPollError = function () {
             this.emupollrequest = undefined;
-            this.fireEvent('error', this);
+            this.error.fire({ target: this });
             this.close();
         };
         Socket.prototype.delayPollDone = function () {
@@ -1745,11 +1694,14 @@ var Core;
                 this.sendPoll();
         };
         Socket.prototype.sendPoll = function () {
+            var _this = this;
             var now = new Date();
             this.lastPoll = now;
-            this.emupollrequest = new Core.HttpRequest({ url: (this.secure ? 'https' : 'http') + '://' + this.host + ':' + this.port + this.service + this.sep + 'socket=poll&command=poll&id=' + this.emuid });
-            this.connect(this.emupollrequest, 'done', this.onEmuSocketPollDone);
-            this.connect(this.emupollrequest, 'error', this.onEmuSocketPollError);
+            this.emupollrequest = new Core.HttpRequest({
+                url: (this.secure ? 'https' : 'http') + '://' + this.host + ':' + this.port + this.service + this.sep + 'socket=poll&command=poll&id=' + this.emuid,
+                ondone: function (e) { return _this.onEmuSocketPollDone(); },
+                onerror: function (e) { return _this.onEmuSocketPollError(); }
+            });
             this.emupollrequest.send();
         };
         Socket.supportWebSocket = true;
@@ -1771,6 +1723,26 @@ var Core;
             _this.retryTask = undefined;
             _this.nativeConsole = undefined;
             _this.buffer = [];
+            _this.onSocketOpen = function () {
+                _this.socketAlive = true;
+                while (_this.buffer.length > 0) {
+                    _this.socket.send(_this.buffer.shift());
+                }
+            };
+            _this.onSocketMessage = function (e) {
+                eval(e.message);
+            };
+            _this.onSocketError = function () {
+                _this.socketAlive = false;
+                _this.socket.close();
+            };
+            _this.onSocketClose = function () {
+                _this.socketAlive = false;
+                _this.socket.error.disconnect(_this.onSocketError);
+                _this.socket.closed.disconnect(_this.onSocketClose);
+                _this.socket = undefined;
+                _this.retryTask = new Core.DelayedTask(5, _this.startSocket);
+            };
             Core.RemoteDebug.current = _this;
             _this.host = init.host;
             _this.port = init.port;
@@ -1786,30 +1758,10 @@ var Core;
         }
         RemoteDebug.prototype.startSocket = function () {
             this.socket = new Core.Socket({ service: '/', host: this.host, port: this.port });
-            this.connect(this.socket, 'open', this.onSocketOpen);
-            this.connect(this.socket, 'message', this.onSocketMessage);
-            this.connect(this.socket, 'error', this.onSocketError);
-            this.connect(this.socket, 'close', this.onSocketClose);
-        };
-        RemoteDebug.prototype.onSocketOpen = function () {
-            this.socketAlive = true;
-            while (this.buffer.length > 0) {
-                this.socket.send(this.buffer.shift());
-            }
-        };
-        RemoteDebug.prototype.onSocketMessage = function (socket, message) {
-            eval(message);
-        };
-        RemoteDebug.prototype.onSocketError = function () {
-            this.socketAlive = false;
-            this.socket.close();
-        };
-        RemoteDebug.prototype.onSocketClose = function () {
-            this.socketAlive = false;
-            this.disconnect(this.socket, 'error', this.onSocketError);
-            this.disconnect(this.socket, 'close', this.onSocketClose);
-            this.socket = undefined;
-            this.retryTask = new Core.DelayedTask(5, this.startSocket);
+            this.socket.opened.connect(this.onSocketOpen);
+            this.socket.message.connect(this.onSocketMessage);
+            this.socket.error.connect(this.onSocketError);
+            this.socket.closed.connect(this.onSocketClose);
         };
         RemoteDebug.prototype.onConsoleLog = function (message) {
             if (this.socketAlive)
@@ -1862,7 +1814,9 @@ var Core;
             _this._method = 'POST';
             _this._isCompleted = false;
             _this.field = 'file';
-            _this.addEvents('progress', 'complete', 'error');
+            _this.progress = new Core.Events();
+            _this.completed = new Core.Events();
+            _this.error = new Core.Events();
             _this.fields = {};
             if (init) {
                 if (init.method !== undefined)
@@ -1877,6 +1831,12 @@ var Core;
                     _this.destination = init.destination;
                 if (init.arguments !== undefined)
                     _this.arguments = init.arguments;
+                if (init.onprogress)
+                    _this.progress.connect(init.onprogress);
+                if (init.oncompleted)
+                    _this.completed.connect(init.oncompleted);
+                if (init.onerror)
+                    _this.error.connect(init.onerror);
             }
             return _this;
         }
@@ -1934,7 +1894,7 @@ var Core;
                     formData.append(this.field, this._file.fileApi);
                     this.request = new XMLHttpRequest();
                     if ('upload' in this.request)
-                        this.connect(this.request.upload, 'progress', this.onUpdateProgress);
+                        this.request.upload.addEventListener('progress', function (e) { return _this.onUpdateProgress(e); });
                     this.request.open(this._method, this._service);
                     this.request.send(formData);
                     this.request.onreadystatechange = function (event) { return _this.onStateChange(event); };
@@ -1943,7 +1903,7 @@ var Core;
                     this.fileReader = new FileReader();
                     this.request = new XMLHttpRequest();
                     if ('upload' in this.request)
-                        this.connect(this.request.upload, 'progress', this.onUpdateProgress);
+                        this.request.upload.addEventListener('progress', function (e) { return _this.onUpdateProgress(e); });
                     this.request.open(this._method, this._service);
                     this.boundary = '----';
                     var characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -1967,7 +1927,7 @@ var Core;
                     fieldDrawing.setAttribute('value', this.fields[field]);
                     this._file.form.insertBefore(fieldDrawing, this._file.form.firstChild);
                 }
-                this.connect(this._file.iframe, 'load', this.onIFrameLoad);
+                this._file.iframe.addEventListener('load', function (e) { return _this.onIFrameLoad(e); });
                 var errorCount = 0;
                 var done = false;
                 while (!done && (errorCount < 5)) {
@@ -1984,9 +1944,7 @@ var Core;
         FilePostUploader.prototype.sendAsync = function () {
             var _this = this;
             return new Promise(function (resolve) {
-                _this.connect(_this, 'complete', function () {
-                    resolve(_this);
-                });
+                _this.completed.connect(function () { return resolve(_this); });
                 _this.send();
             });
         };
@@ -2043,11 +2001,11 @@ var Core;
                 this._isCompleted = true;
                 if (this.request.status == 200) {
                     this._responseText = this.request.responseText;
-                    this.fireEvent('complete', this);
+                    this.completed.fire({ target: this });
                 }
                 else {
                     this._responseText = this.request.responseText;
-                    this.fireEvent('error', this, this.request.status);
+                    this.error.fire({ target: this, status: this.request.status });
                 }
                 this.request = undefined;
             }
@@ -2055,12 +2013,12 @@ var Core;
         FilePostUploader.prototype.onUpdateProgress = function (event) {
             this.loadedOctets = event.loaded;
             this.totalOctets = event.total;
-            this.fireEvent('progress', this, event.loaded, event.total);
+            this.progress.fire({ target: this, loaded: event.loaded, total: event.total });
         };
         FilePostUploader.prototype.onFileReaderError = function (event) {
             this.request.abort();
             this.request = undefined;
-            this.fireEvent('error', this);
+            this.error.fire({ target: this, status: event.status });
             this.fileReader = undefined;
         };
         FilePostUploader.prototype.onFileReaderLoad = function (event) {
@@ -2075,7 +2033,7 @@ var Core;
         FilePostUploader.prototype.onIFrameLoad = function (event) {
             this._responseText = event.target.contentWindow.document.body.innerText;
             document.body.removeChild(this._file.iframe);
-            this.fireEvent('complete', this);
+            this.completed.fire({ target: this });
         };
         return FilePostUploader;
     }(Core.Object));
@@ -2222,9 +2180,9 @@ var Anim;
             _this.clocks = undefined;
             _this.timer = undefined;
             _this.start = 0;
+            _this.tick = new Core.Events();
             _this.clocks = [];
             _this.start = new Date().getTime();
-            _this.addEvents('tick');
             return _this;
         }
         TimeManager.prototype.add = function (clock) {
@@ -2236,7 +2194,7 @@ var Anim;
                 this.clocks.push(clock);
                 if (this.clocks.length === 1) {
                     this.timer = new Core.Timer({ interval: 1 / 60 });
-                    this.connect(this.timer, 'timeupdate', this.onTick);
+                    this.timer.timeupdate.connect(this.onTick);
                 }
             }
         };
@@ -2257,7 +2215,7 @@ var Anim;
             current /= 1000;
             for (var i = 0; i < this.clocks.length; i++)
                 this.clocks[i].update(current);
-            this.fireEvent('tick');
+            this.tick.fire({ target: this });
         };
         TimeManager.initialize = function () {
             this.current = new Anim.TimeManager();
@@ -2277,7 +2235,7 @@ var Anim;
             _this.clocks = undefined;
             _this.start = 0;
             _this.onTickBind = undefined;
-            _this.addEvents('tick');
+            _this.tick = new Core.Events();
             _this.clocks = [];
             _this.start = new Date().getTime();
             _this.onTickBind = _this.onTick.bind(_this);
@@ -2312,7 +2270,7 @@ var Anim;
             current /= 1000;
             for (var i = 0; i < this.clocks.length; i++)
                 this.clocks[i].update(current);
-            this.fireEvent('tick');
+            this.tick.fire({ target: this });
             if (this.clocks.length > 0)
                 requestAnimationFrame(this.onTickBind);
         };
@@ -2359,7 +2317,8 @@ var Anim;
             _this._repeat = 1;
             _this._target = undefined;
             _this._ease = undefined;
-            _this.addEvents('complete', 'timeupdate');
+            _this.timeupdate = new Core.Events();
+            _this.completed = new Core.Events();
             if (init) {
                 if (init.animation !== undefined)
                     _this.animation = init.animation;
@@ -2379,6 +2338,10 @@ var Anim;
                     _this.duration = init.duration;
                 if (init.parent !== undefined)
                     _this.parent = init.parent;
+                if (init.ontimeupdate)
+                    _this.timeupdate.connect(init.ontimeupdate);
+                if (init.oncompleted)
+                    _this.completed.connect(init.oncompleted);
             }
             return _this;
         }
@@ -2515,13 +2478,13 @@ var Anim;
                 else
                     Anim.TimeManager.current.remove(this);
             }
-            this.fireEvent('complete');
+            this.completed.fire({ target: this });
         };
         Clock.prototype.onTimeUpdate = function (deltaTick) {
             var progress = this.progress;
             if (this._ease !== undefined)
                 progress = this._ease.ease(progress);
-            this.fireEvent('timeupdate', this, progress, deltaTick);
+            this.timeupdate.fire({ target: this, progress: progress, deltaTick: deltaTick });
         };
         Clock.prototype.update = function (parentGlobalTime) {
             do {
@@ -3357,7 +3320,7 @@ var Ui;
             _this.clipY = undefined;
             _this.clipWidth = undefined;
             _this.clipHeight = undefined;
-            _this.visible = undefined;
+            _this._visible = undefined;
             _this._parentVisible = undefined;
             _this._eventsHidden = false;
             _this._focusable = false;
@@ -3372,11 +3335,33 @@ var Ui;
             _this.animClock = undefined;
             _this._opacity = 1;
             _this.parentOpacity = 1;
-            _this.disabled = undefined;
+            _this._disabled = undefined;
             _this.parentDisabled = undefined;
             _this._style = undefined;
             _this._parentStyle = undefined;
             _this.mergeStyle = undefined;
+            _this.focused = new Core.Events();
+            _this.blurred = new Core.Events();
+            _this.loaded = new Core.Events();
+            _this.unloaded = new Core.Events();
+            _this.enabled = new Core.Events();
+            _this.disabled = new Core.Events();
+            _this.visible = new Core.Events();
+            _this.hidden = new Core.Events();
+            _this.ptrdowned = new Core.Events();
+            _this.ptrmoved = new Core.Events();
+            _this.ptrupped = new Core.Events();
+            _this.ptrcanceled = new Core.Events();
+            _this.wheelchanged = new Core.Events();
+            _this.dragover = new Core.Events();
+            _this.onMouseDownFocus = function (event) {
+                _this.isMouseDownFocus = true;
+                window.addEventListener('mouseup', _this.onMouseUpFocus, true);
+            };
+            _this.onMouseUpFocus = function (event) {
+                _this.isMouseDownFocus = false;
+                window.removeEventListener('mouseup', _this.onMouseUpFocus);
+            };
             _this._drawing = _this.renderDrawing();
             if (DEBUG) {
                 _this._drawing.setAttribute('class', _this.getClassName());
@@ -3398,10 +3383,9 @@ var Ui;
                 _this._drawing.style.webkitTransformOrigin = '0 0';
             else if (Core.Navigator.isOpera)
                 _this._drawing.style.OTransformOrigin = '0 0';
-            _this.connect(_this._drawing, 'focus', _this.onFocus);
-            _this.connect(_this._drawing, 'blur', _this.onBlur);
+            _this._drawing.addEventListener('focus', function (e) { return _this.onFocus(e); });
+            _this._drawing.addEventListener('blur', function (e) { return _this.onBlur(e); });
             _this.selectable = false;
-            _this.addEvents('focus', 'blur', 'load', 'unload', 'enable', 'disable', 'visible', 'hidden', 'ptrdown', 'ptrmove', 'ptrup', 'ptrcancel', 'wheel', 'dragover');
             if (init) {
                 if (init.selectable !== undefined)
                     _this.selectable = init.selectable;
@@ -3443,15 +3427,34 @@ var Ui;
                     _this.eventsHidden = init.eventsHidden;
                 if (init.style !== undefined)
                     _this.style = init.style;
+                if (init.onfocused)
+                    _this.focused.connect(init.onfocused);
+                if (init.onblurred)
+                    _this.blurred.connect(init.onblurred);
+                if (init.onloaded)
+                    _this.loaded.connect(init.onloaded);
+                if (init.onunloaded)
+                    _this.unloaded.connect(init.onunloaded);
             }
             return _this;
         }
-        Element.prototype.setDisabled = function (disabled) {
-            if (disabled)
-                this.disable();
-            else
-                this.enable();
-        };
+        Object.defineProperty(Element.prototype, "isDisabled", {
+            get: function () {
+                if ((this._disabled !== undefined) && (this._disabled === true))
+                    return true;
+                if ((this.parentDisabled !== undefined) && (this.parentDisabled === true))
+                    return true;
+                return false;
+            },
+            set: function (disabled) {
+                if (disabled)
+                    this.disable();
+                else
+                    this.enable();
+            },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(Element.prototype, "drawing", {
             get: function () {
                 return this._drawing;
@@ -3518,10 +3521,10 @@ var Ui;
                     this._focusable = focusable;
                     if (focusable && !this.isDisabled) {
                         this._drawing.tabIndex = 0;
-                        this.connect(this.drawing, 'mousedown', this.onMouseDownFocus, true);
+                        this.drawing.addEventListener('mousedown', this.onMouseDownFocus, true);
                     }
                     else {
-                        this.disconnect(this.drawing, 'mousedown', this.onMouseDownFocus);
+                        this.drawing.removeEventListener('mousedown', this.onMouseDownFocus);
                         var node = this._drawing.getAttributeNode('tabIndex');
                         if (node !== undefined)
                             this._drawing.removeAttributeNode(node);
@@ -3531,14 +3534,6 @@ var Ui;
             enumerable: true,
             configurable: true
         });
-        Element.prototype.onMouseDownFocus = function (event) {
-            this.isMouseDownFocus = true;
-            this.connect(window, 'mouseup', this.onMouseUpFocus, true);
-        };
-        Element.prototype.onMouseUpFocus = function (event) {
-            this.isMouseDownFocus = false;
-            this.disconnect(window, 'mouseup', this.onMouseUpFocus);
-        };
         Element.prototype.getIsMouseFocus = function () {
             return this.isMouseFocus;
         };
@@ -4048,9 +4043,9 @@ var Ui;
         });
         Element.prototype.hide = function (collapse) {
             if (collapse === void 0) { collapse = false; }
-            if ((this.visible === undefined) || this.visible) {
+            if ((this._visible === undefined) || this._visible) {
                 var old = this.isVisible;
-                this.visible = false;
+                this._visible = false;
                 this._drawing.style.display = 'none';
                 this.collapse = collapse;
                 if (old)
@@ -4060,9 +4055,9 @@ var Ui;
             }
         };
         Element.prototype.show = function () {
-            if ((this.visible === undefined) || !this.visible) {
+            if ((this._visible === undefined) || !this._visible) {
                 var old = this.isVisible;
-                this.visible = true;
+                this._visible = true;
                 this._drawing.style.display = 'block';
                 if (this.isVisible && !old)
                     this.onInternalVisible();
@@ -4074,7 +4069,7 @@ var Ui;
         };
         Object.defineProperty(Element.prototype, "isVisible", {
             get: function () {
-                return ((this._parentVisible === true) && (this.visible !== false));
+                return ((this._parentVisible === true) && (this._visible !== false));
             },
             enumerable: true,
             configurable: true
@@ -4095,13 +4090,13 @@ var Ui;
         });
         Element.prototype.onInternalHidden = function () {
             this.onHidden();
-            this.fireEvent('hidden', this);
+            this.hidden.fire({ target: this });
         };
         Element.prototype.onHidden = function () {
         };
         Element.prototype.onInternalVisible = function () {
             this.onVisible();
-            this.fireEvent('visible', this);
+            this.visible.fire({ target: this });
         };
         Element.prototype.checkVisible = function () {
             if (this.drawing === undefined)
@@ -4125,17 +4120,17 @@ var Ui;
         Element.prototype.onVisible = function () {
         };
         Element.prototype.disable = function () {
-            if ((this.disabled === undefined) || !this.disabled) {
+            if ((this._disabled === undefined) || !this._disabled) {
                 var old = this.isDisabled;
-                this.disabled = true;
+                this._disabled = true;
                 if (!old)
                     this.onInternalDisable();
             }
         };
         Element.prototype.enable = function () {
-            if ((this.disabled === undefined) || this.disabled) {
+            if ((this._disabled === undefined) || this._disabled) {
                 var old = this.isDisabled;
-                this.disabled = false;
+                this._disabled = false;
                 if (old && !this.isDisabled)
                     this.onInternalEnable();
             }
@@ -4146,17 +4141,6 @@ var Ui;
             else
                 this.disable();
         };
-        Object.defineProperty(Element.prototype, "isDisabled", {
-            get: function () {
-                if ((this.disabled !== undefined) && (this.disabled === true))
-                    return true;
-                if ((this.parentDisabled !== undefined) && (this.parentDisabled === true))
-                    return true;
-                return false;
-            },
-            enumerable: true,
-            configurable: true
-        });
         Element.prototype.setParentDisabled = function (disabled) {
             var old = this.isDisabled;
             this.parentDisabled = disabled;
@@ -4174,7 +4158,7 @@ var Ui;
                     this.blur();
             }
             this.onDisable();
-            this.fireEvent('disable', this);
+            this.disabled.fire({ target: this });
         };
         Element.prototype.onDisable = function () {
         };
@@ -4182,7 +4166,7 @@ var Ui;
             if (this._focusable)
                 this._drawing.tabIndex = 0;
             this.onEnable();
-            this.fireEvent('enable', this);
+            this.enabled.fire({ target: this });
         };
         Element.prototype.onEnable = function () {
         };
@@ -4407,7 +4391,7 @@ var Ui;
                 this._hasFocus = true;
                 this.isMouseFocus = this.isMouseDownFocus;
                 this.scrollIntoView();
-                this.fireEvent('focus', this);
+                this.focused.fire({ target: this });
             }
         };
         Element.prototype.onBlur = function (event) {
@@ -4416,7 +4400,7 @@ var Ui;
                 event.stopPropagation();
                 this.isMouseFocus = false;
                 this._hasFocus = false;
-                this.fireEvent('blur', this);
+                this.blurred.fire({ target: this });
             }
         };
         Element.prototype.updateTransform = function () {
@@ -4454,11 +4438,12 @@ var Ui;
             }
         };
         Element.prototype.setAnimClock = function (clock) {
+            var _this = this;
             if (this.animClock != undefined)
                 this.animClock.stop();
             this.animClock = clock;
             if (clock != undefined)
-                this.connect(clock, 'complete', this.onAnimClockComplete);
+                clock.completed.connect(function () { return _this.onAnimClockComplete(); });
         };
         Element.prototype.onAnimClockComplete = function () {
             this.animClock = undefined;
@@ -4469,14 +4454,14 @@ var Ui;
                 this.setParentDisabled(this._parent.isDisabled);
                 this.parentVisible = this._parent.isVisible;
             }
-            this.fireEvent('load', this);
+            this.loaded.fire({ target: this });
         };
         Element.prototype.onUnload = function () {
             if (this.animClock != undefined) {
                 this.animClock.stop();
                 this.animClock = undefined;
             }
-            this.fireEvent('unload', this);
+            this.unloaded.fire({ target: this });
         };
         Element.transformToWindow = function (element) {
             var matrix = new Ui.Matrix();
@@ -6093,10 +6078,8 @@ var Ui;
         __extends(Event, _super);
         function Event() {
             var _this = _super.call(this) || this;
-            _this.type = undefined;
             _this.bubbles = true;
             _this.cancelable = true;
-            _this.target = undefined;
             _this.cancelBubble = false;
             _this.stop = false;
             return _this;
@@ -6127,34 +6110,40 @@ var Ui;
                 }
                 for (var i = stack.length - 1; (i >= 0) && (!this.cancelBubble) && (!this.stop); i--) {
                     current = stack[i];
-                    var handlers = current.getEventHandlers(this.type);
-                    for (var i2 = 0; (i2 < handlers.length) && (!this.stop); i2++) {
-                        var handler = handlers[i2];
-                        if (handler.capture)
-                            handler.method.apply(handler.scope, [this]);
+                    if (this.type in current && current[this.type] instanceof Core.Events) {
+                        var handlers = current[this.type].list;
+                        for (var i2 = 0; (i2 < handlers.length) && (!this.stop); i2++) {
+                            var handler = handlers[i2];
+                            if (handler.capture)
+                                handler.handler(this);
+                        }
                     }
                 }
                 for (var i = 0; (i < stack.length) && (!this.cancelBubble) && (!this.stop); i++) {
                     current = stack[i];
-                    var handlers = current.getEventHandlers(this.type);
-                    for (var i2 = 0; (i2 < handlers.length) && (!this.stop); i2++) {
-                        var handler = handlers[i2];
-                        if (!handler.capture)
-                            handler.method.apply(handler.scope, [this]);
+                    if (this.type in current && current[this.type] instanceof Core.Events) {
+                        var handlers = current[this.type].list;
+                        for (var i2 = 0; (i2 < handlers.length) && (!this.stop); i2++) {
+                            var handler = handlers[i2];
+                            if (!handler.capture)
+                                handler.handler(this);
+                        }
                     }
                 }
             }
             else {
-                var handlers = this.target.getEventHandlers(this.type);
-                for (var i2 = 0; (i2 < handlers.length) && (!this.stop); i2++) {
-                    var handler = handlers[i2];
-                    if (handler.capture)
-                        handler.method.apply(handler.scope, [this]);
-                }
-                for (var i2 = 0; (i2 < handlers.length) && (!this.stop); i2++) {
-                    var handler = handlers[i2];
-                    if (!handler.capture)
-                        handler.method.apply(handler.scope, [this]);
+                if (this.type in this.target && this.target[this.type] instanceof Core.Events) {
+                    var handlers = this.target[this.type].list;
+                    for (var i2 = 0; (i2 < handlers.length) && (!this.stop); i2++) {
+                        var handler = handlers[i2];
+                        if (handler.capture)
+                            handler.handler(this);
+                    }
+                    for (var i2 = 0; (i2 < handlers.length) && (!this.stop); i2++) {
+                        var handler = handlers[i2];
+                        if (!handler.capture)
+                            handler.handler(this);
+                    }
                 }
             }
         };
@@ -6186,7 +6175,10 @@ var Ui;
         __extends(PointerWatcher, _super);
         function PointerWatcher(element, pointer) {
             var _this = _super.call(this) || this;
-            _this.addEvents('down', 'move', 'up', 'cancel');
+            _this.downed = new Core.Events();
+            _this.moved = new Core.Events();
+            _this.upped = new Core.Events();
+            _this.cancelled = new Core.Events();
             _this.element = element;
             _this.pointer = pointer;
             return _this;
@@ -6257,22 +6249,22 @@ var Ui;
         };
         PointerWatcher.prototype.cancel = function () {
             if (this.pointer != undefined) {
-                this.fireEvent('cancel', this);
+                this.cancelled.fire({ target: this });
                 this.pointer.unwatch(this);
                 this.pointer = undefined;
             }
         };
         PointerWatcher.prototype.down = function () {
             if (this.pointer != undefined)
-                this.fireEvent('down', this);
+                this.downed.fire({ target: this });
         };
         PointerWatcher.prototype.move = function () {
             if (this.pointer != undefined)
-                this.fireEvent('move', this);
+                this.moved.fire({ target: this });
         };
         PointerWatcher.prototype.up = function () {
             if (this.pointer != undefined)
-                this.fireEvent('up', this);
+                this.upped.fire({ target: this });
         };
         PointerWatcher.prototype.unwatch = function () {
             if (this.pointer != undefined)
@@ -6302,7 +6294,9 @@ var Ui;
             _this.history = undefined;
             _this.buttons = 0;
             _this.button = 0;
-            _this.addEvents('ptrmove', 'ptrup', 'ptrdown');
+            _this.ptrmoved = new Core.Events();
+            _this.ptrupped = new Core.Events();
+            _this.ptrdowned = new Core.Events();
             _this.type = type;
             _this.id = id;
             _this.start = (new Date().getTime()) / 1000;
@@ -6401,11 +6395,11 @@ var Ui;
             if (this.captureWatcher === undefined) {
                 var target = Ui.App.current.elementFromPoint(new Ui.Point(this.x, this.y));
                 if (target != undefined) {
-                    var pointerEvent = new PointerEvent('ptrmove', this);
+                    var pointerEvent = new PointerEvent('ptrmoved', this);
                     pointerEvent.dispatchEvent(target);
                 }
             }
-            this.fireEvent('ptrmove', this);
+            this.ptrmoved.fire({ target: this });
         };
         Pointer.prototype.getIsHold = function () {
             return (((new Date().getTime()) / 1000) - this.start) >= Ui.Pointer.HOLD_DELAY;
@@ -6450,10 +6444,10 @@ var Ui;
             for (var i = 0; i < watchers.length; i++)
                 watchers[i].down();
             var target = Ui.App.current.elementFromPoint(new Ui.Point(this.x, this.y));
-            var pointerEvent = new PointerEvent('ptrdown', this);
+            var pointerEvent = new PointerEvent('ptrdowned', this);
             if (target !== undefined)
                 pointerEvent.dispatchEvent(target);
-            this.fireEvent('ptrdown', this);
+            this.ptrdowned.fire({ target: this });
         };
         Pointer.prototype.up = function () {
             var watchers = this.watchers.slice();
@@ -6462,14 +6456,14 @@ var Ui;
             if (this.type == 'touch')
                 this.watchers = [];
             this.buttons = 0;
-            var pointerEvent = new PointerEvent('ptrup', this);
+            var pointerEvent = new PointerEvent('ptrupped', this);
             if (this.captureWatcher === undefined) {
                 var target = Ui.App.current.elementFromPoint(new Ui.Point(this.x, this.y));
                 if (target != undefined)
                     pointerEvent.dispatchEvent(target);
             }
             this.captureWatcher = undefined;
-            this.fireEvent('ptrup', this);
+            this.ptrupped.fire({ target: this });
         };
         Pointer.prototype.watch = function (element) {
             var watcher = new PointerWatcher(element, this);
@@ -6505,39 +6499,39 @@ var Ui;
             _this.pointers = {};
             _this.app = app;
             if ('PointerEvent' in window) {
-                _this.connect(window, 'pointerdown', _this.onPointerDown);
-                _this.connect(window, 'pointermove', _this.onPointerMove);
-                _this.connect(window, 'pointerup', _this.onPointerUp);
-                _this.connect(window, 'pointercancel', _this.onPointerCancel);
+                window.addEventListener('pointerdown', function (e) { return _this.onPointerDown(e); });
+                window.addEventListener('pointermove', function (e) { return _this.onPointerMove(e); });
+                window.addEventListener('pointerup', function (e) { return _this.onPointerUp(e); });
+                window.addEventListener('pointercancel', function (e) { return _this.onPointerCancel(e); });
             }
             else {
                 _this.mouse = new Pointer('mouse', 0);
-                _this.connect(window, 'mousedown', _this.onMouseDown);
-                _this.connect(window, 'mousemove', _this.onMouseMove);
-                _this.connect(window, 'mouseup', _this.onMouseUp);
-                _this.connect(document, 'selectstart', _this.onSelectStart);
-                _this.connect(window, 'keydown', function (event) {
+                window.addEventListener('mousedown', function (e) { return _this.onMouseDown(e); });
+                window.addEventListener('mousemove', function (e) { return _this.onMouseMove(e); });
+                window.addEventListener('mouseup', function (e) { return _this.onMouseUp(e); });
+                document.addEventListener('selectstart', function (e) { return _this.onSelectStart(e); });
+                window.addEventListener('keydown', function (event) {
                     if ((event.which === 16) || (event.which === 17) || (event.which === 18)) {
-                        this.mouse.setControls(event.altKey, event.ctrlKey, event.shiftKey);
-                        this.mouse.move(event);
+                        _this.mouse.setControls(event.altKey, event.ctrlKey, event.shiftKey);
+                        _this.mouse.move(_this.mouse.x, _this.mouse.y);
                     }
                 });
-                _this.connect(window, 'keyup', function (event) {
+                window.addEventListener('keyup', function (event) {
                     if ((event.which === 16) || (event.which === 17) || (event.which === 18)) {
-                        this.mouse.setControls(event.altKey, event.ctrlKey, event.shiftKey);
-                        this.mouse.move(event);
+                        _this.mouse.setControls(event.altKey, event.ctrlKey, event.shiftKey);
+                        _this.mouse.move(_this.mouse.x, _this.mouse.y);
                     }
                 });
-                _this.connect(document, 'contextmenu', function (event) {
-                    if (this.mouse !== undefined) {
-                        this.mouse.capture(undefined);
-                        this.mouse.up(event);
+                document.addEventListener('contextmenu', function (event) {
+                    if (_this.mouse !== undefined) {
+                        _this.mouse.capture(undefined);
+                        _this.mouse.up();
                     }
                 });
-                _this.connect(document.body, 'touchstart', _this.updateTouches, true);
-                _this.connect(document.body, 'touchmove', _this.updateTouches, true);
-                _this.connect(document.body, 'touchend', _this.updateTouches, true);
-                _this.connect(document.body, 'touchcancel', _this.updateTouches, true);
+                document.body.addEventListener('touchstart', function (e) { return _this.updateTouches(e); }, true);
+                document.body.addEventListener('touchmove', function (e) { return _this.updateTouches(e); }, true);
+                document.body.addEventListener('touchend', function (e) { return _this.updateTouches(e); }, true);
+                document.body.addEventListener('touchcancel', function (e) { return _this.updateTouches(e); }, true);
             }
             return _this;
         }
@@ -6794,7 +6788,9 @@ var Ui;
             _this.dataTransfer = undefined;
             _this.x = 0;
             _this.y = 0;
-            _this.addEvents('drop', 'leave', 'move');
+            _this.dropped = new Core.Events();
+            _this.leaved = new Core.Events();
+            _this.moved = new Core.Events();
             _this.dataTransfer = dataTransfer;
             _this.element = element;
             return _this;
@@ -6817,13 +6813,13 @@ var Ui;
         DragWatcher.prototype.move = function (x, y) {
             this.x = x;
             this.y = y;
-            this.fireEvent('move', this, x, y);
+            this.moved.fire({ target: this, x: x, y: y });
         };
         DragWatcher.prototype.leave = function () {
-            this.fireEvent('leave', this);
+            this.leaved.fire({ target: this });
         };
         DragWatcher.prototype.drop = function (dropEffect) {
-            this.fireEvent('drop', this, dropEffect, this.x, this.y);
+            this.dropped.fire({ target: this, effect: dropEffect, x: this.x, y: this.y });
         };
         DragWatcher.prototype.release = function () {
             this.dataTransfer.releaseDragWatcher(this);
@@ -6843,7 +6839,8 @@ var Ui;
             _this.y = 0;
             _this.hasStarted = false;
             _this.delayed = false;
-            _this.addEvents('start', 'end');
+            _this.started = new Core.Events();
+            _this.ended = new Core.Events();
             _this.dropEffect = [];
             _this.effectAllowed = [];
             _this.draggable = draggable;
@@ -6853,9 +6850,9 @@ var Ui;
             _this.pointer = pointer;
             _this.watcher = _this.pointer.watch(Ui.App.current);
             _this.dragDelta = _this.draggable.pointFromWindow(new Ui.Point(_this.startX, _this.startY));
-            _this.connect(_this.watcher, 'move', _this.onPointerMove);
-            _this.connect(_this.watcher, 'up', _this.onPointerUp);
-            _this.connect(_this.watcher, 'cancel', _this.onPointerCancel);
+            _this.watcher.moved.connect(_this.onPointerMove);
+            _this.watcher.upped.connect(_this.onPointerUp);
+            _this.watcher.cancelled.connect(_this.onPointerCancel);
             if (_this.delayed)
                 _this.timer = new Core.DelayedTask(0.5, _this.onTimer);
             return _this;
@@ -6920,7 +6917,7 @@ var Ui;
         DragEmuDataTransfer.prototype.onTimer = function () {
             var _this = this;
             this.timer = undefined;
-            this.fireEvent('start', this);
+            this.started.fire({ target: this });
             if (this.hasData()) {
                 this.hasStarted = true;
                 this.image = document.createElement('div');
@@ -7008,12 +7005,13 @@ var Ui;
                 this.dragWatcher = undefined;
             }
         };
-        DragEmuDataTransfer.prototype.onPointerMove = function (watcher) {
+        DragEmuDataTransfer.prototype.onPointerMove = function (e) {
             var deltaX;
             var deltaY;
             var delta;
             var dragEvent;
             var ofs;
+            var watcher = e.target;
             if (watcher.getIsCaptured()) {
                 var clientX = watcher.pointer.getX();
                 var clientY = watcher.pointer.getY();
@@ -7087,10 +7085,12 @@ var Ui;
                 }
             }
         };
-        DragEmuDataTransfer.prototype.onPointerUp = function (watcher) {
-            this.disconnect(this.watcher, 'move', this.onPointerMove);
-            this.disconnect(this.watcher, 'up', this.onPointerUp);
-            this.disconnect(this.watcher, 'cancel', this.onPointerCancel);
+        DragEmuDataTransfer.prototype.onPointerUp = function (e) {
+            var _this = this;
+            var watcher = e.target;
+            this.watcher.moved.disconnect(this.onPointerMove);
+            this.watcher.upped.disconnect(this.onPointerUp);
+            this.watcher.cancelled.disconnect(this.onPointerCancel);
             if (!watcher.getIsCaptured())
                 watcher.cancel();
             else {
@@ -7107,8 +7107,8 @@ var Ui;
                             var button = new Ui.Button();
                             button.text = this.dropEffect[i].text;
                             button['Ui.DragEvent.dropEffect'] = this.dropEffect[i];
-                            this.connect(button, 'press', function (b) {
-                                this.dragWatcher.drop(b['Ui.DragEvent.dropEffect'].action);
+                            button.pressed.connect(function (e) {
+                                _this.dragWatcher.drop(e.target['Ui.DragEvent.dropEffect'].action);
                                 popup_1.close();
                             });
                             vbox.append(button);
@@ -7122,13 +7122,13 @@ var Ui;
                     this.dropFailsTimer = new Anim.Clock({
                         duration: 0.25, ease: new Anim.PowerEase({ mode: 'out' })
                     });
-                    this.connect(this.dropFailsTimer, 'timeupdate', this.onDropFailsTimerUpdate);
+                    this.dropFailsTimer.timeupdate.connect(function (e) { return _this.onDropFailsTimerUpdate(e.target, e.progress); });
                     this.dropFailsTimer.begin();
                 }
-                this.fireEvent('end', this);
+                this.ended.fire({ target: this });
             }
         };
-        DragEmuDataTransfer.prototype.onPointerCancel = function (watcher) {
+        DragEmuDataTransfer.prototype.onPointerCancel = function (e) {
             if (this.timer !== undefined) {
                 this.timer.abort();
                 this.timer = undefined;
@@ -7244,10 +7244,10 @@ var Ui;
             _this.nativeTarget = undefined;
             _this.app = app;
             _this.dataTransfer = new DragNativeDataTransfer();
-            _this.connect(_this.app.drawing, 'dragover', _this.onDragOver);
-            _this.connect(_this.app.drawing, 'dragenter', _this.onDragEnter);
-            _this.connect(_this.app.drawing, 'dragleave', _this.onDragLeave);
-            _this.connect(_this.app.drawing, 'drop', _this.onDrop);
+            _this.app.drawing.addEventListener('dragover', function (e) { return _this.onDragOver(e); });
+            _this.app.drawing.addEventListener('dragenter', function (e) { return _this.onDragEnter(e); });
+            _this.app.drawing.addEventListener('dragleave', function (e) { return _this.onDragLeave(e); });
+            _this.app.drawing.addEventListener('drop', function (e) { return _this.onDrop(e); });
             return _this;
         }
         DragNativeManager.prototype.onDragOver = function (event) {
@@ -7367,7 +7367,7 @@ var Ui;
             _this.altKey = false;
             _this.shiftKey = false;
             _this.metaKey = false;
-            _this.setType('wheel');
+            _this.setType('wheelchanged');
             return _this;
         }
         WheelEvent.prototype.setClientX = function (clientX) {
@@ -7402,8 +7402,8 @@ var Ui;
         function WheelManager(app) {
             var _this = _super.call(this) || this;
             _this.app = app;
-            _this.connect(_this.app.drawing, 'mousewheel', _this.onMouseWheel);
-            _this.connect(_this.app.drawing, 'DOMMouseScroll', _this.onMouseWheel);
+            _this.app.drawing.addEventListener('mousewheel', function (e) { return _this.onMouseWheel(e); });
+            _this.app.drawing.addEventListener('DOMMouseScroll', function (e) { return _this.onMouseWheel(e); });
             return _this;
         }
         WheelManager.prototype.onMouseWheel = function (event) {
@@ -8162,31 +8162,31 @@ var Ui;
         function OverWatcher(init) {
             var _this = _super.call(this) || this;
             _this.pointer = undefined;
-            _this.enter = init.enter;
-            _this.leave = init.leave;
+            _this.onPtrMove = function (e) {
+                if (!e.target.getIsInside(_this.element))
+                    _this.onPtrLeave(e.target);
+            };
+            _this.onPtrUp = function (e) {
+                if (e.target.type == 'touch')
+                    _this.onPtrLeave(e.target);
+            };
+            _this.enter = init.onentered;
+            _this.leave = init.onleaved;
             _this.element = init.element;
-            _this.connect(init.element, 'ptrmove', function (event) {
+            init.element.ptrmoved.connect(function (event) {
                 if (!_this.element.isDisabled && (_this.pointer == undefined)) {
                     _this.pointer = event.pointer;
                     if (_this.enter)
                         _this.enter(_this);
-                    _this.connect(_this.pointer, 'ptrmove', _this.onPtrMove);
-                    _this.connect(_this.pointer, 'ptrup', _this.onPtrUp);
+                    _this.pointer.ptrmoved.connect(_this.onPtrMove);
+                    _this.pointer.ptrupped.connect(_this.onPtrUp);
                 }
             });
             return _this;
         }
-        OverWatcher.prototype.onPtrMove = function (pointer) {
-            if (!pointer.getIsInside(this.element))
-                this.onPtrLeave(pointer);
-        };
-        OverWatcher.prototype.onPtrUp = function (pointer) {
-            if (pointer.type == 'touch')
-                this.onPtrLeave(pointer);
-        };
         OverWatcher.prototype.onPtrLeave = function (pointer) {
-            this.disconnect(pointer, 'ptrmove', this.onPtrMove);
-            this.disconnect(pointer, 'ptrup', this.onPtrUp);
+            pointer.ptrmoved.disconnect(this.onPtrMove);
+            pointer.ptrupped.disconnect(this.onPtrUp);
             this.pointer = undefined;
             if (this.leave)
                 this.leave(this);
@@ -8205,12 +8205,22 @@ var Ui;
         __extends(Overable, _super);
         function Overable(init) {
             var _this = _super.call(this, init) || this;
-            _this.addEvents('enter', 'leave', 'move');
+            _this.entered = new Core.Events();
+            _this.leaved = new Core.Events();
+            _this.moved = new Core.Events();
             _this.watcher = new OverWatcher({
                 element: _this,
-                enter: function () { return _this.fireEvent('enter', _this); },
-                leave: function () { return _this.fireEvent('leave', _this); }
+                onentered: function () { return _this.entered.fire({ target: _this }); },
+                onleaved: function () { return _this.leaved.fire({ target: _this }); }
             });
+            if (init) {
+                if (init.onentered)
+                    _this.entered.connect(init.onentered);
+                if (init.onleaved)
+                    _this.leaved.connect(init.onleaved);
+                if (init.onmoved)
+                    _this.moved.connect(init.onmoved);
+            }
             return _this;
         }
         Object.defineProperty(Overable.prototype, "isOver", {
@@ -8234,19 +8244,19 @@ var Ui;
             _this.lastTime = undefined;
             _this.lock = false;
             _this.element = init.element;
-            if (init.press)
-                _this.press = init.press;
-            if (init.down)
-                _this.down = init.down;
-            if (init.up)
-                _this.up = init.up;
-            if (init.activate)
-                _this.activate = init.activate;
-            if (init.delayedpress)
-                _this.delayedpress = init.delayedpress;
-            _this.connect(_this.element, 'ptrdown', _this.onPointerDown);
-            _this.connect(_this.element.drawing, 'keydown', _this.onKeyDown);
-            _this.connect(_this.element.drawing, 'keyup', _this.onKeyUp);
+            if (init.onpressed)
+                _this.press = init.onpressed;
+            if (init.ondowned)
+                _this.down = init.ondowned;
+            if (init.onupped)
+                _this.up = init.onupped;
+            if (init.onactivated)
+                _this.activate = init.onactivated;
+            if (init.ondelayedpress)
+                _this.delayedpress = init.ondelayedpress;
+            _this.element.ptrdowned.connect(function (e) { return _this.onPointerDown(e); });
+            _this.element.drawing.addEventListener('keydown', function (e) { return _this.onKeyDown(e); });
+            _this.element.drawing.addEventListener('keyup', function (e) { return _this.onKeyUp(e); });
             return _this;
         }
         Object.defineProperty(PressWatcher.prototype, "isDown", {
@@ -8263,11 +8273,11 @@ var Ui;
             if (event.pointer.type == 'mouse' && event.pointer.button != 0)
                 return;
             var watcher = event.pointer.watch(this);
-            this.connect(watcher, 'move', function () {
+            watcher.moved.connect(function () {
                 if (watcher.pointer.getIsMove())
                     watcher.cancel();
             });
-            this.connect(watcher, 'up', function (event) {
+            watcher.upped.connect(function () {
                 _this.onUp();
                 var x = event.pointer.getX();
                 var y = event.pointer.getY();
@@ -8278,7 +8288,7 @@ var Ui;
                 watcher.capture();
                 watcher.cancel();
             });
-            this.connect(watcher, 'cancel', function () { return _this.onUp(); });
+            watcher.cancelled.connect(function () { return _this.onUp(); });
             this.onDown();
         };
         PressWatcher.prototype.onKeyDown = function (event) {
@@ -8357,31 +8367,35 @@ var Ui;
         __extends(Pressable, _super);
         function Pressable(init) {
             var _this = _super.call(this, init) || this;
-            _this.addEvents('press', 'down', 'up', 'activate', 'delayedpress');
+            _this.downed = new Core.Events();
+            _this.upped = new Core.Events();
+            _this.pressed = new Core.Events();
+            _this.activated = new Core.Events();
+            _this.delayedpress = new Core.Events();
             _this.drawing.style.cursor = 'pointer';
             _this.focusable = true;
             _this.role = 'button';
             _this.pressWatcher = new PressWatcher({
                 element: _this,
-                press: function (watcher) { return _this.onPress(watcher.x, watcher.y, watcher.altKey, watcher.shiftKey, watcher.ctrlKey); },
-                down: function (watcher) { return _this.onDown(); },
-                up: function (watcher) { return _this.onUp(); },
-                activate: function (watcher) { return _this.onActivate(watcher.x, watcher.y); },
-                delayedpress: function (watcher) { return _this.onDelayedPress(watcher.x, watcher.y, watcher.altKey, watcher.shiftKey, watcher.ctrlKey); }
+                onpressed: function (watcher) { return _this.onPress(watcher.x, watcher.y, watcher.altKey, watcher.shiftKey, watcher.ctrlKey); },
+                ondowned: function (watcher) { return _this.onDown(); },
+                onupped: function (watcher) { return _this.onUp(); },
+                onactivated: function (watcher) { return _this.onActivate(watcher.x, watcher.y); },
+                ondelayedpress: function (watcher) { return _this.onDelayedPress(watcher.x, watcher.y, watcher.altKey, watcher.shiftKey, watcher.ctrlKey); }
             });
             if (init) {
                 if (init.lock !== undefined)
                     _this.lock = init.lock;
-                if (init.onpress !== undefined)
-                    _this.connect(_this, 'press', init.onpress);
-                if (init.ondown !== undefined)
-                    _this.connect(_this, 'down', init.ondown);
-                if (init.onup !== undefined)
-                    _this.connect(_this, 'up', init.onup);
-                if (init.onactivate !== undefined)
-                    _this.connect(_this, 'activate', init.onactivate);
+                if (init.onpressed !== undefined)
+                    _this.pressed.connect(init.onpressed);
+                if (init.ondowned !== undefined)
+                    _this.downed.connect(init.ondowned);
+                if (init.onupped !== undefined)
+                    _this.upped.connect(init.onupped);
+                if (init.onactivated !== undefined)
+                    _this.activated.connect(init.onactivated);
                 if (init.ondelayedpress !== undefined)
-                    _this.connect(_this, 'delayedpress', init.ondelayedpress);
+                    _this.delayedpress.connect(init.ondelayedpress);
             }
             return _this;
         }
@@ -8406,26 +8420,20 @@ var Ui;
             enumerable: true,
             configurable: true
         });
-        Pressable.prototype.press = function () {
-            this.onPress();
-        };
-        Pressable.prototype.activate = function () {
-            this.onActivate();
-        };
         Pressable.prototype.onDown = function () {
-            this.fireEvent('down', this);
+            this.downed.fire({ target: this });
         };
         Pressable.prototype.onUp = function () {
-            this.fireEvent('up', this);
+            this.upped.fire({ target: this });
         };
         Pressable.prototype.onPress = function (x, y, altKey, shiftKey, ctrlKey) {
-            this.fireEvent('press', this, x, y, altKey, shiftKey, ctrlKey);
+            this.pressed.fire({ target: this, x: x, y: y, altKey: altKey, shiftKey: shiftKey, ctrlKey: ctrlKey });
         };
         Pressable.prototype.onActivate = function (x, y) {
-            this.fireEvent('activate', this);
+            this.activated.fire({ target: this, x: x, y: y });
         };
         Pressable.prototype.onDelayedPress = function (x, y, altKey, shiftKey, ctrlKey) {
-            this.fireEvent('delayedpress', this, x, y, altKey, shiftKey, ctrlKey);
+            this.delayedpress.fire({ target: this, x: x, y: y, altKey: altKey, shiftKey: shiftKey, ctrlKey: ctrlKey });
         };
         Pressable.prototype.onDisable = function () {
             _super.prototype.onDisable.call(this);
@@ -8455,7 +8463,7 @@ var Ui;
                 _this.start = init.start;
             if (init.end !== undefined)
                 _this.end = init.end;
-            _this.connect(_this.element, 'ptrdown', _this.onDraggablePointerDown);
+            _this.element.ptrdowned.connect(function (e) { return _this.onDraggablePointerDown(e); });
             return _this;
         }
         Object.defineProperty(DraggableWatcher.prototype, "dragDelta", {
@@ -8466,15 +8474,17 @@ var Ui;
             configurable: true
         });
         DraggableWatcher.prototype.onDraggablePointerDown = function (event) {
+            var _this = this;
             if (event.pointerType == 'mouse' && event.pointer.button != 0 && event.pointer.button != 1)
                 return;
             if (this.element.isDisabled || (this.data === undefined))
                 return;
             var delayed = !(event.pointerType == 'mouse' && event.pointer.button == 0);
-            this.dataTransfer = new Ui.DragEmuDataTransfer(this.element, event.clientX, event.clientY, delayed, event.pointer);
+            var dataTransfer = new Ui.DragEmuDataTransfer(this.element, event.clientX, event.clientY, delayed, event.pointer);
+            this.dataTransfer = dataTransfer;
             this._dragDelta = this.element.pointFromWindow(new Ui.Point(event.clientX, event.clientY));
-            this.connect(this.dataTransfer, 'start', this.onDragStart);
-            this.connect(this.dataTransfer, 'end', this.onDragEnd);
+            dataTransfer.started.connect(function (e) { return _this.onDragStart(dataTransfer); });
+            dataTransfer.ended.connect(function (e) { return _this.onDragEnd(dataTransfer); });
         };
         DraggableWatcher.prototype.onDragStart = function (dataTransfer) {
             var selection = Ui.Selectionable.getParentSelectionHandler(this.element);
@@ -8501,11 +8511,15 @@ var Ui;
         function Draggable(init) {
             var _this = _super.call(this, init) || this;
             _this.allowedMode = 'all';
-            _this.draggableData = undefined;
-            _this._dragDelta = undefined;
-            _this.dataTransfer = undefined;
-            _this.addEvents('dragstart', 'dragend');
-            _this.connect(_this, 'ptrdown', _this.onDraggablePointerDown);
+            _this.dragstarted = new Core.Events();
+            _this.dragended = new Core.Events();
+            _this.ptrdowned.connect(function (e) { return _this.onDraggablePointerDown(e); });
+            if (init) {
+                if (init.ondragstarted)
+                    _this.dragstarted.connect(init.ondragstarted);
+                if (init.ondragended)
+                    _this.dragended.connect(init.ondragended);
+            }
             return _this;
         }
         Draggable.prototype.setAllowedMode = function (allowedMode) {
@@ -8519,15 +8533,17 @@ var Ui;
             configurable: true
         });
         Draggable.prototype.onDraggablePointerDown = function (event) {
+            var _this = this;
             if (event.pointerType == 'mouse' && event.pointer.button != 0 && event.pointer.button != 1)
                 return;
             if (this.lock || this.isDisabled || (this.draggableData === undefined))
                 return;
             var delayed = !(event.pointerType == 'mouse' && event.pointer.button == 0);
-            this.dataTransfer = new Ui.DragEmuDataTransfer(this, event.clientX, event.clientY, delayed, event.pointer);
+            var dataTransfer = new Ui.DragEmuDataTransfer(this, event.clientX, event.clientY, delayed, event.pointer);
+            this.dataTransfer = dataTransfer;
             this._dragDelta = this.pointFromWindow(new Ui.Point(event.clientX, event.clientY));
-            this.connect(this.dataTransfer, 'start', this.onDragStart);
-            this.connect(this.dataTransfer, 'end', this.onDragEnd);
+            dataTransfer.started.connect(function (e) { return _this.onDragStart(dataTransfer); });
+            dataTransfer.ended.connect(function (e) { return _this.onDragEnd(dataTransfer); });
         };
         Draggable.prototype.onDragStart = function (dataTransfer) {
             var selection = Ui.Selectionable.getParentSelectionHandler(this);
@@ -8536,10 +8552,10 @@ var Ui;
             else
                 dataTransfer.setData(this.draggableData);
             dataTransfer.effectAllowed = this.allowedMode;
-            this.fireEvent('dragstart', this, dataTransfer);
+            this.dragstarted.fire({ target: this, dataTransfer: dataTransfer });
         };
         Draggable.prototype.onDragEnd = function (dataTransfer) {
-            this.fireEvent('dragend', this, dataTransfer.dropEffect);
+            this.dragended.fire({ target: this, effect: dataTransfer.dropEffect });
         };
         return Draggable;
     }(Ui.Pressable));
@@ -8556,12 +8572,12 @@ var Ui;
             _this.element.focusable = true;
             _this.selectionActions = init.selectionActions;
             _this.element['Ui.SelectionableWatcher.watcher'] = _this;
-            _this.select = init.select;
-            _this.unselect = init.unselect;
+            _this.select = init.onselected;
+            _this.unselect = init.onunselected;
             new Ui.PressWatcher({
                 element: _this.element,
-                delayedpress: function (w) { return _this.onDelayedPress(w); },
-                activate: function (w) { return _this.onSelectionableActivate(w); }
+                ondelayedpress: function (w) { return _this.onDelayedPress(w); },
+                onactivated: function (w) { return _this.onSelectionableActivate(w); }
             });
             new Ui.DraggableWatcher({
                 element: _this.element,
@@ -8656,12 +8672,13 @@ var Ui;
         __extends(Selectionable, _super);
         function Selectionable(init) {
             var _this = _super.call(this, init) || this;
-            _this.addEvents('select', 'unselect');
+            _this.selected = new Core.Events();
+            _this.unselected = new Core.Events();
             _this.selectionWatcher = new SelectionableWatcher({
                 element: _this,
                 selectionActions: _this.getSelectionActions(),
-                select: function (s) { return _this.onSelect(s); },
-                unselect: function (s) { return _this.onUnselect(s); }
+                onselected: function (s) { return _this.onSelect(s); },
+                onunselected: function (s) { return _this.onUnselect(s); }
             });
             return _this;
         }
@@ -8676,10 +8693,10 @@ var Ui;
             configurable: true
         });
         Selectionable.prototype.onSelect = function (selection) {
-            this.fireEvent('select', this);
+            this.selected.fire({ target: this });
         };
         Selectionable.prototype.onUnselect = function (selection) {
-            this.fireEvent('unselect', this);
+            this.unselected.fire({ target: this });
         };
         Selectionable.prototype.getSelectionActions = function () {
             return {};
@@ -8706,7 +8723,11 @@ var Ui;
         __extends(Selection, _super);
         function Selection() {
             var _this = _super.call(this) || this;
-            _this.addEvents('change');
+            _this.changed = new Core.Events();
+            _this.onElementUnload = function (e) {
+                var watcher = Ui.SelectionableWatcher.getSelectionableWatcher(e.target);
+                _this.remove(watcher);
+            };
             _this._watchers = [];
             return _this;
         }
@@ -8717,7 +8738,7 @@ var Ui;
                     change = true;
             }
             if (change)
-                this.fireEvent('change', this);
+                this.changed.fire({ target: this });
         };
         Selection.prototype.appendRange = function (start, end) {
             var _this = this;
@@ -8728,7 +8749,7 @@ var Ui;
             if (end.element.focusable)
                 end.element.focus();
             if (change)
-                this.fireEvent('change', this);
+                this.changed.fire({ target: this });
         };
         Selection.prototype.append = function (elements) {
             var _this = this;
@@ -8746,7 +8767,7 @@ var Ui;
                     elements[elements.length - 1].element.focus();
             }
             if (change)
-                this.fireEvent('change', this);
+                this.changed.fire({ target: this });
         };
         Selection.prototype.extend = function (end) {
             if (this._watchers.length == 0)
@@ -8793,7 +8814,7 @@ var Ui;
             if (this._watchers.indexOf(watcher) != -1)
                 return false;
             this._watchers.push(watcher);
-            this.connect(watcher.element, 'unload', this.onElementUnload);
+            watcher.element.unloaded.connect(this.onElementUnload);
             watcher.onSelect(this);
             return true;
         };
@@ -8808,13 +8829,13 @@ var Ui;
                 watcher.forEach(function (w) { if (_this.internalRemove(w))
                     change = true; });
             if (change)
-                this.fireEvent('change', this);
+                this.changed.fire({ target: this });
         };
         Selection.prototype.internalRemove = function (watcher) {
             var foundPos = this._watchers.indexOf(watcher);
             if (foundPos != -1) {
                 this._watchers.splice(foundPos, 1);
-                this.disconnect(watcher.element, 'unload', this.onElementUnload);
+                watcher.element.unloaded.disconnect(this.onElementUnload);
                 watcher.onUnselect(this);
                 return true;
             }
@@ -8841,7 +8862,7 @@ var Ui;
                 if (watchers.length > 0 && watchers[watchers.length - 1].element.focusable)
                     watchers[watchers.length - 1].element.focus();
                 if (addList.length > 0 || removeList.length > 0)
-                    this.fireEvent('change', this);
+                    this.changed.fire({ target: this });
             },
             enumerable: true,
             configurable: true
@@ -8964,10 +8985,6 @@ var Ui;
                 return false;
             }
         };
-        Selection.prototype.onElementUnload = function (element) {
-            var watcher = Ui.SelectionableWatcher.getSelectionableWatcher(element);
-            this.remove(watcher);
-        };
         return Selection;
     }(Core.Object));
     Ui.Selection = Selection;
@@ -8989,9 +9006,9 @@ var Ui;
                 _this.up = init.up;
             if (init.lock !== undefined)
                 _this.lock = init.lock;
-            _this.connect(_this.element.drawing, 'contextmenu', function (event) { return event.preventDefault(); });
-            _this.connect(_this.element, 'ptrdown', _this.onPointerDown);
-            _this.connect(_this.element.drawing, 'keyup', _this.onKeyUp);
+            _this.element.drawing.addEventListener('contextmenu', function (event) { return event.preventDefault(); });
+            _this.element.ptrdowned.connect(function (e) { return _this.onPointerDown(e); });
+            _this.element.drawing.addEventListener('keyup', function (e) { return _this.onKeyUp(e); });
             return _this;
         }
         Object.defineProperty(ContextMenuWatcher.prototype, "isDown", {
@@ -9008,11 +9025,11 @@ var Ui;
             if (event.pointer.type != 'mouse' || event.pointer.button != 2)
                 return;
             var watcher = event.pointer.watch(this);
-            this.connect(watcher, 'move', function () {
+            watcher.moved.connect(function () {
                 if (watcher.pointer.getIsMove())
                     watcher.cancel();
             });
-            this.connect(watcher, 'up', function (event) {
+            watcher.upped.connect(function () {
                 _this.onUp();
                 var x = event.pointer.getX();
                 var y = event.pointer.getY();
@@ -9023,7 +9040,7 @@ var Ui;
                 watcher.capture();
                 watcher.cancel();
             });
-            this.connect(watcher, 'cancel', function () { return _this.onUp(); });
+            watcher.cancelled.connect(function () { return _this.onUp(); });
             this.onDown();
         };
         ContextMenuWatcher.prototype.onKeyUp = function (event) {
@@ -9425,8 +9442,10 @@ var Ui;
             _this._lock = false;
             _this.isInMoveEvent = false;
             _this.cumulMove = 0;
-            _this.addEvents('down', 'up', 'move');
-            _this.connect(_this, 'ptrdown', _this.onPointerDown);
+            _this.upped = new Core.Events();
+            _this.downed = new Core.Events();
+            _this.moved = new Core.Events();
+            _this.ptrdowned.connect(function (e) { return _this.onPointerDown(e); });
             if (init) {
                 if (init.lock !== undefined)
                     _this.lock = init.lock;
@@ -9436,6 +9455,12 @@ var Ui;
                     _this.moveHorizontal = init.moveHorizontal;
                 if (init.moveVertical !== undefined)
                     _this.moveVertical = init.moveVertical;
+                if (init.onupped)
+                    _this.upped.connect(init.onupped);
+                if (init.ondowned)
+                    _this.downed.connect(init.ondowned);
+                if (init.onmoved)
+                    _this.moved.connect(init.onmoved);
             }
             return _this;
         }
@@ -9504,7 +9529,7 @@ var Ui;
             }
             if (!this.isInMoveEvent && !dontSignal) {
                 this.isInMoveEvent = true;
-                this.fireEvent('move', this);
+                this.moved.fire({ target: this });
                 this.onMove(this.posX, this.posY);
                 this.isInMoveEvent = false;
             }
@@ -9528,13 +9553,20 @@ var Ui;
         MovableBase.prototype.onDown = function () {
             this.cumulMove = 0;
             this._isDown = true;
-            this.fireEvent('down', this);
+            this.downed.fire({ target: this });
         };
         MovableBase.prototype.onUp = function (abort) {
             this._isDown = false;
-            this.fireEvent('up', this, this.speedX, this.speedY, (this.posX - this.startPosX), (this.posY - this.startPosY), this.cumulMove, abort);
+            this.upped.fire({
+                target: this, speedX: this.speedX, speedY: this.speedY,
+                deltaX: (this.posX - this.startPosX),
+                deltaY: (this.posY - this.startPosY),
+                cumulMove: this.cumulMove,
+                abort: abort
+            });
         };
         MovableBase.prototype.onPointerDown = function (event) {
+            var _this = this;
             if (this._isDown || this.isDisabled || this._lock)
                 return;
             this.stopInertia();
@@ -9542,14 +9574,14 @@ var Ui;
             this.startPosY = this.posY;
             this.onDown();
             var watcher = event.pointer.watch(this);
-            this.connect(watcher, 'move', function () {
+            watcher.moved.connect(function () {
                 if (!watcher.getIsCaptured()) {
                     if (watcher.pointer.getIsMove()) {
                         var deltaObj = watcher.getDelta();
                         var delta = Math.sqrt(deltaObj.x * deltaObj.x + deltaObj.y * deltaObj.y);
-                        this.setPosition(this.startPosX + deltaObj.x, this.startPosY + deltaObj.y);
-                        var deltaPosX = this.posX - this.startPosX;
-                        var deltaPosY = this.posY - this.startPosY;
+                        _this.setPosition(_this.startPosX + deltaObj.x, _this.startPosY + deltaObj.y);
+                        var deltaPosX = _this.posX - _this.startPosX;
+                        var deltaPosY = _this.posY - _this.startPosY;
                         var deltaPos = Math.sqrt(deltaPosX * deltaPosX + deltaPosY * deltaPosY);
                         var test = 0;
                         if (delta > 0)
@@ -9560,55 +9592,54 @@ var Ui;
                         if (test >= testLevel)
                             watcher.capture();
                         else {
-                            this.setPosition(this.startPosX, this.startPosY);
+                            _this.setPosition(_this.startPosX, _this.startPosY);
                             watcher.cancel();
                         }
                     }
                 }
                 else {
                     var delta = watcher.getDelta();
-                    this.setPosition(this.startPosX + delta.x, this.startPosY + delta.y);
+                    _this.setPosition(_this.startPosX + delta.x, _this.startPosY + delta.y);
                 }
             });
-            this.connect(watcher, 'up', function () {
-                this.cumulMove = watcher.pointer.getCumulMove();
+            watcher.upped.connect(function () {
+                _this.cumulMove = watcher.pointer.getCumulMove();
                 var speed = watcher.getSpeed();
-                this.speedX = speed.x;
-                this.speedY = speed.y;
-                if (this.inertia)
-                    this.startInertia();
-                this.onUp(false);
+                _this.speedX = speed.x;
+                _this.speedY = speed.y;
+                if (_this.inertia)
+                    _this.startInertia();
+                _this.onUp(false);
                 watcher.cancel();
             });
-            this.connect(watcher, 'cancel', function () {
-                this.onUp(true);
+            watcher.cancelled.connect(function () {
+                _this.onUp(true);
             });
         };
         MovableBase.prototype.startInertia = function () {
+            var _this = this;
             if (this.inertiaClock == undefined) {
-                this.inertiaClock = new Anim.Clock();
-                this.inertiaClock.duration = 'forever';
-                this.inertiaClock.target = this;
-                this.connect(this.inertiaClock, 'timeupdate', function (clock, progress, delta) {
-                    if (delta === 0)
+                this.inertiaClock = new Anim.Clock({ duration: 'forever', target: this });
+                this.inertiaClock.timeupdate.connect(function (e) {
+                    if (e.deltaTick === 0)
                         return;
-                    var oldPosX = this.posX;
-                    var oldPosY = this.posY;
-                    var posX = this.posX + (this.speedX * delta);
-                    var posY = this.posY + (this.speedY * delta);
-                    this.setPosition(posX, posY);
-                    if ((this.posX == oldPosX) && (this.posY == oldPosY)) {
-                        this.stopInertia();
+                    var oldPosX = _this.posX;
+                    var oldPosY = _this.posY;
+                    var posX = _this.posX + (_this.speedX * e.deltaTick);
+                    var posY = _this.posY + (_this.speedY * e.deltaTick);
+                    _this.setPosition(posX, posY);
+                    if ((_this.posX == oldPosX) && (_this.posY == oldPosY)) {
+                        _this.stopInertia();
                         return;
                     }
-                    this.speedX -= this.speedX * delta * 3;
-                    this.speedY -= this.speedY * delta * 3;
-                    if (Math.abs(this.speedX) < 0.1)
-                        this.speedX = 0;
-                    if (Math.abs(this.speedY) < 0.1)
-                        this.speedY = 0;
-                    if ((this.speedX === 0) && (this.speedY === 0))
-                        this.stopInertia();
+                    _this.speedX -= _this.speedX * e.deltaTick * 3;
+                    _this.speedY -= _this.speedY * e.deltaTick * 3;
+                    if (Math.abs(_this.speedX) < 0.1)
+                        _this.speedX = 0;
+                    if (Math.abs(_this.speedY) < 0.1)
+                        _this.speedY = 0;
+                    if ((_this.speedX === 0) && (_this.speedY === 0))
+                        _this.stopInertia();
                 });
                 this.inertiaClock.begin();
             }
@@ -9635,7 +9666,7 @@ var Ui;
             _this.contentBox = new Ui.LBox();
             _this.appendChild(_this.contentBox);
             _this.contentBox.drawing.style.cursor = _this._cursor;
-            _this.connect(_this.drawing, 'keydown', _this.onKeyDown);
+            _this.drawing.addEventListener('keydown', function (e) { return _this.onKeyDown(e); });
             if (init) {
                 if (init.cursor !== undefined)
                     _this.cursor = init.cursor;
@@ -9759,8 +9790,8 @@ var Ui;
             if (init.inertia != undefined)
                 _this.inertia = init.inertia;
             _this.element.setTransformOrigin(0, 0, true);
-            _this.connect(_this.element, 'ptrdown', _this.onPointerDown);
-            _this.connect(_this.element, 'wheel', _this.onWheel);
+            _this.element.ptrdowned.connect(function (e) { return _this.onPointerDown(e); });
+            _this.element.wheelchanged.connect(function (e) { return _this.onWheel(e); });
             return _this;
         }
         Object.defineProperty(TransformableWatcher.prototype, "allowLeftMouse", {
@@ -9940,6 +9971,7 @@ var Ui;
                 this.up(this);
         };
         TransformableWatcher.prototype.onPointerDown = function (event) {
+            var _this = this;
             if (!this._allowLeftMouse && event.pointerType == 'mouse' && event.pointer.button == 0)
                 return;
             this.stopInertia();
@@ -9948,9 +9980,9 @@ var Ui;
                     this.onDown();
                 var watcher = event.pointer.watch(this);
                 this.watcher1 = watcher;
-                this.connect(watcher, 'move', this.onPointerMove);
-                this.connect(watcher, 'up', this.onPointerUp);
-                this.connect(watcher, 'cancel', this.onPointerCancel);
+                watcher.moved.connect(function (e) { return _this.onPointerMove(e.target); });
+                watcher.upped.connect(function (e) { return _this.onPointerUp(e.target); });
+                watcher.cancelled.connect(function (e) { return _this.onPointerCancel(e.target); });
                 this.startAngle = this._angle;
                 this.startScale = this._scale;
                 this.startTranslateX = this._translateX;
@@ -9962,9 +9994,9 @@ var Ui;
                 this.watcher1.pointer.setInitialPosition(this.watcher1.pointer.getX(), this.watcher1.pointer.getY());
                 var watcher = event.pointer.watch(this);
                 this.watcher2 = watcher;
-                this.connect(watcher, 'move', this.onPointerMove);
-                this.connect(watcher, 'up', this.onPointerUp);
-                this.connect(watcher, 'cancel', this.onPointerUp);
+                watcher.moved.connect(function (e) { return _this.onPointerMove(e.target); });
+                watcher.upped.connect(function (e) { return _this.onPointerUp(e.target); });
+                watcher.cancelled.connect(function (e) { return _this.onPointerUp(e.target); });
                 this.startAngle = this._angle;
                 this.startScale = this._scale;
                 this.startTranslateX = this._translateX;
@@ -10133,9 +10165,10 @@ var Ui;
             event.stopPropagation();
         };
         TransformableWatcher.prototype.startInertia = function () {
+            var _this = this;
             if ((this.inertiaClock === undefined) && this.inertia) {
                 this.inertiaClock = new Anim.Clock({ duration: 'forever', target: this.element });
-                this.connect(this.inertiaClock, 'timeupdate', this.onTimeupdate);
+                this.inertiaClock.timeupdate.connect(function (e) { return _this.onTimeupdate(e.target, e.progress, e.deltaTick); });
                 this.inertiaClock.begin();
                 if (this.inertiastart)
                     this.inertiastart(this);
@@ -10197,13 +10230,17 @@ var Ui;
             _this._allowLeftMouse = true;
             _this.speedX = 0;
             _this.speedY = 0;
-            _this.addEvents('down', 'up', 'transform', 'inertiastart', 'inertiaend');
+            _this.downed = new Core.Events();
+            _this.uped = new Core.Events();
+            _this.transformed = new Core.Events();
+            _this.inertiastarted = new Core.Events();
+            _this.inertiaended = new Core.Events();
             _this.focusable = true;
             _this.contentBox = new Ui.LBox();
             _this.contentBox.setTransformOrigin(0, 0, true);
             _this.appendChild(_this.contentBox);
-            _this.connect(_this, 'ptrdown', _this.onPointerDown);
-            _this.connect(_this, 'wheel', _this.onWheel);
+            _this.ptrdowned.connect(function (e) { return _this.onPointerDown(e); });
+            _this.wheelchanged.connect(function (e) { return _this.onWheel(e); });
             if (init) {
                 if (init.allowLeftMouse !== undefined)
                     _this.allowLeftMouse = init.allowLeftMouse;
@@ -10378,7 +10415,7 @@ var Ui;
             this._angle = angle;
             if (!this.transformLock) {
                 this.transformLock = true;
-                this.fireEvent('transform', this);
+                this.transformed.fire({ target: this });
                 var testOnly = !(((this.watcher1 === undefined) || this.watcher1.getIsCaptured()) &&
                     ((this.watcher2 === undefined) || this.watcher2.getIsCaptured()));
                 this.onContentTransform(testOnly);
@@ -10402,13 +10439,14 @@ var Ui;
         };
         Transformable.prototype.onDown = function () {
             this._isDown = true;
-            this.fireEvent('down', this);
+            this.downed.fire({ target: this });
         };
         Transformable.prototype.onUp = function () {
             this._isDown = false;
-            this.fireEvent('up', this);
+            this.uped.fire({ target: this });
         };
         Transformable.prototype.onPointerDown = function (event) {
+            var _this = this;
             if (!this._allowLeftMouse && event.pointerType == 'mouse' && event.pointer.button == 0)
                 return;
             this.stopInertia();
@@ -10417,9 +10455,9 @@ var Ui;
                     this.onDown();
                 var watcher = event.pointer.watch(this);
                 this.watcher1 = watcher;
-                this.connect(watcher, 'move', this.onPointerMove);
-                this.connect(watcher, 'up', this.onPointerUp);
-                this.connect(watcher, 'cancel', this.onPointerCancel);
+                watcher.moved.connect(function (e) { return _this.onPointerMove(e.target); });
+                watcher.upped.connect(function (e) { return _this.onPointerUp(e.target); });
+                watcher.cancelled.connect(function (e) { return _this.onPointerCancel(e.target); });
                 this.startAngle = this._angle;
                 this.startScale = this._scale;
                 this.startTranslateX = this._translateX;
@@ -10431,9 +10469,9 @@ var Ui;
                 this.watcher1.pointer.setInitialPosition(this.watcher1.pointer.getX(), this.watcher1.pointer.getY());
                 var watcher = event.pointer.watch(this);
                 this.watcher2 = watcher;
-                this.connect(watcher, 'move', this.onPointerMove);
-                this.connect(watcher, 'up', this.onPointerUp);
-                this.connect(watcher, 'cancel', this.onPointerUp);
+                watcher.moved.connect(function (e) { return _this.onPointerMove(e.target); });
+                watcher.upped.connect(function (e) { return _this.onPointerUp(e.target); });
+                watcher.cancelled.connect(function (e) { return _this.onPointerUp(e.target); });
                 this.startAngle = this._angle;
                 this.startScale = this._scale;
                 this.startTranslateX = this._translateX;
@@ -10602,11 +10640,12 @@ var Ui;
             event.stopPropagation();
         };
         Transformable.prototype.startInertia = function () {
+            var _this = this;
             if ((this.inertiaClock === undefined) && this.inertia) {
                 this.inertiaClock = new Anim.Clock({ duration: 'forever', target: this });
-                this.connect(this.inertiaClock, 'timeupdate', this.onTimeupdate);
+                this.inertiaClock.timeupdate.connect(function (e) { return _this.onTimeupdate(e.target, e.progress, e.deltaTick); });
                 this.inertiaClock.begin();
-                this.fireEvent('inertiastart', this);
+                this.inertiastarted.fire({ target: this });
             }
         };
         Transformable.prototype.onTimeupdate = function (clock, progress, delta) {
@@ -10635,7 +10674,7 @@ var Ui;
                 this.inertiaClock.stop();
                 delete (this.inertiaClock);
                 this.setContentTransform(Math.round(this._translateX), Math.round(this._translateY), undefined, undefined);
-                this.fireEvent('inertiaend', this);
+                this.inertiaended.fire({ target: this });
             }
         };
         Object.defineProperty(Transformable.prototype, "content", {
@@ -10682,25 +10721,57 @@ var Ui;
             _this.scrollbarHorizontalNeeded = false;
             _this.scrollbarVerticalHeight = 0;
             _this.scrollbarHorizontalWidth = 0;
-            _this.addEvents('scroll');
+            _this.scrolled = new Core.Events();
+            _this.autoShowScrollbars = function () {
+                if (_this.showClock === undefined) {
+                    _this.showClock = new Anim.Clock({ duration: 'forever' });
+                    _this.showClock.timeupdate.connect(function (e) { return _this.onShowBarsTick(e.target, e.progress, e.deltaTick); });
+                    _this.showClock.begin();
+                }
+            };
+            _this.autoHideScrollbars = function () {
+                if (_this.contentBox.isDown || _this.contentBox.isInertia || _this.isOver)
+                    return;
+                if (_this.showClock === undefined) {
+                    _this.showClock = new Anim.Clock({ duration: 'forever' });
+                    _this.showClock.timeupdate.connect(function (e) { return _this.onShowBarsTick(e.target, e.progress, e.deltaTick); });
+                    _this.showClock.begin();
+                }
+            };
+            _this.onScrollbarHorizontalMove = function () {
+                if (_this.scrollLock)
+                    return;
+                var totalWidth = _this.viewWidth - _this.scrollbarHorizontalBox.layoutWidth;
+                var offsetX = Math.min(1, Math.max(0, _this.scrollbarHorizontalBox.positionX / totalWidth));
+                _this.setOffset(offsetX, undefined, false, true);
+                _this.scrollbarHorizontalBox.setPosition(offsetX * totalWidth, undefined);
+            };
+            _this.onScrollbarVerticalMove = function () {
+                if (_this.scrollLock)
+                    return;
+                var totalHeight = _this.viewHeight - _this.scrollbarVerticalBox.layoutHeight;
+                var offsetY = Math.min(1, Math.max(0, _this.scrollbarVerticalBox.positionY / totalHeight));
+                _this.setOffset(undefined, offsetY, false, true);
+                _this.scrollbarVerticalBox.setPosition(undefined, offsetY * totalHeight);
+            };
             _this.contentBox = new Ui.ScrollableContent();
-            _this.connect(_this.contentBox, 'scroll', _this.onScroll);
-            _this.connect(_this.contentBox, 'down', _this.autoShowScrollbars);
-            _this.connect(_this.contentBox, 'inertiaend', _this.autoHideScrollbars);
+            _this.contentBox.scrolled.connect(function () { return _this.onScroll(); });
+            _this.contentBox.downed.connect(_this.autoShowScrollbars);
+            _this.contentBox.inertiaended.connect(_this.autoHideScrollbars);
             _this.appendChild(_this.contentBox);
             new Ui.OverWatcher({
                 element: _this,
-                enter: function () {
+                onentered: function () {
                     _this.isOver = true;
                     _this.autoShowScrollbars();
                 },
-                leave: function () {
+                onleaved: function () {
                     _this.isOver = false;
                     _this.autoHideScrollbars();
                 }
             });
-            _this.connect(_this, 'wheel', _this.onWheel);
-            _this.connect(_this.drawing, 'keydown', _this.onKeyDown);
+            _this.wheelchanged.connect(function (e) { return _this.onWheel(e); });
+            _this.drawing.addEventListener('keydown', function (e) { return _this.onKeyDown(e); });
             _this.setScrollbarHorizontal(new Ui.Movable());
             _this.setScrollbarVertical(new Ui.Movable());
             if (init) {
@@ -10777,35 +10848,35 @@ var Ui;
         });
         Scrollable.prototype.setScrollbarVertical = function (scrollbarVertical) {
             if (this.scrollbarVerticalBox) {
-                this.disconnect(this.scrollbarVerticalBox, 'down', this.autoShowScrollbars);
-                this.disconnect(this.scrollbarVerticalBox, 'up', this.autoHideScrollbars);
-                this.disconnect(this.scrollbarVerticalBox, 'move', this.onScrollbarVerticalMove);
+                this.scrollbarVerticalBox.downed.disconnect(this.autoShowScrollbars);
+                this.scrollbarVerticalBox.upped.disconnect(this.autoHideScrollbars);
+                this.scrollbarVerticalBox.moved.disconnect(this.onScrollbarVerticalMove);
                 this.removeChild(this.scrollbarVerticalBox);
             }
             if (scrollbarVertical) {
                 this.scrollbarVerticalBox = scrollbarVertical;
                 this.scrollbarVerticalBox.opacity = 0;
                 this.scrollbarVerticalBox.moveHorizontal = false;
-                this.connect(this.scrollbarVerticalBox, 'down', this.autoShowScrollbars);
-                this.connect(this.scrollbarVerticalBox, 'up', this.autoHideScrollbars);
-                this.connect(this.scrollbarVerticalBox, 'move', this.onScrollbarVerticalMove);
+                this.scrollbarVerticalBox.downed.connect(this.autoShowScrollbars);
+                this.scrollbarVerticalBox.upped.connect(this.autoHideScrollbars);
+                this.scrollbarVerticalBox.moved.connect(this.onScrollbarVerticalMove);
                 this.appendChild(this.scrollbarVerticalBox);
             }
         };
         Scrollable.prototype.setScrollbarHorizontal = function (scrollbarHorizontal) {
             if (this.scrollbarHorizontalBox) {
-                this.disconnect(this.scrollbarHorizontalBox, 'down', this.autoShowScrollbars);
-                this.disconnect(this.scrollbarHorizontalBox, 'up', this.autoHideScrollbars);
-                this.disconnect(this.scrollbarHorizontalBox, 'move', this.onScrollbarHorizontalMove);
+                this.scrollbarHorizontalBox.downed.disconnect(this.autoShowScrollbars);
+                this.scrollbarHorizontalBox.upped.disconnect(this.autoHideScrollbars);
+                this.scrollbarHorizontalBox.moved.disconnect(this.onScrollbarHorizontalMove);
                 this.removeChild(this.scrollbarHorizontalBox);
             }
             if (scrollbarHorizontal) {
                 this.scrollbarHorizontalBox = scrollbarHorizontal;
                 this.scrollbarHorizontalBox.opacity = 0;
                 this.scrollbarHorizontalBox.moveVertical = false;
-                this.connect(this.scrollbarHorizontalBox, 'down', this.autoShowScrollbars);
-                this.connect(this.scrollbarHorizontalBox, 'up', this.autoHideScrollbars);
-                this.connect(this.scrollbarHorizontalBox, 'move', this.onScrollbarHorizontalMove);
+                this.scrollbarHorizontalBox.downed.connect(this.autoShowScrollbars);
+                this.scrollbarHorizontalBox.upped.connect(this.autoHideScrollbars);
+                this.scrollbarHorizontalBox.moved.connect(this.onScrollbarHorizontalMove);
                 this.appendChild(this.scrollbarHorizontalBox);
             }
         };
@@ -10911,22 +10982,6 @@ var Ui;
                 event.preventDefault();
             }
         };
-        Scrollable.prototype.autoShowScrollbars = function () {
-            if (this.showClock === undefined) {
-                this.showClock = new Anim.Clock({ duration: 'forever' });
-                this.connect(this.showClock, 'timeupdate', this.onShowBarsTick);
-                this.showClock.begin();
-            }
-        };
-        Scrollable.prototype.autoHideScrollbars = function () {
-            if (this.contentBox.isDown || this.contentBox.isInertia || this.isOver)
-                return;
-            if (this.showClock === undefined) {
-                this.showClock = new Anim.Clock({ duration: 'forever' });
-                this.connect(this.showClock, 'timeupdate', this.onShowBarsTick);
-                this.showClock.begin();
-            }
-        };
         Scrollable.prototype.onShowBarsTick = function (clock, progress, delta) {
             var show = this.contentBox.isDown || this.contentBox.isInertia || this.isOver;
             if (this.scrollbarVerticalBox)
@@ -10961,7 +11016,7 @@ var Ui;
         };
         Scrollable.prototype.onScroll = function () {
             this.updateOffset();
-            this.fireEvent('scroll', this, this.offsetX, this.offsetY);
+            this.scrolled.fire({ target: this, offsetX: this.offsetX, offsetY: this.offsetY });
         };
         Scrollable.prototype.updateOffset = function () {
             if (this.contentBox === undefined)
@@ -11033,22 +11088,6 @@ var Ui;
             }
             this.scrollLock = false;
         };
-        Scrollable.prototype.onScrollbarHorizontalMove = function (movable) {
-            if (this.scrollLock)
-                return;
-            var totalWidth = this.viewWidth - this.scrollbarHorizontalBox.layoutWidth;
-            var offsetX = Math.min(1, Math.max(0, movable.positionX / totalWidth));
-            this.setOffset(offsetX, undefined, false, true);
-            movable.setPosition(offsetX * totalWidth, undefined);
-        };
-        Scrollable.prototype.onScrollbarVerticalMove = function (movable) {
-            if (this.scrollLock)
-                return;
-            var totalHeight = this.viewHeight - this.scrollbarVerticalBox.layoutHeight;
-            var offsetY = Math.min(1, Math.max(0, movable.positionY / totalHeight));
-            this.setOffset(undefined, offsetY, false, true);
-            movable.setPosition(undefined, offsetY * totalHeight);
-        };
         Scrollable.prototype.onScrollIntoView = function (el) {
             var matrix = Ui.Matrix.createTranslate(this.offsetX, this.offsetY).multiply(el.transformToElement(this));
             var p0 = (new Ui.Point(0, 0)).multiply(matrix);
@@ -11109,10 +11148,10 @@ var Ui;
             var _this = _super.call(this) || this;
             _this._contentWidth = 0;
             _this._contentHeight = 0;
-            _this.addEvents('scroll');
+            _this.scrolled = new Core.Events();
             _this.allowLeftMouse = false;
             _this.clipToBounds = true;
-            _this.connect(_this.drawing, 'scroll', function () {
+            _this.drawing.addEventListener('scroll', function () {
                 _this.translateX -= _this.drawing.scrollLeft;
                 _this.translateY -= _this.drawing.scrollTop;
                 _this.drawing.scrollLeft = 0;
@@ -11178,9 +11217,8 @@ var Ui;
             _super.prototype.onContentTransform.call(this, testOnly);
             this._contentWidth = this.firstChild.layoutWidth * scale;
             this._contentHeight = this.firstChild.layoutHeight * scale;
-            if (testOnly !== true) {
-                this.fireEvent('scroll', this);
-            }
+            if (testOnly !== true)
+                this.scrolled.fire({ target: this, offsetX: this.offsetX, offsetY: this.offsetY });
         };
         return ScrollableContent;
     }(Ui.Transformable));
@@ -11211,10 +11249,10 @@ var Ui;
                 _this.rect.horizontalAlign = 'right';
             }
             _this.over.content = _this.rect;
-            _this.connect(_this.over, 'enter', _this.startAnim);
-            _this.connect(_this.over, 'leave', _this.startAnim);
-            _this.connect(_this, 'down', _this.startAnim);
-            _this.connect(_this, 'up', _this.startAnim);
+            _this.over.entered.connect(function () { return _this.startAnim(); });
+            _this.over.leaved.connect(function () { return _this.startAnim(); });
+            _this.downed.connect(function () { return _this.startAnim(); });
+            _this.upped.connect(function () { return _this.startAnim(); });
             return _this;
         }
         Object.defineProperty(Scrollbar.prototype, "radius", {
@@ -11232,10 +11270,11 @@ var Ui;
             configurable: true
         });
         Scrollbar.prototype.startAnim = function () {
+            var _this = this;
             if (this.clock == undefined) {
                 this.clock = new Anim.Clock();
                 this.clock.duration = 'forever';
-                this.connect(this.clock, 'timeupdate', this.onTick);
+                this.clock.timeupdate.connect(function (e) { return _this.onTick(e.target, e.progress, e.deltaTick); });
                 this.clock.begin();
             }
         };
@@ -11897,7 +11936,7 @@ var Ui;
             if (init.types)
                 _this.types = init.types;
             _this.watchers = [];
-            _this.connect(_this.element, 'dragover', _this.onDragOver);
+            _this.element.dragover.connect(function (e) { return _this.onDragOver(e); });
             return _this;
         }
         DropableWatcher.prototype.addType = function (type, effects) {
@@ -11941,6 +11980,7 @@ var Ui;
             configurable: true
         });
         DropableWatcher.prototype.onDragOver = function (event) {
+            var _this = this;
             var found = false;
             for (var i = 0; !found && (i < this.watchers.length); i++)
                 found = (this.watchers[i].getDataTransfer() === event.dataTransfer);
@@ -11950,8 +11990,8 @@ var Ui;
                 if ((effect !== undefined) && (effect.length > 0)) {
                     var watcher = event.dataTransfer.capture(this.element, effect);
                     this.watchers.push(watcher);
-                    this.connect(watcher, 'drop', this.onWatcherDrop);
-                    this.connect(watcher, 'leave', this.onWatcherLeave);
+                    watcher.dropped.connect(function (e) { return _this.onWatcherDrop(e.target, e.effect, e.x, e.y); });
+                    watcher.leaved.connect(function (e) { return _this.onWatcherLeave(e.target); });
                     event.stopImmediatePropagation();
                     this.onWatcherEnter(watcher);
                 }
@@ -12081,9 +12121,25 @@ var Ui;
             var _this = _super.call(this, init) || this;
             _this.watchers = undefined;
             _this.allowedTypes = undefined;
-            _this.addEvents('drageffect', 'dragenter', 'dragleave', 'drop', 'dropfile');
+            _this.drageffect = new Core.Events();
+            _this.dragentered = new Core.Events();
+            _this.dragleaved = new Core.Events();
+            _this.dropped = new Core.Events();
+            _this.droppedfile = new Core.Events();
             _this.watchers = [];
-            _this.connect(_this, 'dragover', _this.onDragOver);
+            _this.dragover.connect(function (e) { return _this.onDragOver(e); });
+            if (init) {
+                if (init.ondrageffect)
+                    _this.drageffect.connect(init.ondrageffect);
+                if (init.ondragentered)
+                    _this.dragentered.connect(init.ondragentered);
+                if (init.ondragleaved)
+                    _this.dragleaved.connect(init.ondragleaved);
+                if (init.ondropped)
+                    _this.dropped.connect(init.ondropped);
+                if (init.ondroppedfile)
+                    _this.droppedfile.connect(init.ondroppedfile);
+            }
             return _this;
         }
         DropBox.prototype.addType = function (type, effects) {
@@ -12118,6 +12174,7 @@ var Ui;
                 this.allowedTypes.push({ type: type, effect: effects });
         };
         DropBox.prototype.onDragOver = function (event) {
+            var _this = this;
             var found = false;
             for (var i = 0; !found && (i < this.watchers.length); i++)
                 found = (this.watchers[i].getDataTransfer() === event.dataTransfer);
@@ -12126,9 +12183,9 @@ var Ui;
                 if ((effect !== undefined) && (effect.length > 0)) {
                     var watcher = event.dataTransfer.capture(this, effect);
                     this.watchers.push(watcher);
-                    this.connect(watcher, 'move', this.onWatcherMove);
-                    this.connect(watcher, 'drop', this.onWatcherDrop);
-                    this.connect(watcher, 'leave', this.onWatcherLeave);
+                    watcher.moved.connect(function (e) { return _this.onWatcherMove(e.target); });
+                    watcher.dropped.connect(function (e) { return _this.onWatcherDrop(e.target, e.effect, e.x, e.y); });
+                    watcher.leaved.connect(function (e) { return _this.onWatcherLeave(e.target); });
                     event.stopImmediatePropagation();
                     this.onWatcherEnter(watcher);
                 }
@@ -12227,25 +12284,25 @@ var Ui;
             return func(dataTransfer.getData(), dataTransfer);
         };
         DropBox.prototype.onDrop = function (dataTransfer, dropEffect, x, y) {
-            var done = false;
-            if (!this.fireEvent('drop', this, dataTransfer.getData(), dropEffect, x, y, dataTransfer)) {
-                var data = dataTransfer.getData();
-                if (data instanceof Ui.DragNativeData && data.hasFiles()) {
-                    var files = data.getFiles();
-                    done = true;
-                    for (var i = 0; i < files.length; i++)
-                        done = done && this.fireEvent('dropfile', this, files[i], dropEffect, x, y);
-                }
+            this.dropped.fire({
+                target: this,
+                data: dataTransfer.getData(),
+                effect: dropEffect,
+                x: x, y: y,
+                dataTransfer: dataTransfer
+            });
+            var data = dataTransfer.getData();
+            if (data instanceof Ui.DragNativeData && data.hasFiles()) {
+                var files = data.getFiles();
+                for (var i = 0; i < files.length; i++)
+                    this.droppedfile.fire({ target: this, file: files[i], effect: dropEffect, x: x, y: y });
             }
-            else
-                done = true;
-            return done;
         };
         DropBox.prototype.onDragEnter = function (dataTransfer) {
-            this.fireEvent('dragenter', this, dataTransfer.getData());
+            this.dragentered.fire({ target: this, data: dataTransfer.getData() });
         };
         DropBox.prototype.onDragLeave = function () {
-            this.fireEvent('dragleave', this);
+            this.dragleaved.fire({ target: this });
         };
         return DropBox;
     }(Ui.LBox));
@@ -12419,12 +12476,12 @@ var Ui;
             _this.mainBox.append(_this.buttonPartsBox, true);
             _this._textBox = new Ui.LBox();
             _this._iconBox = new Ui.LBox();
-            _this.connect(_this, 'down', _this.updateColors);
-            _this.connect(_this, 'up', _this.updateColors);
-            _this.connect(_this, 'focus', _this.updateColors);
-            _this.connect(_this, 'blur', _this.updateColors);
-            _this.connect(_this, 'enter', _this.updateColors);
-            _this.connect(_this, 'leave', _this.updateColors);
+            _this.downed.connect(function () { return _this.updateColors(); });
+            _this.upped.connect(function () { return _this.updateColors(); });
+            _this.focused.connect(function () { return _this.updateColors(); });
+            _this.blurred.connect(function () { return _this.updateColors(); });
+            _this.entered.connect(function () { return _this.updateColors(); });
+            _this.leaved.connect(function () { return _this.updateColors(); });
             if (init) {
                 if (init.text !== undefined)
                     _this.text = init.text;
@@ -12835,7 +12892,7 @@ var Ui;
         __extends(ActionButton, _super);
         function ActionButton() {
             var _this = _super.call(this) || this;
-            _this.connect(_this, 'press', _this.onActionButtonDrop);
+            _this.pressed.connect(function () { return _this.onActionButtonDrop(); });
             new Ui.DropableWatcher({
                 element: _this,
                 drop: function () { return _this.onActionButtonDrop(); },
@@ -12918,6 +12975,23 @@ var Ui;
         function ContextBar(init) {
             var _this = _super.call(this, init) || this;
             _this._selection = undefined;
+            _this.onSelectionChange = function () {
+                _this.closeButton.text = _this._selection.elements.length.toString();
+                var actions = _this._selection.getActions();
+                _this.actionsBox.clear();
+                _this.actionsBox.append(new Ui.Element(), true);
+                for (var actionName in actions) {
+                    var action = actions[actionName];
+                    if (action.hidden === true)
+                        continue;
+                    var button = new Ui.ActionButton();
+                    button.icon = action.icon;
+                    button.text = action.text;
+                    button.action = action;
+                    button.selection = _this._selection;
+                    _this.actionsBox.append(button);
+                }
+            };
             _this.bg = new Ui.Rectangle();
             _this.append(_this.bg);
             var hbox = new Ui.HBox();
@@ -12926,7 +13000,7 @@ var Ui;
             _this.closeButton = new Ui.ContextBarCloseButton();
             _this.closeButton.icon = 'backarrow';
             hbox.append(_this.closeButton);
-            _this.connect(_this.closeButton, 'press', _this.onClosePress);
+            _this.closeButton.pressed.connect(function () { return _this.onClosePress(); });
             var scroll = new Ui.ScrollingArea();
             hbox.append(scroll, true);
             _this.actionsBox = new Ui.HBox();
@@ -12944,33 +13018,16 @@ var Ui;
             },
             set: function (selection) {
                 if (this._selection != undefined)
-                    this.disconnect(this._selection, 'change', this.onSelectionChange);
+                    this._selection.changed.disconnect(this.onSelectionChange);
                 this._selection = selection;
                 if (this._selection != undefined)
-                    this.connect(this._selection, 'change', this.onSelectionChange);
+                    this._selection.changed.connect(this.onSelectionChange);
             },
             enumerable: true,
             configurable: true
         });
         ContextBar.prototype.onClosePress = function () {
             this._selection.clear();
-        };
-        ContextBar.prototype.onSelectionChange = function () {
-            this.closeButton.text = this._selection.elements.length.toString();
-            var actions = this._selection.getActions();
-            this.actionsBox.clear();
-            this.actionsBox.append(new Ui.Element(), true);
-            for (var actionName in actions) {
-                var action = actions[actionName];
-                if (action.hidden === true)
-                    continue;
-                var button = new Ui.ActionButton();
-                button.icon = action.icon;
-                button.text = action.text;
-                button.action = action;
-                button.selection = this._selection;
-                this.actionsBox.append(button);
-            }
         };
         ContextBar.prototype.onStyleChange = function () {
             this.bg.fill = this.getStyleProperty('background');
@@ -12997,7 +13054,7 @@ var Ui;
             _this._preferredHeight = undefined;
             _this.openClock = undefined;
             _this.isClosed = true;
-            _this.addEvents('close');
+            _this.closed = new Core.Events();
             _this.horizontalAlign = 'stretch';
             _this.verticalAlign = 'stretch';
             _this.popupSelection = new Ui.Selection();
@@ -13023,8 +13080,8 @@ var Ui;
             _this.contextBox.verticalAlign = 'top';
             _this.contextBox.hide(true);
             _this.contentBox.append(_this.contextBox);
-            _this.connect(_this.popupSelection, 'change', _this.onPopupSelectionChange);
-            _this.connect(_this.shadow, 'press', _this.onShadowPress);
+            _this.popupSelection.changed.connect(function (e) { return _this.onPopupSelectionChange(e.target); });
+            _this.shadow.pressed.connect(function (e) { return _this.onShadowPress(); });
             if (init) {
                 if (init.preferredWidth !== undefined)
                     _this.preferredWidth = init.preferredWidth;
@@ -13071,8 +13128,6 @@ var Ui;
             enumerable: true,
             configurable: true
         });
-        Popup.prototype.onWindowResize = function () {
-        };
         Popup.prototype.onShadowPress = function () {
             if (this._autoClose)
                 this.close();
@@ -13135,6 +13190,7 @@ var Ui;
             this.openPosOrElement(element, position);
         };
         Popup.prototype.openPosOrElement = function (posX, posY) {
+            var _this = this;
             if (this.isClosed) {
                 Ui.App.current.appendDialog(this);
                 this.isClosed = false;
@@ -13162,25 +13218,24 @@ var Ui;
                         duration: 1, target: this, speed: 5,
                         ease: new Anim.PowerEase({ mode: 'out' })
                     });
-                    this.connect(this.openClock, 'timeupdate', this.onOpenTick);
+                    this.openClock.timeupdate.connect(function (e) { return _this.onOpenTick(e.target, e.progress, e.deltaTick); });
                     this.opacity = 0;
                 }
                 this.invalidateArrange();
-                this.connect(window, 'resize', this.onWindowResize);
             }
         };
         Popup.prototype.close = function () {
+            var _this = this;
             if (!this.isClosed) {
                 this.isClosed = true;
-                this.fireEvent('close', this);
-                this.disconnect(window, 'resize', this.onWindowResize);
+                this.closed.fire({ target: this });
                 this.disable();
                 if (this.openClock === undefined) {
                     this.openClock = new Anim.Clock({
                         duration: 1, target: this, speed: 5,
                         ease: new Anim.PowerEase({ mode: 'out' })
                     });
-                    this.connect(this.openClock, 'timeupdate', this.onOpenTick);
+                    this.openClock.timeupdate.connect(function (e) { return _this.onOpenTick(e.target, e.progress, e.deltaTick); });
                     this.openClock.begin();
                 }
             }
@@ -13558,7 +13613,7 @@ var Ui;
             _this.bg = new Ui.Rectangle();
             _this.appendChild(_this.bg);
             _this.menuButton = new Ui.MenuToolBarButton();
-            _this.connect(_this.menuButton, 'press', _this.onMenuButtonPress);
+            _this.menuButton.pressed.connect(function () { return _this.onMenuButtonPress(); });
             _this.appendChild(_this.menuButton);
             if (init) {
                 if (init.paddingTop !== undefined)
@@ -13987,10 +14042,10 @@ var Ui;
             var _this = _super.call(this, init) || this;
             _this.styles = undefined;
             _this.updateTask = false;
-            _this.loaded = false;
+            _this._loaded = false;
             _this.focusElement = undefined;
             _this.arguments = undefined;
-            _this.ready = false;
+            _this._ready = false;
             _this.orientation = 0;
             _this.webApp = true;
             _this.lastArrangeHeight = 0;
@@ -14006,13 +14061,16 @@ var Ui;
             _this.testFontTask = undefined;
             _this.bindedUpdate = undefined;
             _this.selection = undefined;
+            _this.resized = new Core.Events();
+            _this.ready = new Core.Events();
+            _this.parentmessage = new Core.Events();
+            _this.orientationchanged = new Core.Events();
             var args;
-            _this.addEvents('resize', 'ready', 'parentmessage', 'orientationchange');
             _this.clipToBounds = true;
             Ui.App.current = _this;
             _this.drawing.style.cursor = 'default';
             _this.selection = new Ui.Selection();
-            _this.connect(_this.selection, 'change', _this.onSelectionChange);
+            _this.selection.changed.connect(function (e) { return _this.onSelectionChange(e.target); });
             if ((window.location.search !== undefined) && (window.location.search !== '')) {
                 var base64 = void 0;
                 args = {};
@@ -14045,28 +14103,28 @@ var Ui;
             _this.contentBox = new Ui.VBox();
             _this.appendChild(_this.contentBox);
             _this.setTransformOrigin(0, 0);
-            _this.connect(window, 'load', _this.onWindowLoad);
-            _this.connect(window, 'resize', _this.onWindowResize);
-            _this.connect(window, 'keyup', _this.onWindowKeyUp);
-            _this.connect(window, 'focus', function (event) {
+            window.addEventListener('load', function () { return _this.onWindowLoad(); });
+            window.addEventListener('resize', function (e) { return _this.onWindowResize(e); });
+            window.addEventListener('keyup', function (e) { return _this.onWindowKeyUp(e); });
+            window.addEventListener('focus', function (event) {
                 if (event.target == undefined)
                     return;
                 _this.focusElement = event.target;
             }, true);
-            _this.connect(window, 'blur', function (event) {
+            window.addEventListener('blur', function (event) {
                 _this.focusElement = undefined;
             }, true);
-            _this.connect(window, 'dragstart', function (event) { event.preventDefault(); });
-            _this.connect(window, 'dragenter', function (event) { event.preventDefault(); return false; });
-            _this.connect(window, 'dragover', function (event) {
+            window.addEventListener('dragstart', function (event) { return event.preventDefault(); });
+            window.addEventListener('dragenter', function (event) { event.preventDefault(); return false; });
+            window.addEventListener('dragover', function (event) {
                 event.dataTransfer.dropEffect = 'none';
                 event.preventDefault();
                 return false;
             });
-            _this.connect(window, 'drop', function (event) { event.preventDefault(); return false; });
+            window.addEventListener('drop', function (event) { event.preventDefault(); return false; });
             if ('onorientationchange' in window)
-                _this.connect(window, 'orientationchange', _this.onOrientationChange);
-            _this.connect(window, 'message', _this.onMessage);
+                window.addEventListener('orientationchange', function (e) { return _this.onOrientationChange(e); });
+            window.addEventListener('message', function (e) { return _this.onMessage(e); });
             _this.bindedUpdate = _this.update.bind(_this);
             if (window['loaded'] === true)
                 _this.onWindowLoad();
@@ -14193,7 +14251,7 @@ var Ui;
                         '* { touch-action: none; } ';
                 document.getElementsByTagName('head')[0].appendChild(style);
             }
-            this.loaded = true;
+            this._loaded = true;
             this.onReady();
         };
         App.prototype.onWindowResize = function (event) {
@@ -14201,7 +14259,7 @@ var Ui;
         };
         App.prototype.onOrientationChange = function (event) {
             this.orientation = window.orientation;
-            this.fireEvent('orientationchange', this.orientation);
+            this.orientationchanged.fire({ target: this, orientation: this.orientation });
             this.checkWindowSize();
         };
         App.prototype.update = function () {
@@ -14210,7 +14268,7 @@ var Ui;
             if ((this.windowWidth !== innerWidth) || (this.windowHeight !== innerHeight)) {
                 this.windowWidth = innerWidth;
                 this.windowHeight = innerHeight;
-                this.fireEvent('resize', this, this.windowWidth, this.windowHeight);
+                this.resized.fire({ target: this, width: this.windowWidth, height: this.windowHeight });
                 this.invalidateLayout();
             }
             while (this.layoutList != undefined) {
@@ -14295,13 +14353,13 @@ var Ui;
         };
         Object.defineProperty(App.prototype, "isReady", {
             get: function () {
-                return this.ready;
+                return this._ready;
             },
             enumerable: true,
             configurable: true
         });
         App.prototype.onReady = function () {
-            if (this.loaded) {
+            if (this._loaded) {
                 document.documentElement.style.position = 'absolute';
                 document.documentElement.style.padding = '0px';
                 document.documentElement.style.margin = '0px';
@@ -14322,9 +14380,9 @@ var Ui;
                     this.testRequireFonts();
                 this.isLoaded = true;
                 this.parentVisible = true;
-                this.fireEvent('ready');
-                this.ready = true;
-                if ((this.updateTask === false) && this.ready) {
+                this.ready.fire({ target: this });
+                this._ready = true;
+                if ((this.updateTask === false) && this._ready) {
                     var app_1 = this;
                     this.updateTask = true;
                     requestAnimationFrame(function () { app_1.update(); });
@@ -14356,7 +14414,7 @@ var Ui;
                 event.preventDefault();
                 event.stopPropagation();
                 var msg = JSON.parse(event.data);
-                this.fireEvent('parentmessage', msg);
+                this.parentmessage.fire({ target: this, message: msg });
             }
         };
         App.prototype.sendMessageToParent = function (msg) {
@@ -14377,7 +14435,7 @@ var Ui;
         App.prototype.enqueueDraw = function (element) {
             element.drawNext = this.drawList;
             this.drawList = element;
-            if ((this.updateTask === false) && this.ready) {
+            if ((this.updateTask === false) && this._ready) {
                 this.updateTask = true;
                 setTimeout(this.bindedUpdate, 0);
             }
@@ -14385,7 +14443,7 @@ var Ui;
         App.prototype.enqueueLayout = function (element) {
             element.layoutNext = this.layoutList;
             this.layoutList = element;
-            if ((this.updateTask === false) && this.ready) {
+            if ((this.updateTask === false) && this._ready) {
                 this.updateTask = true;
                 requestAnimationFrame(this.bindedUpdate);
             }
@@ -14481,14 +14539,14 @@ var Ui;
         __extends(Form, _super);
         function Form(init) {
             var _this = _super.call(this, init) || this;
-            _this.addEvents('submit');
-            _this.connect(_this.drawing, 'submit', _this.onSubmit);
+            _this.submited = new Core.Events();
+            _this.drawing.addEventListener('submit', function (e) { return _this.onSubmit(e); });
             return _this;
         }
         Form.prototype.onSubmit = function (event) {
             event.preventDefault();
             event.stopPropagation();
-            this.fireEvent('submit', this);
+            this.submited.fire({ target: this });
         };
         Form.prototype.submit = function () {
             this.drawing.submit();
@@ -14573,7 +14631,10 @@ var Ui;
         function DialogButtonBox() {
             var _this = _super.call(this) || this;
             _this.cancelButton = undefined;
-            _this.addEvents('cancel');
+            _this.cancelled = new Core.Events();
+            _this.onCancelPress = function () {
+                _this.cancelled.fire({ target: _this });
+            };
             _this.bg = new Ui.Rectangle();
             _this.append(_this.bg);
             _this.actionBox = new Ui.HBox();
@@ -14596,13 +14657,13 @@ var Ui;
         DialogButtonBox.prototype.setCancelButton = function (button) {
             if (this.cancelButton !== undefined) {
                 if (this.cancelButton instanceof Ui.Pressable)
-                    this.disconnect(this.cancelButton, 'press', this.onCancelPress);
+                    this.cancelButton.pressed.disconnect(this.onCancelPress);
                 this.actionBox.remove(this.cancelButton);
             }
             this.cancelButton = button;
             if (this.cancelButton !== undefined) {
                 if (this.cancelButton instanceof Ui.Pressable)
-                    this.connect(this.cancelButton, 'press', this.onCancelPress);
+                    this.cancelButton.pressed.connect(this.onCancelPress);
                 this.actionBox.prepend(this.cancelButton);
             }
         };
@@ -14612,9 +14673,6 @@ var Ui;
         };
         DialogButtonBox.prototype.getActionButtons = function () {
             return this.actionButtonsBox.children.slice(1);
-        };
-        DialogButtonBox.prototype.onCancelPress = function () {
-            this.fireEvent('cancel', this);
         };
         DialogButtonBox.prototype.onStyleChange = function () {
             this.bg.fill = this.getStyleProperty('background');
@@ -14632,7 +14690,7 @@ var Ui;
             _this.buttonsVisible = false;
             _this._autoClose = true;
             _this.isClosed = true;
-            _this.addEvents('close');
+            _this.closed = new Core.Events();
             _this.dialogSelection = new Ui.Selection();
             _this.shadow = new Ui.Pressable();
             _this.shadow.focusable = false;
@@ -14641,7 +14699,7 @@ var Ui;
             _this.shadowGraphic = new Ui.Rectangle();
             _this.shadow.content = _this.shadowGraphic;
             _this.lbox = new Ui.Form();
-            _this.connect(_this.lbox, 'submit', _this.onFormSubmit);
+            _this.lbox.submited.connect(function () { return _this.onFormSubmit(); });
             _this.appendChild(_this.lbox);
             _this.graphic = new Ui.DialogGraphic();
             _this.lbox.append(_this.graphic);
@@ -14664,11 +14722,11 @@ var Ui;
             _this.contextBox.hide();
             _this.buttonsBox.append(_this.contextBox);
             _this.actionBox = new Ui.DialogButtonBox();
-            _this.connect(_this.actionBox, 'cancel', _this.close);
+            _this.actionBox.cancelled.connect(function () { return _this.close(); });
             _this.buttonsBox.append(_this.actionBox);
-            _this.connect(_this.dialogSelection, 'change', _this.onDialogSelectionChange);
-            _this.connect(_this.drawing, 'keyup', _this.onKeyUp);
-            _this.connect(_this.shadow, 'press', _this.onShadowPress);
+            _this.dialogSelection.changed.connect(function (e) { return _this.onDialogSelectionChange(e.target); });
+            _this.drawing.addEventListener('keyup', function (e) { return _this.onKeyUp(e); });
+            _this.shadow.pressed.connect(function (e) { return _this.onShadowPress(); });
             if (init) {
                 if (init.preferredWidth !== undefined)
                     _this.preferredWidth = init.preferredWidth;
@@ -14707,6 +14765,7 @@ var Ui;
             configurable: true
         });
         Dialog.prototype.open = function () {
+            var _this = this;
             if (this.isClosed) {
                 Ui.App.current.appendDialog(this);
                 this.isClosed = false;
@@ -14715,14 +14774,15 @@ var Ui;
                         duration: 1, target: this, speed: 5,
                         ease: new Anim.PowerEase({ mode: 'out' })
                     });
-                    this.connect(this.openClock, 'timeupdate', this.onOpenTick);
+                    this.openClock.timeupdate.connect(function (e) { return _this.onOpenTick(e.target, e.progress, e.deltaTick); });
                     this.onOpenTick(this.openClock, 0, 0);
                 }
             }
         };
         Dialog.prototype.close = function () {
+            var _this = this;
             if (!this.isClosed) {
-                this.fireEvent('close', this);
+                this.closed.fire({ target: this });
                 this.isClosed = true;
                 this.lbox.disable();
                 if (this.openClock === undefined) {
@@ -14730,7 +14790,7 @@ var Ui;
                         duration: 1, target: this, speed: 5,
                         ease: new Anim.PowerEase({ mode: 'out' })
                     });
-                    this.connect(this.openClock, 'timeupdate', this.onOpenTick);
+                    this.openClock.timeupdate.connect(function (e) { return _this.onOpenTick(e.target, e.progress, e.deltaTick); });
                     this.openClock.begin();
                 }
             }
@@ -14902,10 +14962,10 @@ var Ui;
             _this._interLine = undefined;
             _this._wordWrap = undefined;
             _this._whiteSpace = undefined;
-            _this.addEvents('link');
+            _this.link = new Core.Events();
             _this.bindedOnImageLoad = _this.onImageLoad.bind(_this);
-            _this.connect(_this.drawing, 'click', _this.onClick);
-            _this.connect(_this.drawing, 'keypress', _this.onKeyPress);
+            _this.drawing.addEventListener('click', function (e) { return _this.onClick(e); });
+            _this.drawing.addEventListener('keypress', function (e) { return _this.onKeyPress(e); });
             if (init) {
                 if (init.text !== undefined)
                     _this.text = init.text;
@@ -15162,7 +15222,7 @@ var Ui;
             if (target !== undefined) {
                 event.preventDefault();
                 event.stopPropagation();
-                this.fireEvent('link', this, target.href);
+                this.link.fire({ target: this, ref: target.href });
             }
         };
         Html.prototype.onVisible = function () {
@@ -15466,6 +15526,7 @@ var Ui;
             return { width: maxWidth, height: totalHeight };
         };
         Toaster.prototype.arrangeCore = function (width, height) {
+            var _this = this;
             var spacing = 10;
             var y = 0;
             for (var i = 0; i < this.children.length; i++) {
@@ -15478,7 +15539,7 @@ var Ui;
             }
             if (this.arrangeClock === undefined) {
                 this.arrangeClock = new Anim.Clock({ duration: 1, speed: 5 });
-                this.connect(this.arrangeClock, 'timeupdate', this.onArrangeTick);
+                this.arrangeClock.timeupdate.connect(function (e) { return _this.onArrangeTick(e.target, e.progress, e.deltaTick); });
                 this.arrangeClock.begin();
             }
         };
@@ -15497,7 +15558,7 @@ var Ui;
             var _this = _super.call(this) || this;
             _this._isClosed = true;
             _this.newToast = false;
-            _this.addEvents('close');
+            _this.closed = new Core.Events();
             var sha = new Ui.Shadow();
             sha.shadowWidth = 3;
             sha.radius = 1;
@@ -15533,7 +15594,7 @@ var Ui;
                         duration: 1, target: this, speed: 5,
                         ease: new Anim.PowerEase({ mode: 'out' })
                     });
-                    this.connect(this.openClock, 'timeupdate', this.onOpenTick);
+                    this.openClock.timeupdate.connect(function (e) { return _this.onOpenTick(e.target, e.progress, e.deltaTick); });
                     this.opacity = 0;
                 }
                 new Core.DelayedTask(2, function () { return _this.close(); });
@@ -15541,6 +15602,7 @@ var Ui;
             }
         };
         Toast.prototype.close = function () {
+            var _this = this;
             if (!this._isClosed) {
                 this._isClosed = true;
                 this.disable();
@@ -15549,7 +15611,7 @@ var Ui;
                         duration: 1, target: this, speed: 5,
                         ease: new Anim.PowerEase({ mode: 'out' })
                     });
-                    this.connect(this.openClock, 'timeupdate', this.onOpenTick);
+                    this.openClock.timeupdate.connect(function (e) { return _this.onOpenTick(e.target, e.progress, e.deltaTick); });
                     this.openClock.begin();
                 }
             }
@@ -15565,7 +15627,7 @@ var Ui;
                 this.openClock = undefined;
                 if (this._isClosed) {
                     this.enable();
-                    this.fireEvent('close', this);
+                    this.closed.fire({ target: this });
                     Ui.Toaster.removeToast(this);
                 }
             }
@@ -15612,10 +15674,15 @@ var Ui;
             _this._naturalWidth = undefined;
             _this._naturalHeight = undefined;
             _this.setSrcLock = false;
-            _this.addEvents('ready', 'error');
-            _this.connect(_this.imageDrawing, 'contextmenu', function (event) { return event.preventDefault(); });
-            _this.connect(_this.imageDrawing, 'load', _this.onImageLoad);
-            _this.connect(_this.imageDrawing, 'error', _this.onImageError);
+            _this.ready = new Core.Events();
+            _this.error = new Core.Events();
+            _this.onAppReady = function () {
+                Ui.App.current.ready.disconnect(_this.onAppReady);
+                _this.onImageDelayReady();
+            };
+            _this.imageDrawing.addEventListener('contextmenu', function (event) { return event.preventDefault(); });
+            _this.imageDrawing.addEventListener('load', function (e) { return _this.onImageLoad(e); });
+            _this.imageDrawing.addEventListener('error', function (e) { return _this.onImageError(e); });
             if (init) {
                 if (init.src !== undefined)
                     _this.src = init.src;
@@ -15639,7 +15706,7 @@ var Ui;
                     this.loaddone = true;
                     this._naturalWidth = this.imageDrawing.naturalWidth;
                     this._naturalHeight = this.imageDrawing.naturalHeight;
-                    this.fireEvent('ready', this);
+                    this.ready.fire({ target: this });
                     this.invalidateMeasure();
                 }
                 this.setSrcLock = false;
@@ -15669,14 +15736,14 @@ var Ui;
             configurable: true
         });
         Image.prototype.onImageError = function (event) {
-            this.fireEvent('error', this);
+            this.error.fire({ target: this });
         };
         Image.prototype.onImageLoad = function (event) {
             if ((event.target != undefined) && (event.target.naturalWidth != undefined) && (event.target.naturalHeight != undefined)) {
                 this.loaddone = true;
                 this._naturalWidth = event.target.naturalWidth;
                 this._naturalHeight = event.target.naturalHeight;
-                this.fireEvent('ready', this);
+                this.error.fire({ target: this });
                 this.invalidateMeasure();
             }
             else {
@@ -15686,13 +15753,9 @@ var Ui;
                     this.onImageDelayReady();
             }
         };
-        Image.prototype.onAppReady = function () {
-            this.disconnect(Ui.App.current, 'ready', this.onAppReady);
-            this.onImageDelayReady();
-        };
         Image.prototype.onImageDelayReady = function () {
             if (!Ui.App.current.isReady)
-                this.connect(Ui.App.current, 'ready', this.onAppReady);
+                Ui.App.current.ready.connect(this.onAppReady);
             else {
                 this.loaddone = true;
                 if (document.body == undefined) {
@@ -15705,7 +15768,7 @@ var Ui;
                 this._naturalWidth = imgClone.width;
                 this._naturalHeight = imgClone.height;
                 document.body.removeChild(imgClone);
-                this.fireEvent('ready', this);
+                this.ready.fire({ target: this });
                 this.invalidateMeasure();
             }
         };
@@ -15725,7 +15788,7 @@ var Ui;
             else if (Core.Navigator.isGecko)
                 this.imageDrawing.style['MozUserSelect'] = 'none';
             else if (Core.Navigator.isIE)
-                this.connect(this.imageDrawing, 'selectstart', function (event) { event.preventDefault(); });
+                this.imageDrawing.addEventListener('selectstart', function (e) { return e.preventDefault(); });
             return this.imageDrawing;
         };
         Image.prototype.measureCore = function (width, height) {
@@ -15770,7 +15833,7 @@ var Ui;
             _this.ease = undefined;
             _this.ease = new Anim.PowerEase({ mode: 'inout' });
             _this.clock = new Anim.Clock({ repeat: 'forever', duration: 2 });
-            _this.connect(_this.clock, 'timeupdate', _this.invalidateDraw);
+            _this.clock.timeupdate.connect(function (e) { return _this.invalidateDraw(); });
             return _this;
         }
         Loading.prototype.onVisible = function () {
@@ -15824,13 +15887,14 @@ var Ui;
             _this._color = undefined;
             _this._value = '';
             _this._passwordMode = false;
-            _this.addEvents('change', 'validate');
+            _this.changed = new Core.Events();
+            _this.validated = new Core.Events();
             _this.selectable = true;
             _this.focusable = true;
-            _this.connect(_this.drawing, 'change', _this.onChange);
-            _this.connect(_this.drawing, 'paste', _this.onPaste);
-            _this.connect(_this.drawing, 'keyup', _this.onKeyUp);
-            _this.connect(_this.drawing, 'keydown', _this.onKeyDown);
+            _this.drawing.addEventListener('change', function (e) { return _this.onChange(e); });
+            _this.drawing.addEventListener('paste', function (e) { return _this.onPaste(e); });
+            _this.drawing.addEventListener('keyup', function (e) { return _this.onKeyUp(e); });
+            _this.drawing.addEventListener('keydown', function (e) { return _this.onKeyDown(e); });
             if (init) {
                 if (init.passwordMode !== undefined)
                     _this.passwordMode = init.passwordMode;
@@ -15951,13 +16015,13 @@ var Ui;
         Entry.prototype.onAfterPaste = function () {
             if (this.drawing.value != this._value) {
                 this._value = this.drawing.value;
-                this.fireEvent('change', this, this._value);
+                this.changed.fire({ target: this, value: this._value });
             }
         };
         Entry.prototype.onChange = function (event) {
             if (this.drawing.value != this._value) {
                 this._value = this.drawing.value;
-                this.fireEvent('change', this, this._value);
+                this.changed.fire({ target: this, value: this._value });
             }
         };
         Entry.prototype.onKeyDown = function (event) {
@@ -15971,10 +16035,10 @@ var Ui;
                 event.stopPropagation();
             if (this.drawing.value !== this._value) {
                 this._value = this.drawing.value;
-                this.fireEvent('change', this, this._value);
+                this.changed.fire({ target: this, value: this._value });
             }
             if (key == 13)
-                this.fireEvent('validate', this, this._value);
+                this.validated.fire({ target: this, value: this._value });
         };
         Entry.prototype.renderDrawing = function () {
             var drawing = document.createElement('input');
@@ -16041,7 +16105,7 @@ var Ui;
         __extends(Fixed, _super);
         function Fixed(init) {
             var _this = _super.call(this, init) || this;
-            _this.addEvents('resize');
+            _this.resize = new Core.Events();
             return _this;
         }
         Fixed.prototype.setPosition = function (item, x, y) {
@@ -16096,7 +16160,7 @@ var Ui;
             return { width: 0, height: 0 };
         };
         Fixed.prototype.arrangeCore = function (width, height) {
-            this.fireEvent('resize', this, width, height);
+            this.resize.fire({ target: this, width: width, height: height });
             for (var i = 0; i < this.children.length; i++) {
                 var child = this.children[i];
                 var pos = this.getItemPosition(child);
@@ -16240,7 +16304,8 @@ var Ui;
         __extends(TextField, _super);
         function TextField(init) {
             var _this = _super.call(this, init) || this;
-            _this.addEvents('change', 'validate');
+            _this.changed = new Core.Events();
+            _this.validated = new Core.Events();
             _this.padding = 0;
             _this.graphic = new Ui.TextBgGraphic();
             _this.append(_this.graphic);
@@ -16256,11 +16321,11 @@ var Ui;
             _this.entry.marginLeft = 10;
             _this.entry.marginRight = 10;
             _this.entry.fontSize = 16;
-            _this.connect(_this.entry, 'focus', _this.onEntryFocus);
-            _this.connect(_this.entry, 'blur', _this.onEntryBlur);
+            _this.entry.focused.connect(function () { return _this.onEntryFocus(); });
+            _this.entry.blurred.connect(function () { return _this.onEntryBlur(); });
             _this.append(_this.entry);
-            _this.connect(_this.entry, 'change', _this.onEntryChange);
-            _this.connect(_this.entry, 'validate', function () { return _this.fireEvent('validate', _this); });
+            _this.entry.changed.connect(function (e) { return _this.onEntryChange(e.target, e.value); });
+            _this.entry.validated.connect(function () { return _this.validated.fire({ target: _this }); });
             if (init) {
                 if (init.textHolder !== undefined)
                     _this.textHolder = init.textHolder;
@@ -16268,6 +16333,10 @@ var Ui;
                     _this.passwordMode = init.passwordMode;
                 if (init.value !== undefined)
                     _this.value = init.value;
+                if (init.onchanged)
+                    _this.changed.connect(init.onchanged);
+                if (init.onvalidated)
+                    _this.validated.connect(init.onvalidated);
             }
             return _this;
         }
@@ -16309,7 +16378,7 @@ var Ui;
             this.graphic.hasFocus = false;
         };
         TextField.prototype.onEntryChange = function (entry, value) {
-            this.fireEvent('change', this, value);
+            this.changed.fire({ target: this, value: value });
         };
         return TextField;
     }(Ui.LBox));
@@ -16447,7 +16516,9 @@ var Ui;
             _this._content = undefined;
             _this._text = undefined;
             _this._isToggled = false;
-            _this.addEvents('change', 'toggle', 'untoggle');
+            _this.changed = new Core.Events();
+            _this.toggled = new Core.Events();
+            _this.untoggled = new Core.Events();
             _this.role = 'checkbox';
             _this.drawing.setAttribute('aria-checked', 'false');
             _this.padding = 3;
@@ -16455,11 +16526,11 @@ var Ui;
             _this.append(_this.hbox);
             _this.graphic = new Ui.CheckBoxGraphic();
             _this.hbox.append(_this.graphic);
-            _this.connect(_this, 'down', _this.onCheckBoxDown);
-            _this.connect(_this, 'up', _this.onCheckBoxUp);
-            _this.connect(_this, 'focus', _this.onCheckFocus);
-            _this.connect(_this, 'blur', _this.onCheckBlur);
-            _this.connect(_this, 'press', _this.onCheckPress);
+            _this.downed.connect(function () { return _this.onCheckBoxDown(); });
+            _this.upped.connect(function () { return _this.onCheckBoxUp(); });
+            _this.focused.connect(function () { return _this.onCheckFocus(); });
+            _this.blurred.connect(function () { return _this.onCheckBlur(); });
+            _this.pressed.connect(function () { return _this.onCheckPress(); });
             if (init) {
                 if (init.value !== undefined)
                     _this.value = init.value;
@@ -16467,6 +16538,12 @@ var Ui;
                     _this.text = init.text;
                 if (init.content !== undefined)
                     _this.content = init.content;
+                if (init.onchanged)
+                    _this.changed.connect(init.onchanged);
+                if (init.ontoggled)
+                    _this.toggled.connect(init.ontoggled);
+                if (init.onuntoggled)
+                    _this.untoggled.connect(init.onuntoggled);
             }
             return _this;
         }
@@ -16576,20 +16653,20 @@ var Ui;
             if (!this._isToggled) {
                 this._isToggled = true;
                 this.drawing.setAttribute('aria-checked', 'true');
-                this.fireEvent('toggle', this);
+                this.toggled.fire({ target: this });
                 this.graphic.setIsChecked(true);
                 this.graphic.setColor(this.getStyleProperty('activeColor'));
-                this.fireEvent('change', this, true);
+                this.changed.fire({ target: this, value: true });
             }
         };
         CheckBox.prototype.onUntoggle = function () {
             if (this._isToggled) {
                 this._isToggled = false;
                 this.drawing.setAttribute('aria-checked', 'false');
-                this.fireEvent('untoggle', this);
+                this.untoggled.fire({ target: this });
                 this.graphic.setIsChecked(false);
                 this.graphic.setColor(this.getStyleProperty('color'));
-                this.fireEvent('change', this, false);
+                this.changed.fire({ target: this, value: false });
             }
         };
         CheckBox.prototype.onCheckFocus = function () {
@@ -16900,13 +16977,13 @@ var Ui;
             _this._fontWeight = undefined;
             _this._color = undefined;
             _this._value = '';
-            _this.addEvents('change');
+            _this.changed = new Core.Events();
             _this.selectable = true;
             _this.focusable = true;
-            _this.connect(_this.drawing, 'change', _this.onChange);
-            _this.connect(_this.drawing, 'paste', _this.onPaste);
-            _this.connect(_this.drawing, 'keydown', _this.onKeyDown);
-            _this.connect(_this.drawing, 'keyup', _this.onKeyUp);
+            _this.drawing.addEventListener('change', function (e) { return _this.onChange(e); });
+            _this.drawing.addEventListener('paste', function (e) { return _this.onPaste(e); });
+            _this.drawing.addEventListener('keydown', function (e) { return _this.onKeyDown(e); });
+            _this.drawing.addEventListener('keyup', function (e) { return _this.onKeyUp(e); });
             if (init) {
                 if (init.fontSize !== undefined)
                     _this.fontSize = init.fontSize;
@@ -17030,13 +17107,13 @@ var Ui;
         TextArea.prototype.onAfterPaste = function () {
             if (this.drawing.value != this._value) {
                 this._value = this.drawing.value;
-                this.fireEvent('change', this, this._value);
+                this.changed.fire({ target: this, value: this._value });
             }
         };
         TextArea.prototype.onChange = function (event) {
             if (this.drawing.value != this._value) {
                 this._value = this.drawing.value;
-                this.fireEvent('change', this, this._value);
+                this.changed.fire({ target: this, value: this._value });
                 this.invalidateMeasure();
             }
         };
@@ -17051,7 +17128,7 @@ var Ui;
                 event.stopPropagation();
             if (this.drawing.value !== this._value) {
                 this._value = this.drawing.value;
-                this.fireEvent('change', this, this._value);
+                this.changed.fire({ target: this, value: this._value });
                 this.invalidateMeasure();
             }
         };
@@ -17131,7 +17208,7 @@ var Ui;
         __extends(TextAreaField, _super);
         function TextAreaField(init) {
             var _this = _super.call(this, init) || this;
-            _this.addEvents('change');
+            _this.changed = new Core.Events();
             _this.padding = 3;
             _this.graphic = new Ui.TextBgGraphic();
             _this.append(_this.graphic);
@@ -17144,14 +17221,16 @@ var Ui;
             _this.textarea.margin = 4;
             _this.textarea.fontSize = 16;
             _this.append(_this.textarea);
-            _this.connect(_this.textarea, 'focus', _this.onTextAreaFocus);
-            _this.connect(_this.textarea, 'blur', _this.onTextAreaBlur);
-            _this.connect(_this.textarea, 'change', _this.onTextAreaChange);
+            _this.textarea.focused.connect(function () { return _this.onTextAreaFocus(); });
+            _this.textarea.blurred.connect(function () { return _this.onTextAreaBlur(); });
+            _this.textarea.changed.connect(function (e) { return _this.onTextAreaChange(e.target, e.value); });
             if (init) {
                 if (init.textHolder !== undefined)
                     _this.textHolder = init.textHolder;
                 if (init.value !== undefined)
                     _this.value = init.value;
+                if (init.onchanged)
+                    _this.changed.connect(init.onchanged);
             }
             return _this;
         }
@@ -17186,7 +17265,7 @@ var Ui;
             this.graphic.hasFocus = false;
         };
         TextAreaField.prototype.onTextAreaChange = function (entry, value) {
-            this.fireEvent('change', this, value);
+            this.changed.fire({ target: this, value: value });
         };
         return TextAreaField;
     }(Ui.LBox));
@@ -17860,7 +17939,7 @@ var Ui;
             var _this = _super.call(this, init) || this;
             _this._position = -1;
             _this._placeHolder = '...';
-            _this.addEvents('change');
+            _this.changed = new Core.Events();
             _this.text = '';
             _this.arrowbottom = new Ui.Icon({ icon: 'arrowbottom', width: 16, height: 16 });
             _this.marker = new Ui.VBox({
@@ -17920,13 +17999,13 @@ var Ui;
                     this._position = -1;
                     this._current = undefined;
                     this.text = this._placeHolder;
-                    this.fireEvent('change', this, this._current, this._position);
+                    this.changed.fire({ target: this, value: this._current, position: this._position });
                 }
                 else if ((position >= 0) && (position < this._data.length)) {
                     this._current = this._data[position];
                     this._position = position;
                     this.text = this._current[this._field];
-                    this.fireEvent('change', this, this._current, this._position);
+                    this.changed.fire({ target: this, value: this._current, position: this._position });
                 }
             },
             enumerable: true,
@@ -17963,10 +18042,11 @@ var Ui;
             this.position = position;
         };
         Combo.prototype.onPress = function () {
+            var _this = this;
             var popup = new Ui.ComboPopup({ field: this._field, data: this._data, search: this.search });
             if (this._position !== -1)
                 popup.position = this._position;
-            this.connect(popup, 'item', this.onItemPress);
+            popup.item.connect(function (e) { return _this.onItemPress(e.target, e.item, e.position); });
             popup.openElement(this, 'bottom');
         };
         Combo.prototype.updateColors = function () {
@@ -17984,12 +18064,12 @@ var Ui;
         __extends(ComboPopup, _super);
         function ComboPopup(init) {
             var _this = _super.call(this, init) || this;
-            _this.addEvents('item');
+            _this.item = new Core.Events();
             _this.autoClose = true;
             var vbox = new Ui.VBox();
             _this.searchField = new Ui.TextField({ textHolder: 'Recherche', margin: 5 });
             _this.searchField.hide(true);
-            _this.connect(_this.searchField, 'change', _this.onSearchChange);
+            _this.searchField.changed.connect(function (e) { return _this.onSearchChange(e.target, e.value); });
             vbox.append(_this.searchField);
             _this.content = vbox;
             _this.list = new Ui.VBox();
@@ -18050,13 +18130,20 @@ var Ui;
         });
         Object.defineProperty(ComboPopup.prototype, "data", {
             set: function (data) {
+                var _this = this;
                 this._data = data;
                 if (this._field === undefined)
                     return;
+                var _loop_1 = function (i) {
+                    var item = new ComboItem({
+                        text: data[i][this_1._field],
+                        onpressed: function () { return _this.onItemPress(item); }
+                    });
+                    this_1.list.append(item);
+                };
+                var this_1 = this;
                 for (var i = 0; i < data.length; i++) {
-                    var item = new ComboItem({ text: data[i][this._field] });
-                    this.connect(item, 'press', this.onItemPress);
-                    this.list.append(item);
+                    _loop_1(i);
                 }
             },
             enumerable: true,
@@ -18077,7 +18164,7 @@ var Ui;
                     break;
                 }
             }
-            this.fireEvent('item', this, item, position);
+            this.item.fire({ target: this, item: item, position: position });
             this.close();
         };
         return ComboPopup;
@@ -18107,7 +18194,37 @@ var Ui;
             _this.minContent1Size = 0;
             _this.minContent2Size = 0;
             _this._pos = 0.5;
-            _this.addEvents('change');
+            _this.changed = new Core.Events();
+            _this.onCursorMove = function () {
+                _this.cursor.moved.disconnect(_this.onCursorMove);
+                var p;
+                var aSize;
+                if (_this.vertical) {
+                    p = _this.cursor.positionY;
+                    aSize = _this.layoutHeight - _this.cursor.layoutHeight;
+                }
+                else {
+                    p = _this.cursor.positionX;
+                    aSize = _this.layoutWidth - _this.cursor.layoutWidth;
+                }
+                _this._pos = p / aSize;
+                if (aSize * _this._pos < _this.minContent1Size)
+                    _this._pos = _this.minContent1Size / aSize;
+                if (aSize * (1 - _this._pos) < _this.minContent2Size)
+                    _this._pos = 1 - (_this.minContent2Size / aSize);
+                p = _this._pos * aSize;
+                if (p < 0)
+                    p = 0;
+                if (p > aSize)
+                    p = aSize;
+                if (_this.vertical)
+                    _this.cursor.setPosition(0, p);
+                else
+                    _this.cursor.setPosition(p, 0);
+                _this.invalidateMeasure();
+                _this.cursor.moved.connect(_this.onCursorMove);
+                _this.changed.fire({ target: _this, position: _this._pos });
+            };
             _this.content1Box = new Ui.LBox();
             _this.appendChild(_this.content1Box);
             _this.content2Box = new Ui.LBox();
@@ -18115,7 +18232,7 @@ var Ui;
             _this.cursor = new Ui.Movable();
             _this.appendChild(_this.cursor);
             _this.cursor.setContent(new Ui.VPanedCursor());
-            _this.connect(_this.cursor, 'move', _this.onCursorMove);
+            _this.cursor.moved.connect(function () { return _this.onCursorMove(); });
             if (init) {
                 if (init.orientation !== undefined)
                     _this.orientation = init.orientation;
@@ -18204,36 +18321,6 @@ var Ui;
             this._content2 = tmp;
             this._pos = 1 - this._pos;
             this.invalidateArrange();
-        };
-        Paned.prototype.onCursorMove = function () {
-            this.disconnect(this.cursor, 'move', this.onCursorMove);
-            var p;
-            var aSize;
-            if (this.vertical) {
-                p = this.cursor.positionY;
-                aSize = this.layoutHeight - this.cursor.layoutHeight;
-            }
-            else {
-                p = this.cursor.positionX;
-                aSize = this.layoutWidth - this.cursor.layoutWidth;
-            }
-            this._pos = p / aSize;
-            if (aSize * this._pos < this.minContent1Size)
-                this._pos = this.minContent1Size / aSize;
-            if (aSize * (1 - this._pos) < this.minContent2Size)
-                this._pos = 1 - (this.minContent2Size / aSize);
-            p = this._pos * aSize;
-            if (p < 0)
-                p = 0;
-            if (p > aSize)
-                p = aSize;
-            if (this.vertical)
-                this.cursor.setPosition(0, p);
-            else
-                this.cursor.setPosition(p, 0);
-            this.invalidateMeasure();
-            this.connect(this.cursor, 'move', this.onCursorMove);
-            this.fireEvent('change', this, this._pos);
         };
         Paned.prototype.measureCore = function (width, height) {
             var cursorSize;
@@ -18332,18 +18419,46 @@ var Ui;
             var _this = _super.call(this, init) || this;
             _this._value = 0;
             _this._orientation = 'horizontal';
-            _this.addEvents('change');
+            _this.changed = new Core.Events();
+            _this.onButtonMove = function () {
+                var oldValue = _this._value;
+                if (_this.updateLock !== true) {
+                    var pos;
+                    var size;
+                    var max;
+                    if (_this.orientation === 'horizontal') {
+                        pos = _this.button.positionX;
+                        size = _this.layoutWidth;
+                        max = size - _this.button.layoutWidth;
+                    }
+                    else {
+                        size = _this.layoutHeight;
+                        max = size - _this.button.layoutHeight;
+                        pos = max - _this.button.positionY;
+                    }
+                    if (pos < 0)
+                        pos = 0;
+                    else if (pos > max)
+                        pos = max;
+                    _this._value = pos / max;
+                }
+                _this.button.moved.disconnect(_this.onButtonMove);
+                _this.updateValue();
+                _this.button.moved.connect(_this.onButtonMove);
+                if (oldValue != _this._value)
+                    _this.changed.fire({ target: _this, value: _this._value });
+            };
             _this.background = new Ui.Rectangle({ width: 4, height: 4 });
             _this.appendChild(_this.background);
             _this.bar = new Ui.Rectangle({ width: 4, height: 4 });
             _this.appendChild(_this.bar);
             _this.button = new Ui.Movable({ moveVertical: false });
             _this.appendChild(_this.button);
-            _this.connect(_this.button, 'move', _this.onButtonMove);
-            _this.connect(_this.button, 'focus', _this.updateColors);
-            _this.connect(_this.button, 'blur', _this.updateColors);
-            _this.connect(_this.button, 'down', _this.updateColors);
-            _this.connect(_this.button, 'up', _this.updateColors);
+            _this.button.moved.connect(_this.onButtonMove);
+            _this.button.focused.connect(function () { return _this.updateColors(); });
+            _this.button.blurred.connect(function () { return _this.updateColors(); });
+            _this.button.downed.connect(function () { return _this.updateColors(); });
+            _this.button.upped.connect(function () { return _this.updateColors(); });
             _this.buttonContent = new Ui.Rectangle({ radius: 10, width: 20, height: 20, margin: 10 });
             _this.button.setContent(_this.buttonContent);
             if (init) {
@@ -18351,6 +18466,8 @@ var Ui;
                     _this.value = init.value;
                 if (init.orientation !== undefined)
                     _this.orientation = init.orientation;
+                if (init.onchanged)
+                    _this.changed.connect(init.onchanged);
             }
             return _this;
         }
@@ -18369,11 +18486,11 @@ var Ui;
             value = Math.min(1, Math.max(0, value));
             if (this._value !== value) {
                 this._value = value;
-                this.disconnect(this.button, 'move', this.onButtonMove);
+                this.button.moved.disconnect(this.onButtonMove);
                 this.updateValue();
-                this.connect(this.button, 'move', this.onButtonMove);
+                this.button.moved.connect(this.onButtonMove);
                 if (dontSignal !== true)
-                    this.fireEvent('change', this, this._value);
+                    this.changed.fire({ target: this, value: this._value });
             }
         };
         Object.defineProperty(Slider.prototype, "orientation", {
@@ -18401,34 +18518,6 @@ var Ui;
             enumerable: true,
             configurable: true
         });
-        Slider.prototype.onButtonMove = function (button) {
-            var oldValue = this._value;
-            if (this.updateLock !== true) {
-                var pos;
-                var size;
-                var max;
-                if (this.orientation === 'horizontal') {
-                    pos = this.button.positionX;
-                    size = this.layoutWidth;
-                    max = size - this.button.layoutWidth;
-                }
-                else {
-                    size = this.layoutHeight;
-                    max = size - this.button.layoutHeight;
-                    pos = max - this.button.positionY;
-                }
-                if (pos < 0)
-                    pos = 0;
-                else if (pos > max)
-                    pos = max;
-                this._value = pos / max;
-            }
-            this.disconnect(this.button, 'move', this.onButtonMove);
-            this.updateValue();
-            this.connect(this.button, 'move', this.onButtonMove);
-            if (oldValue != this._value)
-                this.fireEvent('change', this, this._value);
-        };
         Slider.prototype.updateValue = function () {
             this.updateLock = true;
             var max;
@@ -18547,8 +18636,12 @@ var Ui;
             var _this = _super.call(this) || this;
             _this.canplaythrough = false;
             _this._state = 'initial';
-            _this.addEvents('ready', 'ended', 'timeupdate', 'bufferingupdate', 'statechange', 'error');
-            _this.connect(_this, 'unload', _this.onAudioUnload);
+            _this.ready = new Core.Events();
+            _this.ended = new Core.Events();
+            _this.timeupdate = new Core.Events();
+            _this.bufferingupdate = new Core.Events();
+            _this.statechange = new Core.Events();
+            _this.error = new Core.Events();
             _this.verticalAlign = 'top';
             _this.horizontalAlign = 'left';
             if (init) {
@@ -18583,7 +18676,7 @@ var Ui;
         });
         Audio.prototype.play = function () {
             this._state = 'playing';
-            this.fireEvent('statechange', this, this._state);
+            this.statechange.fire({ target: this, state: this._state });
             if (this.canplaythrough)
                 this.audioDrawing.play();
             else
@@ -18591,7 +18684,7 @@ var Ui;
         };
         Audio.prototype.pause = function () {
             this._state = 'paused';
-            this.fireEvent('statechange', this, this._state);
+            this.statechange.fire({ target: this, state: this._state });
             if (this.canplaythrough)
                 this.audioDrawing.pause();
             else
@@ -18655,18 +18748,18 @@ var Ui;
                 this.audioDrawing.play();
             else if (this._state == 'paused')
                 this.audioDrawing.pause();
-            this.fireEvent('ready');
+            this.ready.fire({ target: this });
         };
         Audio.prototype.onTimeUpdate = function () {
-            this.fireEvent('timeupdate', this, this.audioDrawing.currentTime);
+            this.timeupdate.fire({ target: this, time: this.audioDrawing.currentTime });
             this.checkBuffering();
         };
         Audio.prototype.onEnded = function () {
             this.audioDrawing.pause();
             this._state = 'initial';
             this.audioDrawing.currentTime = 0;
-            this.fireEvent('ended', this);
-            this.fireEvent('statechange', this, this._state);
+            this.ended.fire({ target: this });
+            this.statechange.fire({ target: this, state: this._state });
         };
         Audio.prototype.onProgress = function () {
             this.checkBuffering();
@@ -18704,18 +18797,19 @@ var Ui;
             var timebuffer = this.currentBufferSize;
             var time = this.audioDrawing.currentTime;
             var duration = this.audioDrawing.duration;
-            this.fireEvent('bufferingupdate', this, timebuffer);
+            this.bufferingupdate.fire({ target: this, buffer: timebuffer });
         };
         Audio.prototype.onError = function () {
             this._state = 'error';
-            this.fireEvent('error', this, this.audioDrawing.error.code);
-            this.fireEvent('statechange', this, this._state);
+            this.error.fire({ target: this, code: this.audioDrawing.error.code });
+            this.statechange.fire({ target: this, state: this._state });
         };
         Audio.prototype.onWaiting = function () {
             if (!this.canplaythrough)
                 this.audioDrawing.load();
         };
-        Audio.prototype.onAudioUnload = function () {
+        Audio.prototype.onUnload = function () {
+            _super.prototype.onUnload.call(this);
             if (this.canplaythrough)
                 this.pause();
             this.audioDrawing.removeAttribute('src');
@@ -18725,16 +18819,17 @@ var Ui;
             catch (e) { }
         };
         Audio.prototype.renderDrawing = function () {
+            var _this = this;
             var drawing;
             if (Ui.Audio.htmlAudio) {
                 this.audioDrawing = document.createElement('audio');
                 this.audioDrawing.style.display = 'none';
-                this.connect(this.audioDrawing, 'canplaythrough', this.onReady);
-                this.connect(this.audioDrawing, 'ended', this.onEnded);
-                this.connect(this.audioDrawing, 'timeupdate', this.onTimeUpdate);
-                this.connect(this.audioDrawing, 'error', this.onError);
-                this.connect(this.audioDrawing, 'progress', this.onProgress);
-                this.connect(this.audioDrawing, 'waiting', this.onWaiting);
+                this.audioDrawing.addEventListener('canplaythrough', function () { return _this.onReady(); });
+                this.audioDrawing.addEventListener('ended', function () { return _this.onEnded(); });
+                this.audioDrawing.addEventListener('timeupdate', function () { return _this.onTimeUpdate(); });
+                this.audioDrawing.addEventListener('error', function () { return _this.onError(); });
+                this.audioDrawing.addEventListener('progress', function () { return _this.onProgress(); });
+                this.audioDrawing.addEventListener('waiting', function () { return _this.onWaiting(); });
                 this.audioDrawing.setAttribute('preload', 'auto');
                 this.audioDrawing.load();
                 drawing = this.audioDrawing;
@@ -18772,8 +18867,8 @@ var Ui;
             var _this = _super.call(this, init) || this;
             _this.openWindow = true;
             _this.target = '_blank';
-            _this.addEvents('link');
-            _this.connect(_this, 'press', _this.onLinkButtonPress);
+            _this.link = new Core.Events();
+            _this.pressed.connect(function () { return _this.onLinkButtonPress(); });
             if (init) {
                 if (init.src !== undefined)
                     _this.src = init.src;
@@ -18785,7 +18880,7 @@ var Ui;
             return _this;
         }
         LinkButton.prototype.onLinkButtonPress = function () {
-            this.fireEvent('link', this);
+            this.link.fire({ target: this });
             if (this.openWindow)
                 window.open(this.src, this.target);
             else
@@ -19302,8 +19397,12 @@ var Ui;
             _this.loaddone = false;
             _this.canplaythrough = false;
             _this._state = 'initial';
-            _this.addEvents('ready', 'ended', 'timeupdate', 'bufferingupdate', 'statechange', 'error');
-            _this.connect(_this, 'unload', _this.onVideoUnload);
+            _this.statechanged = new Core.Events();
+            _this.ready = new Core.Events();
+            _this.ended = new Core.Events();
+            _this.error = new Core.Events();
+            _this.timeupdated = new Core.Events();
+            _this.bufferingupdated = new Core.Events();
             if (init) {
                 if (init.src !== undefined)
                     _this.src = init.src;
@@ -19358,7 +19457,7 @@ var Ui;
         });
         Video.prototype.play = function () {
             this._state = 'playing';
-            this.fireEvent('statechange', this, this._state);
+            this.statechanged.fire({ target: this, state: this._state });
             if (this.canplaythrough)
                 this.videoDrawing.play();
             else
@@ -19366,7 +19465,7 @@ var Ui;
         };
         Video.prototype.pause = function () {
             this._state = 'paused';
-            this.fireEvent('statechange', this, this._state);
+            this.statechanged.fire({ target: this, state: this._state });
             if (this.canplaythrough)
                 this.videoDrawing.pause();
             else
@@ -19442,18 +19541,18 @@ var Ui;
                 this.videoDrawing.play();
             else if (this._state == 'paused')
                 this.videoDrawing.pause();
-            this.fireEvent('ready');
+            this.ready.fire({ target: this });
         };
         Video.prototype.onTimeUpdate = function () {
-            this.fireEvent('timeupdate', this, this.videoDrawing.currentTime);
+            this.timeupdated.fire({ target: this, time: this.videoDrawing.currentTime });
             this.checkBuffering();
         };
         Video.prototype.onEnded = function () {
             this.videoDrawing.pause();
             this._state = 'initial';
             this.videoDrawing.currentTime = 0;
-            this.fireEvent('ended', this);
-            this.fireEvent('statechange', this, this._state);
+            this.ended.fire({ target: this });
+            this.statechanged.fire({ target: this, state: this._state });
         };
         Video.prototype.onProgress = function () {
             this.checkBuffering();
@@ -19491,18 +19590,19 @@ var Ui;
             var timebuffer = this.currentBufferSize;
             var time = this.videoDrawing.currentTime;
             var duration = this.videoDrawing.duration;
-            this.fireEvent('bufferingupdate', this, timebuffer);
+            this.bufferingupdated.fire({ target: this, buffer: timebuffer });
         };
         Video.prototype.onError = function () {
             this._state = 'error';
-            this.fireEvent('error', this, this.videoDrawing.error.code);
-            this.fireEvent('statechange', this, this._state);
+            this.error.fire({ target: this, code: this.videoDrawing.error.code });
+            this.statechanged.fire({ target: this, state: this._state });
         };
         Video.prototype.onWaiting = function () {
             if (!this.canplaythrough)
                 this.videoDrawing.load();
         };
-        Video.prototype.onVideoUnload = function () {
+        Video.prototype.onUnload = function () {
+            _super.prototype.onUnload.call(this);
             if (this.canplaythrough)
                 this.pause();
             this.videoDrawing.removeAttribute('src');
@@ -19512,14 +19612,15 @@ var Ui;
             catch (e) { }
         };
         Video.prototype.renderDrawing = function () {
+            var _this = this;
             if (Ui.Video.htmlVideo) {
                 this.videoDrawing = document.createElement('video');
-                this.connect(this.videoDrawing, 'canplaythrough', this.onReady);
-                this.connect(this.videoDrawing, 'ended', this.onEnded);
-                this.connect(this.videoDrawing, 'timeupdate', this.onTimeUpdate);
-                this.connect(this.videoDrawing, 'error', this.onError);
-                this.connect(this.videoDrawing, 'progress', this.onProgress);
-                this.connect(this.videoDrawing, 'waiting', this.onWaiting);
+                this.videoDrawing.addEventListener('canplaythrough', function () { return _this.onReady(); });
+                this.videoDrawing.addEventListener('ended', function () { return _this.onEnded(); });
+                this.videoDrawing.addEventListener('timeupdate', function () { return _this.onTimeUpdate(); });
+                this.videoDrawing.addEventListener('error', function () { return _this.onError(); });
+                this.videoDrawing.addEventListener('progress', function () { return _this.onProgress(); });
+                this.videoDrawing.addEventListener('waiting', function () { return _this.onWaiting(); });
                 this.videoDrawing.setAttribute('preload', 'auto');
                 this.videoDrawing.load();
                 this.videoDrawing.style.position = 'absolute';
@@ -19559,22 +19660,26 @@ var Ui;
         __extends(MonthCalendar, _super);
         function MonthCalendar(init) {
             var _this = _super.call(this, init) || this;
-            _this.addEvents('dayselect');
+            _this.dayselected = new Core.Events();
             _this._date = new Date();
             var hbox = new Ui.HBox();
             _this.append(hbox);
-            var button = new Ui.Pressable({ verticalAlign: 'center' });
+            var button = new Ui.Pressable({
+                verticalAlign: 'center',
+                onpressed: function () { return _this.onLeftButtonPress(); }
+            });
             _this.leftarrow = new Ui.Icon({ icon: 'arrowleft', width: 24, height: 24 });
             button.append(_this.leftarrow);
             hbox.append(button);
-            _this.connect(button, 'press', _this.onLeftButtonPress);
             _this.title = new Ui.Label({ fontWeight: 'bold', fontSize: 18, margin: 5 });
             hbox.append(_this.title, true);
-            button = new Ui.Pressable({ verticalAlign: 'center' });
+            button = new Ui.Pressable({
+                verticalAlign: 'center',
+                onpressed: function () { return _this.onRightButtonPress(); }
+            });
             _this.rightarrow = new Ui.Icon({ icon: 'arrowright', width: 24, height: 24 });
             button.append(_this.rightarrow);
             hbox.append(button);
-            _this.connect(button, 'press', _this.onRightButtonPress);
             _this.grid = new Ui.Grid({
                 cols: '*,*,*,*,*,*,*',
                 rows: '*,*,*,*,*,*,*',
@@ -19591,6 +19696,8 @@ var Ui;
                     _this.dayFilter = init.dayFilter;
                 if (init.dateFilter !== undefined)
                     _this.dateFilter = init.dateFilter;
+                if (init.ondayselected)
+                    _this.dayselected.connect(init.ondayselected);
             }
             return _this;
         }
@@ -19640,9 +19747,10 @@ var Ui;
         MonthCalendar.prototype.onDaySelect = function (button) {
             this._selectedDate = button.monthCalendarDate;
             this.updateDate();
-            this.fireEvent('dayselect', this, this._selectedDate);
+            this.dayselected.fire({ target: this, value: this._selectedDate });
         };
         MonthCalendar.prototype.updateDate = function () {
+            var _this = this;
             var i;
             var dayPivot = [6, 0, 1, 2, 3, 4, 5];
             var dayNames = ['Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa', 'Di'];
@@ -19657,10 +19765,11 @@ var Ui;
             current.setDate(1);
             var row = 1;
             var now = new Date();
-            do {
-                var day = new DayButton();
+            var _loop_2 = function () {
+                var day = new DayButton({
+                    onpressed: function () { return _this.onDaySelect(day); }
+                });
                 day.monthCalendarDate = current;
-                this.connect(day, 'press', this.onDaySelect);
                 var bg = void 0;
                 if ((current.getFullYear() == now.getFullYear()) && (current.getMonth() == now.getMonth()) && (current.getDate() == now.getDate())) {
                     day.monthCalendarCurrent = true;
@@ -19671,16 +19780,16 @@ var Ui;
                     bg = new Ui.Rectangle({ fill: new Ui.Color(0.8, 0.8, 0.8, 0.4), margin: 1 });
                     day.append(bg);
                 }
-                if ((this._selectedDate !== undefined) && (current.getFullYear() === this._selectedDate.getFullYear()) && (current.getMonth() === this._selectedDate.getMonth()) && (current.getDate() === this.selectedDate.getDate()))
+                if ((this_2._selectedDate !== undefined) && (current.getFullYear() === this_2._selectedDate.getFullYear()) && (current.getMonth() === this_2._selectedDate.getMonth()) && (current.getDate() === this_2.selectedDate.getDate()))
                     day.append(new Ui.Frame({ frameWidth: 3, fill: 'red', radius: 0 }));
                 var disable = false;
-                if (this._dayFilter !== undefined) {
+                if (this_2._dayFilter !== undefined) {
                     var weekday = current.getDay();
-                    for (i = 0; (i < this._dayFilter.length) && !disable; i++)
-                        if (weekday == this._dayFilter[i])
+                    for (i = 0; (i < this_2._dayFilter.length) && !disable; i++)
+                        if (weekday == this_2._dayFilter[i])
                             disable = true;
                 }
-                if (this._dateFilter !== undefined) {
+                if (this_2._dateFilter !== undefined) {
                     var daystr = current.getFullYear() + '/';
                     if (current.getMonth() + 1 < 10)
                         daystr += '0';
@@ -19688,8 +19797,8 @@ var Ui;
                     if (current.getDate() < 10)
                         daystr += '0';
                     daystr += current.getDate();
-                    for (i = 0; (i < this._dateFilter.length) && !disable; i++) {
-                        var re = new RegExp(this._dateFilter[i]);
+                    for (i = 0; (i < this_2._dateFilter.length) && !disable; i++) {
+                        var re = new RegExp(this_2._dateFilter[i]);
                         if (re.test(daystr)) {
                             disable = true;
                         }
@@ -19700,10 +19809,14 @@ var Ui;
                     day.opacity = 0.2;
                 }
                 day.append(new Ui.Label({ text: current.getDate().toString(), margin: 5 }));
-                this.grid.attach(day, dayPivot[current.getDay()], row);
+                this_2.grid.attach(day, dayPivot[current.getDay()], row);
                 current = new Date(current.getTime() + 1000 * 60 * 60 * 24);
                 if (dayPivot[current.getDay()] === 0)
                     row++;
+            };
+            var this_2 = this;
+            do {
+                _loop_2();
             } while (month == current.getMonth());
             this.onStyleChange();
         };
@@ -19770,7 +19883,9 @@ var Ui;
         __extends(TextButtonField, _super);
         function TextButtonField(init) {
             var _this = _super.call(this, init) || this;
-            _this.addEvents('change', 'validate', 'buttonpress');
+            _this.changed = new Core.Events();
+            _this.buttonpressed = new Core.Events();
+            _this.validated = new Core.Events();
             _this.padding = 0;
             _this.graphic = new Ui.TextBgGraphic();
             _this.append(_this.graphic);
@@ -19784,14 +19899,14 @@ var Ui;
             _this.entry = new Ui.Entry({
                 margin: 5, marginLeft: 10, marginRight: 10, fontSize: 16
             });
-            _this.connect(_this.entry, 'focus', _this.onEntryFocus);
-            _this.connect(_this.entry, 'blur', _this.onEntryBlur);
+            _this.entry.focused.connect(function () { return _this.onEntryFocus(); });
+            _this.entry.blurred.connect(function () { return _this.onEntryBlur(); });
             hbox.append(_this.entry, true);
-            _this.connect(_this.entry, 'change', _this.onEntryChange);
+            _this.entry.changed.connect(function (e) { return _this.onEntryChange(e.target, e.value); });
             _this.button = new TextFieldButton({ orientation: 'horizontal', margin: 1 });
             hbox.append(_this.button);
-            _this.connect(_this, 'submit', _this.onFormSubmit);
-            _this.connect(_this.button, 'press', _this.onButtonPress);
+            _this.submited.connect(function () { return _this.onFormSubmit(); });
+            _this.button.pressed.connect(function () { return _this.onButtonPress(); });
             if (init) {
                 if (init.textHolder !== undefined)
                     _this.textHolder = init.textHolder;
@@ -19803,6 +19918,12 @@ var Ui;
                     _this.buttonText = init.buttonText;
                 if (init.value !== undefined)
                     _this.value = init.value;
+                if (init.onchanged)
+                    _this.changed.connect(init.onchanged);
+                if (init.onbuttonpressed)
+                    _this.buttonpressed.connect(init.onbuttonpressed);
+                if (init.onvalidated)
+                    _this.validated.connect(init.onvalidated);
             }
             return _this;
         }
@@ -19857,14 +19978,14 @@ var Ui;
             configurable: true
         });
         TextButtonField.prototype.onButtonPress = function () {
-            this.fireEvent('buttonpress', this);
-            this.fireEvent('validate', this, this.value);
+            this.buttonpressed.fire({ target: this });
+            this.validated.fire({ target: this, value: this.value });
         };
         TextButtonField.prototype.onEntryChange = function (entry, value) {
-            this.fireEvent('change', this, value);
+            this.changed.fire({ target: this, value: value });
         };
         TextButtonField.prototype.onFormSubmit = function () {
-            this.fireEvent('validate', this, this.value);
+            this.validated.fire({ target: this, value: this.value });
         };
         TextButtonField.prototype.onEntryFocus = function () {
             this._textholder.hide();
@@ -19888,8 +20009,8 @@ var Ui;
             _this._isValid = false;
             _this.buttonIcon = 'calendar';
             _this.widthText = 9;
-            _this.connect(_this, 'buttonpress', _this.onDatePickerButtonPress);
-            _this.connect(_this, 'change', _this.onDatePickerChange);
+            _this.buttonpressed.connect(function () { return _this.onDatePickerButtonPress(); });
+            _this.changed.connect(function () { return _this.onDatePickerChange(); });
             if (init) {
                 if (init.dayFilter !== undefined)
                     _this.dayFilter = init.dayFilter;
@@ -19935,12 +20056,12 @@ var Ui;
                     this.textValue = this.zeroPad(date.getDate(), 2) + "/" + this.zeroPad(date.getMonth() + 1, 2) + "/" + date.getFullYear();
                 }
                 this._isValid = true;
-                this.fireEvent('change', this, this.selectedDate);
             },
             enumerable: true,
             configurable: true
         });
         DatePicker.prototype.onDatePickerButtonPress = function () {
+            var _this = this;
             var splitDate = this.textValue.match(/^(\d{1,2})\/(\d{1,2})\/(\d{1,4})$/);
             if (splitDate !== null)
                 this.selectedDate = new Date(parseInt(splitDate[3]), parseInt(splitDate[2]) - 1, parseInt(splitDate[1]));
@@ -19954,7 +20075,7 @@ var Ui;
             if (this._dateFilter !== undefined)
                 this.calendar.dateFilter = this._dateFilter;
             this.popup.content = this.calendar;
-            this.connect(this.calendar, 'dayselect', this.onDaySelect);
+            this.calendar.dayselected.connect(function (e) { return _this.onDaySelect(e.target, e.value); });
             this.popup.openElement(this);
         };
         DatePicker.prototype.onDatePickerChange = function () {
@@ -19993,15 +20114,15 @@ var Ui;
         __extends(DownloadButton, _super);
         function DownloadButton(init) {
             var _this = _super.call(this, init) || this;
+            _this.download = new Core.Events();
             _this.style = {
                 background: '#a4f4a4'
             };
-            _this.addEvents('download');
-            _this.connect(_this, 'link', _this.onLinkPress);
+            _this.link.connect(_this.onLinkPress);
             return _this;
         }
         DownloadButton.prototype.onLinkPress = function () {
-            this.fireEvent('download', this);
+            this.download.fire({ target: this });
         };
         return DownloadButton;
     }(Ui.LinkButton));
@@ -20035,8 +20156,8 @@ var Ui;
         function IFrame(init) {
             var _this = _super.call(this, init) || this;
             _this._isReady = false;
-            _this.connect(_this.iframeDrawing, 'load', _this.onIFrameLoad);
-            _this.addEvents('ready');
+            _this.ready = new Core.Events();
+            _this.iframeDrawing.addEventListener('load', function () { return _this.onIFrameLoad(); });
             if (init) {
                 if (init.src !== undefined)
                     _this.src = init.src;
@@ -20063,7 +20184,7 @@ var Ui;
         IFrame.prototype.onIFrameLoad = function () {
             if (!this._isReady) {
                 this._isReady = true;
-                this.fireEvent('ready', this);
+                this.ready.fire({ target: this });
             }
         };
         IFrame.prototype.renderDrawing = function () {
@@ -20107,11 +20228,11 @@ var Ui;
         function ContentEditable(init) {
             var _this = _super.call(this, init) || this;
             _this.anchorOffset = 0;
-            _this.addEvents('anchorchange');
+            _this.anchorchanged = new Core.Events();
             _this.selectable = true;
             _this.drawing.setAttribute('contenteditable', 'true');
-            _this.connect(_this.drawing, 'keyup', _this.onKeyUp);
-            _this.connect(_this.drawing, 'DOMSubtreeModified', _this.onContentSubtreeModified);
+            _this.drawing.addEventListener('keyup', function (e) { return _this.onKeyUp(e); });
+            _this.drawing.addEventListener('DOMSubtreeModified', function (e) { return _this.onContentSubtreeModified(e); });
             return _this;
         }
         ContentEditable.prototype.onKeyUp = function (event) {
@@ -20122,7 +20243,7 @@ var Ui;
                 (window.getSelection().anchorOffset != this.anchorOffset)) {
                 this.anchorNode = window.getSelection().anchorNode;
                 this.anchorOffset = window.getSelection().anchorOffset;
-                this.fireEvent('anchorchange', this);
+                this.anchorchanged.fire({ target: this });
             }
         };
         ContentEditable.prototype.onContentSubtreeModified = function (event) {
@@ -20139,7 +20260,7 @@ var Ui;
         __extends(ScrollLoader, _super);
         function ScrollLoader() {
             var _this = _super.call(this) || this;
-            _this.addEvents('change');
+            _this.changed = new Core.Events();
             return _this;
         }
         ScrollLoader.prototype.getMin = function () {
@@ -20172,35 +20293,69 @@ var Ui;
             _this.contentWidth = 0;
             _this.contentHeight = 0;
             _this.scrollLock = false;
-            _this.addEvents('scroll');
+            _this.scrolled = new Core.Events();
+            _this.autoShowScrollbars = function () {
+                if (_this.showClock == undefined) {
+                    _this.showClock = new Anim.Clock({ duration: 'forever' });
+                    _this.showClock.timeupdate.connect(function (e) { return _this.onShowBarsTick(e.target, e.progress, e.deltaTick); });
+                    _this.showClock.begin();
+                }
+            };
+            _this.autoHideScrollbars = function () {
+                if (_this.contentBox.isDown || _this.contentBox.isInertia || _this.isOver ||
+                    (_this.scrollbarVertical && _this.scrollbarVertical.isDown) ||
+                    (_this.scrollbarHorizontal && _this.scrollbarHorizontal.isDown))
+                    return;
+                if (_this.showClock === undefined) {
+                    _this.showClock = new Anim.Clock({ duration: 'forever' });
+                    _this.showClock.timeupdate.connect(function (e) { return _this.onShowBarsTick(e.target, e.progress, e.deltaTick); });
+                    _this.showClock.begin();
+                }
+            };
+            _this.onScrollbarHorizontalMove = function () {
+                if (_this.scrollLock)
+                    return;
+                var totalWidth = _this.viewWidth - _this.scrollbarHorizontal.layoutWidth;
+                var offsetX = Math.min(1, Math.max(0, _this.scrollbarHorizontal.positionX / totalWidth));
+                _this.setOffset(offsetX, undefined);
+                _this.scrollbarHorizontal.setPosition(offsetX * totalWidth, undefined);
+            };
+            _this.onScrollbarVerticalMove = function () {
+                if (_this.scrollLock)
+                    return;
+                var totalHeight = _this.viewHeight - _this.scrollbarVertical.layoutHeight;
+                var offsetY = Math.min(1, Math.max(0, _this.scrollbarVertical.positionY / totalHeight));
+                _this.setOffset(undefined, offsetY);
+                _this.scrollbarVertical.setPosition(undefined, offsetY * totalHeight);
+            };
             _this.contentBox = new VBoxScrollableContent();
-            _this.connect(_this.contentBox, 'scroll', _this.onScroll);
-            _this.connect(_this.contentBox, 'down', _this.autoShowScrollbars);
-            _this.connect(_this.contentBox, 'inertiaend', _this.autoHideScrollbars);
+            _this.contentBox.scrolled.connect(function () { return _this.onScroll(); });
+            _this.contentBox.downed.connect(function () { return _this.autoShowScrollbars(); });
+            _this.contentBox.inertiaended.connect(function () { return _this.autoHideScrollbars(); });
             _this.appendChild(_this.contentBox);
-            _this.connect(_this, 'ptrmove', function (event) {
+            _this.ptrmoved.connect(function (event) {
                 if (!_this.isDisabled && !event.pointer.getIsDown() && (_this.overWatcher === undefined)) {
                     _this.overWatcher = event.pointer.watch(_this);
                     _this.isOver = true;
                     _this.autoShowScrollbars();
-                    _this.connect(_this.overWatcher, 'move', function () {
-                        if (!this.overWatcher.getIsInside())
-                            this.overWatcher.cancel();
+                    _this.overWatcher.moved.connect(function () {
+                        if (!_this.overWatcher.getIsInside())
+                            _this.overWatcher.cancel();
                     });
-                    _this.connect(_this.overWatcher, 'down', function () {
-                        this.overWatcher.cancel();
+                    _this.overWatcher.downed.connect(function () {
+                        _this.overWatcher.cancel();
                     });
-                    _this.connect(_this.overWatcher, 'up', function () {
-                        this.overWatcher.cancel();
+                    _this.overWatcher.upped.connect(function () {
+                        _this.overWatcher.cancel();
                     });
-                    _this.connect(_this.overWatcher, 'cancel', function () {
-                        this.overWatcher = undefined;
-                        this.isOver = false;
-                        this.autoHideScrollbars();
+                    _this.overWatcher.cancelled.connect(function () {
+                        _this.overWatcher = undefined;
+                        _this.isOver = false;
+                        _this.autoHideScrollbars();
                     });
                 }
             });
-            _this.connect(_this, 'wheel', _this.onWheel);
+            _this.wheelchanged.connect(function (e) { return _this.onWheel(e); });
             if (init) {
                 if (init.loader !== undefined)
                     _this.loader = init.loader;
@@ -20281,17 +20436,17 @@ var Ui;
             },
             set: function (scrollbarVertical) {
                 if (this._scrollbarVertical) {
-                    this.disconnect(this._scrollbarVertical, 'down', this.autoShowScrollbars);
-                    this.disconnect(this._scrollbarVertical, 'up', this.autoHideScrollbars);
-                    this.disconnect(this._scrollbarVertical, 'move', this.onScrollbarVerticalMove);
+                    this._scrollbarVertical.downed.disconnect(this.autoShowScrollbars);
+                    this._scrollbarVertical.upped.disconnect(this.autoHideScrollbars);
+                    this._scrollbarVertical.moved.disconnect(this.onScrollbarVerticalMove);
                     this.removeChild(this._scrollbarVertical);
                 }
                 if (scrollbarVertical) {
                     this._scrollbarVertical = scrollbarVertical;
                     this._scrollbarVertical.moveHorizontal = false;
-                    this.connect(this._scrollbarVertical, 'down', this.autoShowScrollbars);
-                    this.connect(this._scrollbarVertical, 'up', this.autoHideScrollbars);
-                    this.connect(this._scrollbarVertical, 'move', this.onScrollbarVerticalMove);
+                    this._scrollbarVertical.downed.connect(this.autoShowScrollbars);
+                    this._scrollbarVertical.upped.connect(this.autoHideScrollbars);
+                    this._scrollbarVertical.moved.connect(this.onScrollbarVerticalMove);
                     this._scrollbarVertical.opacity = 0;
                     this.appendChild(this._scrollbarVertical);
                 }
@@ -20305,17 +20460,17 @@ var Ui;
             },
             set: function (scrollbarHorizontal) {
                 if (this._scrollbarHorizontal) {
-                    this.disconnect(this._scrollbarHorizontal, 'down', this.autoShowScrollbars);
-                    this.disconnect(this._scrollbarHorizontal, 'up', this.autoHideScrollbars);
-                    this.disconnect(this._scrollbarHorizontal, 'move', this.onScrollbarHorizontalMove);
+                    this._scrollbarHorizontal.downed.disconnect(this.autoShowScrollbars);
+                    this._scrollbarHorizontal.upped.disconnect(this.autoHideScrollbars);
+                    this._scrollbarHorizontal.moved.disconnect(this.onScrollbarHorizontalMove);
                     this.removeChild(this._scrollbarHorizontal);
                 }
                 if (scrollbarHorizontal) {
                     this._scrollbarHorizontal = scrollbarHorizontal;
                     this._scrollbarHorizontal.moveVertical = false;
-                    this.connect(this._scrollbarHorizontal, 'down', this.autoShowScrollbars);
-                    this.connect(this._scrollbarHorizontal, 'up', this.autoHideScrollbars);
-                    this.connect(this._scrollbarHorizontal, 'move', this.onScrollbarHorizontalMove);
+                    this._scrollbarHorizontal.downed.connect(this.autoShowScrollbars);
+                    this._scrollbarHorizontal.upped.connect(this.autoHideScrollbars);
+                    this._scrollbarHorizontal.moved.connect(this.onScrollbarHorizontalMove);
                     this._scrollbarHorizontal.opacity = 0;
                     this.appendChild(this._scrollbarHorizontal);
                 }
@@ -20353,38 +20508,20 @@ var Ui;
                 return false;
         };
         VBoxScrollable.prototype.getOffsetX = function () {
-            return this.contentBox.getOffsetX();
+            return this.contentBox.offsetX;
         };
         VBoxScrollable.prototype.getRelativeOffsetX = function () {
             return this.relativeOffsetX;
         };
         VBoxScrollable.prototype.getOffsetY = function () {
-            return this.contentBox.getOffsetY();
+            return this.contentBox.offsetY;
         };
         VBoxScrollable.prototype.getRelativeOffsetY = function () {
             return this.relativeOffsetY;
         };
         VBoxScrollable.prototype.onWheel = function (event) {
-            if (this.setOffset(this.contentBox.getOffsetX() + event.deltaX * 3, this.contentBox.getOffsetY() + event.deltaY * 3, true)) {
+            if (this.setOffset(this.contentBox.offsetX + event.deltaX * 3, this.contentBox.offsetY + event.deltaY * 3, true)) {
                 event.stopPropagation();
-            }
-        };
-        VBoxScrollable.prototype.autoShowScrollbars = function () {
-            if (this.showClock == undefined) {
-                this.showClock = new Anim.Clock({ duration: 'forever' });
-                this.connect(this.showClock, 'timeupdate', this.onShowBarsTick);
-                this.showClock.begin();
-            }
-        };
-        VBoxScrollable.prototype.autoHideScrollbars = function () {
-            if (this.contentBox.isDown || this.contentBox.isInertia || this.isOver ||
-                (this.scrollbarVertical && this.scrollbarVertical.isDown) ||
-                (this.scrollbarHorizontal && this.scrollbarHorizontal.isDown))
-                return;
-            if (this.showClock === undefined) {
-                this.showClock = new Anim.Clock({ duration: 'forever' });
-                this.connect(this.showClock, 'timeupdate', this.onShowBarsTick);
-                this.showClock.begin();
             }
         };
         VBoxScrollable.prototype.onShowBarsTick = function (clock, progress, delta) {
@@ -20417,13 +20554,13 @@ var Ui;
         };
         VBoxScrollable.prototype.onScroll = function () {
             this.updateOffset();
-            this.fireEvent('scroll', this, this.offsetX, this.offsetY);
+            this.scrolled.fire({ target: this, offsetX: this.offsetX, offsetY: this.offsetY });
         };
         VBoxScrollable.prototype.updateOffset = function () {
             if (this.contentBox === undefined)
                 return;
-            this.offsetX = this.contentBox.getOffsetX();
-            this.offsetY = this.contentBox.getOffsetY();
+            this.offsetX = this.contentBox.offsetX;
+            this.offsetY = this.contentBox.offsetY;
             this.viewWidth = this.layoutWidth;
             this.viewHeight = this.layoutHeight;
             this.contentWidth = this.contentBox.getContentWidth();
@@ -20475,22 +20612,6 @@ var Ui;
             }
             this.scrollLock = false;
         };
-        VBoxScrollable.prototype.onScrollbarHorizontalMove = function (movable) {
-            if (this.scrollLock)
-                return;
-            var totalWidth = this.viewWidth - this.scrollbarHorizontal.layoutWidth;
-            var offsetX = Math.min(1, Math.max(0, movable.positionX / totalWidth));
-            this.setOffset(offsetX, undefined);
-            movable.setPosition(offsetX * totalWidth, undefined);
-        };
-        VBoxScrollable.prototype.onScrollbarVerticalMove = function (movable) {
-            if (this.scrollLock)
-                return;
-            var totalHeight = this.viewHeight - this.scrollbarVertical.layoutHeight;
-            var offsetY = Math.min(1, Math.max(0, movable.positionY / totalHeight));
-            this.setOffset(undefined, offsetY);
-            movable.setPosition(undefined, offsetY * totalHeight);
-        };
         VBoxScrollable.prototype.measureCore = function (width, height) {
             var size = { width: 0, height: 0 };
             this.scrollbarHorizontal.measure(width, height);
@@ -20533,10 +20654,14 @@ var Ui;
             _this.activeItemsY = 0;
             _this.activeItemsHeight = 0;
             _this.reloadNeeded = false;
-            _this.addEvents('scroll');
+            _this.scrolled = new Core.Events();
+            _this.onLoaderChange = function () {
+                _this.reloadNeeded = true;
+                _this.invalidateMeasure();
+            };
             _this.activeItems = [];
             _this.clipToBounds = true;
-            _this.connect(_this.drawing, 'scroll', function () {
+            _this.drawing.addEventListener('scroll', function () {
                 _this.translateX -= _this.drawing.scrollLeft;
                 _this.translateY -= _this.drawing.scrollTop;
                 _this.drawing.scrollLeft = 0;
@@ -20555,22 +20680,30 @@ var Ui;
         VBoxScrollableContent.prototype.setLoader = function (loader) {
             if (this.loader !== loader) {
                 if (this.loader !== undefined)
-                    this.disconnect(this.loader, 'change', this.onLoaderChange);
+                    this.loader.changed.disconnect(this.onLoaderChange);
                 this.loader = loader;
                 if (this.loader !== undefined)
-                    this.connect(this.loader, 'change', this.onLoaderChange);
+                    this.loader.changed.connect(this.onLoaderChange);
                 this.reload();
             }
         };
         VBoxScrollableContent.prototype.getActiveItems = function () {
             return this.activeItems;
         };
-        VBoxScrollableContent.prototype.getOffsetX = function () {
-            return -this.translateX;
-        };
-        VBoxScrollableContent.prototype.getOffsetY = function () {
-            return Math.max(0, (((-this.translateY) / this.scale) - this.getMinY()) * this.scale);
-        };
+        Object.defineProperty(VBoxScrollableContent.prototype, "offsetX", {
+            get: function () {
+                return -this.translateX;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(VBoxScrollableContent.prototype, "offsetY", {
+            get: function () {
+                return Math.max(0, (((-this.translateY) / this.scale) - this.getMinY()) * this.scale);
+            },
+            enumerable: true,
+            configurable: true
+        });
         VBoxScrollableContent.prototype.setOffset = function (x, y) {
             var minY = this.getMinY();
             var translateY = -(((y / this.scale) + minY) * this.scale);
@@ -20703,10 +20836,6 @@ var Ui;
             this.estimatedHeightNeeded = true;
             this.onContentTransform(false);
         };
-        VBoxScrollableContent.prototype.onLoaderChange = function () {
-            this.reloadNeeded = true;
-            this.invalidateMeasure();
-        };
         VBoxScrollableContent.prototype.measureCore = function (width, height) {
             if (this.reloadNeeded) {
                 this.reloadNeeded = false;
@@ -20751,7 +20880,7 @@ var Ui;
             this.contentWidth = this.layoutWidth * scale;
             this.contentHeight = this.getEstimatedContentHeight() * scale;
             if (testOnly !== true)
-                this.fireEvent('scroll', this);
+                this.scrolled.fire({ target: this, offsetX: this.offsetX, offsetY: this.offsetY });
         };
         VBoxScrollableContent.prototype.onChildInvalidateMeasure = function (child, event) {
             this.invalidateLayout();
@@ -20791,8 +20920,8 @@ var Ui;
         __extends(SelectionArea, _super);
         function SelectionArea(init) {
             var _this = _super.call(this, init) || this;
-            _this.connect(_this, 'ptrdown', _this.onPointerDown);
-            _this.connect(_this.drawing, 'keydown', _this.onKeyDown);
+            _this.ptrdowned.connect(function (e) { return _this.onPointerDown(e); });
+            _this.drawing.addEventListener('keydown', function (e) { return _this.onKeyDown(e); });
             return _this;
         }
         SelectionArea.prototype.getParentSelectionHandler = function () {
@@ -20929,9 +21058,9 @@ var Ui;
                 return;
             if (event.pointerType == 'mouse' && event.pointer.button == 0) {
                 this.watcher = event.pointer.watch(this);
-                this.connect(this.watcher, 'move', this.onPtrMove);
-                this.connect(this.watcher, 'up', this.onPtrUp);
-                this.connect(this.watcher, 'cancel', function () { return _this.watcher = undefined; });
+                this.watcher.moved.connect(function (e) { return _this.onPtrMove(e.target); });
+                this.watcher.upped.connect(function (e) { return _this.onPtrUp(e.target); });
+                this.watcher.cancelled.connect(function () { return _this.watcher = undefined; });
             }
         };
         SelectionArea.prototype.onPtrUp = function (watcher) {
@@ -21047,8 +21176,8 @@ var Ui;
             _this.append(_this.background);
             _this.uiTitle = new Ui.Label({ margin: 8, fontWeight: 'bold' });
             _this.append(_this.uiTitle);
-            _this.connect(_this, 'down', _this.onListViewHeaderDown);
-            _this.connect(_this, 'up', _this.onListViewHeaderUp);
+            _this.downed.connect(function () { return _this.onListViewHeaderDown(); });
+            _this.upped.connect(function () { return _this.onListViewHeaderUp(); });
             if (init) {
                 if (init.title !== undefined)
                     _this.title = init.title;
@@ -21100,22 +21229,28 @@ var Ui;
             _this.sortInvert = false;
             _this.rowsHeight = 0;
             _this.headersHeight = 0;
-            _this.addEvents('header');
+            _this.headerpressed = new Core.Events();
             _this.headers = config.headers;
             delete (config.headers);
             _this.sortArrow = new Ui.Icon({ icon: 'sortarrow', width: 10, height: 10, margin: 4 });
             _this.appendChild(_this.sortArrow);
             _this.cols = [];
-            for (var i = 0; i < _this.headers.length; i++) {
-                var header = _this.headers[i];
-                var headerUi = new ListViewHeader({ title: header.title, width: header.width });
+            var _loop_3 = function (i) {
+                var header = this_3.headers[i];
+                var headerUi = new ListViewHeader({
+                    title: header.title, width: header.width,
+                    onpressed: function (e) { return _this.onHeaderPress(headerUi); }
+                });
                 header['Ui.ListViewHeadersBar.ui'] = headerUi;
-                _this.connect(header['Ui.ListViewHeadersBar.ui'], 'press', _this.onHeaderPress);
                 header.colWidth = header.width;
-                _this.appendChild(header['Ui.ListViewHeadersBar.ui']);
+                this_3.appendChild(header['Ui.ListViewHeadersBar.ui']);
                 var col = new ListViewColBar(headerUi);
-                _this.cols.push(col);
-                _this.appendChild(col);
+                this_3.cols.push(col);
+                this_3.appendChild(col);
+            };
+            var this_3 = this;
+            for (var i = 0; i < _this.headers.length; i++) {
+                _loop_3(i);
             }
             return _this;
         }
@@ -21143,7 +21278,7 @@ var Ui;
                 }
             }
             if (key !== undefined) {
-                this.fireEvent('header', this, key);
+                this.headerpressed.fire({ target: this, key: key });
             }
         };
         ListViewHeadersBar.prototype.measureCore = function (width, height) {
@@ -21222,8 +21357,8 @@ var Ui;
             _this.selectionWatcher = new Ui.SelectionableWatcher({
                 element: _this,
                 selectionActions: _this.selectionActions,
-                select: function () { return _this.onStyleChange(); },
-                unselect: function () { return _this.onStyleChange(); }
+                onselected: function () { return _this.onStyleChange(); },
+                onunselected: function () { return _this.onStyleChange(); }
             });
             return _this;
         }
@@ -21301,7 +21436,7 @@ var Ui;
             return _this;
         }
         ListViewScrollLoader.prototype.signalChange = function () {
-            this.fireEvent('change', this);
+            this.changed.fire({ target: this });
         };
         ListViewScrollLoader.prototype.getMin = function () {
             return 0;
@@ -21324,7 +21459,9 @@ var Ui;
             _this.headersVisible = true;
             _this.sortInvert = false;
             _this._scrolled = true;
-            _this.addEvents('select', 'unselect', 'activate', 'header');
+            _this.selected = new Core.Events();
+            _this.unselected = new Core.Events();
+            _this.activated = new Core.Events();
             if (init && init.headers != undefined) {
                 _this.headers = init.headers;
                 delete (init.headers);
@@ -21344,19 +21481,15 @@ var Ui;
             _this.headersScroll.setScrollbarHorizontal(new Ui.Movable());
             _this.append(_this.headersScroll);
             _this.headersBar = new ListViewHeadersBar({ headers: _this.headers });
-            _this.connect(_this.headersBar, 'header', _this.onHeaderPress);
+            _this.headersBar.headerpressed.connect(function (e) { return _this.onHeaderPress(e.target, e.key); });
             _this.headersScroll.content = _this.headersBar;
             _this._data = [];
             _this.vboxScroll = new Ui.ScrollingArea();
             _this.append(_this.vboxScroll, true);
             _this.vbox = new Ui.VBox();
             _this.vboxScroll.content = _this.vbox;
-            _this.connect(_this.vboxScroll, 'scroll', function (s, offsetX, offsetY) {
-                _this.headersScroll.setOffset(offsetX, undefined, true, true);
-            });
-            _this.connect(_this.headersScroll, 'scroll', function (s, offsetX, offsetY) {
-                _this.vboxScroll.setOffset(offsetX, undefined, true, true);
-            });
+            _this.vboxScroll.scrolled.connect(function (e) { return _this.headersScroll.setOffset(e.offsetX, undefined, true, true); });
+            _this.headersScroll.scrolled.connect(function (e) { return _this.vboxScroll.setOffset(e.offsetX, undefined, true, true); });
             if (init) {
                 if (init.headers !== undefined)
                     _this.headers = init.headers;
@@ -21364,6 +21497,12 @@ var Ui;
                     _this.scrolled = init.scrolled;
                 if (init.selectionActions !== undefined)
                     _this.selectionActions = init.selectionActions;
+                if (init.onselected)
+                    _this.selected.connect(init.onselected);
+                if (init.onunselected)
+                    _this.unselected.connect(init.onunselected);
+                if (init.onactivated)
+                    _this.activated.connect(init.onactivated);
             }
             return _this;
         }
@@ -21495,7 +21634,7 @@ var Ui;
         };
         ListView.prototype.onSelectionEdit = function (selection) {
             var data = selection.elements[0].getData();
-            this.fireEvent('activate', this, this.findDataRow(data), data);
+            this.activated.fire({ target: this, position: this.findDataRow(data), value: data });
         };
         ListView.prototype.onChildInvalidateArrange = function (child) {
             _super.prototype.onChildInvalidateArrange.call(this, child);
@@ -21574,8 +21713,8 @@ var Ui;
             _this.header = header;
             _this.grip = new Ui.Movable({ moveVertical: false });
             _this.appendChild(_this.grip);
-            _this.connect(_this.grip, 'move', _this.onMove);
-            _this.connect(_this.grip, 'up', _this.onUp);
+            _this.grip.moved.connect(function () { return _this.onMove(); });
+            _this.grip.upped.connect(function () { return _this.onUp(); });
             var lbox = new Ui.LBox();
             _this.grip.setContent(lbox);
             lbox.append(new Ui.Rectangle({ width: 1, opacity: 0.2, fill: 'black', marginLeft: 14, marginRight: 8 + 2, marginTop: 6, marginBottom: 6 }));
@@ -21627,20 +21766,20 @@ var Ui;
         __extends(Uploadable, _super);
         function Uploadable(init) {
             var _this = _super.call(this, init) || this;
+            _this.file = new Core.Events();
             _this.drawing.style.cursor = 'pointer';
             _this.focusable = true;
             _this.role = 'button';
-            _this.addEvents('file');
             _this.input = new UploadableFileWrapper();
             _this.append(_this.input);
-            _this.connect(_this.input, 'file', _this.onFile);
+            _this.input.file.connect(function (e) { return _this.onFile(e.target, e.file); });
             return _this;
         }
         Uploadable.prototype.setDirectoryMode = function (active) {
             this.input.setDirectoryMode(active);
         };
         Uploadable.prototype.onFile = function (fileWrapper, file) {
-            this.fireEvent('file', this, file);
+            this.file.fire({ target: this, file: file });
         };
         Uploadable.prototype.onPress = function () {
             if (this.input instanceof UploadableFileWrapper)
@@ -21670,9 +21809,23 @@ var Ui;
         __extends(UploadableFileWrapper, _super);
         function UploadableFileWrapper() {
             var _this = _super.call(this) || this;
+            _this.file = new Core.Events();
+            _this.onChange = function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+                if (Core.Navigator.supportFileAPI) {
+                    for (var i = 0; i < _this.inputDrawing.files.length; i++)
+                        _this.file.fire({ target: _this, file: new Core.File({ fileApi: _this.inputDrawing.files[i] }) });
+                }
+                else {
+                    _this.inputDrawing.removeEventListener('change', _this.onChange);
+                    var file = new Core.File({ iframe: _this.iframeDrawing, form: _this.formDrawing, fileInput: _this.inputDrawing });
+                    _this.createInput();
+                    _this.file.fire({ target: _this, file: file });
+                }
+            };
             _this.opacity = 0;
             _this.clipToBounds = true;
-            _this.addEvents('file');
             return _this;
         }
         UploadableFileWrapper.prototype.select = function () {
@@ -21689,12 +21842,8 @@ var Ui;
         };
         UploadableFileWrapper.prototype.createInput = function () {
             this.formDrawing = document.createElement('form');
-            this.connect(this.formDrawing, 'click', function (e) {
-                e.stopPropagation();
-            });
-            this.connect(this.formDrawing, 'touchstart', function (e) {
-                e.stopPropagation();
-            });
+            this.formDrawing.addEventListener('click', function (e) { return e.stopPropagation(); });
+            this.formDrawing.addEventListener('touchstart', function (e) { return e.stopPropagation(); });
             this.formDrawing.method = 'POST';
             this.formDrawing.enctype = 'multipart/form-data';
             this.formDrawing.encoding = 'multipart/form-data';
@@ -21706,7 +21855,7 @@ var Ui;
                 this.inputDrawing.setAttribute('webkitdirectory', '');
             this.inputDrawing.style.position = 'absolute';
             this.inputDrawing.tabIndex = -1;
-            this.connect(this.inputDrawing, 'change', this.onChange);
+            this.inputDrawing.addEventListener('change', this.onChange);
             this.formDrawing.appendChild(this.inputDrawing);
             if (Core.Navigator.supportFileAPI) {
                 while (this.drawing.childNodes.length > 0)
@@ -21727,26 +21876,12 @@ var Ui;
                 this.iframeDrawing.contentWindow.document.body.appendChild(this.formDrawing);
             }
         };
-        UploadableFileWrapper.prototype.onChange = function (event) {
-            event.preventDefault();
-            event.stopPropagation();
-            if (Core.Navigator.supportFileAPI) {
-                for (var i = 0; i < this.inputDrawing.files.length; i++)
-                    this.fireEvent('file', this, new Core.File({ fileApi: this.inputDrawing.files[i] }));
-            }
-            else {
-                this.disconnect(this.inputDrawing, 'change', this.onChange);
-                var file = new Core.File({ iframe: this.iframeDrawing, form: this.formDrawing, fileInput: this.inputDrawing });
-                this.createInput();
-                this.fireEvent('file', this, file);
-            }
-        };
         UploadableFileWrapper.prototype.onLoad = function () {
             _super.prototype.onLoad.call(this);
             this.createInput();
         };
         UploadableFileWrapper.prototype.onUnload = function () {
-            this.disconnect(this.inputDrawing, 'change', this.onChange);
+            this.inputDrawing.removeEventListener('change', this.onChange);
             if (this.iframeDrawing !== undefined)
                 document.body.removeChild(this.iframeDrawing);
             _super.prototype.onUnload.call(this);
@@ -21774,14 +21909,15 @@ var Ui;
         function UploadableWrapper() {
             var _this = _super.call(this) || this;
             _this.directoryMode = false;
+            _this.file = new Core.Events();
             _this.clipToBounds = true;
             _this.opacity = 0;
-            _this.addEvents('file');
             return _this;
         }
         UploadableWrapper.prototype.setDirectoryMode = function (active) {
         };
         UploadableWrapper.prototype.createInput = function () {
+            var _this = this;
             this.formDrawing = document.createElement('form');
             this.formDrawing.method = 'POST';
             this.formDrawing.enctype = 'multipart/form-data';
@@ -21805,13 +21941,13 @@ var Ui;
             this.inputDrawing.style.width = this.layoutWidth + 'px';
             this.inputDrawing.style.height = this.layoutHeight + 'px';
             this.formDrawing.appendChild(this.inputDrawing);
-            this.connect(this.inputDrawing, 'change', this.onChange);
+            this.inputDrawing.addEventListener('change', function (e) { return _this.onChange(e); });
             if (Core.Navigator.isWebkit)
                 this.inputDrawing.style.webkitUserSelect = 'none';
-            this.connect(this.inputDrawing, 'touchstart', function (event) {
+            this.inputDrawing.addEventListener('touchstart', function (event) {
                 event.dontPreventDefault = true;
             });
-            this.connect(this.inputDrawing, 'touchend', function (event) {
+            this.inputDrawing.addEventListener('touchend', function (event) {
                 event.dontPreventDefault = true;
             });
             return this.formDrawing;
@@ -21819,7 +21955,7 @@ var Ui;
         UploadableWrapper.prototype.onChange = function (event) {
             if (!Core.Navigator.isOpera && Core.Navigator.supportFileAPI) {
                 for (var i = 0; i < this.inputDrawing.files.length; i++)
-                    this.fireEvent('file', this, new Core.File({ fileApi: this.inputDrawing.files[i] }));
+                    this.file.fire({ target: this, file: new Core.File({ fileApi: this.inputDrawing.files[i] }) });
             }
             else {
                 this.drawing.removeChild(this.formDrawing);
@@ -21833,8 +21969,8 @@ var Ui;
                 document.body.appendChild(iframeDrawing);
                 iframeDrawing.contentWindow.document.write("<!DOCTYPE html><html><body></body></html>");
                 iframeDrawing.contentWindow.document.body.appendChild(this.formDrawing);
-                this.disconnect(this.inputDrawing, 'change', this.onChange);
-                this.fireEvent('file', this, new Core.File({ iframe: iframeDrawing, form: this.formDrawing, fileInput: this.inputDrawing }));
+                this.inputDrawing.removeEventListener('change', this.onChange);
+                this.file.fire({ target: this, file: new Core.File({ iframe: iframeDrawing, form: this.formDrawing, fileInput: this.inputDrawing }) });
                 this.drawing.appendChild(this.createInput());
             }
         };
@@ -21858,11 +21994,11 @@ var Ui;
         __extends(UploadButton, _super);
         function UploadButton(init) {
             var _this = _super.call(this, init) || this;
-            _this.addEvents('file');
+            _this.file = new Core.Events();
             _this.input = new Ui.UploadableFileWrapper();
             _this.prepend(_this.input);
-            _this.connect(_this.input, 'file', _this.onFile);
-            _this.connect(_this, 'press', _this.onUploadButtonPress);
+            _this.input.file.connect(function (e) { return _this.onFile(e.target, e.file); });
+            _this.pressed.connect(function () { return _this.onUploadButtonPress(); });
             new Ui.DropableWatcher({
                 element: _this,
                 dropfile: function (w, f) { _this.onFile(undefined, f); return true; },
@@ -21871,6 +22007,8 @@ var Ui;
             if (init) {
                 if (init.directoryMode !== undefined)
                     _this.directoryMode = init.directoryMode;
+                if (init.onfile)
+                    _this.file.connect(init.onfile);
             }
             return _this;
         }
@@ -21885,7 +22023,7 @@ var Ui;
             this.input.select();
         };
         UploadButton.prototype.onFile = function (wrapper, file) {
-            this.fireEvent('file', this, file);
+            this.file.fire({ target: this, file: file });
         };
         return UploadButton;
     }(Ui.Button));
@@ -22065,9 +22203,27 @@ var Ui;
             _this._duration = 0.5;
             _this._position = -1;
             _this.replaceMode = false;
-            _this.addEvents('change');
-            _this.connect(_this, 'load', _this.onTransitionBoxLoad);
-            _this.connect(_this, 'unload', _this.onTransitionBoxUnload);
+            _this.changed = new Core.Events();
+            _this.onTransitionComplete = function () {
+                var i;
+                _this.transitionClock = undefined;
+                var current = _this.next;
+                if (_this._current !== undefined)
+                    _this._current.hide();
+                _this.next = undefined;
+                if (_this.replaceMode) {
+                    _this.replaceMode = false;
+                    var removeList = [];
+                    for (i = 0; i < _this.children.length; i++) {
+                        var item = _this.children[i];
+                        if (item !== current)
+                            removeList.push(item.firstChild);
+                    }
+                    for (i = 0; i < removeList.length; i++)
+                        _this.remove(removeList[i]);
+                }
+                _this.changed.fire({ target: _this, position: _this._position });
+            };
             _this.clipToBounds = true;
             _this.transition = 'fade';
             if (init) {
@@ -22131,6 +22287,7 @@ var Ui;
             configurable: true
         });
         TransitionBox.prototype.setCurrentAt = function (position) {
+            var _this = this;
             if (this._position != position) {
                 if (this.next !== undefined) {
                     if (this._current !== undefined) {
@@ -22141,7 +22298,7 @@ var Ui;
                     }
                 }
                 if (this.transitionClock !== undefined) {
-                    this.disconnect(this.transitionClock, 'complete', this.onTransitionComplete);
+                    this.transitionClock.completed.disconnect(this.onTransitionComplete);
                     this.transitionClock.stop();
                 }
                 if (this._position != -1)
@@ -22152,8 +22309,8 @@ var Ui;
                 this.next.show();
                 this._transition.run(this._current, this.next, 0);
                 this.transitionClock = new Anim.Clock({ duration: this._duration, ease: this._ease });
-                this.connect(this.transitionClock, 'timeupdate', this.onTransitionTick);
-                this.connect(this.transitionClock, 'complete', this.onTransitionComplete);
+                this.transitionClock.timeupdate.connect(function (e) { return _this.onTransitionTick(e.target, e.progress); });
+                this.transitionClock.completed.connect(this.onTransitionComplete);
                 this.transitionClock.begin();
                 this._position = position;
             }
@@ -22163,7 +22320,15 @@ var Ui;
             this.append(content);
             this.current = content;
         };
+        TransitionBox.prototype.onLoad = function () {
+            _super.prototype.onLoad.call(this);
+            this.onTransitionBoxLoad();
+        };
         TransitionBox.prototype.onTransitionBoxLoad = function () {
+        };
+        TransitionBox.prototype.onUnload = function () {
+            _super.prototype.onUnload.call(this);
+            this.onTransitionBoxUnload();
         };
         TransitionBox.prototype.onTransitionBoxUnload = function () {
             if (this.transitionClock !== undefined) {
@@ -22174,26 +22339,6 @@ var Ui;
         TransitionBox.prototype.onTransitionTick = function (clock, progress) {
             this.progress = progress;
             this._transition.run(this._current, this.next, progress);
-        };
-        TransitionBox.prototype.onTransitionComplete = function (clock) {
-            var i;
-            this.transitionClock = undefined;
-            var current = this.next;
-            if (this._current !== undefined)
-                this._current.hide();
-            this.next = undefined;
-            if (this.replaceMode) {
-                this.replaceMode = false;
-                var removeList = [];
-                for (i = 0; i < this.children.length; i++) {
-                    var item = this.children[i];
-                    if (item !== current)
-                        removeList.push(item.firstChild);
-                }
-                for (i = 0; i < removeList.length; i++)
-                    this.remove(removeList[i]);
-            }
-            this.fireEvent('change', this, this._position);
         };
         TransitionBox.prototype.arrangeCore = function (width, height) {
             _super.prototype.arrangeCore.call(this, width, height);
@@ -22259,7 +22404,10 @@ var Ui;
             _this._mode = 'extend';
             _this.contentSize = 0;
             _this._animDuration = 0.5;
-            _this.addEvents('fold', 'unfold', 'positionchange', 'progress');
+            _this.folded = new Core.Events();
+            _this.unfolded = new Core.Events();
+            _this.positionchanged = new Core.Events();
+            _this.progress = new Core.Events();
             _this.headerBox = new Ui.LBox();
             _this.appendChild(_this.headerBox);
             _this.contentBox = new Ui.LBox();
@@ -22295,12 +22443,12 @@ var Ui;
                     if (this._isFolded) {
                         this.offset = 0;
                         this.contentBox.hide();
-                        this.fireEvent('fold', this);
+                        this.folded.fire({ target: this });
                     }
                     else {
                         this.offset = 1;
                         this.contentBox.show();
-                        this.fireEvent('unfold', this);
+                        this.unfolded.fire({ target: this });
                     }
                 }
             },
@@ -22311,14 +22459,14 @@ var Ui;
             if (!this._isFolded) {
                 this._isFolded = true;
                 this.startAnimation();
-                this.fireEvent('fold', this);
+                this.folded.fire({ target: this });
             }
         };
         Fold.prototype.unfold = function () {
             if (this._isFolded) {
                 this._isFolded = false;
                 this.startAnimation();
-                this.fireEvent('unfold', this);
+                this.unfolded.fire({ target: this });
             }
         };
         Object.defineProperty(Fold.prototype, "over", {
@@ -22399,7 +22547,7 @@ var Ui;
             set: function (position) {
                 if (this._position != position) {
                     this._position = position;
-                    this.fireEvent('positionchange', this, position);
+                    this.positionchanged.fire({ target: this, position: position });
                     this.invalidateMeasure();
                 }
             },
@@ -22475,12 +22623,13 @@ var Ui;
             configurable: true
         });
         Fold.prototype.startAnimation = function () {
+            var _this = this;
             if (this.clock !== undefined)
                 this.clock.stop();
             if (!this._isFolded)
                 this.contentBox.show();
             this.clock = new Anim.Clock({ duration: this._animDuration, target: this });
-            this.connect(this.clock, 'timeupdate', this.onClockTick);
+            this.clock.timeupdate.connect(function (e) { return _this.onClockTick(e.target, e.progress); });
             this.clock.begin();
         };
         Fold.prototype.stopAnimation = function () {
@@ -22508,7 +22657,7 @@ var Ui;
                     destOffset = 1;
                 this.offset = destOffset - ((destOffset - offset) * (1 - progress));
             }
-            this.fireEvent('progress', this, this.offset);
+            this.progress.fire({ target: this, offset: this.offset });
             if ((progress == 1) && this._isFolded) {
                 this.contentBox.hide();
             }
@@ -22586,18 +22735,31 @@ var Ui;
             _this.speed = 0;
             _this.animNext = 0;
             _this.animStart = 0;
-            _this.addEvents('change');
+            _this.changed = new Core.Events();
+            _this.onButtonMove = function () {
+                var pos = _this.button.positionX;
+                var size = _this.layoutWidth;
+                var max = size - _this.button.layoutWidth;
+                if (pos < 0)
+                    pos = 0;
+                else if (pos > max)
+                    pos = max;
+                _this.pos = pos / max;
+                _this.button.moved.disconnect(_this.onButtonMove);
+                _this.updatePos();
+                _this.button.moved.connect(_this.onButtonMove);
+            };
             _this.background = new Ui.Rectangle({ width: 4, height: 14, radius: 7 });
             _this.appendChild(_this.background);
             _this.bar = new Ui.Rectangle({ width: 4, height: 14, radius: 7 });
             _this.appendChild(_this.bar);
             _this.button = new Ui.Movable({ moveVertical: false });
             _this.appendChild(_this.button);
-            _this.connect(_this.button, 'move', _this.onButtonMove);
-            _this.connect(_this.button, 'focus', _this.updateColors);
-            _this.connect(_this.button, 'blur', _this.updateColors);
-            _this.connect(_this.button, 'down', _this.onDown);
-            _this.connect(_this.button, 'up', _this.onUp);
+            _this.button.moved.connect(_this.onButtonMove);
+            _this.button.focused.connect(function () { return _this.updateColors(); });
+            _this.button.blurred.connect(function () { return _this.updateColors(); });
+            _this.button.downed.connect(function () { return _this.onDown(); });
+            _this.button.upped.connect(function (e) { return _this.onUp(e.speedX, e.cumulMove, e.abort); });
             _this.buttonContent = new Ui.Rectangle({ radius: 10, width: 20, height: 20, margin: 10 });
             _this.button.setContent(_this.buttonContent);
             _this.ease = new Anim.PowerEase({ mode: 'out' });
@@ -22606,6 +22768,8 @@ var Ui;
                     _this.value = init.value;
                 if (init.ease !== undefined)
                     _this.ease = init.ease;
+                if (init.onchanged)
+                    _this.changed.connect(init.onchanged);
             }
             return _this;
         }
@@ -22629,19 +22793,6 @@ var Ui;
             enumerable: true,
             configurable: true
         });
-        Switch.prototype.onButtonMove = function (button) {
-            var pos = this.button.positionX;
-            var size = this.layoutWidth;
-            var max = size - this.button.layoutWidth;
-            if (pos < 0)
-                pos = 0;
-            else if (pos > max)
-                pos = max;
-            this.pos = pos / max;
-            this.disconnect(this.button, 'move', this.onButtonMove);
-            this.updatePos();
-            this.connect(this.button, 'move', this.onButtonMove);
-        };
         Switch.prototype.updatePos = function () {
             var max;
             var width = this.layoutWidth;
@@ -22677,11 +22828,11 @@ var Ui;
             this.background.fill = this.getBackground();
             this.buttonContent.fill = this.getForeground();
         };
-        Switch.prototype.onDown = function (movable) {
+        Switch.prototype.onDown = function () {
             this.stopAnimation();
             this.updateColors();
         };
-        Switch.prototype.onUp = function (movable, speedX, speedY, deltaX, deltaY, cumulMove, abort) {
+        Switch.prototype.onUp = function (speedX, cumulMove, abort) {
             if (abort)
                 return;
             if (cumulMove < 10)
@@ -22696,6 +22847,7 @@ var Ui;
             this.updateColors();
         };
         Switch.prototype.startAnimation = function (speed) {
+            var _this = this;
             this.stopAnimation();
             this.speed = speed;
             this.animStart = this.pos;
@@ -22705,13 +22857,13 @@ var Ui;
                 this.animNext = 0;
             if (this.animStart !== this.animNext) {
                 this.alignClock = new Anim.Clock({ duration: 'forever', target: this });
-                this.connect(this.alignClock, 'timeupdate', this.onAlignTick);
+                this.alignClock.timeupdate.connect(function (e) { return _this.onAlignTick(e.target, e.progress, e.deltaTick); });
                 this.alignClock.begin();
             }
             else {
                 if (this._value !== (this.animNext === 1)) {
                     this._value = (this.animNext === 1);
-                    this.fireEvent('change', this, this._value);
+                    this.changed.fire({ target: this, value: this._value });
                 }
             }
         };
@@ -22730,7 +22882,7 @@ var Ui;
                 this.alignClock = undefined;
                 relprogress = 1;
                 this._value = (this.animNext === 1);
-                this.fireEvent('change', this, this._value);
+                this.changed.fire({ target: this, value: this._value });
             }
             relprogress = this.ease.ease(relprogress);
             this.pos = (this.animStart + relprogress * (this.animNext - this.animStart));
@@ -22792,7 +22944,13 @@ var Ui;
             _this.headersSize = 0;
             _this.contentSize = 0;
             _this._orientation = 'horizontal';
-            _this.addEvents('change');
+            _this.changed = new Core.Events();
+            _this.onPageSelect = function (e) {
+                _this.currentPage = e.target;
+            };
+            _this.onPageClose = function (e) {
+                _this.removePage(e.target);
+            };
             _this.clipToBounds = true;
             return _this;
         }
@@ -22838,6 +22996,7 @@ var Ui;
                 return this.current;
             },
             set: function (pos) {
+                var _this = this;
                 if (this.pages.length === 0) {
                     if (this._currentPage !== undefined)
                         this._currentPage.unselect();
@@ -22851,15 +23010,15 @@ var Ui;
                         if (this._currentPage !== undefined)
                             this._currentPage.unselect();
                         this._currentPage = newPage;
-                        this.fireEvent('change', this, this._currentPage, this.current);
-                        this.disconnect(this._currentPage, 'select', this.onPageSelect);
+                        this.changed.fire({ target: this, page: this._currentPage, position: this.current });
+                        this._currentPage.selected.disconnect(this.onPageSelect);
                         this._currentPage.select();
-                        this.connect(this._currentPage, 'select', this.onPageSelect);
+                        this._currentPage.selected.connect(this.onPageSelect);
                     }
                     if (this.clock !== undefined)
                         this.clock.stop();
                     this.clock = new Anim.Clock({ duration: 2, target: this });
-                    this.connect(this.clock, 'timeupdate', this.onClockTick);
+                    this.clock.timeupdate.connect(function (e) { return _this.onClockTick(e.target, e.progress); });
                     this.clock.begin();
                 }
             },
@@ -22870,8 +23029,8 @@ var Ui;
             this.appendChild(page);
             page.setOffset(1);
             page.setOrientation(this._orientation);
-            this.connect(page, 'select', this.onPageSelect);
-            this.connect(page, 'close', this.onPageClose);
+            page.selected.connect(this.onPageSelect);
+            page.closed.connect(this.onPageClose);
             page.select();
         };
         Accordeonable.prototype.removePage = function (page) {
@@ -22883,8 +23042,8 @@ var Ui;
                 }
             }
             if (pos !== -1) {
-                this.disconnect(page, 'select', this.onPageSelect);
-                this.disconnect(page, 'close', this.onPageClose);
+                page.selected.disconnect(this.onPageSelect);
+                page.closed.disconnect(this.onPageClose);
                 this.removeChild(page);
                 if ((this.current === pos) && (this.current === 0))
                     this.currentPosition = 0;
@@ -22913,12 +23072,6 @@ var Ui;
                 if ((progress == 1) && (i != this.current))
                     child.hideContent();
             }
-        };
-        Accordeonable.prototype.onPageSelect = function (page) {
-            this.currentPage = page;
-        };
-        Accordeonable.prototype.onPageClose = function (page) {
-            this.removePage(page);
         };
         Accordeonable.prototype.measureHorizontal = function (width, height) {
             var i;
@@ -23014,20 +23167,24 @@ var Ui;
         function AccordeonPage(init) {
             var _this = _super.call(this, init) || this;
             _this.offset = 0;
+            _this.orientation = 'horizontal';
             _this.isSelected = false;
-            _this.addEvents('select', 'unselect', 'close', 'orientationchange');
+            _this.selected = new Core.Events();
+            _this.unselected = new Core.Events();
+            _this.closed = new Core.Events();
+            _this.orientationchanged = new Core.Events();
             _this.headerBox = new Ui.Pressable();
             _this.appendChild(_this.headerBox);
-            _this.connect(_this.headerBox, 'press', _this.onHeaderPress);
+            _this.headerBox.pressed.connect(function (e) { return _this.onHeaderPress(); });
             return _this;
         }
         AccordeonPage.prototype.close = function () {
-            this.fireEvent('close', this);
+            this.closed.fire({ target: this });
         };
         AccordeonPage.prototype.select = function () {
             if (!this.isSelected) {
                 this.isSelected = true;
-                this.fireEvent('select', this);
+                this.selected.fire({ target: this });
             }
         };
         AccordeonPage.prototype.getIsSelected = function () {
@@ -23063,14 +23220,14 @@ var Ui;
         AccordeonPage.prototype.setOrientation = function (orientation) {
             if (this.orientation != orientation) {
                 this.orientation = orientation;
-                this.fireEvent('orientationchange', this, orientation);
+                this.orientationchanged.fire({ target: this, orientation: orientation });
                 this.invalidateMeasure();
             }
         };
         AccordeonPage.prototype.unselect = function () {
             if (this.isSelected) {
                 this.isSelected = false;
-                this.fireEvent('unselect', this);
+                this.unselected.fire({ target: this });
             }
         };
         AccordeonPage.prototype.showContent = function () {
@@ -23151,10 +23308,20 @@ var Ui;
             var _this = _super.call(this, init) || this;
             _this.watchers = [];
             _this.allowedTypes = undefined;
-            _this.addEvents('drageffect', 'dragenter', 'dragleave', 'dropat', 'dropfileat');
+            _this.drageffect = new Core.Events();
+            _this.dragentered = new Core.Events();
+            _this.dragleaved = new Core.Events();
+            _this.droppedat = new Core.Events();
+            _this.droppedfileat = new Core.Events();
             _this.fixed = new Ui.Fixed();
             _super.prototype.append.call(_this, _this.fixed);
-            _this.connect(_this, 'dragover', _this.onDragOver);
+            _this.dragover.connect(function (e) { return _this.onDragOver(e); });
+            if (init) {
+                if (init.ondroppedat)
+                    _this.droppedat.connect(init.ondroppedat);
+                if (init.ondroppedfileat)
+                    _this.droppedfileat.connect(init.ondroppedfileat);
+            }
             return _this;
         }
         DropAtBox.prototype.addType = function (type, effects) {
@@ -23412,6 +23579,7 @@ var Ui;
                 return this.getAllowedTypesEffect(dataTransfer);
         };
         DropAtBox.prototype.onDragOver = function (event) {
+            var _this = this;
             var foundWatcher = undefined;
             for (var i = 0; (foundWatcher === undefined) && (i < this.watchers.length); i++)
                 if (this.watchers[i].getDataTransfer() === event.dataTransfer)
@@ -23428,13 +23596,13 @@ var Ui;
                 }
             }
             if ((effect !== undefined) && (effect.length > 0) && (foundWatcher === undefined)) {
-                var watcher = event.dataTransfer.capture(this, effect);
-                this.watchers.push(watcher);
-                this.connect(watcher, 'move', this.onWatcherMove);
-                this.connect(watcher, 'drop', this.onWatcherDrop);
-                this.connect(watcher, 'leave', this.onWatcherLeave);
+                var watcher_1 = event.dataTransfer.capture(this, effect);
+                this.watchers.push(watcher_1);
+                watcher_1.moved.connect(function () { return _this.onWatcherMove(watcher_1); });
+                watcher_1.dropped.connect(function (e) { return _this.onWatcherDrop(e.target, e.effect, e.x, e.y); });
+                watcher_1.leaved.connect(function () { return _this.onWatcherLeave(watcher_1); });
                 event.stopImmediatePropagation();
-                this.onWatcherEnter(watcher);
+                this.onWatcherEnter(watcher_1);
             }
             else if (foundWatcher !== undefined)
                 event.stopImmediatePropagation();
@@ -23475,27 +23643,31 @@ var Ui;
             this.onDrop(watcher.getDataTransfer(), effect, point.getX(), point.getY());
         };
         DropAtBox.prototype.onDragEnter = function (dataTransfer) {
-            this.fireEvent('dragenter', this, dataTransfer.getData());
+            this.dragentered.fire({ target: this, data: dataTransfer.getData() });
         };
         DropAtBox.prototype.onDragLeave = function () {
-            this.fireEvent('dragleave', this);
+            this.dragleaved.fire({ target: this });
         };
         DropAtBox.prototype.onDrop = function (dataTransfer, dropEffect, x, y) {
             var done = false;
             var point = new Ui.Point(x, y);
             var position = this.findPosition(point);
-            if (!this.fireEvent('dropat', this, dataTransfer.getData(), dropEffect, position, x, y)) {
-                var data = dataTransfer.getData();
-                if (data instanceof Ui.DragNativeData && data.hasFiles()) {
-                    var files = data.getFiles();
-                    var done_1 = true;
-                    for (var i = 0; i < files.length; i++)
-                        done_1 = done_1 && this.fireEvent('dropfileat', this, files[i], dropEffect, position, x, y);
-                }
+            this.droppedat.fire({
+                target: this,
+                data: dataTransfer.getData(),
+                effect: dropEffect,
+                position: position,
+                x: x, y: y
+            });
+            var data = dataTransfer.getData();
+            if (data instanceof Ui.DragNativeData && data.hasFiles()) {
+                var files = data.getFiles();
+                for (var i = 0; i < files.length; i++)
+                    this.droppedfileat.fire({
+                        target: this, file: files[i], effect: dropEffect,
+                        position: position, x: x, y: y
+                    });
             }
-            else
-                done = true;
-            return done;
         };
         DropAtBox.style = {
             markerColor: Ui.Color.createFromRgb(0.4, 0, 0.35, 0.8)
@@ -23655,15 +23827,20 @@ var Ui;
             var _this = _super.call(this, init) || this;
             _this._field = 'text';
             _this._orientation = 'horizontal';
+            _this.changed = new Core.Events();
+            _this.onSegmentSelect = function (e) {
+                _this.current = e.target;
+                _this.onStyleChange();
+                _this.changed.fire({ target: _this, value: e.target.data });
+            };
             _this.focusable = true;
-            _this.addEvents('change');
             _this.border = new Ui.Frame();
             _this.append(_this.border);
             _this.box = new Ui.Box({ uniform: true, margin: 1, spacing: 1, orientation: _this._orientation });
             _this.append(_this.box);
-            _this.connect(_this, 'focus', _this.onStyleChange);
-            _this.connect(_this, 'blur', _this.onStyleChange);
-            _this.connect(_this.drawing, 'keydown', _this.onKeyDown);
+            _this.focused.connect(function () { return _this.onStyleChange(); });
+            _this.blurred.connect(function () { return _this.onStyleChange(); });
+            _this.drawing.addEventListener('keydown', function (e) { return _this.onKeyDown(e); });
             if (init) {
                 if (init.orientation !== undefined)
                     _this.orientation = init.orientation;
@@ -23673,6 +23850,8 @@ var Ui;
                     _this.data = init.data;
                 if (init.currentPosition !== undefined)
                     _this.currentPosition = init.currentPosition;
+                if (init.onchanged)
+                    _this.changed.connect(init.onchanged);
             }
             return _this;
         }
@@ -23694,7 +23873,7 @@ var Ui;
         Object.defineProperty(SegmentBar.prototype, "data", {
             set: function (data) {
                 while (this.box.firstChild !== undefined) {
-                    this.disconnect(this.box.firstChild, 'toggle', this.onSegmentSelect);
+                    this.box.firstChild.pressed.disconnect(this.onSegmentSelect);
                     this.box.remove(this.box.firstChild);
                 }
                 this._data = data;
@@ -23706,7 +23885,7 @@ var Ui;
                         mode = (i === 0) ? 'top' : (i === data.length - 1) ? 'bottom' : 'middle';
                     var segment = new Ui.SegmentButton({ data: data[i], text: data[i][this._field], mode: mode });
                     this.box.append(segment, true);
-                    this.connect(segment, 'press', this.onSegmentSelect);
+                    segment.pressed.connect(this.onSegmentSelect);
                 }
             },
             enumerable: true,
@@ -23722,7 +23901,7 @@ var Ui;
             set: function (position) {
                 if ((position >= 0) && (position < this.box.children.length)) {
                     this.current = this.box.children[position];
-                    this.onSegmentSelect(this.current);
+                    this.onSegmentSelect({ target: this.current });
                 }
             },
             enumerable: true,
@@ -23743,11 +23922,6 @@ var Ui;
                     break;
                 }
             }
-        };
-        SegmentBar.prototype.onSegmentSelect = function (segment) {
-            this.current = segment;
-            this.onStyleChange();
-            this.fireEvent('change', this, segment.data);
         };
         SegmentBar.prototype.onKeyDown = function (event) {
             if (this.isDisabled)
@@ -23968,12 +24142,14 @@ var Ui;
         __extends(Locator, _super);
         function Locator(init) {
             var _this = _super.call(this, init) || this;
-            _this.addEvents('change');
-            _this.connect(_this, 'focus', _this.updateColors);
-            _this.connect(_this, 'blur', _this.updateColors);
+            _this.changed = new Core.Events();
+            _this.focused.connect(function () { return _this.updateColors(); });
+            _this.blurred.connect(function () { return _this.updateColors(); });
             if (init) {
                 if (init.path !== undefined)
                     _this.path = init.path;
+                if (init.onchanged)
+                    _this.changed.connect(init.onchanged);
             }
             return _this;
         }
@@ -23982,6 +24158,7 @@ var Ui;
                 return this._path;
             },
             set: function (path) {
+                var _this = this;
                 var spacing = this.getStyleProperty('spacing');
                 var radius = this.getStyleProperty('radius');
                 var padding = this.getStyleProperty('padding');
@@ -23996,20 +24173,23 @@ var Ui;
                     var bg = new Ui.Rectangle({ radius: radius - 1 });
                     this.backgrounds.push(bg);
                     this.appendChild(bg);
-                    var fg = new Ui.Pressable({ padding: padding });
-                    fg.locatorPath = '/';
-                    fg.locatorPos = 0;
-                    this.connect(fg, 'press', this.onPathPress);
-                    this.connect(fg, 'down', this.onPathDown);
-                    this.connect(fg, 'up', this.onPathUp);
-                    this.connect(fg, 'focus', this.onPathFocus);
-                    this.connect(fg, 'blur', this.onPathBlur);
-                    var home = new Ui.Icon({ icon: 'home', width: 24, height: 24 });
-                    home.verticalAlign = 'center';
-                    home.horizontalAlign = 'center';
-                    fg.appendChild(home);
-                    this.foregrounds.push(fg);
-                    this.appendChild(fg);
+                    var fg_1 = new Ui.Pressable({
+                        padding: padding,
+                        onpressed: function (e) { return _this.onPathPress(fg_1); },
+                        ondowned: function (e) { return _this.onPathDown(fg_1); },
+                        onupped: function (e) { return _this.onPathUp(fg_1); },
+                        onfocused: function (e) { return _this.onPathFocus(fg_1); },
+                        onblurred: function (e) { return _this.onPathBlur(fg_1); }
+                    });
+                    fg_1.locatorPath = '/';
+                    fg_1.locatorPos = 0;
+                    var home = new Ui.Icon({
+                        icon: 'home', width: 24, height: 24,
+                        verticalAlign: 'center', horizontalAlign: 'center'
+                    });
+                    fg_1.appendChild(home);
+                    this.foregrounds.push(fg_1);
+                    this.appendChild(fg_1);
                 }
                 else {
                     var paths = path.split('/');
@@ -24032,34 +24212,42 @@ var Ui;
                         this.appendChild(bg_1);
                     }
                     var currentPath = '/';
-                    var fg = new Ui.Pressable({ padding: padding });
-                    this.connect(fg, 'press', this.onPathPress);
-                    this.connect(fg, 'down', this.onPathDown);
-                    this.connect(fg, 'up', this.onPathUp);
-                    this.connect(fg, 'focus', this.onPathFocus);
-                    this.connect(fg, 'blur', this.onPathBlur);
+                    var fg_2 = new Ui.Pressable({
+                        padding: padding,
+                        onpressed: function (e) { return _this.onPathPress(fg_2); },
+                        ondowned: function (e) { return _this.onPathDown(fg_2); },
+                        onupped: function (e) { return _this.onPathUp(fg_2); },
+                        onfocused: function (e) { return _this.onPathFocus(fg_2); },
+                        onblurred: function (e) { return _this.onPathBlur(fg_2); }
+                    });
                     var home = new Ui.Icon({ icon: 'home', width: 24, height: 24 });
                     home.verticalAlign = 'center';
                     home.horizontalAlign = 'center';
-                    fg.locatorPos = 0;
-                    fg.locatorPath = '/';
-                    fg.appendChild(home);
-                    this.foregrounds.push(fg);
-                    this.appendChild(fg);
-                    for (var i = 0; i < paths.length; i++) {
+                    fg_2.locatorPos = 0;
+                    fg_2.locatorPath = '/';
+                    fg_2.appendChild(home);
+                    this.foregrounds.push(fg_2);
+                    this.appendChild(fg_2);
+                    var _loop_4 = function (i) {
                         currentPath += paths[i];
-                        var fg_1 = new Ui.Pressable({ padding: padding });
-                        fg_1.locatorPos = i + 1;
-                        this.connect(fg_1, 'press', this.onPathPress);
-                        this.connect(fg_1, 'down', this.onPathDown);
-                        this.connect(fg_1, 'up', this.onPathUp);
-                        this.connect(fg_1, 'focus', this.onPathFocus);
-                        this.connect(fg_1, 'blur', this.onPathBlur);
-                        fg_1.locatorPath = currentPath;
-                        fg_1.appendChild(new Ui.Label({ text: paths[i], verticalAlign: 'center' }));
-                        this.foregrounds.push(fg_1);
-                        this.appendChild(fg_1);
+                        var fg_3 = new Ui.Pressable({
+                            padding: padding,
+                            onpressed: function (e) { return _this.onPathPress(fg_3); },
+                            ondowned: function (e) { return _this.onPathDown(fg_3); },
+                            onupped: function (e) { return _this.onPathUp(fg_3); },
+                            onfocused: function (e) { return _this.onPathFocus(fg_3); },
+                            onblurred: function (e) { return _this.onPathBlur(fg_3); }
+                        });
+                        fg_3.locatorPos = i + 1;
+                        fg_3.locatorPath = currentPath;
+                        fg_3.appendChild(new Ui.Label({ text: paths[i], verticalAlign: 'center' }));
+                        this_4.foregrounds.push(fg_3);
+                        this_4.appendChild(fg_3);
                         currentPath += '/';
+                    };
+                    var this_4 = this;
+                    for (var i = 0; i < paths.length; i++) {
+                        _loop_4(i);
                     }
                 }
                 this.updateColors();
@@ -24097,7 +24285,7 @@ var Ui;
                 return Ui.Color.createFromYuv(yuv.y + 0.15 + deltaY, yuv.u, yuv.v);
         };
         Locator.prototype.onPathPress = function (pathItem) {
-            this.fireEvent('change', this, pathItem.locatorPath, pathItem.locatorPos);
+            this.changed.fire({ target: this, path: pathItem.locatorPath, position: pathItem.locatorPos });
         };
         Locator.prototype.onPathDown = function (pathItem) {
             this.backgrounds[pathItem.locatorPos].fill = this.getDownColor();

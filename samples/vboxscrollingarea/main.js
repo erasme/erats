@@ -16,7 +16,7 @@ var TestScrollLoader = (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     TestScrollLoader.prototype.signalChange = function () {
-        this.fireEvent('change', this);
+        this.changed.fire({ target: this });
     };
     TestScrollLoader.prototype.getMin = function () {
         return 0;
@@ -55,7 +55,7 @@ var TestScrollLoader2 = (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     TestScrollLoader2.prototype.signalChange = function () {
-        this.fireEvent('change', this);
+        this.changed.fire({ target: this });
     };
     TestScrollLoader2.prototype.getMin = function () {
         return 0;
@@ -80,11 +80,11 @@ var App = (function (_super) {
         vbox.append(lbox, true);
         lbox.append(new Ui.Frame({ frameWidth: 2, fill: '#444' }));
         var loader = new TestScrollLoader();
-        var scroll = new Ui.VBoxScrollingArea({ margin: 2, maxScale: 2, loader: loader });
-        lbox.append(scroll);
-        _this.connect(button, 'press', function () {
-            loader.signalChange();
+        var scroll = new Ui.VBoxScrollingArea({
+            margin: 2, maxScale: 2, loader: loader
         });
+        lbox.append(scroll);
+        button.pressed.connect(function (e) { return loader.signalChange(); });
         return _this;
     }
     return App;

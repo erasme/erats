@@ -22,10 +22,10 @@ namespace Ui {
 				this.rect.horizontalAlign = 'right';
 			}
 			this.over.content = this.rect;
-			this.connect(this.over, 'enter', this.startAnim);
-			this.connect(this.over, 'leave', this.startAnim);
-			this.connect(this, 'down', this.startAnim);
-			this.connect(this, 'up', this.startAnim);
+			this.over.entered.connect(() => this.startAnim());
+			this.over.leaved.connect(() => this.startAnim());
+			this.downed.connect(() => this.startAnim());
+			this.upped.connect(() => this.startAnim());
 		}
 
 		set radius(radius: number) {
@@ -40,12 +40,12 @@ namespace Ui {
 			if (this.clock == undefined) {
 				this.clock = new Anim.Clock();
 				this.clock.duration = 'forever';
-				this.connect(this.clock, 'timeupdate', this.onTick);
+				this.clock.timeupdate.connect((e) => this.onTick(e.target, e.progress, e.deltaTick));
 				this.clock.begin();
 			}
 		}
 
-		protected onTick(clock, progress, deltaTick) {
+		protected onTick(clock: Anim.Clock, progress: number, deltaTick: number) {
 			let d = deltaTick * 30;
 
 			let view = this.over.isOver || this.isDown;

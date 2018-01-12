@@ -14,38 +14,34 @@ class App extends Ui.App {
 		});
 		vbox.append(textfield);
 
-        let button = new Ui.Button();
-        button.text = 'Send toast';
-		this.connect(button, 'press', function() {
-			Ui.Toast.send(textfield.value);
-		});
-		toolbar.append(button);
+		toolbar.append(new Ui.Button({
+			text: 'Send toast',
+			onpressed: () => Ui.Toast.send(textfield.value)
+		}));
 
-		let delayButton = new Ui.Button({ text: 'Send delayed toast' });
-		this.connect(delayButton, 'press', () => {
-			new Core.DelayedTask(2, () => Ui.Toast.send(textfield.value+' DELAY'));
-		});
-		toolbar.append(delayButton);
+		toolbar.append(new Ui.Button({
+			text: 'Send delayed toast',
+			onpressed: () => new Core.DelayedTask(2, () => Ui.Toast.send(textfield.value+' DELAY'))
+		}));
 
-        let dialogButton = new Ui.Button();
-        dialogButton.text = 'Open dialog';
-		this.connect(dialogButton, 'press', () => {
-			let dialog = new Ui.Dialog({
-				title: 'Dialog box',
-				preferredWidth: 600,
-				preferredHeight: 600,
-				cancelButton: new Ui.DialogCloseButton()
-			});
-			let sendButton = new Ui.Button({
-				text: 'Send toast',
-				verticalAlign: 'center',
-				horizontalAlign: 'center'
-			});	
-			dialog.content = sendButton;
-			this.connect(sendButton, 'press', () => Ui.Toast.send('Dialog toast'));
-			dialog.open();
-		});
-		toolbar.append(dialogButton);
+		toolbar.append(new Ui.Button({
+			text: 'Open dialog',
+			onpressed: () => {
+				let dialog = new Ui.Dialog({
+					title: 'Dialog box',
+					preferredWidth: 600,
+					preferredHeight: 600,
+					cancelButton: new Ui.DialogCloseButton()
+				});
+				dialog.content = new Ui.Button({
+					text: 'Send toast',
+					verticalAlign: 'center',
+					horizontalAlign: 'center',
+					onpressed: () => Ui.Toast.send('Dialog toast')
+				});
+				dialog.open();
+			}
+		}));
 	}
 }
 

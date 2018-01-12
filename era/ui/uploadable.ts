@@ -5,6 +5,7 @@ namespace Ui {
 	export class Uploadable extends Pressable {
 		protected _content: Element;
 		protected input: UploadableFileWrapper;
+		readonly file = new Core.Events<{ target: Uploadable, file: Core.File }>();
 
 		constructor(init?: UploadableInit) {
 			super(init);
@@ -12,20 +13,18 @@ namespace Ui {
 
 			this.focusable = true;
 			this.role = 'button';
-
-			this.addEvents('file');
 		
 			this.input = new UploadableFileWrapper();
 			this.append(this.input);
-			this.connect(this.input, 'file', this.onFile);
+			this.input.file.connect((e) => this.onFile(e.target, e.file));
 		}
 
 		setDirectoryMode(active) {
 			this.input.setDirectoryMode(active);
 		}
 
-		protected onFile(fileWrapper, file) {
-			this.fireEvent('file', this, file);
+		protected onFile(fileWrapper, file: Core.File) {
+			this.file.fire({ target: this, file: file });
 		}
 
 		protected onPress() {
@@ -53,12 +52,12 @@ namespace Ui {
 		inputDrawing: HTMLInputElement;
 		iframeDrawing: HTMLIFrameElement;
 		directoryMode: false;
+		readonly file = new Core.Events<{ target: UploadableFileWrapper, file: Core.File }>();
 
 		constructor() {
 			super();
 			this.opacity = 0;
 			this.clipToBounds = true;
-			this.addEvents('file');
 		}
 
 		select() {
@@ -77,12 +76,8 @@ namespace Ui {
 
 		protected createInput() {
 			this.formDrawing = document.createElement('form');
-			this.connect(this.formDrawing, 'click', function (e) {
-				e.stopPropagation();
-			});
-			this.connect(this.formDrawing, 'touchstart', function (e) {
-				e.stopPropagation();
-			});
+			this.formDrawing.addEventListener('click', (e) => e.stopPropagation());
+			this.formDrawing.addEventListener('touchstart', (e) => e.stopPropagation());
 			this.formDrawing.method = 'POST';
 			this.formDrawing.enctype = 'multipart/form-data';
 			// needed for IE < 9
@@ -97,7 +92,7 @@ namespace Ui {
 			this.inputDrawing.style.position = 'absolute';
 			this.inputDrawing.tabIndex = -1;
 
-			this.connect(this.inputDrawing, 'change', this.onChange);
+			this.inputDrawing.addEventListener('change', this.onChange);
 			this.formDrawing.appendChild(this.inputDrawing);
 
 			if (Core.Navigator.supportFileAPI) {
@@ -124,19 +119,19 @@ namespace Ui {
 			}
 		}
 
-		protected onChange(event) {
+		protected onChange = (event) => {
 			event.preventDefault();
 			event.stopPropagation();
 
 			if (Core.Navigator.supportFileAPI) {
 				for (var i = 0; i < this.inputDrawing.files.length; i++)
-					this.fireEvent('file', this, new Core.File({ fileApi: this.inputDrawing.files[i] }));
+					this.file.fire({ target: this, file: new Core.File({ fileApi: this.inputDrawing.files[i] }) });
 			}
 			else {
-				this.disconnect(this.inputDrawing, 'change', this.onChange);
+				this.inputDrawing.removeEventListener('change', this.onChange);
 				var file = new Core.File({ iframe: this.iframeDrawing, form: this.formDrawing, fileInput: this.inputDrawing });
 				this.createInput();
-				this.fireEvent('file', this, file);
+				this.file.fire({ target: this, file: file });
 			}
 		}
 
@@ -146,7 +141,7 @@ namespace Ui {
 		}
 
 		protected onUnload() {
-			this.disconnect(this.inputDrawing, 'change', this.onChange);
+			this.inputDrawing.removeEventListener('change', this.onChange);
 			if (this.iframeDrawing !== undefined)
 				document.body.removeChild(this.iframeDrawing);
 			super.onUnload();
@@ -173,12 +168,12 @@ namespace Ui {
 		formDrawing: HTMLFormElement;
 		inputDrawing: HTMLInputElement;
 		directoryMode: boolean = false;
+		readonly file = new Core.Events<{ target: UploadableWrapper, file: Core.File }>();
 
 		constructor() {
 			super();
 			this.clipToBounds = true;
 			this.opacity = 0;
-			this.addEvents('file');
 		}
 
 		setDirectoryMode(active) {
@@ -211,15 +206,15 @@ namespace Ui {
 			this.inputDrawing.style.height = this.layoutHeight + 'px';
 			this.formDrawing.appendChild(this.inputDrawing);
 
-			this.connect(this.inputDrawing, 'change', this.onChange);
+			this.inputDrawing.addEventListener('change', (e) => this.onChange(e));
 		
 			if (Core.Navigator.isWebkit)
 				this.inputDrawing.style.webkitUserSelect = 'none';
-			this.connect(this.inputDrawing, 'touchstart', function (event) {
-				event.dontPreventDefault = true;
+			this.inputDrawing.addEventListener('touchstart', (event) => {
+				(event as any).dontPreventDefault = true;
 			});
-			this.connect(this.inputDrawing, 'touchend', function (event) {
-				event.dontPreventDefault = true;
+			this.inputDrawing.addEventListener('touchend', (event) => {
+				(event as any).dontPreventDefault = true;
 			});
 		
 			return this.formDrawing;
@@ -228,7 +223,7 @@ namespace Ui {
 		onChange(event) {
 			if (!Core.Navigator.isOpera && Core.Navigator.supportFileAPI) {
 				for (var i = 0; i < this.inputDrawing.files.length; i++)
-					this.fireEvent('file', this, new Core.File({ fileApi: this.inputDrawing.files[i] }));
+					this.file.fire({ target: this, file: new Core.File({ fileApi: this.inputDrawing.files[i] }) });
 			}
 			else {
 				this.drawing.removeChild(this.formDrawing);
@@ -245,8 +240,8 @@ namespace Ui {
 				iframeDrawing.contentWindow.document.write("<!DOCTYPE html><html><body></body></html>");
 				iframeDrawing.contentWindow.document.body.appendChild(this.formDrawing);
 
-				this.disconnect(this.inputDrawing, 'change', this.onChange);
-				this.fireEvent('file', this, new Core.File({ iframe: iframeDrawing, form: this.formDrawing, fileInput: this.inputDrawing }));
+				this.inputDrawing.removeEventListener('change', this.onChange);
+				this.file.fire({ target: this, file: new Core.File({ iframe: iframeDrawing, form: this.formDrawing, fileInput: this.inputDrawing }) });
 
 				this.drawing.appendChild(this.createInput());
 			}

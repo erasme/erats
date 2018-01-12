@@ -10,14 +10,13 @@ class App extends Ui.App {
 
 		let locator = new Ui.Locator({
 			path: '/Fun/Apps/Here/There/Everywhere',
-			verticalAlign: 'center', horizontalAlign: 'center'
+			verticalAlign: 'center', horizontalAlign: 'center',
+			onchanged: e => {
+				console.log('path change: ' + e.path);
+				Ui.Toast.send('path change: ' + e.path);
+			}
 		});
 		this.content = locator;
-
-		this.connect(locator, 'change', (locator: Ui.Locator, path: string) => {
-			console.log('path change: '+path);
-			Ui.Toast.send('path change: '+path);
-		});
 	}
 }
 

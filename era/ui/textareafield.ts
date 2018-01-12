@@ -2,16 +2,17 @@ namespace Ui {
 	export interface TextAreaFieldInit extends LBoxInit {
 		textHolder?: string;
 		value?: string;
+		onchanged?: (event: { target: TextAreaField, value: string }) => void;
 	}
 
 	export class TextAreaField extends LBox {
 		textarea: TextArea;
 		graphic: TextBgGraphic;
 		textholder: Label;
+		readonly changed = new Core.Events<{ target: TextAreaField, value: string }>();
 
 		constructor(init?: TextAreaFieldInit) {
 			super(init);
-			this.addEvents('change');
 
 			this.padding = 3;
 
@@ -29,15 +30,17 @@ namespace Ui {
 			this.textarea.fontSize = 16;
 			this.append(this.textarea);
 
-			this.connect(this.textarea, 'focus', this.onTextAreaFocus);
-			this.connect(this.textarea, 'blur', this.onTextAreaBlur);
-			this.connect(this.textarea, 'change', this.onTextAreaChange);
+			this.textarea.focused.connect(() => this.onTextAreaFocus());
+			this.textarea.blurred.connect(() => this.onTextAreaBlur());
+			this.textarea.changed.connect((e) => this.onTextAreaChange(e.target, e.value));
 
 			if (init) {
 				if (init.textHolder !== undefined)
 					this.textHolder = init.textHolder;	
 				if (init.value !== undefined)
 					this.value = init.value;
+				if (init.onchanged)
+					this.changed.connect(init.onchanged);
 			}	
 		}
 
@@ -68,8 +71,8 @@ namespace Ui {
 			this.graphic.hasFocus = false;
 		}
 
-		protected onTextAreaChange(entry, value) {
-			this.fireEvent('change', this, value);
+		protected onTextAreaChange(entry, value: string) {
+			this.changed.fire({ target: this, value: value });
 		}
 	}
 }	

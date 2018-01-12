@@ -14,16 +14,18 @@ var App = (function (_super) {
     __extends(App, _super);
     function App() {
         var _this = _super.call(this) || this;
-        var overable = new Ui.Overable({ verticalAlign: 'center', horizontalAlign: 'center' });
+        var overable = new Ui.Overable({
+            verticalAlign: 'center', horizontalAlign: 'center',
+            onentered: function () {
+                console.log('enter');
+                label.show();
+            },
+            onleaved: function () {
+                console.log('leave');
+                label.hide();
+            }
+        });
         _this.content = overable;
-        _this.connect(overable, 'enter', function () {
-            console.log('enter');
-            label.show();
-        });
-        _this.connect(overable, 'leave', function () {
-            console.log('leave');
-            label.hide();
-        });
         var lbox = new Ui.LBox({ width: 400, height: 400 });
         overable.append(lbox);
         lbox.append(new Ui.Rectangle({ fill: 'lightgreen' }));

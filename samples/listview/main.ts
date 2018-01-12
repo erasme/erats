@@ -52,69 +52,71 @@ class App extends Ui.App {
 		let toolbar = new Ui.ToolBar({ margin: 10 });
 		vbox.append(toolbar);
 
-		let checkbox = new Ui.CheckBox({ text: 'show headers', value: true, width: 200 });
-		toolbar.append(checkbox);
-		this.connect(checkbox, 'change', function(checkbox: Ui.CheckBox, value: boolean) {
-			if(value)
-				listview.showHeaders();
-			else
-				listview.hideHeaders();
-		});
-
-		checkbox = new Ui.CheckBox({ text: 'data scrolled (best perf)', value: true, width: 250 });
-		toolbar.append(checkbox);
-		this.connect(checkbox, 'change', function(checkbox: Ui.CheckBox, value: boolean) {
-			listview.scrolled = value;
-		});
-
-		let button = new Ui.Button({ text: 'set 1500', verticalAlign: 'center' });
-		toolbar.append(button);
-		this.connect(button, 'press', function() {
-			let data = [];
-			for(let i = 0; i < 1500; i++) {
-				data.push({
-					data0: ((i % 3) === 0),
-					data1: 'hi number '+i,
-					data2: 'col 2 '+i,
-					data3: Math.random()*50,
-					data4: i
-				});
+		toolbar.append(new Ui.CheckBox({
+			text: 'show headers', value: true, width: 200,
+			onchanged: e => {
+				if(e.value)
+					listview.showHeaders();
+				else
+					listview.hideHeaders();
 			}
-			listview.data = data;
-		});
+		}));
 
-		button = new Ui.Button({ text: 'clear all', verticalAlign: 'center' });
-		toolbar.append(button);
-		this.connect(button, 'press', function() {
-			listview.clearData();
-		});
+		toolbar.append(new Ui.CheckBox({
+			text: 'data scrolled (best perf)', value: true, width: 250,
+			onchanged: e => listview.scrolled = e.value
+		}));
+		
 
-		button = new Ui.Button({ text: 'append 70', verticalAlign: 'center' });
-		toolbar.append(button);
-		this.connect(button, 'press', function() {
-			let count = listview.data.length;
-			for(let i = 0; i < 70; i++) {
-				listview.appendData({
-					data0: ((i % 3) === 0),
-					data1: 'hi number '+i,
-					data2: 'col 2 '+i,
-					data3: Math.random()*50,
-					data4: count + i
-				});
+		toolbar.append(new Ui.Button({
+			text: 'set 1500', verticalAlign: 'center',
+			onpressed: () => {
+				let data = [];
+				for(let i = 0; i < 1500; i++) {
+					data.push({
+						data0: ((i % 3) === 0),
+						data1: 'hi number '+i,
+						data2: 'col 2 '+i,
+						data3: Math.random()*50,
+						data4: i
+					});
+				}
+				listview.data = data;
 			}
-		});
+		}));
 
-		button = new Ui.Button({ text: 'update numbers', verticalAlign: 'center' });
-		toolbar.append(button);
-		this.connect(button, 'press', function() {
-			let data = listview.data;
-            for (let i = 0; i < data.length; i++) {
-                let obj = data[i];
-				(data[i] as any).data3 = Math.random()*50;
+		toolbar.append(new Ui.Button({
+			text: 'clear all', verticalAlign: 'center',
+			onpressed: () => listview.clearData()
+		}));
+
+		toolbar.append(new Ui.Button({
+			text: 'append 70', verticalAlign: 'center',
+			onpressed: () => {
+				let count = listview.data.length;
+				for(let i = 0; i < 70; i++) {
+					listview.appendData({
+						data0: ((i % 3) === 0),
+						data1: 'hi number '+i,
+						data2: 'col 2 '+i,
+						data3: Math.random()*50,
+						data4: count + i
+					});
+				}
 			}
-			listview.updateData(data);
-		});
-
+		}));
+		
+		toolbar.append(new Ui.Button({
+			text: 'update numbers', verticalAlign: 'center',
+			onpressed: () => {
+				let data = listview.data;
+				for (let i = 0; i < data.length; i++) {
+					let obj = data[i];
+					(data[i] as any).data3 = Math.random()*50;
+				}
+				listview.updateData(data);
+			}
+		}));
 
 		let hbox = new Ui.HBox({ spacing: 5 });
 		vbox.append(hbox, true);
@@ -131,14 +133,10 @@ class App extends Ui.App {
 				{ type: 'string', title: 'Data 2', key: 'data2', width: 200 },
 				{ type: 'string', title: 'Numbers', key: 'data3' },
 				{ type: 'string', title: 'Pos', key: 'data4' }
-			]
+			],
+			onactivated: e => logs.log('activate row: '+e.value)
 		});
 		scroll.content = listview;
-
-		this.connect(listview, 'activate', function(listview: Ui.ListView, row: Ui.ListViewRow) {
-			logs.log('activate row: '+row);
-		});
-
 
 		for(let i = 0; i < 50; i++) {
 			listview.appendData({

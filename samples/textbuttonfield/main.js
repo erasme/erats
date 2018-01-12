@@ -34,14 +34,11 @@ var App = (function (_super) {
         var _this = _super.call(this) || this;
         var vbox = new Ui.VBox({ padding: 50, spacing: 10 });
         _this.content = vbox;
-        var textbuttonfield = new Ui.TextButtonField({ buttonIcon: 'search', textHolder: 'Search' });
-        vbox.append(textbuttonfield);
-        _this.connect(textbuttonfield, 'change', function (tbf, value) {
-            return logs.log('change: ' + value);
-        });
-        _this.connect(textbuttonfield, 'validate', function (tbf) {
-            return logs.log('validate: ' + textbuttonfield.value, 'green');
-        });
+        vbox.append(new Ui.TextButtonField({
+            buttonIcon: 'search', textHolder: 'Search',
+            onchanged: function (e) { return logs.log("change: " + e.value); },
+            onvalidated: function (e) { return logs.log("validate: " + e.value, 'green'); }
+        }));
         var logs = new Logs();
         vbox.append(logs, true);
         return _this;

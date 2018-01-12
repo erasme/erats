@@ -13,7 +13,7 @@ namespace Ui
 
 		constructor() {
 			super();
-			this.setType('wheel')
+			this.setType('wheelchanged')
 		}
 
 		setClientX(clientX) {
@@ -56,8 +56,8 @@ namespace Ui
 		constructor(app: App) {
 			super();
 			this.app = app;
-			this.connect(this.app.drawing, 'mousewheel', this.onMouseWheel);
-			this.connect(this.app.drawing, 'DOMMouseScroll', this.onMouseWheel);
+			this.app.drawing.addEventListener('mousewheel', (e) => this.onMouseWheel(e));
+			this.app.drawing.addEventListener('DOMMouseScroll', (e) => this.onMouseWheel(e));
 		}
 
 		onMouseWheel(event) {

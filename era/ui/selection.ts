@@ -1,10 +1,10 @@
 namespace Ui {
 	export class Selection extends Core.Object {
 		private _watchers: SelectionableWatcher[];
+		readonly changed = new Core.Events<{ target: Selection }>();
 
 		constructor() {
 			super();
-			this.addEvents('change');
 			this._watchers = [];
 		}
 
@@ -15,7 +15,7 @@ namespace Ui {
 					change = true;	
 			}
 			if (change)
-				this.fireEvent('change', this);
+				this.changed.fire({ target: this });
 		}
 
 		appendRange(start: SelectionableWatcher, end: SelectionableWatcher) {
@@ -25,7 +25,7 @@ namespace Ui {
 			if (end.element.focusable)
 				end.element.focus();	
 			if (change)
-				this.fireEvent('change', this);	
+				this.changed.fire({ target: this });
 		}
 
 		append(elements: Array<SelectionableWatcher> | SelectionableWatcher) {
@@ -42,7 +42,7 @@ namespace Ui {
 					elements[elements.length - 1].element.focus();
 			}
 			if (change)
-				this.fireEvent('change', this);	
+				this.changed.fire({ target: this });	
 		}
 
 		extend(end: SelectionableWatcher) {
@@ -98,7 +98,7 @@ namespace Ui {
 			if (this._watchers.indexOf(watcher) != -1)
 				return false;
 			this._watchers.push(watcher);
-			this.connect(watcher.element, 'unload', this.onElementUnload);
+			watcher.element.unloaded.connect(this.onElementUnload);
 			watcher.onSelect(this);
 			return true;
 		}
@@ -112,7 +112,7 @@ namespace Ui {
 			else
 				watcher.forEach(w => { if (this.internalRemove(w)) change = true });
 			if (change)
-				this.fireEvent('change', this);	
+				this.changed.fire({ target: this });
 		}
 
 		private internalRemove(watcher: SelectionableWatcher): boolean  {
@@ -120,7 +120,7 @@ namespace Ui {
 			let foundPos = this._watchers.indexOf(watcher);
 			if (foundPos != -1) {
 				this._watchers.splice(foundPos, 1);
-				this.disconnect(watcher.element, 'unload', this.onElementUnload);
+				watcher.element.unloaded.disconnect(this.onElementUnload);
 				watcher.onUnselect(this);
 				return true;
 			}
@@ -147,7 +147,7 @@ namespace Ui {
 			if (watchers.length > 0 && watchers[watchers.length - 1].element.focusable)
 			watchers[watchers.length - 1].element.focus();
 			if (addList.length > 0 || removeList.length > 0)
-				this.fireEvent('change', this);	
+				this.changed.fire({ target: this });	
 		}
 
 		get elements(): Element[] {
@@ -274,10 +274,10 @@ namespace Ui {
 			}
 		}
 	
-		onElementUnload(element: Element) {
+		onElementUnload = (e: { target: Element }) => {
 			// remove the element from the selection
 			// if removed from the DOM
-			let watcher = SelectionableWatcher.getSelectionableWatcher(element);
+			let watcher = SelectionableWatcher.getSelectionableWatcher(e.target);
 			this.remove(watcher);
 		}
 	}

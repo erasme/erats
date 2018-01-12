@@ -19,13 +19,13 @@ var App = (function (_super) {
         var _this = _super.call(this) || this;
         var locator = new Ui.Locator({
             path: '/Fun/Apps/Here/There/Everywhere',
-            verticalAlign: 'center', horizontalAlign: 'center'
+            verticalAlign: 'center', horizontalAlign: 'center',
+            onchanged: function (e) {
+                console.log('path change: ' + e.path);
+                Ui.Toast.send('path change: ' + e.path);
+            }
         });
         _this.content = locator;
-        _this.connect(locator, 'change', function (locator, path) {
-            console.log('path change: ' + path);
-            Ui.Toast.send('path change: ' + path);
-        });
         return _this;
     }
     return App;

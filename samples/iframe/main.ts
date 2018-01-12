@@ -9,17 +9,23 @@ class App extends Ui.App {
         let toolbar = new Ui.ToolBar();
         vbox.append(toolbar);
 
-        let button = new Ui.Button({ text: 'content' });
+        let button = new Ui.Button({
+            text: 'content',
+            onpressed: () => iframe.src = 'content2.html'
+        });
         toolbar.append(button);
-        this.connect(button, 'press', () => iframe.src = 'content2.html');
 
-        button = new Ui.Button({ text: 'iframe' });
+        button = new Ui.Button({
+            text: 'iframe',
+            onpressed: () => iframe.src = 'iframe.html'
+        });
         toolbar.append(button);
-        this.connect(button, 'press', () => iframe.src = 'iframe.html');
 
-        button = new Ui.Button({ text: 'gnome' });
+        button = new Ui.Button({
+            text: 'gnome',
+            onpressed: () => iframe.src = 'http://www.gnome.org/'
+        });
         toolbar.append(button);
-        this.connect(button, 'press', () => iframe.src = 'http://www.gnome.org/');
 
         let iframe = new Ui.IFrame();
         vbox.append(iframe, true);

@@ -12,10 +12,10 @@ namespace Ui {
             super(init);
 
             // handle pointers
-            this.connect(this, 'ptrdown', this.onPointerDown);
+            this.ptrdowned.connect((e) => this.onPointerDown(e));
         
             // handle keyboard
-            this.connect(this.drawing, 'keydown', this.onKeyDown);
+            this.drawing.addEventListener('keydown', (e) => this.onKeyDown(e));
         }
 
         getParentSelectionHandler(): Ui.Selection | undefined {
@@ -180,9 +180,9 @@ namespace Ui {
                 return;
             if (event.pointerType == 'mouse' && event.pointer.button == 0) {
                 this.watcher = event.pointer.watch(this);
-                this.connect(this.watcher, 'move', this.onPtrMove);
-                this.connect(this.watcher, 'up', this.onPtrUp);
-                this.connect(this.watcher, 'cancel', () => this.watcher = undefined);
+                this.watcher.moved.connect((e) => this.onPtrMove(e.target));
+                this.watcher.upped.connect((e) => this.onPtrUp(e.target));
+                this.watcher.cancelled.connect(() => this.watcher = undefined);
             }
         }
 

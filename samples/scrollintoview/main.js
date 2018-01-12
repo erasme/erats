@@ -20,9 +20,9 @@ var App = (function (_super) {
         var button = new Ui.Button({
             text: 'click for scroll',
             verticalAlign: 'center',
-            horizontalAlign: 'center'
+            horizontalAlign: 'center',
+            onpressed: function () { return el.scrollIntoView(); }
         });
-        _this.connect(button, 'press', function () { return el.scrollIntoView(); });
         hbox.append(button, true);
         var scroll = new Ui.ScrollingArea();
         hbox.append(scroll, true);

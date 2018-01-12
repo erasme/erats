@@ -21,12 +21,10 @@ var App = (function (_super) {
         var segmentbar = new Ui.SegmentBar({
             field: 'text', data: [
                 { text: 'Home' }, { text: 'Download' }, { text: 'API' }, { text: 'Samples' }
-            ]
+            ],
+            onchanged: function (e) { return label.text = "Choice: " + e.value.text; }
         });
         vbox.append(segmentbar);
-        _this.connect(segmentbar, 'change', function (segmentbar, data) {
-            return label.text = "Choice: " + data.text;
-        });
         segmentbar.currentPosition = 0;
         return _this;
     }

@@ -18,14 +18,11 @@ var App = (function (_super) {
         _this.content = vbox;
         var toolbar = new Ui.ToolBar();
         vbox.append(toolbar);
-        var button = new Ui.CheckBox({ text: 'selectable' });
-        toolbar.append(button);
-        _this.connect(button, 'toggle', function () {
-            return text.selectable = true;
-        });
-        _this.connect(button, 'untoggle', function () {
-            return text.selectable = false;
-        });
+        toolbar.append(new Ui.CheckBox({
+            text: 'selectable',
+            ontoggled: function () { return text.selectable = true; },
+            onuntoggled: function () { return text.selectable = false; }
+        }));
         var lbox = new Ui.LBox({ verticalAlign: 'center', horizontalAlign: 'stretch', margin: 100 });
         vbox.append(lbox, true);
         lbox.append(new Ui.Rectangle({ fill: 'lightgreen' }));

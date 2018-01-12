@@ -8,7 +8,7 @@ namespace Ui
 
 		constructor() {
 			super();
-			this.connect(this, 'press', this.onActionButtonDrop);
+			this.pressed.connect(() => this.onActionButtonDrop());
 
 			new DropableWatcher({
 				element: this,

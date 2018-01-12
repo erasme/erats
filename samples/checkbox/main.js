@@ -23,26 +23,26 @@ var App = (function (_super) {
             width: 200, text: 'check me'
         });
         vbox.append(checkbox, true);
-        var button = new Ui.Button({ text: 'check' });
-        toolbar.append(button);
-        _this.connect(button, 'press', function () {
-            checkbox.value = true;
+        var button = new Ui.Button({
+            text: 'check',
+            onpressed: function () { return checkbox.value = true; }
         });
-        button = new Ui.Button({ text: 'uncheck' });
         toolbar.append(button);
-        _this.connect(button, 'press', function () {
-            checkbox.value = false;
+        button = new Ui.Button({
+            text: 'uncheck',
+            onpressed: function () { return checkbox.value = false; }
         });
-        button = new Ui.Button({ text: 'enable' });
         toolbar.append(button);
-        _this.connect(button, 'press', function () {
-            checkbox.enable();
+        button = new Ui.Button({
+            text: 'enable',
+            onpressed: function () { return checkbox.enable(); }
         });
-        button = new Ui.Button({ text: 'disable' });
         toolbar.append(button);
-        _this.connect(button, 'press', function () {
-            checkbox.disable();
+        button = new Ui.Button({
+            text: 'disable',
+            onpressed: function () { return checkbox.disable(); }
         });
+        toolbar.append(button);
         return _this;
     }
     return App;

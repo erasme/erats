@@ -8,10 +8,10 @@ namespace Ui
 	{
 		styles: any = undefined;
 		private updateTask: boolean = false;
-		loaded: boolean = false;
+		private _loaded: boolean = false;
 		focusElement: any = undefined;
 		arguments: any = undefined;
-		private ready: boolean = false;
+		private _ready: boolean = false;
 		orientation: number = 0;
 		webApp: boolean = true;
 		lastArrangeHeight: number = 0;
@@ -33,6 +33,11 @@ namespace Ui
 
 		selection: Selection = undefined;
 
+		readonly resized = new Core.Events<{ target: App, width: number, height: number }>();
+		readonly ready = new Core.Events<{ target: App }>();
+		readonly parentmessage = new Core.Events<{ target: App, message: any }>();
+		readonly orientationchanged = new Core.Events<{ target: App, orientation: number }>();
+
 		//
 		// @constructs
 		// @class Define the App class. A web application always start
@@ -42,14 +47,13 @@ namespace Ui
 		constructor(init?: AppInit) {
 			super(init);
 			let args;
-			this.addEvents('resize', 'ready', 'parentmessage', 'orientationchange');
 			this.clipToBounds = true;
 
 			Ui.App.current = this;
 			this.drawing.style.cursor = 'default';
 
 			this.selection = new Ui.Selection();
-			this.connect(this.selection, 'change', this.onSelectionChange);
+			this.selection.changed.connect(e => this.onSelectionChange(e.target));
 
 			// check if arguments are available
 			if ((window.location.search !== undefined) && (window.location.search !== '')) {
@@ -88,34 +92,33 @@ namespace Ui
 
 			this.setTransformOrigin(0, 0);
 
-			this.connect(window, 'load', this.onWindowLoad);
-			this.connect(window, 'resize', this.onWindowResize);
-			this.connect(window, 'keyup', this.onWindowKeyUp);
+			window.addEventListener('load', () => this.onWindowLoad());
+			window.addEventListener('resize', e => this.onWindowResize(e));
+			window.addEventListener('keyup', e => this.onWindowKeyUp(e));
 
-			this.connect(window, 'focus', (event: FocusEvent) => {
+			window.addEventListener('focus', (event: FocusEvent) => {
 				if (event.target == undefined)
 					return;
 				this.focusElement = event.target;
 			}, true);
 
-			this.connect(window, 'blur', (event: FocusEvent) => {
+			window.addEventListener('blur', (event: FocusEvent) => {
 				this.focusElement = undefined;
 			}, true);
 
-			this.connect(window, 'dragstart', function (event) { event.preventDefault(); });
-			this.connect(window, 'dragenter', function (event) { event.preventDefault(); return false; });
-			this.connect(window, 'dragover', function (event) {
+			window.addEventListener('dragstart', (event) => event.preventDefault());
+			window.addEventListener('dragenter', (event) => { event.preventDefault(); return false; });
+			window.addEventListener('dragover', (event) => {
 				event.dataTransfer.dropEffect = 'none';
 				event.preventDefault(); return false;
 			});
-			this.connect(window, 'drop', function (event) { event.preventDefault(); return false; });
-
+			window.addEventListener('drop', (event) => { event.preventDefault(); return false; });
 
 			if ('onorientationchange' in window)
-				this.connect(window, 'orientationchange', this.onOrientationChange);
+				window.addEventListener('orientationchange', (e) => this.onOrientationChange(e));
 
 			// handle messages
-			this.connect(window, 'message', this.onMessage);
+			window.addEventListener('message', (e) => this.onMessage(e));
 
 			this.bindedUpdate = this.update.bind(this);
 
@@ -263,7 +266,7 @@ namespace Ui
 					'* { touch-action: none; } ';
 				document.getElementsByTagName('head')[0].appendChild(style);
 			}
-			this.loaded = true;
+			this._loaded = true;
 			this.onReady();
 		}
 	
@@ -273,7 +276,7 @@ namespace Ui
 
 		protected onOrientationChange(event) {
 			this.orientation = window.orientation as number;
-			this.fireEvent('orientationchange', this.orientation);
+			this.orientationchanged.fire({ target: this, orientation: this.orientation });
 			this.checkWindowSize();
 		}
 
@@ -307,7 +310,7 @@ namespace Ui
 			if ((this.windowWidth !== innerWidth) || (this.windowHeight !== innerHeight)) {
 				this.windowWidth = innerWidth;
 				this.windowHeight = innerHeight;
-				this.fireEvent('resize', this, this.windowWidth, this.windowHeight);
+				this.resized.fire({ target: this, width: this.windowWidth, height: this.windowHeight });
 				this.invalidateLayout();
 			}
 
@@ -429,11 +432,11 @@ namespace Ui
 		}
 	
 		get isReady(): boolean {
-			return this.ready;
+			return this._ready;
 		}
 
 		protected onReady() {
-			if (this.loaded) {
+			if (this._loaded) {
 				document.documentElement.style.position = 'absolute';
 				document.documentElement.style.padding = '0px';
 				document.documentElement.style.margin = '0px';
@@ -459,10 +462,10 @@ namespace Ui
 
 				this.isLoaded = true;
 				this.parentVisible = true;
-				this.fireEvent('ready');
+				this.ready.fire({ target: this });
 			
-				this.ready = true;
-				if ((this.updateTask === false) && this.ready) {
+				this._ready = true;
+				if ((this.updateTask === false) && this._ready) {
 					let app = this;
 					this.updateTask = true;
 					requestAnimationFrame(function () { app.update(); });
@@ -505,7 +508,7 @@ namespace Ui
 				event.preventDefault();
 				event.stopPropagation();
 				let msg = JSON.parse(event.data);
-				this.fireEvent('parentmessage', msg);
+				this.parentmessage.fire({ target: this, message: msg });
 			}
 		}
 
@@ -529,7 +532,7 @@ namespace Ui
 		enqueueDraw(element) {
 			element.drawNext = this.drawList;
 			this.drawList = element;
-			if ((this.updateTask === false) && this.ready) {
+			if ((this.updateTask === false) && this._ready) {
 				this.updateTask = true;
 				setTimeout(this.bindedUpdate, 0);
 			}
@@ -538,18 +541,18 @@ namespace Ui
 		enqueueLayout(element) {
 			element.layoutNext = this.layoutList;
 			this.layoutList = element;
-			if ((this.updateTask === false) && this.ready) {
+			if ((this.updateTask === false) && this._ready) {
 				this.updateTask = true;
 				requestAnimationFrame(this.bindedUpdate);
 			}
 		}
 
 		handleScrolling(drawing) {
-			/*this.connect(this, 'ptrdown', function (event: PointerEvent) {
+			/*this.ptrdowned.connect((event: PointerEvent) => {
 				let startOffsetX = drawing.scrollLeft;
 				let startOffsetY = drawing.scrollTop;
 				let watcher = event.pointer.watch(this);
-				this.connect(watcher, 'move', function () {
+				watcher.moved.connect(() => {
 					if (!watcher.getIsCaptured()) {
 						if (watcher.pointer.getIsMove()) {
 							let direction = watcher.getDirection();

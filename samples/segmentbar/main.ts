@@ -13,13 +13,11 @@ class App extends Ui.App {
 		let segmentbar = new Ui.SegmentBar({
 			field: 'text', data: [
 				{ text: 'Home' }, { text: 'Download' }, { text: 'API' }, { text: 'Samples' }
-			]
+			],
+			onchanged: e => label.text = `Choice: ${e.value.text}`
 		});
 		vbox.append(segmentbar);
 		
-		this.connect(segmentbar, 'change', (segmentbar: Ui.SegmentBar, data: any) =>
-			label.text = `Choice: ${data.text}`
-		);
 		segmentbar.currentPosition = 0;
 	}
 }

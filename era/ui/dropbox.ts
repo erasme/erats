@@ -40,7 +40,7 @@ namespace Ui
 			if (init.types)
 				this.types = init.types;	
 			this.watchers = [];
-			this.connect(this.element, 'dragover', this.onDragOver);
+			this.element.dragover.connect((e) => this.onDragOver(e));
 		}
 
 		addType(type: string | Function, effects: string | string[] | DropEffect[] | DropEffectFunc) {
@@ -95,8 +95,8 @@ namespace Ui
 					// capture the dataTransfer
 					let watcher = event.dataTransfer.capture(this.element, effect);
 					this.watchers.push(watcher);
-					this.connect(watcher, 'drop', this.onWatcherDrop);
-					this.connect(watcher, 'leave', this.onWatcherLeave);
+					watcher.dropped.connect((e) => this.onWatcherDrop(e.target, e.effect, e.x, e.y));
+					watcher.leaved.connect((e) => this.onWatcherLeave(e.target));
 					event.stopImmediatePropagation();
 
 					this.onWatcherEnter(watcher);
@@ -248,17 +248,39 @@ namespace Ui
 	}
 
 	export interface DropBoxInit extends LBoxInit {
+		ondrageffect?: (event: Ui.DragEvent) => void;
+		ondragentered?: (event: { target: DropBox, data: any }) => void;
+		ondragleaved?: (event: { target: DropBox }) => void;
+		ondropped?: (event: { target: DropBox, data: any, effect: string, x: number, y: number, dataTransfer: DragDataTransfer }) => void;
+		ondroppedfile?: (event: { target: DropBox, file: Core.File, effect: string, x: number, y: number }) => void;
 	}
 
 	export class DropBox extends LBox implements DropBoxInit {
 		watchers: DragWatcher[] = undefined;
 		allowedTypes: { type: string | Function, effect: DropEffect[] | DropEffectFunc }[] = undefined;
 
+		readonly drageffect = new Core.Events<Ui.DragEvent>();
+		readonly dragentered = new Core.Events<{ target: DropBox, data: any }>();
+		readonly dragleaved = new Core.Events<{ target: DropBox }>();
+		readonly dropped = new Core.Events<{ target: DropBox, data: any, effect: string, x: number, y: number, dataTransfer: DragDataTransfer }>();
+		readonly droppedfile = new Core.Events<{ target: DropBox, file: Core.File, effect: string, x: number, y: number }>();
+
 		constructor(init?: DropBoxInit) {
 			super(init);
-			this.addEvents('drageffect', 'dragenter', 'dragleave', 'drop', 'dropfile');
 			this.watchers = [];
-			this.connect(this, 'dragover', this.onDragOver);
+			this.dragover.connect(e => this.onDragOver(e));
+			if (init) {
+				if (init.ondrageffect)
+					this.drageffect.connect(init.ondrageffect);
+				if (init.ondragentered)
+					this.dragentered.connect(init.ondragentered);	
+				if (init.ondragleaved)
+					this.dragleaved.connect(init.ondragleaved);
+				if (init.ondropped)
+					this.dropped.connect(init.ondropped);	
+				if (init.ondroppedfile)
+					this.droppedfile.connect(init.ondroppedfile);	
+			}	
 		}
 
 		addType(type: string | Function, effects: string | string[] | DropEffect[] | DropEffectFunc) {
@@ -306,9 +328,9 @@ namespace Ui
 					// capture the dataTransfer
 					let watcher = event.dataTransfer.capture(this, effect);
 					this.watchers.push(watcher);
-					this.connect(watcher, 'move', this.onWatcherMove);
-					this.connect(watcher, 'drop', this.onWatcherDrop);
-					this.connect(watcher, 'leave', this.onWatcherLeave);
+					watcher.moved.connect((e) => this.onWatcherMove(e.target));
+					watcher.dropped.connect((e) => this.onWatcherDrop(e.target, e.effect, e.x, e.y));
+					watcher.leaved.connect((e) => this.onWatcherLeave(e.target));
 					event.stopImmediatePropagation();
 
 					this.onWatcherEnter(watcher);
@@ -426,19 +448,20 @@ namespace Ui
 		// action is to raise the 'drop' event.
 		//
 		protected onDrop(dataTransfer: DragDataTransfer, dropEffect, x: number, y: number) {
-			let done = false;
-			if (!this.fireEvent('drop', this, dataTransfer.getData(), dropEffect, x, y, dataTransfer)) {
-				let data = dataTransfer.getData();
-				if (data instanceof DragNativeData && data.hasFiles()) {
-					let files = data.getFiles();
-					done = true;
-					for (let i = 0; i < files.length; i++)
-						done = done && this.fireEvent('dropfile', this, files[i], dropEffect, x, y);
-				}
+			this.dropped.fire({
+				target: this,
+				data: dataTransfer.getData(),
+				effect: dropEffect,
+				x: x, y: y,
+				dataTransfer: dataTransfer
+			});
+
+			let data = dataTransfer.getData();
+			if (data instanceof DragNativeData && data.hasFiles()) {
+				let files = data.getFiles();
+				for (let i = 0; i < files.length; i++)
+					this.droppedfile.fire({ target: this, file: files[i], effect: dropEffect, x: x, y: y });
 			}
-			else
-				done = true;
-			return done;
 		}
 
 		//
@@ -446,7 +469,7 @@ namespace Ui
 		// The default action is to raise the 'dragenter' event
 		//	
 		protected onDragEnter(dataTransfer: DragDataTransfer): void {
-			this.fireEvent('dragenter', this, dataTransfer.getData());
+			this.dragentered.fire({ target: this, data: dataTransfer.getData() });
 		}
 
 		//
@@ -454,7 +477,7 @@ namespace Ui
 		// The default action is to raise the 'dragleave' event
 		//	
 		protected onDragLeave(): void {
-			this.fireEvent('dragleave', this);
+			this.dragleaved.fire({ target: this });
 		}
 	}
 }	

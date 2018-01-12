@@ -11,6 +11,8 @@ namespace Ui {
 		private headersSize: number = 0;
 		private contentSize: number = 0;
 		private _orientation: AccordeonOrientation = 'horizontal';
+		readonly changed: Core.Events<{ target: Accordeonable, page: AccordeonPage, position: number }> = new Core.Events();
+
 
 		/**
 		*	@constructs
@@ -21,7 +23,6 @@ namespace Ui {
 		*/
 		constructor(init?: AccordeonableInit) {
 			super(init);
-			this.addEvents('change');
 			this.clipToBounds = true;
 		}
 
@@ -100,15 +101,15 @@ namespace Ui {
 					if (this._currentPage !== undefined)
 						this._currentPage.unselect();
 					this._currentPage = newPage;
-					this.fireEvent('change', this, this._currentPage, this.current);
-					this.disconnect(this._currentPage, 'select', this.onPageSelect);
+					this.changed.fire({ target: this, page: this._currentPage, position: this.current });
+					this._currentPage.selected.disconnect(this.onPageSelect);
 					this._currentPage.select();
-					this.connect(this._currentPage, 'select', this.onPageSelect);
+					this._currentPage.selected.connect(this.onPageSelect);
 				}
 				if (this.clock !== undefined)
 					this.clock.stop();
 				this.clock = new Anim.Clock({ duration: 2, target: this });
-				this.connect(this.clock, 'timeupdate', this.onClockTick);
+				this.clock.timeupdate.connect(e => this.onClockTick(e.target, e.progress));
 				this.clock.begin();
 			}
 		}
@@ -121,8 +122,8 @@ namespace Ui {
 			this.appendChild(page);
 			page.setOffset(1);
 			page.setOrientation(this._orientation);
-			this.connect(page, 'select', this.onPageSelect);
-			this.connect(page, 'close', this.onPageClose);
+			page.selected.connect(this.onPageSelect);
+			page.closed.connect(this.onPageClose);
 			page.select();
 		}
 
@@ -139,8 +140,8 @@ namespace Ui {
 				}
 			}
 			if (pos !== -1) {
-				this.disconnect(page, 'select', this.onPageSelect);
-				this.disconnect(page, 'close', this.onPageClose);
+				page.selected.disconnect(this.onPageSelect);
+				page.closed.disconnect(this.onPageClose);
 				this.removeChild(page);
 				if ((this.current === pos) && (this.current === 0))
 					this.currentPosition = 0;
@@ -174,12 +175,12 @@ namespace Ui {
 			}
 		}
 
-		private onPageSelect(page: AccordeonPage) {
-			this.currentPage = page;
+		private onPageSelect = (e: { target: AccordeonPage }) => {
+			this.currentPage = e.target;
 		}
 
-		private onPageClose(page: AccordeonPage) {
-			this.removePage(page);
+		private onPageClose = (e: { target: AccordeonPage }) => {
+			this.removePage(e.target);
 		}
 
 		private measureHorizontal(width: number, height: number) {
@@ -275,8 +276,12 @@ namespace Ui {
 		header: Element;
 		content: Element;
 		offset: number = 0;
-		orientation: 'horizontal';
+		orientation: 'vertical' | 'horizontal' = 'horizontal';
 		isSelected: boolean = false;
+		selected = new Core.Events<{ target: AccordeonPage }>();
+		unselected = new Core.Events<{ target: AccordeonPage }>();
+		closed = new Core.Events<{ target: AccordeonPage }>();
+		orientationchanged = new Core.Events<{ target: AccordeonPage, orientation: 'vertical' | 'horizontal' }>();
 
 		/**
 		*	@constructs
@@ -285,18 +290,17 @@ namespace Ui {
 		*/
 		constructor(init?) {
 			super(init);
-			this.addEvents('select', 'unselect', 'close', 'orientationchange');
 
 			this.headerBox = new Pressable();
 			this.appendChild(this.headerBox);
-			this.connect(this.headerBox, 'press', this.onHeaderPress);
+			this.headerBox.pressed.connect(e => this.onHeaderPress());
 		}
 
 		/**
 		* Signal that the current page need to be closed
 		*/
 		close() {
-			this.fireEvent('close', this);
+			this.closed.fire({ target: this });
 		}
 
 		/**
@@ -305,7 +309,7 @@ namespace Ui {
 		select() {
 			if (!this.isSelected) {
 				this.isSelected = true;
-				this.fireEvent('select', this);
+				this.selected.fire({ target: this });
 			}
 		}
 
@@ -377,7 +381,7 @@ namespace Ui {
 		setOrientation(orientation) {
 			if (this.orientation != orientation) {
 				this.orientation = orientation;
-				this.fireEvent('orientationchange', this, orientation);
+				this.orientationchanged.fire({ target: this, orientation: orientation });
 				this.invalidateMeasure();
 			}
 		}
@@ -389,7 +393,7 @@ namespace Ui {
 		unselect() {
 			if (this.isSelected) {
 				this.isSelected = false;
-				this.fireEvent('unselect', this);
+				this.unselected.fire({ target: this });
 			}
 		}
 

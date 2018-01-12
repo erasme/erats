@@ -25,15 +25,15 @@ namespace Ui
 		private _interLine: number = undefined;
 		private _wordWrap: string = undefined;
 		private _whiteSpace: string = undefined;
+		readonly link = new Core.Events<{target: Html, ref: string }>();
 
 		constructor(init?: HtmlInit) {
 			super(init);
-			this.addEvents('link');
 
 			this.bindedOnImageLoad = this.onImageLoad.bind(this);
-			this.connect(this.drawing, 'click', this.onClick);
-			//		this.connect(this.drawing, 'DOMSubtreeModified', this.onSubtreeModified);
-			this.connect(this.drawing, 'keypress', this.onKeyPress);
+			this.drawing.addEventListener('click', (e) => this.onClick(e));
+			// this.drawing.addEventListener('DOMSubtreeModified', (e) => this.onSubtreeModified(e));
+			this.drawing.addEventListener('keypress', (e) => this.onKeyPress(e));
 			if (init) {
 				if (init.text !== undefined)
 					this.text = init.text;	
@@ -267,7 +267,7 @@ namespace Ui
 			this.invalidateMeasure();
 		}
 
-		protected onKeyPress(event) {
+		protected onKeyPress(event: KeyboardEvent) {
 			this.invalidateMeasure();
 		}
 
@@ -280,7 +280,7 @@ namespace Ui
 			if (target !== undefined) {
 				event.preventDefault();
 				event.stopPropagation();
-				this.fireEvent('link', this, target.href);
+				this.link.fire({ target: this, ref: target.href });
 			}
 		}
 

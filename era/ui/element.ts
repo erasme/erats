@@ -27,9 +27,13 @@ namespace Ui
 		transform?: Matrix;
 		eventsHidden?: boolean;
 		style?: object | undefined;
+		onfocused?: (event: { target: Element }) => void;
+		onblurred?: (event: { target: Element }) => void;
+		onloaded?: (event: { target: Element }) => void;
+		onunloaded?: (event: { target: Element }) => void;
 	}
 
-	export class Element extends Core.Object implements ElementInit, Anim.Target
+	export class Element extends Core.Object implements Anim.Target
 	{
 		name: string = undefined;
 
@@ -95,7 +99,7 @@ namespace Ui
 		clipHeight?: number = undefined;
 
 		// handle visible
-		visible?: boolean = undefined;
+		private _visible?: boolean = undefined;
 		private _parentVisible?: boolean = undefined;
 		private _eventsHidden: boolean = false;
 
@@ -120,13 +124,28 @@ namespace Ui
 		private parentOpacity: number = 1;
 
 		// handle disable
-		disabled?: boolean = undefined;
+		private _disabled?: boolean = undefined;
 		parentDisabled?: boolean = undefined;
 
 		// handle styles
 		private _style: object | undefined = undefined;
 		private _parentStyle: object | undefined = undefined;
 		mergeStyle: object | undefined = undefined;
+
+		readonly focused = new Core.Events<{ target: Element }>();
+		readonly blurred = new Core.Events<{ target: Element }>();
+		readonly loaded = new Core.Events<{ target: Element }>();
+		readonly unloaded = new Core.Events<{ target: Element }>();
+		readonly enabled = new Core.Events<{ target: Element }>();
+		readonly disabled = new Core.Events<{ target: Element }>();
+		readonly visible = new Core.Events<{ target: Element }>();
+		readonly hidden = new Core.Events<{ target: Element }>();
+		readonly ptrdowned = new Core.Events<PointerEvent>();
+		readonly ptrmoved = new Core.Events<PointerEvent>();
+		readonly ptrupped = new Core.Events<PointerEvent>();
+		readonly ptrcanceled = new Core.Events<PointerEvent>();
+		readonly wheelchanged = new Core.Events<WheelEvent>();
+		readonly dragover = new Core.Events<DragEvent>();
 
 	    // @constructs
 		// @class Define the base class for all GUI elements
@@ -158,14 +177,10 @@ namespace Ui
 			else if(Core.Navigator.isOpera)
 				this._drawing.style.OTransformOrigin = '0 0';
 
-			this.connect(this._drawing, 'focus', this.onFocus);
-			this.connect(this._drawing, 'blur', this.onBlur);
+			this._drawing.addEventListener('focus', (e) => this.onFocus(e));
+			this._drawing.addEventListener('blur', (e) => this.onBlur(e));
 			this.selectable = false;
 
-			this.addEvents('focus', 'blur', 'load', 'unload',
-				'enable', 'disable', 'visible', 'hidden',
-				'ptrdown', 'ptrmove', 'ptrup', 'ptrcancel',
-				'wheel', 'dragover');
 			if (init) {
 				if (init.selectable !== undefined)
 					this.selectable = init.selectable;
@@ -207,10 +222,18 @@ namespace Ui
 					this.eventsHidden = init.eventsHidden;
 				if (init.style !== undefined)
 					this.style = init.style;
+				if (init.onfocused)
+					this.focused.connect(init.onfocused);
+				if (init.onblurred)
+					this.blurred.connect(init.onblurred);
+				if (init.onloaded)
+					this.loaded.connect(init.onloaded);
+				if (init.onunloaded)
+					this.unloaded.connect(init.onunloaded)
 			}
 		}
 
-		setDisabled(disabled : boolean) {
+		set isDisabled(disabled : boolean) {
 			if(disabled)
 				this.disable();
 			else
@@ -280,10 +303,10 @@ namespace Ui
 				this._focusable = focusable;
 				if(focusable && !this.isDisabled) {
 					this._drawing.tabIndex = 0;
-					this.connect(this.drawing, 'mousedown', this.onMouseDownFocus, true);
+					this.drawing.addEventListener('mousedown', this.onMouseDownFocus, true);
 				}
 				else {
-					this.disconnect(this.drawing, 'mousedown', this.onMouseDownFocus);
+					this.drawing.removeEventListener('mousedown', this.onMouseDownFocus);
 					// remove the attribute because with the -1 value
 					// the element is still focusable by the mouse
 					let node = this._drawing.getAttributeNode('tabIndex');
@@ -293,14 +316,14 @@ namespace Ui
 			}
 		}
 
-		onMouseDownFocus(event) {
+		private onMouseDownFocus = (event: MouseEvent) => {
 			this.isMouseDownFocus = true;
-			this.connect(window, 'mouseup', this.onMouseUpFocus, true);
+			window.addEventListener('mouseup', this.onMouseUpFocus, true);
 		}
 
-		onMouseUpFocus(event) {
+		private onMouseUpFocus = (event: MouseEvent) => {
 			this.isMouseDownFocus = false;
-			this.disconnect(window, 'mouseup', this.onMouseUpFocus);
+			window.removeEventListener('mouseup', this.onMouseUpFocus);
 		}
 
 		getIsMouseFocus() : boolean {
@@ -985,9 +1008,9 @@ namespace Ui
 		}
 
 		hide(collapse: boolean = false) {
-			if((this.visible === undefined) || this.visible) {
+			if((this._visible === undefined) || this._visible) {
 				let old = this.isVisible;
-				this.visible = false;
+				this._visible = false;
 				this._drawing.style.display = 'none';
 				this.collapse = collapse;
 				if(old)
@@ -998,9 +1021,9 @@ namespace Ui
 		}
 
 		show() {
-			if((this.visible === undefined) || !this.visible) {
+			if((this._visible === undefined) || !this._visible) {
 				let old = this.isVisible;
-				this.visible = true;
+				this._visible = true;
 				this._drawing.style.display = 'block';
 				if(this.isVisible && !old)
 					this.onInternalVisible();
@@ -1012,7 +1035,7 @@ namespace Ui
 		}
 
 		get isVisible(): boolean {
-			return ((this._parentVisible === true) && (this.visible !== false));
+			return ((this._parentVisible === true) && (this._visible !== false));
 		}
 
 		set parentVisible(visible: boolean) {
@@ -1028,7 +1051,7 @@ namespace Ui
 
 		protected onInternalHidden() {
 			this.onHidden();
-			this.fireEvent('hidden', this);
+			this.hidden.fire({ target: this });
 		}
 
 		protected onHidden() {
@@ -1036,7 +1059,7 @@ namespace Ui
 
 		protected onInternalVisible() {
 			this.onVisible();
-			this.fireEvent('visible', this);
+			this.visible.fire({ target: this });
 		}
 
 		checkVisible() {
@@ -1064,18 +1087,18 @@ namespace Ui
 		}
 
 		disable() {
-			if((this.disabled === undefined) || !this.disabled) {
+			if((this._disabled === undefined) || !this._disabled) {
 				let old = this.isDisabled;
-				this.disabled = true;
+				this._disabled = true;
 				if(!old)
 					this.onInternalDisable();
 			}
 		}
 
 		enable() {
-			if((this.disabled === undefined) || this.disabled) {
+			if((this._disabled === undefined) || this._disabled) {
 				let old = this.isDisabled;
-				this.disabled = false;
+				this._disabled = false;
 				if(old && !this.isDisabled)
 					this.onInternalEnable();
 			}
@@ -1089,7 +1112,7 @@ namespace Ui
 		}
 
 		get isDisabled(): boolean {
-			if((this.disabled !== undefined) && (this.disabled === true))
+			if((this._disabled !== undefined) && (this._disabled === true))
 				return true;
 			if((this.parentDisabled !== undefined) && (this.parentDisabled === true))
 				return true;
@@ -1114,7 +1137,7 @@ namespace Ui
 					this.blur();
 			}
 			this.onDisable();
-			this.fireEvent('disable', this);
+			this.disabled.fire({ target: this });
 		}
 
 		protected onDisable() {
@@ -1124,7 +1147,7 @@ namespace Ui
 			if(this._focusable)
 				this._drawing.tabIndex = 0;
 			this.onEnable();
-			this.fireEvent('enable', this);
+			this.enabled.fire({ target: this });
 		}
 
 		protected onEnable() {
@@ -1371,7 +1394,7 @@ namespace Ui
 				this._hasFocus = true;
 				this.isMouseFocus = this.isMouseDownFocus;
 				this.scrollIntoView();
-				this.fireEvent('focus', this);
+				this.focused.fire({ target: this });
 			}
 		}
 
@@ -1381,7 +1404,7 @@ namespace Ui
 				event.stopPropagation();
 				this.isMouseFocus = false;
 				this._hasFocus = false;
-				this.fireEvent('blur', this);
+				this.blurred.fire({ target: this });
 			}
 		}
 
@@ -1427,7 +1450,7 @@ namespace Ui
 				this.animClock.stop();
 			this.animClock = clock;
 			if(clock != undefined)
-				this.connect(clock, 'complete', this.onAnimClockComplete);
+				clock.completed.connect(() => this.onAnimClockComplete());
 		}
 
 		private onAnimClockComplete() {
@@ -1440,7 +1463,7 @@ namespace Ui
 				this.setParentDisabled(this._parent.isDisabled);
 				this.parentVisible = this._parent.isVisible;
 			}
-			this.fireEvent('load', this);
+			this.loaded.fire({ target: this });
 		}
 
 		protected onUnload() {
@@ -1448,7 +1471,7 @@ namespace Ui
 				this.animClock.stop();
 				this.animClock = undefined;
 			}
-			this.fireEvent('unload', this);
+			this.unloaded.fire({ target: this });
 		}
 
 		static transformToWindow(element: Element): Matrix {

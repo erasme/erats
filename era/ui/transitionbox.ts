@@ -18,6 +18,8 @@ namespace Ui {
 		protected replaceMode: boolean = false;
 		protected progress: number;
 		children: TransitionBoxContent[];
+		readonly changed = new Core.Events<{ target: TransitionBox, position: number }>();
+
 	
 		/**
 		 * @constructs
@@ -29,10 +31,6 @@ namespace Ui {
 		 */
 		constructor(init?: TransitionBoxInit) {
 			super(init);
-			this.addEvents('change');
-
-			this.connect(this, 'load', this.onTransitionBoxLoad);
-			this.connect(this, 'unload', this.onTransitionBoxUnload);
 
 			this.clipToBounds = true;
 			this.transition = 'fade';
@@ -102,7 +100,7 @@ namespace Ui {
 					}
 				}
 				if (this.transitionClock !== undefined) {
-					this.disconnect(this.transitionClock, 'complete', this.onTransitionComplete);
+					this.transitionClock.completed.disconnect(this.onTransitionComplete);
 					this.transitionClock.stop();
 				}
 
@@ -117,8 +115,8 @@ namespace Ui {
 				this._transition.run(this._current, this.next, 0);
 
 				this.transitionClock = new Anim.Clock({ duration: this._duration, ease: this._ease });
-				this.connect(this.transitionClock, 'timeupdate', this.onTransitionTick);
-				this.connect(this.transitionClock, 'complete', this.onTransitionComplete);
+				this.transitionClock.timeupdate.connect((e) => this.onTransitionTick(e.target, e.progress));
+				this.transitionClock.completed.connect(this.onTransitionComplete);
 				this.transitionClock.begin();
 			
 				this._position = position;
@@ -131,7 +129,17 @@ namespace Ui {
 			this.current = content;
 		}
 
+		protected onLoad() {
+			super.onLoad();
+			this.onTransitionBoxLoad();
+		}
+
 		protected onTransitionBoxLoad() {
+		}
+
+		protected onUnload() {
+			super.onUnload();
+			this.onTransitionBoxUnload();
 		}
 
 		protected onTransitionBoxUnload() {
@@ -146,7 +154,7 @@ namespace Ui {
 			this._transition.run(this._current, this.next, progress);
 		}
 
-		protected onTransitionComplete(clock) {
+		protected onTransitionComplete = () => {
 			let i;
 			this.transitionClock = undefined;
 			let current = this.next;
@@ -166,7 +174,7 @@ namespace Ui {
 				for (i = 0; i < removeList.length; i++)
 					this.remove(removeList[i]);
 			}
-			this.fireEvent('change', this, this._position);
+			this.changed.fire({ target: this, position: this._position });
 		}
 
 		protected arrangeCore(width: number, height: number) {

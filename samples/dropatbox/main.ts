@@ -34,12 +34,12 @@ class App extends Ui.App {
 
 		this.container = new Ui.SFlowDropBox({
 			spacing: 20, margin: 20,
-			stretchMaxRatio: 2, itemAlign: 'stretch'
+			stretchMaxRatio: 2, itemAlign: 'stretch',
+			ondroppedat: e => this.onDropAt(this.container, e.data, e.effect, e.position, e.x, e.y)
 		});
 		this.container.addType(Item, this.onDragEffect);
 		this.container.addType('files', this.onDragEffect);
 		scroll.content = this.container;
-		this.connect(this.container, 'dropat', this.onDropAt);
 
 		this.container.append(new Item({ width: 150, height: 150, fill: 'red' }));
 		this.container.append(new Item({ width: 150, height: 150, fill: 'green' }));
@@ -60,7 +60,7 @@ class App extends Ui.App {
 			return [{ action: 'move' }];
 	}
 
-	onDropAt(dropbox: Ui.DropBox, data: any, effect: string, pos: number, x: number, y: number) {
+	onDropAt(dropbox: Ui.SFlowDropBox, data: any, effect: string, pos: number, x: number, y: number) {
 		console.log(`onDropAt data: ${data}, effect: ${effect}, pos: ${pos}, coord: ${x},${y}`);
 	}
 }

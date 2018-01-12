@@ -12,9 +12,9 @@ class App extends Ui.App {
 		let button = new Ui.Button({
 			text: 'click for scroll',
 			verticalAlign: 'center',
-			horizontalAlign: 'center'
+			horizontalAlign: 'center',
+			onpressed: () => el.scrollIntoView()
 		});
-		this.connect(button, 'press', () => el.scrollIntoView());
 		hbox.append(button, true);
 
 		let scroll = new Ui.ScrollingArea();

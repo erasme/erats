@@ -29,27 +29,29 @@ class App extends Ui.App {
         let toolbar = new Ui.ToolBar();
         vbox.append(toolbar);
 
-        let button = new Ui.Button({ text: 'get date' });
-        toolbar.append(button);
-        this.connect(button, 'press', function () {
-            let date = calendar.selectedDate;
-            if (date == undefined)
-                logs.log('date is undefined');
-            else
-                logs.log('date: ' + date);
+        let button = new Ui.Button({
+            text: 'get date',
+            onpressed: () => {
+                let date = calendar.selectedDate;
+                if (date == undefined)
+                    logs.log('date is undefined');
+                else
+                    logs.log('date: ' + date);
+            }
         });
+        toolbar.append(button);
 
         let hbox = new Ui.HBox();
         vbox.append(hbox, true);
 
-        let calendar = new Ui.MonthCalendar({ verticalAlign: 'center', horizontalAlign: 'center' });
+        let calendar = new Ui.MonthCalendar({
+            verticalAlign: 'center', horizontalAlign: 'center',
+            ondayselected: e => console.log(`Day select: ${e.value}`)
+        });
         calendar.dayFilter = [6, 0];
         calendar.dateFilter = ['2011/11/2[1-5]', '2011/12/*', '2012/0[2-3]/.[4]'];
         hbox.append(calendar, true);
 
-        this.connect(calendar, 'dayselect', (calendar: Ui.MonthCalendar, date: Date) => {
-            console.log('Day select: ' + date);
-        });
 
         let logs = new Logs();
         hbox.append(logs, true);

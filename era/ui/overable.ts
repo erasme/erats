@@ -8,38 +8,38 @@ namespace Ui {
 
 		constructor(init: {
 			element: Ui.Element,
-			enter?: (watcher: OverWatcher) => void,
-			leave?: (watcher: OverWatcher) => void
+			onentered?: (watcher: OverWatcher) => void,
+			onleaved?: (watcher: OverWatcher) => void
 		}) {
 			super();
-			this.enter = init.enter;
-			this.leave = init.leave;
+			this.enter = init.onentered;
+			this.leave = init.onleaved;
 
 			this.element = init.element;
-			this.connect(init.element, 'ptrmove', (event: PointerEvent) => {
+			init.element.ptrmoved.connect((event: PointerEvent) => {
 				if (!this.element.isDisabled && (this.pointer == undefined)) {
 					this.pointer = event.pointer;
 					if (this.enter)
-						this.enter(this);	
-					this.connect(this.pointer, 'ptrmove', this.onPtrMove);
-					this.connect(this.pointer, 'ptrup', this.onPtrUp);
+						this.enter(this);
+					this.pointer.ptrmoved.connect(this.onPtrMove);
+					this.pointer.ptrupped.connect(this.onPtrUp);
 				}
 			});
 		}
 
-		private onPtrMove(pointer: Pointer) {
-			if (!pointer.getIsInside(this.element))
-				this.onPtrLeave(pointer);
+		private onPtrMove = (e: { target: Pointer }) => {
+			if (!e.target.getIsInside(this.element))
+				this.onPtrLeave(e.target);
 		}
 
-		private onPtrUp(pointer: Pointer) {
-			if (pointer.type == 'touch')
-				this.onPtrLeave(pointer);	
+		private onPtrUp = (e: { target: Pointer }) => {
+			if (e.target.type == 'touch')
+				this.onPtrLeave(e.target);	
 		}
 
 		private onPtrLeave(pointer: Pointer) {
-			this.disconnect(pointer, 'ptrmove', this.onPtrMove);
-			this.disconnect(pointer, 'ptrup', this.onPtrUp);
+			pointer.ptrmoved.disconnect(this.onPtrMove);
+			pointer.ptrupped.disconnect(this.onPtrUp);
 			this.pointer = undefined;
 			// leave
 			if (this.leave)
@@ -52,19 +52,32 @@ namespace Ui {
 	}
 
 	export interface OverableInit extends LBoxInit {
+		onentered?: (event: { target: Overable }) => void;
+		onleaved?: (event: { target: Overable }) => void;
+		onmoved?: (event: { target: Overable }) => void;
 	}
 
 	export class Overable extends LBox implements OverableInit {
 		watcher: OverWatcher;
+		readonly entered = new Core.Events<{ target: Overable }>();
+		readonly leaved = new Core.Events<{ target: Overable }>();
+		readonly moved = new Core.Events<{ target: Overable }>();
 
 		constructor(init?: OverableInit) {
 			super(init);
-			this.addEvents('enter', 'leave', 'move');
 			this.watcher = new OverWatcher({
 				element: this,
-				enter: () => this.fireEvent('enter', this),
-				leave: () => this.fireEvent('leave', this)
+				onentered: () => this.entered.fire({ target: this }),
+				onleaved: () => this.leaved.fire({ target: this })
 			});
+			if (init) {
+				if (init.onentered)
+					this.entered.connect(init.onentered);
+				if (init.onleaved)
+					this.leaved.connect(init.onleaved);
+				if (init.onmoved)
+					this.moved.connect(init.onmoved);	
+			}
 		}
 
 		get isOver(): boolean {

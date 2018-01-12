@@ -18,36 +18,33 @@ var App = (function (_super) {
         _this.content = mainvbox;
         var toolbar = new Ui.ToolBar();
         mainvbox.append(toolbar);
-        var button = new Ui.CheckBox();
-        button.text = 'selectable';
-        toolbar.append(button);
-        _this.connect(button, 'toggle', function () { return html.selectable = true; });
-        _this.connect(button, 'untoggle', function () { return html.selectable = false; });
+        toolbar.append(new Ui.CheckBox({
+            text: 'selectable',
+            ontoggled: function () { return html.selectable = true; },
+            onuntoggled: function () { return html.selectable = false; }
+        }));
         var vbox = new Ui.VBox({ verticalAlign: 'center' });
         mainvbox.append(vbox, true);
-        var r = new Ui.Rectangle();
-        r.fill = 'lightblue';
-        r.height = 10;
-        vbox.append(r);
+        vbox.append(new Ui.Rectangle({
+            fill: 'lightblue', height: 10
+        }));
         var hbox = new Ui.HBox({ horizontalAlign: 'center' });
         vbox.append(hbox);
-        r = new Ui.Rectangle();
-        r.fill = 'lightblue';
-        r.width = 10;
-        hbox.append(r, true);
-        var html = new Ui.Html();
-        html.width = 100;
-        html.html = '<div>Have fun with HTML, I <b>hope</b> the text is enough long</div>';
-        html.selectable = false;
+        hbox.append(new Ui.Rectangle({
+            fill: 'lightblue', width: 10
+        }), true);
+        var html = new Ui.Html({
+            width: 100,
+            html: '<div>Have fun with HTML, I <b>hope</b> the text is enough long</div>',
+            selectable: false
+        });
         hbox.append(html, false);
-        r = new Ui.Rectangle();
-        r.fill = 'lightblue';
-        r.width = 10;
-        hbox.append(r, true);
-        r = new Ui.Rectangle();
-        r.fill = 'lightblue';
-        r.height = 10;
-        vbox.append(r);
+        hbox.append(new Ui.Rectangle({
+            fill: 'lightblue', width: 10
+        }), true);
+        vbox.append(new Ui.Rectangle({
+            fill: 'lightblue', height: 10
+        }));
         return _this;
     }
     return App;

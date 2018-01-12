@@ -18,15 +18,21 @@ var App = (function (_super) {
         _this.content = vbox;
         var toolbar = new Ui.ToolBar();
         vbox.append(toolbar);
-        var button = new Ui.Button({ text: 'content' });
+        var button = new Ui.Button({
+            text: 'content',
+            onpressed: function () { return iframe.src = 'content2.html'; }
+        });
         toolbar.append(button);
-        _this.connect(button, 'press', function () { return iframe.src = 'content2.html'; });
-        button = new Ui.Button({ text: 'iframe' });
+        button = new Ui.Button({
+            text: 'iframe',
+            onpressed: function () { return iframe.src = 'iframe.html'; }
+        });
         toolbar.append(button);
-        _this.connect(button, 'press', function () { return iframe.src = 'iframe.html'; });
-        button = new Ui.Button({ text: 'gnome' });
+        button = new Ui.Button({
+            text: 'gnome',
+            onpressed: function () { return iframe.src = 'http://www.gnome.org/'; }
+        });
         toolbar.append(button);
-        _this.connect(button, 'press', function () { return iframe.src = 'http://www.gnome.org/'; });
         var iframe = new Ui.IFrame();
         vbox.append(iframe, true);
         return _this;

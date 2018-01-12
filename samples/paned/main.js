@@ -18,17 +18,14 @@ var App = (function (_super) {
         _this.content = vbox;
         var toolbar = new Ui.ToolBar();
         vbox.append(toolbar);
-        var button = new Ui.Button({ text: 'horizontal' });
-        toolbar.append(button);
-        _this.connect(button, 'press', function () {
-            paned.orientation = 'horizontal';
-            ;
-        });
-        button = new Ui.Button({ text: 'vertical' });
-        toolbar.append(button);
-        _this.connect(button, 'press', function () {
-            paned.orientation = 'vertical';
-        });
+        toolbar.append(new Ui.Button({
+            text: 'horizontal',
+            onpressed: function () { return paned.orientation = 'horizontal'; }
+        }));
+        toolbar.append(new Ui.Button({
+            text: 'vertical',
+            onpressed: function () { return paned.orientation = 'vertical'; }
+        }));
         var paned = new Ui.Paned();
         vbox.append(paned, true);
         var scroll = new Ui.ScrollingArea();

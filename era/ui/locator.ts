@@ -2,6 +2,7 @@ namespace Ui {
 
 	export interface LocatorInit extends ContainerInit {
 		path?: string;
+		onchanged?: (event: { target: Locator, path: string, position: number }) => void;
 	}
 
 	export class Locator extends Container implements LocatorInit {
@@ -10,15 +11,17 @@ namespace Ui {
 		private backgrounds: Array<Rectangle | LocatorRightArrow | LocatorLeftArrow | LocatorLeftRightArrow>;
 		private border: Rectangle;
 		private focusedPart: Pressable;
+		readonly changed = new Core.Events<{ target: Locator, path: string, position: number }>();
 	
 		constructor(init?: LocatorInit) {
 			super(init);
-			this.addEvents('change');
-			this.connect(this, 'focus', this.updateColors);
-			this.connect(this, 'blur', this.updateColors);
+			this.focused.connect(() => this.updateColors());
+			this.blurred.connect(() => this.updateColors());
 			if (init) {
 				if (init.path !== undefined)
-					this.path = init.path;	
+					this.path = init.path;
+				if (init.onchanged)
+					this.changed.connect(init.onchanged);
 			}
 		}
 
@@ -43,18 +46,21 @@ namespace Ui {
 				this.backgrounds.push(bg);
 				this.appendChild(bg);
 
-				let fg = new Ui.Pressable({ padding: padding });
+				let fg = new Ui.Pressable({
+					padding: padding,
+					onpressed: e => this.onPathPress(fg),
+					ondowned: e => this.onPathDown(fg),
+					onupped: e => this.onPathUp(fg),
+					onfocused: e => this.onPathFocus(fg),
+					onblurred: e => this.onPathBlur(fg)
+				});
 				(fg as any).locatorPath = '/';
 				(fg as any).locatorPos = 0;
-				this.connect(fg, 'press', this.onPathPress);
-				this.connect(fg, 'down', this.onPathDown);
-				this.connect(fg, 'up', this.onPathUp);
-				this.connect(fg, 'focus', this.onPathFocus);
-				this.connect(fg, 'blur', this.onPathBlur);
 
-				let home = new Ui.Icon({ icon: 'home', width: 24, height: 24 });
-				home.verticalAlign = 'center';
-				home.horizontalAlign = 'center';
+				let home = new Ui.Icon({
+					icon: 'home', width: 24, height: 24,
+					verticalAlign: 'center', horizontalAlign: 'center'
+				});
 				fg.appendChild(home);
 
 				this.foregrounds.push(fg);
@@ -86,12 +92,14 @@ namespace Ui {
 
 				let currentPath = '/';
 				// handle pressable parts
-				let fg = new Ui.Pressable({ padding: padding });
-				this.connect(fg, 'press', this.onPathPress);
-				this.connect(fg, 'down', this.onPathDown);
-				this.connect(fg, 'up', this.onPathUp);
-				this.connect(fg, 'focus', this.onPathFocus);
-				this.connect(fg, 'blur', this.onPathBlur);
+				let fg = new Ui.Pressable({
+					padding: padding,
+					onpressed: e => this.onPathPress(fg),
+					ondowned: e => this.onPathDown(fg),
+					onupped: e => this.onPathUp(fg),
+					onfocused: e => this.onPathFocus(fg),
+					onblurred: e => this.onPathBlur(fg)
+				});
 
 				let home = new Icon({ icon: 'home', width: 24, height: 24 });
 				home.verticalAlign = 'center';
@@ -104,13 +112,15 @@ namespace Ui {
 				this.appendChild(fg);
 				for (let i = 0; i < paths.length; i++) {
 					currentPath += paths[i];
-					let fg = new Ui.Pressable({ padding: padding });
+					let fg = new Ui.Pressable({
+						padding: padding,
+						onpressed: e => this.onPathPress(fg),
+						ondowned: e => this.onPathDown(fg),
+						onupped: e => this.onPathUp(fg),
+						onfocused: e => this.onPathFocus(fg),
+						onblurred: e => this.onPathBlur(fg)	
+					});
 					(fg as any).locatorPos = i + 1;
-					this.connect(fg, 'press', this.onPathPress);
-					this.connect(fg, 'down', this.onPathDown);
-					this.connect(fg, 'up', this.onPathUp);
-					this.connect(fg, 'focus', this.onPathFocus);
-					this.connect(fg, 'blur', this.onPathBlur);
 					(fg as any).locatorPath = currentPath;
 					fg.appendChild(new Ui.Label({ text: paths[i], verticalAlign: 'center' }));
 					this.foregrounds.push(fg);
@@ -159,7 +169,7 @@ namespace Ui {
 		}
 
 		private onPathPress(pathItem) {
-			this.fireEvent('change', this, pathItem.locatorPath, pathItem.locatorPos);
+			this.changed.fire({ target: this, path: pathItem.locatorPath, position: pathItem.locatorPos });
 		}
 
 		private onPathDown(pathItem) {

@@ -19,14 +19,18 @@ var App = (function (_super) {
         var toolbar = new Ui.ToolBar();
         vbox.append(toolbar);
         var request;
-        var sendButton = new Ui.Button({ text: 'send' });
-        toolbar.append(sendButton);
-        _this.connect(sendButton, 'press', function () {
-            request = new Core.HttpRequest({ url: 'service.php', method: 'POST', arguments: { toto: 12, dan: 'super', complex: { t1: 1, t2: 2 } } });
-            _this.connect(request, 'done', function () { return text.text = request.responseText; });
-            request.send();
-        });
         var text = new Ui.Text();
+        toolbar.append(new Ui.Button({
+            text: 'send',
+            onpressed: function () {
+                request = new Core.HttpRequest({
+                    url: 'service.php', method: 'POST',
+                    arguments: { toto: 12, dan: 'super', complex: { t1: 1, t2: 2 } },
+                    ondone: function () { return text.text = request.responseText; }
+                });
+                request.send();
+            }
+        }));
         vbox.append(text, true);
         return _this;
     }

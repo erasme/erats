@@ -9,41 +9,40 @@ class App extends Ui.App {
         let toolbar = new Ui.ToolBar();
         mainvbox.append(toolbar);
 
-        let button = new Ui.CheckBox();
-        button.text = 'selectable';
-        toolbar.append(button);
-
-        this.connect(button, 'toggle', () => html.selectable = true);
-
-        this.connect(button, 'untoggle', () => html.selectable = false);
+        toolbar.append(new Ui.CheckBox({
+            text: 'selectable',
+            ontoggled: () => html.selectable = true,
+            onuntoggled: () => html.selectable = false
+        }));
 
         let vbox = new Ui.VBox({ verticalAlign: 'center' });
         mainvbox.append(vbox, true);
 
-        let r = new Ui.Rectangle();
-        r.fill = 'lightblue'; r.height = 10;
-        vbox.append(r);
+        vbox.append(new Ui.Rectangle({
+            fill: 'lightblue', height: 10
+        }));
 
         let hbox = new Ui.HBox({ horizontalAlign: 'center' });
         vbox.append(hbox);
 
-        r = new Ui.Rectangle();
-        r.fill = 'lightblue'; r.width = 10;
-        hbox.append(r, true);
+        hbox.append(new Ui.Rectangle({
+           fill: 'lightblue', width: 10
+        }), true);
 
-        let html = new Ui.Html();
-        html.width = 100;
-        html.html = '<div>Have fun with HTML, I <b>hope</b> the text is enough long</div>';
-        html.selectable = false;
+        let html = new Ui.Html({
+           width: 100,
+           html: '<div>Have fun with HTML, I <b>hope</b> the text is enough long</div>',
+           selectable: false
+        });    
         hbox.append(html, false);
 
-        r = new Ui.Rectangle();
-        r.fill = 'lightblue'; r.width = 10;
-        hbox.append(r, true);
+        hbox.append(new Ui.Rectangle({
+            fill: 'lightblue', width: 10
+        }), true);
 
-        r = new Ui.Rectangle();
-        r.fill = 'lightblue'; r.height = 10;
-        vbox.append(r);
+        vbox.append(new Ui.Rectangle({
+            fill: 'lightblue', height: 10
+        }));
     }
 }
 

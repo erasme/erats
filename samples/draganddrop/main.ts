@@ -19,21 +19,23 @@ class Data extends Core.Object { }
 //
 // Put some content to see something
 //
-let draggable = new Ui.Draggable({ width: 64, height: 64, horizontalAlign: 'center' });
+let draggable = new Ui.Draggable({
+    width: 64, height: 64, horizontalAlign: 'center',
+    content: [
+        new Ui.Rectangle({ fill: 'lightblue', radius: 8 }),
+        new Ui.Label({ text: 'drag me', horizontalAlign: 'center', verticalAlign: 'center', margin: 10 })
+    ],
+    // Connect to the dragstart event. This is not needed but might be usefull
+    // to return some feedback to the user.
+    //
+    // Here, the opacity of the drag element is changed
+    ondragstarted: e => e.target.opacity = 0.5,
+    ondragended: e => e.target.opacity = 1
+});
 draggable.draggableData = new Data();
-
-draggable.append(new Ui.Rectangle({ fill: 'lightblue', radius: 8 }));
-draggable.append(new Ui.Label({ text: 'drag me', horizontalAlign: 'center', verticalAlign: 'center', margin: 10 }));
 vbox.append(draggable);
 
-//
-// Connect to the dragstart event. This is not needed but might be usefull
-// to return some feedback to the user.
-//
-// Here, the opacity of the drag element is changed
-//
-app.connect(draggable, 'dragstart', () => draggable.opacity = 0.5);
-app.connect(draggable, 'dragend', () => draggable.opacity = 1);
+
 //
 // Connect to the dragend event. This is called when the drag is done.
 // operation let us known what has happened:
@@ -42,18 +44,21 @@ app.connect(draggable, 'dragend', () => draggable.opacity = 1);
 //  - move: drag has negociated a move of the element in a drop element.
 //          in this case, the original element should be suppressed
 //
-app.connect(draggable, 'dragend', function(draggable: Ui.Draggable, operation: string) {
-	if((operation == 'none') || (operation == 'copy'))
+draggable.dragended.connect(e => {
+	if((e.effect == 'none') || (e.effect == 'copy'))
 		draggable.opacity = 1;
-	if(operation == 'move')
+	if(e.effect == 'move')
 		draggable.opacity = 0;
 });
 
 //
 // Define a DropBox. The DropBox is a possible target for a drag element.
 //
-let dropbox = new Ui.DropBox();
-dropbox.width = 200; dropbox.height = 200;
+let dropbox = new Ui.DropBox({
+    width: 200, height: 200,
+    ondragentered: () => dropBg.fill = 'orange',
+    ondragleaved: () => dropBg.fill = 'lightgreen'
+});
 dropbox.addType(Data, 'copy');
 dropbox.addType('text/uri-list', 'copy');
 dropbox.addType('text', (data: string) => [{ action: 'copy' }]);
@@ -68,14 +73,13 @@ let droplabel = new Ui.Label({
 });
 dropbox.append(droplabel);
 vbox.append(dropbox);
-app.connect(dropbox, 'dragenter', () => dropBg.fill = 'orange');
-app.connect(dropbox, 'dragleave', () => dropBg.fill = 'lightgreen');
 
 //
 // Connect to the drop event called when a compatible element is
 // dropped in the box.
 //
-app.connect(dropbox, 'drop', function (dropbox: Ui.DropBox, data: any, effect: string, x: number, y: number) {
+dropbox.dropped.connect(e => {
+    let data = e.data;
     if (data instanceof Ui.DragNativeData) {
         if (data.hasType('text/uri-list'))
             data = data.getData('text/uri-list');

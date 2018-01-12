@@ -21,8 +21,8 @@ namespace Ui {
 			this.buttonIcon = 'calendar';
 			this.widthText = 9;
 
-			this.connect(this, 'buttonpress', this.onDatePickerButtonPress);
-			this.connect(this, 'change', this.onDatePickerChange);
+			this.buttonpressed.connect(() => this.onDatePickerButtonPress());
+			this.changed.connect(() => this.onDatePickerChange());
 			if (init) {
 				if (init.dayFilter !== undefined)
 					this.dayFilter = init.dayFilter;	
@@ -60,7 +60,8 @@ namespace Ui {
 			}
 
 			this._isValid = true;
-			this.fireEvent('change', this, this.selectedDate);
+			// TODO: handle problem
+			//this.changed.fire({ target: this, value: this.selectedDate });
 		}
 
 		protected onDatePickerButtonPress() {
@@ -77,8 +78,7 @@ namespace Ui {
 			if (this._dateFilter !== undefined)
 				this.calendar.dateFilter = this._dateFilter;
 			this.popup.content = this.calendar;
-			this.connect(this.calendar, 'dayselect', this.onDaySelect);
-
+			this.calendar.dayselected.connect((e) => this.onDaySelect(e.target, e.value));
 			this.popup.openElement(this);
 		}
 

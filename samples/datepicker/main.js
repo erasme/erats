@@ -36,15 +36,16 @@ var App = (function (_super) {
         _this.content = vbox;
         var toolbar = new Ui.ToolBar();
         vbox.append(toolbar);
-        var button = new Ui.Button({ text: 'get date' });
-        toolbar.append(button);
-        _this.connect(button, 'press', function () {
-            var date = datepicker.selectedDate;
-            if (date == undefined)
-                logs.log('date is undefined');
-            else
-                logs.log('date: ' + date);
-        });
+        toolbar.append(new Ui.Button({
+            text: 'get date',
+            onpressed: function () {
+                var date = datepicker.selectedDate;
+                if (date == undefined)
+                    logs.log('date is undefined');
+                else
+                    logs.log('date: ' + date);
+            }
+        }));
         var hbox = new Ui.HBox();
         vbox.append(hbox, true);
         var datepicker = new Ui.DatePicker({ verticalAlign: 'center', horizontalAlign: 'center', dayFilter: [0, 6] });

@@ -34,30 +34,30 @@ namespace Ui
 		scrollbarHorizontalNeeded: boolean = false;
 		scrollbarVerticalHeight: number = 0;
 		scrollbarHorizontalWidth: number = 0;
+		readonly scrolled = new Core.Events<{ target: Scrollable, offsetX: number, offsetY: number }>();
 
 		constructor(init?: ScrollableInit) {
 			super(init);
-			this.addEvents('scroll');
 			this.contentBox = new Ui.ScrollableContent();
-			this.connect(this.contentBox, 'scroll', this.onScroll);
-			this.connect(this.contentBox, 'down', this.autoShowScrollbars);
-			this.connect(this.contentBox, 'inertiaend', this.autoHideScrollbars);
+			this.contentBox.scrolled.connect(() => this.onScroll());
+			this.contentBox.downed.connect(this.autoShowScrollbars);
+			this.contentBox.inertiaended.connect(this.autoHideScrollbars);
 			this.appendChild(this.contentBox);
 
 			new OverWatcher({
 				element: this,
-				enter: () => {
+				onentered: () => {
 					this.isOver = true;
 					this.autoShowScrollbars();
 				},
-				leave: () => {
+				onleaved: () => {
 					this.isOver = false;
 					this.autoHideScrollbars();
 				}
 			});
 
-			this.connect(this, 'wheel', this.onWheel);
-			this.connect(this.drawing, 'keydown', this.onKeyDown);
+			this.wheelchanged.connect(e => this.onWheel(e));
+			this.drawing.addEventListener('keydown', (e) => this.onKeyDown(e));
 
 			this.setScrollbarHorizontal(new Movable());
 			this.setScrollbarVertical(new Movable());
@@ -126,36 +126,36 @@ namespace Ui
 
 		setScrollbarVertical(scrollbarVertical: Movable) {
 			if (this.scrollbarVerticalBox) {
-				this.disconnect(this.scrollbarVerticalBox, 'down', this.autoShowScrollbars);
-				this.disconnect(this.scrollbarVerticalBox, 'up', this.autoHideScrollbars);
-				this.disconnect(this.scrollbarVerticalBox, 'move', this.onScrollbarVerticalMove);
+				this.scrollbarVerticalBox.downed.disconnect(this.autoShowScrollbars);
+				this.scrollbarVerticalBox.upped.disconnect(this.autoHideScrollbars);
+				this.scrollbarVerticalBox.moved.disconnect(this.onScrollbarVerticalMove);
 				this.removeChild(this.scrollbarVerticalBox);
 			}
 			if (scrollbarVertical) {
 				this.scrollbarVerticalBox = scrollbarVertical;
 				this.scrollbarVerticalBox.opacity = 0;
 				this.scrollbarVerticalBox.moveHorizontal = false;
-				this.connect(this.scrollbarVerticalBox, 'down', this.autoShowScrollbars);
-				this.connect(this.scrollbarVerticalBox, 'up', this.autoHideScrollbars);
-				this.connect(this.scrollbarVerticalBox, 'move', this.onScrollbarVerticalMove);
+				this.scrollbarVerticalBox.downed.connect(this.autoShowScrollbars);
+				this.scrollbarVerticalBox.upped.connect(this.autoHideScrollbars);
+				this.scrollbarVerticalBox.moved.connect(this.onScrollbarVerticalMove);
 				this.appendChild(this.scrollbarVerticalBox);
 			}
 		}
 
 		setScrollbarHorizontal(scrollbarHorizontal: Movable) {
 			if (this.scrollbarHorizontalBox) {
-				this.disconnect(this.scrollbarHorizontalBox, 'down', this.autoShowScrollbars);
-				this.disconnect(this.scrollbarHorizontalBox, 'up', this.autoHideScrollbars);
-				this.disconnect(this.scrollbarHorizontalBox, 'move', this.onScrollbarHorizontalMove);
+				this.scrollbarHorizontalBox.downed.disconnect(this.autoShowScrollbars);
+				this.scrollbarHorizontalBox.upped.disconnect(this.autoHideScrollbars);
+				this.scrollbarHorizontalBox.moved.disconnect(this.onScrollbarHorizontalMove);
 				this.removeChild(this.scrollbarHorizontalBox);
 			}
 			if (scrollbarHorizontal) {
 				this.scrollbarHorizontalBox = scrollbarHorizontal;
 				this.scrollbarHorizontalBox.opacity = 0;
 				this.scrollbarHorizontalBox.moveVertical = false;
-				this.connect(this.scrollbarHorizontalBox, 'down', this.autoShowScrollbars);
-				this.connect(this.scrollbarHorizontalBox, 'up', this.autoHideScrollbars);
-				this.connect(this.scrollbarHorizontalBox, 'move', this.onScrollbarHorizontalMove);
+				this.scrollbarHorizontalBox.downed.connect(this.autoShowScrollbars);
+				this.scrollbarHorizontalBox.upped.connect(this.autoHideScrollbars);
+				this.scrollbarHorizontalBox.moved.connect(this.onScrollbarHorizontalMove);
 				this.appendChild(this.scrollbarHorizontalBox);
 			}
 		}
@@ -266,20 +266,20 @@ namespace Ui
 			}
 		}
 
-		autoShowScrollbars(): void {
+		autoShowScrollbars = () => {
 			if (this.showClock === undefined) {
 				this.showClock = new Anim.Clock({ duration: 'forever' });
-				this.connect(this.showClock, 'timeupdate', this.onShowBarsTick);
+				this.showClock.timeupdate.connect((e) => this.onShowBarsTick(e.target, e.progress, e.deltaTick));
 				this.showClock.begin();
 			}
 		}
 
-		autoHideScrollbars(): void {
+		autoHideScrollbars = () => {
 			if (this.contentBox.isDown || this.contentBox.isInertia || this.isOver)
 				return;
 			if (this.showClock === undefined) {
 				this.showClock = new Anim.Clock({ duration: 'forever' });
-				this.connect(this.showClock, 'timeupdate', this.onShowBarsTick);
+				this.showClock.timeupdate.connect((e) => this.onShowBarsTick(e.target, e.progress, e.deltaTick));
 				this.showClock.begin();
 			}
 		}
@@ -320,7 +320,7 @@ namespace Ui
 
 		protected onScroll() {
 			this.updateOffset();
-			this.fireEvent('scroll', this, this.offsetX, this.offsetY);
+			this.scrolled.fire({ target: this, offsetX: this.offsetX, offsetY: this.offsetY });
 		}
 
 		updateOffset() {
@@ -409,22 +409,22 @@ namespace Ui
 			this.scrollLock = false;
 		}
 
-		protected onScrollbarHorizontalMove(movable: Movable) {
+		protected onScrollbarHorizontalMove = () => {
 			if (this.scrollLock)
 				return;
 			let totalWidth = this.viewWidth - this.scrollbarHorizontalBox.layoutWidth;
-			let offsetX = Math.min(1, Math.max(0, movable.positionX / totalWidth));
+			let offsetX = Math.min(1, Math.max(0, this.scrollbarHorizontalBox.positionX / totalWidth));
 			this.setOffset(offsetX, undefined, false, true);
-			movable.setPosition(offsetX * totalWidth, undefined);
+			this.scrollbarHorizontalBox.setPosition(offsetX * totalWidth, undefined);
 		}
 
-		protected onScrollbarVerticalMove(movable: Movable) {
+		protected onScrollbarVerticalMove = () => {
 			if (this.scrollLock)
 				return;
 			let totalHeight = this.viewHeight - this.scrollbarVerticalBox.layoutHeight;
-			let offsetY = Math.min(1, Math.max(0, movable.positionY / totalHeight));
+			let offsetY = Math.min(1, Math.max(0, this.scrollbarVerticalBox.positionY / totalHeight));
 			this.setOffset(undefined, offsetY, false, true);
-			movable.setPosition(undefined, offsetY * totalHeight);
+			this.scrollbarVerticalBox.setPosition(undefined, offsetY * totalHeight);
 		}
 
 		protected onScrollIntoView(el: Element) {
@@ -491,14 +491,13 @@ namespace Ui
 	{
 		private _contentWidth: number = 0;
 		private _contentHeight: number = 0;
+		readonly scrolled = new Core.Events<{ target: ScrollableContent, offsetX: number, offsetY: number }>();
 
 		constructor() {
 			super();
-			this.addEvents('scroll');
-
 			this.allowLeftMouse = false;
 			this.clipToBounds = true;
-			this.connect(this.drawing, 'scroll', () => {
+			this.drawing.addEventListener('scroll', () => {
 				this.translateX -= this.drawing.scrollLeft;
 				this.translateY -= this.drawing.scrollTop;
 				this.drawing.scrollLeft = 0;
@@ -558,9 +557,8 @@ namespace Ui
 
 			this._contentWidth = this.firstChild.layoutWidth * scale;
 			this._contentHeight = this.firstChild.layoutHeight * scale;
-			if (testOnly !== true) {
-				this.fireEvent('scroll', this);
-			}
+			if (testOnly !== true)
+				this.scrolled.fire({ target: this, offsetX: this.offsetX, offsetY: this.offsetY });
 		}
 	}
 }	

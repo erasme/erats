@@ -8,13 +8,12 @@ namespace Core
 	export class Timer extends Object
 	{
 		interval: number = 1;
-		arguments: Array<any> = undefined;
-		handle: any = undefined;
+		arguments: Array<any>;
+		handle: any;
+		readonly timeupdated = new Core.Events<{ target: Timer, arguments: Array<any> }>();
 
 		constructor(init?: TimerInit) {
 			super();
-			this.addEvents('timeupdate');
-
 			if (init) {
 				if (init.interval !== undefined)
 					this.interval = init.interval;
@@ -26,7 +25,7 @@ namespace Core
 
 			let wrapper = () => {
 				var startTime = (new Date().getTime()) / 1000;
-				this.fireEvent('timeupdate', this, this.arguments);
+				this.timeupdated.fire({ target: this, arguments: this.arguments });
 				var endTime = (new Date().getTime()) / 1000;
 				var deltaTime = endTime - startTime;
 				if (deltaTime < 0)

@@ -14,10 +14,11 @@ namespace Anim
 		target?: Target;
 		duration?: number | 'forever' | 'automatic';
 		parent?: Clock;
+		ontimeupdate?: (event: { target: Clock, progress: number, deltaTick: number }) => void;
+		oncompleted?:  (event: { target: Clock }) => void;
 	}
 
-	export class Clock extends Core.Object implements ClockInit
-	{
+	export class Clock extends Core.Object implements ClockInit {
 		/**
 		 * Fires when an anim is complete
 		 * @name Anim.Clock#complete
@@ -53,10 +54,11 @@ namespace Anim
 		private _repeat: 'forever' | number = 1;
 		private _target: Target = undefined;
 		private _ease: EasingFunction = undefined;
+		readonly timeupdate = new Core.Events<{ target: Clock, progress: number, deltaTick: number }>();
+		readonly completed = new Core.Events<{ target: Clock }>();
 
 		constructor(init?: ClockInit) {
 			super();
-			this.addEvents('complete', 'timeupdate');
 			if (init) {
 				if (init.animation !== undefined)
 					this.animation = init.animation;	
@@ -76,6 +78,10 @@ namespace Anim
 					this.duration = init.duration;
 				if (init.parent !== undefined)
 					this.parent = init.parent;
+				if (init.ontimeupdate)
+					this.timeupdate.connect(init.ontimeupdate);
+				if (init.oncompleted)
+					this.completed.connect(init.oncompleted);
 			}
 		}
 
@@ -180,14 +186,14 @@ namespace Anim
 				else
 					Anim.TimeManager.current.remove(this);
 			}
-			this.fireEvent('complete');
+			this.completed.fire({ target: this });
 		}
 
 		protected onTimeUpdate(deltaTick) {
 			var progress = this.progress;
 			if (this._ease !== undefined)
 				progress = this._ease.ease(progress);
-			this.fireEvent('timeupdate', this, progress, deltaTick);
+			this.timeupdate.fire({ target: this, progress: progress, deltaTick: deltaTick });
 		}
 
 		update(parentGlobalTime: number) {

@@ -3,6 +3,9 @@ namespace Ui {
 		value?: boolean;
 		text?: string;
 		content?: Element;
+		onchanged?: (event: { target: CheckBox, value: boolean }) => void;
+		ontoggled?: (event: { target: CheckBox }) => void;
+		onuntoggled?: (event: { target: CheckBox}) => void;
 	}
 
 	export class CheckBox extends Pressable implements CheckBoxInit {
@@ -12,10 +15,12 @@ namespace Ui {
 		private _content: Element = undefined;
 		private _text: string = undefined;
 		private _isToggled: boolean = false;
+		readonly changed = new Core.Events<{ target: CheckBox, value: boolean }>();
+		readonly toggled = new Core.Events<{ target: CheckBox }>();
+		readonly untoggled = new Core.Events<{ target: CheckBox}>();
 
 		constructor(init?: CheckBoxInit) {
 			super(init);
-			this.addEvents('change', 'toggle', 'untoggle');
 
 			this.role = 'checkbox';
 			this.drawing.setAttribute('aria-checked', 'false');
@@ -28,11 +33,11 @@ namespace Ui {
 			this.graphic = new CheckBoxGraphic();
 			this.hbox.append(this.graphic);
 
-			this.connect(this, 'down', this.onCheckBoxDown);
-			this.connect(this, 'up', this.onCheckBoxUp);
-			this.connect(this, 'focus', this.onCheckFocus);
-			this.connect(this, 'blur', this.onCheckBlur);
-			this.connect(this, 'press', this.onCheckPress);
+			this.downed.connect(() => this.onCheckBoxDown());
+			this.upped.connect(() => this.onCheckBoxUp());
+			this.focused.connect(() => this.onCheckFocus());
+			this.blurred.connect(() => this.onCheckBlur());
+			this.pressed.connect(() => this.onCheckPress());
 
 			if (init) {
 				if (init.value !== undefined)
@@ -40,7 +45,13 @@ namespace Ui {
 				if (init.text !== undefined)
 					this.text = init.text;
 				if (init.content !== undefined)
-					this.content = init.content;	
+					this.content = init.content;
+				if (init.onchanged)
+					this.changed.connect(init.onchanged);
+				if (init.ontoggled)
+					this.toggled.connect(init.ontoggled);
+				if (init.onuntoggled)
+					this.untoggled.connect(init.onuntoggled);
 			}
 		}
 
@@ -141,10 +152,10 @@ namespace Ui {
 			if (!this._isToggled) {
 				this._isToggled = true;
 				this.drawing.setAttribute('aria-checked', 'true');
-				this.fireEvent('toggle', this);
+				this.toggled.fire({ target: this });
 				this.graphic.setIsChecked(true);
 				this.graphic.setColor(this.getStyleProperty('activeColor'));
-				this.fireEvent('change', this, true);
+				this.changed.fire({ target: this, value: true });
 			}
 		}
 
@@ -152,10 +163,10 @@ namespace Ui {
 			if (this._isToggled) {
 				this._isToggled = false;
 				this.drawing.setAttribute('aria-checked', 'false');
-				this.fireEvent('untoggle', this);
+				this.untoggled.fire({ target: this });
 				this.graphic.setIsChecked(false);
 				this.graphic.setColor(this.getStyleProperty('color'));
-				this.fireEvent('change', this, false);
+				this.changed.fire({ target: this, value: false });
 			}
 		}
 	

@@ -3,6 +3,8 @@
 	export type DropAtEffectFunc = (data: any, position: number) => DropEffect[];
 	
 	export interface DropAtBoxInit extends DropBoxInit {
+		ondroppedat?: (event: { target: DropAtBox, data: any, effect: string, position: number, x: number, y: number }) => void;
+		ondroppedfileat?: (event: { target: DropAtBox, file: Core.File, effect: string, position: number, x: number, y: number }) => void;
 	}
 
 	export class DropAtBox extends LBox implements DropAtBoxInit {
@@ -11,13 +13,24 @@
 		private container: Container;
 		private fixed: Fixed;
 		private markerOrientation: 'horizontal';
+		
+		readonly drageffect = new Core.Events<Ui.DragEvent>();
+		readonly dragentered = new Core.Events<{ target: DropAtBox, data: any }>();
+		readonly dragleaved = new Core.Events<{ target: DropAtBox }>();
+		readonly droppedat = new Core.Events<{ target: DropAtBox, data: any, effect: string, position: number, x: number, y: number }>();
+		readonly droppedfileat = new Core.Events<{ target: DropAtBox, file: Core.File, effect: string, position: number, x: number, y: number }>();
 
 		constructor(init?: DropAtBoxInit) {
 			super(init);
-			this.addEvents('drageffect', 'dragenter', 'dragleave', 'dropat', 'dropfileat');
 			this.fixed = new Fixed();
 			super.append(this.fixed);
-			this.connect(this, 'dragover', this.onDragOver);			
+			this.dragover.connect((e) => this.onDragOver(e));
+			if (init) {
+				if (init.ondroppedat)
+					this.droppedat.connect(init.ondroppedat);
+				if (init.ondroppedfileat)
+					this.droppedfileat.connect(init.ondroppedfileat);	
+			}
 		}
 
 		addType(type: string | Function, effects: string | string[] | DropEffect[] | DropAtEffectFunc) {
@@ -321,9 +334,9 @@
 				// capture the dataTransfer
 				let watcher = event.dataTransfer.capture(this, effect);
 				this.watchers.push(watcher);
-				this.connect(watcher, 'move', this.onWatcherMove);
-				this.connect(watcher, 'drop', this.onWatcherDrop);
-				this.connect(watcher, 'leave', this.onWatcherLeave);
+				watcher.moved.connect(() => this.onWatcherMove(watcher));
+				watcher.dropped.connect((e) => this.onWatcherDrop(e.target, e.effect, e.x, e.y));
+				watcher.leaved.connect(() => this.onWatcherLeave(watcher));
 				event.stopImmediatePropagation();
 
 				this.onWatcherEnter(watcher);
@@ -381,7 +394,7 @@
 		// The default action is to raise the 'dragenter' event
 		//	
 		protected onDragEnter(dataTransfer: DragDataTransfer): void {
-			this.fireEvent('dragenter', this, dataTransfer.getData());
+			this.dragentered.fire({ target: this, data: dataTransfer.getData() });
 		}
 
 		//
@@ -389,7 +402,7 @@
 		// The default action is to raise the 'dragleave' event
 		//	
 		protected onDragLeave(): void {
-			this.fireEvent('dragleave', this);
+			this.dragleaved.fire({ target: this });
 		}
 
 		protected onDrop(dataTransfer: DragDataTransfer, dropEffect, x: number, y: number) {
@@ -397,18 +410,23 @@
 			let point = new Point(x, y);
 			let position = this.findPosition(point);
 
-			if (!this.fireEvent('dropat', this, dataTransfer.getData(), dropEffect, position, x, y)) {
-				let data = dataTransfer.getData();
-				if (data instanceof DragNativeData && data.hasFiles()) {
-					let files = data.getFiles();
-					let done = true;
-					for (let i = 0; i < files.length; i++)
-						done = done && this.fireEvent('dropfileat', this, files[i], dropEffect, position, x, y);
-				}
+			this.droppedat.fire({
+				target: this,
+				data: dataTransfer.getData(),
+				effect: dropEffect,
+				position: position,
+				x: x, y: y
+			});
+
+			let data = dataTransfer.getData();
+			if (data instanceof DragNativeData && data.hasFiles()) {
+				let files = data.getFiles();
+				for (let i = 0; i < files.length; i++)
+					this.droppedfileat.fire({
+						target: this, file: files[i], effect: dropEffect,
+						position: position, x: x, y: y
+					});
 			}
-			else
-				done = true;
-			return done;
 		}
 
 		static style: object = {
