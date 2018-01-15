@@ -4,6 +4,7 @@ namespace Ui
 		preferredWidth?: number;
 		preferredHeight?: number;
 		autoClose?: boolean;
+		onclosed?: (event: { target: Popup }) => void;
 	}
 
 	export type AttachBorder = 'right' | 'left' | 'top' | 'bottom' | 'center';

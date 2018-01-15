@@ -12,6 +12,10 @@ namespace Ui {
 		background?: Element;
 		position?: FoldDirection;
 		animDuration?: number;
+		onfolded?: (event: { target: Fold }) => void;
+		onunfolded?: (event: { target: Fold }) => void;
+		onpositionchanged?: (event: { target: Fold, position: FoldDirection }) => void;
+		onprogress?: (event: { target: Fold, offset: number }) => void;
 	}
 
 	export class Fold extends Container {
@@ -58,7 +62,15 @@ namespace Ui {
 				if (init.position !== undefined)
 					this.position = init.position;	
 				if (init.animDuration !== undefined)
-					this.animDuration = init.animDuration;	
+					this.animDuration = init.animDuration;
+				if (init.onfolded)
+					this.folded.connect(init.onfolded);	
+				if (init.onunfolded)
+					this.unfolded.connect(init.onunfolded);	
+				if (init.onpositionchanged)
+					this.positionchanged.connect(init.onpositionchanged);	
+				if (init.onprogress)
+					this.progress.connect(init.onprogress);	
 			}	
 		}
 
@@ -93,9 +105,9 @@ namespace Ui {
 			}
 		}
 
-		/**
-		 * Unfold the content part
-		 */
+		//
+		// Unfold the content part
+		//
 		unfold() {
 			if (this._isFolded) {
 				this._isFolded = false;

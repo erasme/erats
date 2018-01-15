@@ -44,6 +44,8 @@ namespace Ui {
 					else if (init.aacSrc && Ui.Audio.supportAac)
 						this.src = init.aacSrc;
 				}
+				else if (init.src)
+					this.src = init.src;	
 				if (init.volume !== undefined)
 					this.volume = init.volume;
 				if (init.currentTime !== undefined)

@@ -6,7 +6,7 @@ namespace Ui {
 
 		constructor(init?: DownloadButtonInit) {
 			super(init);
-			this.link.connect(this.onLinkPress);
+			this.link.connect(() => this.onLinkPress());
 		}
 	
 		protected onLinkPress() {

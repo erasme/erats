@@ -53,7 +53,7 @@ var App = (function (_super) {
         //
         var uploadButton = new Ui.UploadButton({
             icon: 'upload', text: 'Upload', orientation: 'horizontal',
-            onfile: function (e) { return _this.onUploadFile(dropbox, e.file); }
+            onfilechanged: function (e) { return _this.onUploadFile(dropbox, e.file); }
         });
         vbox.append(uploadButton);
         return _this;

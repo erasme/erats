@@ -373,7 +373,7 @@ namespace Ui
 			}
 		}
 	
-		protected onPointerMove(e: { target: PointerWatcher }) {
+		protected onPointerMove = (e: { target: PointerWatcher }) => {
 			let deltaX; let deltaY; let delta; let dragEvent; let ofs;
 			let watcher = e.target;
 
@@ -476,7 +476,7 @@ namespace Ui
 			}
 		}
 
-		protected onPointerUp(e: { target: PointerWatcher }) {
+		protected onPointerUp = (e: { target: PointerWatcher }) => {
 			let watcher = e.target;
 			//console.log('onPointerUp isCaptured: ' + watcher.getIsCaptured());
 			this.watcher.moved.disconnect(this.onPointerMove);
@@ -519,16 +519,16 @@ namespace Ui
 					this.dropX = watcher.pointer.getX();
 					this.dropY = watcher.pointer.getY();
 					this.dropFailsTimer = new Anim.Clock({
-						duration: 0.25, ease: new Anim.PowerEase({ mode: 'out' })
+						duration: 0.25, ease: new Anim.PowerEase({ mode: 'out' }),
+						ontimeupdate: e => this.onDropFailsTimerUpdate(e.target, e.progress)
 					});
-					this.dropFailsTimer.timeupdate.connect((e) => this.onDropFailsTimerUpdate(e.target, e.progress));
 					this.dropFailsTimer.begin();
 				}
 				this.ended.fire({ target: this });
 			}
 		}
 
-		protected onPointerCancel(e: { target: PointerWatcher }) {
+		protected onPointerCancel = (e: { target: PointerWatcher }) => {
 			//console.log('onPointerCancel');
 			if (this.timer !== undefined) {
 				this.timer.abort();

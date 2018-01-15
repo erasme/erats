@@ -135,6 +135,7 @@ namespace Ui {
 		actionButtons?: Pressable[];
 		autoClose?: boolean;
 		content?: Element;
+		onclosed?: (event: { target: Dialog }) => void;
 	}
 
 	export class Dialog extends Container implements DialogInit {
@@ -229,7 +230,9 @@ namespace Ui {
 				if (init.autoClose !== undefined)
 					this.autoClose = init.autoClose;
 				if (init.content !== undefined)
-					this.content = init.content;	
+					this.content = init.content;
+				if (init.onclosed)
+					this.closed.connect(init.onclosed);
 			}
 		}
 

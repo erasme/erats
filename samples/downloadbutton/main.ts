@@ -2,12 +2,10 @@
 
 let app = new Ui.App();
 
-let button1 = new Ui.DownloadButton({
+app.content = new Ui.DownloadButton({
 	text: 'hello world',
 	verticalAlign: 'center',
 	horizontalAlign: 'center',
 	src: 'download.php',
 	openWindow: false
 });
-
-app.content = button1;

@@ -6,6 +6,7 @@ namespace Ui {
 		position?: number;
 		current?: object;
 		search?: boolean;
+		onchanged?: (event: { target: Combo, value: any, position: number}) => void;
 	}
 
 	export class Combo extends Button implements ComboInit {
@@ -55,6 +56,8 @@ namespace Ui {
 					this.current = init.current;	
 				if (init.search !== undefined)
 					this.search = init.search;
+				if (init.onchanged)
+					this.changed.connect(init.onchanged);
 			}
 		}
 

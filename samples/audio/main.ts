@@ -12,7 +12,6 @@ class App extends Ui.App {
         let playButton = new Ui.Button({
             text: 'play',
             onpressed: () => audio.play()
-
         });
         toolbar.append(playButton);
 

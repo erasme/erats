@@ -1,12 +1,12 @@
 namespace Ui {
 	export interface UploadButtonInit extends ButtonInit {
 		directoryMode?: boolean;
-		onfile?: (event: { target: UploadButton, file: Core.File }) => void;
+		onfilechanged?: (event: { target: UploadButton, file: Core.File }) => void;
 	}	
 
 	export class UploadButton extends Button implements UploadButtonInit {
 		input: UploadableFileWrapper;
-		readonly file = new Core.Events<{ target: UploadButton, file: Core.File }>();
+		readonly filechanged = new Core.Events<{ target: UploadButton, file: Core.File }>();
 
 		constructor(init?: UploadButtonInit) {
 			super(init);
@@ -25,8 +25,8 @@ namespace Ui {
 			if (init) {
 				if (init.directoryMode !== undefined)
 					this.directoryMode = init.directoryMode;
-				if (init.onfile)
-					this.file.connect(init.onfile);	
+				if (init.onfilechanged)
+					this.filechanged.connect(init.onfilechanged);	
 			}
 		}
 
@@ -39,7 +39,7 @@ namespace Ui {
 		}
 
 		protected onFile(wrapper: UploadableFileWrapper, file: Core.File) {
-			this.file.fire({ target: this, file: file });
+			this.filechanged.fire({ target: this, file: file });
 		}
 	}
 }	

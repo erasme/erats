@@ -1,13 +1,16 @@
-namespace Ui
-{
-	export class ActionButton extends Button
-	{
+namespace Ui {
+	export interface ActionButtonInit extends ButtonInit {
+		action?: any;
+		selection?: Selection;
+	}
+
+	export class ActionButton extends Button {
 		private _action: any;
 		private _selection: Selection;
 		private _dropWatcher: DropableWatcher;
 
-		constructor() {
-			super();
+		constructor(init?: ActionButtonInit) {
+			super(init);
 			this.pressed.connect(() => this.onActionButtonDrop());
 
 			new DropableWatcher({
@@ -20,6 +23,12 @@ namespace Ui
 					}
 				]
 			});
+			if (init) {
+				if (init.action !== undefined)
+					this.action = init.action;
+				if (init.selection !== undefined)
+					this.selection = init.selection;
+			}		
 		}
 
 		set action(action) {

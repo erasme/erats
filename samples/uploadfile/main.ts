@@ -49,7 +49,7 @@ class App extends Ui.App {
         //
         let uploadButton = new Ui.UploadButton({
             icon: 'upload', text: 'Upload', orientation: 'horizontal',
-            onfile: e => this.onUploadFile(dropbox, e.file)
+            onfilechanged: e => this.onUploadFile(dropbox, e.file)
         });
         vbox.append(uploadButton);
     }

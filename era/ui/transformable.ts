@@ -552,7 +552,8 @@ namespace Ui {
 		}
 	}
 
-	export interface TransformableInit extends LBoxInit {
+	export interface TransformableInit {
+		inertia?: boolean;
 		allowLeftMouse?: boolean;
 		allowScale?: boolean;
 		minScale?: number;
@@ -563,6 +564,12 @@ namespace Ui {
 		scale?: number;
 		translateX?: number;
 		translateY?: number;
+		content: Element;
+		ondowned?: (event: { target: Transformable }) => void;
+		onupped?: (event: { target: Transformable }) => void;
+		ontransformed?: (event: { target: Transformable }) => void;
+		oninertiastarted?: (event: { target: Transformable }) => void;
+		oninertiaended?: (event: { target: Transformable }) => void;
 	}
 
 	export class Transformable extends LBox {
@@ -597,13 +604,13 @@ namespace Ui {
 		private speedY: number = 0;
 
 		readonly downed = new Core.Events<{ target: Transformable }>();
-		readonly uped = new Core.Events<{ target: Transformable }>();
+		readonly upped = new Core.Events<{ target: Transformable }>();
 		readonly transformed = new Core.Events<{ target: Transformable }>();
 		readonly inertiastarted = new Core.Events<{ target: Transformable }>();
 		readonly inertiaended = new Core.Events<{ target: Transformable }>();
 
 		constructor(init?: TransformableInit) {
-			super(init);
+			super();
 			this.focusable = true;
 
 			this.contentBox = new Ui.LBox();
@@ -615,6 +622,8 @@ namespace Ui {
 			this.wheelchanged.connect(e => this.onWheel(e));
 
 			if (init) {
+				if (init.inertia !== undefined)
+					this.inertia = init.inertia;	
 				if (init.allowLeftMouse !== undefined)
 					this.allowLeftMouse = init.allowLeftMouse;	
 				if (init.allowScale !== undefined)
@@ -635,6 +644,18 @@ namespace Ui {
 					this.translateX = init.translateX;
 				if (init.translateY !== undefined)
 					this.translateY = init.translateY;
+				if (init.content !== undefined)
+					this.content = init.content;
+				if (init.ondowned)
+					this.downed.connect(init.ondowned);	
+				if (init.onupped)
+					this.upped.connect(init.onupped);	
+				if (init.ontransformed)
+					this.transformed.connect(init.ontransformed);	
+				if (init.oninertiastarted)
+					this.inertiastarted.connect(init.oninertiastarted);	
+				if (init.oninertiaended)
+					this.inertiaended.connect(init.oninertiaended);
 			}
 		}
 
@@ -789,7 +810,7 @@ namespace Ui {
 
 		protected onUp() {
 			this._isDown = false;
-			this.uped.fire({ target: this });
+			this.upped.fire({ target: this });
 		}
 	
 		protected onPointerDown(event: PointerEvent) {

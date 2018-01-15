@@ -1485,15 +1485,15 @@ declare namespace Ui {
         protected onTimer(): void;
         capture(element: Element, effect: any): DragWatcher;
         releaseDragWatcher(dragWatcher: DragWatcher): void;
-        protected onPointerMove(e: {
+        protected onPointerMove: (e: {
             target: PointerWatcher;
-        }): void;
-        protected onPointerUp(e: {
+        }) => void;
+        protected onPointerUp: (e: {
             target: PointerWatcher;
-        }): void;
-        protected onPointerCancel(e: {
+        }) => void;
+        protected onPointerCancel: (e: {
             target: PointerWatcher;
-        }): void;
+        }) => void;
         protected removeImage(): void;
         protected onDropFailsTimerUpdate(clock: any, progress: any): void;
         static getMergedEffectAllowed(effectAllowed1: any, effectAllowed2: any): any;
@@ -2192,7 +2192,8 @@ declare namespace Ui {
         protected onTimeupdate(clock: any, progress: any, delta: any): void;
         stopInertia(): void;
     }
-    interface TransformableInit extends LBoxInit {
+    interface TransformableInit {
+        inertia?: boolean;
         allowLeftMouse?: boolean;
         allowScale?: boolean;
         minScale?: number;
@@ -2203,6 +2204,22 @@ declare namespace Ui {
         scale?: number;
         translateX?: number;
         translateY?: number;
+        content: Element;
+        ondowned?: (event: {
+            target: Transformable;
+        }) => void;
+        onupped?: (event: {
+            target: Transformable;
+        }) => void;
+        ontransformed?: (event: {
+            target: Transformable;
+        }) => void;
+        oninertiastarted?: (event: {
+            target: Transformable;
+        }) => void;
+        oninertiaended?: (event: {
+            target: Transformable;
+        }) => void;
     }
     class Transformable extends LBox {
         private _inertia;
@@ -2231,7 +2248,7 @@ declare namespace Ui {
         readonly downed: Core.Events<{
             target: Transformable;
         }>;
-        readonly uped: Core.Events<{
+        readonly upped: Core.Events<{
             target: Transformable;
         }>;
         readonly transformed: Core.Events<{
@@ -2684,11 +2701,15 @@ declare namespace Ui {
     }
 }
 declare namespace Ui {
+    interface ActionButtonInit extends ButtonInit {
+        action?: any;
+        selection?: Selection;
+    }
     class ActionButton extends Button {
         private _action;
         private _selection;
         private _dropWatcher;
-        constructor();
+        constructor(init?: ActionButtonInit);
         action: any;
         selection: Selection;
         protected onActionButtonEffect(data: any, dataTransfer: any): DropEffect[];
@@ -2722,6 +2743,9 @@ declare namespace Ui {
         preferredWidth?: number;
         preferredHeight?: number;
         autoClose?: boolean;
+        onclosed?: (event: {
+            target: Popup;
+        }) => void;
     }
     type AttachBorder = 'right' | 'left' | 'top' | 'bottom' | 'center';
     class Popup extends Container implements PopupInit {
@@ -3000,6 +3024,9 @@ declare namespace Ui {
         actionButtons?: Pressable[];
         autoClose?: boolean;
         content?: Element;
+        onclosed?: (event: {
+            target: Dialog;
+        }) => void;
     }
     class Dialog extends Container implements DialogInit {
         dialogSelection: Selection;
@@ -3193,6 +3220,12 @@ declare namespace Ui {
 declare namespace Ui {
     interface ImageInit extends ElementInit {
         src?: string;
+        onready?: (event: {
+            target: Image;
+        }) => void;
+        onerror?: (event: {
+            target: Image;
+        }) => void;
     }
     class Image extends Element implements ImageInit {
         private _src;
@@ -3672,6 +3705,11 @@ declare namespace Ui {
         position?: number;
         current?: object;
         search?: boolean;
+        onchanged?: (event: {
+            target: Combo;
+            value: any;
+            position: number;
+        }) => void;
     }
     class Combo extends Button implements ComboInit {
         private _field;
@@ -4590,14 +4628,14 @@ declare namespace Ui {
 declare namespace Ui {
     interface UploadButtonInit extends ButtonInit {
         directoryMode?: boolean;
-        onfile?: (event: {
+        onfilechanged?: (event: {
             target: UploadButton;
             file: Core.File;
         }) => void;
     }
     class UploadButton extends Button implements UploadButtonInit {
         input: UploadableFileWrapper;
-        readonly file: Core.Events<{
+        readonly filechanged: Core.Events<{
             target: UploadButton;
             file: Core.File;
         }>;
@@ -4702,6 +4740,20 @@ declare namespace Ui {
         background?: Element;
         position?: FoldDirection;
         animDuration?: number;
+        onfolded?: (event: {
+            target: Fold;
+        }) => void;
+        onunfolded?: (event: {
+            target: Fold;
+        }) => void;
+        onpositionchanged?: (event: {
+            target: Fold;
+            position: FoldDirection;
+        }) => void;
+        onprogress?: (event: {
+            target: Fold;
+            offset: number;
+        }) => void;
     }
     class Fold extends Container {
         private headerBox;

@@ -6841,6 +6841,134 @@ var Ui;
             _this.delayed = false;
             _this.started = new Core.Events();
             _this.ended = new Core.Events();
+            _this.onPointerMove = function (e) {
+                var deltaX;
+                var deltaY;
+                var delta;
+                var dragEvent;
+                var ofs;
+                var watcher = e.target;
+                if (watcher.getIsCaptured()) {
+                    var clientX = watcher.pointer.getX();
+                    var clientY = watcher.pointer.getY();
+                    _this.x = clientX;
+                    _this.y = clientY;
+                    document.body.removeChild(_this.image);
+                    if (_this.catcher !== undefined)
+                        document.body.removeChild(_this.catcher);
+                    var overElement = Ui.App.current.elementFromPoint(new Ui.Point(clientX, clientY));
+                    if (_this.catcher !== undefined)
+                        document.body.appendChild(_this.catcher);
+                    document.body.appendChild(_this.image);
+                    deltaX = clientX - _this.startX;
+                    deltaY = clientY - _this.startY;
+                    ofs = _this.delayed ? -10 : 0;
+                    _this.image.style.left = (_this.startImagePoint.x + deltaX + ofs) + 'px';
+                    _this.image.style.top = (_this.startImagePoint.y + deltaY + ofs) + 'px';
+                    if (overElement != undefined) {
+                        var oldDropEffectIcon = _this.dropEffectIcon;
+                        var dragEvent_1 = new DragEvent();
+                        dragEvent_1.setType('dragover');
+                        dragEvent_1.clientX = clientX;
+                        dragEvent_1.clientY = clientY;
+                        dragEvent_1.dataTransfer = _this;
+                        var effectAllowed = [];
+                        dragEvent_1.dispatchEvent(overElement);
+                        if (_this.dragWatcher !== undefined)
+                            effectAllowed = _this.dragWatcher.getEffectAllowed();
+                        if ((_this.dragWatcher !== undefined) && !overElement.getIsChildOf(_this.dragWatcher.getElement())) {
+                            _this.dragWatcher.leave();
+                            _this.dragWatcher = undefined;
+                        }
+                        if (_this.dragWatcher !== undefined)
+                            _this.dragWatcher.move(clientX, clientY);
+                        _this.dropEffect = DragEmuDataTransfer.getMatchingDropEffect(_this.effectAllowed, effectAllowed, watcher.pointer.getType(), watcher.pointer.getCtrlKey(), watcher.pointer.getAltKey(), watcher.pointer.getShiftKey());
+                        if (_this.dropEffect.length > 1)
+                            _this.dropEffectIcon = 'dragchoose';
+                        else if (_this.dropEffect.length > 0)
+                            _this.dropEffectIcon = _this.dropEffect[0].dragicon;
+                        else
+                            _this.dropEffectIcon = undefined;
+                        if (_this.dropEffectIcon !== oldDropEffectIcon) {
+                            if (_this.imageEffect !== undefined) {
+                                _this.imageEffect.isLoaded = false;
+                                _this.image.removeChild(_this.imageEffect.drawing);
+                                _this.imageEffect = undefined;
+                            }
+                            if (_this.dropEffectIcon !== undefined) {
+                                _this.imageEffect = new DragEffectIcon();
+                                _this.imageEffect.icon = _this.dropEffectIcon;
+                                _this.imageEffect.parent = Ui.App.current;
+                                _this.imageEffect.isLoaded = true;
+                                _this.imageEffect.parentVisible = true;
+                                _this.imageEffect.setParentDisabled(false);
+                                var size = _this.imageEffect.measure(0, 0);
+                                _this.imageEffect.arrange(-size.width + (_this.startX - _this.startImagePoint.x - ofs), -size.height + (_this.startY - _this.startImagePoint.y - ofs), size.width, size.height);
+                                _this.image.appendChild(_this.imageEffect.drawing);
+                            }
+                        }
+                        _this.overElement = overElement;
+                    }
+                    else
+                        _this.overElement = undefined;
+                }
+                else {
+                    if (watcher.pointer.getIsMove()) {
+                        if (_this.delayed)
+                            watcher.cancel();
+                        else
+                            _this.onTimer();
+                    }
+                }
+            };
+            _this.onPointerUp = function (e) {
+                var watcher = e.target;
+                _this.watcher.moved.disconnect(_this.onPointerMove);
+                _this.watcher.upped.disconnect(_this.onPointerUp);
+                _this.watcher.cancelled.disconnect(_this.onPointerCancel);
+                if (!watcher.getIsCaptured())
+                    watcher.cancel();
+                else {
+                    if (_this.dragWatcher !== undefined) {
+                        _this.removeImage();
+                        _this.dragWatcher.leave();
+                        if (_this.dropEffect.length === 1)
+                            _this.dragWatcher.drop(_this.dropEffect[0].action);
+                        else if (_this.dropEffect.length > 1) {
+                            var popup_1 = new Ui.Popup();
+                            var vbox = new Ui.VBox();
+                            popup_1.content = vbox;
+                            for (var i = 0; i < _this.dropEffect.length; i++) {
+                                var button = new Ui.Button();
+                                button.text = _this.dropEffect[i].text;
+                                button['Ui.DragEvent.dropEffect'] = _this.dropEffect[i];
+                                button.pressed.connect(function (e) {
+                                    _this.dragWatcher.drop(e.target['Ui.DragEvent.dropEffect'].action);
+                                    popup_1.close();
+                                });
+                                vbox.append(button);
+                            }
+                            popup_1.openAt(_this.x, _this.y);
+                        }
+                    }
+                    else {
+                        _this.dropX = watcher.pointer.getX();
+                        _this.dropY = watcher.pointer.getY();
+                        _this.dropFailsTimer = new Anim.Clock({
+                            duration: 0.25, ease: new Anim.PowerEase({ mode: 'out' }),
+                            ontimeupdate: function (e) { return _this.onDropFailsTimerUpdate(e.target, e.progress); }
+                        });
+                        _this.dropFailsTimer.begin();
+                    }
+                    _this.ended.fire({ target: _this });
+                }
+            };
+            _this.onPointerCancel = function (e) {
+                if (_this.timer !== undefined) {
+                    _this.timer.abort();
+                    _this.timer = undefined;
+                }
+            };
             _this.dropEffect = [];
             _this.effectAllowed = [];
             _this.draggable = draggable;
@@ -7003,135 +7131,6 @@ var Ui;
             if (this.dragWatcher === dragWatcher) {
                 this.dragWatcher.leave();
                 this.dragWatcher = undefined;
-            }
-        };
-        DragEmuDataTransfer.prototype.onPointerMove = function (e) {
-            var deltaX;
-            var deltaY;
-            var delta;
-            var dragEvent;
-            var ofs;
-            var watcher = e.target;
-            if (watcher.getIsCaptured()) {
-                var clientX = watcher.pointer.getX();
-                var clientY = watcher.pointer.getY();
-                this.x = clientX;
-                this.y = clientY;
-                document.body.removeChild(this.image);
-                if (this.catcher !== undefined)
-                    document.body.removeChild(this.catcher);
-                var overElement = Ui.App.current.elementFromPoint(new Ui.Point(clientX, clientY));
-                if (this.catcher !== undefined)
-                    document.body.appendChild(this.catcher);
-                document.body.appendChild(this.image);
-                deltaX = clientX - this.startX;
-                deltaY = clientY - this.startY;
-                ofs = this.delayed ? -10 : 0;
-                this.image.style.left = (this.startImagePoint.x + deltaX + ofs) + 'px';
-                this.image.style.top = (this.startImagePoint.y + deltaY + ofs) + 'px';
-                if (overElement != undefined) {
-                    var oldDropEffectIcon = this.dropEffectIcon;
-                    var dragEvent_1 = new DragEvent();
-                    dragEvent_1.setType('dragover');
-                    dragEvent_1.clientX = clientX;
-                    dragEvent_1.clientY = clientY;
-                    dragEvent_1.dataTransfer = this;
-                    var effectAllowed = [];
-                    dragEvent_1.dispatchEvent(overElement);
-                    if (this.dragWatcher !== undefined)
-                        effectAllowed = this.dragWatcher.getEffectAllowed();
-                    if ((this.dragWatcher !== undefined) && !overElement.getIsChildOf(this.dragWatcher.getElement())) {
-                        this.dragWatcher.leave();
-                        this.dragWatcher = undefined;
-                    }
-                    if (this.dragWatcher !== undefined)
-                        this.dragWatcher.move(clientX, clientY);
-                    this.dropEffect = DragEmuDataTransfer.getMatchingDropEffect(this.effectAllowed, effectAllowed, watcher.pointer.getType(), watcher.pointer.getCtrlKey(), watcher.pointer.getAltKey(), watcher.pointer.getShiftKey());
-                    if (this.dropEffect.length > 1)
-                        this.dropEffectIcon = 'dragchoose';
-                    else if (this.dropEffect.length > 0)
-                        this.dropEffectIcon = this.dropEffect[0].dragicon;
-                    else
-                        this.dropEffectIcon = undefined;
-                    if (this.dropEffectIcon !== oldDropEffectIcon) {
-                        if (this.imageEffect !== undefined) {
-                            this.imageEffect.isLoaded = false;
-                            this.image.removeChild(this.imageEffect.drawing);
-                            this.imageEffect = undefined;
-                        }
-                        if (this.dropEffectIcon !== undefined) {
-                            this.imageEffect = new DragEffectIcon();
-                            this.imageEffect.icon = this.dropEffectIcon;
-                            this.imageEffect.parent = Ui.App.current;
-                            this.imageEffect.isLoaded = true;
-                            this.imageEffect.parentVisible = true;
-                            this.imageEffect.setParentDisabled(false);
-                            var size = this.imageEffect.measure(0, 0);
-                            this.imageEffect.arrange(-size.width + (this.startX - this.startImagePoint.x - ofs), -size.height + (this.startY - this.startImagePoint.y - ofs), size.width, size.height);
-                            this.image.appendChild(this.imageEffect.drawing);
-                        }
-                    }
-                    this.overElement = overElement;
-                }
-                else
-                    this.overElement = undefined;
-            }
-            else {
-                if (watcher.pointer.getIsMove()) {
-                    if (this.delayed)
-                        watcher.cancel();
-                    else
-                        this.onTimer();
-                }
-            }
-        };
-        DragEmuDataTransfer.prototype.onPointerUp = function (e) {
-            var _this = this;
-            var watcher = e.target;
-            this.watcher.moved.disconnect(this.onPointerMove);
-            this.watcher.upped.disconnect(this.onPointerUp);
-            this.watcher.cancelled.disconnect(this.onPointerCancel);
-            if (!watcher.getIsCaptured())
-                watcher.cancel();
-            else {
-                if (this.dragWatcher !== undefined) {
-                    this.removeImage();
-                    this.dragWatcher.leave();
-                    if (this.dropEffect.length === 1)
-                        this.dragWatcher.drop(this.dropEffect[0].action);
-                    else if (this.dropEffect.length > 1) {
-                        var popup_1 = new Ui.Popup();
-                        var vbox = new Ui.VBox();
-                        popup_1.content = vbox;
-                        for (var i = 0; i < this.dropEffect.length; i++) {
-                            var button = new Ui.Button();
-                            button.text = this.dropEffect[i].text;
-                            button['Ui.DragEvent.dropEffect'] = this.dropEffect[i];
-                            button.pressed.connect(function (e) {
-                                _this.dragWatcher.drop(e.target['Ui.DragEvent.dropEffect'].action);
-                                popup_1.close();
-                            });
-                            vbox.append(button);
-                        }
-                        popup_1.openAt(this.x, this.y);
-                    }
-                }
-                else {
-                    this.dropX = watcher.pointer.getX();
-                    this.dropY = watcher.pointer.getY();
-                    this.dropFailsTimer = new Anim.Clock({
-                        duration: 0.25, ease: new Anim.PowerEase({ mode: 'out' })
-                    });
-                    this.dropFailsTimer.timeupdate.connect(function (e) { return _this.onDropFailsTimerUpdate(e.target, e.progress); });
-                    this.dropFailsTimer.begin();
-                }
-                this.ended.fire({ target: this });
-            }
-        };
-        DragEmuDataTransfer.prototype.onPointerCancel = function (e) {
-            if (this.timer !== undefined) {
-                this.timer.abort();
-                this.timer = undefined;
             }
         };
         DragEmuDataTransfer.prototype.removeImage = function () {
@@ -10210,7 +10209,7 @@ var Ui;
     var Transformable = (function (_super) {
         __extends(Transformable, _super);
         function Transformable(init) {
-            var _this = _super.call(this, init) || this;
+            var _this = _super.call(this) || this;
             _this._inertia = false;
             _this._isDown = false;
             _this.transformLock = false;
@@ -10231,7 +10230,7 @@ var Ui;
             _this.speedX = 0;
             _this.speedY = 0;
             _this.downed = new Core.Events();
-            _this.uped = new Core.Events();
+            _this.upped = new Core.Events();
             _this.transformed = new Core.Events();
             _this.inertiastarted = new Core.Events();
             _this.inertiaended = new Core.Events();
@@ -10242,6 +10241,8 @@ var Ui;
             _this.ptrdowned.connect(function (e) { return _this.onPointerDown(e); });
             _this.wheelchanged.connect(function (e) { return _this.onWheel(e); });
             if (init) {
+                if (init.inertia !== undefined)
+                    _this.inertia = init.inertia;
                 if (init.allowLeftMouse !== undefined)
                     _this.allowLeftMouse = init.allowLeftMouse;
                 if (init.allowScale !== undefined)
@@ -10262,6 +10263,18 @@ var Ui;
                     _this.translateX = init.translateX;
                 if (init.translateY !== undefined)
                     _this.translateY = init.translateY;
+                if (init.content !== undefined)
+                    _this.content = init.content;
+                if (init.ondowned)
+                    _this.downed.connect(init.ondowned);
+                if (init.onupped)
+                    _this.upped.connect(init.onupped);
+                if (init.ontransformed)
+                    _this.transformed.connect(init.ontransformed);
+                if (init.oninertiastarted)
+                    _this.inertiastarted.connect(init.oninertiastarted);
+                if (init.oninertiaended)
+                    _this.inertiaended.connect(init.oninertiaended);
             }
             return _this;
         }
@@ -10443,7 +10456,7 @@ var Ui;
         };
         Transformable.prototype.onUp = function () {
             this._isDown = false;
-            this.uped.fire({ target: this });
+            this.upped.fire({ target: this });
         };
         Transformable.prototype.onPointerDown = function (event) {
             var _this = this;
@@ -12890,8 +12903,8 @@ var Ui;
 (function (Ui) {
     var ActionButton = (function (_super) {
         __extends(ActionButton, _super);
-        function ActionButton() {
-            var _this = _super.call(this) || this;
+        function ActionButton(init) {
+            var _this = _super.call(this, init) || this;
             _this.pressed.connect(function () { return _this.onActionButtonDrop(); });
             new Ui.DropableWatcher({
                 element: _this,
@@ -12903,6 +12916,12 @@ var Ui;
                     }
                 ]
             });
+            if (init) {
+                if (init.action !== undefined)
+                    _this.action = init.action;
+                if (init.selection !== undefined)
+                    _this.selection = init.selection;
+            }
             return _this;
         }
         Object.defineProperty(ActionButton.prototype, "action", {
@@ -14742,6 +14761,8 @@ var Ui;
                     _this.autoClose = init.autoClose;
                 if (init.content !== undefined)
                     _this.content = init.content;
+                if (init.onclosed)
+                    _this.closed.connect(init.onclosed);
             }
             return _this;
         }
@@ -15686,6 +15707,10 @@ var Ui;
             if (init) {
                 if (init.src !== undefined)
                     _this.src = init.src;
+                if (init.onready)
+                    _this.ready.connect(init.onready);
+                if (init.onerror)
+                    _this.error.connect(init.onerror);
             }
             return _this;
         }
@@ -15743,7 +15768,7 @@ var Ui;
                 this.loaddone = true;
                 this._naturalWidth = event.target.naturalWidth;
                 this._naturalHeight = event.target.naturalHeight;
-                this.error.fire({ target: this });
+                this.ready.fire({ target: this });
                 this.invalidateMeasure();
             }
             else {
@@ -17959,6 +17984,8 @@ var Ui;
                     _this.current = init.current;
                 if (init.search !== undefined)
                     _this.search = init.search;
+                if (init.onchanged)
+                    _this.changed.connect(init.onchanged);
             }
             return _this;
         }
@@ -18653,6 +18680,8 @@ var Ui;
                     else if (init.aacSrc && Ui.Audio.supportAac)
                         _this.src = init.aacSrc;
                 }
+                else if (init.src)
+                    _this.src = init.src;
                 if (init.volume !== undefined)
                     _this.volume = init.volume;
                 if (init.currentTime !== undefined)
@@ -20118,7 +20147,7 @@ var Ui;
             _this.style = {
                 background: '#a4f4a4'
             };
-            _this.link.connect(_this.onLinkPress);
+            _this.link.connect(function () { return _this.onLinkPress(); });
             return _this;
         }
         DownloadButton.prototype.onLinkPress = function () {
@@ -21994,7 +22023,7 @@ var Ui;
         __extends(UploadButton, _super);
         function UploadButton(init) {
             var _this = _super.call(this, init) || this;
-            _this.file = new Core.Events();
+            _this.filechanged = new Core.Events();
             _this.input = new Ui.UploadableFileWrapper();
             _this.prepend(_this.input);
             _this.input.file.connect(function (e) { return _this.onFile(e.target, e.file); });
@@ -22007,8 +22036,8 @@ var Ui;
             if (init) {
                 if (init.directoryMode !== undefined)
                     _this.directoryMode = init.directoryMode;
-                if (init.onfile)
-                    _this.file.connect(init.onfile);
+                if (init.onfilechanged)
+                    _this.filechanged.connect(init.onfilechanged);
             }
             return _this;
         }
@@ -22023,7 +22052,7 @@ var Ui;
             this.input.select();
         };
         UploadButton.prototype.onFile = function (wrapper, file) {
-            this.file.fire({ target: this, file: file });
+            this.filechanged.fire({ target: this, file: file });
         };
         return UploadButton;
     }(Ui.Button));
@@ -22430,6 +22459,14 @@ var Ui;
                     _this.position = init.position;
                 if (init.animDuration !== undefined)
                     _this.animDuration = init.animDuration;
+                if (init.onfolded)
+                    _this.folded.connect(init.onfolded);
+                if (init.onunfolded)
+                    _this.unfolded.connect(init.onunfolded);
+                if (init.onpositionchanged)
+                    _this.positionchanged.connect(init.onpositionchanged);
+                if (init.onprogress)
+                    _this.progress.connect(init.onprogress);
             }
             return _this;
         }

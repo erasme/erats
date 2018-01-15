@@ -2,6 +2,8 @@ namespace Ui
 {
 	export interface ImageInit extends ElementInit {
 		src?: string;
+		onready?: (event: { target: Image }) => void;
+		onerror?: (event: { target: Image }) => void;
 	}
 
 	export class Image extends Element implements ImageInit
@@ -24,6 +26,10 @@ namespace Ui
 			if (init) {
 				if (init.src !== undefined)
 					this.src = init.src;
+				if (init.onready)
+					this.ready.connect(init.onready);
+				if (init.onerror)
+					this.error.connect(init.onerror);	
 			}
 		}
 
@@ -92,7 +98,7 @@ namespace Ui
 				this.loaddone = true;
 				this._naturalWidth = event.target.naturalWidth;
 				this._naturalHeight = event.target.naturalHeight;
-				this.error.fire({ target: this });
+				this.ready.fire({ target: this });
 				this.invalidateMeasure();
 			}
 			else {
