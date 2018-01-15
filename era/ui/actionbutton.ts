@@ -15,7 +15,7 @@ namespace Ui {
 
 			new DropableWatcher({
 				element: this,
-				drop: () => this.onActionButtonDrop(),
+				ondropped: () => this.onActionButtonDrop(),
 				types: [
 					{
 						type: 'all',

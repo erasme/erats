@@ -21,22 +21,22 @@ namespace Ui
 
 		constructor(init: {
 			element: Element,
-			enter?: (watcher: DropableWatcher, data: any) => void,
-			leave?: (watcher: DropableWatcher) => void,
-			drop?: (watcher: DropableWatcher, data: any, dropEffect: string, x: number, y: number, dataTransfer: DragDataTransfer) => boolean,
-			dropfile?: (watcher: DropableWatcher, file: any, dropEffect: string, x: number, y: number) => boolean,
+			onentered?: (watcher: DropableWatcher, data: any) => void,
+			onleaved?: (watcher: DropableWatcher) => void,
+			ondropped?: (watcher: DropableWatcher, data: any, dropEffect: string, x: number, y: number, dataTransfer: DragDataTransfer) => boolean,
+			ondroppedfile?: (watcher: DropableWatcher, file: any, dropEffect: string, x: number, y: number) => boolean,
 			types?: Array<{ type: string | Function, effects: string | string[] | DropEffect[] | DropEffectFunc }>
 		}) {
 			super();
 			this.element = init.element;
-			if (init.enter)
-				this.enter = init.enter;
-			if (init.leave)
-				this.leave = init.leave;
-			if (init.drop)
-				this.drop = init.drop;
-			if (init.dropfile)
-				this.dropfile = init.dropfile;
+			if (init.onentered)
+				this.enter = init.onentered;
+			if (init.onleaved)
+				this.leave = init.onleaved;
+			if (init.ondropped)
+				this.drop = init.ondropped;
+			if (init.ondroppedfile)
+				this.dropfile = init.ondroppedfile;
 			if (init.types)
 				this.types = init.types;	
 			this.watchers = [];
@@ -212,20 +212,18 @@ namespace Ui
 		//
 		protected onDrop(dataTransfer: DragDataTransfer, dropEffect, x: number, y: number) {
 			let done = false;
-			if (this.drop && !this.drop(this, dataTransfer.getData(), dropEffect, x, y, dataTransfer)) {
-				let data = dataTransfer.getData();
-				if (data instanceof DragNativeData && data.hasFiles()) {
-					let files = data.getFiles();
-					done = true;
-					if (this.dropfile) {
-						for (let i = 0; i < files.length; i++)
-							done = done && this.dropfile(this, files[i], dropEffect, x, y);
-					}
+			if (this.drop)
+				this.drop(this, dataTransfer.getData(), dropEffect, x, y, dataTransfer);
+			
+			let data = dataTransfer.getData();
+			if (data instanceof DragNativeData && data.hasFiles()) {
+				let files = data.getFiles();
+				done = true;
+				if (this.dropfile) {
+					for (let i = 0; i < files.length; i++)
+						done = done && this.dropfile(this, files[i], dropEffect, x, y);
 				}
 			}
-			else
-				done = true;
-			return done;
 		}
 
 		//

@@ -19,7 +19,7 @@ namespace Ui {
 
 			new DropableWatcher({
 				element: this,
-				dropfile: (w, f) => { this.onFile(undefined, f); return true; },
+				ondroppedfile: (w, f) => { this.onFile(undefined, f); return true; },
 				types: [ { type: 'files', effects: 'copy' } ]
 			});
 			if (init) {

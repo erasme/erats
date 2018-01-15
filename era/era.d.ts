@@ -2528,10 +2528,10 @@ declare namespace Ui {
         private allowedTypes;
         constructor(init: {
             element: Element;
-            enter?: (watcher: DropableWatcher, data: any) => void;
-            leave?: (watcher: DropableWatcher) => void;
-            drop?: (watcher: DropableWatcher, data: any, dropEffect: string, x: number, y: number, dataTransfer: DragDataTransfer) => boolean;
-            dropfile?: (watcher: DropableWatcher, file: any, dropEffect: string, x: number, y: number) => boolean;
+            onentered?: (watcher: DropableWatcher, data: any) => void;
+            onleaved?: (watcher: DropableWatcher) => void;
+            ondropped?: (watcher: DropableWatcher, data: any, dropEffect: string, x: number, y: number, dataTransfer: DragDataTransfer) => boolean;
+            ondroppedfile?: (watcher: DropableWatcher, file: any, dropEffect: string, x: number, y: number) => boolean;
             types?: Array<{
                 type: string | Function;
                 effects: string | string[] | DropEffect[] | DropEffectFunc;
@@ -2549,7 +2549,7 @@ declare namespace Ui {
         private getAllowedTypesEffect(dataTransfer);
         protected onDragEffect(dataTransfer: DragDataTransfer): string | DropEffect[];
         protected onDragEffectFunction(dataTransfer: DragDataTransfer, func: DropEffectFunc): DropEffect[];
-        protected onDrop(dataTransfer: DragDataTransfer, dropEffect: any, x: number, y: number): boolean;
+        protected onDrop(dataTransfer: DragDataTransfer, dropEffect: any, x: number, y: number): void;
         protected onDragEnter(dataTransfer: DragDataTransfer): void;
         protected onDragLeave(): void;
     }

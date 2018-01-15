@@ -11938,14 +11938,14 @@ var Ui;
         function DropableWatcher(init) {
             var _this = _super.call(this) || this;
             _this.element = init.element;
-            if (init.enter)
-                _this.enter = init.enter;
-            if (init.leave)
-                _this.leave = init.leave;
-            if (init.drop)
-                _this.drop = init.drop;
-            if (init.dropfile)
-                _this.dropfile = init.dropfile;
+            if (init.onentered)
+                _this.enter = init.onentered;
+            if (init.onleaved)
+                _this.leave = init.onleaved;
+            if (init.ondropped)
+                _this.drop = init.ondropped;
+            if (init.ondroppedfile)
+                _this.dropfile = init.ondroppedfile;
             if (init.types)
                 _this.types = init.types;
             _this.watchers = [];
@@ -12102,20 +12102,17 @@ var Ui;
         };
         DropableWatcher.prototype.onDrop = function (dataTransfer, dropEffect, x, y) {
             var done = false;
-            if (this.drop && !this.drop(this, dataTransfer.getData(), dropEffect, x, y, dataTransfer)) {
-                var data = dataTransfer.getData();
-                if (data instanceof Ui.DragNativeData && data.hasFiles()) {
-                    var files = data.getFiles();
-                    done = true;
-                    if (this.dropfile) {
-                        for (var i = 0; i < files.length; i++)
-                            done = done && this.dropfile(this, files[i], dropEffect, x, y);
-                    }
+            if (this.drop)
+                this.drop(this, dataTransfer.getData(), dropEffect, x, y, dataTransfer);
+            var data = dataTransfer.getData();
+            if (data instanceof Ui.DragNativeData && data.hasFiles()) {
+                var files = data.getFiles();
+                done = true;
+                if (this.dropfile) {
+                    for (var i = 0; i < files.length; i++)
+                        done = done && this.dropfile(this, files[i], dropEffect, x, y);
                 }
             }
-            else
-                done = true;
-            return done;
         };
         DropableWatcher.prototype.onDragEnter = function (dataTransfer) {
             if (this.enter)
@@ -12908,7 +12905,7 @@ var Ui;
             _this.pressed.connect(function () { return _this.onActionButtonDrop(); });
             new Ui.DropableWatcher({
                 element: _this,
-                drop: function () { return _this.onActionButtonDrop(); },
+                ondropped: function () { return _this.onActionButtonDrop(); },
                 types: [
                     {
                         type: 'all',
@@ -22030,7 +22027,7 @@ var Ui;
             _this.pressed.connect(function () { return _this.onUploadButtonPress(); });
             new Ui.DropableWatcher({
                 element: _this,
-                dropfile: function (w, f) { _this.onFile(undefined, f); return true; },
+                ondroppedfile: function (w, f) { _this.onFile(undefined, f); return true; },
                 types: [{ type: 'files', effects: 'copy' }]
             });
             if (init) {
