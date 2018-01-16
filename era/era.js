@@ -14465,6 +14465,37 @@ var Ui;
             }
         };
         App.prototype.handleScrolling = function (drawing) {
+            var _this = this;
+            this.ptrdowned.connect(function (event) {
+                var startOffsetX = drawing.scrollLeft;
+                var startOffsetY = drawing.scrollTop;
+                var watcher = event.pointer.watch(_this);
+                watcher.moved.connect(function () {
+                    if (!watcher.getIsCaptured()) {
+                        if (watcher.pointer.getIsMove()) {
+                            var direction = watcher.getDirection();
+                            var allowed = false;
+                            if (direction === 'left')
+                                allowed = (drawing.scrollLeft + drawing.clientWidth) < drawing.scrollWidth;
+                            else if (direction === 'right')
+                                allowed = drawing.scrollLeft > 0;
+                            else if (direction === 'bottom')
+                                allowed = drawing.scrollTop > 0;
+                            else if (direction === 'top')
+                                allowed = true;
+                            if (allowed)
+                                watcher.capture();
+                            else
+                                watcher.cancel();
+                        }
+                    }
+                    else {
+                        var delta = watcher.getDelta();
+                        drawing.scrollLeft = startOffsetX - delta.x;
+                        drawing.scrollTop = startOffsetY - delta.y;
+                    }
+                });
+            });
         };
         App.prototype.getElementsByClassName = function (className) {
             var res = [];

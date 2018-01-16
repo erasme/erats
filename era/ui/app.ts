@@ -548,7 +548,7 @@ namespace Ui
 		}
 
 		handleScrolling(drawing) {
-			/*this.ptrdowned.connect((event: PointerEvent) => {
+			this.ptrdowned.connect((event: PointerEvent) => {
 				let startOffsetX = drawing.scrollLeft;
 				let startOffsetY = drawing.scrollTop;
 				let watcher = event.pointer.watch(this);
@@ -578,7 +578,7 @@ namespace Ui
 						drawing.scrollTop = startOffsetY - delta.y;
 					}
 				});
-			});*/
+			});
 		}
 
 		getElementsByClassName(className) {
