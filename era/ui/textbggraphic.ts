@@ -21,7 +21,10 @@ namespace Ui
 		}
 
 		private get backgroundBorder(): Color {
-			return Color.create(this.getStyleProperty('backgroundBorder'));
+			if (this.textHasFocus)
+				return Color.create(this.getStyleProperty('focusBackgroundBorder'));
+			else
+				return Color.create(this.getStyleProperty('backgroundBorder'));	
 		}
 
 		updateCanvas(ctx) {
@@ -82,7 +85,8 @@ namespace Ui
 			borderWidth: 1,
 			background: Color.create('rgba(120,120,120,0.2)'),
 			focusBackground: Color.create('rgba(33,211,255,0.4)'),
-			backgroundBorder: Color.create('rgba(60,60,60,0.2)')
+			backgroundBorder: Color.create('rgba(60,60,60,0.2)'),
+			focusBackgroundBorder: Color.create('rgba(60,60,60,0.2)')
 		}
 	}
 
@@ -92,5 +96,6 @@ namespace Ui
 		background: Color;
 		focusBackground: Color;
 		backgroundBorder: Color;
+		focusBackgroundBorder: Color;
 	}
 }
