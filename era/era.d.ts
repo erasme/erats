@@ -3374,6 +3374,7 @@ declare namespace Ui {
         background: Color;
         focusBackground: Color;
         backgroundBorder: Color;
+        focusBackgroundBorder: Color;
     }
 }
 declare namespace Ui {

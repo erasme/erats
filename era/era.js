@@ -13552,12 +13552,12 @@ var Ui;
                 ctx.save();
                 ctx.fillStyle = 'rgba(0,0,0,0.5)';
                 ctx.translate(1, 1);
-                ctx.svgPath(this.genPath(width - 2, height - 2, this._radius - 1, this.arrowBorder, this.arrowSize - 1, this._arrowOffset - 1));
+                ctx.svgPath(this.genPath(width - 2, height - 2, Math.max(0, this._radius - 1), this.arrowBorder, this.arrowSize - 1, this._arrowOffset - 1));
                 ctx.fill();
                 ctx.restore();
                 ctx.fillStyle = this._fill.getCssRgba();
                 ctx.translate(2, 2);
-                ctx.svgPath(this.genPath(width - 4, height - 4, this._radius - 2, this.arrowBorder, this.arrowSize - 1, this._arrowOffset - 2));
+                ctx.svgPath(this.genPath(width - 4, height - 4, Math.max(0, this._radius - 2), this.arrowBorder, this.arrowSize - 1, this._arrowOffset - 2));
                 ctx.fill();
             }
         };
@@ -14411,15 +14411,20 @@ var Ui;
         App.prototype.onWindowKeyUp = function (event) {
             var key = event.which;
             if ((key == 27) && (this.dialogs !== undefined) && (this.dialogs.children.length > 0)) {
-                var dialog = this.dialogs.children[this.dialogs.children.length - 1];
-                if (dialog.dialogSelection.watchers.length > 0) {
-                    dialog.dialogSelection.watchers = [];
-                }
-                else {
-                    if ('close' in dialog)
-                        dialog.close();
+                var element = this.dialogs.children[this.dialogs.children.length - 1];
+                if (element instanceof Ui.Dialog) {
+                    var dialog = element;
+                    if (dialog.dialogSelection.watchers.length > 0)
+                        dialog.dialogSelection.watchers = [];
                     else
-                        dialog.hide();
+                        dialog.close();
+                }
+                else if (element instanceof Ui.Popup) {
+                    var popup = element;
+                    if (popup.popupSelection.watchers.length > 0)
+                        popup.popupSelection.watchers = [];
+                    else
+                        popup.close();
                 }
                 event.preventDefault();
                 event.stopPropagation();
@@ -16306,7 +16311,10 @@ var Ui;
         });
         Object.defineProperty(TextBgGraphic.prototype, "backgroundBorder", {
             get: function () {
-                return Ui.Color.create(this.getStyleProperty('backgroundBorder'));
+                if (this.textHasFocus)
+                    return Ui.Color.create(this.getStyleProperty('focusBackgroundBorder'));
+                else
+                    return Ui.Color.create(this.getStyleProperty('backgroundBorder'));
             },
             enumerable: true,
             configurable: true
@@ -16345,7 +16353,8 @@ var Ui;
             borderWidth: 1,
             background: Ui.Color.create('rgba(120,120,120,0.2)'),
             focusBackground: Ui.Color.create('rgba(33,211,255,0.4)'),
-            backgroundBorder: Ui.Color.create('rgba(60,60,60,0.2)')
+            backgroundBorder: Ui.Color.create('rgba(60,60,60,0.2)'),
+            focusBackgroundBorder: Ui.Color.create('rgba(60,60,60,0.2)')
         };
         return TextBgGraphic;
     }(Ui.CanvasElement));
@@ -19406,7 +19415,8 @@ var Ui;
             });
             for (var i = 0; i < this.children.length; i++) {
                 var child = this.children[i];
-                state.append(child);
+                if (!child.isCollapsed)
+                    state.append(child);
             }
             return state.getSize();
         };
@@ -19419,7 +19429,8 @@ var Ui;
             });
             for (var i = 0; i < this.children.length; i++) {
                 var child = this.children[i];
-                state.append(child);
+                if (!child.isCollapsed)
+                    state.append(child);
             }
             state.getSize();
         };
