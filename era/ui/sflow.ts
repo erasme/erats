@@ -564,7 +564,8 @@ namespace Ui {
 			});
 			for (var i = 0; i < this.children.length; i++) {
 				var child = this.children[i];
-				state.append(child);
+				if (!child.isCollapsed)
+					state.append(child);
 			}
 			return state.getSize();
 		}
@@ -578,7 +579,8 @@ namespace Ui {
 			});
 			for (var i = 0; i < this.children.length; i++) {
 				var child = this.children[i];
-				state.append(child);
+				if (!child.isCollapsed)
+					state.append(child);
 			}
 			state.getSize();
 		}
