@@ -487,16 +487,21 @@ namespace Ui
 
 			// escape
 			if ((key == 27) && (this.dialogs !== undefined) && (this.dialogs.children.length > 0)) {
-				let dialog = this.dialogs.children[this.dialogs.children.length - 1] as Dialog;
-				// if selection is not empty, empty the selection
-				if (dialog.dialogSelection.watchers.length > 0) {
-					dialog.dialogSelection.watchers = [];
-				}
-				else {
-					if ('close' in dialog)
-						dialog.close();
+				let element = this.dialogs.children[this.dialogs.children.length - 1];
+				if (element instanceof Dialog) {
+					let dialog = element as Dialog;
+					// if selection is not empty, empty the selection
+					if (dialog.dialogSelection.watchers.length > 0)
+						dialog.dialogSelection.watchers = [];
 					else
-						dialog.hide();
+						dialog.close();
+				}
+				else if (element instanceof Popup) {
+					let popup = element as Popup;
+					if (popup.popupSelection.watchers.length > 0)
+						popup.popupSelection.watchers = [];
+					else
+						popup.close();
 				}
 				event.preventDefault();
 				event.stopPropagation();
