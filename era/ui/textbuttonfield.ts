@@ -53,7 +53,7 @@ namespace Ui {
 
 			this.entry.changed.connect((e) => this.onEntryChange(e.target, e.value));
 		
-			this.button = new TextFieldButton({ orientation: 'horizontal', margin: 1 });
+			this.button = new TextFieldButton({ orientation: 'horizontal', margin: 0 });
 			hbox.append(this.button);
 		
 			this.submited.connect(() => this.onFormSubmit());
