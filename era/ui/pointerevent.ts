@@ -454,19 +454,10 @@ namespace Ui
 					}
 				});
 
-				document.addEventListener('contextmenu', (event) => {
-					if (this.mouse !== undefined) {
-						this.mouse.capture(undefined);
-						this.mouse.up();
-					}
-				});
-
 				document.body.addEventListener('touchstart', e => this.updateTouches(e), true);
 				document.body.addEventListener('touchmove', e => this.updateTouches(e), true);
 				document.body.addEventListener('touchend', e => this.updateTouches(e), true);
 				document.body.addEventListener('touchcancel', e => this.updateTouches(e), true);
-
-				// document.body.addEventListener('touchcancel', e => {	console.log('touchcancel');	});
 			}
 		}
 
@@ -619,12 +610,9 @@ namespace Ui
 
 		onPointerCancel(event) {
 			// TODO
-			//	console.log('onPointerCancel');
 		}
 
 		updateTouches(event) {
-			//console.log('updateTouch '+event.type);
-
 			this.lastUpdate = (new Date().getTime()) / 1000;
 			for (let id in this.pointers) {
 				let found = false;
