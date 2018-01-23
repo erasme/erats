@@ -3525,9 +3525,9 @@ var Ui;
                     }
                     else {
                         this.drawing.removeEventListener('mousedown', this.onMouseDownFocus);
-                        var node = this._drawing.getAttributeNode('tabIndex');
+                        var node = this._drawing.getAttribute('tabIndex');
                         if (node !== undefined)
-                            this._drawing.removeAttributeNode(node);
+                            this._drawing.removeAttribute(node);
                     }
                 }
             },
@@ -6248,6 +6248,7 @@ var Ui;
             this.pointer.release(this);
         };
         PointerWatcher.prototype.cancel = function () {
+            console.log(this + ".cancel()");
             if (this.pointer != undefined) {
                 this.cancelled.fire({ target: this });
                 this.pointer.unwatch(this);
@@ -6430,6 +6431,7 @@ var Ui;
             return false;
         };
         Pointer.prototype.down = function (x, y, buttons, button) {
+            console.log("Pointer.down(x: " + x + ", y: " + y + ", buttons: " + buttons + ", button: " + button + ")");
             this.start = (new Date().getTime()) / 1000;
             this.x = x;
             this.initialX = x;
@@ -6522,12 +6524,6 @@ var Ui;
                         _this.mouse.move(_this.mouse.x, _this.mouse.y);
                     }
                 });
-                document.addEventListener('contextmenu', function (event) {
-                    if (_this.mouse !== undefined) {
-                        _this.mouse.capture(undefined);
-                        _this.mouse.up();
-                    }
-                });
                 document.body.addEventListener('touchstart', function (e) { return _this.updateTouches(e); }, true);
                 document.body.addEventListener('touchmove', function (e) { return _this.updateTouches(e); }, true);
                 document.body.addEventListener('touchend', function (e) { return _this.updateTouches(e); }, true);
@@ -6555,6 +6551,7 @@ var Ui;
                 this.mouse.capture(undefined);
         };
         PointerManager.prototype.onMouseDown = function (event) {
+            console.log("onMouseDown  " + event.button);
             var deltaTime = (((new Date().getTime()) / 1000) - this.lastUpdate);
             var deltaX = (this.lastTouchX - event.clientX);
             var deltaY = (this.lastTouchY - event.clientY);
@@ -6592,6 +6589,7 @@ var Ui;
             this.mouse.move(event.clientX, event.clientY);
         };
         PointerManager.prototype.onMouseUp = function (event) {
+            console.log("onMouseUp  " + event.button);
             this.mouse.setControls(event.altKey, event.ctrlKey, event.shiftKey);
             var deltaTime = (((new Date().getTime()) / 1000) - this.lastUpdate);
             var deltaX = (this.lastTouchX - event.clientX);
@@ -9019,16 +9017,20 @@ var Ui;
         });
         ContextMenuWatcher.prototype.onPointerDown = function (event) {
             var _this = this;
+            console.log("ContextMenuWatcher.onPointerDown type: " + event.pointer.type + ", button: " + event.pointer.button);
             if (this.lock || this.element.isDisabled || this._isDown)
                 return;
             if (event.pointer.type != 'mouse' || event.pointer.button != 2)
                 return;
             var watcher = event.pointer.watch(this);
             watcher.moved.connect(function () {
-                if (watcher.pointer.getIsMove())
+                if (watcher.pointer.getIsMove()) {
+                    console.log("ContextMenuWatcher.onPointerDown pointer isMove => cancel");
                     watcher.cancel();
+                }
             });
             watcher.upped.connect(function () {
+                console.log("ContextMenuWatcher.onPointerDown upped => onPress");
                 _this.onUp();
                 var x = event.pointer.getX();
                 var y = event.pointer.getY();
@@ -9039,7 +9041,10 @@ var Ui;
                 watcher.capture();
                 watcher.cancel();
             });
-            watcher.cancelled.connect(function () { return _this.onUp(); });
+            watcher.cancelled.connect(function () {
+                console.log("ContextMenuWatcher.onPointerDown cancelled ?");
+                _this.onUp();
+            });
             this.onDown();
         };
         ContextMenuWatcher.prototype.onKeyUp = function (event) {
@@ -16583,7 +16588,7 @@ var Ui;
             _this.untoggled = new Core.Events();
             _this.role = 'checkbox';
             _this.drawing.setAttribute('aria-checked', 'false');
-            _this.padding = 3;
+            _this.padding = 2;
             _this.hbox = new Ui.HBox();
             _this.append(_this.hbox);
             _this.graphic = new Ui.CheckBoxGraphic();
@@ -16653,11 +16658,7 @@ var Ui;
                             this._content = undefined;
                         }
                         this._text = text;
-                        var t = new Ui.Text();
-                        t.margin = 8;
-                        t.text = this._text;
-                        t.verticalAlign = 'center';
-                        this.contentBox = t;
+                        this.contentBox = new Ui.Text({ margin: 8, text: this._text, verticalAlign: 'center' });
                         this.hbox.append(this.contentBox, true);
                     }
                 }
@@ -16686,10 +16687,7 @@ var Ui;
                     if (this._content !== undefined)
                         this.contentBox.remove(this._content);
                     else {
-                        var lb = new Ui.LBox();
-                        lb.padding = 8;
-                        lb.verticalAlign = 'center';
-                        this.contentBox = lb;
+                        this.contentBox = new Ui.LBox({ padding: 8, verticalAlign: 'center' });
                         this.hbox.append(this.contentBox);
                     }
                     this._content = content;
@@ -19971,7 +19969,7 @@ var Ui;
             _this.entry.blurred.connect(function () { return _this.onEntryBlur(); });
             hbox.append(_this.entry, true);
             _this.entry.changed.connect(function (e) { return _this.onEntryChange(e.target, e.value); });
-            _this.button = new TextFieldButton({ orientation: 'horizontal', margin: 1 });
+            _this.button = new TextFieldButton({ orientation: 'horizontal', margin: 0 });
             hbox.append(_this.button);
             _this.submited.connect(function () { return _this.onFormSubmit(); });
             _this.button.pressed.connect(function () { return _this.onButtonPress(); });
@@ -20171,6 +20169,7 @@ var Ui;
             this.selectedDate = date;
             this.popup.close();
             this.popup = undefined;
+            this.changed.fire({ target: this, value: this.textValue });
         };
         return DatePicker;
     }(Ui.TextButtonField));
