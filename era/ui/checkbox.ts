@@ -25,7 +25,7 @@ namespace Ui {
 			this.role = 'checkbox';
 			this.drawing.setAttribute('aria-checked', 'false');
 
-			this.padding = 3;
+			this.padding = 2;
 
 			this.hbox = new Ui.HBox();
 			this.append(this.hbox);
@@ -94,9 +94,7 @@ namespace Ui {
 						this._content = undefined;
 					}
 					this._text = text;
-					let t = new Ui.Text();
-					t.margin = 8; t.text = this._text; t.verticalAlign = 'center';
-					this.contentBox = t;
+					this.contentBox = new Ui.Text({ margin: 8, text: this._text, verticalAlign: 'center' });
 					this.hbox.append(this.contentBox, true);
 				}
 			}
@@ -123,9 +121,7 @@ namespace Ui {
 				if (this._content !== undefined)
 					(this.contentBox as LBox).remove(this._content);
 				else {
-					let lb = new Ui.LBox();
-					lb.padding = 8; lb.verticalAlign = 'center';
-					this.contentBox = lb;
+					this.contentBox = new Ui.LBox({ padding: 8, verticalAlign: 'center' });
 					this.hbox.append(this.contentBox);
 				}
 				this._content = content;
