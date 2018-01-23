@@ -61,7 +61,7 @@ namespace Ui {
 
 			this._isValid = true;
 			// TODO: handle problem
-			//this.changed.fire({ target: this, value: this.selectedDate });
+			//this.changed.fire({ target: this, value: this.textValue });
 		}
 
 		protected onDatePickerButtonPress() {
@@ -109,6 +109,7 @@ namespace Ui {
 			this.selectedDate = date;
 			this.popup.close();
 			this.popup = undefined;
+			this.changed.fire({ target: this, value: this.textValue });
 		}
 	}
 }
