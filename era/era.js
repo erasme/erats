@@ -6248,7 +6248,6 @@ var Ui;
             this.pointer.release(this);
         };
         PointerWatcher.prototype.cancel = function () {
-            console.log(this + ".cancel()");
             if (this.pointer != undefined) {
                 this.cancelled.fire({ target: this });
                 this.pointer.unwatch(this);
@@ -6431,7 +6430,6 @@ var Ui;
             return false;
         };
         Pointer.prototype.down = function (x, y, buttons, button) {
-            console.log("Pointer.down(x: " + x + ", y: " + y + ", buttons: " + buttons + ", button: " + button + ")");
             this.start = (new Date().getTime()) / 1000;
             this.x = x;
             this.initialX = x;
@@ -6551,7 +6549,6 @@ var Ui;
                 this.mouse.capture(undefined);
         };
         PointerManager.prototype.onMouseDown = function (event) {
-            console.log("onMouseDown  " + event.button);
             var deltaTime = (((new Date().getTime()) / 1000) - this.lastUpdate);
             var deltaX = (this.lastTouchX - event.clientX);
             var deltaY = (this.lastTouchY - event.clientY);
@@ -6589,7 +6586,6 @@ var Ui;
             this.mouse.move(event.clientX, event.clientY);
         };
         PointerManager.prototype.onMouseUp = function (event) {
-            console.log("onMouseUp  " + event.button);
             this.mouse.setControls(event.altKey, event.ctrlKey, event.shiftKey);
             var deltaTime = (((new Date().getTime()) / 1000) - this.lastUpdate);
             var deltaX = (this.lastTouchX - event.clientX);
@@ -9017,20 +9013,16 @@ var Ui;
         });
         ContextMenuWatcher.prototype.onPointerDown = function (event) {
             var _this = this;
-            console.log("ContextMenuWatcher.onPointerDown type: " + event.pointer.type + ", button: " + event.pointer.button);
             if (this.lock || this.element.isDisabled || this._isDown)
                 return;
             if (event.pointer.type != 'mouse' || event.pointer.button != 2)
                 return;
             var watcher = event.pointer.watch(this);
             watcher.moved.connect(function () {
-                if (watcher.pointer.getIsMove()) {
-                    console.log("ContextMenuWatcher.onPointerDown pointer isMove => cancel");
+                if (watcher.pointer.getIsMove())
                     watcher.cancel();
-                }
             });
             watcher.upped.connect(function () {
-                console.log("ContextMenuWatcher.onPointerDown upped => onPress");
                 _this.onUp();
                 var x = event.pointer.getX();
                 var y = event.pointer.getY();
@@ -9041,10 +9033,7 @@ var Ui;
                 watcher.capture();
                 watcher.cancel();
             });
-            watcher.cancelled.connect(function () {
-                console.log("ContextMenuWatcher.onPointerDown cancelled ?");
-                _this.onUp();
-            });
+            watcher.cancelled.connect(function () { return _this.onUp(); });
             this.onDown();
         };
         ContextMenuWatcher.prototype.onKeyUp = function (event) {

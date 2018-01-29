@@ -3730,7 +3730,7 @@ declare namespace Ui {
         constructor(init?: ComboInit);
         placeHolder: string;
         field: string;
-        data: object[];
+        data: any[];
         position: number;
         current: object;
         readonly value: object;

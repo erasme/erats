@@ -73,11 +73,11 @@ namespace Ui {
 				this.data = this._data;
 		}
 
-		set data(data: object[]) {
+		set data(data: any[]) {
 			this._data = data;
 		}
 	
-		get data(): object[] {
+		get data(): any[] {
 			return this._data;
 		}
 
