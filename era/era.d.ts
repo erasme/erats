@@ -1005,7 +1005,7 @@ declare namespace Ui {
         resetClip(): any;
         getLineDash(): any;
         setLineDash(lineDash: any): any;
-        drawImage(image: any, sx: number, sy: number, sw: number, sh: number, dx: number, dy: number, dw: number, dh: number): any;
+        drawImage(image: any, sx?: number, sy?: number, sw?: number, sh?: number, dx?: number, dy?: number, dw?: number, dh?: number): any;
         fillText(text: string, x: number, y: number, maxWidth?: number): any;
         strokeText(text: string, x: number, y: number, maxWidth?: number): any;
         save(): any;
@@ -1028,7 +1028,7 @@ declare namespace Ui {
     interface CanvasElementInit extends ContainerInit {
     }
     class CanvasElement extends Container implements CanvasElementInit {
-        private canvasEngine;
+        protected canvasEngine: string | 'canvas' | 'svg';
         private _context;
         private svgDrawing;
         private dpiRatio;
@@ -1104,7 +1104,7 @@ declare namespace Core {
         resetClip(): void;
         getLineDash(): any;
         setLineDash(lineDash: any): void;
-        drawImage(image: any, sx: number, sy: number, sw: number, sh: number, dx: number, dy: number, dw: number, dh: number): void;
+        drawImage(image: any, sx?: number, sy?: number, sw?: number, sh?: number, dx?: number, dy?: number, dw?: number, dh?: number): void;
         fillText(text: string, x: number, y: number, maxWidth: number): void;
         strokeText(text: string, x: number, y: number, maxWidth: number): void;
         save(): void;

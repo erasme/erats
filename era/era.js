@@ -4808,7 +4808,6 @@ var Ui;
         __extends(CanvasElement, _super);
         function CanvasElement(init) {
             var _this = _super.call(this, init) || this;
-            _this.canvasEngine = 'svg';
             _this.dpiRatio = 1;
             _this.selectable = false;
             return _this;
@@ -4851,9 +4850,10 @@ var Ui;
         CanvasElement.prototype.updateCanvas = function (context) {
         };
         CanvasElement.prototype.renderDrawing = function () {
-            if ((this.canvasEngine === 'canvas') && !Core.Navigator.supportCanvas)
+            this.canvasEngine = 'svg';
+            if ((this.canvasEngine == 'canvas') && !Core.Navigator.supportCanvas)
                 this.canvasEngine = 'svg';
-            if ((this.canvasEngine === 'svg') && !Core.Navigator.supportSVG)
+            if ((this.canvasEngine == 'svg') && !Core.Navigator.supportSVG)
                 this.canvasEngine = 'canvas';
             var drawing;
             var resourceDrawing;
