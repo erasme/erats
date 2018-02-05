@@ -80,20 +80,21 @@ namespace Graph {
 
 				let cX = Math.round(40 + (colW * i) + colW / 2);
 				let cH = Math.round((h - 40) * this.data[i] / topY);
-				let cW = Math.round(colW / 2);
-				ctx.fillRect(cX - (cW / 2), 20 + (h - 40) - cH, cW, cH);
+				let cW2 = Math.round(colW / 4);
+				let cW = cW2 * 2;
+				ctx.fillRect(cX - cW2, 20 + (h - 40) - cH, cW, cH);
 
 				ctx.fillStyle = borderColor.getCssRgba();
 				ctx.beginPath();
-				ctx.moveTo(cX - (cW / 2), 20 + (h - 40));
-				ctx.lineTo(cX - (cW / 2), 20 + (h - 40) - cH);
-				ctx.lineTo(cX - (cW / 2) + cW, 20 + (h - 40) - cH);
-				ctx.lineTo(cX - (cW / 2) + cW, 20 + (h - 40));
+				ctx.moveTo(cX - cW2, 20 + (h - 40));
+				ctx.lineTo(cX - cW2, 20 + (h - 40) - cH);
+				ctx.lineTo(cX - cW2 + cW, 20 + (h - 40) - cH);
+				ctx.lineTo(cX - cW2 + cW, 20 + (h - 40));
 
-				ctx.lineTo(cX - (cW / 2) + cW - 1, 20 + (h - 40));
-				ctx.lineTo(cX - (cW / 2) + cW - 1, 20 + (h - 40) - cH + 1);
-				ctx.lineTo(cX - (cW / 2) + 1, 20 + (h - 40) - cH + 1);
-				ctx.lineTo(cX - (cW / 2) + 1, 20 + (h - 40));
+				ctx.lineTo(cX - cW2 + cW - 1, 20 + (h - 40));
+				ctx.lineTo(cX - cW2 + cW - 1, 20 + (h - 40) - cH + 1);
+				ctx.lineTo(cX - cW2 + 1, 20 + (h - 40) - cH + 1);
+				ctx.lineTo(cX - cW2 + 1, 20 + (h - 40));
 				ctx.fill();
 			}
 		}
