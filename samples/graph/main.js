@@ -13,16 +13,10 @@ var Graph;
 (function (Graph) {
     var BarGraph = (function (_super) {
         __extends(BarGraph, _super);
-        function BarGraph(config) {
-            var _this = _super.call(this, config) || this;
-            _this.data = config.data;
-            delete (config.data);
-            _this.xAxis = config.xAxis;
-            delete (config.xAxis);
-            _this.xAxisLabel = config.xAxisLabel;
-            delete (config.xAxisLabel);
-            _this.yAxisLabel = config.yAxisLabel;
-            delete (config.yAxisLabel);
+        function BarGraph(init) {
+            var _this = _super.call(this, init) || this;
+            _this.data = init.data;
+            _this.xAxis = init.xAxis;
             for (var i = 0; i < _this.data.length; i++) {
                 var c = _this.data[i];
                 if ((_this.minY === undefined) || (c < _this.minY))
@@ -64,18 +58,35 @@ var Graph;
             // draw y axis
             for (var i = 0; i < 5; i++) {
                 var text = (topY * i) / 5;
-                ctx.fillText(text, 40 - 4, (h - 20) - (((h - 40) * i) / 5));
+                ctx.fillText(text.toString(), 40 - 4, (h - 20) - (((h - 40) * i) / 5));
                 ctx.globalAlpha = 0.2;
                 ctx.fillRect(40, (h - 20) - (((h - 40) * i) / 5), w - (40), 1);
                 ctx.globalAlpha = 1;
             }
             // draw values
-            ctx.fillStyle = Ui.Color.create(this.getStyleProperty('barColor')).getCssRgba();
+            var barColor = Ui.Color.create(this.getStyleProperty('barColor'));
+            var hsl = barColor.getHsl();
+            var borderColor = Ui.Color.createFromHsl(hsl.h, Math.min(1, hsl.s + 0.8), Math.max(0, hsl.l - 0.2));
+            ctx.fillStyle = barColor.getCssRgba();
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = borderColor.getCssRgba();
             for (var i = 0; i < this.data.length; i++) {
-                var cX = 40 + (colW * i) + colW / 2;
-                var cH = (h - 40) * this.data[i] / topY;
-                var cW = colW / 2;
+                ctx.fillStyle = barColor.getCssRgba();
+                var cX = Math.round(40 + (colW * i) + colW / 2);
+                var cH = Math.round((h - 40) * this.data[i] / topY);
+                var cW = Math.round(colW / 2);
                 ctx.fillRect(cX - (cW / 2), 20 + (h - 40) - cH, cW, cH);
+                ctx.fillStyle = borderColor.getCssRgba();
+                ctx.beginPath();
+                ctx.moveTo(cX - (cW / 2), 20 + (h - 40));
+                ctx.lineTo(cX - (cW / 2), 20 + (h - 40) - cH);
+                ctx.lineTo(cX - (cW / 2) + cW, 20 + (h - 40) - cH);
+                ctx.lineTo(cX - (cW / 2) + cW, 20 + (h - 40));
+                ctx.lineTo(cX - (cW / 2) + cW - 1, 20 + (h - 40));
+                ctx.lineTo(cX - (cW / 2) + cW - 1, 20 + (h - 40) - cH + 1);
+                ctx.lineTo(cX - (cW / 2) + 1, 20 + (h - 40) - cH + 1);
+                ctx.lineTo(cX - (cW / 2) + 1, 20 + (h - 40));
+                ctx.fill();
             }
         };
         BarGraph.prototype.onStyleChange = function () {
@@ -83,23 +94,17 @@ var Graph;
         };
         BarGraph.style = {
             foreground: 'black',
-            barColor: '#3665ce'
+            barColor: '#6aa5db'
         };
         return BarGraph;
     }(Ui.CanvasElement));
     Graph.BarGraph = BarGraph;
     var LineGraph = (function (_super) {
         __extends(LineGraph, _super);
-        function LineGraph(config) {
-            var _this = _super.call(this, config) || this;
-            _this.data = config.data;
-            delete (config.data);
-            _this.xAxis = config.xAxis;
-            delete (config.xAxis);
-            _this.xAxisLabel = config.xAxisLabel;
-            delete (config.xAxisLabel);
-            _this.yAxisLabel = config.yAxisLabel;
-            delete (config.yAxisLabel);
+        function LineGraph(init) {
+            var _this = _super.call(this, init) || this;
+            _this.data = init.data;
+            _this.xAxis = init.xAxis;
             for (var i = 0; i < _this.data.length; i++) {
                 var c = _this.data[i];
                 if ((_this.minY === undefined) || (c < _this.minY))
@@ -141,7 +146,7 @@ var Graph;
             // draw y axis
             for (var i = 0; i < 5; i++) {
                 var text = (topY * i) / 5;
-                ctx.fillText(text, 40 - 4, (h - 20) - (((h - 40) * i) / 5));
+                ctx.fillText(text.toString(), 40 - 4, (h - 20) - (((h - 40) * i) / 5));
                 ctx.globalAlpha = 0.2;
                 ctx.fillRect(40, (h - 20) - (((h - 40) * i) / 5), w - (40), 1);
                 ctx.globalAlpha = 1;
@@ -151,7 +156,7 @@ var Graph;
             ctx.lineWidth = 2;
             ctx.beginPath();
             var lastX = 0;
-            var lastY;
+            var lastY = 0;
             for (var i = 0; i < this.data.length; i++) {
                 var cX = 40 + (colW * i) + colW / 2;
                 var cY = h - 20 - (h - 40) * this.data[i] / topY;

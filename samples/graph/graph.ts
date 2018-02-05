@@ -1,23 +1,20 @@
 
 namespace Graph {
-	export class BarGraph extends Ui.CanvasElement {
-		data: Array<any>;
+	export interface BarGraphInit extends Ui.CanvasElementInit {
+		data: Array<number>;
 		xAxis: Array<string>;
-		minY: number;
-		maxY: number;
-		xAxisLabel: Array<string>;
-		yAxisLabel: Array<string>;
+	}
 
-		constructor(config: any) {
-			super(config);
-			this.data = config.data;
-			delete (config.data);
-			this.xAxis = config.xAxis;
-			delete (config.xAxis);
-			this.xAxisLabel = config.xAxisLabel;
-			delete (config.xAxisLabel);
-			this.yAxisLabel = config.yAxisLabel;
-			delete (config.yAxisLabel);
+	export class BarGraph extends Ui.CanvasElement {
+		readonly data: Array<number>;
+		readonly xAxis: Array<string>;
+		protected minY: number;
+		protected maxY: number;
+
+		constructor(init: BarGraphInit) {
+			super(init);
+			this.data = init.data;
+			this.xAxis = init.xAxis;
 
 			for (let i = 0; i < this.data.length; i++) {
 				let c = this.data[i];
@@ -28,7 +25,7 @@ namespace Graph {
 			}
 		}
 
-		protected updateCanvas(ctx: any) {
+		protected updateCanvas(ctx: Ui.CanvasRenderingContext2D) {
 			let w = this.layoutWidth;
 			let h = this.layoutHeight;
 			let colW = (w - (40)) / this.xAxis.length;
@@ -64,19 +61,40 @@ namespace Graph {
 			// draw y axis
 			for (let i = 0; i < 5; i++) {
 				let text = (topY * i) / 5;
-				ctx.fillText(text, 40 - 4, (h - 20) - (((h - 40) * i) / 5));
+				ctx.fillText(text.toString(), 40 - 4, (h - 20) - (((h - 40) * i) / 5));
 				ctx.globalAlpha = 0.2;
 				ctx.fillRect(40, (h - 20) - (((h - 40) * i) / 5), w - (40), 1);
 				ctx.globalAlpha = 1;
 			}
 	
 			// draw values
-			ctx.fillStyle = Ui.Color.create(this.getStyleProperty('barColor')).getCssRgba();
+			let barColor = Ui.Color.create(this.getStyleProperty('barColor'));
+			let hsl = barColor.getHsl();
+			let borderColor = Ui.Color.createFromHsl(hsl.h, Math.min(1, hsl.s + 0.8), Math.max(0, hsl.l - 0.2));
+			ctx.fillStyle = barColor.getCssRgba();
+			ctx.lineWidth = 1;
+			ctx.strokeStyle = borderColor.getCssRgba();
 			for (let i = 0; i < this.data.length; i++) {
-				let cX = 40 + (colW * i) + colW / 2;
-				let cH = (h - 40) * this.data[i] / topY;
-				let cW = colW / 2;
+
+				ctx.fillStyle = barColor.getCssRgba();
+
+				let cX = Math.round(40 + (colW * i) + colW / 2);
+				let cH = Math.round((h - 40) * this.data[i] / topY);
+				let cW = Math.round(colW / 2);
 				ctx.fillRect(cX - (cW / 2), 20 + (h - 40) - cH, cW, cH);
+
+				ctx.fillStyle = borderColor.getCssRgba();
+				ctx.beginPath();
+				ctx.moveTo(cX - (cW / 2), 20 + (h - 40));
+				ctx.lineTo(cX - (cW / 2), 20 + (h - 40) - cH);
+				ctx.lineTo(cX - (cW / 2) + cW, 20 + (h - 40) - cH);
+				ctx.lineTo(cX - (cW / 2) + cW, 20 + (h - 40));
+
+				ctx.lineTo(cX - (cW / 2) + cW - 1, 20 + (h - 40));
+				ctx.lineTo(cX - (cW / 2) + cW - 1, 20 + (h - 40) - cH + 1);
+				ctx.lineTo(cX - (cW / 2) + 1, 20 + (h - 40) - cH + 1);
+				ctx.lineTo(cX - (cW / 2) + 1, 20 + (h - 40));
+				ctx.fill();
 			}
 		}
 
@@ -86,28 +104,25 @@ namespace Graph {
 
 		static style: any = {
 			foreground: 'black',
-			barColor: '#3665ce'
+			barColor: '#6aa5db'
 		}
 	}
 
+	export interface LineGraphInit extends Ui.CanvasElementInit {
+		data: Array<number>;
+		xAxis: Array<string>;
+	}
+
 	export class LineGraph extends Ui.CanvasElement {
-		data: Array<any>;
+		data: Array<number>;
 		xAxis: Array<string>;
 		minY: number;
 		maxY: number;
-		xAxisLabel: Array<string>;
-		yAxisLabel: Array<string>;
 
-		constructor(config: any) {
-			super(config);
-			this.data = config.data;
-			delete (config.data);
-			this.xAxis = config.xAxis;
-			delete (config.xAxis);
-			this.xAxisLabel = config.xAxisLabel;
-			delete (config.xAxisLabel);
-			this.yAxisLabel = config.yAxisLabel;
-			delete (config.yAxisLabel);
+		constructor(init: LineGraphInit) {
+			super(init);
+			this.data = init.data;
+			this.xAxis = init.xAxis;
 
 			for (let i = 0; i < this.data.length; i++) {
 				let c = this.data[i];
@@ -118,7 +133,7 @@ namespace Graph {
 			}
 		}
 
-		updateCanvas(ctx: any) {
+		updateCanvas(ctx: Ui.CanvasRenderingContext2D) {
 			let w = this.layoutWidth;
 			let h = this.layoutHeight;
 			let colW = (w - (40)) / this.xAxis.length;
@@ -154,7 +169,7 @@ namespace Graph {
 			// draw y axis
 			for (let i = 0; i < 5; i++) {
 				let text = (topY * i) / 5;
-				ctx.fillText(text, 40 - 4, (h - 20) - (((h - 40) * i) / 5));
+				ctx.fillText(text.toString(), 40 - 4, (h - 20) - (((h - 40) * i) / 5));
 				ctx.globalAlpha = 0.2;
 				ctx.fillRect(40, (h - 20) - (((h - 40) * i) / 5), w - (40), 1);
 				ctx.globalAlpha = 1;
@@ -164,7 +179,7 @@ namespace Graph {
 			ctx.strokeStyle = Ui.Color.create(this.getStyleProperty('lineColor')).getCssRgba();
 			ctx.lineWidth = 2;
 			ctx.beginPath();
-			let lastX = 0; let lastY;
+			let lastX = 0; let lastY = 0;
 			for (let i = 0; i < this.data.length; i++) {
 				let cX = 40 + (colW * i) + colW / 2;
 				let cY = h - 20 - (h - 40) * this.data[i] / topY;
