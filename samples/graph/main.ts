@@ -71,8 +71,8 @@ class App extends Ui.App {
 
 		var graph = new Graph.TimeLineGraph({
 			height: 300, margin: 40, data: [
-				{ name: 'CPU1', data: cpuData },
-				{ name: 'CPU2', data: cpuData2, color: 'red' }
+				{ name: 'CPU1', data: cpuData, color: '#69a6dd' },
+				{ name: 'CPU2', data: cpuData2, color: '#ee939e' }
 			],
 			maxY: 1, unit: 'percent',
 			startTime: startTime, endTime: endTime

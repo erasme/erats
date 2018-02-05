@@ -104,7 +104,7 @@ namespace Graph {
 		}
 
 		static style: any = {
-			foreground: 'black',
+			foreground: '#444444',
 			barColor: '#6aa5db'
 		}
 	}
@@ -200,8 +200,8 @@ namespace Graph {
 		}
 
 		static style: any = {
-			foreground: 'black',
-			lineColor: '#3665ce'
+			foreground: '#444444',
+			lineColor: '#317fc8'
 		}
 	}
 }

@@ -94,7 +94,7 @@ var Graph;
             this.invalidateDraw();
         };
         BarGraph.style = {
-            foreground: 'black',
+            foreground: '#444444',
             barColor: '#6aa5db'
         };
         return BarGraph;
@@ -175,8 +175,8 @@ var Graph;
             this.invalidateDraw();
         };
         LineGraph.style = {
-            foreground: 'black',
-            lineColor: '#3665ce'
+            foreground: '#444444',
+            lineColor: '#317fc8'
         };
         return LineGraph;
     }(Ui.CanvasElement));
@@ -537,7 +537,7 @@ var Graph;
             this.invalidateDraw();
         };
         TimeLineGraph.style = {
-            foreground: 'black',
+            foreground: '#444444',
             lineColor: '#627DF7'
         };
         return TimeLineGraph;
@@ -603,8 +603,8 @@ var App = (function (_super) {
         this.vbox.append(graph);*/
         var graph = new Graph.TimeLineGraph({
             height: 300, margin: 40, data: [
-                { name: 'CPU1', data: cpuData },
-                { name: 'CPU2', data: cpuData2, color: 'red' }
+                { name: 'CPU1', data: cpuData, color: '#69a6dd' },
+                { name: 'CPU2', data: cpuData2, color: '#ee939e' }
             ],
             maxY: 1, unit: 'percent',
             startTime: startTime, endTime: endTime

@@ -401,7 +401,7 @@ namespace Graph {
 		}
 		
 		static style: any = {
-			foreground: 'black',
+			foreground: '#444444',
 			lineColor: '#627DF7'
 		}
 	}
