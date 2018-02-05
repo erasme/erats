@@ -27,7 +27,7 @@ namespace Ui {
 		resetClip();
 		getLineDash();
 		setLineDash(lineDash);
-		drawImage(image, sx: number, sy: number, sw: number, sh: number, dx: number, dy: number, dw: number, dh: number);
+		drawImage(image, sx?: number, sy?: number, sw?: number, sh?: number, dx?: number, dy?: number, dw?: number, dh?: number);
 		fillText(text: string, x: number, y: number, maxWidth?: number);
 		strokeText(text: string, x: number, y: number, maxWidth?: number);
 		save();
@@ -54,7 +54,7 @@ namespace Ui {
 
 	export class CanvasElement extends Container implements CanvasElementInit
 	{
-		private canvasEngine: any = 'svg';
+		protected canvasEngine: string | 'canvas' | 'svg';
 		private _context: CanvasRenderingContext2D;
 		private svgDrawing: any;
 		private dpiRatio: number = 1;
@@ -114,10 +114,11 @@ namespace Ui {
 		}
 
 		protected renderDrawing() {
+			this.canvasEngine = 'svg';
 			// verify compatibility with the browser
-			if ((this.canvasEngine === 'canvas') && !Core.Navigator.supportCanvas)
+			if ((this.canvasEngine == 'canvas') && !Core.Navigator.supportCanvas)
 				this.canvasEngine = 'svg';
-			if ((this.canvasEngine === 'svg') && !Core.Navigator.supportSVG)
+			if ((this.canvasEngine == 'svg') && !Core.Navigator.supportSVG)
 				this.canvasEngine = 'canvas';
 		
 			let drawing; let resourceDrawing;
@@ -467,7 +468,7 @@ namespace Core {
 		}
 
 		// drawing images
-		drawImage(image, sx: number, sy: number, sw: number, sh: number, dx: number, dy: number, dw: number, dh: number) {
+		drawImage(image, sx?: number, sy?: number, sw?: number, sh?: number, dx?: number, dy?: number, dw?: number, dh?: number) {
 			let img;
 			let nw = image.naturalWidth;
 			let nh = image.naturalHeight;
