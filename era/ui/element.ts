@@ -499,14 +499,23 @@ namespace Ui
 					y += (height - this._measureHeight) / 2;
 					height = this._measureHeight;
 				}
-				if(this._horizontalAlign == 'left') {
+				else if (this._verticalAlign == 'stretch' && this._maxHeight && this._maxHeight < height) {
+					y += (height - this._measureHeight) / 2;
+					height = this._measureHeight;
+				}
+
+				if (this._horizontalAlign == 'left') {
 					width = this._measureWidth;
 				}
-				else if(this._horizontalAlign == 'right') {
+				else if (this._horizontalAlign == 'right') {
 					x += width - this._measureWidth;
 					width = this._measureWidth;
 				}
-				else if(this._horizontalAlign == 'center') {
+				else if (this._horizontalAlign == 'center') {
+					x += (width - this._measureWidth) / 2;
+					width = this._measureWidth;
+				}
+				else if (this._horizontalAlign == 'stretch' && this._maxWidth && this._maxWidth < width) {
 					x += (width - this._measureWidth) / 2;
 					width = this._measureWidth;
 				}
