@@ -214,7 +214,7 @@ namespace Core {
 			this.x = x; this.y = y;
 		}
 
-		arcTo(x1, y1, x2, y2, radiusX, radiusY, angle) {
+		arcTo(x1: number, y1: number, x2: number, y2: number, radiusX: number, radiusY: number, angle: number) {
 			let vx1 = this.x - x1;
 			let vy1 = this.y - y1;
 			let vx2 = x2 - x1;
@@ -259,7 +259,7 @@ namespace Core {
 				let endX = x + Math.cos(endAngle) * radiusX;
 				let endY = y + Math.sin(endAngle) * radiusY;
 
-				this.moveTo(startX, startY);
+				this.lineTo(startX, startY);
 				let largeArc = (((endAngle - startAngle) + Math.PI * 2) % (Math.PI * 2)) > Math.PI;
 				if (anticlockwise)
 					largeArc = !largeArc;
@@ -398,6 +398,10 @@ namespace Core {
 
 		rect(x: number, y: number, w: number, h: number) {
 			this.currentPath.rect(x, y, w, h);
+		}
+
+		arcTo(x1: number, y1: number, x2: number, y2: number, radius: number) {
+			this.currentPath.arcTo(x1, y1, x2, y2, radius);
 		}
 
 		arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, anticlockwise: boolean) {
