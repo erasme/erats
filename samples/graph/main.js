@@ -11,6 +11,42 @@ var __extends = (this && this.__extends) || (function () {
 })();
 var Graph;
 (function (Graph) {
+    var DonutGraph = (function (_super) {
+        __extends(DonutGraph, _super);
+        function DonutGraph(init) {
+            var _this = _super.call(this, init) || this;
+            _this.data = init.data;
+            return _this;
+        }
+        DonutGraph.prototype.updateCanvas = function (ctx) {
+            var w = this.layoutWidth;
+            var h = this.layoutHeight;
+            var r = Math.min(w, h) / 2;
+            var total = 0;
+            for (var _i = 0, _a = this.data; _i < _a.length; _i++) {
+                var d = _a[_i];
+                total += d.value;
+            }
+            var startAngle = -Math.PI / 2;
+            for (var _b = 0, _c = this.data; _b < _c.length; _b++) {
+                var d = _c[_b];
+                var angle = (d.value / total) * Math.PI * 2;
+                var endAngle = startAngle + angle;
+                ctx.fillStyle = Ui.Color.create(d.color).getCssRgba();
+                ctx.beginPath();
+                var x1 = w / 2 + Math.cos(startAngle) * r;
+                var y1 = h / 2 + Math.sin(startAngle) * r;
+                ctx.moveTo(x1, y1);
+                ctx.arc(w / 2, h / 2, r - 0.5, startAngle, endAngle, false);
+                ctx.arc(w / 2, h / 2, r * 0.6 - 0.5, endAngle, startAngle, true);
+                ctx.closePath();
+                ctx.fill();
+                startAngle = endAngle;
+            }
+        };
+        return DonutGraph;
+    }(Ui.CanvasElement));
+    Graph.DonutGraph = DonutGraph;
     var BarGraph = (function (_super) {
         __extends(BarGraph, _super);
         function BarGraph(init) {
@@ -565,6 +601,31 @@ var App = (function (_super) {
             margin: 40
         });
         _this.vbox.append(lineGraph);
+        var donutData = [
+            { value: 15, color: '#69a6dd', text: 'Poivre' },
+            { value: 45, color: '#ee939e', text: 'Piment' },
+            { value: 24, color: '#68dda2', text: 'Sel' },
+            { value: 9, color: '#fdc102', text: 'Moutarde' }
+        ];
+        var donutGraph = new Graph.DonutGraph({
+            width: 150, height: 150,
+            data: donutData
+        });
+        var hbox = new Ui.HBox({ spacing: 40, horizontalAlign: 'center' });
+        _this.vbox.append(hbox);
+        hbox.append(donutGraph);
+        var vbox = new Ui.VBox({ spacing: 10, verticalAlign: 'center' });
+        hbox.append(vbox);
+        for (var _i = 0, donutData_1 = donutData; _i < donutData_1.length; _i++) {
+            var d = donutData_1[_i];
+            vbox.append(new Ui.HBox({
+                spacing: 10,
+                content: [
+                    new Ui.Rectangle({ fill: d.color, width: 14, height: 14, verticalAlign: 'center' }),
+                    new Ui.Label({ text: d.text })
+                ]
+            }));
+        }
         _this.onDataLoaded();
         return _this;
     }

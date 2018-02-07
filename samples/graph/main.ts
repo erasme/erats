@@ -27,6 +27,31 @@ class App extends Ui.App {
 		});
 		this.vbox.append(lineGraph);
 
+		let donutData = [
+			{ value: 15, color: '#69a6dd', text: 'Poivre' },
+			{ value: 45, color: '#ee939e', text: 'Piment' },
+			{ value: 24, color: '#68dda2', text: 'Sel' },
+			{ value: 9, color: '#fdc102', text: 'Moutarde' }
+		];
+		let donutGraph = new Graph.DonutGraph({
+			width: 150, height: 150,
+			data: donutData
+		});
+		let hbox = new Ui.HBox({ spacing: 40, horizontalAlign: 'center' });
+		this.vbox.append(hbox);
+		hbox.append(donutGraph);
+		let vbox = new Ui.VBox({ spacing: 10, verticalAlign: 'center' });
+		hbox.append(vbox);
+		for (let d of donutData) {
+			vbox.append(new Ui.HBox({
+				spacing: 10,
+				content: [
+					new Ui.Rectangle({ fill: d.color, width: 14, height: 14, verticalAlign: 'center' }),
+					new Ui.Label({ text: d.text })
+				]
+			 }));
+		}
+
 		this.onDataLoaded();
 	}
 

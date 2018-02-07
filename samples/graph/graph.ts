@@ -1,5 +1,45 @@
 
 namespace Graph {
+
+	export interface DonutGraphInit extends Ui.CanvasElementInit {
+		data: Array<{ value: number, color: Ui.Color | string }>;
+	}
+
+	export class DonutGraph extends Ui.CanvasElement {
+		readonly data: Array<{ value: number, color: Ui.Color | string }>;
+
+		constructor(init: DonutGraphInit) {
+			super(init);
+			this.data = init.data;
+		}
+
+		protected updateCanvas(ctx: Ui.CanvasRenderingContext2D) {
+			let w = this.layoutWidth;
+			let h = this.layoutHeight;
+			let r = Math.min(w, h) / 2;
+
+			let total = 0;
+			for (let d of this.data)
+				total += d.value;
+
+			let startAngle = -Math.PI / 2;
+			for (let d of this.data) {
+				let angle = (d.value / total) * Math.PI * 2;
+				let endAngle = startAngle + angle;
+				ctx.fillStyle = Ui.Color.create(d.color).getCssRgba();
+				ctx.beginPath();
+				let x1 = w / 2 + Math.cos(startAngle) * r;
+				let y1 = h / 2 + Math.sin(startAngle) * r;
+				ctx.moveTo(x1, y1);
+				ctx.arc(w / 2, h / 2, r - 0.5, startAngle, endAngle, false);
+				ctx.arc(w / 2, h / 2, r * 0.6 - 0.5, endAngle, startAngle, true);
+				ctx.closePath();
+				ctx.fill();
+				startAngle = endAngle;
+			}
+		}
+	}
+
 	export interface BarGraphInit extends Ui.CanvasElementInit {
 		data: Array<number>;
 		xAxis: Array<string>;
