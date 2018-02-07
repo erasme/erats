@@ -3660,6 +3660,10 @@ var Ui;
                     y += (height - this._measureHeight) / 2;
                     height = this._measureHeight;
                 }
+                else if (this._verticalAlign == 'stretch' && this._maxHeight && this._maxHeight < height) {
+                    y += (height - this._measureHeight) / 2;
+                    height = this._measureHeight;
+                }
                 if (this._horizontalAlign == 'left') {
                     width = this._measureWidth;
                 }
@@ -3668,6 +3672,10 @@ var Ui;
                     width = this._measureWidth;
                 }
                 else if (this._horizontalAlign == 'center') {
+                    x += (width - this._measureWidth) / 2;
+                    width = this._measureWidth;
+                }
+                else if (this._horizontalAlign == 'stretch' && this._maxWidth && this._maxWidth < width) {
                     x += (width - this._measureWidth) / 2;
                     width = this._measureWidth;
                 }
@@ -4982,7 +4990,7 @@ var Core;
                 var startY = y + Math.sin(startAngle) * radiusY;
                 var endX = x + Math.cos(endAngle) * radiusX;
                 var endY = y + Math.sin(endAngle) * radiusY;
-                this.moveTo(startX, startY);
+                this.lineTo(startX, startY);
                 var largeArc = (((endAngle - startAngle) + Math.PI * 2) % (Math.PI * 2)) > Math.PI;
                 if (anticlockwise)
                     largeArc = !largeArc;
@@ -5109,6 +5117,9 @@ var Core;
         };
         SVG2DContext.prototype.rect = function (x, y, w, h) {
             this.currentPath.rect(x, y, w, h);
+        };
+        SVG2DContext.prototype.arcTo = function (x1, y1, x2, y2, radius) {
+            this.currentPath.arcTo(x1, y1, x2, y2, radius);
         };
         SVG2DContext.prototype.arc = function (x, y, radius, startAngle, endAngle, anticlockwise) {
             this.currentPath.arc(x, y, radius, startAngle, endAngle, anticlockwise);

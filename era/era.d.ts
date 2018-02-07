@@ -1053,7 +1053,7 @@ declare namespace Core {
         lineTo(x: number, y: number): void;
         quadraticCurveTo(cpx: any, cpy: any, x: any, y: any): void;
         bezierCurveTo(cp1x: any, cp1y: any, cp2x: any, cp2y: any, x: any, y: any): void;
-        arcTo(x1: any, y1: any, x2: any, y2: any, radiusX: any, radiusY: any, angle: any): void;
+        arcTo(x1: number, y1: number, x2: number, y2: number, radiusX: number, radiusY: number, angle: number): void;
         closePath(): void;
         rect(x: any, y: any, w: any, h: any): void;
         arc(x: any, y: any, radius: any, startAngle: any, endAngle: any, anticlockwise: any): void;
@@ -1094,6 +1094,7 @@ declare namespace Core {
         quadraticCurveTo(cpx: any, cpy: any, x: any, y: any): void;
         bezierCurveTo(cp1x: any, cp1y: any, cp2x: any, cp2y: any, x: any, y: any): void;
         rect(x: number, y: number, w: number, h: number): void;
+        arcTo(x1: number, y1: number, x2: number, y2: number, radius: number): void;
         arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, anticlockwise: boolean): void;
         ellipse(x: number, y: number, radiusX: number, radiusY: number, rotation: number, startAngle: number, endAngle: number, anticlockwise: boolean): void;
         roundRect(x: number, y: number, w: number, h: number, radiusTopLeft: number, radiusTopRight: number, radiusBottomRight: number, radiusBottomLeft: number, antiClockwise?: boolean): void;
