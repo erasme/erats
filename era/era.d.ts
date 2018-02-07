@@ -3264,7 +3264,7 @@ declare namespace Ui {
         constructor(init?: LoadingInit);
         protected onVisible(): void;
         protected onHidden(): void;
-        protected updateCanvas(ctx: any): void;
+        protected updateCanvas(ctx: Ui.CanvasRenderingContext2D): void;
         protected measureCore(width: number, height: number): {
             width: number;
             height: number;

@@ -259,7 +259,10 @@ namespace Core {
 				let endX = x + Math.cos(endAngle) * radiusX;
 				let endY = y + Math.sin(endAngle) * radiusY;
 
-				this.lineTo(startX, startY);
+				if (this.d == '')
+					this.moveTo(startX, startY);
+				else
+					this.lineTo(startX, startY);
 				let largeArc = (((endAngle - startAngle) + Math.PI * 2) % (Math.PI * 2)) > Math.PI;
 				if (anticlockwise)
 					largeArc = !largeArc;

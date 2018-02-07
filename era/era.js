@@ -4990,7 +4990,10 @@ var Core;
                 var startY = y + Math.sin(startAngle) * radiusY;
                 var endX = x + Math.cos(endAngle) * radiusX;
                 var endY = y + Math.sin(endAngle) * radiusY;
-                this.lineTo(startX, startY);
+                if (this.d == '')
+                    this.moveTo(startX, startY);
+                else
+                    this.lineTo(startX, startY);
                 var largeArc = (((endAngle - startAngle) + Math.PI * 2) % (Math.PI * 2)) > Math.PI;
                 if (anticlockwise)
                     largeArc = !largeArc;

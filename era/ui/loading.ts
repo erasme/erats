@@ -25,7 +25,7 @@ namespace Ui
 			this.clock.stop();
 		}
 
-		protected updateCanvas(ctx) {
+		protected updateCanvas(ctx: Ui.CanvasRenderingContext2D) {
 			let p = this.clock.progress;
 			if (p === undefined)
 				p = 0;
