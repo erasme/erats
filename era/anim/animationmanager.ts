@@ -63,11 +63,11 @@ Anim.AnimationManager.initialize();
 
 if(!('requestAnimationFrame' in window)) {
 	if('webkitRequestAnimationFrame' in window)
-		window.requestAnimationFrame = window['webkitRequestAnimationFrame'];
+		(window as any).requestAnimationFrame = window['webkitRequestAnimationFrame'];
 	else if('mozRequestAnimationFrame' in window)
-		window.requestAnimationFrame = window['mozRequestAnimationFrame'];
+		(window as any).requestAnimationFrame = window['mozRequestAnimationFrame'];
 	else if('msRequestAnimationFrame' in window)
-		window.requestAnimationFrame = window['msRequestAnimationFrame'];
+		(window as any).requestAnimationFrame = window['msRequestAnimationFrame'];
 	else
 		(window as any).requestAnimationFrame = function(cb) { setTimeout(cb, 1/60);	};
 }

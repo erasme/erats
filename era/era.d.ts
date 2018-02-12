@@ -3095,7 +3095,7 @@ declare namespace Ui {
         color?: Color | string;
     }
     class Html extends Element implements HtmlInit {
-        private htmlDrawing;
+        protected htmlDrawing: HTMLElement;
         private bindedOnImageLoad;
         private _fontSize;
         private _fontFamily;

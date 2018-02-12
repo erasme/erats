@@ -420,11 +420,11 @@ namespace Ui
 			super();
 			this.app = app;
 
-			if ('PointerEvent' in window) {
-				window.addEventListener('pointerdown', e => this.onPointerDown(e));
-				window.addEventListener('pointermove', e => this.onPointerMove(e));
-				window.addEventListener('pointerup', e => this.onPointerUp(e));
-				window.addEventListener('pointercancel', e => this.onPointerCancel(e));
+			if ('PointerEvent' in (window as any)) {
+				(window as any).addEventListener('pointerdown', e => this.onPointerDown(e));
+				(window as any).addEventListener('pointermove', e => this.onPointerMove(e));
+				(window as any).addEventListener('pointerup', e => this.onPointerUp(e));
+				(window as any).addEventListener('pointercancel', e => this.onPointerCancel(e));
 			}
 			else {
 				this.mouse = new Pointer('mouse', 0);

@@ -621,7 +621,7 @@ namespace Ui
 				if ('textContent' in tspan)
 					tspan.textContent = line;
 				else
-					tspan.innerText = line;
+					(tspan as any).innerText = line;
 				textDrawing.appendChild(tspan);
 			});
 			this.textContext.drawText(width, true);

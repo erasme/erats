@@ -9302,7 +9302,7 @@ var Ui;
                 }
             }
             else {
-                if (Core.Navigator.isIE && ('removeProperty' in this.labelDrawing))
+                if (Core.Navigator.isIE && ('removeProperty' in this.labelDrawing.style))
                     this.labelDrawing.style.removeProperty('-ms-transform');
                 else if (Core.Navigator.isGecko)
                     this.labelDrawing.style.removeProperty('-moz-transform');
@@ -15327,8 +15327,7 @@ var Ui;
             };
         };
         Html.prototype.arrangeCore = function (width, height) {
-            this.htmlDrawing.style.width = (width + 1).toString() + 'px';
-            this.htmlDrawing.style.height = height + 'px';
+            this.htmlDrawing.style.width = width.toString() + 'px';
         };
         Html.style = {
             color: 'black',
@@ -20300,7 +20299,7 @@ var Ui;
             _this.anchorOffset = 0;
             _this.anchorchanged = new Core.Events();
             _this.selectable = true;
-            _this.drawing.setAttribute('contenteditable', 'true');
+            _this.htmlDrawing.setAttribute('contenteditable', 'true');
             _this.drawing.addEventListener('keyup', function (e) { return _this.onKeyUp(e); });
             _this.drawing.addEventListener('DOMSubtreeModified', function (e) { return _this.onContentSubtreeModified(e); });
             return _this;

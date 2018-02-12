@@ -20,7 +20,7 @@ namespace Core
 			if('baseURI' in document)
 				baseURI = document.baseURI;
 			else
-				baseURI = document.location.href;
+				baseURI = (document as any).location.href;
 
 			if (uri == null)
 				uri = baseURI;

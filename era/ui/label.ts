@@ -71,7 +71,7 @@ namespace Ui {
 				if ('textContent' in this.labelDrawing)
 					this.labelDrawing.textContent = this._text;
 				else
-					this.labelDrawing.innerText = this._text;
+					(this.labelDrawing as any).innerText = this._text;
 				this.textMeasureValid = false;
 				this.invalidateMeasure();
 			}
@@ -233,7 +233,7 @@ namespace Ui {
 				}
 			}
 			else {
-				if (Core.Navigator.isIE && ('removeProperty' in this.labelDrawing))
+				if (Core.Navigator.isIE && ('removeProperty' in this.labelDrawing.style))
 					this.labelDrawing.style.removeProperty('-ms-transform');
 				else if (Core.Navigator.isGecko)
 					this.labelDrawing.style.removeProperty('-moz-transform');
