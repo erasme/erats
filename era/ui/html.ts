@@ -15,7 +15,7 @@ namespace Ui
 
 	export class Html extends Element implements HtmlInit
 	{
-		private htmlDrawing: HTMLElement;
+		protected htmlDrawing: HTMLElement;
 		private bindedOnImageLoad: any = undefined;
 		private _fontSize: number = undefined;
 		private _fontFamily: string = undefined;
@@ -321,7 +321,7 @@ namespace Ui
 			//console.log(this+'.measureCore('+width+','+height+') clientWidth: '+this.htmlDrawing.clientWidth+' '+this.drawing.innerHTML);
 			this.htmlDrawing.style.width = '';
 			this.htmlDrawing.style.height = '';
-			// if client width if bigger than the constraint width, set the htmlDrawing
+			// if client width is bigger than the constraint width, set the htmlDrawing
 			// width and test again. This will allow (for ex) word wrap to try to reduce the width
 			if (this.htmlDrawing.clientWidth > width) {
 				//			this.htmlDrawing.style.width = '100%';
@@ -330,7 +330,8 @@ namespace Ui
 			//console.log(this+'.measureCore('+width+','+height+') client: '+
 			//	this.htmlDrawing.clientWidth+','+this.htmlDrawing.clientHeight+
 			//	' scroll: '+this.htmlDrawing.scrollWidth+','+this.htmlDrawing.scrollHeight
-			//	);
+			//);
+			//console.log(this.htmlDrawing.innerHTML);
 			return {
 				width: Math.max(this.htmlDrawing.clientWidth, this.htmlDrawing.scrollWidth),
 				height: this.htmlDrawing.clientHeight
@@ -341,8 +342,8 @@ namespace Ui
 			//		console.log(this+'.arrangeCore('+width+','+height+')');
 			//		this.htmlDrawing.style.width = width+'px';// '100%';
 			// add 1px to the width because of Chrome pixel bug
-			this.htmlDrawing.style.width = (width + 1).toString() + 'px';
-			this.htmlDrawing.style.height = height + 'px';
+			this.htmlDrawing.style.width = width.toString() + 'px';
+			//this.htmlDrawing.style.height = height + 'px';
 		}
 
 		static style: object = {
