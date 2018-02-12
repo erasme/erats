@@ -10,7 +10,7 @@ namespace Ui {
 		constructor(init?: ContentEditableInit) {
 			super(init);
 			this.selectable = true;
-			this.drawing.setAttribute('contenteditable', 'true');
+			this.htmlDrawing.setAttribute('contenteditable', 'true');
 			this.drawing.addEventListener('keyup', (e) => this.onKeyUp(e));
 			this.drawing.addEventListener('DOMSubtreeModified', (e) => this.onContentSubtreeModified(e));
 		}
