@@ -11911,6 +11911,7 @@ var Ui;
             this.textContext.setDrawLine(function (x, y, line) {
                 var tspan = document.createElement('div');
                 tspan.style.whiteSpace = 'nowrap';
+                tspan.style.wordWrap = 'none';
                 tspan.style.display = 'inline';
                 tspan.style.position = 'absolute';
                 tspan.style.left = x + 'px';
@@ -15318,11 +15319,15 @@ var Ui;
             this.drawing.style.width = width + 'px';
             this.htmlDrawing.style.width = '';
             this.htmlDrawing.style.height = '';
-            if (this.htmlDrawing.clientWidth > width) {
+            var measureWidth;
+            if (this.htmlDrawing.clientWidth >= width) {
                 this.htmlDrawing.style.width = width + 'px';
+                measureWidth = width;
             }
+            else
+                measureWidth = Math.max(this.htmlDrawing.clientWidth, this.htmlDrawing.scrollWidth) + 1;
             return {
-                width: Math.max(this.htmlDrawing.clientWidth, this.htmlDrawing.scrollWidth),
+                width: measureWidth,
                 height: this.htmlDrawing.clientHeight
             };
         };
@@ -23586,7 +23591,7 @@ var Ui;
             var color = this.getStyleProperty('markerColor');
             for (var i = 0; i < this.watchers.length; i++) {
                 var marker = (this.watchers[i])["Ui.DropAtBox.marker"];
-                marker.setFill(color);
+                marker.fill = color;
             }
         };
         DropAtBox.prototype.getAllowedTypesEffect = function (dataTransfer) {
@@ -23689,7 +23694,7 @@ var Ui;
             return func(dataTransfer.getData(), position);
         };
         DropAtBox.prototype.onWatcherEnter = function (watcher) {
-            var marker = new Ui.Frame({ margin: 2, frameWidth: 2, width: 6, height: 6 });
+            var marker = new Ui.Rectangle({ margin: 0, width: 6, height: 6 });
             marker.fill = this.getStyleProperty('markerColor');
             marker.hide();
             this.fixed.append(marker, 0, 0);
@@ -23747,7 +23752,7 @@ var Ui;
             }
         };
         DropAtBox.style = {
-            markerColor: Ui.Color.createFromRgb(0.4, 0, 0.35, 0.8)
+            markerColor: '#ff0076'
         };
         return DropAtBox;
     }(Ui.LBox));
