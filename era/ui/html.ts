@@ -323,17 +323,18 @@ namespace Ui
 			this.htmlDrawing.style.height = '';
 			// if client width is bigger than the constraint width, set the htmlDrawing
 			// width and test again. This will allow (for ex) word wrap to try to reduce the width
-			if (this.htmlDrawing.clientWidth > width) {
-				//			this.htmlDrawing.style.width = '100%';
+			let measureWidth: number;
+			if (this.htmlDrawing.clientWidth >= width) {
 				this.htmlDrawing.style.width = width + 'px';
+				measureWidth = width;
 			}
-			//console.log(this+'.measureCore('+width+','+height+') client: '+
-			//	this.htmlDrawing.clientWidth+','+this.htmlDrawing.clientHeight+
-			//	' scroll: '+this.htmlDrawing.scrollWidth+','+this.htmlDrawing.scrollHeight
-			//);
-			//console.log(this.htmlDrawing.innerHTML);
+			// if the clientWidth is less than the available one, take it and add 1
+			// because the returned clientWidth is an integer value but the real one
+			// is a floating value in Chrome. And this floating point value is Math.floor
+			else
+				measureWidth = Math.max(this.htmlDrawing.clientWidth, this.htmlDrawing.scrollWidth) + 1;
 			return {
-				width: Math.max(this.htmlDrawing.clientWidth, this.htmlDrawing.scrollWidth),
+				width: measureWidth,
 				height: this.htmlDrawing.clientHeight
 			};
 		}
