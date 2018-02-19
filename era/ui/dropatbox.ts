@@ -231,8 +231,8 @@
 		protected onStyleChange() {
 			let color = this.getStyleProperty('markerColor');
 			for (let i = 0; i < this.watchers.length; i++) {
-				let marker = (this.watchers[i])["Ui.DropAtBox.marker"];
-				marker.setFill(color);
+				let marker = (this.watchers[i])["Ui.DropAtBox.marker"] as Rectangle;
+				marker.fill = color;
 			}
 		}
 
@@ -352,7 +352,8 @@
 		}
 
 		protected onWatcherEnter(watcher: DragWatcher) {
-			let marker = new Ui.Frame({ margin: 2, frameWidth: 2, width: 6, height: 6 });
+			//let marker = new Ui.Frame({ margin: 2, frameWidth: 2, width: 6, height: 6 });
+			let marker = new Ui.Rectangle({ margin: 0, width: 6, height: 6 });
 			marker.fill = this.getStyleProperty('markerColor');
 			marker.hide();
 			this.fixed.append(marker, 0, 0);
@@ -363,7 +364,7 @@
 		protected onWatcherMove(watcher: DragWatcher) {
 			this.onDragEnter(watcher.getDataTransfer());			
 
-			let marker = watcher["Ui.DropAtBox.marker"];
+			let marker = watcher["Ui.DropAtBox.marker"] as Rectangle;
 			let position = this.findPosition(this.pointFromWindow(watcher.getPosition()));
 			this.setMarkerPos(marker, position);
 		}
@@ -380,7 +381,7 @@
 			if (this.watchers.length === 0)
 				this.onDragLeave();
 
-			let marker = watcher["Ui.DropAtBox.marker"];
+			let marker = watcher["Ui.DropAtBox.marker"] as Rectangle;
 			this.fixed.remove(marker);
 		}
 
@@ -430,7 +431,7 @@
 		}
 
 		static style: object = {
-			markerColor: Color.createFromRgb(0.4, 0, 0.35, 0.8)
+			markerColor: '#ff0076'
 		}
 	}
 
