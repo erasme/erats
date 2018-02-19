@@ -614,6 +614,7 @@ namespace Ui
 			this.textContext.setDrawLine(function (x, y, line) {
 				let tspan = document.createElement('div');
 				tspan.style.whiteSpace = 'nowrap';
+				tspan.style.wordWrap = 'none';
 				tspan.style.display = 'inline';
 				tspan.style.position = 'absolute';
 				tspan.style.left = x + 'px';
