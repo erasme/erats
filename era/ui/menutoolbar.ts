@@ -214,7 +214,7 @@ namespace Ui
 		//
 		append(child: Element, resizable: boolean = false) {
 			if (resizable !== undefined)
-				Ui.Box.setResizable(child, resizable === true);
+				child.resizable = resizable === true;
 			this.items.push(child);
 			this.invalidateMeasure();
 		}
@@ -224,7 +224,7 @@ namespace Ui
 		//
 		prepend(child: Element, resizable: boolean = false) {
 			if (resizable !== undefined)
-				Ui.Box.setResizable(child, resizable === true);
+				child.resizable = resizable === true;
 			this.items.unshift(child);
 			this.invalidateMeasure();
 		}
@@ -258,7 +258,7 @@ namespace Ui
 	
 		insertAt(child: Element, position: number, resizable: boolean) {
 			if (resizable !== undefined)
-				Ui.Box.setResizable(child, resizable === true);
+				child.resizable = resizable === true;
 			position = Math.max(0, Math.min(position, this.items.length));
 			this.items.splice(position, 0, child);
 			this.invalidateMeasure();
@@ -363,7 +363,7 @@ namespace Ui
 					this.keepItems.unshift(this.items[i]);
 				else
 					this.keepItems.push(this.items[i]);
-				if (Ui.Box.getResizable(this.items[i]))
+				if (this.items[i].resizable)
 					countResizable++;
 				else {
 					minItemsSize += minSize.width;
@@ -419,7 +419,7 @@ namespace Ui
 						starFound = true;
 						for (i = 0; i < this.keepItems.length; i++) {
 							let child = this.keepItems[i];
-							if (Ui.Box.getResizable(child)) {
+							if (child.resizable) {
 								if (!child.menutoolbarStarDone) {
 									size = child.measure(star, constraintHeight);
 									if (size.height > maxItemHeight)
@@ -493,7 +493,7 @@ namespace Ui
 					itemWidth = this.uniformSize;
 				else {
 					itemWidth = item.measureWidth;
-					if (Ui.Box.getResizable(item) && (itemWidth < this.star))
+					if (item.resizable && (itemWidth < this.star))
 						itemWidth = this.star;
 				}
 				item.arrange(x, y, itemWidth, height);

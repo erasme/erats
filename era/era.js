@@ -3285,6 +3285,7 @@ var Ui;
             _this._marginBottom = 0;
             _this._marginLeft = 0;
             _this._marginRight = 0;
+            _this._resizable = false;
             _this._parent = undefined;
             _this._width = undefined;
             _this._height = undefined;
@@ -3393,6 +3394,8 @@ var Ui;
                     _this.id = init.id;
                 if (init.focusable !== undefined)
                     _this.focusable = init.focusable;
+                if (init.resizable !== undefined)
+                    _this.resizable = init.resizable;
                 if (init.role !== undefined)
                     _this.role = init.role;
                 if (init.width !== undefined)
@@ -3470,6 +3473,19 @@ var Ui;
                 this._selectable = selectable;
                 this.drawing.selectable = selectable;
                 Element.setSelectable(this.drawing, selectable);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Element.prototype, "resizable", {
+            get: function () {
+                return this._resizable;
+            },
+            set: function (value) {
+                if (this._resizable != value) {
+                    this._resizable = value;
+                    this.invalidateMeasure();
+                }
             },
             enumerable: true,
             configurable: true
@@ -7788,17 +7804,17 @@ var Ui;
         });
         Box.prototype.append = function (child, resizable) {
             if (resizable !== undefined)
-                Ui.Box.setResizable(child, resizable === true);
+                child.resizable = resizable === true;
             this.appendChild(child);
         };
         Box.prototype.prepend = function (child, resizable) {
             if (resizable !== undefined)
-                Ui.Box.setResizable(child, resizable === true);
+                child.resizable = resizable === true;
             this.prependChild(child);
         };
         Box.prototype.insertAt = function (child, position, resizable) {
             if (resizable !== undefined)
-                Ui.Box.setResizable(child, resizable === true);
+                child.resizable = resizable === true;
             this.insertChildAt(child, position);
         };
         Box.prototype.moveAt = function (child, position) {
@@ -7819,7 +7835,7 @@ var Ui;
             while (loop) {
                 for (var i = 0; i < this.children.length; i++) {
                     var child = this.children[i];
-                    if (Ui.Box.getResizable(child))
+                    if (child.resizable)
                         countResizable++;
                     var size = void 0;
                     if (this.vertical)
@@ -7869,7 +7885,7 @@ var Ui;
                 minHeight = 0;
                 for (i = 0; i < this.children.length; i++) {
                     child = this.children[i];
-                    if (!Ui.Box.getResizable(child)) {
+                    if (!child.resizable) {
                         size = child.measure(constraintWidth, 0);
                         if (size.width > minWidth)
                             minWidth = size.width;
@@ -7890,7 +7906,7 @@ var Ui;
                         starFound = true;
                         for (i = 0; i < this.children.length; i++) {
                             child = this.children[i];
-                            if (Ui.Box.getResizable(child)) {
+                            if (child.resizable) {
                                 if (!child.boxStarDone) {
                                     size = child.measure(constraintWidth, star);
                                     if (size.width > minWidth)
@@ -7944,7 +7960,7 @@ var Ui;
                 minHeight = 0;
                 for (i = 0; i < this.children.length; i++) {
                     child = this.children[i];
-                    if (!Ui.Box.getResizable(child)) {
+                    if (!child.resizable) {
                         size = child.measure(0, constraintHeight);
                         if (size.height > minHeight)
                             minHeight = size.height;
@@ -7965,7 +7981,7 @@ var Ui;
                         starFound = true;
                         for (i = 0; i < this.children.length; i++) {
                             child = this.children[i];
-                            if (Ui.Box.getResizable(child)) {
+                            if (child.resizable) {
                                 if (!child.boxStarDone) {
                                     size = child.measure(star, constraintHeight);
                                     if (size.height > minHeight)
@@ -8036,7 +8052,7 @@ var Ui;
             for (var i = 0; i < count; i++) {
                 var child = this.children[i];
                 var size = this.vertical ? child.measureHeight : child.measureWidth;
-                if (Ui.Box.getResizable(child)) {
+                if (child.resizable) {
                     countVisible++;
                     countResizable++;
                     child['Ui.Box.StarDone'] = false;
@@ -8063,7 +8079,7 @@ var Ui;
                         starFound = true;
                         for (var i = 0; i < count; i++) {
                             var child = this.children[i];
-                            if (Ui.Box.getResizable(child)) {
+                            if (child.resizable) {
                                 var size = this.vertical ? child.measureHeight : child.measureWidth;
                                 if (!child['Ui.Box.StarDone']) {
                                     if (size > star) {
@@ -8101,7 +8117,7 @@ var Ui;
                     offset += uniformSize;
                 }
                 else {
-                    if ((Ui.Box.getResizable(child)) && ((this.vertical ? child.measureHeight : child.measureWidth) < star)) {
+                    if (child.resizable && ((this.vertical ? child.measureHeight : child.measureWidth) < star)) {
                         if (isFirst)
                             isFirst = false;
                         else
@@ -8127,15 +8143,6 @@ var Ui;
                         }
                     }
                 }
-            }
-        };
-        Box.getResizable = function (child) {
-            return child['Ui.Box.resizable'] ? true : false;
-        };
-        Box.setResizable = function (child, resizable) {
-            if (Ui.Box.getResizable(child) !== resizable) {
-                child['Ui.Box.resizable'] = resizable;
-                child.invalidateMeasure();
             }
         };
         return Box;
@@ -9580,6 +9587,7 @@ var Ui;
             this.startPosX = this.posX;
             this.startPosY = this.posY;
             this.onDown();
+            var cancelLock = false;
             var watcher = event.pointer.watch(this);
             watcher.moved.connect(function () {
                 if (!watcher.getIsCaptured()) {
@@ -9600,7 +9608,9 @@ var Ui;
                             watcher.capture();
                         else {
                             _this.setPosition(_this.startPosX, _this.startPosY);
+                            cancelLock = true;
                             watcher.cancel();
+                            cancelLock = false;
                         }
                     }
                 }
@@ -9617,10 +9627,13 @@ var Ui;
                 if (_this.inertia)
                     _this.startInertia();
                 _this.onUp(false);
+                cancelLock = true;
                 watcher.cancel();
+                cancelLock = false;
             });
             watcher.cancelled.connect(function () {
-                _this.onUp(true);
+                if (!cancelLock)
+                    _this.onUp(true);
             });
         };
         MovableBase.prototype.startInertia = function () {
@@ -12796,7 +12809,7 @@ var Ui;
             else if (this._textBox.parent != undefined)
                 this.buttonPartsBox.remove(this._textBox);
             if (this.isIconVisible) {
-                Ui.Box.setResizable(this._iconBox, !this.isTextVisible);
+                this._iconBox.resizable = !this.isTextVisible;
                 if (this._iconBox.parent == undefined)
                     this.buttonPartsBox.prepend(this._iconBox);
             }
@@ -13114,6 +13127,8 @@ var Ui;
                     _this.preferredHeight = init.preferredHeight;
                 if (init.autoClose !== undefined)
                     _this.autoClose = init.autoClose;
+                if (init.content !== undefined)
+                    _this.content = init.content;
             }
             return _this;
         }
@@ -13784,14 +13799,14 @@ var Ui;
         MenuToolBar.prototype.append = function (child, resizable) {
             if (resizable === void 0) { resizable = false; }
             if (resizable !== undefined)
-                Ui.Box.setResizable(child, resizable === true);
+                child.resizable = resizable === true;
             this.items.push(child);
             this.invalidateMeasure();
         };
         MenuToolBar.prototype.prepend = function (child, resizable) {
             if (resizable === void 0) { resizable = false; }
             if (resizable !== undefined)
-                Ui.Box.setResizable(child, resizable === true);
+                child.resizable = resizable === true;
             this.items.unshift(child);
             this.invalidateMeasure();
         };
@@ -13826,7 +13841,7 @@ var Ui;
         };
         MenuToolBar.prototype.insertAt = function (child, position, resizable) {
             if (resizable !== undefined)
-                Ui.Box.setResizable(child, resizable === true);
+                child.resizable = resizable === true;
             position = Math.max(0, Math.min(position, this.items.length));
             this.items.splice(position, 0, child);
             this.invalidateMeasure();
@@ -13912,7 +13927,7 @@ var Ui;
                     this.keepItems.unshift(this.items[i]);
                 else
                     this.keepItems.push(this.items[i]);
-                if (Ui.Box.getResizable(this.items[i]))
+                if (this.items[i].resizable)
                     countResizable++;
                 else {
                     minItemsSize += minSize.width;
@@ -13961,7 +13976,7 @@ var Ui;
                         starFound = true;
                         for (i = 0; i < this.keepItems.length; i++) {
                             var child = this.keepItems[i];
-                            if (Ui.Box.getResizable(child)) {
+                            if (child.resizable) {
                                 if (!child.menutoolbarStarDone) {
                                     size = child.measure(star, constraintHeight);
                                     if (size.height > maxItemHeight)
@@ -14027,7 +14042,7 @@ var Ui;
                     itemWidth = this.uniformSize;
                 else {
                     itemWidth = item.measureWidth;
-                    if (Ui.Box.getResizable(item) && (itemWidth < this.star))
+                    if (item.resizable && (itemWidth < this.star))
                         itemWidth = this.star;
                 }
                 item.arrange(x, y, itemWidth, height);
@@ -15050,6 +15065,8 @@ var Ui;
                     _this.whiteSpace = init.whiteSpace;
                 if (init.color !== undefined)
                     _this.color = init.color;
+                if (init.onlink !== undefined)
+                    _this.link.connect(init.onlink);
             }
             return _this;
         }
@@ -19495,6 +19512,8 @@ var Ui;
                     _this.volume = init.volume;
                 if (init.currentTime !== undefined)
                     _this.currentTime = init.currentTime;
+                if (init.controls !== undefined)
+                    _this.controls = init.controls;
             }
             return _this;
         }
@@ -19548,6 +19567,19 @@ var Ui;
             this.videoDrawing.pause();
             this.onEnded();
         };
+        Object.defineProperty(Video.prototype, "controls", {
+            get: function () {
+                return this.videoDrawing.controls;
+            },
+            set: function (value) {
+                if (value)
+                    this.videoDrawing.controls = true;
+                else
+                    delete (this.videoDrawing.controls);
+            },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(Video.prototype, "volume", {
             get: function () {
                 return this.videoDrawing.volume;
@@ -24614,5 +24646,694 @@ var Ui;
         return LocatorLeftRightArrow;
     }(Ui.Shape));
     Ui.LocatorLeftRightArrow = LocatorLeftRightArrow;
+})(Ui || (Ui = {}));
+var Ui;
+(function (Ui) {
+    var Carouselable = (function (_super) {
+        __extends(Carouselable, _super);
+        function Carouselable(init) {
+            var _this = _super.call(this, init) || this;
+            _this.pos = 0;
+            _this.speed = 1;
+            _this._bufferingSize = 1;
+            _this.changed = new Core.Events();
+            _this.clipToBounds = true;
+            _this.focusable = true;
+            _this.moveVertical = false;
+            _this.items = [];
+            _this.activeItems = [];
+            _this._ease = new Anim.PowerEase({ mode: 'out' });
+            _this.downed.connect(function (e) { return _this.onCarouselableDown(); });
+            _this.upped.connect(function (e) { return _this.onCarouselableUp(e.target, e.speedX, e.speedY, e.deltaX, e.deltaY, e.cumulMove, e.abort); });
+            _this.drawing.addEventListener('keydown', function (e) { return _this.onKeyDown(e); });
+            _this.wheelchanged.connect(function (e) { return _this.onWheel(e); });
+            if (init) {
+                if (init.autoPlay)
+                    _this.autoPlay = init.autoPlay;
+                if (init.bufferingSize)
+                    _this.bufferingSize = init.bufferingSize;
+                if (init.content)
+                    _this.content = init.content;
+                if (init.ease)
+                    _this.ease = init.ease;
+            }
+            return _this;
+        }
+        Object.defineProperty(Carouselable.prototype, "autoPlay", {
+            set: function (delay) {
+                if (this.autoPlayDelay !== delay) {
+                    if (this.autoPlayTask !== undefined)
+                        this.autoPlayTask.abort();
+                    this.autoPlayTask = undefined;
+                    this.autoPlayDelay = delay;
+                    this.startAutoPlay();
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Carouselable.prototype.stopAutoPlay = function () {
+            if (this.autoPlayTask !== undefined) {
+                this.autoPlayTask.abort();
+                this.autoPlayTask = undefined;
+            }
+        };
+        Carouselable.prototype.startAutoPlay = function () {
+            var _this = this;
+            if (this.autoPlayDelay !== undefined) {
+                this.autoPlayTask = new Core.DelayedTask(this.autoPlayDelay, function () { return _this.onAutoPlayTimeout(); });
+            }
+        };
+        Carouselable.prototype.onAutoPlayTimeout = function () {
+            if (this.currentPosition >= this.items.length - 1)
+                this.setCurrentAt(0);
+            else
+                this.next();
+            this.startAutoPlay();
+        };
+        Object.defineProperty(Carouselable.prototype, "bufferingSize", {
+            get: function () {
+                return this._bufferingSize;
+            },
+            set: function (size) {
+                if (this._bufferingSize != size) {
+                    this._bufferingSize = size;
+                    this.updateItems();
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Carouselable.prototype, "logicalChildren", {
+            get: function () {
+                return this.items;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Carouselable.prototype, "currentPosition", {
+            get: function () {
+                if (this.alignClock !== undefined)
+                    return this.animNext;
+                else
+                    return this.pos;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Carouselable.prototype, "current", {
+            get: function () {
+                return this.items[this.currentPosition];
+            },
+            set: function (value) {
+                this.setCurrent(value);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Carouselable.prototype.setCurrentAt = function (position, noAnimation) {
+            if (noAnimation === void 0) { noAnimation = false; }
+            position = Math.min(2 * (this.items.length - 1), Math.max(0, position));
+            if (noAnimation) {
+                this.pos = position;
+                this.setPosition(-this.pos * this.layoutWidth, undefined);
+                this.onChange();
+            }
+            else
+                this.startAnimation(2 * (this.pos - position), position);
+        };
+        Carouselable.prototype.setCurrent = function (current, noAnimation) {
+            if (noAnimation === void 0) { noAnimation = false; }
+            for (var i = 0; i < this.items.length; i++) {
+                if (this.items[i] == current) {
+                    this.setCurrentAt(i, noAnimation);
+                    break;
+                }
+            }
+        };
+        Carouselable.prototype.next = function () {
+            if (this.alignClock === undefined) {
+                if (this.pos < this.items.length - 1)
+                    this.startAnimation(-2, this.pos + 1);
+            }
+            else {
+                if (this.animNext > this.pos)
+                    this.startAnimation(-2 * (this.animNext + 1 - Math.floor(this.pos)), Math.min(this.animNext + 1, this.items.length - 1));
+                else
+                    this.startAnimation(-2, Math.min(Math.ceil(this.pos), this.items.length - 1));
+            }
+        };
+        Carouselable.prototype.previous = function () {
+            if (this.alignClock === undefined) {
+                if (this.pos > 0)
+                    this.startAnimation(2, this.pos - 1);
+            }
+            else {
+                if (this.animNext < this.pos)
+                    this.startAnimation(2 * (Math.floor(this.pos) - (this.animNext - 1)), Math.max(this.animNext - 1, 0));
+                else
+                    this.startAnimation(2, Math.floor(this.pos));
+            }
+        };
+        Object.defineProperty(Carouselable.prototype, "ease", {
+            get: function () {
+                return this._ease;
+            },
+            set: function (ease) {
+                this._ease = Anim.EasingFunction.create(ease);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Carouselable.prototype, "content", {
+            set: function (value) {
+                while (this.logicalChildren.length > 0)
+                    this.remove(this.logicalChildren[0]);
+                for (var _i = 0, value_1 = value; _i < value_1.length; _i++) {
+                    var el = value_1[_i];
+                    this.append(el);
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Carouselable.prototype.append = function (child) {
+            this.items.push(child);
+            this.onChange();
+        };
+        Carouselable.prototype.remove = function (child) {
+            var i = 0;
+            while ((i < this.items.length) && (this.items[i] !== child)) {
+                i++;
+            }
+            if (i < this.items.length) {
+                this.items.splice(i, 1);
+                if ((this.pos < 0) || (this.pos > this.items.length - 1))
+                    this.pos = Math.max(0, Math.min(this.pos, this.items.length - 1));
+                if (this.alignClock !== undefined)
+                    this.animNext = Math.max(0, Math.min(this.animNext, this.items.length - 1));
+                this.setPosition(-this.pos * this.layoutWidth, undefined, true);
+                this.onChange();
+            }
+        };
+        Carouselable.prototype.insertAt = function (child, position) {
+            if (position < 0)
+                position = this.items.length + position;
+            if (position < 0)
+                position = 0;
+            if (position >= this.items.length)
+                position = this.items.length;
+            this.items.splice(position, 0, child);
+            this.onChange();
+        };
+        Carouselable.prototype.moveAt = function (child, position) {
+            if (position < 0)
+                position = this.items.length + position;
+            if (position < 0)
+                position = 0;
+            if (position >= this.items.length)
+                position = this.items.length;
+            var i = 0;
+            while ((i < this.items.length) && (this.items[i] != child)) {
+                i++;
+            }
+            if (i < this.items.length) {
+                this.items.splice(i, 1);
+                this.items.splice(position, 0, child);
+            }
+            this.onChange();
+        };
+        Carouselable.prototype.onKeyDown = function (event) {
+            if (this.isDisabled)
+                return;
+            var key = event.which;
+            if ((key == 37) || (key == 39)) {
+                event.stopPropagation();
+                event.preventDefault();
+                if (key == 37)
+                    this.previous();
+                else if (key == 39)
+                    this.next();
+            }
+        };
+        Carouselable.prototype.onWheel = function (event) {
+            if (this.isDisabled)
+                return;
+            if (event.deltaX !== 0) {
+                event.stopPropagation();
+                if (event.deltaX < 0)
+                    this.previous();
+                else
+                    this.next();
+            }
+        };
+        Carouselable.prototype.onCarouselableDown = function () {
+            console.log("onCarouselableDown");
+            this.stopAutoPlay();
+            this.stopAnimation();
+        };
+        Carouselable.prototype.onCarouselableUp = function (el, speedX, speedY, deltaX, deltaY, cumulMove, abort) {
+            var mod;
+            console.log("onCarouselableUp abort ? " + abort);
+            if (abort === true) {
+                mod = this.pos % 1;
+                if (mod > 0.5)
+                    speedX = -400;
+                else
+                    speedX = 400;
+            }
+            else {
+                if (Math.abs(speedX) < 50) {
+                    if ((deltaX > 0.2 * this.layoutWidth) || (Math.abs(deltaX) > 100)) {
+                        if (deltaX < 0)
+                            speedX = -400;
+                        else
+                            speedX = 400;
+                    }
+                    else {
+                        mod = this.pos % 1;
+                        if (mod > 0.5)
+                            speedX = -400;
+                        else
+                            speedX = 400;
+                    }
+                }
+            }
+            if (Math.abs(speedX) < 800) {
+                if (speedX < 0)
+                    speedX = -800;
+                else
+                    speedX = 800;
+            }
+            if (speedX !== 0)
+                this.startAnimation(speedX / this.layoutWidth);
+            this.startAutoPlay();
+        };
+        Carouselable.prototype.onChange = function () {
+            this.loadItems();
+            this.updateItems();
+            var current = this.current;
+            if (current !== undefined)
+                current.enable();
+            var currentPosition = this.currentPosition;
+            if ((this.lastPosition === undefined) || (this.lastPosition !== currentPosition)) {
+                if ((this.lastPosition !== undefined) && (this.items[this.lastPosition] !== undefined))
+                    this.items[this.lastPosition].disable();
+                this.lastPosition = currentPosition;
+                this.changed.fire({ target: this, position: currentPosition });
+            }
+        };
+        Carouselable.prototype.onAlignTick = function (clock, progress, delta) {
+            if (delta === 0)
+                return;
+            var relprogress = -(clock.time * this.speed) / (this.animNext - this.animStart);
+            if (relprogress >= 1) {
+                this.alignClock.stop();
+                this.alignClock = undefined;
+                relprogress = 1;
+            }
+            relprogress = this._ease.ease(relprogress);
+            this.pos = (this.animStart + relprogress * (this.animNext - this.animStart));
+            this.setPosition(-this.pos * this.layoutWidth, undefined);
+            if (this.alignClock === undefined)
+                this.onChange();
+        };
+        Carouselable.prototype.startAnimation = function (speed, next) {
+            var _this = this;
+            this.stopAnimation();
+            this.speed = speed;
+            this.animStart = this.pos;
+            if (next === undefined) {
+                if (this.speed < 0)
+                    this.animNext = Math.ceil(this.animStart);
+                else
+                    this.animNext = Math.floor(this.animStart);
+            }
+            else
+                this.animNext = next;
+            if (this.animStart !== this.animNext) {
+                this.alignClock = new Anim.Clock({
+                    duration: 'forever', target: this,
+                    ontimeupdate: function (e) { return _this.onAlignTick(e.target, e.progress, e.deltaTick); }
+                });
+                this.alignClock.begin();
+            }
+        };
+        Carouselable.prototype.stopAnimation = function () {
+            if (this.alignClock !== undefined) {
+                this.alignClock.stop();
+                this.alignClock = undefined;
+            }
+        };
+        Carouselable.prototype.loadItems = function () {
+            if (!this.isLoaded)
+                return;
+            var i;
+            for (i = 0; i < this.activeItems.length; i++)
+                this.activeItems[i].carouselableSeen = undefined;
+            var newItems = [];
+            for (i = Math.max(0, Math.floor(this.pos - this._bufferingSize)); i < Math.min(this.items.length, Math.floor(this.pos + 1 + this._bufferingSize)); i++) {
+                var item = this.items[i];
+                var active = false;
+                for (var i2 = 0; !active && (i2 < this.activeItems.length); i2++) {
+                    if (this.activeItems[i2] === item) {
+                        active = true;
+                        this.activeItems[i2].carouselableSeen = true;
+                    }
+                }
+                newItems.push(item);
+                if (!active) {
+                    item.disable();
+                    this.appendChild(item);
+                }
+            }
+            for (i = 0; i < this.activeItems.length; i++) {
+                if (!this.activeItems[i].carouselableSeen)
+                    this.removeChild(this.activeItems[i]);
+            }
+            this.activeItems = newItems;
+        };
+        Carouselable.prototype.updateItems = function () {
+            if (!this.isLoaded)
+                return;
+            var w = this.layoutWidth;
+            var h = this.layoutHeight;
+            for (var i = 0; i < this.activeItems.length; i++) {
+                var item = this.activeItems[i];
+                var ipos = -1;
+                for (ipos = 0; (ipos < this.items.length) && (this.items[ipos] !== item); ipos++) { }
+                if (ipos < this.items.length) {
+                    item.measure(w, h);
+                    item.arrange(0, 0, w, h);
+                    item.transform = Ui.Matrix.createTranslate((ipos - this.pos) * w, 0);
+                }
+            }
+        };
+        Carouselable.prototype.onLoad = function () {
+            _super.prototype.onLoad.call(this);
+            this.loadItems();
+            this.updateItems();
+        };
+        Carouselable.prototype.onMove = function (x, y) {
+            if (this.layoutWidth <= 0)
+                return;
+            this.pos = -x / this.layoutWidth;
+            if ((this.pos < 0) || (this.pos > this.items.length - 1)) {
+                this.pos = Math.max(0, Math.min(this.pos, this.items.length - 1));
+                this.setPosition(-this.pos * this.layoutWidth);
+            }
+            this.updateItems();
+        };
+        Carouselable.prototype.measureCore = function (width, height) {
+            var current = this.current;
+            return current.measure(width, height);
+        };
+        Carouselable.prototype.arrangeCore = function (width, height) {
+            this.setPosition(-this.pos * width, undefined);
+        };
+        return Carouselable;
+    }(Ui.MovableBase));
+    Ui.Carouselable = Carouselable;
+})(Ui || (Ui = {}));
+var Ui;
+(function (Ui) {
+    var Carousel = (function (_super) {
+        __extends(Carousel, _super);
+        function Carousel(init) {
+            var _this = _super.call(this, init) || this;
+            _this.showNext = false;
+            _this.showPrevious = false;
+            _this._alwaysShowArrows = false;
+            _this.changed = new Core.Events();
+            _this.focusable = true;
+            new Ui.OverWatcher({
+                element: _this,
+                onentered: function () { return _this.onMouseEnter(); },
+                onleaved: function () { return _this.onMouseLeave(); }
+            });
+            _this.carouselable = new Ui.Carouselable();
+            _this.appendChild(_this.carouselable);
+            _this.focused.connect(function () { return _this.onCarouselableFocus(); });
+            _this.blurred.connect(function () { return _this.onCarouselableBlur(); });
+            _this.carouselable.changed.connect(function (e) { return _this.onCarouselableChange(e.target, e.position); });
+            _this.buttonPrevious = new Ui.Pressable({
+                horizontalAlign: 'left', verticalAlign: 'center', opacity: 0, focusable: false,
+                onpressed: function () { return _this.onPreviousPress(); }
+            });
+            _this.buttonPreviousIcon = new Ui.Icon({ icon: 'arrowleft', width: 48, height: 48 });
+            _this.buttonPrevious.append(_this.buttonPreviousIcon);
+            _this.appendChild(_this.buttonPrevious);
+            _this.buttonNext = new Ui.Pressable({
+                horizontalAlign: 'right', verticalAlign: 'center', opacity: 0, focusable: false,
+                onpressed: function () { return _this.onNextPress(); }
+            });
+            _this.buttonNextIcon = new Ui.Icon({ icon: 'arrowright', width: 48, height: 48 });
+            _this.buttonNext.append(_this.buttonNextIcon);
+            _this.appendChild(_this.buttonNext);
+            _this.drawing.addEventListener('keydown', function (e) { return _this.onKeyDown(e); });
+            if (init) {
+                if (init.autoPlay)
+                    _this.autoPlay = init.autoPlay;
+                if (init.bufferingSize)
+                    _this.bufferingSize = init.bufferingSize;
+                if (init.content)
+                    _this.content = init.content;
+                if (init.alwaysShowArrows)
+                    _this.alwaysShowArrows = init.alwaysShowArrows;
+                if (init.onchanged)
+                    _this.changed.connect(init.onchanged);
+            }
+            return _this;
+        }
+        Object.defineProperty(Carousel.prototype, "autoPlay", {
+            set: function (delay) {
+                this.carouselable.autoPlay = delay;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Carousel.prototype, "alwaysShowArrows", {
+            get: function () {
+                return this._alwaysShowArrows;
+            },
+            set: function (value) {
+                this._alwaysShowArrows = value;
+                if (value)
+                    this.showArrows();
+                else
+                    this.hideArrows();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Carousel.prototype.next = function () {
+            this.carouselable.next();
+        };
+        Carousel.prototype.previous = function () {
+            this.carouselable.previous();
+        };
+        Object.defineProperty(Carousel.prototype, "logicalChildren", {
+            get: function () {
+                return this.carouselable.logicalChildren;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Carousel.prototype, "currentPosition", {
+            get: function () {
+                return this.carouselable.currentPosition;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Carousel.prototype, "current", {
+            get: function () {
+                return this.carouselable.current;
+            },
+            set: function (value) {
+                this.setCurrent(value);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Carousel.prototype.setCurrentAt = function (position, noAnimation) {
+            if (noAnimation === void 0) { noAnimation = false; }
+            this.carouselable.setCurrentAt(position, noAnimation);
+        };
+        Carousel.prototype.setCurrent = function (current, noAnimation) {
+            if (noAnimation === void 0) { noAnimation = false; }
+            this.carouselable.setCurrent(current, noAnimation);
+        };
+        Object.defineProperty(Carousel.prototype, "bufferingSize", {
+            get: function () {
+                return this.carouselable.bufferingSize;
+            },
+            set: function (size) {
+                this.carouselable.bufferingSize = size;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Carousel.prototype.append = function (child) {
+            this.carouselable.append(child);
+        };
+        Carousel.prototype.remove = function (child) {
+            this.carouselable.remove(child);
+        };
+        Carousel.prototype.insertAt = function (child, pos) {
+            this.carouselable.insertAt(child, pos);
+        };
+        Carousel.prototype.moveAt = function (child, pos) {
+            this.carouselable.moveAt(child, pos);
+        };
+        Object.defineProperty(Carousel.prototype, "content", {
+            set: function (content) {
+                this.carouselable.content = content;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Carousel.prototype.onCarouselableChange = function (carouselable, position) {
+            this.showArrows();
+            this.changed.fire({ target: this, position: position });
+        };
+        Carousel.prototype.onCarouselableFocus = function () {
+            this.showArrows();
+        };
+        Carousel.prototype.onCarouselableBlur = function () {
+            this.hideArrows();
+        };
+        Carousel.prototype.onPreviousPress = function () {
+            this.focus();
+            this.previous();
+        };
+        Carousel.prototype.onNextPress = function () {
+            this.focus();
+            this.next();
+        };
+        Carousel.prototype.onMouseEnter = function () {
+            this.showArrows();
+            this.carouselable.stopAutoPlay();
+        };
+        Carousel.prototype.onMouseOverMove = function () {
+            this.showArrows();
+        };
+        Carousel.prototype.onMouseLeave = function () {
+            this.hideArrows();
+            this.carouselable.startAutoPlay();
+        };
+        Carousel.prototype.showArrows = function () {
+            var _this = this;
+            var pos = this.carouselable.currentPosition;
+            var children = this.carouselable.logicalChildren;
+            if (children.length > 0) {
+                this.showPrevious = (pos > 0);
+                this.showNext = (pos < children.length - 1);
+            }
+            else {
+                this.showPrevious = false;
+                this.showNext = false;
+            }
+            if (this.showClock === undefined) {
+                this.showClock = new Anim.Clock({
+                    duration: 'forever', target: this,
+                    ontimeupdate: function (e) { return _this.onShowTick(e.target, e.progress, e.deltaTick); }
+                });
+                this.showClock.begin();
+            }
+        };
+        Carousel.prototype.hideArrows = function () {
+            var _this = this;
+            if (this.hideTimeout !== undefined) {
+                this.hideTimeout.abort();
+                this.hideTimeout = undefined;
+            }
+            if (this._alwaysShowArrows)
+                return;
+            this.showPrevious = false;
+            this.showNext = false;
+            if (this.showClock === undefined) {
+                this.showClock = new Anim.Clock({
+                    duration: 'forever', target: this,
+                    ontimeupdate: function (e) { return _this.onShowTick(e.target, e.progress, e.deltaTick); }
+                });
+                this.showClock.begin();
+            }
+        };
+        Carousel.prototype.onShowTick = function (clock, progress, delta) {
+            if (delta === 0)
+                return;
+            var opacity;
+            var previousDone = false;
+            if (this.showPrevious) {
+                opacity = this.buttonPrevious.opacity;
+                opacity = Math.min(opacity + delta, 1);
+                this.buttonPrevious.opacity = opacity;
+                if (opacity == 1)
+                    previousDone = true;
+            }
+            else {
+                opacity = this.buttonPrevious.opacity;
+                opacity = Math.max(opacity - (delta * 2), 0);
+                this.buttonPrevious.opacity = opacity;
+                if (opacity === 0)
+                    previousDone = true;
+            }
+            var nextDone = false;
+            if (this.showNext) {
+                opacity = this.buttonNext.opacity;
+                opacity = Math.min(opacity + delta, 1);
+                this.buttonNext.opacity = opacity;
+                if (opacity == 1)
+                    nextDone = true;
+            }
+            else {
+                opacity = this.buttonNext.opacity;
+                opacity = Math.max(opacity - (delta * 2), 0);
+                this.buttonNext.opacity = opacity;
+                if (opacity === 0)
+                    nextDone = true;
+            }
+            if (previousDone && nextDone) {
+                this.showClock.stop();
+                this.showClock = undefined;
+            }
+        };
+        Carousel.prototype.onKeyDown = function (event) {
+            if (this.hasFocus) {
+                if (event.which == 39)
+                    this.next();
+                else if (event.which == 37)
+                    this.previous();
+            }
+        };
+        Carousel.prototype.measureCore = function (width, height) {
+            var minWidth = 0;
+            var minHeight = 0;
+            for (var i = 0; i < this.children.length; i++) {
+                var child = this.children[i];
+                var size = child.measure(width, height);
+                if (size.width > minWidth)
+                    minWidth = size.width;
+                if (size.height > minHeight)
+                    minHeight = size.height;
+            }
+            return { width: minWidth, height: minHeight };
+        };
+        Carousel.prototype.arrangeCore = function (width, height) {
+            for (var i = 0; i < this.children.length; i++)
+                this.children[i].arrange(0, 0, width, height);
+        };
+        Carousel.prototype.onStyleChange = function () {
+            var color = this.getStyleProperty('focusColor');
+            this.buttonPreviousIcon.fill = color;
+            this.buttonNextIcon.fill = color;
+        };
+        Carousel.style = {
+            focusColor: '#21d3ff'
+        };
+        return Carousel;
+    }(Ui.Container));
+    Ui.Carousel = Carousel;
 })(Ui || (Ui = {}));
 //# sourceMappingURL=era.js.map

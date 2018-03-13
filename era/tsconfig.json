@@ -126,6 +126,8 @@
         "ui/accordeon.ts",
         "ui/dropatbox.ts",
         "ui/segmentbar.ts",
-        "ui/locator.ts"
+        "ui/locator.ts",
+        "ui/carouselable.ts",
+        "ui/carousel.ts"
     ]
 }

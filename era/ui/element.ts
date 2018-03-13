@@ -10,6 +10,7 @@ namespace Ui
 		selectable?: boolean;
 		id?: string;
 		focusable?: boolean;
+		resizable?: boolean;
 		role?: string;
 		width?: number | undefined;
 		height?: number | undefined;
@@ -41,6 +42,8 @@ namespace Ui
 		private _marginBottom: number = 0;
 		private _marginLeft: number = 0;
 		private _marginRight: number = 0;
+
+		private _resizable: boolean = false;
 
 		// parent
 		private _parent: Element = undefined;
@@ -188,6 +191,8 @@ namespace Ui
 					this.id = init.id;
 				if (init.focusable !== undefined)
 					this.focusable = init.focusable;
+				if (init.resizable !== undefined)
+					this.resizable = init.resizable;
 				if (init.role !== undefined)
 					this.role = init.role;
 				if (init.width !== undefined)
@@ -256,6 +261,17 @@ namespace Ui
 			this._selectable = selectable;
 			this.drawing.selectable = selectable;
 			Element.setSelectable(this.drawing, selectable);
+		}
+
+		get resizable(): boolean {
+			return this._resizable;
+		}
+
+		set resizable(value: boolean) {
+			if (this._resizable != value) {
+				this._resizable = value;
+				this.invalidateMeasure();
+			}
 		}
 
 		get layoutX() : number {

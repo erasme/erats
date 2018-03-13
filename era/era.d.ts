@@ -697,6 +697,7 @@ declare namespace Ui {
         selectable?: boolean;
         id?: string;
         focusable?: boolean;
+        resizable?: boolean;
         role?: string;
         width?: number | undefined;
         height?: number | undefined;
@@ -733,6 +734,7 @@ declare namespace Ui {
         private _marginBottom;
         private _marginLeft;
         private _marginRight;
+        private _resizable;
         private _parent;
         private _width?;
         private _height?;
@@ -822,6 +824,7 @@ declare namespace Ui {
         isDisabled: boolean;
         readonly drawing: any;
         selectable: boolean;
+        resizable: boolean;
         readonly layoutX: number;
         readonly layoutY: number;
         readonly layoutWidth: number;
@@ -1636,8 +1639,6 @@ declare namespace Ui {
         private measureNonUniformHorizontal(width, height);
         protected measureCore(width: number, height: number): any;
         protected arrangeCore(width: number, height: number): void;
-        static getResizable(child: Element): boolean;
-        static setResizable(child: Element, resizable?: boolean): void;
     }
     interface VBoxInit extends BoxInit {
     }
@@ -2088,8 +2089,8 @@ declare namespace Ui {
         private onDown();
         private onUp(abort);
         private onPointerDown(event);
-        startInertia(): void;
-        stopInertia(): void;
+        private startInertia();
+        private stopInertia();
     }
 }
 declare namespace Ui {
@@ -2747,6 +2748,7 @@ declare namespace Ui {
         onclosed?: (event: {
             target: Popup;
         }) => void;
+        content?: Element;
     }
     type AttachBorder = 'right' | 'left' | 'top' | 'bottom' | 'center';
     class Popup extends Container implements PopupInit {
@@ -3093,6 +3095,10 @@ declare namespace Ui {
         wordWrap?: string;
         whiteSpace?: string;
         color?: Color | string;
+        onlink?: (event: {
+            target: Html;
+            ref: string;
+        }) => void;
     }
     class Html extends Element implements HtmlInit {
         protected htmlDrawing: HTMLElement;
@@ -3998,6 +4004,7 @@ declare namespace Ui {
         autoplay?: boolean;
         volume?: number;
         currentTime?: number;
+        controls?: boolean;
     }
     class Video extends Element {
         oggSrc: string;
@@ -4041,6 +4048,7 @@ declare namespace Ui {
         play(): void;
         pause(): void;
         stop(): void;
+        controls: boolean;
         volume: number;
         readonly duration: number;
         currentTime: number;
@@ -5198,5 +5206,130 @@ declare namespace Ui {
         radius: number;
         arrowLength: number;
         protected arrangeCore(width: number, height: number): void;
+    }
+}
+declare namespace Ui {
+    interface CarouselableInit extends MovableBaseInit {
+        ease?: Anim.EasingFunction;
+        autoPlay?: number;
+        bufferingSize?: number;
+        content?: Element[];
+    }
+    class Carouselable extends MovableBase {
+        private _ease;
+        private items;
+        private pos;
+        private lastPosition;
+        private activeItems;
+        private alignClock;
+        private animNext;
+        private animStart;
+        private speed;
+        private _bufferingSize;
+        private autoPlayDelay;
+        private autoPlayTask?;
+        readonly changed: Core.Events<{
+            target: Carouselable;
+            position: number;
+        }>;
+        constructor(init?: CarouselableInit);
+        autoPlay: number;
+        stopAutoPlay(): void;
+        startAutoPlay(): void;
+        private onAutoPlayTimeout();
+        bufferingSize: number;
+        readonly logicalChildren: Element[];
+        readonly currentPosition: number;
+        current: Element;
+        setCurrentAt(position: number, noAnimation?: boolean): void;
+        setCurrent(current: Element, noAnimation?: boolean): void;
+        next(): void;
+        previous(): void;
+        ease: Anim.EasingFunction;
+        content: Element[];
+        append(child: Element): void;
+        remove(child: Element): void;
+        insertAt(child: Element, position: number): void;
+        moveAt(child: Element, position: number): void;
+        private onKeyDown(event);
+        private onWheel(event);
+        private onCarouselableDown();
+        private onCarouselableUp(el, speedX, speedY, deltaX, deltaY, cumulMove, abort);
+        private onChange();
+        private onAlignTick(clock, progress, delta);
+        private startAnimation(speed, next?);
+        private stopAnimation();
+        private loadItems();
+        private updateItems();
+        protected onLoad(): void;
+        protected onMove(x: any, y: any): void;
+        protected measureCore(width: number, height: number): {
+            width: number;
+            height: number;
+        };
+        protected arrangeCore(width: number, height: number): void;
+    }
+}
+declare namespace Ui {
+    interface CarouselInit extends ContainerInit {
+        autoPlay?: number;
+        bufferingSize?: number;
+        content?: Element[];
+        alwaysShowArrows?: boolean;
+        onchanged?: (event: {
+            target: Carousel;
+            position: number;
+        }) => void;
+    }
+    class Carousel extends Container {
+        private carouselable;
+        private buttonNext;
+        private buttonNextIcon;
+        private buttonPrevious;
+        private buttonPreviousIcon;
+        private showClock;
+        private hideTimeout?;
+        private showNext;
+        private showPrevious;
+        private _alwaysShowArrows;
+        readonly changed: Core.Events<{
+            target: Carousel;
+            position: number;
+        }>;
+        constructor(init?: CarouselInit);
+        autoPlay: number;
+        alwaysShowArrows: boolean;
+        next(): void;
+        previous(): void;
+        readonly logicalChildren: Element[];
+        readonly currentPosition: number;
+        current: Element;
+        setCurrentAt(position: number, noAnimation?: boolean): void;
+        setCurrent(current: Element, noAnimation?: boolean): void;
+        bufferingSize: number;
+        append(child: Element): void;
+        remove(child: Element): void;
+        insertAt(child: Element, pos: number): void;
+        moveAt(child: Element, pos: number): void;
+        content: Element[];
+        private onCarouselableChange(carouselable, position);
+        private onCarouselableFocus();
+        private onCarouselableBlur();
+        private onPreviousPress();
+        private onNextPress();
+        private onMouseEnter();
+        private onMouseOverMove();
+        private onMouseLeave();
+        private showArrows();
+        private hideArrows();
+        private onShowTick(clock, progress, delta);
+        private onKeyDown(event);
+        protected measureCore(width: number, height: number): {
+            width: number;
+            height: number;
+        };
+        protected arrangeCore(width: number, height: number): void;
+        protected onStyleChange(): void;
+        static style: any;
     }
 }

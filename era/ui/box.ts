@@ -210,7 +210,7 @@ namespace Ui
 		//
 		append(child: Element, resizable?: boolean) {
 			if (resizable !== undefined)
-				Ui.Box.setResizable(child, resizable === true);
+				child.resizable = resizable === true;
 			this.appendChild(child);
 		}
 
@@ -219,7 +219,7 @@ namespace Ui
 		//
 		prepend(child: Element, resizable?: boolean) {
 			if (resizable !== undefined)
-				Ui.Box.setResizable(child, resizable === true);
+				child.resizable = resizable === true;
 			this.prependChild(child);
 		}
 
@@ -228,7 +228,7 @@ namespace Ui
 		//
 		insertAt(child: Element, position: number, resizable?: boolean) {
 			if (resizable !== undefined)
-				Ui.Box.setResizable(child, resizable === true);
+				child.resizable = resizable === true;
 			this.insertChildAt(child, position);
 		}
 	
@@ -260,7 +260,7 @@ namespace Ui
 			while (loop) {
 				for (let i = 0; i < this.children.length; i++) {
 					let child = this.children[i];
-					if (Ui.Box.getResizable(child))
+					if (child.resizable)
 						countResizable++;
 					let size;
 					if (this.vertical)
@@ -315,7 +315,7 @@ namespace Ui
 				// handle not resizable
 				for (i = 0; i < this.children.length; i++) {
 					child = this.children[i];
-					if (!Ui.Box.getResizable(child)) {
+					if (!child.resizable) {
 						size = child.measure(constraintWidth, 0);
 						if (size.width > minWidth)
 							minWidth = size.width;
@@ -336,7 +336,7 @@ namespace Ui
 						starFound = true;
 						for (i = 0; i < this.children.length; i++) {
 							child = this.children[i];
-							if (Ui.Box.getResizable(child)) {
+							if (child.resizable) {
 								if (!child.boxStarDone) {
 									size = child.measure(constraintWidth, star);
 									if (size.width > minWidth)
@@ -394,7 +394,7 @@ namespace Ui
 				// handle not resizable
 				for (i = 0; i < this.children.length; i++) {
 					child = this.children[i];
-					if (!Ui.Box.getResizable(child)) {
+					if (!child.resizable) {
 						size = child.measure(0, constraintHeight);
 						if (size.height > minHeight)
 							minHeight = size.height;
@@ -415,7 +415,7 @@ namespace Ui
 						starFound = true;
 						for (i = 0; i < this.children.length; i++) {
 							child = this.children[i];
-							if (Ui.Box.getResizable(child)) {
+							if (child.resizable) {
 								if (!child.boxStarDone) {
 									size = child.measure(star, constraintHeight);
 									if (size.height > minHeight)
@@ -493,7 +493,7 @@ namespace Ui
 			for (let i = 0; i < count; i++) {
 				let child = this.children[i];
 				let size = this.vertical ? child.measureHeight : child.measureWidth;
-				if (Ui.Box.getResizable(child)) {
+				if (child.resizable) {
 					countVisible++;
 					countResizable++;
 					child['Ui.Box.StarDone'] = false;
@@ -521,7 +521,7 @@ namespace Ui
 						starFound = true;
 						for (let i = 0; i < count; i++) {
 							let child = this.children[i];
-							if (Ui.Box.getResizable(child)) {
+							if (child.resizable) {
 								let size = this.vertical ? child.measureHeight : child.measureWidth;
 								if (!child['Ui.Box.StarDone']) {
 									if (size > star) {
@@ -561,7 +561,7 @@ namespace Ui
 					offset += uniformSize;
 				}
 				else {
-					if ((Ui.Box.getResizable(child)) && ((this.vertical ? child.measureHeight : child.measureWidth) < star)) {
+					if (child.resizable && ((this.vertical ? child.measureHeight : child.measureWidth) < star)) {
 						if (isFirst)
 							isFirst = false;
 						else
@@ -588,17 +588,6 @@ namespace Ui
 						}
 					}
 				}
-			}
-		}
-
-		static getResizable(child: Element): boolean {
-			return child['Ui.Box.resizable'] ? true : false;
-		}
-
-		static setResizable(child: Element, resizable?: boolean) {
-			if (Ui.Box.getResizable(child) !== resizable) {
-				child['Ui.Box.resizable'] = resizable;
-				child.invalidateMeasure();
 			}
 		}
 	}

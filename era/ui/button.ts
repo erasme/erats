@@ -449,7 +449,7 @@ namespace Ui
 			else if (this._textBox.parent != undefined)
 				this.buttonPartsBox.remove(this._textBox);
 			if (this.isIconVisible) {
-				Box.setResizable(this._iconBox, !this.isTextVisible);
+				this._iconBox.resizable = !this.isTextVisible;
 				if (this._iconBox.parent == undefined)
 					this.buttonPartsBox.prepend(this._iconBox);
 			}
