@@ -5,6 +5,7 @@ namespace Ui
 		preferredHeight?: number;
 		autoClose?: boolean;
 		onclosed?: (event: { target: Popup }) => void;
+		content?: Element;
 	}
 
 	export type AttachBorder = 'right' | 'left' | 'top' | 'bottom' | 'center';
@@ -76,7 +77,9 @@ namespace Ui
 				if (init.preferredHeight !== undefined)
 					this.preferredHeight = init.preferredHeight;
 				if (init.autoClose !== undefined)
-					this.autoClose = init.autoClose;	
+					this.autoClose = init.autoClose;
+				if (init.content !== undefined)
+					this.content = init.content;
 			}
 		}
 
