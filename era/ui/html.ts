@@ -11,6 +11,7 @@ namespace Ui
 		wordWrap?: string;
 		whiteSpace?: string;
 		color?: Color | string;
+		onlink?: (event: {target: Html, ref: string }) => void;
 	}
 
 	export class Html extends Element implements HtmlInit
@@ -54,7 +55,9 @@ namespace Ui
 				if (init.whiteSpace !== undefined)
 					this.whiteSpace = init.whiteSpace;	
 				if (init.color !== undefined)
-					this.color = init.color;	
+					this.color = init.color;
+				if (init.onlink !== undefined)
+					this.link.connect(init.onlink);
 			}
 		}
 	
