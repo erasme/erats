@@ -8,6 +8,7 @@ namespace Ui {
 		autoplay?: boolean;
 		volume?: number;
 		currentTime?: number;
+		controls?: boolean;
 	}
 
 	export class Video extends Element {
@@ -54,6 +55,8 @@ namespace Ui {
 					this.volume = init.volume;	
 				if (init.currentTime !== undefined)
 					this.currentTime = init.currentTime;
+				if (init.controls !== undefined)
+					this.controls = init.controls;
 			}	
 		}
 
@@ -118,6 +121,23 @@ namespace Ui {
 		stop() {
 			this.videoDrawing.pause();
 			this.onEnded();
+		}
+
+		//
+		// Set the video volume between 0 and 1
+		//
+		set controls(value: boolean) {
+			if (value)
+				this.videoDrawing.controls = true;
+			else
+				delete(this.videoDrawing.controls);	
+		}
+
+		//
+		// Get the video volume between 0 and 1
+		//
+		get controls(): boolean {
+			return this.videoDrawing.controls;
 		}
 
 		//
