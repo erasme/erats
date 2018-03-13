@@ -146,6 +146,7 @@ namespace Ui {
 
 			this.onDown();
 
+			let cancelLock = false;
 			let watcher = event.pointer.watch(this);
 			watcher.moved.connect(() => {
 				if (!watcher.getIsCaptured()) {
@@ -174,7 +175,9 @@ namespace Ui {
 							watcher.capture();
 						else {
 							this.setPosition(this.startPosX, this.startPosY);
+							cancelLock = true;
 							watcher.cancel();
+							cancelLock = false;
 						}
 					}
 				}
@@ -191,14 +194,17 @@ namespace Ui {
 				if (this.inertia)
 					this.startInertia();
 				this.onUp(false);
+				cancelLock = true;
 				watcher.cancel();
+				cancelLock = false;
 			});
 			watcher.cancelled.connect(() => {
-				this.onUp(true);
+				if (!cancelLock)
+					this.onUp(true);
 			});
 		}
 
-		startInertia() {
+		private startInertia() {
 			if (this.inertiaClock == undefined) {
 				this.inertiaClock = new Anim.Clock({ duration: 'forever', target: this });
 				this.inertiaClock.timeupdate.connect((e) => {
@@ -229,7 +235,7 @@ namespace Ui {
 			}
 		}
 
-		stopInertia() {
+		private stopInertia() {
 			if (this.inertiaClock !== undefined) {
 				this.inertiaClock.stop();
 				this.inertiaClock = undefined;
