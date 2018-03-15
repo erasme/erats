@@ -9,7 +9,6 @@ namespace Ui
 		constructor(init?: TextInit) {
 			super(init);
 			this.drawing.style.whiteSpace = 'pre-wrap';
-			this.selectable = false;
 			if (init) {
 				if (init.textTransform !== undefined)
 					this.textTransform = init.textTransform;	

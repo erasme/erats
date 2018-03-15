@@ -15372,7 +15372,6 @@ var Ui;
         function Text(init) {
             var _this = _super.call(this, init) || this;
             _this.drawing.style.whiteSpace = 'pre-wrap';
-            _this.selectable = false;
             if (init) {
                 if (init.textTransform !== undefined)
                     _this.textTransform = init.textTransform;
