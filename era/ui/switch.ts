@@ -37,7 +37,7 @@ namespace Ui {
 			this.button.upped.connect((e) => this.onUp(e.speedX, e.cumulMove, e.abort));
 
 			this.buttonContent = new Rectangle({ radius: 10, width: 20, height: 20, margin: 10 });
-			this.button.setContent(this.buttonContent);
+			this.button.content = this.buttonContent;
 
 			this.ease = new Anim.PowerEase({ mode: 'out' });
 

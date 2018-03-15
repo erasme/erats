@@ -270,9 +270,6 @@ namespace Ui
 			if (y === undefined)
 				y = this.y;
 			
-			//console.log(`ptr ${this.id} move #${this.watchers.length}`);
-			//this.watchers.forEach((w) => console.log(w.element));
-		
 			if ((this.x !== x) || (this.y !== y)) {
 				// update the cumulated move
 				let deltaX = this.x - x;

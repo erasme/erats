@@ -27,11 +27,12 @@ namespace Ui {
 			this.content2Box = new Ui.LBox();
 			this.appendChild(this.content2Box);
 
-			this.cursor = new Ui.Movable();
+			this.cursor = new Ui.Movable({
+				content: new Ui.VPanedCursor(),
+				onmoved: () => this.onCursorMove()
+			});
 			this.appendChild(this.cursor);
-
-			this.cursor.setContent(new Ui.VPanedCursor());
-			this.cursor.moved.connect(() => this.onCursorMove());
+			
 			if (init) {
 				if (init.orientation !== undefined)
 					this.orientation = init.orientation;
@@ -66,9 +67,9 @@ namespace Ui {
 			if (this.vertical != vertical) {
 				this.vertical = vertical;
 				if (this.vertical)
-					this.cursor.setContent(new Ui.VPanedCursor());
+					this.cursor.content = new Ui.VPanedCursor();
 				else
-					this.cursor.setContent(new Ui.HPanedCursor());
+					this.cursor.content = new Ui.HPanedCursor();
 				this.invalidateMeasure();
 			}
 		}

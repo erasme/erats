@@ -9,7 +9,7 @@ namespace Ui {
 			super();
 			this.cursor = 'inherit';
 			this.over = new Overable();
-			this.setContent(this.over);
+			this.content = this.over;
 			this.rect = new Rectangle();
 			if (orientation == 'horizontal') {
 				this.rect.width = 30; this.rect.height = 5;

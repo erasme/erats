@@ -720,7 +720,7 @@ namespace Ui {
 			this.grip.upped.connect(() => this.onUp());
 
 			let  lbox = new LBox();
-			this.grip.setContent(lbox);
+			this.grip.content = lbox;
 			lbox.append(new Rectangle({ width: 1, opacity: 0.2, fill: 'black', marginLeft: 14, marginRight: 8 + 2, marginTop: 6, marginBottom: 6 }));
 			lbox.append(new Rectangle({ width: 1, opacity: 0.2, fill: 'black', marginLeft: 19, marginRight: 3 + 2, marginTop: 6, marginBottom: 6 }));
 

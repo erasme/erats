@@ -33,7 +33,7 @@ namespace Ui {
 			this.button.upped.connect(() => this.updateColors());
 
 			this.buttonContent = new Rectangle({ radius: 10, width: 20, height: 20, margin: 10 });
-			this.button.setContent(this.buttonContent);
+			this.button.content = this.buttonContent;
 			if (init) {
 				if (init.value !== undefined)
 					this.value = init.value;	

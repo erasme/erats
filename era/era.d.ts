@@ -2096,9 +2096,10 @@ declare namespace Ui {
 declare namespace Ui {
     interface MovableInit extends MovableBaseInit {
         cursor?: string;
+        content?: Element;
     }
     class Movable extends MovableBase implements MovableInit {
-        private contentBox;
+        private _content;
         private _cursor;
         constructor(init?: MovableInit);
         cursor: string;
@@ -2106,8 +2107,7 @@ declare namespace Ui {
         protected onMove(x: number, y: number): void;
         protected measureCore(width: number, height: number): Size;
         protected arrangeCore(width: number, height: number): void;
-        getContent(): Element;
-        setContent(content: any): void;
+        content: Element | undefined;
         protected onDisable(): void;
         protected onEnable(): void;
     }

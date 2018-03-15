@@ -9608,9 +9608,7 @@ var Ui;
                             watcher.capture();
                         else {
                             _this.setPosition(_this.startPosX, _this.startPosY);
-                            cancelLock = true;
                             watcher.cancel();
-                            cancelLock = false;
                         }
                     }
                 }
@@ -9680,16 +9678,15 @@ var Ui;
         __extends(Movable, _super);
         function Movable(init) {
             var _this = _super.call(this, init) || this;
-            _this.contentBox = undefined;
             _this._cursor = 'inherit';
             _this.focusable = true;
-            _this.contentBox = new Ui.LBox();
-            _this.appendChild(_this.contentBox);
-            _this.contentBox.drawing.style.cursor = _this._cursor;
+            _this.drawing.style.cursor = _this._cursor;
             _this.drawing.addEventListener('keydown', function (e) { return _this.onKeyDown(e); });
             if (init) {
                 if (init.cursor !== undefined)
                     _this.cursor = init.cursor;
+                if (init.content)
+                    _this.content = init.content;
             }
             return _this;
         }
@@ -9697,7 +9694,7 @@ var Ui;
             set: function (cursor) {
                 if (this._cursor != cursor && !this.isDisabled) {
                     this._cursor = cursor;
-                    this.contentBox.drawing.style.cursor = this._cursor;
+                    this.drawing.style.cursor = this._cursor;
                 }
             },
             enumerable: true,
@@ -9725,27 +9722,37 @@ var Ui;
             }
         };
         Movable.prototype.onMove = function (x, y) {
-            this.contentBox.transform = Ui.Matrix.createTranslate(this.posX, this.posY);
+            this.transform = Ui.Matrix.createTranslate(this.posX, this.posY);
         };
         Movable.prototype.measureCore = function (width, height) {
-            return this.contentBox.measure(width, height);
+            if (this._content)
+                return this._content.measure(width, height);
+            else
+                return { width: 0, height: 0 };
         };
         Movable.prototype.arrangeCore = function (width, height) {
-            this.drawing.style.width = '1px';
-            this.drawing.style.height = '1px';
-            this.contentBox.arrange(0, 0, width, height);
+            if (this._content)
+                this._content.arrange(0, 0, width, height);
         };
-        Movable.prototype.getContent = function () {
-            return this.contentBox.firstChild;
-        };
-        Movable.prototype.setContent = function (content) {
-            this.contentBox.content = content;
-        };
+        Object.defineProperty(Movable.prototype, "content", {
+            get: function () {
+                return this._content;
+            },
+            set: function (content) {
+                if (this._content)
+                    this.removeChild(this._content);
+                this._content = content;
+                if (this._content)
+                    this.appendChild(this._content);
+            },
+            enumerable: true,
+            configurable: true
+        });
         Movable.prototype.onDisable = function () {
-            this.contentBox.drawing.style.cursor = 'inherit';
+            this.drawing.style.cursor = 'inherit';
         };
         Movable.prototype.onEnable = function () {
-            this.contentBox.drawing.style.cursor = this._cursor;
+            this.drawing.style.cursor = this._cursor;
         };
         return Movable;
     }(Ui.MovableBase));
@@ -11268,7 +11275,7 @@ var Ui;
             _this.clock = undefined;
             _this.cursor = 'inherit';
             _this.over = new Ui.Overable();
-            _this.setContent(_this.over);
+            _this.content = _this.over;
             _this.rect = new Ui.Rectangle();
             if (orientation == 'horizontal') {
                 _this.rect.width = 30;
@@ -18314,10 +18321,11 @@ var Ui;
             _this.appendChild(_this.content1Box);
             _this.content2Box = new Ui.LBox();
             _this.appendChild(_this.content2Box);
-            _this.cursor = new Ui.Movable();
+            _this.cursor = new Ui.Movable({
+                content: new Ui.VPanedCursor(),
+                onmoved: function () { return _this.onCursorMove(); }
+            });
             _this.appendChild(_this.cursor);
-            _this.cursor.setContent(new Ui.VPanedCursor());
-            _this.cursor.moved.connect(function () { return _this.onCursorMove(); });
             if (init) {
                 if (init.orientation !== undefined)
                     _this.orientation = init.orientation;
@@ -18344,9 +18352,9 @@ var Ui;
                 if (this.vertical != vertical) {
                     this.vertical = vertical;
                     if (this.vertical)
-                        this.cursor.setContent(new Ui.VPanedCursor());
+                        this.cursor.content = new Ui.VPanedCursor();
                     else
-                        this.cursor.setContent(new Ui.HPanedCursor());
+                        this.cursor.content = new Ui.HPanedCursor();
                     this.invalidateMeasure();
                 }
             },
@@ -18545,7 +18553,7 @@ var Ui;
             _this.button.downed.connect(function () { return _this.updateColors(); });
             _this.button.upped.connect(function () { return _this.updateColors(); });
             _this.buttonContent = new Ui.Rectangle({ radius: 10, width: 20, height: 20, margin: 10 });
-            _this.button.setContent(_this.buttonContent);
+            _this.button.content = _this.buttonContent;
             if (init) {
                 if (init.value !== undefined)
                     _this.value = init.value;
@@ -21821,7 +21829,7 @@ var Ui;
             _this.grip.moved.connect(function () { return _this.onMove(); });
             _this.grip.upped.connect(function () { return _this.onUp(); });
             var lbox = new Ui.LBox();
-            _this.grip.setContent(lbox);
+            _this.grip.content = lbox;
             lbox.append(new Ui.Rectangle({ width: 1, opacity: 0.2, fill: 'black', marginLeft: 14, marginRight: 8 + 2, marginTop: 6, marginBottom: 6 }));
             lbox.append(new Ui.Rectangle({ width: 1, opacity: 0.2, fill: 'black', marginLeft: 19, marginRight: 3 + 2, marginTop: 6, marginBottom: 6 }));
             _this.separator = new Ui.Rectangle({ width: 1, fill: 'black', opacity: 0.3 });
@@ -22874,7 +22882,7 @@ var Ui;
             _this.button.downed.connect(function () { return _this.onDown(); });
             _this.button.upped.connect(function (e) { return _this.onUp(e.speedX, e.cumulMove, e.abort); });
             _this.buttonContent = new Ui.Rectangle({ radius: 10, width: 20, height: 20, margin: 10 });
-            _this.button.setContent(_this.buttonContent);
+            _this.button.content = _this.buttonContent;
             _this.ease = new Anim.PowerEase({ mode: 'out' });
             if (init) {
                 if (init.value !== undefined)
