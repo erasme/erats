@@ -407,6 +407,7 @@ namespace Ui {
 		protected onPointerUp(watcher) {
 			if ((this.watcher1 !== undefined) && (this.watcher1 === watcher)) {
 				if (this.watcher2 !== undefined) {
+					this.watcher1.unwatch();
 					this.watcher1 = this.watcher2;
 					delete(this.watcher2);
 					this.watcher1.pointer.setInitialPosition(this.watcher1.pointer.getX(), this.watcher1.pointer.getY());
@@ -424,11 +425,13 @@ namespace Ui {
 					let speed = this.watcher1.getSpeed();
 					this.speedX = speed.x;
 					this.speedY = speed.y;
+					this.watcher1.unwatch();
 					delete(this.watcher1);
 					this.startInertia();
 				}
 			}
 			if ((this.watcher2 !== undefined) && (this.watcher2 === watcher)) {
+				this.watcher2.unwatch();
 				delete(this.watcher2);
 				this.watcher1.pointer.setInitialPosition(this.watcher1.pointer.getX(), this.watcher1.pointer.getY());
 				this.startAngle = this._angle;
@@ -816,7 +819,7 @@ namespace Ui {
 		protected onPointerDown(event: PointerEvent) {
 			if (!this._allowLeftMouse && event.pointerType == 'mouse' && event.pointer.button == 0)
 				return;	
-
+			
 			this.stopInertia();
 
 			if (this.watcher1 === undefined) {
@@ -855,7 +858,7 @@ namespace Ui {
 
 		protected onPointerMove(watcher) {
 			let pos1; let pos2; let start1; let start2;
-							
+			
 			// 2 fingers
 			if ((this.watcher1 !== undefined) && (this.watcher2 !== undefined)) {
 
@@ -963,6 +966,7 @@ namespace Ui {
 		protected onPointerUp(watcher) {
 			if ((this.watcher1 !== undefined) && (this.watcher1 === watcher)) {
 				if (this.watcher2 !== undefined) {
+					this.watcher1.unwatch();
 					this.watcher1 = this.watcher2;
 					delete(this.watcher2);
 					this.watcher1.pointer.setInitialPosition(this.watcher1.pointer.getX(), this.watcher1.pointer.getY());
@@ -980,11 +984,13 @@ namespace Ui {
 					let speed = this.watcher1.getSpeed();
 					this.speedX = speed.x;
 					this.speedY = speed.y;
+					this.watcher1.unwatch();
 					delete(this.watcher1);
 					this.startInertia();
 				}
 			}
 			if ((this.watcher2 !== undefined) && (this.watcher2 === watcher)) {
+				this.watcher2.unwatch();
 				delete(this.watcher2);
 				this.watcher1.pointer.setInitialPosition(this.watcher1.pointer.getX(), this.watcher1.pointer.getY());
 				this.startAngle = this._angle;
