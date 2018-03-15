@@ -1322,6 +1322,9 @@ declare namespace Ui {
         readonly ptrdowned: Core.Events<{
             target: Pointer;
         }>;
+        readonly ptrcanceled: Core.Events<{
+            target: Pointer;
+        }>;
         constructor(type: string, id: number);
         capture(watcher: any): void;
         release(watcher: any): void;
@@ -1352,6 +1355,7 @@ declare namespace Ui {
         getIsInside(element: Element): boolean;
         down(x: number, y: number, buttons: number, button: number): void;
         up(): void;
+        cancel(): void;
         watch(element: any): PointerWatcher;
         unwatch(watcher: any): void;
         static HOLD_DELAY: number;

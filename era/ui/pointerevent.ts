@@ -166,6 +166,7 @@ namespace Ui
 		readonly ptrmoved = new Core.Events<{ target: Pointer }>();
 		readonly ptrupped = new Core.Events<{ target: Pointer }>();
 		readonly ptrdowned = new Core.Events<{ target: Pointer }>();
+		readonly ptrcanceled = new Core.Events<{ target: Pointer }>();
 
 		constructor(type: string, id: number) {
 			super();
@@ -378,6 +379,14 @@ namespace Ui
 			}
 			this.captureWatcher = undefined;
 			this.ptrupped.fire({ target: this });
+		}
+
+		cancel() {
+			let watchers = this.watchers.slice();
+			for (let watcher of watchers)
+					watcher.cancel();
+			this.captureWatcher = undefined;
+			this.ptrcanceled.fire({ target: this });
 		}
 
 		watch(element) {
@@ -606,7 +615,13 @@ namespace Ui
 		}
 
 		onPointerCancel(event) {
-			// TODO
+			event.target.releasePointerCapture(event.pointerId);
+			if (this.pointers[event.pointerId] !== undefined) {
+				this.pointers[event.pointerId].setControls(event.altKey, event.ctrlKey, event.shiftKey);
+				this.pointers[event.pointerId].cancel();
+				if (this.pointers[event.pointerId].getType() == 'touch')
+					delete (this.pointers[event.pointerId]);
+			}
 		}
 
 		updateTouches(event) {

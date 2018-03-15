@@ -6327,6 +6327,7 @@ var Ui;
             _this.ptrmoved = new Core.Events();
             _this.ptrupped = new Core.Events();
             _this.ptrdowned = new Core.Events();
+            _this.ptrcanceled = new Core.Events();
             _this.type = type;
             _this.id = id;
             _this.start = (new Date().getTime()) / 1000;
@@ -6494,6 +6495,15 @@ var Ui;
             }
             this.captureWatcher = undefined;
             this.ptrupped.fire({ target: this });
+        };
+        Pointer.prototype.cancel = function () {
+            var watchers = this.watchers.slice();
+            for (var _i = 0, watchers_1 = watchers; _i < watchers_1.length; _i++) {
+                var watcher = watchers_1[_i];
+                watcher.cancel();
+            }
+            this.captureWatcher = undefined;
+            this.ptrcanceled.fire({ target: this });
         };
         Pointer.prototype.watch = function (element) {
             var watcher = new PointerWatcher(element, this);
@@ -6679,6 +6689,13 @@ var Ui;
             }
         };
         PointerManager.prototype.onPointerCancel = function (event) {
+            event.target.releasePointerCapture(event.pointerId);
+            if (this.pointers[event.pointerId] !== undefined) {
+                this.pointers[event.pointerId].setControls(event.altKey, event.ctrlKey, event.shiftKey);
+                this.pointers[event.pointerId].cancel();
+                if (this.pointers[event.pointerId].getType() == 'touch')
+                    delete (this.pointers[event.pointerId]);
+            }
         };
         PointerManager.prototype.updateTouches = function (event) {
             this.lastUpdate = (new Date().getTime()) / 1000;
@@ -21184,14 +21201,14 @@ var Ui;
                 if (watcher.pointer.shiftKey)
                     selection.append(res_1);
                 else if (watcher.pointer.ctrlKey) {
-                    var watchers_1 = selection.watchers;
+                    var watchers_2 = selection.watchers;
                     var res2_1 = new Array();
-                    watchers_1.forEach(function (w) {
+                    watchers_2.forEach(function (w) {
                         if (res_1.indexOf(w) == -1)
                             res2_1.push(w);
                     });
                     res_1.forEach(function (w) {
-                        if (watchers_1.indexOf(w) == -1)
+                        if (watchers_2.indexOf(w) == -1)
                             res2_1.push(w);
                     });
                     selection.watchers = res2_1;
