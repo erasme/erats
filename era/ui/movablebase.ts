@@ -139,7 +139,7 @@ namespace Ui {
 		private onPointerDown(event: PointerEvent) {
 			if (this._isDown || this.isDisabled || this._lock)
 				return;
-		
+			
 			this.stopInertia();
 			this.startPosX = this.posX;
 			this.startPosY = this.posY;
@@ -175,9 +175,7 @@ namespace Ui {
 							watcher.capture();
 						else {
 							this.setPosition(this.startPosX, this.startPosY);
-							cancelLock = true;
 							watcher.cancel();
-							cancelLock = false;
 						}
 					}
 				}
