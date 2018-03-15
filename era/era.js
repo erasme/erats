@@ -7023,7 +7023,7 @@ var Ui;
             _this.watcher.upped.connect(_this.onPointerUp);
             _this.watcher.cancelled.connect(_this.onPointerCancel);
             if (_this.delayed)
-                _this.timer = new Core.DelayedTask(0.5, _this.onTimer);
+                _this.timer = new Core.DelayedTask(0.5, function () { return _this.onTimer(); });
             return _this;
         }
         DragEmuDataTransfer.prototype.setData = function (data) {
