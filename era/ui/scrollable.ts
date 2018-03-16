@@ -8,6 +8,7 @@ namespace Ui
 		scrollHorizontal?: boolean;
 		scrollVertical?: boolean;
 		scale?: number;
+		onscrolled?: (event: { target: Scrollable, offsetX: number, offsetY: number }) => void;
 	}
 
 	export class Scrollable extends Container implements ScrollableInit
@@ -74,7 +75,9 @@ namespace Ui
 				if (init.scrollVertical !== undefined)
 					this.scrollVertical = init.scrollVertical;	
 				if (init.scale !== undefined)
-					this.scale = init.scale;	
+					this.scale = init.scale;
+				if (init.onscrolled)
+					this.scrolled.connect(init.onscrolled);	
 			}	
 		}
 

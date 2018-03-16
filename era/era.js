@@ -10851,6 +10851,8 @@ var Ui;
                     _this.scrollVertical = init.scrollVertical;
                 if (init.scale !== undefined)
                     _this.scale = init.scale;
+                if (init.onscrolled)
+                    _this.scrolled.connect(init.onscrolled);
             }
             return _this;
         }
@@ -19544,6 +19546,18 @@ var Ui;
                     _this.currentTime = init.currentTime;
                 if (init.controls !== undefined)
                     _this.controls = init.controls;
+                if (init.onstatechanged)
+                    _this.statechanged.connect(init.onstatechanged);
+                if (init.onready)
+                    _this.ready.connect(init.onready);
+                if (init.onended)
+                    _this.ended.connect(init.onended);
+                if (init.onerror)
+                    _this.error.connect(init.onerror);
+                if (init.ontimeupdated)
+                    _this.timeupdated.connect(init.ontimeupdated);
+                if (init.onbufferingupdated)
+                    _this.bufferingupdated.connect(init.onbufferingupdated);
             }
             return _this;
         }

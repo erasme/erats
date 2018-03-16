@@ -9,6 +9,12 @@ namespace Ui {
 		volume?: number;
 		currentTime?: number;
 		controls?: boolean;
+		onstatechanged?: (event: { target: Video, state: MediaState }) => void;
+		onready?: (event: { target: Video }) => void;
+		onended?: (event: { target: Video }) => void;
+		onerror?: (event: { target: Video, code: number }) => void;
+		ontimeupdated?: (event: { target: Video, time: number }) => void;
+		onbufferingupdated?: (event: { target: Video, buffer: number }) => void;
 	}
 
 	export class Video extends Element {
@@ -57,7 +63,19 @@ namespace Ui {
 					this.currentTime = init.currentTime;
 				if (init.controls !== undefined)
 					this.controls = init.controls;
-			}	
+				if (init.onstatechanged)
+					this.statechanged.connect(init.onstatechanged);
+				if (init.onready)
+					this.ready.connect(init.onready);	
+				if (init.onended)
+					this.ended.connect(init.onended);
+				if (init.onerror)
+					this.error.connect(init.onerror);
+				if (init.ontimeupdated)
+					this.timeupdated.connect(init.ontimeupdated);
+				if (init.onbufferingupdated)
+					this.bufferingupdated.connect(init.onbufferingupdated);				
+			}
 		}
 
 		//

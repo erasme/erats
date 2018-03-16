@@ -2312,6 +2312,11 @@ declare namespace Ui {
         scrollHorizontal?: boolean;
         scrollVertical?: boolean;
         scale?: number;
+        onscrolled?: (event: {
+            target: Scrollable;
+            offsetX: number;
+            offsetY: number;
+        }) => void;
     }
     class Scrollable extends Container implements ScrollableInit {
         private contentBox;
@@ -4009,6 +4014,28 @@ declare namespace Ui {
         volume?: number;
         currentTime?: number;
         controls?: boolean;
+        onstatechanged?: (event: {
+            target: Video;
+            state: MediaState;
+        }) => void;
+        onready?: (event: {
+            target: Video;
+        }) => void;
+        onended?: (event: {
+            target: Video;
+        }) => void;
+        onerror?: (event: {
+            target: Video;
+            code: number;
+        }) => void;
+        ontimeupdated?: (event: {
+            target: Video;
+            time: number;
+        }) => void;
+        onbufferingupdated?: (event: {
+            target: Video;
+            buffer: number;
+        }) => void;
     }
     class Video extends Element {
         oggSrc: string;
