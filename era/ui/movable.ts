@@ -11,6 +11,7 @@ namespace Ui {
 		constructor(init?: MovableInit) {
 			super(init);
 			this.focusable = true;
+			this.drawing.style.touchAction = 'none';
 			this.drawing.style.cursor = this._cursor;
 			this.drawing.addEventListener('keydown', (e) => this.onKeyDown(e));
 			if (init) {

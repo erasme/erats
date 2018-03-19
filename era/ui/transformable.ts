@@ -59,6 +59,8 @@ namespace Ui {
 			super();
 
 			this.element = init.element;
+			this.element.drawing.style.touchAction = 'none';
+
 			if (init.transform != undefined)
 				this.transform = init.transform;
 			if (init.inertiastart != undefined)
@@ -615,7 +617,8 @@ namespace Ui {
 		constructor(init?: TransformableInit) {
 			super();
 			this.focusable = true;
-
+			this.drawing.style.touchAction = 'none';
+			
 			this.contentBox = new Ui.LBox();
 			this.contentBox.setTransformOrigin(0, 0, true);
 			this.appendChild(this.contentBox);

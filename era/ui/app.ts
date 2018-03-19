@@ -244,10 +244,10 @@ namespace Ui
 			meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
 			document.getElementsByTagName("head")[0].appendChild(meta);
 
-			style = document.createElement('style');
-			style.type = 'text/css';
-			style.innerHTML = '* { touch-action: none; }';
-			document.getElementsByTagName('head')[0].appendChild(style);
+			//style = document.createElement('style');
+			//style.type = 'text/css';
+			//style.innerHTML = '* { touch-action: none; }';
+			//document.getElementsByTagName('head')[0].appendChild(style);
 
 			// hide scroll tap focus (webkit)
 			if (Core.Navigator.isWebkit) {
@@ -262,8 +262,8 @@ namespace Ui
 				style.type = 'text/css';
 				style.innerHTML =
 					'@-ms-viewport { width: device-width; } ' +
-					'body { -ms-content-zooming: none; } ' +
-					'* { touch-action: none; } ';
+					'body { -ms-content-zooming: none; } '; //+
+					//'* { touch-action: none; } ';
 				document.getElementsByTagName('head')[0].appendChild(style);
 			}
 			this._loaded = true;

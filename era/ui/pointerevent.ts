@@ -599,7 +599,6 @@ namespace Ui
 				let pointer = new Pointer(type, event.pointerId);
 				this.pointers[event.pointerId] = pointer;
 			}
-
 			this.pointers[event.pointerId].setControls(event.altKey, event.ctrlKey, event.shiftKey);
 			this.pointers[event.pointerId].move(event.clientX, event.clientY);
 		}

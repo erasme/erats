@@ -18,11 +18,12 @@ namespace Ui {
 		}) {
 			super();
 			this.element = init.element;
+			this.element.drawing.style.touchAction = 'none';
 			this.data = init.data;
 			if (init.start !== undefined)
 				this.start = init.start;
 			if (init.end !== undefined)
-				this.end = init.end;	
+				this.end = init.end;
 			this.element.ptrdowned.connect(e => this.onDraggablePointerDown(e));
 		}
 
@@ -101,6 +102,7 @@ namespace Ui {
 
 		constructor(init?: DraggableInit) {
 			super(init);
+			this.drawing.style.touchAction = 'none';
 			this.ptrdowned.connect((e) => this.onDraggablePointerDown(e));
 			if (init) {
 				if (init.ondragstarted)

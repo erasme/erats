@@ -260,6 +260,8 @@ namespace Ui
 				e.preventDefault();
 				return false;
 			};
+			if ('style' in res)
+				res.style.touchAction = 'none';	
 			return res;
 		}
 
@@ -291,6 +293,8 @@ namespace Ui
 						image.style.removeProperty('-o-transform');
 					image.style.left = '0px';
 					image.style.top = '0px';
+					image.style.touchAction = 'none';
+					image.oncontextmenu = e => e.preventDefault();
 					return image;
 				};
 

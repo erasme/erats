@@ -7081,6 +7081,8 @@ var Ui;
                 e.preventDefault();
                 return false;
             };
+            if ('style' in res)
+                res.style.touchAction = 'none';
             return res;
         };
         DragEmuDataTransfer.prototype.onTimer = function () {
@@ -7107,6 +7109,8 @@ var Ui;
                         image.style.removeProperty('-o-transform');
                     image.style.left = '0px';
                     image.style.top = '0px';
+                    image.style.touchAction = 'none';
+                    image.oncontextmenu = function (e) { return e.preventDefault(); };
                     return image;
                 };
                 if (this._data instanceof Ui.Selection) {
@@ -8490,6 +8494,7 @@ var Ui;
             var _this = _super.call(this) || this;
             _this.allowedMode = 'all';
             _this.element = init.element;
+            _this.element.drawing.style.touchAction = 'none';
             _this.data = init.data;
             if (init.start !== undefined)
                 _this.start = init.start;
@@ -8545,6 +8550,7 @@ var Ui;
             _this.allowedMode = 'all';
             _this.dragstarted = new Core.Events();
             _this.dragended = new Core.Events();
+            _this.drawing.style.touchAction = 'none';
             _this.ptrdowned.connect(function (e) { return _this.onDraggablePointerDown(e); });
             if (init) {
                 if (init.ondragstarted)
@@ -9698,6 +9704,7 @@ var Ui;
             var _this = _super.call(this, init) || this;
             _this._cursor = 'inherit';
             _this.focusable = true;
+            _this.drawing.style.touchAction = 'none';
             _this.drawing.style.cursor = _this._cursor;
             _this.drawing.addEventListener('keydown', function (e) { return _this.onKeyDown(e); });
             if (init) {
@@ -9802,6 +9809,7 @@ var Ui;
             _this.speedX = 0;
             _this.speedY = 0;
             _this.element = init.element;
+            _this.element.drawing.style.touchAction = 'none';
             if (init.transform != undefined)
                 _this.transform = init.transform;
             if (init.inertiastart != undefined)
@@ -10284,6 +10292,7 @@ var Ui;
             _this.inertiastarted = new Core.Events();
             _this.inertiaended = new Core.Events();
             _this.focusable = true;
+            _this.drawing.style.touchAction = 'none';
             _this.contentBox = new Ui.LBox();
             _this.contentBox.setTransformOrigin(0, 0, true);
             _this.appendChild(_this.contentBox);
@@ -14305,10 +14314,6 @@ var Ui;
             meta.name = 'viewport';
             meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
             document.getElementsByTagName("head")[0].appendChild(meta);
-            style = document.createElement('style');
-            style.type = 'text/css';
-            style.innerHTML = '* { touch-action: none; }';
-            document.getElementsByTagName('head')[0].appendChild(style);
             if (Core.Navigator.isWebkit) {
                 style = document.createElement('style');
                 style.type = 'text/css';
@@ -14320,8 +14325,7 @@ var Ui;
                 style.type = 'text/css';
                 style.innerHTML =
                     '@-ms-viewport { width: device-width; } ' +
-                        'body { -ms-content-zooming: none; } ' +
-                        '* { touch-action: none; } ';
+                        'body { -ms-content-zooming: none; } ';
                 document.getElementsByTagName('head')[0].appendChild(style);
             }
             this._loaded = true;
