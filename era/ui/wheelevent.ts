@@ -88,7 +88,8 @@ namespace Ui
 				wheelEvent.setShiftKey(event.shiftKey);
 				wheelEvent.setMetaKey(event.metaKey);
 				wheelEvent.dispatchEvent(target);
-				event.preventDefault();
+				if (wheelEvent.getIsPropagationStopped())
+					event.preventDefault();
 			}
 		}
 	}
