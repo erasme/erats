@@ -168,10 +168,10 @@ namespace Ui
 		}
 
 		private initFromRgb(r: number, g: number, b: number, a: number = 1) {
-			this.r = Math.min(Math.max(this.r, 0), 1);
-			this.g = Math.min(Math.max(this.g, 0), 1);
-			this.b = Math.min(Math.max(this.b, 0), 1);
-			this.a = Math.min(Math.max(this.a, 0), 1);
+			this.r = Math.min(Math.max(r, 0), 1);
+			this.g = Math.min(Math.max(g, 0), 1);
+			this.b = Math.min(Math.max(b, 0), 1);
+			this.a = Math.min(Math.max(a, 0), 1);
 		}
 
 		toString(): string {

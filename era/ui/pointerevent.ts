@@ -625,6 +625,7 @@ namespace Ui
 
 		updateTouches(event) {
 			this.lastUpdate = (new Date().getTime()) / 1000;
+			let eventTaken = false;
 			for (let id in this.pointers) {
 				let found = false;
 				for (let i = 0; (i < event.touches.length) && !found; i++) {
@@ -632,6 +633,7 @@ namespace Ui
 						found = true;
 						this.pointers[id].setControls(event.altKey, event.ctrlKey, event.shiftKey);
 						this.pointers[id].move(event.touches[i].clientX, event.touches[i].clientY);
+						eventTaken = eventTaken || this.pointers[id].getIsCaptured();
 					}
 				}
 				if (!found) {
@@ -649,6 +651,7 @@ namespace Ui
 					this.pointers[event.touches[i].identifier] = pointer;
 					pointer.setControls(event.altKey, event.ctrlKey, event.shiftKey);
 					pointer.down(event.touches[i].clientX, event.touches[i].clientY, 1, 0);
+					eventTaken = eventTaken || pointer.getIsCaptured();
 				}
 			}
 			if (event.type === 'touchstart') {
@@ -662,7 +665,8 @@ namespace Ui
 			// virtual keyboard... so we will also need to detect
 			// emulated mouse event to avoid them
 			if (event.type === 'touchmove')
-				event.preventDefault();
+			//if (eventTaken)	
+				event.preventDefault();	
 		}
 	}
 }

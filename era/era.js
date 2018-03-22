@@ -3063,10 +3063,10 @@ var Ui;
         };
         Color.prototype.initFromRgb = function (r, g, b, a) {
             if (a === void 0) { a = 1; }
-            this.r = Math.min(Math.max(this.r, 0), 1);
-            this.g = Math.min(Math.max(this.g, 0), 1);
-            this.b = Math.min(Math.max(this.b, 0), 1);
-            this.a = Math.min(Math.max(this.a, 0), 1);
+            this.r = Math.min(Math.max(r, 0), 1);
+            this.g = Math.min(Math.max(g, 0), 1);
+            this.b = Math.min(Math.max(b, 0), 1);
+            this.a = Math.min(Math.max(a, 0), 1);
         };
         Color.prototype.toString = function () {
             return 'color(' + this.r.toFixed(4) + ', ' + this.g.toFixed(4) + ', ' + this.b.toFixed(4) + ', ' + this.a.toFixed(4) + ')';
@@ -6699,6 +6699,7 @@ var Ui;
         };
         PointerManager.prototype.updateTouches = function (event) {
             this.lastUpdate = (new Date().getTime()) / 1000;
+            var eventTaken = false;
             for (var id in this.pointers) {
                 var found = false;
                 for (var i = 0; (i < event.touches.length) && !found; i++) {
@@ -6706,6 +6707,7 @@ var Ui;
                         found = true;
                         this.pointers[id].setControls(event.altKey, event.ctrlKey, event.shiftKey);
                         this.pointers[id].move(event.touches[i].clientX, event.touches[i].clientY);
+                        eventTaken = eventTaken || this.pointers[id].getIsCaptured();
                     }
                 }
                 if (!found) {
@@ -6722,6 +6724,7 @@ var Ui;
                     this.pointers[event.touches[i].identifier] = pointer;
                     pointer.setControls(event.altKey, event.ctrlKey, event.shiftKey);
                     pointer.down(event.touches[i].clientX, event.touches[i].clientY, 1, 0);
+                    eventTaken = eventTaken || pointer.getIsCaptured();
                 }
             }
             if (event.type === 'touchstart') {
