@@ -1326,6 +1326,8 @@ namespace Ui
 			if(this._style === undefined)
 				this._style = {};
 			this._style[property] = value;
+			this.mergeStyles();
+			this.onInternalStyleChange();
 		}
 
 		getStyleProperty(property: string): any {			
