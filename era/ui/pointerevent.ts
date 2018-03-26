@@ -623,13 +623,14 @@ namespace Ui
 			}
 		}
 
-		updateTouches(event) {
+		updateTouches(event: TouchEvent) {
 			this.lastUpdate = (new Date().getTime()) / 1000;
 			let eventTaken = false;
+
 			for (let id in this.pointers) {
 				let found = false;
 				for (let i = 0; (i < event.touches.length) && !found; i++) {
-					if (id == event.touches[i].identifier) {
+					if (parseInt(id) == event.touches[i].identifier) {
 						found = true;
 						this.pointers[id].setControls(event.altKey, event.ctrlKey, event.shiftKey);
 						this.pointers[id].move(event.touches[i].clientX, event.touches[i].clientY);
@@ -660,13 +661,18 @@ namespace Ui
 					this.lastDownTouchY = event.changedTouches[i].clientY;
 				}
 			}
+
+			console.log(`updateTouches ${event.type} ${eventTaken}`);
+
 			// we dont prevent default for all events because we need
 			// default behavious like focus handling, text selection,
 			// virtual keyboard... so we will also need to detect
 			// emulated mouse event to avoid them
-			if (event.type === 'touchmove')
-			//if (eventTaken)	
-				event.preventDefault();	
+			//if (event.type === 'touchmove')
+			if (eventTaken) {
+				event.preventDefault();
+				event.stopPropagation();
+			}
 		}
 	}
 }
