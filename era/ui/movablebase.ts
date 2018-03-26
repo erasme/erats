@@ -30,6 +30,7 @@ namespace Ui {
 
 		constructor(init?: MovableBaseInit) {
 			super(init);
+			this.drawing.style.touchAction = 'none';
 			this.ptrdowned.connect((e) => this.onPointerDown(e));
 			if (init) {
 				if (init.lock !== undefined)
@@ -77,6 +78,7 @@ namespace Ui {
 
 		set moveHorizontal(moveHorizontal: boolean) {
 			this._moveHorizontal = moveHorizontal;
+			this.updateTouchAction();
 		}
 
 		get moveVertical(): boolean {
@@ -85,6 +87,18 @@ namespace Ui {
 
 		set moveVertical(moveVertical: boolean) {
 			this._moveVertical = moveVertical;
+			this.updateTouchAction();
+		}
+
+		private updateTouchAction() {
+			if (this._moveHorizontal && this._moveVertical)
+				this.drawing.style.touchAction = 'none';
+			else if (this._moveHorizontal)
+				this.drawing.style.touchAction = 'pan-y';
+			else if (this._moveVertical)
+				this.drawing.style.touchAction = 'pan-x';
+			else
+				this.drawing.style.touchAction = 'auto';
 		}
 
 		setPosition(x?: number, y?: number, dontSignal: boolean = false) {
