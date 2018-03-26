@@ -1383,7 +1383,7 @@ declare namespace Ui {
         onPointerMove(event: any): void;
         onPointerUp(event: any): void;
         onPointerCancel(event: any): void;
-        updateTouches(event: any): void;
+        updateTouches(event: TouchEvent): void;
     }
 }
 declare namespace Ui {
@@ -2086,6 +2086,7 @@ declare namespace Ui {
         inertia: boolean;
         moveHorizontal: boolean;
         moveVertical: boolean;
+        private updateTouchAction();
         setPosition(x?: number, y?: number, dontSignal?: boolean): void;
         readonly positionX: number;
         readonly positionY: number;

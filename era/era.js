@@ -1251,6 +1251,7 @@ var Core;
             var _this = this;
             return new Promise(function (resolve) {
                 _this.done.connect(function () { return resolve(_this); });
+                _this.error.connect(function () { return resolve(_this); });
                 _this.send();
             });
         };
@@ -4337,6 +4338,8 @@ var Ui;
             if (this._style === undefined)
                 this._style = {};
             this._style[property] = value;
+            this.mergeStyles();
+            this.onInternalStyleChange();
         };
         Element.prototype.getStyleProperty = function (property) {
             var current;
@@ -6703,7 +6706,7 @@ var Ui;
             for (var id in this.pointers) {
                 var found = false;
                 for (var i = 0; (i < event.touches.length) && !found; i++) {
-                    if (id == event.touches[i].identifier) {
+                    if (parseInt(id) == event.touches[i].identifier) {
                         found = true;
                         this.pointers[id].setControls(event.altKey, event.ctrlKey, event.shiftKey);
                         this.pointers[id].move(event.touches[i].clientX, event.touches[i].clientY);
@@ -6733,8 +6736,11 @@ var Ui;
                     this.lastDownTouchY = event.changedTouches[i].clientY;
                 }
             }
-            if (event.type === 'touchmove')
+            console.log("updateTouches " + event.type + " " + eventTaken);
+            if (eventTaken) {
                 event.preventDefault();
+                event.stopPropagation();
+            }
         };
         return PointerManager;
     }(Core.Object));
@@ -9486,6 +9492,7 @@ var Ui;
             _this.upped = new Core.Events();
             _this.downed = new Core.Events();
             _this.moved = new Core.Events();
+            _this.drawing.style.touchAction = 'none';
             _this.ptrdowned.connect(function (e) { return _this.onPointerDown(e); });
             if (init) {
                 if (init.lock !== undefined)
@@ -9540,6 +9547,7 @@ var Ui;
             },
             set: function (moveHorizontal) {
                 this._moveHorizontal = moveHorizontal;
+                this.updateTouchAction();
             },
             enumerable: true,
             configurable: true
@@ -9550,10 +9558,21 @@ var Ui;
             },
             set: function (moveVertical) {
                 this._moveVertical = moveVertical;
+                this.updateTouchAction();
             },
             enumerable: true,
             configurable: true
         });
+        MovableBase.prototype.updateTouchAction = function () {
+            if (this._moveHorizontal && this._moveVertical)
+                this.drawing.style.touchAction = 'none';
+            else if (this._moveHorizontal)
+                this.drawing.style.touchAction = 'pan-y';
+            else if (this._moveVertical)
+                this.drawing.style.touchAction = 'pan-x';
+            else
+                this.drawing.style.touchAction = 'auto';
+        };
         MovableBase.prototype.setPosition = function (x, y, dontSignal) {
             if (dontSignal === void 0) { dontSignal = false; }
             if ((x !== undefined) && (this._moveHorizontal)) {
@@ -14440,13 +14459,13 @@ var Ui;
         });
         App.prototype.onReady = function () {
             if (this._loaded) {
-                document.documentElement.style.position = 'absolute';
+                document.documentElement.style.position = 'fixed';
                 document.documentElement.style.padding = '0px';
                 document.documentElement.style.margin = '0px';
                 document.documentElement.style.border = '0px solid black';
                 document.documentElement.style.width = '100%';
                 document.documentElement.style.height = '100%';
-                document.body.style.position = 'absolute';
+                document.body.style.position = 'fixed';
                 document.body.style.overflow = 'hidden';
                 document.body.style.padding = '0px';
                 document.body.style.margin = '0px';
@@ -14455,7 +14474,6 @@ var Ui;
                 document.body.style.width = '100%';
                 document.body.style.height = '100%';
                 document.body.appendChild(this.drawing);
-                this.handleScrolling(document.body);
                 if ((this.requireFonts !== undefined) && (this.testFontTask === undefined))
                     this.testRequireFonts();
                 this.isLoaded = true;
