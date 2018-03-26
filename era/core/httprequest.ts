@@ -125,6 +125,7 @@ module Core
 		sendAsync() {
 			return new Promise<Core.HttpRequest>(resolve => {
 				this.done.connect(() => resolve(this));
+				this.error.connect(() => resolve(this));
 				this.send();
 			});
 		}
