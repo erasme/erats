@@ -4997,7 +4997,7 @@ var Core;
             this.ellipse(x, y, radius, radius, 0, startAngle, endAngle, anticlockwise);
         };
         SVG2DPath.prototype.ellipse = function (x, y, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise) {
-            if ((rotation === 0) && (startAngle === 0) && (endAngle === Math.PI * 2)) {
+            if ((rotation === 0) && (Math.abs(endAngle - startAngle) >= Math.PI * 2)) {
                 this.moveTo(x, y + radiusY);
                 this.arcTo(x + radiusX, y + radiusY, x + radiusX, y, radiusX, radiusY, Math.PI / 2);
                 this.arcTo(x + radiusX, y - radiusY, x, y - radiusY, radiusX, radiusY, Math.PI / 2);

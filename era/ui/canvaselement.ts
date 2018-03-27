@@ -246,7 +246,7 @@ namespace Core {
 
 		ellipse(x, y, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise) {
 			// special case, full ellipse
-			if ((rotation === 0) && (startAngle === 0) && (endAngle === Math.PI * 2)) {
+			if ((rotation === 0) && (Math.abs(endAngle - startAngle) >= Math.PI * 2)) {
 				this.moveTo(x, y + radiusY);
 				this.arcTo(x + radiusX, y + radiusY, x + radiusX, y, radiusX, radiusY, Math.PI / 2);
 				this.arcTo(x + radiusX, y - radiusY, x, y - radiusY, radiusX, radiusY, Math.PI / 2);
