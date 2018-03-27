@@ -248,10 +248,18 @@ namespace Core {
 			// special case, full ellipse
 			if ((rotation === 0) && (Math.abs(endAngle - startAngle) >= Math.PI * 2)) {
 				this.moveTo(x, y + radiusY);
-				this.arcTo(x + radiusX, y + radiusY, x + radiusX, y, radiusX, radiusY, Math.PI / 2);
-				this.arcTo(x + radiusX, y - radiusY, x, y - radiusY, radiusX, radiusY, Math.PI / 2);
-				this.arcTo(x - radiusX, y - radiusY, x - radiusX, y, radiusX, radiusY, Math.PI / 2);
-				this.arcTo(x - radiusX, y + radiusY, x, y + radiusY, radiusX, radiusY, Math.PI / 2);
+				if (anticlockwise) {
+					this.arcTo(x - radiusX, y + radiusY, x - radiusX, y, radiusX, radiusY, Math.PI / 2);
+					this.arcTo(x - radiusX, y - radiusY, x, y - radiusY, radiusX, radiusY, Math.PI / 2);
+					this.arcTo(x + radiusY, y - radiusY, x + radiusX, y, radiusX, radiusY, Math.PI / 2);
+					this.arcTo(x + radiusX, y + radiusY, x, y + radiusY, radiusX, radiusY, Math.PI / 2);
+				}
+				else {
+					this.arcTo(x + radiusX, y + radiusY, x + radiusX, y, radiusX, radiusY, Math.PI / 2);
+					this.arcTo(x + radiusX, y - radiusY, x, y - radiusY, radiusX, radiusY, Math.PI / 2);
+					this.arcTo(x - radiusX, y - radiusY, x - radiusX, y, radiusX, radiusY, Math.PI / 2);
+					this.arcTo(x - radiusX, y + radiusY, x, y + radiusY, radiusX, radiusY, Math.PI / 2);
+				}
 			}
 			else {
 				let startX = x + Math.cos(startAngle) * radiusX;
