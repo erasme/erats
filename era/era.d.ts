@@ -3539,6 +3539,7 @@ declare namespace Ui {
     interface ScaleBoxInit extends ContainerInit {
         fixedWidth?: number;
         fixedHeight?: number;
+        content?: Ui.Element;
     }
     class ScaleBox extends Container {
         private _fixedWidth;

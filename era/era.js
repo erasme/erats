@@ -17026,6 +17026,8 @@ var Ui;
                     _this.fixedWidth = init.fixedWidth;
                 if (init.fixedHeight !== undefined)
                     _this.fixedHeight = init.fixedHeight;
+                if (init.content !== undefined)
+                    _this.content = init.content;
             }
             return _this;
         }

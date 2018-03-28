@@ -3,6 +3,7 @@
 	export interface ScaleBoxInit extends ContainerInit {
 		fixedWidth?: number;
 		fixedHeight?: number;
+		content?: Ui.Element;
 	}
 
 	export class ScaleBox extends Container
@@ -16,7 +17,9 @@
 				if (init.fixedWidth !== undefined)
 					this.fixedWidth = init.fixedWidth;
 				if (init.fixedHeight !== undefined)
-					this.fixedHeight = init.fixedHeight;	
+					this.fixedHeight = init.fixedHeight;
+				if (init.content !== undefined)
+					this.content = init.content;	
 			}
 		}
 
