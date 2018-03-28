@@ -16070,6 +16070,10 @@ var Ui;
                     _this.color = init.color;
                 if (init.value !== undefined)
                     _this.value = init.value;
+                if (init.onchanged)
+                    _this.changed.connect(init.onchanged);
+                if (init.onvalidated)
+                    _this.validated.connect(init.onvalidated);
             }
             return _this;
         }

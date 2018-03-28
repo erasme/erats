@@ -7,6 +7,8 @@ namespace Ui
 		fontWeight?: string;
 		color?: Color | string;
 		value?: string;
+		onchanged?: (event: { target: Entry, value: string }) => void;
+		onvalidated?: (event: { target: Entry, value: string }) => void;
 	}
 
 	export class Entry extends Element implements EntryInit
@@ -48,6 +50,10 @@ namespace Ui
 					this.color = init.color;	
 				if (init.value !== undefined)
 					this.value = init.value;
+				if (init.onchanged)
+					this.changed.connect(init.onchanged);
+				if (init.onvalidated)
+					this.validated.connect(init.onvalidated);
 			}
 		}
 

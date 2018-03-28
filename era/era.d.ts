@@ -3298,6 +3298,14 @@ declare namespace Ui {
         fontWeight?: string;
         color?: Color | string;
         value?: string;
+        onchanged?: (event: {
+            target: Entry;
+            value: string;
+        }) => void;
+        onvalidated?: (event: {
+            target: Entry;
+            value: string;
+        }) => void;
     }
     class Entry extends Element implements EntryInit {
         private _fontSize;
