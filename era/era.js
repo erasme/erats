@@ -3431,6 +3431,10 @@ var Ui;
                     _this.eventsHidden = init.eventsHidden;
                 if (init.style !== undefined)
                     _this.style = init.style;
+                if (init.isDisabled !== undefined)
+                    _this.isDisabled = init.isDisabled;
+                if (init.isVisible !== undefined)
+                    _this.isVisible = init.isVisible;
                 if (init.onfocused)
                     _this.focused.connect(init.onfocused);
                 if (init.onblurred)
@@ -3442,23 +3446,6 @@ var Ui;
             }
             return _this;
         }
-        Object.defineProperty(Element.prototype, "isDisabled", {
-            get: function () {
-                if ((this._disabled !== undefined) && (this._disabled === true))
-                    return true;
-                if ((this.parentDisabled !== undefined) && (this.parentDisabled === true))
-                    return true;
-                return false;
-            },
-            set: function (disabled) {
-                if (disabled)
-                    this.disable();
-                else
-                    this.enable();
-            },
-            enumerable: true,
-            configurable: true
-        });
         Object.defineProperty(Element.prototype, "drawing", {
             get: function () {
                 return this._drawing;
@@ -4096,6 +4083,12 @@ var Ui;
             get: function () {
                 return ((this._parentVisible === true) && (this._visible !== false));
             },
+            set: function (value) {
+                if (value)
+                    this.show();
+                else
+                    this.hide();
+            },
             enumerable: true,
             configurable: true
         });
@@ -4166,6 +4159,23 @@ var Ui;
             else
                 this.disable();
         };
+        Object.defineProperty(Element.prototype, "isDisabled", {
+            get: function () {
+                if ((this._disabled !== undefined) && (this._disabled === true))
+                    return true;
+                if ((this.parentDisabled !== undefined) && (this.parentDisabled === true))
+                    return true;
+                return false;
+            },
+            set: function (disabled) {
+                if (disabled)
+                    this.disable();
+                else
+                    this.enable();
+            },
+            enumerable: true,
+            configurable: true
+        });
         Element.prototype.setParentDisabled = function (disabled) {
             var old = this.isDisabled;
             this.parentDisabled = disabled;

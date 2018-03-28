@@ -28,6 +28,8 @@ namespace Ui
 		transform?: Matrix;
 		eventsHidden?: boolean;
 		style?: object | undefined;
+		isDisabled?: boolean;
+		isVisible?: boolean;
 		onfocused?: (event: { target: Element }) => void;
 		onblurred?: (event: { target: Element }) => void;
 		onloaded?: (event: { target: Element }) => void;
@@ -227,6 +229,10 @@ namespace Ui
 					this.eventsHidden = init.eventsHidden;
 				if (init.style !== undefined)
 					this.style = init.style;
+				if (init.isDisabled !== undefined)
+					this.isDisabled = init.isDisabled;
+				if (init.isVisible !== undefined)
+					this.isVisible = init.isVisible;
 				if (init.onfocused)
 					this.focused.connect(init.onfocused);
 				if (init.onblurred)
@@ -236,13 +242,6 @@ namespace Ui
 				if (init.onunloaded)
 					this.unloaded.connect(init.onunloaded)
 			}
-		}
-
-		set isDisabled(disabled : boolean) {
-			if(disabled)
-				this.disable();
-			else
-				this.enable();
 		}
 
 		//
@@ -1063,6 +1062,13 @@ namespace Ui
 			return ((this._parentVisible === true) && (this._visible !== false));
 		}
 
+		set isVisible(value: boolean) {
+			if (value)
+				this.show();
+			else
+				this.hide();
+		}
+
 		set parentVisible(visible: boolean) {
 			let old = this.isVisible;
 			this._parentVisible = visible;
@@ -1142,6 +1148,13 @@ namespace Ui
 			if((this.parentDisabled !== undefined) && (this.parentDisabled === true))
 				return true;
 			return false;
+		}
+
+		set isDisabled(disabled : boolean) {
+			if(disabled)
+				this.disable();
+			else
+				this.enable();
 		}
 
 		setParentDisabled(disabled: boolean) {

@@ -715,6 +715,8 @@ declare namespace Ui {
         transform?: Matrix;
         eventsHidden?: boolean;
         style?: object | undefined;
+        isDisabled?: boolean;
+        isVisible?: boolean;
         onfocused?: (event: {
             target: Element;
         }) => void;
@@ -821,7 +823,6 @@ declare namespace Ui {
         readonly wheelchanged: Core.Events<WheelEvent>;
         readonly dragover: Core.Events<DragEvent>;
         constructor(init?: ElementInit);
-        isDisabled: boolean;
         readonly drawing: any;
         selectable: boolean;
         resizable: boolean;
@@ -885,7 +886,7 @@ declare namespace Ui {
         readonly isCollapsed: boolean;
         hide(collapse?: boolean): void;
         show(): void;
-        readonly isVisible: boolean;
+        isVisible: boolean;
         parentVisible: boolean;
         protected onInternalHidden(): void;
         protected onHidden(): void;
@@ -895,6 +896,7 @@ declare namespace Ui {
         disable(): void;
         enable(): void;
         setEnable(enable: boolean): void;
+        isDisabled: boolean;
         setParentDisabled(disabled: boolean): void;
         protected onInternalDisable(): void;
         protected onDisable(): void;
