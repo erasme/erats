@@ -11850,6 +11850,7 @@ var Ui;
                 this.isMeasureValid = false;
                 this.textContext.setFontSize(this.fontSize);
                 this.textDrawing.style.fontSize = this.fontSize + 'px';
+                this.textDrawing.style.lineHeight = this.fontSize + 'px';
                 this.invalidateMeasure();
             },
             enumerable: true,
@@ -11968,6 +11969,7 @@ var Ui;
             this.textDrawing.style.fontFamily = this.fontFamily;
             this.textDrawing.style.fontWeight = this.fontWeight;
             this.textDrawing.style.fontSize = this.fontSize + 'px';
+            this.textDrawing.style.lineHeight = this.fontSize + 'px';
             if (Core.Navigator.supportRgba)
                 this.textDrawing.style.color = this.color.getCssRgba();
             else
@@ -11980,6 +11982,7 @@ var Ui;
         };
         CompactLabel.prototype.onStyleChange = function () {
             this.textDrawing.style.fontSize = this.fontSize + 'px';
+            this.textDrawing.style.lineHeight = this.fontSize + 'px';
             this.textDrawing.style.fontFamily = this.fontFamily;
             this.textDrawing.style.fontWeight = this.fontWeight;
             if (Core.Navigator.supportRgba)

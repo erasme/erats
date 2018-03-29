@@ -454,6 +454,7 @@ namespace Ui
 			this.isMeasureValid = false;
 			this.textContext.setFontSize(this.fontSize);
 			this.textDrawing.style.fontSize = this.fontSize + 'px';
+			this.textDrawing.style.lineHeight = this.fontSize + 'px';
 			this.invalidateMeasure();
 		}
 
@@ -559,7 +560,8 @@ namespace Ui
 			this.textDrawing.style.fontFamily = this.fontFamily;
 			this.textDrawing.style.fontWeight = this.fontWeight;
 			this.textDrawing.style.fontSize = this.fontSize + 'px';
-			if (Core.Navigator.supportRgba)
+			this.textDrawing.style.lineHeight = this.fontSize + 'px';
+			if (Core.Navigator.supportRgba)	
 				this.textDrawing.style.color = this.color.getCssRgba();
 			else
 				this.textDrawing.style.color = this.color.getCssHtml();
@@ -572,6 +574,7 @@ namespace Ui
 
 		protected onStyleChange() {
 			this.textDrawing.style.fontSize = this.fontSize + 'px';
+			this.textDrawing.style.lineHeight = this.fontSize + 'px';
 			this.textDrawing.style.fontFamily = this.fontFamily;
 			this.textDrawing.style.fontWeight = this.fontWeight;
 			if (Core.Navigator.supportRgba)
