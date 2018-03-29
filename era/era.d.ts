@@ -4266,6 +4266,15 @@ declare namespace Ui {
 }
 declare namespace Ui {
     interface ContentEditableInit extends HtmlInit {
+        onanchorchanged?: (event: {
+            target: ContentEditable;
+        }) => void;
+        onchanged?: (event: {
+            target: ContentEditable;
+        }) => void;
+        onvalidated?: (event: {
+            target: ContentEditable;
+        }) => void;
     }
     class ContentEditable extends Html {
         anchorNode: Node;
@@ -4273,10 +4282,21 @@ declare namespace Ui {
         readonly anchorchanged: Core.Events<{
             target: ContentEditable;
         }>;
+        readonly changed: Core.Events<{
+            target: ContentEditable;
+        }>;
+        readonly validated: Core.Events<{
+            target: ContentEditable;
+        }>;
+        private _lastHtml;
         constructor(init?: ContentEditableInit);
         protected onKeyUp(event: any): void;
         protected testAnchorChange(): void;
         protected onContentSubtreeModified(event: any): void;
+        protected measureCore(width: number, height: number): {
+            width: number;
+            height: number;
+        };
     }
 }
 declare namespace Ui {

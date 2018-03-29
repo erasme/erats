@@ -4744,23 +4744,31 @@ var Ui;
         };
         Container.prototype.onInternalDisable = function () {
             _super.prototype.onInternalDisable.call(this);
-            for (var i = 0; i < this._children.length; i++)
-                this._children[i].setParentDisabled(true);
+            if (this._children) {
+                for (var i = 0; i < this._children.length; i++)
+                    this._children[i].setParentDisabled(true);
+            }
         };
         Container.prototype.onInternalEnable = function () {
             _super.prototype.onInternalEnable.call(this);
-            for (var i = 0; i < this._children.length; i++)
-                this._children[i].setParentDisabled(false);
+            if (this._children) {
+                for (var i = 0; i < this._children.length; i++)
+                    this._children[i].setParentDisabled(false);
+            }
         };
         Container.prototype.onInternalVisible = function () {
             _super.prototype.onInternalVisible.call(this);
-            for (var i = 0; i < this._children.length; i++)
-                this._children[i].parentVisible = true;
+            if (this._children) {
+                for (var i = 0; i < this._children.length; i++)
+                    this._children[i].parentVisible = true;
+            }
         };
         Container.prototype.onInternalHidden = function () {
             _super.prototype.onInternalHidden.call(this);
-            for (var i = 0; i < this._children.length; i++)
-                this._children[i].parentVisible = false;
+            if (this._children) {
+                for (var i = 0; i < this._children.length; i++)
+                    this._children[i].parentVisible = false;
+            }
         };
         return Container;
     }(Ui.Element));
@@ -15413,10 +15421,8 @@ var Ui;
             this.htmlDrawing.style.width = '';
             this.htmlDrawing.style.height = '';
             var measureWidth;
-            if (this.htmlDrawing.clientWidth >= width) {
-                this.htmlDrawing.style.width = width + 'px';
+            if (this.htmlDrawing.clientWidth == width)
                 measureWidth = width;
-            }
             else
                 measureWidth = Math.max(this.htmlDrawing.clientWidth, this.htmlDrawing.scrollWidth) + 1;
             return {
@@ -20429,14 +20435,28 @@ var Ui;
             var _this = _super.call(this, init) || this;
             _this.anchorOffset = 0;
             _this.anchorchanged = new Core.Events();
+            _this.changed = new Core.Events();
+            _this.validated = new Core.Events();
+            _this._lastHtml = '';
             _this.selectable = true;
             _this.htmlDrawing.setAttribute('contenteditable', 'true');
             _this.drawing.addEventListener('keyup', function (e) { return _this.onKeyUp(e); });
             _this.drawing.addEventListener('DOMSubtreeModified', function (e) { return _this.onContentSubtreeModified(e); });
+            if (init) {
+                if (init.onanchorchanged)
+                    _this.anchorchanged.connect(init.onanchorchanged);
+                if (init.onchanged)
+                    _this.changed.connect(init.onchanged);
+                if (init.onvalidated)
+                    _this.validated.connect(init.onvalidated);
+            }
             return _this;
         }
         ContentEditable.prototype.onKeyUp = function (event) {
             this.testAnchorChange();
+            var key = event.which;
+            if (key == 13)
+                this.validated.fire({ target: this });
         };
         ContentEditable.prototype.testAnchorChange = function () {
             if ((window.getSelection().anchorNode != this.anchorNode) ||
@@ -20449,6 +20469,14 @@ var Ui;
         ContentEditable.prototype.onContentSubtreeModified = function (event) {
             this.testAnchorChange();
             this.invalidateMeasure();
+        };
+        ContentEditable.prototype.measureCore = function (width, height) {
+            var html = this.htmlDrawing.outerHTML;
+            if (this._lastHtml !== html) {
+                this._lastHtml = html;
+                this.changed.fire({ target: this });
+            }
+            return _super.prototype.measureCore.call(this, width, height);
         };
         return ContentEditable;
     }(Ui.Html));
