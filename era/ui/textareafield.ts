@@ -14,20 +14,25 @@ namespace Ui {
 		constructor(init?: TextAreaFieldInit) {
 			super(init);
 
-			this.padding = 3;
-
 			this.graphic = new TextBgGraphic();
 			this.append(this.graphic);
 
-			this.textholder = new Label();
-			this.textholder.opacity = 0.5;
-			this.textholder.horizontalAlign = 'center';
-			this.textholder.margin = 3;
+			this.textholder = new Label({
+				opacity: 0.5,
+				horizontalAlign: 'left',
+				margin: 5,
+				marginLeft: 10,
+				marginRight: 10
+			});
 			this.append(this.textholder);
 
-			this.textarea = new TextArea();
-			this.textarea.margin = 4;
-			this.textarea.fontSize = 16;
+			this.textarea = new TextArea({
+				verticalAlign: 'center',
+				margin: 5,
+				marginLeft: 10,
+				marginRight: 10,
+				fontSize: 16
+			});
 			this.append(this.textarea);
 
 			this.textarea.focused.connect(() => this.onTextAreaFocus());

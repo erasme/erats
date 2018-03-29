@@ -1864,6 +1864,7 @@ declare namespace Ui {
         callback?: (selection: Selection) => void;
         multiple?: boolean;
         hidden?: boolean;
+        testRight?: (watcher: SelectionableWatcher) => boolean;
     }
     interface SelectionActions {
         [key: string]: SelectionAction;

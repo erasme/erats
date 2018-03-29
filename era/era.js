@@ -8973,7 +8973,7 @@ var Ui;
                     allActions = this.getElementActions(this._watchers[0]);
                     for (actionName in allActions) {
                         action = allActions[actionName];
-                        if (!('testRight' in action) || action.testRight.call(this._watchers[0]))
+                        if (!('testRight' in action) || action.testRight(this._watchers[0]))
                             actions[actionName] = allActions[actionName];
                     }
                     return actions;
@@ -9001,7 +9001,7 @@ var Ui;
                                 var allowed = true;
                                 if ('testRight' in action) {
                                     for (var i = 0; allowed && (i < this._watchers.length); i++) {
-                                        allowed = allowed && action.testRight.call(this._watchers[i]);
+                                        allowed = allowed && action.testRight(this._watchers[i]);
                                     }
                                 }
                                 if (allowed)
@@ -16502,21 +16502,22 @@ var Ui;
             var _this = _super.call(this, init) || this;
             _this.changed = new Core.Events();
             _this.validated = new Core.Events();
-            _this.padding = 0;
             _this.graphic = new Ui.TextBgGraphic();
             _this.append(_this.graphic);
-            _this.textholder = new Ui.Label();
-            _this.textholder.opacity = 0.5;
-            _this.textholder.horizontalAlign = 'left';
-            _this.textholder.margin = 5;
-            _this.textholder.marginLeft = 10;
-            _this.textholder.marginRight = 10;
+            _this.textholder = new Ui.Label({
+                opacity: 0.5,
+                horizontalAlign: 'left',
+                margin: 5,
+                marginLeft: 10,
+                marginRight: 10
+            });
             _this.append(_this.textholder);
-            _this.entry = new Ui.Entry();
-            _this.entry.margin = 5;
-            _this.entry.marginLeft = 10;
-            _this.entry.marginRight = 10;
-            _this.entry.fontSize = 16;
+            _this.entry = new Ui.Entry({
+                margin: 5,
+                marginLeft: 10,
+                marginRight: 10,
+                fontSize: 16
+            });
             _this.entry.focused.connect(function () { return _this.onEntryFocus(); });
             _this.entry.blurred.connect(function () { return _this.onEntryBlur(); });
             _this.append(_this.entry);
@@ -17416,17 +17417,23 @@ var Ui;
         function TextAreaField(init) {
             var _this = _super.call(this, init) || this;
             _this.changed = new Core.Events();
-            _this.padding = 3;
             _this.graphic = new Ui.TextBgGraphic();
             _this.append(_this.graphic);
-            _this.textholder = new Ui.Label();
-            _this.textholder.opacity = 0.5;
-            _this.textholder.horizontalAlign = 'center';
-            _this.textholder.margin = 3;
+            _this.textholder = new Ui.Label({
+                opacity: 0.5,
+                horizontalAlign: 'left',
+                margin: 5,
+                marginLeft: 10,
+                marginRight: 10
+            });
             _this.append(_this.textholder);
-            _this.textarea = new Ui.TextArea();
-            _this.textarea.margin = 4;
-            _this.textarea.fontSize = 16;
+            _this.textarea = new Ui.TextArea({
+                verticalAlign: 'center',
+                margin: 5,
+                marginLeft: 10,
+                marginRight: 10,
+                fontSize: 16
+            });
             _this.append(_this.textarea);
             _this.textarea.focused.connect(function () { return _this.onTextAreaFocus(); });
             _this.textarea.blurred.connect(function () { return _this.onTextAreaBlur(); });

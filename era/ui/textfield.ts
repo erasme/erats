@@ -16,25 +16,25 @@ namespace Ui {
 
 		constructor(init?: TextFieldInit) {
 			super(init);
-
-			this.padding = 0;
 		
 			this.graphic = new TextBgGraphic();
 			this.append(this.graphic);
 
-			this.textholder = new Label();
-			this.textholder.opacity = 0.5;
-			this.textholder.horizontalAlign = 'left';
-			this.textholder.margin = 5;
-			this.textholder.marginLeft = 10;
-			this.textholder.marginRight = 10;
+			this.textholder = new Label({
+				opacity: 0.5,
+				horizontalAlign: 'left',
+				margin: 5,
+				marginLeft: 10,
+				marginRight: 10
+			});
 			this.append(this.textholder);
 
-			this.entry = new Ui.Entry();
-			this.entry.margin = 5;
-			this.entry.marginLeft = 10;
-			this.entry.marginRight = 10;
-			this.entry.fontSize = 16;
+			this.entry = new Ui.Entry({
+				margin: 5,
+				marginLeft: 10,
+				marginRight: 10,
+				fontSize: 16
+			});
 			this.entry.focused.connect(() => this.onEntryFocus());
 			this.entry.blurred.connect(() => this.onEntryBlur());
 			this.append(this.entry);
