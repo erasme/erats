@@ -103,7 +103,7 @@ namespace Ui
 		}
 	
 		get text(): string {
-			if ('innerText' in this.htmlDrawing)
+			if ('innerText' in (this.htmlDrawing as any))
 				return this.htmlDrawing.innerText;
 			else
 				return this.getTextContent(this.htmlDrawing);
@@ -327,10 +327,13 @@ namespace Ui
 			// if client width is bigger than the constraint width, set the htmlDrawing
 			// width and test again. This will allow (for ex) word wrap to try to reduce the width
 			let measureWidth: number;
-			if (this.htmlDrawing.clientWidth >= width) {
-				this.htmlDrawing.style.width = width + 'px';
+			if (this.htmlDrawing.clientWidth == width)
 				measureWidth = width;
-			}
+			
+			//if (this.htmlDrawing.clientWidth >= width) {
+			//	this.htmlDrawing.style.width = width + 'px';
+			//	measureWidth = width;
+			//}
 			// if the clientWidth is less than the available one, take it and add 1
 			// because the returned clientWidth is an integer value but the real one
 			// is a floating value in Chrome. And this floating point value is Math.floor
