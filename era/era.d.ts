@@ -2011,6 +2011,7 @@ declare namespace Ui {
         orientation: Orientation;
         onStyleChange(): void;
         renderDrawing(): HTMLElement;
+        invalidateTextMeasure(): void;
         measureCore(width: number, height: number): {
             width: number;
             height: number;
@@ -2515,6 +2516,7 @@ declare namespace Ui {
         color: Color;
         protected renderDrawing(): any;
         protected onStyleChange(): void;
+        invalidateTextMeasure(): void;
         protected measureCore(width: any, height: any): {
             width: number;
             height: number;
@@ -2941,8 +2943,8 @@ declare namespace Ui {
         constructor(init?: AppInit);
         setWebApp(webApp: boolean): void;
         getSelectionHandler(): Selection;
-        forceInvalidateMeasure(element: any): void;
-        requireFont(fontFamily: any, fontWeight: any): void;
+        forceInvalidateMeasure(element: Ui.Element): void;
+        requireFont(fontFamily: string, fontWeight: string): void;
         testRequireFonts(): void;
         checkWindowSize(): void;
         getOrientation(): number;

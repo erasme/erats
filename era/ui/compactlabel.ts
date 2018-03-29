@@ -594,6 +594,13 @@ namespace Ui
 			this.invalidateMeasure();
 		}
 
+		invalidateTextMeasure() {
+			if (this.isMeasureValid) {
+				this.isMeasureValid = false;
+				this.invalidateMeasure();
+			}
+		}
+
 		protected measureCore(width, height) {
 			//console.log(this+'.measureCore('+width+','+height+') isMeasureValid: '+this.isMeasureValid+', lastMeasureWidth: '+this.lastMeasureWidth+', '+this.getText());
 

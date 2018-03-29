@@ -9310,6 +9310,7 @@ var Ui;
         });
         Label.prototype.onStyleChange = function () {
             this.labelDrawing.style.fontSize = this.fontSize + 'px';
+            this.labelDrawing.style.lineHeight = this.fontSize + 'px';
             this.labelDrawing.style.fontFamily = this.fontFamily;
             this.labelDrawing.style.fontWeight = this.fontWeight;
             this.labelDrawing.style.textTransform = this.textTransform;
@@ -9328,6 +9329,12 @@ var Ui;
             this.labelDrawing.style.left = '0px';
             this.labelDrawing.style.top = '0px';
             return this.labelDrawing;
+        };
+        Label.prototype.invalidateTextMeasure = function () {
+            if (this.textMeasureValid) {
+                this.textMeasureValid = false;
+                this.invalidateMeasure();
+            }
         };
         Label.prototype.measureCore = function (width, height) {
             if (!this.textMeasureValid) {
@@ -12000,6 +12007,12 @@ var Ui;
             this.textContext.setTextTransform(this.textTransform);
             this.invalidateMeasure();
         };
+        CompactLabel.prototype.invalidateTextMeasure = function () {
+            if (this.isMeasureValid) {
+                this.isMeasureValid = false;
+                this.invalidateMeasure();
+            }
+        };
         CompactLabel.prototype.measureCore = function (width, height) {
             if (!this.isMeasureValid || (this.lastAvailableWidth !== width)) {
                 this.lastAvailableWidth = width;
@@ -14277,13 +14290,15 @@ var Ui;
         App.prototype.forceInvalidateMeasure = function (element) {
             if (element === undefined)
                 element = this;
-            if ('getChildren' in element) {
-                for (var i = 0; i < element.getChildren().length; i++)
-                    this.forceInvalidateMeasure(element.getChildren()[i]);
-            }
+            if (element instanceof Ui.Container)
+                for (var i = 0; i < element.children.length; i++)
+                    this.forceInvalidateMeasure(element.children[i]);
             element.invalidateMeasure();
+            if ('invalidateTextMeasure' in element)
+                element.invalidateTextMeasure();
         };
         App.prototype.requireFont = function (fontFamily, fontWeight) {
+            var _this = this;
             var fontKey = fontFamily + ':' + fontWeight;
             if (this.requireFonts === undefined)
                 this.requireFonts = {};
@@ -14295,16 +14310,19 @@ var Ui;
                 if (test)
                     this.forceInvalidateMeasure(this);
                 else if (this.isReady && !test && (this.testFontTask === undefined))
-                    this.testFontTask = new Core.DelayedTask(0.25, this.testRequireFonts);
+                    this.testFontTask = new Core.DelayedTask(0.25, function () { return _this.testRequireFonts(); });
             }
         };
         App.prototype.testRequireFonts = function () {
+            var _this = this;
+            console.log("testRequireFonts");
             var allDone = true;
             for (var fontKey in this.requireFonts) {
                 var test = this.requireFonts[fontKey];
                 if (!test) {
                     var fontTab = fontKey.split(':');
                     test = Ui.Label.isFontAvailable(fontTab[0], fontTab[1]);
+                    console.log("testRequireFonts TEST " + fontTab[0] + ":" + fontTab[1] + " = " + test);
                     if (test) {
                         this.requireFonts[fontKey] = true;
                         var app = this;
@@ -14315,7 +14333,7 @@ var Ui;
                 }
             }
             if (!allDone)
-                this.testFontTask = new Core.DelayedTask(0.25, this.testRequireFonts);
+                this.testFontTask = new Core.DelayedTask(0.25, function () { return _this.testRequireFonts(); });
             else
                 this.testFontTask = undefined;
         };

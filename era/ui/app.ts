@@ -139,17 +139,18 @@ namespace Ui
 			return this.selection;
 		}
 		
-		forceInvalidateMeasure(element) {
+		forceInvalidateMeasure(element: Ui.Element) {
 			if (element === undefined)
 				element = this;
-			if ('getChildren' in element) {
-				for (let i = 0; i < element.getChildren().length; i++)
-					this.forceInvalidateMeasure(element.getChildren()[i]);
-			}
+			if (element instanceof Ui.Container)
+				for (let i = 0; i < element.children.length; i++)
+					this.forceInvalidateMeasure(element.children[i]);
 			element.invalidateMeasure();
+			if ('invalidateTextMeasure' in element)
+				(element as any).invalidateTextMeasure();
 		}
 
-		requireFont(fontFamily, fontWeight) {
+		requireFont(fontFamily: string, fontWeight: string) {
 			let fontKey = fontFamily + ':' + fontWeight;
 			if (this.requireFonts === undefined)
 				this.requireFonts = {};
@@ -161,17 +162,19 @@ namespace Ui
 				if (test)
 					this.forceInvalidateMeasure(this);
 				else if (this.isReady && !test && (this.testFontTask === undefined))
-					this.testFontTask = new Core.DelayedTask(0.25, this.testRequireFonts);
+					this.testFontTask = new Core.DelayedTask(0.25, () => this.testRequireFonts());
 			}
 		}
 	
 		testRequireFonts() {
+			console.log(`testRequireFonts`);
 			let allDone = true;
 			for (let fontKey in this.requireFonts) {
 				let test = this.requireFonts[fontKey];
 				if (!test) {
 					let fontTab = fontKey.split(':');
 					test = Ui.Label.isFontAvailable(fontTab[0], fontTab[1]);
+					console.log(`testRequireFonts TEST ${fontTab[0]}:${fontTab[1]} = ${test}`);
 					if (test) {
 						this.requireFonts[fontKey] = true;
 						let app = this;
@@ -182,7 +185,7 @@ namespace Ui
 				}
 			}
 			if (!allDone)
-				this.testFontTask = new Core.DelayedTask(0.25, this.testRequireFonts);
+				this.testFontTask = new Core.DelayedTask(0.25, () => this.testRequireFonts());
 			else
 				this.testFontTask = undefined;
 		}

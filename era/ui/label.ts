@@ -172,6 +172,7 @@ namespace Ui {
 
 		onStyleChange() {
 			this.labelDrawing.style.fontSize = this.fontSize + 'px';
+			this.labelDrawing.style.lineHeight = this.fontSize + 'px';
 			this.labelDrawing.style.fontFamily = this.fontFamily;
 			this.labelDrawing.style.fontWeight = this.fontWeight;
 			this.labelDrawing.style.textTransform = this.textTransform;
@@ -191,6 +192,13 @@ namespace Ui {
 			this.labelDrawing.style.left = '0px';
 			this.labelDrawing.style.top = '0px';
 			return this.labelDrawing;
+		}
+
+		invalidateTextMeasure() {
+			if (this.textMeasureValid) {
+				this.textMeasureValid = false;
+				this.invalidateMeasure();
+			}
 		}
 
 		measureCore(width: number, height: number) {
