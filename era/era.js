@@ -17078,18 +17078,13 @@ var Ui;
             enumerable: true,
             configurable: true
         });
-        ScaleBox.prototype.append = function (child) {
-            child.setTransformOrigin(0, 0);
-            this.appendChild(child);
-        };
-        ScaleBox.prototype.remove = function (child) {
-            this.removeChild(child);
-            child.setTransformOrigin(0.5, 0.5);
-        };
         Object.defineProperty(ScaleBox.prototype, "content", {
             set: function (content) {
                 this.clear();
-                this.append(content);
+                if (content) {
+                    content.setTransformOrigin(0, 0);
+                    this.appendChild(content);
+                }
             },
             enumerable: true,
             configurable: true
@@ -17129,8 +17124,8 @@ var Ui;
             var scale = aw / this._fixedWidth;
             for (var i = 0; i < this.children.length; i++) {
                 var child = this.children[i];
-                child.arrange(ax, ay, this._fixedWidth, this._fixedHeight);
-                child.transform = Ui.Matrix.createScale(scale, scale);
+                child.arrange(0, 0, this._fixedWidth, this._fixedHeight);
+                child.transform = Ui.Matrix.createTranslate(ax, ay).multiply(Ui.Matrix.createScale(scale, scale));
             }
         };
         return ScaleBox;

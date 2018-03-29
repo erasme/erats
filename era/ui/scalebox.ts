@@ -45,19 +45,12 @@
 			this.setFixedSize(undefined, height);
 		}
 
-		append(child: Element) {
-			child.setTransformOrigin(0, 0);
-			this.appendChild(child);
-		}
-
-		remove(child: Element) {
-			this.removeChild(child);
-			child.setTransformOrigin(0.5, 0.5);
-		}
-
 		set content(content: Element) {
 			this.clear();
-			this.append(content);
+			if (content) {
+				content.setTransformOrigin(0, 0);
+				this.appendChild(content);
+			}	
 		}
 
 		protected measureCore(width: number, height: number) {
@@ -100,8 +93,8 @@
 
 			for (let i = 0; i < this.children.length; i++) {
 				let child = this.children[i];
-				child.arrange(ax, ay, this._fixedWidth, this._fixedHeight);
-				child.transform = Matrix.createScale(scale, scale);
+				child.arrange(0, 0, this._fixedWidth, this._fixedHeight);
+				child.transform = Matrix.createTranslate(ax, ay).multiply(Matrix.createScale(scale, scale));
 			}
 		}
 	}

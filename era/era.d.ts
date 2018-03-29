@@ -3558,8 +3558,6 @@ declare namespace Ui {
         setFixedSize(width: number, height: number): void;
         fixedWidth: number;
         fixedHeight: number;
-        append(child: Element): void;
-        remove(child: Element): void;
         content: Element;
         protected measureCore(width: number, height: number): {
             width: any;
