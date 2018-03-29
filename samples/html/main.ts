@@ -30,9 +30,9 @@ class App extends Ui.App {
         }), true);
 
         let html = new Ui.Html({
-           width: 100,
-           html: '<div>Have fun with HTML, I <b>hope</b> the text is enough long</div>',
-           selectable: false
+            width: 100,
+            html: 'Have fun with HTML, I <b>hope</b> the text is enough long',
+            selectable: false
         });    
         hbox.append(html, false);
 

@@ -10,7 +10,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var App = (function (_super) {
+var App = /** @class */ (function (_super) {
     __extends(App, _super);
     function App() {
         var _this = _super.call(this) || this;
@@ -35,7 +35,8 @@ var App = (function (_super) {
         }), true);
         var html = new Ui.Html({
             width: 100,
-            html: '<div>Have fun with HTML, I <b>hope</b> the text is enough long</div>',
+            //whiteSpace: 'nowrap', 
+            html: 'Have fun with HTML, I <b>hope</b> the text is enough long',
             selectable: false
         });
         hbox.append(html, false);
