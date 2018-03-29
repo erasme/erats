@@ -240,26 +240,34 @@ namespace Ui
 
 		protected onInternalDisable() {
 			super.onInternalDisable();
-			for (let i = 0; i < this._children.length; i++)
-				this._children[i].setParentDisabled(true);
+			if (this._children) {
+				for (let i = 0; i < this._children.length; i++)
+					this._children[i].setParentDisabled(true);
+			}
 		}
 
 		protected onInternalEnable() {
 			super.onInternalEnable();
-			for (let i = 0; i < this._children.length; i++)
-				this._children[i].setParentDisabled(false);
+			if (this._children) {
+				for (let i = 0; i < this._children.length; i++)
+					this._children[i].setParentDisabled(false);
+			}
 		}
 
 		protected onInternalVisible() {
 			super.onInternalVisible();
-			for (let i = 0; i < this._children.length; i++)
-				this._children[i].parentVisible = true;
+			if (this._children) {
+				for (let i = 0; i < this._children.length; i++)
+					this._children[i].parentVisible = true;
+			}
 		}
 
 		protected onInternalHidden() {
 			super.onInternalHidden();
-			for (let i = 0; i < this._children.length; i++)
-				this._children[i].parentVisible = false;
+			if (this._children) {
+				for (let i = 0; i < this._children.length; i++)
+					this._children[i].parentVisible = false;
+			}
 		}
 	}
 }

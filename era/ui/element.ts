@@ -1150,7 +1150,7 @@ namespace Ui
 			return false;
 		}
 
-		set isDisabled(disabled : boolean) {
+		set isDisabled(disabled: boolean) {
 			if(disabled)
 				this.disable();
 			else
