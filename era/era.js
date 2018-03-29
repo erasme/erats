@@ -9214,6 +9214,7 @@ var Ui;
                 if (this._fontSize !== fontSize) {
                     this._fontSize = fontSize;
                     this.labelDrawing.style.fontSize = this.fontSize + 'px';
+                    this.labelDrawing.style.lineHeight = this.fontSize + 'px';
                     this.textMeasureValid = false;
                     this.invalidateMeasure();
                 }
