@@ -7,6 +7,7 @@ namespace Ui {
 		callback?: (selection: Selection) => void;
 		multiple?: boolean;
 		hidden?: boolean;
+		testRight?: (watcher: SelectionableWatcher) => boolean;
 	}
 
 	export interface SelectionActions {

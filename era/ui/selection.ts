@@ -182,7 +182,7 @@ namespace Ui {
 					allActions = this.getElementActions(this._watchers[0]);
 					for (actionName in allActions) {
 						action = allActions[actionName];
-						if (!('testRight' in action) || action.testRight.call(this._watchers[0]))
+						if (!('testRight' in action) || action.testRight(this._watchers[0]))
 							actions[actionName] = allActions[actionName];
 					}
 					return actions;
@@ -212,7 +212,7 @@ namespace Ui {
 								// test rights for all elements
 								if ('testRight' in action) {
 									for (let i = 0; allowed && (i < this._watchers.length); i++) {
-										allowed = allowed && action.testRight.call(this._watchers[i]);
+										allowed = allowed && action.testRight(this._watchers[i]);
 									}
 								}
 								if (allowed)
