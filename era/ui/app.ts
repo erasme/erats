@@ -167,14 +167,12 @@ namespace Ui
 		}
 	
 		testRequireFonts() {
-			console.log(`testRequireFonts`);
 			let allDone = true;
 			for (let fontKey in this.requireFonts) {
 				let test = this.requireFonts[fontKey];
 				if (!test) {
 					let fontTab = fontKey.split(':');
 					test = Ui.Label.isFontAvailable(fontTab[0], fontTab[1]);
-					console.log(`testRequireFonts TEST ${fontTab[0]}:${fontTab[1]} = ${test}`);
 					if (test) {
 						this.requireFonts[fontKey] = true;
 						let app = this;

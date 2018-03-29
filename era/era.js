@@ -14315,14 +14315,12 @@ var Ui;
         };
         App.prototype.testRequireFonts = function () {
             var _this = this;
-            console.log("testRequireFonts");
             var allDone = true;
             for (var fontKey in this.requireFonts) {
                 var test = this.requireFonts[fontKey];
                 if (!test) {
                     var fontTab = fontKey.split(':');
                     test = Ui.Label.isFontAvailable(fontTab[0], fontTab[1]);
-                    console.log("testRequireFonts TEST " + fontTab[0] + ":" + fontTab[1] + " = " + test);
                     if (test) {
                         this.requireFonts[fontKey] = true;
                         var app = this;
@@ -19208,7 +19206,7 @@ var Ui;
                     isstartline = false;
                     if (this.xpos === 0)
                         isstartline = true;
-                    if (isstartline && (size.width <= zone.xend - this.xpos)) {
+                    if (isstartline && ((size.width <= zone.xend - this.xpos) || (zone.xend == this.width && size.width >= this.width))) {
                         if (this.render)
                             el.arrange(this.xpos, this.ypos, size.width, size.height);
                         this.insertBox({ x: this.xpos, y: this.ypos, width: size.width, height: size.height });
@@ -19225,7 +19223,7 @@ var Ui;
                     isendline = false;
                     if (this.width == zone.xend)
                         isendline = true;
-                    if (isendline && (size.width <= zone.xend - this.xpos)) {
+                    if (isendline && ((size.width <= zone.xend - this.xpos) || (this.xpos == 0 && size.width >= this.width))) {
                         if (this.render)
                             el.arrange(zone.xend - size.width, this.ypos, size.width, size.height);
                         this.insertBox({ x: zone.xend - size.width, y: this.ypos, width: size.width, height: size.height });

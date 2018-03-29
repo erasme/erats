@@ -120,7 +120,7 @@ namespace Ui {
 					zone = this.zones[this.currentZone];
 					isstartline = false;
 					if (this.xpos === 0) isstartline = true;
-					if (isstartline && (size.width <= zone.xend - this.xpos)) {
+					if (isstartline && ((size.width <= zone.xend - this.xpos) || (zone.xend == this.width && size.width >= this.width))) {
 						// draw
 						if (this.render)
 							el.arrange(this.xpos, this.ypos, size.width, size.height);
@@ -139,7 +139,7 @@ namespace Ui {
 					zone = this.zones[this.currentZone];
 					isendline = false;
 					if (this.width == zone.xend) isendline = true;
-					if (isendline && (size.width <= zone.xend - this.xpos)) {
+					if (isendline && ((size.width <= zone.xend - this.xpos) || (this.xpos == 0 && size.width >= this.width))) {
 						// draw
 						if (this.render)
 							el.arrange(zone.xend - size.width, this.ypos, size.width, size.height);
