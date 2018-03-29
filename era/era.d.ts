@@ -3548,19 +3548,23 @@ declare namespace Ui {
     }
 }
 declare namespace Ui {
+    type ScaleBoxAlign = 'left' | 'right' | 'center';
     interface ScaleBoxInit extends ContainerInit {
         fixedWidth?: number;
         fixedHeight?: number;
+        itemAlign?: ScaleBoxAlign;
         content?: Ui.Element;
     }
     class ScaleBox extends Container {
         private _fixedWidth;
         private _fixedHeight;
+        private _itemAlign;
         constructor(init?: ScaleBoxInit);
         setFixedSize(width: number, height: number): void;
         fixedWidth: number;
         fixedHeight: number;
         content: Element;
+        itemAlign: ScaleBoxAlign;
         protected measureCore(width: number, height: number): {
             width: any;
             height: any;

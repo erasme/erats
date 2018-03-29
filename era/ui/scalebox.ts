@@ -1,15 +1,19 @@
 ﻿namespace Ui
 {
+	export type ScaleBoxAlign = 'left' | 'right' | 'center';
+
 	export interface ScaleBoxInit extends ContainerInit {
 		fixedWidth?: number;
 		fixedHeight?: number;
+		itemAlign?: ScaleBoxAlign;
 		content?: Ui.Element;
 	}
 
 	export class ScaleBox extends Container
 	{
 		private _fixedWidth: number = 400;
-		private _fixedHeight: number = 300
+		private _fixedHeight: number = 300;
+		private _itemAlign: ScaleBoxAlign = 'center';
 
 		constructor(init?: ScaleBoxInit) {
 			super(init);
@@ -18,6 +22,8 @@
 					this.fixedWidth = init.fixedWidth;
 				if (init.fixedHeight !== undefined)
 					this.fixedHeight = init.fixedHeight;
+				if (init.itemAlign !== undefined)
+					this.itemAlign = init.itemAlign;
 				if (init.content !== undefined)
 					this.content = init.content;	
 			}
@@ -51,6 +57,17 @@
 				content.setTransformOrigin(0, 0);
 				this.appendChild(content);
 			}	
+		}
+
+		get itemAlign(): ScaleBoxAlign {
+			return this._itemAlign;
+		}
+
+		set itemAlign(align: ScaleBoxAlign) {
+			if (this._itemAlign != align) {
+				this._itemAlign = align;
+				this.invalidateArrange();
+			}
 		}
 
 		protected measureCore(width: number, height: number) {
@@ -87,7 +104,12 @@
 				ah = height;
 				aw = ah * ratio;
 				ay = 0;
-				ax = (width - aw) / 2;
+				if (this._itemAlign == 'left')
+					ax = 0;
+				else if (this._itemAlign == 'right')
+					ax = width - aw;	
+				else
+					ax = (width - aw) / 2;
 			}
 			let scale = aw / this._fixedWidth;
 

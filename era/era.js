@@ -17063,11 +17063,14 @@ var Ui;
             var _this = _super.call(this, init) || this;
             _this._fixedWidth = 400;
             _this._fixedHeight = 300;
+            _this._itemAlign = 'center';
             if (init) {
                 if (init.fixedWidth !== undefined)
                     _this.fixedWidth = init.fixedWidth;
                 if (init.fixedHeight !== undefined)
                     _this.fixedHeight = init.fixedHeight;
+                if (init.itemAlign !== undefined)
+                    _this.itemAlign = init.itemAlign;
                 if (init.content !== undefined)
                     _this.content = init.content;
             }
@@ -17111,6 +17114,19 @@ var Ui;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(ScaleBox.prototype, "itemAlign", {
+            get: function () {
+                return this._itemAlign;
+            },
+            set: function (align) {
+                if (this._itemAlign != align) {
+                    this._itemAlign = align;
+                    this.invalidateArrange();
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
         ScaleBox.prototype.measureCore = function (width, height) {
             var ratio = this._fixedWidth / this._fixedHeight;
             var aratio = width / height;
@@ -17141,7 +17157,12 @@ var Ui;
                 ah = height;
                 aw = ah * ratio;
                 ay = 0;
-                ax = (width - aw) / 2;
+                if (this._itemAlign == 'left')
+                    ax = 0;
+                else if (this._itemAlign == 'right')
+                    ax = width - aw;
+                else
+                    ax = (width - aw) / 2;
             }
             var scale = aw / this._fixedWidth;
             for (var i = 0; i < this.children.length; i++) {
