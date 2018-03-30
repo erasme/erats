@@ -161,7 +161,7 @@ namespace Ui {
 		}
 
 		getElementActions(watcher: SelectionableWatcher) {
-			let actions = Core.Util.clone(watcher.selectionActions);
+			let actions = Core.Util.clone(watcher.selectionActions) as SelectionActions;
 			// handle parent context actions
 			let current = watcher.element.parent;
 			while (current != undefined) {
@@ -173,16 +173,16 @@ namespace Ui {
 		}
 
 		getActions() {
-			let actions; let allActions; let actionName; let action;
+			let actions: SelectionActions;
 			if (this._watchers.length === 0)
 				return undefined;
 			else {
 				if (this._watchers.length === 1) {
 					actions = {};
-					allActions = this.getElementActions(this._watchers[0]);
-					for (actionName in allActions) {
-						action = allActions[actionName];
-						if (!('testRight' in action) || action.testRight(this._watchers[0]))
+					let allActions = this.getElementActions(this._watchers[0]);
+					for (let actionName in allActions) {
+						let action = allActions[actionName];
+						if (!action.testRight || action.testRight(this._watchers[0]))
 							actions[actionName] = allActions[actionName];
 					}
 					return actions;
@@ -190,9 +190,9 @@ namespace Ui {
 				// return only actions that support multiple element
 				else {
 					actions = {};
-					allActions = this.getElementActions(this._watchers[0]);
-					for (actionName in allActions) {
-						action = allActions[actionName];
+					let allActions = this.getElementActions(this._watchers[0]);
+					for (let actionName in allActions) {
+						let action = allActions[actionName];
 						if (action.multiple === true) {
 							let compat = true;
 							for (let i = 1; compat && (i < this._watchers.length); i++) {
@@ -210,7 +210,7 @@ namespace Ui {
 							if (compat) {
 								let allowed = true;
 								// test rights for all elements
-								if ('testRight' in action) {
+								if (action.testRight) {
 									for (let i = 0; allowed && (i < this._watchers.length); i++) {
 										allowed = allowed && action.testRight(this._watchers[i]);
 									}
@@ -228,7 +228,7 @@ namespace Ui {
 		getDefaultAction() {
 			let actions = this.getActions();
 			for (let actionName in actions) {
-				if (actions[actionName]['default'] === true)
+				if (actions[actionName].default === true)
 					return actions[actionName];
 			}
 			return undefined;
@@ -237,10 +237,7 @@ namespace Ui {
 		executeDefaultAction() {
 			let action = this.getDefaultAction();
 			if (action !== undefined) {
-				let scope = this;
-				if ('scope' in action)
-					scope = action.scope;
-				action.callback.call(scope, this);
+				action.callback(this);
 				this.clear();
 				return true;
 			}
@@ -262,10 +259,7 @@ namespace Ui {
 		executeDeleteAction() {
 			let action = this.getDeleteAction();
 			if (action !== undefined) {
-				let scope = this;
-				if ('scope' in action)
-					scope = action.scope;
-				action.callback.call(scope, this);
+				action.callback(this);
 				this.clear();
 				return true;
 			}

@@ -1931,11 +1931,11 @@ declare namespace Ui {
         private internalRemove(watcher);
         watchers: Array<SelectionableWatcher>;
         elements: Element[];
-        getElementActions(watcher: SelectionableWatcher): {};
-        getActions(): any;
-        getDefaultAction(): any;
+        getElementActions(watcher: SelectionableWatcher): SelectionActions;
+        getActions(): SelectionActions;
+        getDefaultAction(): SelectionAction;
         executeDefaultAction(): boolean;
-        getDeleteAction(): any;
+        getDeleteAction(): SelectionAction;
         executeDeleteAction(): boolean;
         onElementUnload: (e: {
             target: Element;

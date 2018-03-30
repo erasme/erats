@@ -8962,27 +8962,24 @@ var Ui;
         };
         Selection.prototype.getActions = function () {
             var actions;
-            var allActions;
-            var actionName;
-            var action;
             if (this._watchers.length === 0)
                 return undefined;
             else {
                 if (this._watchers.length === 1) {
                     actions = {};
-                    allActions = this.getElementActions(this._watchers[0]);
-                    for (actionName in allActions) {
-                        action = allActions[actionName];
-                        if (!('testRight' in action) || action.testRight(this._watchers[0]))
+                    var allActions = this.getElementActions(this._watchers[0]);
+                    for (var actionName in allActions) {
+                        var action = allActions[actionName];
+                        if (!action.testRight || action.testRight(this._watchers[0]))
                             actions[actionName] = allActions[actionName];
                     }
                     return actions;
                 }
                 else {
                     actions = {};
-                    allActions = this.getElementActions(this._watchers[0]);
-                    for (actionName in allActions) {
-                        action = allActions[actionName];
+                    var allActions = this.getElementActions(this._watchers[0]);
+                    for (var actionName in allActions) {
+                        var action = allActions[actionName];
                         if (action.multiple === true) {
                             var compat = true;
                             for (var i = 1; compat && (i < this._watchers.length); i++) {
@@ -8999,7 +8996,7 @@ var Ui;
                             }
                             if (compat) {
                                 var allowed = true;
-                                if ('testRight' in action) {
+                                if (action.testRight) {
                                     for (var i = 0; allowed && (i < this._watchers.length); i++) {
                                         allowed = allowed && action.testRight(this._watchers[i]);
                                     }
@@ -9016,7 +9013,7 @@ var Ui;
         Selection.prototype.getDefaultAction = function () {
             var actions = this.getActions();
             for (var actionName in actions) {
-                if (actions[actionName]['default'] === true)
+                if (actions[actionName].default === true)
                     return actions[actionName];
             }
             return undefined;
@@ -9024,10 +9021,7 @@ var Ui;
         Selection.prototype.executeDefaultAction = function () {
             var action = this.getDefaultAction();
             if (action !== undefined) {
-                var scope = this;
-                if ('scope' in action)
-                    scope = action.scope;
-                action.callback.call(scope, this);
+                action.callback(this);
                 this.clear();
                 return true;
             }
@@ -9047,10 +9041,7 @@ var Ui;
         Selection.prototype.executeDeleteAction = function () {
             var action = this.getDeleteAction();
             if (action !== undefined) {
-                var scope = this;
-                if ('scope' in action)
-                    scope = action.scope;
-                action.callback.call(scope, this);
+                action.callback(this);
                 this.clear();
                 return true;
             }
