@@ -307,13 +307,11 @@ namespace Ui {
 			}
 		}
 
-		getDefaultButton() {
+		getDefaultButton(): DefaultButton | undefined {
 			let buttons = this.actionBox.getActionButtons();
-			let defaultButton;
-			for (let i = 0; (defaultButton === undefined) && (i < buttons.length); i++)
+			for (let i = 0; i < buttons.length; i++)
 				if (buttons[i] instanceof DefaultButton)
-					defaultButton = buttons[i];
-			return defaultButton;
+					return buttons[i] as DefaultButton;
 		}
 
 		defaultAction() {
