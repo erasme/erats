@@ -1798,6 +1798,7 @@ declare namespace Ui {
         lock: boolean;
         protected onDown(): void;
         protected onUp(): void;
+        press(): void;
         protected onPress(x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean): void;
         protected onActivate(x?: number, y?: number): void;
         protected onDelayedPress(x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean): void;
@@ -3340,7 +3341,7 @@ declare namespace Ui {
         private onKeyUp(event);
         renderDrawing(): HTMLInputElement;
         measureCore(width: number, height: number): {
-            width: number;
+            width: any;
             height: number;
         };
         arrangeCore(width: number, height: number): void;

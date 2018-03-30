@@ -8497,6 +8497,10 @@ var Ui;
         Pressable.prototype.onUp = function () {
             this.upped.fire({ target: this });
         };
+        Pressable.prototype.press = function () {
+            if (!this.isDisabled && !this.lock)
+                this.onPress();
+        };
         Pressable.prototype.onPress = function (x, y, altKey, shiftKey, ctrlKey) {
             this.pressed.fire({ target: this, x: x, y: y, altKey: altKey, shiftKey: shiftKey, ctrlKey: ctrlKey });
         };
@@ -16244,12 +16248,13 @@ var Ui;
             return drawing;
         };
         Entry.prototype.measureCore = function (width, height) {
-            return { width: 8, height: (this.fontSize * 3 / 2) };
+            this.drawing.style.height = '';
+            console.log(this + ".measureCore " + Math.max(this.fontSize, this.drawing.scrollHeight));
+            return { width: this.drawing.scrollWidth, height: Math.max(this.fontSize, this.drawing.scrollHeight) };
         };
         Entry.prototype.arrangeCore = function (width, height) {
             this.drawing.style.width = width + 'px';
             this.drawing.style.height = height + 'px';
-            this.drawing.style.lineHeight = height + 'px';
         };
         Entry.prototype.onDisable = function () {
             _super.prototype.onDisable.call(this);
@@ -17300,8 +17305,9 @@ var Ui;
             configurable: true
         });
         TextArea.prototype.onPaste = function (event) {
+            var _this = this;
             event.stopPropagation();
-            new Core.DelayedTask(0, this.onAfterPaste);
+            new Core.DelayedTask(0, function () { return _this.onAfterPaste(); });
         };
         TextArea.prototype.onAfterPaste = function () {
             if (this.drawing.value != this._value) {
@@ -17361,7 +17367,7 @@ var Ui;
         TextArea.prototype.measureCore = function (width, height) {
             this.drawing.style.width = width + 'px';
             this.drawing.style.height = '0px';
-            var size = { width: this.drawing.scrollWidth, height: Math.max(this.fontSize * 3 / 2, this.drawing.scrollHeight) };
+            var size = { width: this.drawing.scrollWidth, height: Math.max(this.fontSize, this.drawing.scrollHeight) };
             this.drawing.style.width = this.layoutWidth + 'px';
             this.drawing.style.height = this.layoutHeight + 'px';
             return size;

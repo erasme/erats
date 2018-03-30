@@ -133,7 +133,7 @@ namespace Ui {
 	
 		protected onPaste(event) {
 			event.stopPropagation();
-			new Core.DelayedTask(0, this.onAfterPaste);
+			new Core.DelayedTask(0, () => this.onAfterPaste());
 		}
 
 		protected onAfterPaste() {
@@ -203,7 +203,8 @@ namespace Ui {
 		protected measureCore(width, height) {
 			this.drawing.style.width = width + 'px';
 			this.drawing.style.height = '0px';
-			let size = { width: this.drawing.scrollWidth, height: Math.max(this.fontSize * 3 / 2, this.drawing.scrollHeight) };
+			let size = { width: this.drawing.scrollWidth, height: Math.max(this.fontSize, this.drawing.scrollHeight) };
+			//let size = { width: this.drawing.scrollWidth, height: Math.max(this.fontSize * 3 / 2, this.drawing.scrollHeight) };
 			this.drawing.style.width = this.layoutWidth + 'px';
 			this.drawing.style.height = this.layoutHeight + 'px';
 			return size;
