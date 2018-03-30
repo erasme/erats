@@ -203,11 +203,7 @@ namespace Ui
 
 		measureCore(width: number, height: number) {
 			this.drawing.style.height = '';
-			console.log(`${this}.measureCore ${Math.max(this.fontSize, this.drawing.scrollHeight)}`);
 			return { width: this.drawing.scrollWidth, height: Math.max(this.fontSize, this.drawing.scrollHeight) };
-
-			//return { width: 8, height: this.fontSize };
-			//return { width: 8, height: (this.fontSize * 3 / 2) };
 		}
 
 		arrangeCore(width: number, height: number) {

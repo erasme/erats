@@ -20,7 +20,7 @@ namespace Ui {
 			this.textholder = new Label({
 				opacity: 0.5,
 				horizontalAlign: 'left',
-				margin: 5,
+				margin: 7,
 				marginLeft: 10,
 				marginRight: 10
 			});
@@ -28,7 +28,7 @@ namespace Ui {
 
 			this.textarea = new TextArea({
 				verticalAlign: 'center',
-				margin: 5,
+				margin: 7,
 				marginLeft: 10,
 				marginRight: 10,
 				fontSize: 16

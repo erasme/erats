@@ -14990,11 +14990,9 @@ var Ui;
         };
         Dialog.prototype.getDefaultButton = function () {
             var buttons = this.actionBox.getActionButtons();
-            var defaultButton;
-            for (var i = 0; (defaultButton === undefined) && (i < buttons.length); i++)
+            for (var i = 0; i < buttons.length; i++)
                 if (buttons[i] instanceof Ui.DefaultButton)
-                    defaultButton = buttons[i];
-            return defaultButton;
+                    return buttons[i];
         };
         Dialog.prototype.defaultAction = function () {
             var defaultButton = this.getDefaultButton();
@@ -16249,7 +16247,6 @@ var Ui;
         };
         Entry.prototype.measureCore = function (width, height) {
             this.drawing.style.height = '';
-            console.log(this + ".measureCore " + Math.max(this.fontSize, this.drawing.scrollHeight));
             return { width: this.drawing.scrollWidth, height: Math.max(this.fontSize, this.drawing.scrollHeight) };
         };
         Entry.prototype.arrangeCore = function (width, height) {
@@ -16503,13 +16500,13 @@ var Ui;
             _this.textholder = new Ui.Label({
                 opacity: 0.5,
                 horizontalAlign: 'left',
-                margin: 5,
+                margin: 7,
                 marginLeft: 10,
                 marginRight: 10
             });
             _this.append(_this.textholder);
             _this.entry = new Ui.Entry({
-                margin: 5,
+                margin: 7,
                 marginLeft: 10,
                 marginRight: 10,
                 fontSize: 16
@@ -17366,7 +17363,7 @@ var Ui;
         };
         TextArea.prototype.measureCore = function (width, height) {
             this.drawing.style.width = width + 'px';
-            this.drawing.style.height = '0px';
+            this.drawing.style.height = '';
             var size = { width: this.drawing.scrollWidth, height: Math.max(this.fontSize, this.drawing.scrollHeight) };
             this.drawing.style.width = this.layoutWidth + 'px';
             this.drawing.style.height = this.layoutHeight + 'px';
@@ -17419,14 +17416,14 @@ var Ui;
             _this.textholder = new Ui.Label({
                 opacity: 0.5,
                 horizontalAlign: 'left',
-                margin: 5,
+                margin: 7,
                 marginLeft: 10,
                 marginRight: 10
             });
             _this.append(_this.textholder);
             _this.textarea = new Ui.TextArea({
                 verticalAlign: 'center',
-                margin: 5,
+                margin: 7,
                 marginLeft: 10,
                 marginRight: 10,
                 fontSize: 16

@@ -202,7 +202,7 @@ namespace Ui {
 
 		protected measureCore(width, height) {
 			this.drawing.style.width = width + 'px';
-			this.drawing.style.height = '0px';
+			this.drawing.style.height = '';
 			let size = { width: this.drawing.scrollWidth, height: Math.max(this.fontSize, this.drawing.scrollHeight) };
 			//let size = { width: this.drawing.scrollWidth, height: Math.max(this.fontSize * 3 / 2, this.drawing.scrollHeight) };
 			this.drawing.style.width = this.layoutWidth + 'px';

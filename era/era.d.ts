@@ -3078,7 +3078,7 @@ declare namespace Ui {
         open(): void;
         close(): void;
         onOpenTick(clock: any, progress: any, delta: any): void;
-        getDefaultButton(): any;
+        getDefaultButton(): DefaultButton | undefined;
         defaultAction(): void;
         title: string;
         updateButtonsBoxVisible(): void;

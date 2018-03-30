@@ -23,14 +23,14 @@ namespace Ui {
 			this.textholder = new Label({
 				opacity: 0.5,
 				horizontalAlign: 'left',
-				margin: 5,
+				margin: 7,
 				marginLeft: 10,
 				marginRight: 10
 			});
 			this.append(this.textholder);
 
 			this.entry = new Ui.Entry({
-				margin: 5,
+				margin: 7,
 				marginLeft: 10,
 				marginRight: 10,
 				fontSize: 16
