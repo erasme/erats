@@ -9,8 +9,8 @@ namespace Ui {
 
 	export class Flow extends Container implements FlowInit {
 		private _uniform: boolean = false;
-		private uniformWidth: number = undefined;
-		private uniformHeight: number = undefined;
+		private uniformWidth: number = 0;
+		private uniformHeight: number = 0;
 		private _itemAlign: 'left' | 'right' = 'left';
 		private _spacing: number = 0;
 
@@ -192,7 +192,7 @@ namespace Ui {
 			};
 		}
 
-		protected measureCore(width, height) {
+		protected measureCore(width: number, height: number) {
 			if (this.children.length === 0)
 				return { width: 0, height: 0 };
 			if (this._uniform)
@@ -201,7 +201,7 @@ namespace Ui {
 				return this.measureChildrenNonUniform(width, height);
 		}
 
-		protected arrangeCore(width, height) {
+		protected arrangeCore(width: number, height: number) {
 			if (this._uniform) {
 				if (this._itemAlign === 'left') {
 					let x = 0;

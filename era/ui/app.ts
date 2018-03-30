@@ -6,7 +6,7 @@ namespace Ui
 
 	export class App extends Container
 	{
-		styles: any = undefined;
+		styles: any;
 		private updateTask: boolean = false;
 		private _loaded: boolean = false;
 		focusElement: any = undefined;
@@ -16,22 +16,22 @@ namespace Ui
 		webApp: boolean = true;
 		lastArrangeHeight: number = 0;
 
-		private drawList: Element = undefined;
-		private layoutList: Element = undefined;
+		private drawList?: Element;
+		private layoutList?: Element;
 		windowWidth: number = 0;
 		windowHeight: number = 0;
 
-		private contentBox: Box = undefined;
-		private _content: Element = undefined;
+		private contentBox: Box;
+		private _content?: Element;
 
-		dialogs: LBox = undefined;
-		topLayers: LBox = undefined;
+		dialogs?: LBox;
+		topLayers?: LBox;
 
-		requireFonts: any = undefined;
-		testFontTask: any = undefined;
-		bindedUpdate: any = undefined;
+		requireFonts: any;
+		testFontTask: any;
+		bindedUpdate: any;
 
-		selection: Selection = undefined;
+		selection: Selection;
 
 		readonly resized = new Core.Events<{ target: App, width: number, height: number }>();
 		readonly ready = new Core.Events<{ target: App }>();
@@ -360,11 +360,11 @@ namespace Ui
 			this.updateTask = false;
 		}
 
-		get content(): Element {
+		get content(): Element | undefined {
 			return this._content;
 		}
 
-		set content(content: Element) {
+		set content(content: Element | undefined) {
 			if (this._content !== content) {
 				if (this._content !== undefined)
 					this.contentBox.remove(this._content);
@@ -401,7 +401,7 @@ namespace Ui
 					this.dialogs = undefined;
 					this.contentBox.enable();
 				}
-				else
+				else if (this.dialogs.lastChild)
 					this.dialogs.lastChild.enable();
 			}
 		}
@@ -587,12 +587,12 @@ namespace Ui
 			});
 		}
 
-		getElementsByClassName(className) {
-			let res = [];
-			let reqSearch = function (current) {
-				if (current.classType === className)
+		getElementsByClass(className: Function) {
+			let res = new Array<Element>();
+			let reqSearch = function (current: Element) {
+				if (current instanceof className)
 					res.push(current);
-				if (current.children !== undefined) {
+				if (current instanceof Container) {
 					for (let i = 0; i < current.children.length; i++)
 						reqSearch(current.children[i]);
 				}

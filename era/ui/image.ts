@@ -8,11 +8,11 @@ namespace Ui
 
 	export class Image extends Element implements ImageInit
 	{
-		private _src: string = undefined;
+		private _src?: string;
 		private loaddone: boolean = false;
-		private _naturalWidth: number = undefined;
-		private _naturalHeight: number = undefined;
-		private imageDrawing: HTMLImageElement;
+		private _naturalWidth?: number;
+		private _naturalHeight?: number;
+		private imageDrawing!: HTMLImageElement;
 		private setSrcLock: boolean = false;
 		readonly ready = new Core.Events<{ target: Image }>();
 		readonly error = new Core.Events<{ target: Image }>();
@@ -36,7 +36,7 @@ namespace Ui
 		//
 		// Get the URL of the image
 		//
-		get src(): string {
+		get src(): string | undefined {
 			return this._src;
 		}
 
@@ -44,7 +44,7 @@ namespace Ui
 		// Set the URL of the image. When the image is loaded,
 		// ready event is fired and getIsReady return true.
 		//
-		set src(src: string) {
+		set src(src: string | undefined) {
 			if (src === undefined)
 				throw ('Image src cant be undefined');
 	
@@ -69,7 +69,7 @@ namespace Ui
 		// in the image file. Return undefined if the image is
 		// not ready
 		//
-		get naturalWidth(): number {
+		get naturalWidth(): number | undefined {
 			return this._naturalWidth;
 		}
 
@@ -78,7 +78,7 @@ namespace Ui
 		// in the image file. Return undefined if the image is
 		// not ready
 		//
-		get naturalHeight(): number {
+		get naturalHeight(): number | undefined {
 			return this._naturalHeight;
 		}
 
@@ -124,7 +124,8 @@ namespace Ui
 					document.body = body;
 				}
 				let imgClone = document.createElement('img');
-				imgClone.setAttribute('src', this._src);
+				if (this._src)
+					imgClone.setAttribute('src', this._src);
 				document.body.appendChild(imgClone);
 				this._naturalWidth = imgClone.width;
 				this._naturalHeight = imgClone.height;
@@ -165,13 +166,19 @@ namespace Ui
 					size = { width: this._naturalWidth, height: this._naturalHeight };
 				else {
 					let fixedHeight = this.height - (this.marginTop + this.marginBottom);
-					size = { width: (this._naturalWidth * fixedHeight) / this._naturalHeight, height: fixedHeight };
+					size = {
+						width: ((this._naturalWidth as number) * fixedHeight) / (this._naturalHeight as number),
+						height: fixedHeight
+					};
 				}
 			}
 			else {
 				if (this.height === undefined) {
 					let fixedWidth = this.width - (this.marginLeft + this.marginRight);
-					size = { width: fixedWidth, height: (this._naturalHeight * fixedWidth) / this._naturalWidth };
+					size = {
+						width: fixedWidth,
+						height: ((this._naturalHeight as number) * fixedWidth) / (this._naturalWidth as number)
+					};
 				}
 				else
 					size = { width: 0, height: 0 };

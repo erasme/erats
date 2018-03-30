@@ -1660,9 +1660,9 @@ declare namespace Ui {
 declare namespace Ui {
     class OverWatcher extends Core.Object {
         private element;
-        private pointer;
-        private enter;
-        private leave;
+        private pointer?;
+        private enter?;
+        private leave?;
         constructor(init: {
             element: Ui.Element;
             onentered?: (watcher: OverWatcher) => void;
@@ -2064,7 +2064,7 @@ declare namespace Ui {
         protected speedY: number;
         protected startPosX: number;
         protected startPosY: number;
-        protected inertiaClock: Anim.Clock;
+        protected inertiaClock?: Anim.Clock;
         private _inertia;
         private _isDown;
         private _lock;
@@ -2408,7 +2408,7 @@ declare namespace Ui {
         private orientation;
         private rect;
         private over;
-        private clock;
+        private clock?;
         constructor(orientation: Orientation);
         radius: number;
         fill: Color;
@@ -2914,14 +2914,14 @@ declare namespace Ui {
         orientation: number;
         webApp: boolean;
         lastArrangeHeight: number;
-        private drawList;
-        private layoutList;
+        private drawList?;
+        private layoutList?;
         windowWidth: number;
         windowHeight: number;
         private contentBox;
-        private _content;
-        dialogs: LBox;
-        topLayers: LBox;
+        private _content?;
+        dialogs?: LBox;
+        topLayers?: LBox;
         requireFonts: any;
         testFontTask: any;
         bindedUpdate: any;
@@ -2959,7 +2959,7 @@ declare namespace Ui {
         protected onWindowResize(event: any): void;
         protected onOrientationChange(event: any): void;
         update(): void;
-        content: Element;
+        content: Element | undefined;
         getFocusElement(): any;
         appendDialog(dialog: any): void;
         removeDialog(dialog: any): void;
@@ -2975,7 +2975,7 @@ declare namespace Ui {
         enqueueDraw(element: any): void;
         enqueueLayout(element: any): void;
         handleScrolling(drawing: any): void;
-        getElementsByClassName(className: any): any[];
+        getElementsByClass(className: Function): Element[];
         getElementByDrawing(drawing: any): any;
         getInverseLayoutTransform(): Matrix;
         getLayoutTransform(): Matrix;
@@ -3019,7 +3019,7 @@ declare namespace Ui {
     class DialogButtonBox extends LBox {
         bg: Rectangle;
         actionBox: HBox;
-        cancelButton: Pressable;
+        cancelButton?: Pressable;
         actionButtonsBox: HBox;
         titleLabel: DialogTitle;
         readonly cancelled: Core.Events<{
@@ -3056,8 +3056,8 @@ declare namespace Ui {
         vbox: VBox;
         contentBox: LBox;
         contentVBox: VBox;
-        private _actionButtons;
-        private _cancelButton;
+        private _actionButtons?;
+        private _cancelButton?;
         private buttonsBox;
         buttonsVisible: boolean;
         private _preferredWidth;
@@ -3084,7 +3084,7 @@ declare namespace Ui {
         updateButtonsBoxVisible(): void;
         cancelButton: Pressable;
         actionButtons: Pressable[];
-        content: Element;
+        content: Element | undefined;
         autoClose: boolean;
         protected onCancelPress(): void;
         protected onFormSubmit(): void;
@@ -3205,7 +3205,7 @@ declare namespace Ui {
 declare namespace Ui {
     class Toaster extends Container {
         static current: Toaster;
-        private arrangeClock;
+        private arrangeClock?;
         constructor();
         appendToast(toast: Toast): void;
         removeToast(toast: Toast): void;
@@ -3220,7 +3220,7 @@ declare namespace Ui {
     }
     class Toast extends LBox {
         private _isClosed;
-        private openClock;
+        private openClock?;
         private toastContentBox;
         newToast: boolean;
         lastLayoutX: number;
@@ -3251,10 +3251,10 @@ declare namespace Ui {
         }) => void;
     }
     class Image extends Element implements ImageInit {
-        private _src;
+        private _src?;
         private loaddone;
-        private _naturalWidth;
-        private _naturalHeight;
+        private _naturalWidth?;
+        private _naturalHeight?;
         private imageDrawing;
         private setSrcLock;
         readonly ready: Core.Events<{
@@ -3264,9 +3264,9 @@ declare namespace Ui {
             target: Image;
         }>;
         constructor(init?: ImageInit);
-        src: string;
-        readonly naturalWidth: number;
-        readonly naturalHeight: number;
+        src: string | undefined;
+        readonly naturalWidth: number | undefined;
+        readonly naturalHeight: number | undefined;
         readonly isReady: boolean;
         private onImageError(event);
         private onImageLoad(event);
@@ -3582,10 +3582,10 @@ declare namespace Ui {
         value?: string;
     }
     class TextArea extends Element {
-        private _fontSize;
-        private _fontFamily;
-        private _fontWeight;
-        private _color;
+        private _fontSize?;
+        private _fontFamily?;
+        private _fontWeight?;
+        private _color?;
         private _value;
         readonly changed: Core.Events<{
             target: TextArea;
@@ -3705,11 +3705,11 @@ declare namespace Ui {
         remove(child: Element): void;
         private measureChildrenNonUniform(width, height);
         private measureChildrenUniform(width, height);
-        protected measureCore(width: any, height: any): {
+        protected measureCore(width: number, height: number): {
             width: number;
             height: number;
         };
-        protected arrangeCore(width: any, height: any): void;
+        protected arrangeCore(width: number, height: number): void;
     }
 }
 declare namespace Ui {
@@ -4282,7 +4282,7 @@ declare namespace Ui {
         }) => void;
     }
     class ContentEditable extends Html {
-        anchorNode: Node;
+        anchorNode?: Node;
         anchorOffset: number;
         readonly anchorchanged: Core.Events<{
             target: ContentEditable;
@@ -4844,7 +4844,7 @@ declare namespace Ui {
         private _isFolded;
         private _over;
         private _mode;
-        private clock;
+        private clock?;
         private contentSize;
         private _animDuration;
         readonly folded: Core.Events<{
@@ -4934,8 +4934,8 @@ declare namespace Ui {
     }
     class Accordeonable extends Container {
         private current;
-        private _currentPage;
-        private clock;
+        private _currentPage?;
+        private clock?;
         private headersSize;
         private contentSize;
         private _orientation;
@@ -4947,7 +4947,7 @@ declare namespace Ui {
         constructor(init?: AccordeonableInit);
         orientation: AccordeonOrientation;
         readonly pages: AccordeonPage[];
-        currentPage: AccordeonPage;
+        currentPage: AccordeonPage | undefined;
         currentPosition: number;
         appendPage(page: AccordeonPage): void;
         removePage(page: AccordeonPage): void;
@@ -4964,8 +4964,8 @@ declare namespace Ui {
     }
     class AccordeonPage extends Container {
         headerBox: Pressable;
-        header: Element;
-        content: Element;
+        header?: Element;
+        content?: Element;
         offset: number;
         orientation: 'vertical' | 'horizontal';
         isSelected: boolean;

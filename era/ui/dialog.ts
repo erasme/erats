@@ -21,7 +21,7 @@ namespace Ui {
 
 	export class DialogGraphic extends CanvasElement {
 
-		private _background: Color = undefined;
+		private _background: Color;
 
 		constructor() {
 			super();
@@ -59,7 +59,7 @@ namespace Ui {
 	{
 		bg: Rectangle;
 		actionBox: HBox;
-		cancelButton: Pressable = undefined;
+		cancelButton?: Pressable;
 		actionButtonsBox: HBox;
 		titleLabel: DialogTitle;
 		readonly cancelled: Core.Events<{ target: DialogButtonBox }> = new Core.Events();
@@ -147,8 +147,8 @@ namespace Ui {
 		vbox: VBox;
 		contentBox: LBox;
 		contentVBox: VBox;
-		private _actionButtons: Pressable[];
-		private _cancelButton: Pressable;
+		private _actionButtons?: Pressable[];
+		private _cancelButton?: Pressable;
 		private buttonsBox: LBox;
 		buttonsVisible: boolean = false;
 		private _preferredWidth: number | undefined;
@@ -355,11 +355,11 @@ namespace Ui {
 			this.updateButtonsBoxVisible();
 		}
 
-		set content(content: Element) {
+		set content(content: Element | undefined) {
 			this.contentBox.content = content;
 		}
 
-		get content(): Element {
+		get content(): Element | undefined {
 			return this.contentBox.firstChild;
 		}
 

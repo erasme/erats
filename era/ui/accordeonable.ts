@@ -6,8 +6,8 @@ namespace Ui {
 
 	export class Accordeonable extends Container {
 		private current: number = -1;
-		private _currentPage: AccordeonPage;
-		private clock: Anim.Clock;
+		private _currentPage?: AccordeonPage;
+		private clock?: Anim.Clock;
 		private headersSize: number = 0;
 		private contentSize: number = 0;
 		private _orientation: AccordeonOrientation = 'horizontal';
@@ -60,14 +60,14 @@ namespace Ui {
 		/**
 		* @return the current opened page
 		*/
-		get currentPage(): AccordeonPage {
+		get currentPage(): AccordeonPage | undefined {
 			return this._currentPage;
 		}
 
 		/**
 		* Set the given page as the current opened page
 		*/
-		set currentPage(page: AccordeonPage) {
+		set currentPage(page: AccordeonPage | undefined) {
 			for (let i = 0; i < this.pages.length; i++) {
 				if (this.pages[i] == page) {
 					this.currentPosition = i;
@@ -273,8 +273,8 @@ namespace Ui {
 
 	export class AccordeonPage extends Container {
 		headerBox: Pressable;
-		header: Element;
-		content: Element;
+		header?: Element;
+		content?: Element;
 		offset: number = 0;
 		orientation: 'vertical' | 'horizontal' = 'horizontal';
 		isSelected: boolean = false;

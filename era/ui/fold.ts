@@ -29,7 +29,7 @@ namespace Ui {
 		private _isFolded: boolean = true;
 		private _over: boolean = true;
 		private _mode: FoldMode = 'extend';
-		private clock: Anim.Clock;
+		private clock?: Anim.Clock;
 		private contentSize: number = 0;
 		private _animDuration: number = 0.5;
 		readonly folded = new Core.Events<{ target: Fold }>();

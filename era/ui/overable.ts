@@ -2,9 +2,9 @@ namespace Ui {
 
 	export class OverWatcher extends Core.Object {
 		private element: Ui.Element;
-		private pointer: Pointer = undefined;
-		private enter: (watcher: OverWatcher) => void;
-		private leave: (watcher: OverWatcher) => void;
+		private pointer?: Pointer;
+		private enter?: (watcher: OverWatcher) => void;
+		private leave?: (watcher: OverWatcher) => void;
 
 		constructor(init: {
 			element: Ui.Element,
@@ -12,8 +12,10 @@ namespace Ui {
 			onleaved?: (watcher: OverWatcher) => void
 		}) {
 			super();
-			this.enter = init.onentered;
-			this.leave = init.onleaved;
+			if (init.onentered)
+				this.enter = init.onentered;
+			if (init.onleaved)
+				this.leave = init.onleaved;
 
 			this.element = init.element;
 			init.element.ptrmoved.connect((event: PointerEvent) => {

@@ -3,7 +3,7 @@ namespace Ui {
 	export class Scrollbar extends Movable {
 		private rect: Rectangle;
 		private over: Overable;
-		private clock: Anim.Clock = undefined;
+		private clock?: Anim.Clock;
 
 		constructor(private orientation: Orientation) {
 			super();
@@ -60,7 +60,8 @@ namespace Ui {
 			else
 				this.rect.height = s;
 			if ((!view && s == 5) || (view && s == 15)) {
-				this.clock.stop();
+				if (this.clock)
+					this.clock.stop();
 				this.clock = undefined;
 			}
 		}

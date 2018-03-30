@@ -8,10 +8,10 @@ namespace Ui {
 	}
 
 	export class TextArea extends Element {
-		private _fontSize: number = undefined;
-		private _fontFamily: string = undefined;
-		private _fontWeight: string = undefined;
-		private _color: Color = undefined;
+		private _fontSize?: number;
+		private _fontFamily?: string;
+		private _fontWeight?: string;
+		private _color?: Color;
 		private _value: string = '';
 		readonly changed = new Core.Events<{ target: TextArea, value: string }>();
 

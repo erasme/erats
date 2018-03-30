@@ -13,7 +13,7 @@ namespace Ui {
 
 	export class Audio extends Element {
 		private _src: string;
-		protected audioDrawing: HTMLAudioElement;
+		protected audioDrawing!: HTMLAudioElement;
 		private canplaythrough: boolean = false;
 		private _state: MediaState = 'initial';
 

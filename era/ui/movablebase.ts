@@ -16,9 +16,9 @@ namespace Ui {
 		protected posY: number = 0;
 		protected speedX: number = 0;
 		protected speedY: number = 0;
-		protected startPosX: number = undefined;
-		protected startPosY: number = undefined;
-		protected inertiaClock: Anim.Clock = undefined;
+		protected startPosX: number = 0;
+		protected startPosY: number = 0;
+		protected inertiaClock?: Anim.Clock;
 		private _inertia: boolean = false;
 		private _isDown: boolean = false;
 		private _lock: boolean = false;

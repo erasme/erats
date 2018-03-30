@@ -22,7 +22,7 @@ namespace Ui
 	export class ContextBar extends LBox implements ContextBarInit
 	{
 		bg: Rectangle;
-		private _selection: Selection = undefined;
+		private _selection: Selection;
 		actionsBox: Box;
 		closeButton: ContextBarCloseButton;
 

@@ -2,7 +2,7 @@
 
 	export class Toaster extends Container {
 		static current: Toaster;
-		private arrangeClock: Anim.Clock;
+		private arrangeClock?: Anim.Clock;
 
 		constructor() {
 			super();
@@ -84,13 +84,13 @@
 
 	export class Toast extends LBox {
 		private _isClosed: boolean = true;
-		private openClock: Anim.Clock;
+		private openClock?: Anim.Clock;
 		private toastContentBox: LBox;
 		newToast: boolean = false;
-		lastLayoutX: number;
-		lastLayoutY: number;
-		lastLayoutWidth: number;
-		lastLayoutHeight: number;
+		lastLayoutX: number = 0;
+		lastLayoutY: number = 0;
+		lastLayoutWidth: number = 0;
+		lastLayoutHeight: number = 0;
 		readonly closed = new Core.Events<{ target: Toast }>();
 
 		constructor() {
@@ -158,7 +158,8 @@
 			this.transform = Matrix.createTranslate(-20 * (1 - progress), 0);
 
 			if (end) {
-				this.openClock.stop();
+				if (this.openClock)
+					this.openClock.stop();
 				this.openClock = undefined;
 				if (this._isClosed) {
 					this.enable();

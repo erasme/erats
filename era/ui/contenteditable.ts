@@ -6,7 +6,7 @@ namespace Ui {
 	}
 
 	export class ContentEditable extends Html {
-		anchorNode: Node;
+		anchorNode?: Node;
 		anchorOffset: number = 0;
 		readonly anchorchanged = new Core.Events<{ target: ContentEditable }>();
 		readonly changed = new Core.Events<{ target: ContentEditable }>();

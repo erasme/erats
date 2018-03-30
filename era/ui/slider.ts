@@ -12,7 +12,7 @@ namespace Ui {
 		protected button: Movable;
 		protected buttonContent: Rectangle;
 		protected _orientation: Orientation = 'horizontal';
-		protected updateLock: boolean;
+		protected updateLock: boolean = false;
 		readonly changed = new Core.Events<{ target: Slider, value: number }>();
 
 		constructor(init?: SliderInit) {
