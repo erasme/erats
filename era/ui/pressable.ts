@@ -79,7 +79,8 @@ namespace Ui {
 
 		protected onKeyDown(event: KeyboardEvent) {
 			let key = event.which;
-			if (!this.lock && !this.element.isDisabled && key == 13) {
+			// handle Enter and Space key
+			if (!this.lock && !this.element.isDisabled && (key == 13 || key == 32)) {
 				event.preventDefault();
 				event.stopPropagation();
 				this.onDown();
@@ -88,7 +89,8 @@ namespace Ui {
 
 		protected onKeyUp(event: KeyboardEvent) {
 			let key = event.which;
-			if (!this.lock && !this.element.isDisabled && this._isDown && (key == 13)) {
+			// handle Enter and Space key
+			if (!this.lock && !this.element.isDisabled && this._isDown && (key == 13 || key == 32)) {
 				event.preventDefault();
 				event.stopPropagation();
 				this.onUp();

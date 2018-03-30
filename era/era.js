@@ -8364,7 +8364,7 @@ var Ui;
         };
         PressWatcher.prototype.onKeyDown = function (event) {
             var key = event.which;
-            if (!this.lock && !this.element.isDisabled && key == 13) {
+            if (!this.lock && !this.element.isDisabled && (key == 13 || key == 32)) {
                 event.preventDefault();
                 event.stopPropagation();
                 this.onDown();
@@ -8372,7 +8372,7 @@ var Ui;
         };
         PressWatcher.prototype.onKeyUp = function (event) {
             var key = event.which;
-            if (!this.lock && !this.element.isDisabled && this._isDown && (key == 13)) {
+            if (!this.lock && !this.element.isDisabled && this._isDown && (key == 13 || key == 32)) {
                 event.preventDefault();
                 event.stopPropagation();
                 this.onUp();
