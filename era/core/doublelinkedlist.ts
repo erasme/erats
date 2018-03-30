@@ -3,8 +3,8 @@ namespace Core
 {
 	export class DoubleLinkedListNode
 	{
-		previous: DoubleLinkedListNode;
-		next: DoubleLinkedListNode;
+		previous?: DoubleLinkedListNode;
+		next?: DoubleLinkedListNode;
 		data: any;
 
 		constructor(data: any)
@@ -15,7 +15,7 @@ namespace Core
 
 	export class DoubleLinkedList
 	{
-		root: DoubleLinkedListNode = undefined;
+		root: DoubleLinkedListNode;
 		length: 0;
 
 		getLength()

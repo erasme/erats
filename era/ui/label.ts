@@ -25,15 +25,15 @@ namespace Ui {
 	export class Label extends Element implements LabelInit {
 		private _text: string = '';
 		private _orientation: Orientation = 'horizontal';
-		private _fontSize: number = undefined;
-		private _fontFamily: string = undefined;
-		private _fontWeight: FontWeight = undefined;
-		private _color: Color = undefined;
-		labelDrawing: HTMLElement;
+		private _fontSize?: number;
+		private _fontFamily?: string;
+		private _fontWeight?: FontWeight;
+		private _color?: Color;
+		labelDrawing!: HTMLElement;
 		private textMeasureValid: boolean = false;
 		private textWidth: number = 0;
 		private textHeight: number = 0;
-		private _textTransform: TextTransform;
+		private _textTransform?: TextTransform;
 
 		constructor(init?: LabelInit) {
 			super(init);

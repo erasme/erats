@@ -156,7 +156,7 @@ namespace Ui {
 		actionBox: DialogButtonBox;
 		contextBox: ContextBar;
 		private _autoClose: boolean = true;
-		openClock: Anim.Clock;
+		openClock?: Anim.Clock;
 		isClosed: boolean = true;
 		scroll: ScrollingArea;
 		readonly closed = new Core.Events<{ target: Dialog }>();
@@ -298,7 +298,8 @@ namespace Ui {
 			this.lbox.transform = Matrix.createTranslate(0, -20 * (1 - progress));
 
 			if (end) {
-				this.openClock.stop();
+				if (this.openClock)
+					this.openClock.stop();
 				this.openClock = undefined;
 				if (this.isClosed) {
 					Ui.App.current.removeDialog(this);

@@ -73,7 +73,7 @@ namespace Ui
 		}
 
 		static getNames() {
-			let names = [];
+			let names = new Array<string>();
 			for (let tmp in Icon.icons)
 				names.push(tmp);
 			return names;

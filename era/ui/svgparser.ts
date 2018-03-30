@@ -3,9 +3,9 @@ namespace Ui
 {
 	export class SvgParser extends Core.Object
 	{
-		path: string = undefined;
+		path: string;
 		pos: number = 0;
-		cmd: string = undefined;
+		cmd?: string;
 		current: any = undefined;
 		value: boolean = false;
 		end: boolean = false;

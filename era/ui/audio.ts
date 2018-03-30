@@ -119,7 +119,7 @@ namespace Ui {
 		// or undefined if unknown. This value is only known
 		// after the ready event.
 		//
-		get duration(): number {
+		get duration(): number | undefined {
 			var duration = this.audioDrawing.duration;
 			if ((duration === undefined) || isNaN(duration) || (duration === null))
 				return undefined;

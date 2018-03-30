@@ -90,8 +90,8 @@ declare namespace Core {
 }
 declare namespace Core {
     class DoubleLinkedListNode {
-        previous: DoubleLinkedListNode;
-        next: DoubleLinkedListNode;
+        previous?: DoubleLinkedListNode;
+        next?: DoubleLinkedListNode;
         data: any;
         constructor(data: any);
     }
@@ -123,10 +123,10 @@ declare namespace Core {
         fileApi?: any;
     }
     class File extends Object {
-        iframe: HTMLIFrameElement;
-        form: HTMLFormElement;
-        fileInput: HTMLInputElement;
-        fileApi: any;
+        iframe?: HTMLIFrameElement;
+        form?: HTMLFormElement;
+        fileInput?: HTMLInputElement;
+        fileApi?: any;
         constructor(init: FileInit);
         getFileName(): any;
         getRelativePath(): any;
@@ -188,7 +188,7 @@ declare namespace Core {
         delay: number;
         callback: (task: DelayedTask) => void;
         isDone: boolean;
-        handle: number;
+        handle?: number;
         constructor(delay: number, callback: (task: DelayedTask) => void);
         abort(): void;
     }
@@ -699,8 +699,8 @@ declare namespace Ui {
         focusable?: boolean;
         resizable?: boolean;
         role?: string;
-        width?: number | undefined;
-        height?: number | undefined;
+        width?: number;
+        height?: number;
         maxWidth?: number;
         maxHeight?: number;
         verticalAlign?: VerticalAlign;
@@ -714,7 +714,7 @@ declare namespace Ui {
         opacity?: number;
         transform?: Matrix;
         eventsHidden?: boolean;
-        style?: object | undefined;
+        style?: object;
         isDisabled?: boolean;
         isVisible?: boolean;
         onfocused?: (event: {
@@ -731,13 +731,13 @@ declare namespace Ui {
         }) => void;
     }
     class Element extends Core.Object implements Anim.Target {
-        name: string;
+        name?: string;
         private _marginTop;
         private _marginBottom;
         private _marginLeft;
         private _marginRight;
         private _resizable;
-        private _parent;
+        private _parent?;
         private _width?;
         private _height?;
         private _maxWidth?;
@@ -757,9 +757,9 @@ declare namespace Ui {
         private arrangeHeight;
         private arrangePixelRatio;
         drawValid: boolean;
-        drawNext: Element;
+        drawNext?: Element;
         layoutValid: boolean;
-        layoutNext: Element;
+        layoutNext?: Element;
         private _layoutX;
         private _layoutY;
         private _layoutWidth;
@@ -784,7 +784,7 @@ declare namespace Ui {
         transformOriginX: number;
         transformOriginY: number;
         transformOriginAbsolute: boolean;
-        animClock: Anim.Clock;
+        animClock?: Anim.Clock;
         private _opacity;
         private parentOpacity;
         private _disabled?;
@@ -853,8 +853,8 @@ declare namespace Ui {
         protected renderDrawing(): any;
         width: number | undefined;
         height: number | undefined;
-        maxWidth: number;
-        maxHeight: number;
+        maxWidth: number | undefined;
+        maxHeight: number | undefined;
         verticalAlign: VerticalAlign;
         horizontalAlign: HorizontalAlign;
         clipToBounds: boolean;
@@ -868,7 +868,7 @@ declare namespace Ui {
         opacity: number;
         focus(): void;
         blur(): void;
-        transform: Matrix;
+        transform: Matrix | undefined;
         setTransformOrigin(x: number, y: number, absolute?: boolean): void;
         getInverseLayoutTransform(): Matrix;
         getLayoutTransform(): Matrix;
@@ -880,7 +880,7 @@ declare namespace Ui {
         pointFromElement(element: Element, point: Point): Point;
         getIsInside(point: Point): boolean;
         eventsHidden: boolean;
-        elementFromPoint(point: Point): Element;
+        elementFromPoint(point: Point): Element | undefined;
         readonly measureWidth: number;
         readonly measureHeight: number;
         readonly isCollapsed: boolean;
@@ -907,7 +907,7 @@ declare namespace Ui {
         private getClassStyle(style, classFunc);
         private mergeStyles();
         getIsChildOf(parent: Element): boolean;
-        parent: Element;
+        parent: Element | undefined;
         getParentByClass(classFunc: Function): Element;
         setParentStyle(parentStyle: object | undefined): void;
         style: object | undefined;
@@ -918,7 +918,7 @@ declare namespace Ui {
         readonly hasFocus: boolean;
         scrollIntoView(): void;
         protected onScrollIntoView(el: Element): void;
-        get(name: string): Element;
+        get(name: string): Element | undefined;
         isLoaded: boolean;
         private onFocus(event);
         private onBlur(event);
@@ -949,13 +949,13 @@ declare namespace Ui {
         insertChildBefore(child: Element, beforeChild: Element): void;
         moveChildAt(child: Element, position: number): void;
         readonly children: Element[];
-        readonly firstChild: Element;
-        readonly lastChild: Element;
+        readonly firstChild: Element | undefined;
+        readonly lastChild: Element | undefined;
         getChildPosition(child: Element): number;
         hasChild(child: Element): boolean;
         clear(): void;
-        get(name: string): Element;
-        elementFromPoint(point: Point): Element;
+        get(name: string): Element | undefined;
+        elementFromPoint(point: Point): Element | undefined;
         protected onLoad(): void;
         protected onUnload(): void;
         protected onInternalStyleChange(): void;
@@ -969,7 +969,7 @@ declare namespace Ui {
     class SvgParser extends Core.Object {
         path: string;
         pos: number;
-        cmd: string;
+        cmd?: string;
         current: any;
         value: boolean;
         end: boolean;
@@ -1180,8 +1180,8 @@ declare namespace Ui {
         color: string | undefined | Color | LinearGradient;
     }
     class Shape extends CanvasElement implements ShapeInit {
-        private _fill;
-        private _path;
+        private _fill?;
+        private _path?;
         private _scale;
         constructor(init?: ShapeInit);
         scale: number;
@@ -1203,7 +1203,7 @@ declare namespace Ui {
         static icons: object;
         static initialize(): void;
         static getPath(icon: any): any;
-        static getNames(): any[];
+        static getNames(): string[];
         static register(iconName: any, iconPath: any): void;
         static override(iconName: any, iconPath: any): void;
         static parse(icon: any): Icon;
@@ -1219,10 +1219,10 @@ declare namespace Ui {
         strokeWidth?: number;
     }
     class DualIcon extends CanvasElement {
-        private _icon;
-        private _fill;
-        private _stroke;
-        private _strokeWidth;
+        private _icon?;
+        private _fill?;
+        private _stroke?;
+        private _strokeWidth?;
         constructor(init?: DualIconInit);
         icon: string;
         fill: Color;
@@ -1577,8 +1577,8 @@ declare namespace Ui {
         private _paddingLeft;
         private _paddingRight;
         constructor(init?: LBoxInit);
-        protected setContent(content: Element | Element[]): void;
-        content: Element | Element[];
+        protected setContent(content: Element | Element[] | undefined): void;
+        content: Element | Element[] | undefined;
         padding: number;
         paddingTop: number;
         paddingBottom: number;
@@ -1872,11 +1872,11 @@ declare namespace Ui {
     }
     class SelectionableWatcher extends Core.Object {
         readonly element: Element;
-        readonly selectionActions: SelectionActions;
+        readonly selectionActions?: SelectionActions;
         private _isSelected;
         private handler;
-        private select;
-        private unselect;
+        private select?;
+        private unselect?;
         constructor(init: {
             element: Element;
             selectionActions?: SelectionActions;
@@ -1993,15 +1993,15 @@ declare namespace Ui {
     class Label extends Element implements LabelInit {
         private _text;
         private _orientation;
-        private _fontSize;
-        private _fontFamily;
-        private _fontWeight;
-        private _color;
+        private _fontSize?;
+        private _fontFamily?;
+        private _fontWeight?;
+        private _color?;
         labelDrawing: HTMLElement;
         private textMeasureValid;
         private textWidth;
         private textHeight;
-        private _textTransform;
+        private _textTransform?;
         constructor(init?: LabelInit);
         text: string;
         fontSize: number;
@@ -2109,7 +2109,7 @@ declare namespace Ui {
         content?: Element;
     }
     class Movable extends MovableBase implements MovableInit {
-        private _content;
+        private _content?;
         private _cursor;
         constructor(init?: MovableInit);
         cursor: string;
@@ -3065,7 +3065,7 @@ declare namespace Ui {
         actionBox: DialogButtonBox;
         contextBox: ContextBar;
         private _autoClose;
-        openClock: Anim.Clock;
+        openClock?: Anim.Clock;
         isClosed: boolean;
         scroll: ScrollingArea;
         readonly closed: Core.Events<{
@@ -3312,10 +3312,10 @@ declare namespace Ui {
         }) => void;
     }
     class Entry extends Element implements EntryInit {
-        private _fontSize;
-        private _fontFamily;
-        private _fontWeight;
-        private _color;
+        private _fontSize?;
+        private _fontFamily?;
+        private _fontWeight?;
+        private _color?;
         private _value;
         private _passwordMode;
         readonly changed: Core.Events<{
@@ -3340,11 +3340,11 @@ declare namespace Ui {
         private onKeyDown(event);
         private onKeyUp(event);
         renderDrawing(): HTMLInputElement;
-        measureCore(width: number, height: number): {
-            width: any;
+        protected measureCore(width: number, height: number): {
+            width: number;
             height: number;
         };
-        arrangeCore(width: number, height: number): void;
+        protected arrangeCore(width: number, height: number): void;
         onDisable(): void;
         onEnable(): void;
         onStyleChange(): void;
@@ -3377,7 +3377,6 @@ declare namespace Ui {
     interface ToolBarInit extends ScrollingAreaInit {
     }
     class ToolBar extends ScrollingArea implements ToolBarInit {
-        private scroll;
         private hbox;
         constructor(init?: ToolBarInit);
         append(child: Element, resizable?: boolean): void;
@@ -3562,7 +3561,7 @@ declare namespace Ui {
         private _fixedHeight;
         private _itemAlign;
         constructor(init?: ScaleBoxInit);
-        setFixedSize(width: number, height: number): void;
+        setFixedSize(width?: number, height?: number): void;
         fixedWidth: number;
         fixedHeight: number;
         content: Element;
@@ -3943,7 +3942,7 @@ declare namespace Ui {
         pause(): void;
         stop(): void;
         volume: number;
-        readonly duration: number;
+        readonly duration: number | undefined;
         currentTime: number;
         readonly state: MediaState;
         readonly isReady: boolean;
@@ -3967,7 +3966,7 @@ declare namespace Ui {
         target?: string;
     }
     class LinkButton extends Button implements LinkButtonInit {
-        src: string;
+        readonly src?: string;
         openWindow: boolean;
         target: string;
         readonly link: Core.Events<{
@@ -4056,9 +4055,9 @@ declare namespace Ui {
         }) => void;
     }
     class Video extends Element {
-        oggSrc: string;
-        mp4Src: string;
-        webmSrc: string;
+        oggSrc?: string;
+        mp4Src?: string;
+        webmSrc?: string;
         private loaddone;
         private videoDrawing;
         canplaythrough: boolean;
@@ -4898,7 +4897,7 @@ declare namespace Ui {
         private button;
         private bar;
         private buttonContent;
-        private alignClock;
+        private alignClock?;
         private speed;
         private animNext;
         private animStart;
@@ -5356,7 +5355,7 @@ declare namespace Ui {
         private buttonNextIcon;
         private buttonPrevious;
         private buttonPreviousIcon;
-        private showClock;
+        private showClock?;
         private hideTimeout?;
         private showNext;
         private showPrevious;

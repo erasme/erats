@@ -35,7 +35,7 @@ namespace Ui {
 			}
 		}
 
-		protected setContent(content: Element | Element[]) {
+		protected setContent(content: Element | Element[] | undefined) {
 			if ((this.children.length === 1) && (content === this.firstChild))
 				return;
 			while (this.firstChild != undefined)
@@ -51,7 +51,7 @@ namespace Ui {
 			}
 		}
 
-		set content(content: Element | Element[]) {
+		set content(content: Element | Element[] | undefined) {
 			this.setContent(content);
 		}
 

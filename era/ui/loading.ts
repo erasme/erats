@@ -5,8 +5,8 @@ namespace Ui
 
 	export class Loading extends CanvasElement implements LoadingInit
 	{
-		private clock: Anim.Clock = undefined;
-		private ease: Anim.EasingFunction = undefined;
+		private clock: Anim.Clock;
+		private ease: Anim.EasingFunction;
 
 		constructor(init?: LoadingInit) {
 			super(init);

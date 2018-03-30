@@ -9,10 +9,10 @@ namespace Ui {
 
 	export class DualIcon extends CanvasElement
 	{
-		private _icon: string = undefined;
-		private _fill: Color = undefined;
-		private _stroke: Color = undefined;
-		private _strokeWidth: number = undefined;
+		private _icon?: string;
+		private _fill?: Color;
+		private _stroke?: Color;
+		private _strokeWidth?: number;
 
 		constructor(init?: DualIconInit) {
 			super(init);
@@ -70,6 +70,8 @@ namespace Ui {
 		}
 
 		updateCanvas(ctx) {
+			if (!this._icon)
+				return;	
 			let strokeWidth = this.strokeWidth;
 			ctx.save();
 			let scale = Math.min(this.layoutWidth, this.layoutHeight) / 48;

@@ -11,7 +11,7 @@ namespace Ui
 
 	export class Rectangle extends CanvasElement implements RectangleInit
 	{
-		private _fill: Color | LinearGradient = undefined;
+		private _fill: Color | LinearGradient;
 		private _radiusTopLeft: number = 0;
 		private _radiusTopRight: number = 0;
 		private _radiusBottomLeft: number = 0;
@@ -28,7 +28,7 @@ namespace Ui
 				if (init.radiusTopLeft != undefined)
 					this.radiusTopLeft = init.radiusTopLeft;	
 				if (init.radiusTopRight !== undefined)
-					this.radiusTopLeft = init.radiusTopLeft;	
+					this.radiusTopRight = init.radiusTopRight;	
 				if (init.radiusBottomLeft !== undefined)
 					this.radiusBottomLeft = init.radiusBottomLeft;
 				if (init.radiusBottomRight !== undefined)

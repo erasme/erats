@@ -12,8 +12,8 @@ namespace Ui
 
 	export class Shape extends CanvasElement implements ShapeInit
 	{
-		private _fill: Color | LinearGradient = undefined;
-		private _path: string = undefined;
+		private _fill?: Color | LinearGradient;
+		private _path?: string;
 		private _scale: number = 1;
 
 		constructor(init?: ShapeInit) {

@@ -12,8 +12,8 @@ namespace Ui
 		focusable?: boolean;
 		resizable?: boolean;
 		role?: string;
-		width?: number | undefined;
-		height?: number | undefined;
+		width?: number;
+		height?: number;
 		maxWidth?: number;
 		maxHeight?: number;
 		verticalAlign?: VerticalAlign;
@@ -27,7 +27,7 @@ namespace Ui
 		opacity?: number;
 		transform?: Matrix;
 		eventsHidden?: boolean;
-		style?: object | undefined;
+		style?: object;
 		isDisabled?: boolean;
 		isVisible?: boolean;
 		onfocused?: (event: { target: Element }) => void;
@@ -38,7 +38,7 @@ namespace Ui
 
 	export class Element extends Core.Object implements Anim.Target
 	{
-		name: string = undefined;
+		name?: string;
 
 		private _marginTop: number = 0;
 		private _marginBottom: number = 0;
@@ -48,16 +48,16 @@ namespace Ui
 		private _resizable: boolean = false;
 
 		// parent
-		private _parent: Element = undefined;
+		private _parent?: Element;
 
 		// preferred element size
-		private _width?: number = undefined;
-		private _height?: number = undefined;
-		private _maxWidth?: number = undefined;
-		private _maxHeight?: number = undefined;
+		private _width?: number;
+		private _height?: number;
+		private _maxWidth?: number;
+		private _maxHeight?: number;
 
 		// rendering
-		private _drawing: any = undefined;
+		private _drawing: any;
 
 		// measurement
 		private collapse: boolean = false;
@@ -78,10 +78,10 @@ namespace Ui
 
 		// render
 		drawValid: boolean = true;
-		drawNext: Element = undefined;
+		drawNext?: Element;
 
 		layoutValid: boolean = true;
-		layoutNext: Element = undefined;
+		layoutNext?: Element;
 		private _layoutX: number = 0;
 		private _layoutY: number = 0;
 		private _layoutWidth: number = 0;
@@ -98,14 +98,14 @@ namespace Ui
 		//  is clipped to the layout size
 		private _clipToBounds: boolean = false;
 
-		clipX?: number = undefined;
-		clipY?: number = undefined;
-		clipWidth?: number = undefined;
-		clipHeight?: number = undefined;
+		clipX?: number;
+		clipY?: number;
+		clipWidth?: number;
+		clipHeight?: number;
 
 		// handle visible
-		private _visible?: boolean = undefined;
-		private _parentVisible?: boolean = undefined;
+		private _visible?: boolean;
+		private _parentVisible?: boolean;
 		private _eventsHidden: boolean = false;
 
 		// whether or not the current element can get focus
@@ -116,26 +116,26 @@ namespace Ui
 
 		private _selectable: boolean = false;
 
-		private _transform?: Matrix = undefined;
+		private _transform?: Matrix;
 		transformOriginX: number = 0.5;
 		transformOriginY: number = 0.5;
 		transformOriginAbsolute: boolean = false;
 
 		// if the current element is the target of
 		// an active clock
-		animClock: Anim.Clock = undefined;
+		animClock?: Anim.Clock;
 
 		private _opacity: number = 1;
 		private parentOpacity: number = 1;
 
 		// handle disable
-		private _disabled?: boolean = undefined;
-		parentDisabled?: boolean = undefined;
+		private _disabled?: boolean;
+		parentDisabled?: boolean;
 
 		// handle styles
-		private _style: object | undefined = undefined;
-		private _parentStyle: object | undefined = undefined;
-		mergeStyle: object | undefined = undefined;
+		private _style: object | undefined;
+		private _parentStyle: object | undefined;
+		mergeStyle: object | undefined;
 
 		readonly focused = new Core.Events<{ target: Element }>();
 		readonly blurred = new Core.Events<{ target: Element }>();
@@ -666,11 +666,11 @@ namespace Ui
 			}
 		}
 
-		get maxWidth(): number {
+		get maxWidth(): number | undefined {
 			return this._maxWidth;
 		}
 
-		set maxWidth(width: number) {
+		set maxWidth(width: number | undefined) {
 			if(this._maxWidth !== width) {
 				this._maxWidth = width;
 				if(this._layoutWidth > this._maxWidth)
@@ -678,11 +678,11 @@ namespace Ui
 			}
 		}
 
-		get maxHeight(): number {
+		get maxHeight(): number | undefined {
 			return this._maxHeight;
 		}
 
-		set maxHeight(height: number) {
+		set maxHeight(height: number | undefined) {
 			if(this._maxWidth !== height) {
 				this._maxHeight = height;
 				if(this._layoutHeight > this._maxHeight)
@@ -880,7 +880,7 @@ namespace Ui
 		// Provide an Matrix to transform the element rendering.
 		// This transformation is not taken in account for the arrangement
 		//
-		set transform(transform: Matrix) {
+		set transform(transform: Matrix | undefined) {
 			if(this._transform !== transform) {
 				this._transform = transform;
 				this.updateTransform();
@@ -1006,7 +1006,7 @@ namespace Ui
 			return this._eventsHidden;
 		}
 
-		elementFromPoint(point: Point): Element {
+		elementFromPoint(point: Point): Element | undefined {
 			if(!this._eventsHidden && this.isVisible && this.getIsInside(point))
 				return this;
 			else
@@ -1295,7 +1295,7 @@ namespace Ui
 		}
 
 		getIsChildOf(parent: Element) {
-			let current: Element = this;
+			let current: Element | undefined = this;
 			while(current != undefined) {
 				if(current === parent)
 					return true;
@@ -1304,11 +1304,11 @@ namespace Ui
 			return false;
 		}
 
-		get parent(): Element {
+		get parent(): Element | undefined {
 			return this._parent;
 		}
 
-		set parent(parent: Element) {
+		set parent(parent: Element | undefined) {
 			this._parent = parent;
 		}
 		
@@ -1405,7 +1405,7 @@ namespace Ui
 				this._parent.onScrollIntoView(el);
 		}
 
-		get(name: string): Element {
+		get(name: string): Element | undefined {
 			return (this.name == name) ? this : undefined;
 		}
 
@@ -1516,7 +1516,7 @@ namespace Ui
 
 		static transformToWindow(element: Element): Matrix {
 			let matrix = new Ui.Matrix();
-			let current = element;
+			let current: Element | undefined = element;
 			while(current != undefined) {
 				matrix = current.getInverseLayoutTransform().multiply(matrix);
 				current = current._parent;

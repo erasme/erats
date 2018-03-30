@@ -4,9 +4,9 @@ namespace Ui
 	{
 		isDown: boolean = false;
 		isChecked: boolean = false;
-		color: Color = undefined;
-		checkColor: Color = undefined;
-		activeColor: Color = undefined;
+		color: Color;
+		checkColor: Color;
+		activeColor: Color;
 		borderWidth: number = 2;
 		radius: number = 3;
 

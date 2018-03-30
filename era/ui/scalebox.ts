@@ -29,7 +29,7 @@
 			}
 		}
 
-		setFixedSize(width: number, height: number) {
+		setFixedSize(width?: number, height?: number) {
 			let changed = false;
 			if ((width !== undefined) && (this._fixedWidth !== width)) {
 				this._fixedWidth = width;

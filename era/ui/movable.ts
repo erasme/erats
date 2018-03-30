@@ -5,7 +5,7 @@ namespace Ui {
 	}
 
 	export class Movable extends MovableBase implements MovableInit {
-		private _content: Ui.Element;
+		private _content?: Element;
 		private _cursor: string = 'inherit';
 
 		constructor(init?: MovableInit) {

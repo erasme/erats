@@ -6,7 +6,7 @@ namespace Ui {
 	}
 
 	export class LinkButton extends Button implements LinkButtonInit {
-		src: string;
+		readonly src?: string;
 		openWindow: boolean = true;
 		target: string = '_blank';
 		readonly link = new Core.Events<{ target: LinkButton }>();
@@ -26,10 +26,12 @@ namespace Ui {
 
 		protected onLinkButtonPress() {
 			this.link.fire({ target: this });
-			if (this.openWindow)
-				window.open(this.src, this.target);
-			else
-				window.location.replace(this.src);
+			if (this.src) {
+				if (this.openWindow)
+					window.open(this.src, this.target);
+				else
+					window.location.replace(this.src);
+			}
 		}
 
 		static style: object = {

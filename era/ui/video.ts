@@ -18,11 +18,11 @@ namespace Ui {
 	}
 
 	export class Video extends Element {
-		oggSrc: string;
-		mp4Src: string;
-		webmSrc: string;
+		oggSrc?: string;
+		mp4Src?: string;
+		webmSrc?: string;
 		private loaddone: boolean = false;
-		private videoDrawing: HTMLVideoElement;
+		private videoDrawing!: HTMLVideoElement;
 		canplaythrough: boolean = false;
 		// possible values [initial|playing|paused|buffering|error]
 		private _state: MediaState = 'initial';

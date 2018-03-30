@@ -13,7 +13,7 @@ namespace Ui {
 		private buttonNextIcon: Icon;
 		private buttonPrevious: Pressable;
 		private buttonPreviousIcon: Icon;
-		private showClock: Anim.Clock;
+		private showClock?: Anim.Clock;
 		private hideTimeout?: Core.DelayedTask;
 		private showNext: boolean = false;
 		private showPrevious: boolean = false;
@@ -266,7 +266,7 @@ namespace Ui {
 					nextDone = true;
 			}
 
-			if (previousDone && nextDone) {
+			if (previousDone && nextDone && this.showClock) {
 				this.showClock.stop();
 				this.showClock = undefined;
 			}

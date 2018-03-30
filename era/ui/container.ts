@@ -130,7 +130,7 @@ namespace Ui
 		// @return the first child or undefined
 		// if the container has no children
 		//
-		get firstChild(): Element {
+		get firstChild(): Element | undefined {
 			if (this._children.length > 0)
 				return this._children[0];
 			else
@@ -141,7 +141,7 @@ namespace Ui
 		// @return the last child or undefined
 		// if the container has no children
 		//
-		get lastChild(): Element {
+		get lastChild(): Element | undefined {
 			if (this._children.length > 0)
 				return this._children[this._children.length - 1];
 			else
@@ -177,7 +177,7 @@ namespace Ui
 			}
 		}
 
-		get(name: string): Element {
+		get(name: string): Element | undefined {
 			if (this.name == name)
 				return this;
 			else {
@@ -191,7 +191,7 @@ namespace Ui
 			return undefined;
 		}
 
-		elementFromPoint(point: Point): Element {
+		elementFromPoint(point: Point): Element | undefined {
 			if (!this.isVisible)
 				return undefined;
 		

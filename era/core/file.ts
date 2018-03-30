@@ -9,11 +9,11 @@ namespace Core {
 
 	export class File extends Object
 	{
-		iframe: HTMLIFrameElement = undefined;
-		form: HTMLFormElement = undefined;
-		fileInput: HTMLInputElement = undefined;
+		iframe?: HTMLIFrameElement;
+		form?: HTMLFormElement;
+		fileInput?: HTMLInputElement;
 
-		fileApi: any = undefined;
+		fileApi?: any;
 
 		constructor(init: FileInit) {
 			super();
@@ -31,9 +31,9 @@ namespace Core {
 		// @description Return the short name of the file
 		//
 		getFileName() {
-			if (this.fileApi !== undefined)
+			if (this.fileApi)
 				return (this.fileApi.fileName !== undefined) ? this.fileApi.fileName : this.fileApi.name;
-			else
+			else if (this.fileInput)
 				return ((this.fileInput as any).fileName !== undefined) ? (this.fileInput as any).fileName : this.fileInput.name;
 		}
 

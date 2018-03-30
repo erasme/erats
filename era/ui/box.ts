@@ -35,7 +35,7 @@ namespace Ui
 				if (init.padding !== undefined)
 					this.padding = init.padding;	
 				if (init.paddingTop !== undefined)
-					this.paddingTop = init.padding;
+					this.paddingTop = init.paddingTop;
 				if (init.paddingBottom !== undefined)
 					this.paddingBottom = init.paddingBottom;
 				if (init.paddingLeft !== undefined)

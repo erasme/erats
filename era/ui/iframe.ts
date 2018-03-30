@@ -4,7 +4,7 @@ namespace Ui {
 	}
 
 	export class IFrame extends Element {
-		protected iframeDrawing: HTMLIFrameElement;
+		protected iframeDrawing!: HTMLIFrameElement;
 		protected _isReady: boolean = false;
 		readonly ready = new Core.Events<{ target: IFrame }>();
 

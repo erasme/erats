@@ -5,7 +5,7 @@ namespace Core
 		delay: number;
 		callback: (task: DelayedTask) => void;
 		isDone: boolean = false;
-		handle: number;
+		handle?: number;
 
 		constructor(delay: number, callback: (task: DelayedTask) => void) {
 			super();

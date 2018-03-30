@@ -3,7 +3,6 @@ namespace Ui {
 	}
 
 	export class ToolBar extends ScrollingArea implements ToolBarInit {
-		private scroll: ScrollingArea;
 		private hbox: HBox;
 
 		constructor(init?: ToolBarInit) {

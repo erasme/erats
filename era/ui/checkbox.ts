@@ -10,10 +10,10 @@ namespace Ui {
 
 	export class CheckBox extends Pressable implements CheckBoxInit {
 		private graphic: CheckBoxGraphic;
-		private contentBox: Element = undefined;
+		private contentBox: Element;
 		private hbox: HBox;
-		private _content: Element = undefined;
-		private _text: string = undefined;
+		private _content: Element;
+		private _text: string;
 		private _isToggled: boolean = false;
 		readonly changed = new Core.Events<{ target: CheckBox, value: boolean }>();
 		readonly toggled = new Core.Events<{ target: CheckBox }>();

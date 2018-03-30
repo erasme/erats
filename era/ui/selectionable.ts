@@ -16,11 +16,11 @@ namespace Ui {
 
 	export class SelectionableWatcher extends Core.Object {
 		readonly element: Element;
-		readonly selectionActions: SelectionActions;
+		readonly selectionActions?: SelectionActions;
 		private _isSelected: boolean = false;
 		private handler: Selection | undefined;
-		private select: (selection: Selection) => void;
-		private unselect: (selection: Selection) => void;
+		private select?: (selection: Selection) => void;
+		private unselect?: (selection: Selection) => void;
 
 		constructor(init: {
 			element: Element,
@@ -33,10 +33,13 @@ namespace Ui {
 			super();
 			this.element = init.element;
 			this.element.focusable = true;
-			this.selectionActions = init.selectionActions;			
+			if (init.selectionActions)
+				this.selectionActions = init.selectionActions;			
 			this.element['Ui.SelectionableWatcher.watcher'] = this;
-			this.select = init.onselected;
-			this.unselect = init.onunselected;
+			if (init.onselected)
+				this.select = init.onselected;
+			if (init.onunselected)
+				this.unselect = init.onunselected;
 			new PressWatcher({
 				element: this.element,
 				ondelayedpress: (w) => this.onDelayedPress(w),

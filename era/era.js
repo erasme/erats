@@ -490,7 +490,6 @@ var Core;
     Core.DoubleLinkedListNode = DoubleLinkedListNode;
     var DoubleLinkedList = (function () {
         function DoubleLinkedList() {
-            this.root = undefined;
         }
         DoubleLinkedList.prototype.getLength = function () {
             return this.length;
@@ -614,10 +613,6 @@ var Core;
         __extends(File, _super);
         function File(init) {
             var _this = _super.call(this) || this;
-            _this.iframe = undefined;
-            _this.form = undefined;
-            _this.fileInput = undefined;
-            _this.fileApi = undefined;
             if (init.form !== undefined)
                 _this.form = init.form;
             if (init.iframe !== undefined)
@@ -629,9 +624,9 @@ var Core;
             return _this;
         }
         File.prototype.getFileName = function () {
-            if (this.fileApi !== undefined)
+            if (this.fileApi)
                 return (this.fileApi.fileName !== undefined) ? this.fileApi.fileName : this.fileApi.name;
-            else
+            else if (this.fileInput)
                 return (this.fileInput.fileName !== undefined) ? this.fileInput.fileName : this.fileInput.name;
         };
         File.prototype.getRelativePath = function () {
@@ -3281,18 +3276,11 @@ var Ui;
         __extends(Element, _super);
         function Element(init) {
             var _this = _super.call(this) || this;
-            _this.name = undefined;
             _this._marginTop = 0;
             _this._marginBottom = 0;
             _this._marginLeft = 0;
             _this._marginRight = 0;
             _this._resizable = false;
-            _this._parent = undefined;
-            _this._width = undefined;
-            _this._height = undefined;
-            _this._maxWidth = undefined;
-            _this._maxHeight = undefined;
-            _this._drawing = undefined;
             _this.collapse = false;
             _this.measureValid = false;
             _this.measureConstraintPixelRatio = 1;
@@ -3307,9 +3295,7 @@ var Ui;
             _this.arrangeHeight = 0;
             _this.arrangePixelRatio = 1;
             _this.drawValid = true;
-            _this.drawNext = undefined;
             _this.layoutValid = true;
-            _this.layoutNext = undefined;
             _this._layoutX = 0;
             _this._layoutY = 0;
             _this._layoutWidth = 0;
@@ -3318,30 +3304,17 @@ var Ui;
             _this._verticalAlign = 'stretch';
             _this._horizontalAlign = 'stretch';
             _this._clipToBounds = false;
-            _this.clipX = undefined;
-            _this.clipY = undefined;
-            _this.clipWidth = undefined;
-            _this.clipHeight = undefined;
-            _this._visible = undefined;
-            _this._parentVisible = undefined;
             _this._eventsHidden = false;
             _this._focusable = false;
             _this._hasFocus = false;
             _this.isMouseFocus = false;
             _this.isMouseDownFocus = false;
             _this._selectable = false;
-            _this._transform = undefined;
             _this.transformOriginX = 0.5;
             _this.transformOriginY = 0.5;
             _this.transformOriginAbsolute = false;
-            _this.animClock = undefined;
             _this._opacity = 1;
             _this.parentOpacity = 1;
-            _this._disabled = undefined;
-            _this.parentDisabled = undefined;
-            _this._style = undefined;
-            _this._parentStyle = undefined;
-            _this.mergeStyle = undefined;
             _this.focused = new Core.Events();
             _this.blurred = new Core.Events();
             _this.loaded = new Core.Events();
@@ -4780,9 +4753,7 @@ var Ui;
         __extends(SvgParser, _super);
         function SvgParser(path) {
             var _this = _super.call(this) || this;
-            _this.path = undefined;
             _this.pos = 0;
-            _this.cmd = undefined;
             _this.current = undefined;
             _this.value = false;
             _this.end = false;
@@ -5672,7 +5643,6 @@ var Ui;
         __extends(Rectangle, _super);
         function Rectangle(init) {
             var _this = _super.call(this, init) || this;
-            _this._fill = undefined;
             _this._radiusTopLeft = 0;
             _this._radiusTopRight = 0;
             _this._radiusBottomLeft = 0;
@@ -5686,7 +5656,7 @@ var Ui;
                 if (init.radiusTopLeft != undefined)
                     _this.radiusTopLeft = init.radiusTopLeft;
                 if (init.radiusTopRight !== undefined)
-                    _this.radiusTopLeft = init.radiusTopLeft;
+                    _this.radiusTopRight = init.radiusTopRight;
                 if (init.radiusBottomLeft !== undefined)
                     _this.radiusBottomLeft = init.radiusBottomLeft;
                 if (init.radiusBottomRight !== undefined)
@@ -5830,8 +5800,6 @@ var Ui;
         __extends(Shape, _super);
         function Shape(init) {
             var _this = _super.call(this, init) || this;
-            _this._fill = undefined;
-            _this._path = undefined;
             _this._scale = 1;
             if (init) {
                 if (init.scale !== undefined)
@@ -5968,7 +5936,7 @@ var Ui;
             return Icon.icons[icon];
         };
         Icon.getNames = function () {
-            var names = [];
+            var names = new Array();
             for (var tmp in Icon.icons)
                 names.push(tmp);
             return names;
@@ -6037,10 +6005,6 @@ var Ui;
         __extends(DualIcon, _super);
         function DualIcon(init) {
             var _this = _super.call(this, init) || this;
-            _this._icon = undefined;
-            _this._fill = undefined;
-            _this._stroke = undefined;
-            _this._strokeWidth = undefined;
             if (init) {
                 if (init.icon !== undefined)
                     _this.icon = init.icon;
@@ -6104,6 +6068,8 @@ var Ui;
             configurable: true
         });
         DualIcon.prototype.updateCanvas = function (ctx) {
+            if (!this._icon)
+                return;
             var strokeWidth = this.strokeWidth;
             ctx.save();
             var scale = Math.min(this.layoutWidth, this.layoutHeight) / 48;
@@ -7719,7 +7685,7 @@ var Ui;
                 if (init.padding !== undefined)
                     _this.padding = init.padding;
                 if (init.paddingTop !== undefined)
-                    _this.paddingTop = init.padding;
+                    _this.paddingTop = init.paddingTop;
                 if (init.paddingBottom !== undefined)
                     _this.paddingBottom = init.paddingBottom;
                 if (init.paddingLeft !== undefined)
@@ -8647,10 +8613,13 @@ var Ui;
             _this._isSelected = false;
             _this.element = init.element;
             _this.element.focusable = true;
-            _this.selectionActions = init.selectionActions;
+            if (init.selectionActions)
+                _this.selectionActions = init.selectionActions;
             _this.element['Ui.SelectionableWatcher.watcher'] = _this;
-            _this.select = init.onselected;
-            _this.unselect = init.onunselected;
+            if (init.onselected)
+                _this.select = init.onselected;
+            if (init.onunselected)
+                _this.unselect = init.onunselected;
             new Ui.PressWatcher({
                 element: _this.element,
                 ondelayedpress: function (w) { return _this.onDelayedPress(w); },
@@ -9149,10 +9118,6 @@ var Ui;
             var _this = _super.call(this, init) || this;
             _this._text = '';
             _this._orientation = 'horizontal';
-            _this._fontSize = undefined;
-            _this._fontFamily = undefined;
-            _this._fontWeight = undefined;
-            _this._color = undefined;
             _this.textMeasureValid = false;
             _this.textWidth = 0;
             _this.textHeight = 0;
@@ -14980,7 +14945,8 @@ var Ui;
             this.lbox.opacity = progress;
             this.lbox.transform = Ui.Matrix.createTranslate(0, -20 * (1 - progress));
             if (end) {
-                this.openClock.stop();
+                if (this.openClock)
+                    this.openClock.stop();
                 this.openClock = undefined;
                 if (this.isClosed) {
                     Ui.App.current.removeDialog(this);
@@ -16010,8 +15976,6 @@ var Ui;
         __extends(Loading, _super);
         function Loading(init) {
             var _this = _super.call(this, init) || this;
-            _this.clock = undefined;
-            _this.ease = undefined;
             _this.ease = new Anim.PowerEase({ mode: 'inout' });
             _this.clock = new Anim.Clock({ repeat: 'forever', duration: 2 });
             _this.clock.timeupdate.connect(function (e) { return _this.invalidateDraw(); });
@@ -16062,10 +16026,6 @@ var Ui;
         __extends(Entry, _super);
         function Entry(init) {
             var _this = _super.call(this, init) || this;
-            _this._fontSize = undefined;
-            _this._fontFamily = undefined;
-            _this._fontWeight = undefined;
-            _this._color = undefined;
             _this._value = '';
             _this._passwordMode = false;
             _this.changed = new Core.Events();
@@ -16247,7 +16207,7 @@ var Ui;
         };
         Entry.prototype.measureCore = function (width, height) {
             this.drawing.style.height = '';
-            return { width: this.drawing.scrollWidth, height: Math.max(this.fontSize, this.drawing.scrollHeight) };
+            return { width: 10, height: Math.max(this.fontSize, this.drawing.scrollHeight) };
         };
         Entry.prototype.arrangeCore = function (width, height) {
             this.drawing.style.width = width + 'px';
@@ -16582,9 +16542,6 @@ var Ui;
             var _this = _super.call(this) || this;
             _this.isDown = false;
             _this.isChecked = false;
-            _this.color = undefined;
-            _this.checkColor = undefined;
-            _this.activeColor = undefined;
             _this.borderWidth = 2;
             _this.radius = 3;
             _this.color = new Ui.Color(1, 1, 1);
@@ -16702,9 +16659,6 @@ var Ui;
         __extends(CheckBox, _super);
         function CheckBox(init) {
             var _this = _super.call(this, init) || this;
-            _this.contentBox = undefined;
-            _this._content = undefined;
-            _this._text = undefined;
             _this._isToggled = false;
             _this.changed = new Core.Events();
             _this.toggled = new Core.Events();
@@ -19094,10 +19048,12 @@ var Ui;
         }
         LinkButton.prototype.onLinkButtonPress = function () {
             this.link.fire({ target: this });
-            if (this.openWindow)
-                window.open(this.src, this.target);
-            else
-                window.location.replace(this.src);
+            if (this.src) {
+                if (this.openWindow)
+                    window.open(this.src, this.target);
+                else
+                    window.location.replace(this.src);
+            }
         };
         LinkButton.style = {
             background: '#a4f4f4'
@@ -23151,7 +23107,8 @@ var Ui;
                 return;
             var relprogress = (clock.time * this.speed) / (this.animNext - this.animStart);
             if (relprogress >= 1) {
-                this.alignClock.stop();
+                if (this.alignClock)
+                    this.alignClock.stop();
                 this.alignClock = undefined;
                 relprogress = 1;
                 this._value = (this.animNext === 1);
@@ -25453,7 +25410,7 @@ var Ui;
                 if (opacity === 0)
                     nextDone = true;
             }
-            if (previousDone && nextDone) {
+            if (previousDone && nextDone && this.showClock) {
                 this.showClock.stop();
                 this.showClock = undefined;
             }

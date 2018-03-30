@@ -12,7 +12,7 @@ namespace Ui {
 		private button: Movable;
 		private bar: Rectangle;
 		private buttonContent: Rectangle;
-		private alignClock: Anim.Clock;
+		private alignClock?: Anim.Clock;
 		private speed: number = 0;
 		private animNext: number = 0;
 		private animStart: number = 0;
@@ -190,7 +190,8 @@ namespace Ui {
 
 			let relprogress = (clock.time * this.speed) / (this.animNext - this.animStart);
 			if (relprogress >= 1) {
-				this.alignClock.stop();
+				if (this.alignClock)
+					this.alignClock.stop();
 				this.alignClock = undefined;
 				relprogress = 1;
 				this._value = (this.animNext === 1);
