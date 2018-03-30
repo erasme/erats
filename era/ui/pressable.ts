@@ -226,6 +226,11 @@ namespace Ui {
 			this.upped.fire({ target: this });
 		}
 
+		press() {
+			if (!this.isDisabled && !this.lock)
+				this.onPress();
+		}
+
 		protected onPress(x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean) {
 			this.pressed.fire({ target: this, x: x, y: y, altKey: altKey, shiftKey: shiftKey, ctrlKey: ctrlKey });
 		}
