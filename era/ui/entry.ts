@@ -13,10 +13,10 @@ namespace Ui
 
 	export class Entry extends Element implements EntryInit
 	{
-		private _fontSize: number = undefined;
-		private _fontFamily: string = undefined;
-		private _fontWeight: string = undefined;
-		private _color: Color = undefined;
+		private _fontSize?: number;
+		private _fontFamily?: string;
+		private _fontWeight?: string;
+		private _color?: Color;
 		private _value: string = '';
 		private _passwordMode: boolean = false;
 		readonly changed = new Core.Events<{ target: Entry, value: string }>();
@@ -201,15 +201,14 @@ namespace Ui
 			return drawing;
 		}
 
-		measureCore(width: number, height: number) {
+		protected measureCore(width: number, height: number): { width: number, height: number } {
 			this.drawing.style.height = '';
-			return { width: this.drawing.scrollWidth, height: Math.max(this.fontSize, this.drawing.scrollHeight) };
+			return { width: 10, height: Math.max(this.fontSize, this.drawing.scrollHeight) };
 		}
 
-		arrangeCore(width: number, height: number) {
+		protected arrangeCore(width: number, height: number) {
 			this.drawing.style.width = width + 'px';
 			this.drawing.style.height = height + 'px';
-			//this.drawing.style.lineHeight = height + 'px';
 		}
 
 		onDisable() {
