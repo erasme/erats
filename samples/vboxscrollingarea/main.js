@@ -10,7 +10,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var TestScrollLoader = (function (_super) {
+var TestScrollLoader = /** @class */ (function (_super) {
     __extends(TestScrollLoader, _super);
     function TestScrollLoader() {
         return _super !== null && _super.apply(this, arguments) || this;
@@ -49,7 +49,7 @@ var TestScrollLoader = (function (_super) {
     };
     return TestScrollLoader;
 }(Ui.ScrollLoader));
-var TestScrollLoader2 = (function (_super) {
+var TestScrollLoader2 = /** @class */ (function (_super) {
     __extends(TestScrollLoader2, _super);
     function TestScrollLoader2() {
         return _super !== null && _super.apply(this, arguments) || this;
@@ -68,7 +68,7 @@ var TestScrollLoader2 = (function (_super) {
     };
     return TestScrollLoader2;
 }(Ui.ScrollLoader));
-var App = (function (_super) {
+var App = /** @class */ (function (_super) {
     __extends(App, _super);
     function App() {
         var _this = _super.call(this) || this;

@@ -21,7 +21,7 @@ var __extends = (this && this.__extends) || (function () {
 // - Firefox 4.0
 // - Chrome 12
 //
-var App = (function (_super) {
+var App = /** @class */ (function (_super) {
     __extends(App, _super);
     function App() {
         var _this = _super.call(this) || this;

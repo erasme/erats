@@ -13,7 +13,7 @@ var __extends = (this && this.__extends) || (function () {
 //
 // Play with Ui.Switch
 //
-var App = (function (_super) {
+var App = /** @class */ (function (_super) {
     __extends(App, _super);
     function App() {
         var _this = _super.call(this) || this;

@@ -10,7 +10,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var TextField = (function (_super) {
+var TextField = /** @class */ (function (_super) {
     __extends(TextField, _super);
     function TextField(init) {
         var _this = _super.call(this, init) || this;
@@ -25,7 +25,7 @@ var TextField = (function (_super) {
     }
     return TextField;
 }(Ui.VBox));
-var App = (function (_super) {
+var App = /** @class */ (function (_super) {
     __extends(App, _super);
     function App() {
         var _this = _super.call(this) || this;

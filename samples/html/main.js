@@ -35,7 +35,6 @@ var App = /** @class */ (function (_super) {
         }), true);
         var html = new Ui.Html({
             width: 100,
-            //whiteSpace: 'nowrap', 
             html: 'Have fun with HTML, I <b>hope</b> the text is enough long',
             selectable: false
         });

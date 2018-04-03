@@ -30,12 +30,7 @@ class App extends Ui.App {
 		
 		let resizableButton = new Ui.Button({
 			text: 'change resizable (green)',
-			onpressed: () => {
-				if(Ui.Box.getResizable(greenRect))
-					Ui.Box.setResizable(greenRect, false);
-				else
-					Ui.Box.setResizable(greenRect, true);
-			}
+			onpressed: () => greenRect.resizable = !greenRect.resizable
 		});
 		toolbar.append(resizableButton, true);
 		

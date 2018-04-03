@@ -10,7 +10,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var Selectionable = (function (_super) {
+var Selectionable = /** @class */ (function (_super) {
     __extends(Selectionable, _super);
     function Selectionable(init) {
         var _this = _super.call(this, init) || this;
@@ -57,7 +57,7 @@ var Selectionable = (function (_super) {
     };
     return Selectionable;
 }(Ui.LBox));
-var App = (function (_super) {
+var App = /** @class */ (function (_super) {
     __extends(App, _super);
     function App() {
         var _this = _super.call(this) || this;

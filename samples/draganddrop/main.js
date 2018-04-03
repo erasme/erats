@@ -16,7 +16,7 @@ var vbox = new Ui.VBox({
     spacing: 20
 });
 app.content = vbox;
-var Data = (function (_super) {
+var Data = /** @class */ (function (_super) {
     __extends(Data, _super);
     function Data() {
         return _super !== null && _super.apply(this, arguments) || this;

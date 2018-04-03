@@ -10,7 +10,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var Logs = (function (_super) {
+var Logs = /** @class */ (function (_super) {
     __extends(Logs, _super);
     function Logs() {
         var _this = _super.call(this) || this;

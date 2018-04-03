@@ -10,7 +10,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var ListViewBoolCell = (function (_super) {
+var ListViewBoolCell = /** @class */ (function (_super) {
     __extends(ListViewBoolCell, _super);
     function ListViewBoolCell() {
         var _this = _super.call(this) || this;
@@ -30,7 +30,7 @@ var ListViewBoolCell = (function (_super) {
     };
     return ListViewBoolCell;
 }(Ui.ListViewCell));
-var Logs = (function (_super) {
+var Logs = /** @class */ (function (_super) {
     __extends(Logs, _super);
     function Logs(init) {
         var _this = _super.call(this, init) || this;
@@ -47,7 +47,7 @@ var Logs = (function (_super) {
     };
     return Logs;
 }(Ui.VBox));
-var App = (function (_super) {
+var App = /** @class */ (function (_super) {
     __extends(App, _super);
     function App() {
         var _this = _super.call(this) || this;

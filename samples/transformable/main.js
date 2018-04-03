@@ -15,7 +15,7 @@ var __extends = (this && this.__extends) || (function () {
 // by user interaction. rotate and scale are only available with
 // devices that provide touch events and support at least two fingers
 //
-var App = (function (_super) {
+var App = /** @class */ (function (_super) {
     __extends(App, _super);
     function App() {
         var _this = _super.call(this) || this;

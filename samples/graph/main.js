@@ -11,7 +11,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 var Graph;
 (function (Graph) {
-    var DonutGraph = (function (_super) {
+    var DonutGraph = /** @class */ (function (_super) {
         __extends(DonutGraph, _super);
         function DonutGraph(init) {
             var _this = _super.call(this, init) || this;
@@ -47,10 +47,12 @@ var Graph;
         return DonutGraph;
     }(Ui.CanvasElement));
     Graph.DonutGraph = DonutGraph;
-    var BarGraph = (function (_super) {
+    var BarGraph = /** @class */ (function (_super) {
         __extends(BarGraph, _super);
         function BarGraph(init) {
             var _this = _super.call(this, init) || this;
+            _this.minY = 0;
+            _this.maxY = 0;
             _this.data = init.data;
             _this.xAxis = init.xAxis;
             for (var i = 0; i < _this.data.length; i++) {
@@ -136,10 +138,12 @@ var Graph;
         return BarGraph;
     }(Ui.CanvasElement));
     Graph.BarGraph = BarGraph;
-    var LineGraph = (function (_super) {
+    var LineGraph = /** @class */ (function (_super) {
         __extends(LineGraph, _super);
         function LineGraph(init) {
             var _this = _super.call(this, init) || this;
+            _this.minY = 0;
+            _this.maxY = 0;
             _this.data = init.data;
             _this.xAxis = init.xAxis;
             for (var i = 0; i < _this.data.length; i++) {
@@ -220,16 +224,25 @@ var Graph;
 })(Graph || (Graph = {}));
 var Graph;
 (function (Graph) {
-    var TimeLineGraph = (function (_super) {
+    var TimeLineGraph = /** @class */ (function (_super) {
         __extends(TimeLineGraph, _super);
         function TimeLineGraph(init) {
             var _this = _super.call(this, init) || this;
+            _this.data = new Array();
+            _this.minY = 0;
+            _this.maxY = 0;
+            _this.unit = 'none';
+            _this.mode = 'normal';
             if (init.data != undefined)
                 _this.data = init.data;
             if (init.startTime != undefined)
                 _this.startTime = init.startTime;
+            else
+                _this.startTime = new Date();
             if (init.endTime != undefined)
                 _this.endTime = init.endTime;
+            else
+                _this.endTime = new Date();
             if (init.unit != undefined)
                 _this.unit = init.unit;
             if (init.mode != undefined)
@@ -581,7 +594,7 @@ var Graph;
     Graph.TimeLineGraph = TimeLineGraph;
 })(Graph || (Graph = {}));
 /// <reference path="../../era/era.d.ts" />
-var App = (function (_super) {
+var App = /** @class */ (function (_super) {
     __extends(App, _super);
     function App() {
         var _this = _super.call(this) || this;

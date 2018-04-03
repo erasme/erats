@@ -10,14 +10,14 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var App = (function (_super) {
+var App = /** @class */ (function (_super) {
     __extends(App, _super);
     function App() {
         var _this = _super.call(this) || this;
         _this.ptrdowned.connect(function (event) {
             console.log('ptrdown at: ' + event.pointer.getX() + ',' + event.pointer.getY() + ' found: ' +
                 Ui.App.current.elementFromPoint(new Ui.Point(event.pointer.x, event.pointer.y)));
-            Ui.Toast.send(Ui.App.current.elementFromPoint(new Ui.Point(event.pointer.x, event.pointer.y)).toString());
+            Ui.Toast.send("" + Ui.App.current.elementFromPoint(new Ui.Point(event.pointer.x, event.pointer.y)));
         }, true);
         var vbox = new Ui.VBox({ spacing: 10, margin: 10 });
         _this.content = vbox;

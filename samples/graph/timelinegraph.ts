@@ -7,17 +7,17 @@ namespace Graph {
 		endTime?: Date;
 		maxY?: number;
 		unit?: 'none' | 'bps' | 'percent' | 'seconds';
-		mode?: 'diff';
+		mode?: 'diff' | 'normal';
 	}
 
 	export class TimeLineGraph extends Ui.CanvasElement {
-		data: Array<{ name: string, data: Array<{time: Date, value: any}>, color?: Ui.Color | string }>;
-		minY: number;
-		maxY: number;
+		data = new Array<{ name: string, data: Array<{time: Date, value: any}>, color?: Ui.Color | string }>();
+		minY: number = 0;
+		maxY: number = 0;
 		startTime: Date;
 		endTime: Date;
-		unit: 'none' | 'bps' | 'percent' | 'seconds';
-		mode: 'diff';
+		unit: 'none' | 'bps' | 'percent' | 'seconds' = 'none';
+		mode: 'diff' | 'normal' = 'normal';
 		private transformWatcher: Ui.TransformableWatcher;
 
 		constructor(init: TimeLineGraphInit) {
@@ -26,8 +26,12 @@ namespace Graph {
 				this.data = init.data;
 			if (init.startTime != undefined)
 				this.startTime = init.startTime;
+			else
+				this.startTime = new Date();	
 			if (init.endTime != undefined)
 				this.endTime = init.endTime;
+			else
+				this.endTime = new Date();
 			if (init.unit != undefined)
 				this.unit = init.unit;
 			if (init.mode != undefined)

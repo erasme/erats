@@ -6,7 +6,7 @@ class App extends Ui.App {
 		this.ptrdowned.connect((event: Ui.PointerEvent) => {
 			console.log('ptrdown at: '+event.pointer.getX()+','+event.pointer.getY()+' found: '+
 				Ui.App.current.elementFromPoint(new Ui.Point(event.pointer.x, event.pointer.y)));
-			Ui.Toast.send(Ui.App.current.elementFromPoint(new Ui.Point(event.pointer.x, event.pointer.y)).toString());
+			Ui.Toast.send(`${Ui.App.current.elementFromPoint(new Ui.Point(event.pointer.x, event.pointer.y))}`);
 		}, true);
 
 		let vbox = new Ui.VBox({ spacing: 10, margin: 10 });

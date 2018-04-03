@@ -10,21 +10,21 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var Item1 = (function (_super) {
+var Item1 = /** @class */ (function (_super) {
     __extends(Item1, _super);
     function Item1() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     return Item1;
 }(Ui.Draggable));
-var Item2 = (function (_super) {
+var Item2 = /** @class */ (function (_super) {
     __extends(Item2, _super);
     function Item2() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     return Item2;
 }(Ui.Draggable));
-var DropBox1 = (function (_super) {
+var DropBox1 = /** @class */ (function (_super) {
     __extends(DropBox1, _super);
     function DropBox1() {
         var _this = _super.call(this) || this;
@@ -46,7 +46,7 @@ var DropBox1 = (function (_super) {
     };
     return DropBox1;
 }(Ui.DropBox));
-var DropBox2 = (function (_super) {
+var DropBox2 = /** @class */ (function (_super) {
     __extends(DropBox2, _super);
     function DropBox2() {
         var _this = _super.call(this) || this;
@@ -69,7 +69,7 @@ var DropBox2 = (function (_super) {
     };
     return DropBox2;
 }(Ui.DropBox));
-var DropBox3 = (function (_super) {
+var DropBox3 = /** @class */ (function (_super) {
     __extends(DropBox3, _super);
     function DropBox3() {
         var _this = _super.call(this) || this;

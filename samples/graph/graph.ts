@@ -48,8 +48,8 @@ namespace Graph {
 	export class BarGraph extends Ui.CanvasElement {
 		readonly data: Array<number>;
 		readonly xAxis: Array<string>;
-		protected minY: number;
-		protected maxY: number;
+		protected minY: number = 0;
+		protected maxY: number = 0;
 
 		constructor(init: BarGraphInit) {
 			super(init);
@@ -157,8 +157,8 @@ namespace Graph {
 	export class LineGraph extends Ui.CanvasElement {
 		data: Array<number>;
 		xAxis: Array<string>;
-		minY: number;
-		maxY: number;
+		minY: number = 0;
+		maxY: number = 0;
 
 		constructor(init: LineGraphInit) {
 			super(init);

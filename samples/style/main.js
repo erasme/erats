@@ -90,7 +90,7 @@ var styles = [
         ]
     }
 ];
-var App = (function (_super) {
+var App = /** @class */ (function (_super) {
     __extends(App, _super);
     function App() {
         var _this = _super.call(this) || this;

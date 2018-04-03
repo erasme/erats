@@ -54,8 +54,10 @@ class App extends Ui.App {
         });
 
         audio.timeupdate.connect(e => {
-            //	console.log('audio pos: '+time);
-            progressbar.value = e.time / e.target.duration;
+            if (e.target.duration)
+                progressbar.value = e.time / e.target.duration;
+            else
+                progressbar.value = 0;    
         });
     }
 }
