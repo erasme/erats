@@ -15061,8 +15061,7 @@ var Ui;
                 this.openClock.begin();
             this.shadow.arrange(0, 0, width, height);
             var usedWidth = Math.min(this._preferredWidth ? Math.max(this.lbox.measureWidth, this._preferredWidth) : this.lbox.measureWidth, width);
-            var maxHeight = (this._preferredHeight && this._preferredHeight < height) ? this._preferredHeight : height;
-            var usedHeight = Math.min(this.lbox.measureHeight, maxHeight);
+            var usedHeight = Math.min(this._preferredHeight ? Math.max(this.lbox.measureHeight, this._preferredHeight) : this.lbox.measureHeight, height);
             this.lbox.arrange((width - usedWidth) / 2, (height - usedHeight) / 2, usedWidth, usedHeight);
         };
         Dialog.style = {
