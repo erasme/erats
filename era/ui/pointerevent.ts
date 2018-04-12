@@ -460,10 +460,10 @@ namespace Ui
 					}
 				});
 
-				document.body.addEventListener('touchstart', e => this.updateTouches(e), true);
-				document.body.addEventListener('touchmove', e => this.updateTouches(e), true);
-				document.body.addEventListener('touchend', e => this.updateTouches(e), true);
-				document.body.addEventListener('touchcancel', e => this.updateTouches(e), true);
+				document.body.addEventListener('touchstart', e => this.updateTouches(e as TouchEvent), true);
+				document.body.addEventListener('touchmove', e => this.updateTouches(e as TouchEvent), true);
+				document.body.addEventListener('touchend', e => this.updateTouches(e as TouchEvent), true);
+				document.body.addEventListener('touchcancel', e => this.updateTouches(e as TouchEvent), true);
 			}
 		}
 
