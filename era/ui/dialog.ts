@@ -439,15 +439,13 @@ namespace Ui {
 
 			this.shadow.arrange(0, 0, width, height);
 
-			let maxWidth = (this._preferredWidth && this._preferredWidth < width) ? this._preferredWidth : width;
-
-			let usedWidth = Math.min(this.lbox.measureWidth, width);
-			//let usedWidth = Math.min(this.lbox.measureWidth, maxWidth);
-			//let usedWidth = Math.max((width < this._preferredWidth) ? width : this._preferredWidth, this.lbox.measureWidth);
+			let usedWidth = Math.min(
+				this._preferredWidth ? Math.max(this.lbox.measureWidth, this._preferredWidth) : this.lbox.measureWidth,
+				width);
 
 			let maxHeight = (this._preferredHeight && this._preferredHeight < height) ? this._preferredHeight : height;
 			let usedHeight = Math.min(this.lbox.measureHeight, maxHeight);
-			//let usedHeight = Math.max((height < this._preferredHeight) ? height : this._preferredHeight, this.lbox.measureHeight);
+
 			this.lbox.arrange((width - usedWidth) / 2, (height - usedHeight) / 2, usedWidth, usedHeight);
 		}
 
