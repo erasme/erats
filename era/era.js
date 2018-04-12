@@ -15060,8 +15060,7 @@ var Ui;
             if ((this.openClock !== undefined) && !this.openClock.isActive)
                 this.openClock.begin();
             this.shadow.arrange(0, 0, width, height);
-            var maxWidth = (this._preferredWidth && this._preferredWidth < width) ? this._preferredWidth : width;
-            var usedWidth = Math.min(this.lbox.measureWidth, width);
+            var usedWidth = Math.min(this._preferredWidth ? Math.max(this.lbox.measureWidth, this._preferredWidth) : this.lbox.measureWidth, width);
             var maxHeight = (this._preferredHeight && this._preferredHeight < height) ? this._preferredHeight : height;
             var usedHeight = Math.min(this.lbox.measureHeight, maxHeight);
             this.lbox.arrange((width - usedWidth) / 2, (height - usedHeight) / 2, usedWidth, usedHeight);
