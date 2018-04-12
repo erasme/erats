@@ -443,8 +443,9 @@ namespace Ui {
 				this._preferredWidth ? Math.max(this.lbox.measureWidth, this._preferredWidth) : this.lbox.measureWidth,
 				width);
 
-			let maxHeight = (this._preferredHeight && this._preferredHeight < height) ? this._preferredHeight : height;
-			let usedHeight = Math.min(this.lbox.measureHeight, maxHeight);
+			let usedHeight = Math.min(
+				this._preferredHeight ? Math.max(this.lbox.measureHeight, this._preferredHeight) : this.lbox.measureHeight,
+				height);
 
 			this.lbox.arrange((width - usedWidth) / 2, (height - usedHeight) / 2, usedWidth, usedHeight);
 		}
