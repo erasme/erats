@@ -228,7 +228,7 @@ namespace Ui {
 		getDefaultAction() {
 			let actions = this.getActions();
 			for (let actionName in actions) {
-				if (actions[actionName].default === true)
+				if (actions[actionName]['default'] === true)
 					return actions[actionName];
 			}
 			return undefined;

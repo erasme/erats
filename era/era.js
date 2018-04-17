@@ -8987,7 +8987,7 @@ var Ui;
         Selection.prototype.getDefaultAction = function () {
             var actions = this.getActions();
             for (var actionName in actions) {
-                if (actions[actionName].default === true)
+                if (actions[actionName]['default'] === true)
                     return actions[actionName];
             }
             return undefined;
