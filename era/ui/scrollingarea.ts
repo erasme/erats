@@ -8,6 +8,7 @@ namespace Ui {
 		constructor(private orientation: Orientation) {
 			super();
 			this.cursor = 'inherit';
+			this.focusable = false;
 			this.over = new Overable();
 			this.content = this.over;
 			this.rect = new Rectangle();

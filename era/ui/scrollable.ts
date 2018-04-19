@@ -500,6 +500,7 @@ namespace Ui
 			super();
 			this.allowLeftMouse = false;
 			this.clipToBounds = true;
+			this.focusable = false;
 			this.drawing.addEventListener('scroll', () => {
 				this.translateX -= this.drawing.scrollLeft;
 				this.translateY -= this.drawing.scrollTop;
