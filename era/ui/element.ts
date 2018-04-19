@@ -324,9 +324,7 @@ namespace Ui
 					this.drawing.removeEventListener('mousedown', this.onMouseDownFocus);
 					// remove the attribute because with the -1 value
 					// the element is still focusable by the mouse
-					let node = this._drawing.getAttribute('tabIndex');
-					if(node !== undefined)
-						this._drawing.removeAttribute(node);
+					this._drawing.removeAttribute('tabIndex');
 				}
 			}
 		}
