@@ -2,18 +2,18 @@ namespace Ui {
 	export interface ComboInit extends ButtonInit {
 		placeHolder?: string;
 		field?: string;
-		data?: object[];
+		data?: any[];
 		position?: number;
-		current?: object;
+		current?: any;
 		search?: boolean;
 		onchanged?: (event: { target: Combo, value: any, position: number}) => void;
 	}
 
 	export class Combo extends Button implements ComboInit {
 		private _field: string;
-		private _data: object[];
+		private _data: any[];
 		private _position: number = -1;
-		private _current: object;
+		private _current: any;
 		private _placeHolder: string = '...';
 		sep: undefined;
 		arrowtop: Icon;
@@ -100,15 +100,15 @@ namespace Ui {
 			}
 		}
 
-		get current(): object {
+		get current(): any {
 			return this._current;
 		}
 	
-		get value(): object {
+		get value(): any {
 			return this._current;
 		}
 
-		set current(current: object) {
+		set current(current: any) {
 			if (current == undefined)
 				this.position = -1;
 			let position = -1;
@@ -155,7 +155,7 @@ namespace Ui {
 
 	export class ComboPopup extends MenuPopup {
 		private list: VBox;
-		private _data: object[];
+		private _data: any[];
 		private _field: string;
 		private searchField: TextField;
 		readonly item = new Core.Events<{ target: ComboPopup, item: ComboItem, position: number }>();
