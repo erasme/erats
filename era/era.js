@@ -14156,6 +14156,7 @@ var Ui;
             _this.lastArrangeHeight = 0;
             _this.windowWidth = 0;
             _this.windowHeight = 0;
+            _this.dialogsFocus = [];
             _this.resized = new Core.Events();
             _this.ready = new Core.Events();
             _this.parentmessage = new Core.Events();
@@ -14407,6 +14408,7 @@ var Ui;
                 else
                     this.appendChild(this.dialogs);
             }
+            this.dialogsFocus.push(this.focusElement);
             this.dialogs.append(dialog);
             this.contentBox.disable();
             for (var i = 0; i < this.dialogs.children.length - 1; i++)
@@ -14414,6 +14416,7 @@ var Ui;
         };
         App.prototype.removeDialog = function (dialog) {
             if (this.dialogs !== undefined) {
+                var dialogFocus = this.dialogsFocus.pop();
                 this.dialogs.remove(dialog);
                 if (this.dialogs.children.length === 0) {
                     this.removeChild(this.dialogs);
@@ -14422,6 +14425,8 @@ var Ui;
                 }
                 else if (this.dialogs.lastChild)
                     this.dialogs.lastChild.enable();
+                if (dialogFocus && dialogFocus.focus && (typeof (dialogFocus.focus) == 'function'))
+                    dialogFocus.focus();
             }
         };
         App.prototype.appendTopLayer = function (layer) {

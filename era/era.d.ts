@@ -2905,7 +2905,6 @@ declare namespace Ui {
         content?: Element;
     }
     class App extends Container {
-        styles: any;
         private updateTask;
         private _loaded;
         focusElement: any;
@@ -2920,8 +2919,9 @@ declare namespace Ui {
         windowHeight: number;
         private contentBox;
         private _content?;
-        dialogs?: LBox;
-        topLayers?: LBox;
+        private dialogs?;
+        private dialogsFocus;
+        private topLayers?;
         requireFonts: any;
         testFontTask: any;
         bindedUpdate: any;

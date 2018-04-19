@@ -4,9 +4,7 @@ namespace Ui
 		content?: Element;
 	}
 
-	export class App extends Container
-	{
-		styles: any;
+	export class App extends Container {
 		private updateTask: boolean = false;
 		private _loaded: boolean = false;
 		focusElement: any = undefined;
@@ -24,8 +22,9 @@ namespace Ui
 		private contentBox: Box;
 		private _content?: Element;
 
-		dialogs?: LBox;
-		topLayers?: LBox;
+		private dialogs?: LBox;
+		private dialogsFocus = [];
+		private topLayers?: LBox;
 
 		requireFonts: any;
 		testFontTask: any;
@@ -387,6 +386,7 @@ namespace Ui
 				else
 					this.appendChild(this.dialogs);
 			}
+			this.dialogsFocus.push(this.focusElement);
 			this.dialogs.append(dialog);
 			this.contentBox.disable();
 			for (let i = 0; i < this.dialogs.children.length - 1; i++)
@@ -395,6 +395,7 @@ namespace Ui
 
 		removeDialog(dialog) {
 			if (this.dialogs !== undefined) {
+				let dialogFocus = this.dialogsFocus.pop();
 				this.dialogs.remove(dialog);
 				if (this.dialogs.children.length === 0) {
 					this.removeChild(this.dialogs);
@@ -403,6 +404,8 @@ namespace Ui
 				}
 				else if (this.dialogs.lastChild)
 					this.dialogs.lastChild.enable();
+				if (dialogFocus && dialogFocus.focus && (typeof(dialogFocus.focus) == 'function'))
+					dialogFocus.focus();
 			}
 		}
 
