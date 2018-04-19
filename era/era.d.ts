@@ -3735,9 +3735,9 @@ declare namespace Ui {
     interface ComboInit extends ButtonInit {
         placeHolder?: string;
         field?: string;
-        data?: object[];
+        data?: any[];
         position?: number;
-        current?: object;
+        current?: any;
         search?: boolean;
         onchanged?: (event: {
             target: Combo;
@@ -3765,8 +3765,8 @@ declare namespace Ui {
         field: string;
         data: any[];
         position: number;
-        current: object;
-        readonly value: object;
+        current: any;
+        readonly value: any;
         protected onItemPress(popup: any, item: any, position: any): void;
         protected onPress(): void;
         protected updateColors(): void;
