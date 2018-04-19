@@ -3502,9 +3502,7 @@ var Ui;
                     }
                     else {
                         this.drawing.removeEventListener('mousedown', this.onMouseDownFocus);
-                        var node = this._drawing.getAttribute('tabIndex');
-                        if (node !== undefined)
-                            this._drawing.removeAttribute(node);
+                        this._drawing.removeAttribute('tabIndex');
                     }
                 }
             },
@@ -11243,6 +11241,7 @@ var Ui;
             _this.scrolled = new Core.Events();
             _this.allowLeftMouse = false;
             _this.clipToBounds = true;
+            _this.focusable = false;
             _this.drawing.addEventListener('scroll', function () {
                 _this.translateX -= _this.drawing.scrollLeft;
                 _this.translateY -= _this.drawing.scrollTop;
@@ -11324,6 +11323,7 @@ var Ui;
             var _this = _super.call(this) || this;
             _this.orientation = orientation;
             _this.cursor = 'inherit';
+            _this.focusable = false;
             _this.over = new Ui.Overable();
             _this.content = _this.over;
             _this.rect = new Ui.Rectangle();
