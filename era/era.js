@@ -3636,8 +3636,8 @@ var Ui;
                     height = this._measureHeight;
                 }
                 else if (this._verticalAlign == 'stretch' && this._maxHeight && this._maxHeight < height) {
-                    y += (height - this._measureHeight) / 2;
-                    height = this._measureHeight;
+                    y += (height - this._maxHeight) / 2;
+                    height = this._maxHeight;
                 }
                 if (this._horizontalAlign == 'left') {
                     width = this._measureWidth;
@@ -3651,8 +3651,8 @@ var Ui;
                     width = this._measureWidth;
                 }
                 else if (this._horizontalAlign == 'stretch' && this._maxWidth && this._maxWidth < width) {
-                    x += (width - this._measureWidth) / 2;
-                    width = this._measureWidth;
+                    x += (width - this._maxWidth) / 2;
+                    width = this._maxWidth;
                 }
                 var marginLeft = this.marginLeft;
                 var marginRight = this.marginRight;
