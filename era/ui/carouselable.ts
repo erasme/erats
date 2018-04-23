@@ -247,14 +247,12 @@ namespace Ui {
 		}
 
 		private onCarouselableDown() {
-			console.log(`onCarouselableDown`);
 			this.stopAutoPlay();
 			this.stopAnimation();
 		}
 
 		private onCarouselableUp(el: Element, speedX: number, speedY: number, deltaX: number, deltaY: number, cumulMove: number, abort: boolean) {
 			let mod;
-			console.log(`onCarouselableUp abort ? ${abort}`);
 			if (abort === true) {
 				// just re-align the content
 				mod = this.pos % 1;
@@ -358,7 +356,6 @@ namespace Ui {
 			if (!this.isLoaded)
 				return;
 			let i;
-
 			for (i = 0; i < this.activeItems.length; i++)
 				(this.activeItems[i] as any).carouselableSeen = undefined;
 
@@ -411,6 +408,7 @@ namespace Ui {
 			super.onLoad();
 			this.loadItems();
 			this.updateItems();
+			this.onChange();
 		}
 
 		protected onMove(x, y) {

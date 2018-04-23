@@ -24999,13 +24999,11 @@ var Ui;
             }
         };
         Carouselable.prototype.onCarouselableDown = function () {
-            console.log("onCarouselableDown");
             this.stopAutoPlay();
             this.stopAnimation();
         };
         Carouselable.prototype.onCarouselableUp = function (el, speedX, speedY, deltaX, deltaY, cumulMove, abort) {
             var mod;
-            console.log("onCarouselableUp abort ? " + abort);
             if (abort === true) {
                 mod = this.pos % 1;
                 if (mod > 0.5)
@@ -25144,6 +25142,7 @@ var Ui;
             _super.prototype.onLoad.call(this);
             this.loadItems();
             this.updateItems();
+            this.onChange();
         };
         Carouselable.prototype.onMove = function (x, y) {
             if (this.layoutWidth <= 0)
