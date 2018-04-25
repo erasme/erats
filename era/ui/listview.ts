@@ -211,7 +211,7 @@ namespace Ui {
 		private cells: ListViewCell[];
 		private background: Rectangle;
 		private selectionActions: SelectionActions;
-		private selectionWatcher: SelectionableWatcher;
+		readonly selectionWatcher: SelectionableWatcher;
 		listView: ListView;
 
 		constructor(init: ListViewRowInit) {
@@ -357,6 +357,7 @@ namespace Ui {
 		onselected?: (event: { target: ListView }) => void;
 		onunselected?: (event: { target: ListView }) => void;
 		onactivated?: (event: { target: ListView, position: number, value: any }) => void;
+		onsortchanged?: (event: { target: ListView, key: string, invert: boolean }) => void;
 	}	
 
 	export class ListView extends VBox implements ListViewInit {
@@ -383,6 +384,7 @@ namespace Ui {
 		readonly selected = new Core.Events<{ target: ListView }>();
 		readonly unselected = new Core.Events<{ target: ListView }>();
 		readonly activated = new Core.Events<{ target: ListView, position: number, value: any }>();
+		readonly sortchanged = new Core.Events<{ target: ListView, key: string, invert: boolean }>();
 
 		constructor(init?: ListViewInit) {
 			super(init);
@@ -441,7 +443,9 @@ namespace Ui {
 				if (init.onunselected)
 					this.unselected.connect(init.onunselected);	
 				if (init.onactivated)
-					this.activated.connect(init.onactivated);	
+					this.activated.connect(init.onactivated);
+				if (init.onsortchanged)
+					this.sortchanged.connect(init.onsortchanged);	
 			}
 		}
 
@@ -589,6 +593,8 @@ namespace Ui {
 		}
 
 		sortBy(key: string, invert: boolean) {
+			if (this.sortColKey == key && this.sortInvert == invert)
+				return;
 			this.sortColKey = key;
 			this.sortInvert = invert === true;
 			this.headersBar.sortBy(this.sortColKey, this.sortInvert);
@@ -603,6 +609,7 @@ namespace Ui {
 					this.vbox.append(this.getElementAt(i));
 				}
 //			}
+			this.sortchanged.fire({ target: this, key: this.sortColKey, invert: this.sortInvert });
 		}
 
 		findDataRow(data) {

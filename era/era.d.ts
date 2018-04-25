@@ -4513,7 +4513,7 @@ declare namespace Ui {
         private cells;
         private background;
         private selectionActions;
-        private selectionWatcher;
+        readonly selectionWatcher: SelectionableWatcher;
         listView: ListView;
         constructor(init: ListViewRowInit);
         getData(): object;
@@ -4561,6 +4561,11 @@ declare namespace Ui {
             position: number;
             value: any;
         }) => void;
+        onsortchanged?: (event: {
+            target: ListView;
+            key: string;
+            invert: boolean;
+        }) => void;
     }
     class ListView extends VBox implements ListViewInit {
         private _data;
@@ -4591,6 +4596,11 @@ declare namespace Ui {
             target: ListView;
             position: number;
             value: any;
+        }>;
+        readonly sortchanged: Core.Events<{
+            target: ListView;
+            key: string;
+            invert: boolean;
         }>;
         constructor(init?: ListViewInit);
         scrolled: boolean;

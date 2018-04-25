@@ -21678,6 +21678,7 @@ var Ui;
             _this.selected = new Core.Events();
             _this.unselected = new Core.Events();
             _this.activated = new Core.Events();
+            _this.sortchanged = new Core.Events();
             if (init && init.headers != undefined) {
                 _this.headers = init.headers;
                 delete (init.headers);
@@ -21719,6 +21720,8 @@ var Ui;
                     _this.unselected.connect(init.onunselected);
                 if (init.onactivated)
                     _this.activated.connect(init.onactivated);
+                if (init.onsortchanged)
+                    _this.sortchanged.connect(init.onsortchanged);
             }
             return _this;
         }
@@ -21829,6 +21832,8 @@ var Ui;
             });
         };
         ListView.prototype.sortBy = function (key, invert) {
+            if (this.sortColKey == key && this.sortInvert == invert)
+                return;
             this.sortColKey = key;
             this.sortInvert = invert === true;
             this.headersBar.sortBy(this.sortColKey, this.sortInvert);
@@ -21837,6 +21842,7 @@ var Ui;
             for (var i = 0; i < this._data.length; i++) {
                 this.vbox.append(this.getElementAt(i));
             }
+            this.sortchanged.fire({ target: this, key: this.sortColKey, invert: this.sortInvert });
         };
         ListView.prototype.findDataRow = function (data) {
             for (var row = 0; row < this._data.length; row++) {
