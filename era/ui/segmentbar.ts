@@ -135,6 +135,8 @@ namespace Ui {
 
 			let background = this.getStyleProperty('background');
 			let backgroundBorder = this.getStyleProperty('backgroundBorder');
+			let backgroundMode = this.getStyleProperty('backgroundMode');
+			let backgroundSize = this.getStyleProperty('backgroundSize');
 			let foreground = this.getStyleProperty('foreground');
 			if (this.hasFocus && !this.getIsMouseFocus()) {
 				background = this.getStyleProperty('focusBackground');
@@ -162,6 +164,13 @@ namespace Ui {
 					child.background = background;
 					child.foreground = foreground;
 				}
+				child.backgroundMode = backgroundMode;
+				if(backgroundSize != undefined) { 
+					if(backgroundMode == 'top' || backgroundMode == 'bottom')
+						child.backgroundHeight = backgroundSize;
+					if(backgroundMode == 'left' || backgroundMode == 'right') 
+						child.backgroundWidth = backgroundSize;
+				}		
 			}
 		}
 		
@@ -169,6 +178,8 @@ namespace Ui {
 			borderWidth: 1,
 			background: 'rgba(240,240,240,1)',
 			backgroundBorder: 'rgba(102,102,102,1)',
+			backgroundMode: 'stretch',
+			backgroundSize: 5,
 			foreground: '#444444',
 			focusBackground: 'rgba(240,240,240,1)',
 			focusBackgroundBorder: '#07a0e5',
@@ -304,6 +315,27 @@ namespace Ui {
 
 		set background(color: Color | string) {
 			this.bg.fill = color;
+		}
+
+		set backgroundMode(mode: 'top'|'bottom'|'left'|'right'|'stretch') {
+			if( mode == 'top' || mode == 'bottom') {
+				this.bg.horizontalAlign = 'stretch';
+				this.bg.verticalAlign = mode;
+			} else if( mode == 'left' || mode == 'right') {
+				this.bg.horizontalAlign = mode;
+				this.bg.verticalAlign = 'stretch';
+			} else {
+				this.bg.horizontalAlign = 'stretch';
+				this.bg.verticalAlign = 'stretch';
+			}
+		}
+
+		set backgroundWidth(width: number) {
+			this.bg.width = width;
+		}
+
+		set backgroundHeight(height: number) {
+			this.bg.height = height;
 		}
 
 		protected onDisable() {
