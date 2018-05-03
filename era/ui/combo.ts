@@ -133,7 +133,6 @@ namespace Ui {
 
 		protected updateColors() {
 			super.updateColors();
-			//this.arrowtop.fill = this.getForegroundColor();
 			this.arrowbottom.fill = this.getForegroundColor();
 		}
 
