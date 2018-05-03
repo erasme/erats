@@ -201,13 +201,13 @@ namespace Ui {
 	export interface ListViewRowInit {
 		listView: ListView;
 		headers: HeaderDef[];
-		data: object;
+		data: any;
 		selectionActions?: SelectionActions;
 	}
 
 	export class ListViewRow extends Container {
 		private headers: HeaderDef[];
-		data: object;
+		data: any;
 		private cells: ListViewCell[];
 		private background: Rectangle;
 		private selectionActions: SelectionActions;

@@ -4504,12 +4504,12 @@ declare namespace Ui {
     interface ListViewRowInit {
         listView: ListView;
         headers: HeaderDef[];
-        data: object;
+        data: any;
         selectionActions?: SelectionActions;
     }
     class ListViewRow extends Container {
         private headers;
-        data: object;
+        data: any;
         private cells;
         private background;
         private selectionActions;
