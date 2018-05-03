@@ -179,6 +179,7 @@ namespace Ui {
 			background: 'rgba(240,240,240,1)',
 			backgroundBorder: 'rgba(102,102,102,1)',
 			backgroundMode: 'stretch',
+			backgroundSize: 5,
 			foreground: '#444444',
 			focusBackground: 'rgba(240,240,240,1)',
 			focusBackgroundBorder: '#07a0e5',
