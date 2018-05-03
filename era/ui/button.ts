@@ -485,12 +485,12 @@ namespace Ui
 
 		protected onDisable() {
 			super.onDisable();
-			this.opacity = 0.4;
+			this.bg.opacity = 0.2;
 		}
 
 		protected onEnable() {
 			super.onEnable();
-			this.opacity = 1;
+			this.bg.opacity = 1;
 		}
 
 		protected onStyleChange() {

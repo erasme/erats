@@ -3752,7 +3752,6 @@ declare namespace Ui {
         private _current;
         private _placeHolder;
         sep: undefined;
-        arrowtop: Icon;
         arrowbottom: Icon;
         search: boolean;
         readonly changed: Core.Events<{
@@ -3770,6 +3769,8 @@ declare namespace Ui {
         protected onItemPress(popup: any, item: any, position: any): void;
         protected onPress(): void;
         protected updateColors(): void;
+        protected onDisable(): void;
+        protected onEnable(): void;
         static style: object;
     }
     interface ComboPopupInit extends MenuPopupInit {

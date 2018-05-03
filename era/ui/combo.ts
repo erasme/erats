@@ -16,7 +16,6 @@ namespace Ui {
 		private _current: any;
 		private _placeHolder: string = '...';
 		sep: undefined;
-		arrowtop: Icon;
 		arrowbottom: Icon;
 		search: boolean;
 		readonly changed = new Core.Events<{ target: Combo, value: any, position: number}>();
@@ -35,12 +34,10 @@ namespace Ui {
 			super(init);
 
 			this.text = '';
-			//this.arrowtop = new Icon({ icon: 'arrowtop', width: 10, height: 10 });
 			this.arrowbottom = new Icon({ icon: 'arrowbottom', width: 16, height: 16 });
 
 			this.marker = new Ui.VBox({
 				verticalAlign: 'center', marginRight: 5,
-				//content: [ this.arrowtop, this.arrowbottom ]
 				content: [ this.arrowbottom ]
 			});
 			if (init) {
@@ -138,6 +135,16 @@ namespace Ui {
 			super.updateColors();
 			//this.arrowtop.fill = this.getForegroundColor();
 			this.arrowbottom.fill = this.getForegroundColor();
+		}
+
+		protected onDisable() {
+			super.onDisable();
+			this.arrowbottom.opacity = 0.1;
+		}
+
+		protected onEnable() {
+			super.onEnable();
+			this.arrowbottom.opacity = 1;
 		}
 
 		static style: object = {

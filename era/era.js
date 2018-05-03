@@ -12909,11 +12909,11 @@ var Ui;
         };
         Button.prototype.onDisable = function () {
             _super.prototype.onDisable.call(this);
-            this.opacity = 0.4;
+            this.bg.opacity = 0.2;
         };
         Button.prototype.onEnable = function () {
             _super.prototype.onEnable.call(this);
-            this.opacity = 1;
+            this.bg.opacity = 1;
         };
         Button.prototype.onStyleChange = function () {
             this.buttonPartsBox.spacing = Math.max(0, this.getStyleProperty('spacing'));
@@ -18210,6 +18210,14 @@ var Ui;
         Combo.prototype.updateColors = function () {
             _super.prototype.updateColors.call(this);
             this.arrowbottom.fill = this.getForegroundColor();
+        };
+        Combo.prototype.onDisable = function () {
+            _super.prototype.onDisable.call(this);
+            this.arrowbottom.opacity = 0.1;
+        };
+        Combo.prototype.onEnable = function () {
+            _super.prototype.onEnable.call(this);
+            this.arrowbottom.opacity = 1;
         };
         Combo.style = {
             textTransform: 'none',
