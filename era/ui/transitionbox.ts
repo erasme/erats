@@ -1,7 +1,7 @@
 namespace Ui {
 	export interface TransitionBoxInit extends LBoxInit {
 		duration?: number;
-		ease?: Anim.EasingFunction | string;
+		ease?: Anim.EasingFunction | string;
 		transition?: Transition | string;
 		position?: number;
 		current?: Element;
@@ -20,7 +20,7 @@ namespace Ui {
 		children: TransitionBoxContent[];
 		readonly changed = new Core.Events<{ target: TransitionBox, position: number }>();
 
-	
+
 		/**
 		 * @constructs
 		 * @class Container that displays only one element at a time and allows differents kind of transition between elements
@@ -118,7 +118,7 @@ namespace Ui {
 				this.transitionClock.timeupdate.connect((e) => this.onTransitionTick(e.target, e.progress));
 				this.transitionClock.completed.connect(this.onTransitionComplete);
 				this.transitionClock.begin();
-			
+
 				this._position = position;
 			}
 		}
@@ -185,6 +185,8 @@ namespace Ui {
 		}
 
 		append(child: Element) {
+			if (this.getChildPosition(child) != -1)
+				return;
 			let content = new TransitionBoxContent();
 			content.append(child);
 			content.hide();
@@ -192,6 +194,8 @@ namespace Ui {
 		}
 
 		prepend(child: Element) {
+			if (this.getChildPosition(child) != -1)
+				return;
 			if (this._position !== -1)
 				this._position++;
 			let content = new TransitionBoxContent();
@@ -214,7 +218,7 @@ namespace Ui {
 			}
 		}
 
-		getChildPosition(child) {
+		getChildPosition(child: Element) {
 			for (let i = 0; i < this.children.length; i++) {
 				if (this.children[i].children[0] == child)
 					return i;

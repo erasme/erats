@@ -3036,6 +3036,7 @@ declare namespace Ui {
         static style: object;
     }
     interface DialogInit extends ContainerInit {
+        padding?: number;
         preferredWidth?: number;
         preferredHeight?: number;
         title?: string;
@@ -3075,6 +3076,7 @@ declare namespace Ui {
         getSelectionHandler(): Selection;
         preferredWidth: number;
         preferredHeight: number;
+        padding: number;
         open(): void;
         close(): void;
         onOpenTick(clock: any, progress: any, delta: any): void;
@@ -3752,7 +3754,6 @@ declare namespace Ui {
         private _current;
         private _placeHolder;
         sep: undefined;
-        arrowtop: Icon;
         arrowbottom: Icon;
         search: boolean;
         readonly changed: Core.Events<{
@@ -3770,6 +3771,8 @@ declare namespace Ui {
         protected onItemPress(popup: any, item: any, position: any): void;
         protected onPress(): void;
         protected updateColors(): void;
+        protected onDisable(): void;
+        protected onEnable(): void;
         static style: object;
     }
     interface ComboPopupInit extends MenuPopupInit {
@@ -4504,12 +4507,12 @@ declare namespace Ui {
     interface ListViewRowInit {
         listView: ListView;
         headers: HeaderDef[];
-        data: object;
+        data: any;
         selectionActions?: SelectionActions;
     }
     class ListViewRow extends Container {
         private headers;
-        data: object;
+        data: any;
         private cells;
         private background;
         private selectionActions;
@@ -4811,7 +4814,7 @@ declare namespace Ui {
         append(child: Element): void;
         prepend(child: Element): void;
         remove(child: any): void;
-        getChildPosition(child: any): number;
+        getChildPosition(child: Element): number;
     }
     class TransitionBoxContent extends LBox {
     }

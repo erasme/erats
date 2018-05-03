@@ -151,7 +151,7 @@ namespace Ui {
 					line = { pos: ctx.lineCount, y: ctx.lineY, width: 0, height: 0 };
 				}
 				child['Ui.Flow.flowLine'] = line;
-				if (!isFirst)
+				if (!isFirst && !child.isCollapsed)
 					ctx.lineX += this._spacing;
 				child['Ui.Flow.flowLineX'] = ctx.lineX;
 				ctx.lineX += size.width;

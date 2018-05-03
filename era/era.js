@@ -12909,11 +12909,11 @@ var Ui;
         };
         Button.prototype.onDisable = function () {
             _super.prototype.onDisable.call(this);
-            this.opacity = 0.4;
+            this.bg.opacity = 0.2;
         };
         Button.prototype.onEnable = function () {
             _super.prototype.onEnable.call(this);
-            this.opacity = 1;
+            this.bg.opacity = 1;
         };
         Button.prototype.onStyleChange = function () {
             this.buttonPartsBox.spacing = Math.max(0, this.getStyleProperty('spacing'));
@@ -14859,6 +14859,8 @@ var Ui;
             _this.drawing.addEventListener('keyup', function (e) { return _this.onKeyUp(e); });
             _this.shadow.pressed.connect(function (e) { return _this.onShadowPress(); });
             if (init) {
+                if (init.padding !== undefined)
+                    _this.padding = init.padding;
                 if (init.preferredWidth !== undefined)
                     _this.preferredWidth = init.preferredWidth;
                 if (init.preferredHeight !== undefined)
@@ -14893,6 +14895,16 @@ var Ui;
             set: function (height) {
                 this._preferredHeight = height;
                 this.invalidateMeasure();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Dialog.prototype, "padding", {
+            get: function () {
+                return this.contentBox.marginLeft;
+            },
+            set: function (padding) {
+                this.contentBox.margin = padding;
             },
             enumerable: true,
             configurable: true
@@ -17913,7 +17925,7 @@ var Ui;
                     line = { pos: ctx.lineCount, y: ctx.lineY, width: 0, height: 0 };
                 }
                 child['Ui.Flow.flowLine'] = line;
-                if (!isFirst)
+                if (!isFirst && !child.isCollapsed)
                     ctx.lineX += this._spacing;
                 child['Ui.Flow.flowLineX'] = ctx.lineX;
                 ctx.lineX += size.width;
@@ -18210,6 +18222,14 @@ var Ui;
         Combo.prototype.updateColors = function () {
             _super.prototype.updateColors.call(this);
             this.arrowbottom.fill = this.getForegroundColor();
+        };
+        Combo.prototype.onDisable = function () {
+            _super.prototype.onDisable.call(this);
+            this.arrowbottom.opacity = 0.1;
+        };
+        Combo.prototype.onEnable = function () {
+            _super.prototype.onEnable.call(this);
+            this.arrowbottom.opacity = 1;
         };
         Combo.style = {
             textTransform: 'none',
@@ -22568,12 +22588,16 @@ var Ui;
                 this._transition.run(this._current, this.next, this.transitionClock.progress);
         };
         TransitionBox.prototype.append = function (child) {
+            if (this.getChildPosition(child) != -1)
+                return;
             var content = new TransitionBoxContent();
             content.append(child);
             content.hide();
             _super.prototype.append.call(this, content);
         };
         TransitionBox.prototype.prepend = function (child) {
+            if (this.getChildPosition(child) != -1)
+                return;
             if (this._position !== -1)
                 this._position++;
             var content = new TransitionBoxContent();
@@ -24228,7 +24252,7 @@ var Ui;
             textHeight: 26,
             spacing: 10,
             padding: 7,
-            textTransform: 'uppercase',
+            textTransform: 'uppercase'
         };
         return SegmentBar;
     }(Ui.LBox));
