@@ -24176,6 +24176,8 @@ var Ui;
             this.border.frameWidth = borderWidth;
             var background = this.getStyleProperty('background');
             var backgroundBorder = this.getStyleProperty('backgroundBorder');
+            var backgroundMode = this.getStyleProperty('backgroundMode');
+            var backgroundSize = this.getStyleProperty('backgroundSize');
             var foreground = this.getStyleProperty('foreground');
             if (this.hasFocus && !this.getIsMouseFocus()) {
                 background = this.getStyleProperty('focusBackground');
@@ -24202,12 +24204,20 @@ var Ui;
                     child.background = background;
                     child.foreground = foreground;
                 }
+                child.backgroundMode = backgroundMode;
+                if (backgroundSize != undefined) {
+                    if (backgroundMode == 'top' || backgroundMode == 'bottom')
+                        child.backgroundHeight = backgroundSize;
+                    if (backgroundMode == 'left' || backgroundMode == 'right')
+                        child.backgroundWidth = backgroundSize;
+                }
             }
         };
         SegmentBar.style = {
             borderWidth: 1,
             background: 'rgba(240,240,240,1)',
             backgroundBorder: 'rgba(102,102,102,1)',
+            backgroundMode: 'stretch',
             foreground: '#444444',
             focusBackground: 'rgba(240,240,240,1)',
             focusBackgroundBorder: '#07a0e5',
@@ -24218,7 +24228,7 @@ var Ui;
             textHeight: 26,
             spacing: 10,
             padding: 7,
-            textTransform: 'uppercase'
+            textTransform: 'uppercase',
         };
         return SegmentBar;
     }(Ui.LBox));
@@ -24351,6 +24361,38 @@ var Ui;
         Object.defineProperty(SegmentButton.prototype, "background", {
             set: function (color) {
                 this.bg.fill = color;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(SegmentButton.prototype, "backgroundMode", {
+            set: function (mode) {
+                if (mode == 'top' || mode == 'bottom') {
+                    this.bg.horizontalAlign = 'stretch';
+                    this.bg.verticalAlign = mode;
+                }
+                else if (mode == 'left' || mode == 'right') {
+                    this.bg.horizontalAlign = mode;
+                    this.bg.verticalAlign = 'stretch';
+                }
+                else {
+                    this.bg.horizontalAlign = 'stretch';
+                    this.bg.verticalAlign = 'stretch';
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(SegmentButton.prototype, "backgroundWidth", {
+            set: function (width) {
+                this.bg.width = width;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(SegmentButton.prototype, "backgroundHeight", {
+            set: function (height) {
+                this.bg.height = height;
             },
             enumerable: true,
             configurable: true

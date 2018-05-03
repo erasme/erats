@@ -5204,6 +5204,9 @@ declare namespace Ui {
         radius: number;
         spacing: number;
         background: Color | string;
+        backgroundMode: 'top' | 'bottom' | 'left' | 'right' | 'stretch';
+        backgroundWidth: number;
+        backgroundHeight: number;
         protected onDisable(): void;
         protected onEnable(): void;
     }
