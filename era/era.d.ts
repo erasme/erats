@@ -3036,6 +3036,7 @@ declare namespace Ui {
         static style: object;
     }
     interface DialogInit extends ContainerInit {
+        padding?: number;
         preferredWidth?: number;
         preferredHeight?: number;
         title?: string;
@@ -3075,6 +3076,7 @@ declare namespace Ui {
         getSelectionHandler(): Selection;
         preferredWidth: number;
         preferredHeight: number;
+        padding: number;
         open(): void;
         close(): void;
         onOpenTick(clock: any, progress: any, delta: any): void;

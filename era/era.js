@@ -14859,6 +14859,8 @@ var Ui;
             _this.drawing.addEventListener('keyup', function (e) { return _this.onKeyUp(e); });
             _this.shadow.pressed.connect(function (e) { return _this.onShadowPress(); });
             if (init) {
+                if (init.padding !== undefined)
+                    _this.padding = init.padding;
                 if (init.preferredWidth !== undefined)
                     _this.preferredWidth = init.preferredWidth;
                 if (init.preferredHeight !== undefined)
@@ -14893,6 +14895,16 @@ var Ui;
             set: function (height) {
                 this._preferredHeight = height;
                 this.invalidateMeasure();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Dialog.prototype, "padding", {
+            get: function () {
+                return this.contentBox.marginLeft;
+            },
+            set: function (padding) {
+                this.contentBox.margin = padding;
             },
             enumerable: true,
             configurable: true

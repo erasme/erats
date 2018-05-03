@@ -128,6 +128,7 @@ namespace Ui {
 	}
 
 	export interface DialogInit extends ContainerInit {
+		padding?: number;
 		preferredWidth?: number;
 		preferredHeight?: number;
 		title?: string;
@@ -217,6 +218,8 @@ namespace Ui {
 			this.shadow.pressed.connect((e) => this.onShadowPress());
 
 			if (init) {
+				if (init.padding !== undefined)
+					this.padding = init.padding;
 				if (init.preferredWidth !== undefined)
 					this.preferredWidth = init.preferredWidth;	
 				if (init.preferredHeight !== undefined)
@@ -249,6 +252,14 @@ namespace Ui {
 		set preferredHeight(height: number) {
 			this._preferredHeight = height;
 			this.invalidateMeasure();
+		}
+
+		get padding(): number {
+			return this.contentBox.marginLeft;
+		}
+
+		set padding(padding: number) {
+			this.contentBox.margin = padding;
 		}
 
 		open() {
