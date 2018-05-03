@@ -22588,12 +22588,16 @@ var Ui;
                 this._transition.run(this._current, this.next, this.transitionClock.progress);
         };
         TransitionBox.prototype.append = function (child) {
+            if (this.getChildPosition(child) != -1)
+                return;
             var content = new TransitionBoxContent();
             content.append(child);
             content.hide();
             _super.prototype.append.call(this, content);
         };
         TransitionBox.prototype.prepend = function (child) {
+            if (this.getChildPosition(child) != -1)
+                return;
             if (this._position !== -1)
                 this._position++;
             var content = new TransitionBoxContent();

@@ -4814,7 +4814,7 @@ declare namespace Ui {
         append(child: Element): void;
         prepend(child: Element): void;
         remove(child: any): void;
-        getChildPosition(child: any): number;
+        getChildPosition(child: Element): number;
     }
     class TransitionBoxContent extends LBox {
     }
