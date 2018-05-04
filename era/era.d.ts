@@ -4552,6 +4552,8 @@ declare namespace Ui {
     interface ListViewInit extends VBoxInit {
         headers?: HeaderDef[];
         scrolled?: boolean;
+        scrollVertical?: boolean;
+        scrollHorizontal?: boolean;
         selectionActions?: SelectionActions;
         onselected?: (event: {
             target: ListView;
@@ -4587,6 +4589,8 @@ declare namespace Ui {
         scroll: VBoxScrollingArea;
         selectionActions: SelectionActions;
         private _scrolled;
+        private _scrollVertical;
+        private _scrollHorizontal;
         vbox: VBox;
         vboxScroll: ScrollingArea;
         readonly selected: Core.Events<{
@@ -4607,6 +4611,8 @@ declare namespace Ui {
         }>;
         constructor(init?: ListViewInit);
         scrolled: boolean;
+        scrollVertical: boolean;
+        scrollHorizontal: boolean;
         showHeaders(): void;
         hideHeaders(): void;
         getSelectionActions(): SelectionActions;

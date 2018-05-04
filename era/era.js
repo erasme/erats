@@ -21695,6 +21695,8 @@ var Ui;
             _this.headersVisible = true;
             _this.sortInvert = false;
             _this._scrolled = true;
+            _this._scrollVertical = true;
+            _this._scrollHorizontal = true;
             _this.selected = new Core.Events();
             _this.unselected = new Core.Events();
             _this.activated = new Core.Events();
@@ -21732,6 +21734,10 @@ var Ui;
                     _this.headers = init.headers;
                 if (init.scrolled !== undefined)
                     _this.scrolled = init.scrolled;
+                if (init.scrollVertical !== undefined)
+                    _this.scrollVertical = init.scrollVertical;
+                if (init.scrollHorizontal !== undefined)
+                    _this.scrollHorizontal = init.scrollHorizontal;
                 if (init.selectionActions !== undefined)
                     _this.selectionActions = init.selectionActions;
                 if (init.onselected)
@@ -21747,11 +21753,28 @@ var Ui;
         }
         Object.defineProperty(ListView.prototype, "scrolled", {
             set: function (scrolled) {
-                if (this._scrolled !== (scrolled === true)) {
-                    this._scrolled = scrolled;
-                    this.headersScroll.scrollHorizontal = scrolled;
-                    this.vboxScroll.scrollVertical = scrolled;
-                    this.vboxScroll.scrollHorizontal = scrolled;
+                this.scrollVertical = scrolled;
+                this.scrollHorizontal = scrolled;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ListView.prototype, "scrollVertical", {
+            set: function (value) {
+                if (this._scrollVertical !== value) {
+                    this._scrollVertical = value;
+                    this.vboxScroll.scrollVertical = value;
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ListView.prototype, "scrollHorizontal", {
+            set: function (value) {
+                if (this._scrollHorizontal !== value) {
+                    this.headersScroll.scrollHorizontal = value;
+                    this._scrollHorizontal = value;
+                    this.vboxScroll.scrollHorizontal = value;
                 }
             },
             enumerable: true,
@@ -24242,6 +24265,7 @@ var Ui;
             background: 'rgba(240,240,240,1)',
             backgroundBorder: 'rgba(102,102,102,1)',
             backgroundMode: 'stretch',
+            backgroundSize: 5,
             foreground: '#444444',
             focusBackground: 'rgba(240,240,240,1)',
             focusBackgroundBorder: '#07a0e5',

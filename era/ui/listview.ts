@@ -353,6 +353,8 @@ namespace Ui {
 	export interface ListViewInit extends VBoxInit {
 		headers?: HeaderDef[];
 		scrolled?: boolean;
+		scrollVertical?: boolean;
+		scrollHorizontal?: boolean;
 		selectionActions?: SelectionActions;	
 		onselected?: (event: { target: ListView }) => void;
 		onunselected?: (event: { target: ListView }) => void;
@@ -378,6 +380,8 @@ namespace Ui {
 		scroll: VBoxScrollingArea;
 		selectionActions: SelectionActions;
 		private _scrolled: boolean = true;
+		private _scrollVertical: boolean = true;
+		private _scrollHorizontal: boolean = true;
 		vbox: VBox;
 		vboxScroll: ScrollingArea;
 
@@ -435,7 +439,11 @@ namespace Ui {
 				if (init.headers !== undefined)
 					this.headers = init.headers;
 				if (init.scrolled !== undefined)
-					this.scrolled = init.scrolled;	
+					this.scrolled = init.scrolled;
+				if (init.scrollVertical !== undefined)
+					this.scrollVertical = init.scrollVertical;
+				if (init.scrollHorizontal !== undefined)
+					this.scrollHorizontal = init.scrollHorizontal;
 				if (init.selectionActions !== undefined)
 					this.selectionActions = init.selectionActions;	
 				if (init.onselected)
@@ -450,22 +458,22 @@ namespace Ui {
 		}
 
 		set scrolled(scrolled : boolean) {
-			if (this._scrolled !== (scrolled === true)) {
-				this._scrolled = scrolled;
-				this.headersScroll.scrollHorizontal = scrolled;
-				this.vboxScroll.scrollVertical = scrolled;
-				this.vboxScroll.scrollHorizontal = scrolled;
-//				if (this._scrolled) {
-//					this.remove(this.vbox);
-//					this.scroll = new VBoxScrollingArea({ loader: this.dataLoader });
-//					this.append(this.scroll, true);
-//				}
-//				else {
-//					this.remove(this.scroll);
-//					this.vbox = new VBox();
-//					this.append(this.vbox, true);
-//					this.updateData(this._data);
-//				}
+			this.scrollVertical = scrolled;
+			this.scrollHorizontal = scrolled;
+		}
+
+		set scrollVertical(value : boolean) {
+			if (this._scrollVertical !== value) {
+				this._scrollVertical = value;
+				this.vboxScroll.scrollVertical = value;
+			}
+		}
+
+		set scrollHorizontal(value : boolean) {
+			if (this._scrollHorizontal !== value) {
+				this.headersScroll.scrollHorizontal = value;
+				this._scrollHorizontal = value;
+				this.vboxScroll.scrollHorizontal = value;
 			}
 		}
 
