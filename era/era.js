@@ -21574,9 +21574,13 @@ var Ui;
             _this.headers = init.headers;
             _this.data = init.data;
             _this.selectionActions = init.selectionActions;
+            if (init.height)
+                _this.height = init.height;
             _this.cells = [];
             _this.background = new Ui.Rectangle();
             _this.appendChild(_this.background);
+            _this.sep = new Ui.Rectangle({ verticalAlign: 'bottom', height: 1, fill: 'rgba(0,0,0,0.5)' });
+            _this.appendChild(_this.sep);
             for (var col = 0; col < _this.headers.length; col++) {
                 var key = _this.headers[col].key;
                 var cell = void 0;
@@ -21603,6 +21607,7 @@ var Ui;
         };
         ListViewRow.prototype.measureCore = function (width, height) {
             this.background.measure(width, height);
+            this.sep.measure(width, height);
             var minHeight = 0;
             var minWidth = 0;
             for (var col = 0; col < this.headers.length; col++) {
@@ -21617,6 +21622,7 @@ var Ui;
         };
         ListViewRow.prototype.arrangeCore = function (width, height) {
             this.background.arrange(0, 0, width, height);
+            this.sep.arrange(0, 0, width, height);
             var x = 0;
             for (var col = 0; col < this.headers.length; col++) {
                 var header = this.headers[col];
@@ -21631,8 +21637,10 @@ var Ui;
                 this.background.fill = this.getStyleProperty('selectColor');
             else
                 this.background.fill = this.getStyleProperty('color');
+            this.sep.fill = this.getStyleProperty('sepColor');
         };
         ListViewRow.style = {
+            sepColor: 'rgba(0,0,0,0.5)',
             color: new Ui.Color(0.99, 0.99, 0.99, 0.1),
             selectColor: new Ui.Color(0.88, 0.88, 0.88)
         };

@@ -199,6 +199,7 @@ namespace Ui {
 	}
 
 	export interface ListViewRowInit {
+		height?: number;
 		listView: ListView;
 		headers: HeaderDef[];
 		data: any;
@@ -210,6 +211,7 @@ namespace Ui {
 		data: any;
 		private cells: ListViewCell[];
 		private background: Rectangle;
+		private sep: Rectangle;
 		private selectionActions: SelectionActions;
 		readonly selectionWatcher: SelectionableWatcher;
 		listView: ListView;
@@ -220,10 +222,14 @@ namespace Ui {
 			this.headers = init.headers;
 			this.data = init.data;
 			this.selectionActions = init.selectionActions;
+			if (init.height)
+				this.height = init.height;
 			this.cells = [];
 
 			this.background = new Rectangle();
 			this.appendChild(this.background);
+			this.sep = new Rectangle({ verticalAlign: 'bottom', height: 1, fill: 'rgba(0,0,0,0.5)' });
+			this.appendChild(this.sep);
 			for (let  col = 0; col < this.headers.length; col++) {
 				let key = this.headers[col].key;
 				let cell;
@@ -253,6 +259,7 @@ namespace Ui {
 
 		protected measureCore(width: number, height: number) {
 			this.background.measure(width, height);
+			this.sep.measure(width, height);
 			let minHeight = 0;
 			let minWidth = 0;
 			for (let col = 0; col < this.headers.length; col++) {
@@ -268,6 +275,7 @@ namespace Ui {
 
 		protected arrangeCore(width: number, height: number) {
 			this.background.arrange(0, 0, width, height);
+			this.sep.arrange(0, 0, width, height);
 			let  x = 0;
 			for (let col = 0; col < this.headers.length; col++) {
 				let  header = this.headers[col];
@@ -283,9 +291,11 @@ namespace Ui {
 				this.background.fill = this.getStyleProperty('selectColor');
 			else
 				this.background.fill = this.getStyleProperty('color');
+			this.sep.fill = this.getStyleProperty('sepColor');
 		}
 		
 		static style: object = {
+			sepColor: 'rgba(0,0,0,0.5)',
 			color: new Color(0.99, 0.99, 0.99, 0.1),
 			selectColor: new Color(0.88, 0.88, 0.88)
 		}

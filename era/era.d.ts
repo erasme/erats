@@ -4505,6 +4505,7 @@ declare namespace Ui {
         protected arrangeCore(width: number, height: number): void;
     }
     interface ListViewRowInit {
+        height?: number;
         listView: ListView;
         headers: HeaderDef[];
         data: any;
@@ -4515,6 +4516,7 @@ declare namespace Ui {
         data: any;
         private cells;
         private background;
+        private sep;
         private selectionActions;
         readonly selectionWatcher: SelectionableWatcher;
         listView: ListView;
