@@ -21604,14 +21604,34 @@ var Ui;
             _this.selectionWatcher = new Ui.SelectionableWatcher({
                 element: _this,
                 selectionActions: _this.selectionActions,
-                onselected: function () { _this.selected.fire({ target: _this }); _this.onStyleChange(); },
-                onunselected: function () { _this.unselected.fire({ target: _this }); _this.onStyleChange(); }
+                onselected: function () {
+                    _this.selected.fire({ target: _this });
+                    _this.onStyleChange();
+                    if (_this.listView)
+                        _this.listView.onRowSelectionChanged();
+                },
+                onunselected: function () {
+                    _this.unselected.fire({ target: _this });
+                    _this.onStyleChange();
+                    if (_this.listView)
+                        _this.listView.onRowSelectionChanged();
+                }
             });
             return _this;
         }
         ListViewRow.prototype.getData = function () {
             return this.data;
         };
+        Object.defineProperty(ListViewRow.prototype, "isSelected", {
+            get: function () {
+                return this.selectionWatcher.isSelected;
+            },
+            set: function (value) {
+                this.selectionWatcher.isSelected = value;
+            },
+            enumerable: true,
+            configurable: true
+        });
         ListViewRow.prototype.measureCore = function (width, height) {
             this.background.measure(width, height);
             this.sep.measure(width, height);
@@ -21712,6 +21732,8 @@ var Ui;
             _this._scrolled = true;
             _this._scrollVertical = true;
             _this._scrollHorizontal = true;
+            _this._selectionChangedLock = false;
+            _this.selectionchanged = new Core.Events();
             _this.selected = new Core.Events();
             _this.unselected = new Core.Events();
             _this.activated = new Core.Events();
@@ -21763,6 +21785,8 @@ var Ui;
                     _this.activated.connect(init.onactivated);
                 if (init.onsortchanged)
                     _this.sortchanged.connect(init.onsortchanged);
+                if (init.onselectionchanged)
+                    _this.selectionchanged.connect(init.onselectionchanged);
             }
             return _this;
         }
@@ -21925,6 +21949,10 @@ var Ui;
                 }
             }
         };
+        ListView.prototype.onRowSelectionChanged = function () {
+            if (!this._selectionChangedLock)
+                this.selectionchanged.fire({ target: this });
+        };
         Object.defineProperty(ListView.prototype, "rows", {
             get: function () {
                 return this.vbox.children;
@@ -21932,6 +21960,37 @@ var Ui;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(ListView.prototype, "selectedRows", {
+            get: function () {
+                return this.rows.filter(function (value) { return value.isSelected; });
+            },
+            enumerable: true,
+            configurable: true
+        });
+        ListView.prototype.selectAll = function () {
+            var rows = this.rows;
+            if (rows.length > 0) {
+                var selection = Ui.Selectionable.getParentSelectionHandler(this);
+                if (selection) {
+                    this._selectionChangedLock = true;
+                    selection.elements = rows;
+                    this._selectionChangedLock = false;
+                    this.onRowSelectionChanged();
+                }
+            }
+        };
+        ListView.prototype.unselectAll = function () {
+            var rows = this.selectedRows;
+            if (rows.length > 0) {
+                var selection = Ui.Selectionable.getParentSelectionHandler(this);
+                if (selection) {
+                    this._selectionChangedLock = true;
+                    selection.elements = selection.elements.filter(function (v) { return !(v instanceof ListViewRow) || (rows.indexOf(v) == -1); });
+                    this._selectionChangedLock = false;
+                    this.onRowSelectionChanged();
+                }
+            }
+        };
         return ListView;
     }(Ui.VBox));
     Ui.ListView = ListView;
@@ -21998,6 +22057,7 @@ var Ui;
             var _this = _super.call(this) || this;
             _this.headerHeight = 0;
             _this.header = header;
+            _this.headerDef = headerDef;
             _this.grip = new Ui.Movable({ moveVertical: false });
             _this.appendChild(_this.grip);
             _this.grip.moved.connect(function () { return _this.onMove(); });
@@ -22006,6 +22066,7 @@ var Ui;
             _this.grip.content = lbox;
             lbox.append(new Ui.Rectangle({ width: 1, opacity: 0.2, fill: 'black', marginLeft: 14, marginRight: 8 + 2, marginTop: 6, marginBottom: 6 }));
             lbox.append(new Ui.Rectangle({ width: 1, opacity: 0.2, fill: 'black', marginLeft: 19, marginRight: 3 + 2, marginTop: 6, marginBottom: 6 }));
+            console.log("ListViewColBar resizable " + headerDef.resizable);
             if (headerDef.resizable === false)
                 _this.grip.hide(true);
             _this.separator = new Ui.Rectangle({ width: 1, fill: 'black', opacity: 0.3 });
@@ -22039,11 +22100,13 @@ var Ui;
         };
         ListViewColBar.prototype.onDisable = function () {
             _super.prototype.onDisable.call(this);
-            this.grip.hide();
+            if (this.headerDef.resizable !== false)
+                this.grip.hide();
         };
         ListViewColBar.prototype.onEnable = function () {
             _super.prototype.onEnable.call(this);
-            this.grip.show();
+            if (this.headerDef.resizable !== false)
+                this.grip.show();
         };
         return ListViewColBar;
     }(Ui.Container));

@@ -4529,6 +4529,7 @@ declare namespace Ui {
         }>;
         constructor(init: ListViewRowInit);
         getData(): object;
+        isSelected: boolean;
         protected measureCore(width: number, height: number): {
             width: number;
             height: number;
@@ -4564,6 +4565,9 @@ declare namespace Ui {
         scrollVertical?: boolean;
         scrollHorizontal?: boolean;
         selectionActions?: SelectionActions;
+        onselectionchanged?: (event: {
+            target: ListView;
+        }) => void;
         onselected?: (event: {
             target: ListView;
         }) => void;
@@ -4602,6 +4606,10 @@ declare namespace Ui {
         private _scrollHorizontal;
         vbox: VBox;
         vboxScroll: ScrollingArea;
+        private _selectionChangedLock;
+        readonly selectionchanged: Core.Events<{
+            target: ListView;
+        }>;
         readonly selected: Core.Events<{
             target: ListView;
         }>;
@@ -4639,7 +4647,11 @@ declare namespace Ui {
         onHeaderPress(header: any, key: any): void;
         onSelectionEdit(selection: Selection): void;
         protected onChildInvalidateArrange(child: Element): void;
+        onRowSelectionChanged(): void;
         readonly rows: Array<ListViewRow>;
+        readonly selectedRows: Array<ListViewRow>;
+        selectAll(): void;
+        unselectAll(): void;
     }
     class ListViewCell extends LBox {
         value: any;
@@ -4666,6 +4678,7 @@ declare namespace Ui {
     class ListViewColBar extends Container {
         headerHeight: number;
         header: ListViewHeader;
+        headerDef: HeaderDef;
         grip: Movable;
         separator: Rectangle;
         constructor(header: ListViewHeader, headerDef: HeaderDef);

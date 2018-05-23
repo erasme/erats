@@ -252,8 +252,18 @@ namespace Ui {
 			this.selectionWatcher = new SelectionableWatcher({
 				element: this,
 				selectionActions: this.selectionActions,
-				onselected: () => { this.selected.fire({ target: this }); this.onStyleChange(); },
-				onunselected: () => { this.unselected.fire({ target: this }); this.onStyleChange(); }
+				onselected: () => {
+					this.selected.fire({ target: this });
+					this.onStyleChange();
+					if (this.listView)
+						this.listView.onRowSelectionChanged();
+				},
+				onunselected: () => {
+					this.unselected.fire({ target: this });
+					this.onStyleChange();
+					if (this.listView)
+						this.listView.onRowSelectionChanged();
+				}
 			});
 			
 		}
@@ -262,6 +272,14 @@ namespace Ui {
 			return this.data;
 		}
 
+		get isSelected(): boolean {
+			return this.selectionWatcher.isSelected;
+		}
+
+		set isSelected(value: boolean) {
+			this.selectionWatcher.isSelected = value;
+		}
+		
 		protected measureCore(width: number, height: number) {
 			this.background.measure(width, height);
 			this.sep.measure(width, height);
@@ -371,6 +389,7 @@ namespace Ui {
 		scrollVertical?: boolean;
 		scrollHorizontal?: boolean;
 		selectionActions?: SelectionActions;	
+		onselectionchanged?: (event: { target: ListView }) => void;
 		onselected?: (event: { target: ListView }) => void;
 		onunselected?: (event: { target: ListView }) => void;
 		onactivated?: (event: { target: ListView, position: number, value: any }) => void;
@@ -400,6 +419,8 @@ namespace Ui {
 		vbox: VBox;
 		vboxScroll: ScrollingArea;
 
+		private _selectionChangedLock = false;
+		readonly selectionchanged = new Core.Events<{ target: ListView }>();
 		readonly selected = new Core.Events<{ target: ListView }>();
 		readonly unselected = new Core.Events<{ target: ListView }>();
 		readonly activated = new Core.Events<{ target: ListView, position: number, value: any }>();
@@ -469,6 +490,8 @@ namespace Ui {
 					this.activated.connect(init.onactivated);
 				if (init.onsortchanged)
 					this.sortchanged.connect(init.onsortchanged);	
+				if (init.onselectionchanged)
+					this.selectionchanged.connect(init.onselectionchanged);	
 			}
 		}
 
@@ -663,8 +686,44 @@ namespace Ui {
 			}
 		}
 
+		// internal
+		onRowSelectionChanged() {
+			if (!this._selectionChangedLock)
+				this.selectionchanged.fire({ target: this });
+		}
+
 		get rows(): Array<ListViewRow> {
 			return this.vbox.children as Array<ListViewRow>;
+		}
+
+		get selectedRows(): Array<ListViewRow> {
+			return this.rows.filter((value) => value.isSelected);
+		}
+
+		selectAll() {
+			let rows = this.rows;
+			if (rows.length > 0) {
+				let selection = Selectionable.getParentSelectionHandler(this);
+				if (selection) {
+					this._selectionChangedLock = true;
+					selection.elements = rows;
+					this._selectionChangedLock = false;
+					this.onRowSelectionChanged();
+				}
+			}
+		}
+
+		unselectAll() {
+			let rows = this.selectedRows;
+			if (rows.length > 0) {
+				let selection = Selectionable.getParentSelectionHandler(this);
+				if (selection) {
+					this._selectionChangedLock = true;
+					selection.elements = selection.elements.filter((v) => !(v instanceof ListViewRow) || (rows.indexOf(v) == -1));
+					this._selectionChangedLock = false;
+					this.onRowSelectionChanged();
+				}
+			}
 		}
 	}
 
@@ -742,12 +801,14 @@ namespace Ui {
 	export class ListViewColBar extends Container {
 		headerHeight: number = 0;
 		header: ListViewHeader;
+		headerDef: HeaderDef;
 		grip: Movable;
 		separator: Rectangle;
 
 		constructor(header: ListViewHeader, headerDef: HeaderDef) {
 			super();
 			this.header = header;
+			this.headerDef = headerDef;
 			this.grip = new Movable({ moveVertical: false });
 			this.appendChild(this.grip);
 			this.grip.moved.connect(() => this.onMove());
@@ -757,6 +818,7 @@ namespace Ui {
 			this.grip.content = lbox;
 			lbox.append(new Rectangle({ width: 1, opacity: 0.2, fill: 'black', marginLeft: 14, marginRight: 8 + 2, marginTop: 6, marginBottom: 6 }));
 			lbox.append(new Rectangle({ width: 1, opacity: 0.2, fill: 'black', marginLeft: 19, marginRight: 3 + 2, marginTop: 6, marginBottom: 6 }));
+			console.log(`ListViewColBar resizable ${headerDef.resizable}`);
 			if (headerDef.resizable === false)
 				this.grip.hide(true);
 
@@ -797,12 +859,14 @@ namespace Ui {
 
 		protected onDisable() {
 			super.onDisable();
-			this.grip.hide();
+			if (this.headerDef.resizable !== false)
+				this.grip.hide();
 		}
 
 		protected onEnable() {
 			super.onEnable();
-			this.grip.show();
+			if (this.headerDef.resizable !== false)
+				this.grip.show();
 		}
 	}
 }
