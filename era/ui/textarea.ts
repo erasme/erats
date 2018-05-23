@@ -140,6 +140,7 @@ namespace Ui {
 			if (this.drawing.value != this._value) {
 				this._value = this.drawing.value;
 				this.changed.fire({ target: this, value: this._value });
+				this.invalidateMeasure();
 			}
 		}
 	
