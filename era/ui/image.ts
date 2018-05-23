@@ -45,15 +45,18 @@ namespace Ui
 		// ready event is fired and getIsReady return true.
 		//
 		set src(src: string | undefined) {
-			if (src === undefined)
-				throw ('Image src cant be undefined');
+			//if (src === undefined)
+			//	throw ('Image src cant be undefined');
 	
 			this.setSrcLock = true;
 			this.loaddone = false;
 			this._naturalWidth = undefined;
 			this._naturalHeight = undefined;
 			this._src = src;
-			this.imageDrawing.setAttribute('src', src);
+			if (src === undefined)
+				this.imageDrawing.removeAttribute('src');
+			else
+				this.imageDrawing.setAttribute('src', src);
 			if ((this.imageDrawing.complete === true) && !this.loaddone) {
 				this.loaddone = true;
 				this._naturalWidth = this.imageDrawing.naturalWidth;
