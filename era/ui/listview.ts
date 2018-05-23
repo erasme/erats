@@ -3,18 +3,19 @@ namespace Ui {
 	export interface HeaderDef {
 		width?: number;
 		type: string;
-		title: string;
+		title: string | Element;
 		key?: string;
 		colWidth?: number;
 		ui?: typeof ListViewCell;
+		resizable?: boolean;
 	}
 
 	export interface ListViewHeaderInit extends PressableInit {
-		title?: string;
+		title?: string | Element;
 	}
 
 	export class ListViewHeader extends Pressable {
-		protected _title: string;
+		protected _title: string | Element;
 		protected uiTitle: Label;
 		protected background: Rectangle;
 
@@ -33,14 +34,19 @@ namespace Ui {
 			}
 		}
 
-		get title(): string {
+		get title(): string | Element {
 			return this._title;
 		}
 
-		set title(title: string) {
+		set title(title: string | Element) {
 			if (this._title !== title) {
+				if (this._title instanceof Element)
+					this.remove(this._title);
 				this._title = title;
-				this.uiTitle.text = title;
+				if (typeof(title) == 'string')
+					this.uiTitle.text = title;
+				else if (title instanceof Element)
+					this.append(title);
 			}
 		}
 
@@ -104,7 +110,7 @@ namespace Ui {
 				header.colWidth = header.width;
 				this.appendChild(header['Ui.ListViewHeadersBar.ui']);
 
-				let  col = new ListViewColBar(headerUi);
+				let  col = new ListViewColBar(headerUi, header);
 				this.cols.push(col);
 				this.appendChild(col);
 			}
@@ -132,14 +138,11 @@ namespace Ui {
 			let key: string;
 			for (let col = 0; col < this.headers.length; col++) {
 				let  h = this.headers[col];
-				if (h['Ui.ListViewHeadersBar.ui'] === header) {
+				if (h['Ui.ListViewHeadersBar.ui'] === header)
 					key = h.key;
-				}
 			}
-			if (key !== undefined) {
+			if (key !== undefined)
 				this.headerpressed.fire({ target: this, key: key });
-
-			}
 		}
 	
 		protected measureCore(width: number, height: number) {
@@ -215,6 +218,8 @@ namespace Ui {
 		private selectionActions: SelectionActions;
 		readonly selectionWatcher: SelectionableWatcher;
 		listView: ListView;
+		readonly selected = new Core.Events<{ target: ListViewRow }>();
+		readonly unselected = new Core.Events<{ target: ListViewRow }>();
 
 		constructor(init: ListViewRowInit) {
 			super();
@@ -232,7 +237,7 @@ namespace Ui {
 			this.appendChild(this.sep);
 			for (let  col = 0; col < this.headers.length; col++) {
 				let key = this.headers[col].key;
-				let cell;
+				let cell : ListViewCell;
 				if (this.headers[col].ui !== undefined)
 					cell = new this.headers[col].ui();
 				else
@@ -247,8 +252,8 @@ namespace Ui {
 			this.selectionWatcher = new SelectionableWatcher({
 				element: this,
 				selectionActions: this.selectionActions,
-				onselected: () => this.onStyleChange(),
-				onunselected: () => this.onStyleChange()
+				onselected: () => { this.selected.fire({ target: this }); this.onStyleChange(); },
+				onunselected: () => { this.unselected.fire({ target: this }); this.onStyleChange(); }
 			});
 			
 		}
@@ -657,6 +662,10 @@ namespace Ui {
 					item.invalidateArrange();
 			}
 		}
+
+		get rows(): Array<ListViewRow> {
+			return this.vbox.children as Array<ListViewRow>;
+		}
 	}
 
 	export class ListViewCell extends LBox {
@@ -736,7 +745,7 @@ namespace Ui {
 		grip: Movable;
 		separator: Rectangle;
 
-		constructor(header: ListViewHeader) {
+		constructor(header: ListViewHeader, headerDef: HeaderDef) {
 			super();
 			this.header = header;
 			this.grip = new Movable({ moveVertical: false });
@@ -748,6 +757,8 @@ namespace Ui {
 			this.grip.content = lbox;
 			lbox.append(new Rectangle({ width: 1, opacity: 0.2, fill: 'black', marginLeft: 14, marginRight: 8 + 2, marginTop: 6, marginBottom: 6 }));
 			lbox.append(new Rectangle({ width: 1, opacity: 0.2, fill: 'black', marginLeft: 19, marginRight: 3 + 2, marginTop: 6, marginBottom: 6 }));
+			if (headerDef.resizable === false)
+				this.grip.hide(true);
 
 			this.separator = new Rectangle({ width: 1, fill: 'black', opacity: 0.3 });
 			this.appendChild(this.separator);

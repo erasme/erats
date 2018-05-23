@@ -17270,6 +17270,7 @@ var Ui;
             if (this.drawing.value != this._value) {
                 this._value = this.drawing.value;
                 this.changed.fire({ target: this, value: this._value });
+                this.invalidateMeasure();
             }
         };
         TextArea.prototype.onChange = function (event) {
@@ -21426,8 +21427,13 @@ var Ui;
             },
             set: function (title) {
                 if (this._title !== title) {
+                    if (this._title instanceof Ui.Element)
+                        this.remove(this._title);
                     this._title = title;
-                    this.uiTitle.text = title;
+                    if (typeof (title) == 'string')
+                        this.uiTitle.text = title;
+                    else if (title instanceof Ui.Element)
+                        this.append(title);
                 }
             },
             enumerable: true,
@@ -21480,7 +21486,7 @@ var Ui;
                 header['Ui.ListViewHeadersBar.ui'] = headerUi;
                 header.colWidth = header.width;
                 this_3.appendChild(header['Ui.ListViewHeadersBar.ui']);
-                var col = new ListViewColBar(headerUi);
+                var col = new ListViewColBar(headerUi, header);
                 this_3.cols.push(col);
                 this_3.appendChild(col);
             };
@@ -21509,13 +21515,11 @@ var Ui;
             var key;
             for (var col = 0; col < this.headers.length; col++) {
                 var h = this.headers[col];
-                if (h['Ui.ListViewHeadersBar.ui'] === header) {
+                if (h['Ui.ListViewHeadersBar.ui'] === header)
                     key = h.key;
-                }
             }
-            if (key !== undefined) {
+            if (key !== undefined)
                 this.headerpressed.fire({ target: this, key: key });
-            }
         };
         ListViewHeadersBar.prototype.measureCore = function (width, height) {
             this.rowsHeight = 0;
@@ -21570,6 +21574,8 @@ var Ui;
         __extends(ListViewRow, _super);
         function ListViewRow(init) {
             var _this = _super.call(this) || this;
+            _this.selected = new Core.Events();
+            _this.unselected = new Core.Events();
             _this.listView = init.listView;
             _this.headers = init.headers;
             _this.data = init.data;
@@ -21597,8 +21603,8 @@ var Ui;
             _this.selectionWatcher = new Ui.SelectionableWatcher({
                 element: _this,
                 selectionActions: _this.selectionActions,
-                onselected: function () { return _this.onStyleChange(); },
-                onunselected: function () { return _this.onStyleChange(); }
+                onselected: function () { _this.selected.fire({ target: _this }); _this.onStyleChange(); },
+                onunselected: function () { _this.unselected.fire({ target: _this }); _this.onStyleChange(); }
             });
             return _this;
         }
@@ -21918,6 +21924,13 @@ var Ui;
                 }
             }
         };
+        Object.defineProperty(ListView.prototype, "rows", {
+            get: function () {
+                return this.vbox.children;
+            },
+            enumerable: true,
+            configurable: true
+        });
         return ListView;
     }(Ui.VBox));
     Ui.ListView = ListView;
@@ -21980,7 +21993,7 @@ var Ui;
     Ui.ListViewCellString = ListViewCellString;
     var ListViewColBar = (function (_super) {
         __extends(ListViewColBar, _super);
-        function ListViewColBar(header) {
+        function ListViewColBar(header, headerDef) {
             var _this = _super.call(this) || this;
             _this.headerHeight = 0;
             _this.header = header;
@@ -21992,6 +22005,8 @@ var Ui;
             _this.grip.content = lbox;
             lbox.append(new Ui.Rectangle({ width: 1, opacity: 0.2, fill: 'black', marginLeft: 14, marginRight: 8 + 2, marginTop: 6, marginBottom: 6 }));
             lbox.append(new Ui.Rectangle({ width: 1, opacity: 0.2, fill: 'black', marginLeft: 19, marginRight: 3 + 2, marginTop: 6, marginBottom: 6 }));
+            if (headerDef.resizable === false)
+                _this.grip.hide(true);
             _this.separator = new Ui.Rectangle({ width: 1, fill: 'black', opacity: 0.3 });
             _this.appendChild(_this.separator);
             return _this;

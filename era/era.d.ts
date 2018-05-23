@@ -4460,20 +4460,21 @@ declare namespace Ui {
     interface HeaderDef {
         width?: number;
         type: string;
-        title: string;
+        title: string | Element;
         key?: string;
         colWidth?: number;
         ui?: typeof ListViewCell;
+        resizable?: boolean;
     }
     interface ListViewHeaderInit extends PressableInit {
-        title?: string;
+        title?: string | Element;
     }
     class ListViewHeader extends Pressable {
-        protected _title: string;
+        protected _title: string | Element;
         protected uiTitle: Label;
         protected background: Rectangle;
         constructor(init?: ListViewHeaderInit);
-        title: string;
+        title: string | Element;
         protected getColor(): Color;
         protected getColorDown(): Color;
         protected onListViewHeaderDown(): void;
@@ -4520,6 +4521,12 @@ declare namespace Ui {
         private selectionActions;
         readonly selectionWatcher: SelectionableWatcher;
         listView: ListView;
+        readonly selected: Core.Events<{
+            target: ListViewRow;
+        }>;
+        readonly unselected: Core.Events<{
+            target: ListViewRow;
+        }>;
         constructor(init: ListViewRowInit);
         getData(): object;
         protected measureCore(width: number, height: number): {
@@ -4632,6 +4639,7 @@ declare namespace Ui {
         onHeaderPress(header: any, key: any): void;
         onSelectionEdit(selection: Selection): void;
         protected onChildInvalidateArrange(child: Element): void;
+        readonly rows: Array<ListViewRow>;
     }
     class ListViewCell extends LBox {
         value: any;
@@ -4660,7 +4668,7 @@ declare namespace Ui {
         header: ListViewHeader;
         grip: Movable;
         separator: Rectangle;
-        constructor(header: ListViewHeader);
+        constructor(header: ListViewHeader, headerDef: HeaderDef);
         setHeader(header: any): void;
         setHeaderHeight(height: any): void;
         protected onMove(): void;
