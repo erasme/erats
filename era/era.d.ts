@@ -908,7 +908,7 @@ declare namespace Ui {
         private mergeStyles();
         getIsChildOf(parent: Element): boolean;
         parent: Element | undefined;
-        getParentByClass(classFunc: Function): Element;
+        getParentByClass<T extends Ui.Element>(classFunc: new () => T): T | undefined;
         setParentStyle(parentStyle: object | undefined): void;
         style: object | undefined;
         setStyleProperty(property: string, value: any): void;
@@ -3734,76 +3734,6 @@ declare namespace Ui {
     }
 }
 declare namespace Ui {
-    interface ComboInit extends ButtonInit {
-        placeHolder?: string;
-        field?: string;
-        data?: any[];
-        position?: number;
-        current?: any;
-        search?: boolean;
-        onchanged?: (event: {
-            target: Combo;
-            value: any;
-            position: number;
-        }) => void;
-    }
-    class Combo extends Button implements ComboInit {
-        private _field;
-        private _data;
-        private _position;
-        private _current;
-        private _placeHolder;
-        sep: undefined;
-        arrowbottom: Icon;
-        search: boolean;
-        readonly changed: Core.Events<{
-            target: Combo;
-            value: any;
-            position: number;
-        }>;
-        constructor(init?: ComboInit);
-        placeHolder: string;
-        field: string;
-        data: any[];
-        position: number;
-        current: any;
-        readonly value: any;
-        protected onItemPress(popup: any, item: any, position: any): void;
-        protected onPress(): void;
-        protected updateColors(): void;
-        protected onDisable(): void;
-        protected onEnable(): void;
-        static style: object;
-    }
-    interface ComboPopupInit extends MenuPopupInit {
-        search?: boolean;
-        field?: string;
-        data?: any[];
-        position?: number;
-    }
-    class ComboPopup extends MenuPopup {
-        private list;
-        private _data;
-        private _field;
-        private searchField;
-        readonly item: Core.Events<{
-            target: ComboPopup;
-            item: ComboItem;
-            position: number;
-        }>;
-        constructor(init?: ComboPopupInit);
-        private onSearchChange(field, value);
-        search: boolean;
-        field: string;
-        data: any[];
-        position: number;
-        protected onItemPress(item: ComboItem): void;
-    }
-    class ComboItem extends Button {
-        static style: object;
-    }
-}
-declare namespace Ui {
     interface PanedInit extends ContainerInit {
         orientation?: Orientation;
         pos?: number;
@@ -4454,6 +4384,76 @@ declare namespace Ui {
         private onPtrUp(watcher);
         private onPtrMove(watcher);
         private onKeyDown(event);
+    }
+}
+declare namespace Ui {
+    interface ComboInit extends ButtonInit {
+        placeHolder?: string;
+        field?: string;
+        data?: any[];
+        position?: number;
+        current?: any;
+        search?: boolean;
+        onchanged?: (event: {
+            target: Combo;
+            value: any;
+            position: number;
+        }) => void;
+    }
+    class Combo extends Button implements ComboInit {
+        private _field;
+        private _data;
+        private _position;
+        private _current;
+        private _placeHolder;
+        sep: undefined;
+        arrowbottom: Icon;
+        search: boolean;
+        readonly changed: Core.Events<{
+            target: Combo;
+            value: any;
+            position: number;
+        }>;
+        constructor(init?: ComboInit);
+        placeHolder: string;
+        field: string;
+        data: any[];
+        position: number;
+        current: any;
+        readonly value: any;
+        protected onItemPress(popup: any, item: any, position: any): void;
+        protected onPress(): void;
+        protected updateColors(): void;
+        protected onDisable(): void;
+        protected onEnable(): void;
+        static style: object;
+    }
+    interface ComboPopupInit extends MenuPopupInit {
+        search?: boolean;
+        field?: string;
+        data?: any[];
+        position?: number;
+    }
+    class ComboPopup extends MenuPopup {
+        private list;
+        private _data;
+        private _field;
+        private searchField;
+        readonly item: Core.Events<{
+            target: ComboPopup;
+            item: ComboItem;
+            position: number;
+        }>;
+        constructor(init?: ComboPopupInit);
+        private onSearchChange(field, value);
+        search: boolean;
+        field: string;
+        data: any[];
+        position: number;
+        protected onItemPress(item: ComboItem): void;
+    }
+    class ComboItem extends Button {
+        static style: object;
     }
 }
 declare namespace Ui {

@@ -6,7 +6,7 @@ namespace Ui {
 		position?: number;
 		current?: any;
 		search?: boolean;
-		onchanged?: (event: { target: Combo, value: any, position: number}) => void;
+		onchanged?: (event: { target: Combo, value: any, position: number }) => void;
 	}
 
 	export class Combo extends Button implements ComboInit {
@@ -18,7 +18,7 @@ namespace Ui {
 		sep: undefined;
 		arrowbottom: Icon;
 		search: boolean;
-		readonly changed = new Core.Events<{ target: Combo, value: any, position: number}>();
+		readonly changed = new Core.Events<{ target: Combo, value: any, position: number }>();
 
 		/**
 		 * @constructs
@@ -38,7 +38,7 @@ namespace Ui {
 
 			this.marker = new Ui.VBox({
 				verticalAlign: 'center', marginRight: 5,
-				content: [ this.arrowbottom ]
+				content: [this.arrowbottom]
 			});
 			if (init) {
 				if (init.placeHolder !== undefined)
@@ -46,11 +46,11 @@ namespace Ui {
 				if (init.field !== undefined)
 					this.field = init.field;
 				if (init.data !== undefined)
-					this.data = init.data;	
+					this.data = init.data;
 				if (init.position !== undefined)
 					this.position = init.position;
 				if (init.current !== undefined)
-					this.current = init.current;	
+					this.current = init.current;
 				if (init.search !== undefined)
 					this.search = init.search;
 				if (init.onchanged)
@@ -73,7 +73,7 @@ namespace Ui {
 		set data(data: any[]) {
 			this._data = data;
 		}
-	
+
 		get data(): any[] {
 			return this._data;
 		}
@@ -100,7 +100,7 @@ namespace Ui {
 		get current(): any {
 			return this._current;
 		}
-	
+
 		get value(): any {
 			return this._current;
 		}
@@ -118,7 +118,7 @@ namespace Ui {
 			if (position != -1)
 				this.position = position;
 		}
-	
+
 		protected onItemPress(popup, item, position) {
 			this.position = position;
 		}
@@ -168,7 +168,7 @@ namespace Ui {
 
 		constructor(init?: ComboPopupInit) {
 			super(init);
-			this.autoClose =true;
+			this.autoClose = true;
 
 			let vbox = new VBox();
 			this.searchField = new TextField({ textHolder: 'Recherche', margin: 5 });
@@ -185,12 +185,12 @@ namespace Ui {
 				if (init.search !== undefined)
 					this.search = init.search;
 				if (init.field !== undefined)
-					this.field = init.field;	
+					this.field = init.field;
 				if (init.data !== undefined)
-					this.data = init.data;	
+					this.data = init.data;
 				if (init.position !== undefined)
 					this.position = init.position;
-			}	
+			}
 		}
 
 		private onSearchChange(field: TextField, value: string) {
@@ -246,7 +246,7 @@ namespace Ui {
 		set position(position: number) {
 			(this.list.children[position] as ComboItem).isActive = true;
 		}
-	
+
 		protected onItemPress(item: ComboItem) {
 			let position = -1;
 			for (let i = 0; i < this.list.children.length; i++) {
@@ -267,5 +267,5 @@ namespace Ui {
 			textAlign: 'left'
 		}
 	}
-}	
-	
+}
+

@@ -4294,7 +4294,7 @@ var Ui;
         Element.prototype.getParentByClass = function (classFunc) {
             var current = this.parent;
             while (current != undefined) {
-                if (current.constructor === classFunc)
+                if (current.constructor == classFunc)
                     return current;
                 current = current.parent;
             }
@@ -18103,269 +18103,6 @@ var Ui;
 })(Ui || (Ui = {}));
 var Ui;
 (function (Ui) {
-    var Combo = (function (_super) {
-        __extends(Combo, _super);
-        function Combo(init) {
-            var _this = _super.call(this, init) || this;
-            _this._position = -1;
-            _this._placeHolder = '...';
-            _this.changed = new Core.Events();
-            _this.text = '';
-            _this.arrowbottom = new Ui.Icon({ icon: 'arrowbottom', width: 16, height: 16 });
-            _this.marker = new Ui.VBox({
-                verticalAlign: 'center', marginRight: 5,
-                content: [_this.arrowbottom]
-            });
-            if (init) {
-                if (init.placeHolder !== undefined)
-                    _this.placeHolder = init.placeHolder;
-                if (init.field !== undefined)
-                    _this.field = init.field;
-                if (init.data !== undefined)
-                    _this.data = init.data;
-                if (init.position !== undefined)
-                    _this.position = init.position;
-                if (init.current !== undefined)
-                    _this.current = init.current;
-                if (init.search !== undefined)
-                    _this.search = init.search;
-                if (init.onchanged)
-                    _this.changed.connect(init.onchanged);
-            }
-            return _this;
-        }
-        Object.defineProperty(Combo.prototype, "placeHolder", {
-            set: function (placeHolder) {
-                this._placeHolder = placeHolder;
-                if (this._position === -1)
-                    this.text = this._placeHolder;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Combo.prototype, "field", {
-            set: function (field) {
-                this._field = field;
-                if (this._data !== undefined)
-                    this.data = this._data;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Combo.prototype, "data", {
-            get: function () {
-                return this._data;
-            },
-            set: function (data) {
-                this._data = data;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Combo.prototype, "position", {
-            get: function () {
-                return this._position;
-            },
-            set: function (position) {
-                if (position === -1) {
-                    this._position = -1;
-                    this._current = undefined;
-                    this.text = this._placeHolder;
-                    this.changed.fire({ target: this, value: this._current, position: this._position });
-                }
-                else if ((position >= 0) && (position < this._data.length)) {
-                    this._current = this._data[position];
-                    this._position = position;
-                    this.text = this._current[this._field];
-                    this.changed.fire({ target: this, value: this._current, position: this._position });
-                }
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Combo.prototype, "current", {
-            get: function () {
-                return this._current;
-            },
-            set: function (current) {
-                if (current == undefined)
-                    this.position = -1;
-                var position = -1;
-                for (var i = 0; i < this._data.length; i++) {
-                    if (this._data[i] == current) {
-                        position = i;
-                        break;
-                    }
-                }
-                if (position != -1)
-                    this.position = position;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Combo.prototype, "value", {
-            get: function () {
-                return this._current;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Combo.prototype.onItemPress = function (popup, item, position) {
-            this.position = position;
-        };
-        Combo.prototype.onPress = function () {
-            var _this = this;
-            var popup = new Ui.ComboPopup({ field: this._field, data: this._data, search: this.search });
-            if (this._position !== -1)
-                popup.position = this._position;
-            popup.item.connect(function (e) { return _this.onItemPress(e.target, e.item, e.position); });
-            popup.openElement(this, 'bottom');
-        };
-        Combo.prototype.updateColors = function () {
-            _super.prototype.updateColors.call(this);
-            this.arrowbottom.fill = this.getForegroundColor();
-        };
-        Combo.prototype.onDisable = function () {
-            _super.prototype.onDisable.call(this);
-            this.arrowbottom.opacity = 0.1;
-        };
-        Combo.prototype.onEnable = function () {
-            _super.prototype.onEnable.call(this);
-            this.arrowbottom.opacity = 1;
-        };
-        Combo.style = {
-            textTransform: 'none',
-            textAlign: 'left'
-        };
-        return Combo;
-    }(Ui.Button));
-    Ui.Combo = Combo;
-    var ComboPopup = (function (_super) {
-        __extends(ComboPopup, _super);
-        function ComboPopup(init) {
-            var _this = _super.call(this, init) || this;
-            _this.item = new Core.Events();
-            _this.autoClose = true;
-            var vbox = new Ui.VBox();
-            _this.searchField = new Ui.TextField({ textHolder: 'Recherche', margin: 5 });
-            _this.searchField.hide(true);
-            _this.searchField.changed.connect(function (e) { return _this.onSearchChange(e.target, e.value); });
-            vbox.append(_this.searchField);
-            _this.content = vbox;
-            _this.list = new Ui.VBox();
-            vbox.append(_this.list);
-            if (init) {
-                if (init.search !== undefined)
-                    _this.search = init.search;
-                if (init.field !== undefined)
-                    _this.field = init.field;
-                if (init.data !== undefined)
-                    _this.data = init.data;
-                if (init.position !== undefined)
-                    _this.position = init.position;
-            }
-            return _this;
-        }
-        ComboPopup.prototype.onSearchChange = function (field, value) {
-            this.list.children.forEach(function (item) {
-                if (value == '')
-                    item.show();
-                else {
-                    var text = Core.Util.toNoDiacritics(item.text).toLocaleLowerCase();
-                    var search = Core.Util.toNoDiacritics(value).toLowerCase().split(' ');
-                    if (search.length == 0)
-                        item.show();
-                    else {
-                        var match = true;
-                        for (var i = 0; match && (i < search.length); i++) {
-                            var word = search[i];
-                            match = (text.indexOf(word) != -1);
-                        }
-                        if (match)
-                            item.show();
-                        else
-                            item.hide(true);
-                    }
-                }
-            });
-        };
-        Object.defineProperty(ComboPopup.prototype, "search", {
-            set: function (value) {
-                if (value)
-                    this.searchField.show();
-                else
-                    this.searchField.hide(true);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(ComboPopup.prototype, "field", {
-            set: function (field) {
-                this._field = field;
-                if (this._data !== undefined)
-                    this.data = this._data;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(ComboPopup.prototype, "data", {
-            set: function (data) {
-                var _this = this;
-                this._data = data;
-                if (this._field === undefined)
-                    return;
-                var _loop_1 = function (i) {
-                    var item = new ComboItem({
-                        text: data[i][this_1._field],
-                        onpressed: function () { return _this.onItemPress(item); }
-                    });
-                    this_1.list.append(item);
-                };
-                var this_1 = this;
-                for (var i = 0; i < data.length; i++) {
-                    _loop_1(i);
-                }
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(ComboPopup.prototype, "position", {
-            set: function (position) {
-                this.list.children[position].isActive = true;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        ComboPopup.prototype.onItemPress = function (item) {
-            var position = -1;
-            for (var i = 0; i < this.list.children.length; i++) {
-                if (this.list.children[i] == item) {
-                    position = i;
-                    break;
-                }
-            }
-            this.item.fire({ target: this, item: item, position: position });
-            this.close();
-        };
-        return ComboPopup;
-    }(Ui.MenuPopup));
-    Ui.ComboPopup = ComboPopup;
-    var ComboItem = (function (_super) {
-        __extends(ComboItem, _super);
-        function ComboItem() {
-            return _super !== null && _super.apply(this, arguments) || this;
-        }
-        ComboItem.style = {
-            borderWidth: 0,
-            textTransform: 'none',
-            textAlign: 'left'
-        };
-        return ComboItem;
-    }(Ui.Button));
-    Ui.ComboItem = ComboItem;
-})(Ui || (Ui = {}));
-var Ui;
-(function (Ui) {
     var Paned = (function (_super) {
         __extends(Paned, _super);
         function Paned(init) {
@@ -19980,7 +19717,7 @@ var Ui;
             current.setDate(1);
             var row = 1;
             var now = new Date();
-            var _loop_2 = function () {
+            var _loop_1 = function () {
                 var day = new DayButton({
                     onpressed: function () { return _this.onDaySelect(day); }
                 });
@@ -19995,16 +19732,16 @@ var Ui;
                     bg = new Ui.Rectangle({ fill: new Ui.Color(0.8, 0.8, 0.8, 0.4), margin: 1 });
                     day.append(bg);
                 }
-                if ((this_2._selectedDate !== undefined) && (current.getFullYear() === this_2._selectedDate.getFullYear()) && (current.getMonth() === this_2._selectedDate.getMonth()) && (current.getDate() === this_2.selectedDate.getDate()))
+                if ((this_1._selectedDate !== undefined) && (current.getFullYear() === this_1._selectedDate.getFullYear()) && (current.getMonth() === this_1._selectedDate.getMonth()) && (current.getDate() === this_1.selectedDate.getDate()))
                     day.append(new Ui.Frame({ frameWidth: 3, fill: 'red', radius: 0 }));
                 var disable = false;
-                if (this_2._dayFilter !== undefined) {
+                if (this_1._dayFilter !== undefined) {
                     var weekday = current.getDay();
-                    for (i = 0; (i < this_2._dayFilter.length) && !disable; i++)
-                        if (weekday == this_2._dayFilter[i])
+                    for (i = 0; (i < this_1._dayFilter.length) && !disable; i++)
+                        if (weekday == this_1._dayFilter[i])
                             disable = true;
                 }
-                if (this_2._dateFilter !== undefined) {
+                if (this_1._dateFilter !== undefined) {
                     var daystr = current.getFullYear() + '/';
                     if (current.getMonth() + 1 < 10)
                         daystr += '0';
@@ -20012,8 +19749,8 @@ var Ui;
                     if (current.getDate() < 10)
                         daystr += '0';
                     daystr += current.getDate();
-                    for (i = 0; (i < this_2._dateFilter.length) && !disable; i++) {
-                        var re = new RegExp(this_2._dateFilter[i]);
+                    for (i = 0; (i < this_1._dateFilter.length) && !disable; i++) {
+                        var re = new RegExp(this_1._dateFilter[i]);
                         if (re.test(daystr)) {
                             disable = true;
                         }
@@ -20024,14 +19761,14 @@ var Ui;
                     day.opacity = 0.2;
                 }
                 day.append(new Ui.Label({ text: current.getDate().toString(), margin: 5 }));
-                this_2.grid.attach(day, dayPivot[current.getDay()], row);
+                this_1.grid.attach(day, dayPivot[current.getDay()], row);
                 current = new Date(current.getTime() + 1000 * 60 * 60 * 24);
                 if (dayPivot[current.getDay()] === 0)
                     row++;
             };
-            var this_2 = this;
+            var this_1 = this;
             do {
-                _loop_2();
+                _loop_1();
             } while (month == current.getMonth());
             this.onStyleChange();
         };
@@ -21403,6 +21140,269 @@ var Ui;
         return SelectionArea;
     }(Ui.LBox));
     Ui.SelectionArea = SelectionArea;
+})(Ui || (Ui = {}));
+var Ui;
+(function (Ui) {
+    var Combo = (function (_super) {
+        __extends(Combo, _super);
+        function Combo(init) {
+            var _this = _super.call(this, init) || this;
+            _this._position = -1;
+            _this._placeHolder = '...';
+            _this.changed = new Core.Events();
+            _this.text = '';
+            _this.arrowbottom = new Ui.Icon({ icon: 'arrowbottom', width: 16, height: 16 });
+            _this.marker = new Ui.VBox({
+                verticalAlign: 'center', marginRight: 5,
+                content: [_this.arrowbottom]
+            });
+            if (init) {
+                if (init.placeHolder !== undefined)
+                    _this.placeHolder = init.placeHolder;
+                if (init.field !== undefined)
+                    _this.field = init.field;
+                if (init.data !== undefined)
+                    _this.data = init.data;
+                if (init.position !== undefined)
+                    _this.position = init.position;
+                if (init.current !== undefined)
+                    _this.current = init.current;
+                if (init.search !== undefined)
+                    _this.search = init.search;
+                if (init.onchanged)
+                    _this.changed.connect(init.onchanged);
+            }
+            return _this;
+        }
+        Object.defineProperty(Combo.prototype, "placeHolder", {
+            set: function (placeHolder) {
+                this._placeHolder = placeHolder;
+                if (this._position === -1)
+                    this.text = this._placeHolder;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Combo.prototype, "field", {
+            set: function (field) {
+                this._field = field;
+                if (this._data !== undefined)
+                    this.data = this._data;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Combo.prototype, "data", {
+            get: function () {
+                return this._data;
+            },
+            set: function (data) {
+                this._data = data;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Combo.prototype, "position", {
+            get: function () {
+                return this._position;
+            },
+            set: function (position) {
+                if (position === -1) {
+                    this._position = -1;
+                    this._current = undefined;
+                    this.text = this._placeHolder;
+                    this.changed.fire({ target: this, value: this._current, position: this._position });
+                }
+                else if ((position >= 0) && (position < this._data.length)) {
+                    this._current = this._data[position];
+                    this._position = position;
+                    this.text = this._current[this._field];
+                    this.changed.fire({ target: this, value: this._current, position: this._position });
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Combo.prototype, "current", {
+            get: function () {
+                return this._current;
+            },
+            set: function (current) {
+                if (current == undefined)
+                    this.position = -1;
+                var position = -1;
+                for (var i = 0; i < this._data.length; i++) {
+                    if (this._data[i] == current) {
+                        position = i;
+                        break;
+                    }
+                }
+                if (position != -1)
+                    this.position = position;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Combo.prototype, "value", {
+            get: function () {
+                return this._current;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Combo.prototype.onItemPress = function (popup, item, position) {
+            this.position = position;
+        };
+        Combo.prototype.onPress = function () {
+            var _this = this;
+            var popup = new Ui.ComboPopup({ field: this._field, data: this._data, search: this.search });
+            if (this._position !== -1)
+                popup.position = this._position;
+            popup.item.connect(function (e) { return _this.onItemPress(e.target, e.item, e.position); });
+            popup.openElement(this, 'bottom');
+        };
+        Combo.prototype.updateColors = function () {
+            _super.prototype.updateColors.call(this);
+            this.arrowbottom.fill = this.getForegroundColor();
+        };
+        Combo.prototype.onDisable = function () {
+            _super.prototype.onDisable.call(this);
+            this.arrowbottom.opacity = 0.1;
+        };
+        Combo.prototype.onEnable = function () {
+            _super.prototype.onEnable.call(this);
+            this.arrowbottom.opacity = 1;
+        };
+        Combo.style = {
+            textTransform: 'none',
+            textAlign: 'left'
+        };
+        return Combo;
+    }(Ui.Button));
+    Ui.Combo = Combo;
+    var ComboPopup = (function (_super) {
+        __extends(ComboPopup, _super);
+        function ComboPopup(init) {
+            var _this = _super.call(this, init) || this;
+            _this.item = new Core.Events();
+            _this.autoClose = true;
+            var vbox = new Ui.VBox();
+            _this.searchField = new Ui.TextField({ textHolder: 'Recherche', margin: 5 });
+            _this.searchField.hide(true);
+            _this.searchField.changed.connect(function (e) { return _this.onSearchChange(e.target, e.value); });
+            vbox.append(_this.searchField);
+            _this.content = vbox;
+            _this.list = new Ui.VBox();
+            vbox.append(_this.list);
+            if (init) {
+                if (init.search !== undefined)
+                    _this.search = init.search;
+                if (init.field !== undefined)
+                    _this.field = init.field;
+                if (init.data !== undefined)
+                    _this.data = init.data;
+                if (init.position !== undefined)
+                    _this.position = init.position;
+            }
+            return _this;
+        }
+        ComboPopup.prototype.onSearchChange = function (field, value) {
+            this.list.children.forEach(function (item) {
+                if (value == '')
+                    item.show();
+                else {
+                    var text = Core.Util.toNoDiacritics(item.text).toLocaleLowerCase();
+                    var search = Core.Util.toNoDiacritics(value).toLowerCase().split(' ');
+                    if (search.length == 0)
+                        item.show();
+                    else {
+                        var match = true;
+                        for (var i = 0; match && (i < search.length); i++) {
+                            var word = search[i];
+                            match = (text.indexOf(word) != -1);
+                        }
+                        if (match)
+                            item.show();
+                        else
+                            item.hide(true);
+                    }
+                }
+            });
+        };
+        Object.defineProperty(ComboPopup.prototype, "search", {
+            set: function (value) {
+                if (value)
+                    this.searchField.show();
+                else
+                    this.searchField.hide(true);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ComboPopup.prototype, "field", {
+            set: function (field) {
+                this._field = field;
+                if (this._data !== undefined)
+                    this.data = this._data;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ComboPopup.prototype, "data", {
+            set: function (data) {
+                var _this = this;
+                this._data = data;
+                if (this._field === undefined)
+                    return;
+                var _loop_2 = function (i) {
+                    var item = new ComboItem({
+                        text: data[i][this_2._field],
+                        onpressed: function () { return _this.onItemPress(item); }
+                    });
+                    this_2.list.append(item);
+                };
+                var this_2 = this;
+                for (var i = 0; i < data.length; i++) {
+                    _loop_2(i);
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ComboPopup.prototype, "position", {
+            set: function (position) {
+                this.list.children[position].isActive = true;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        ComboPopup.prototype.onItemPress = function (item) {
+            var position = -1;
+            for (var i = 0; i < this.list.children.length; i++) {
+                if (this.list.children[i] == item) {
+                    position = i;
+                    break;
+                }
+            }
+            this.item.fire({ target: this, item: item, position: position });
+            this.close();
+        };
+        return ComboPopup;
+    }(Ui.MenuPopup));
+    Ui.ComboPopup = ComboPopup;
+    var ComboItem = (function (_super) {
+        __extends(ComboItem, _super);
+        function ComboItem() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        ComboItem.style = {
+            borderWidth: 0,
+            textTransform: 'none',
+            textAlign: 'left'
+        };
+        return ComboItem;
+    }(Ui.Button));
+    Ui.ComboItem = ComboItem;
 })(Ui || (Ui = {}));
 var Ui;
 (function (Ui) {
