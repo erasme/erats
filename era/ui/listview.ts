@@ -682,7 +682,7 @@ namespace Ui {
 //					this.scroll.getActiveItems().forEach(function (item) { item.invalidateArrange(); });
 //				else if (!this._scrolled)
 				for (let item of this.vbox.children)				
-					item.invalidateArrange();
+					item.invalidateMeasure();
 			}
 		}
 
@@ -818,7 +818,6 @@ namespace Ui {
 			this.grip.content = lbox;
 			lbox.append(new Rectangle({ width: 1, opacity: 0.2, fill: 'black', marginLeft: 14, marginRight: 8 + 2, marginTop: 6, marginBottom: 6 }));
 			lbox.append(new Rectangle({ width: 1, opacity: 0.2, fill: 'black', marginLeft: 19, marginRight: 3 + 2, marginTop: 6, marginBottom: 6 }));
-			console.log(`ListViewColBar resizable ${headerDef.resizable}`);
 			if (headerDef.resizable === false)
 				this.grip.hide(true);
 
