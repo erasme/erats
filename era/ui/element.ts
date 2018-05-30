@@ -1313,7 +1313,7 @@ namespace Ui
 		getParentByClass<T extends Ui.Element>(classFunc: new() => T): T | undefined {
 			let current = this.parent;
 			while(current != undefined) {
-				if (current.constructor == classFunc)
+				if (current instanceof classFunc)
 					return current as T;
 				current = current.parent;
 			}

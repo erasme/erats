@@ -4294,7 +4294,7 @@ var Ui;
         Element.prototype.getParentByClass = function (classFunc) {
             var current = this.parent;
             while (current != undefined) {
-                if (current.constructor == classFunc)
+                if (current instanceof classFunc)
                     return current;
                 current = current.parent;
             }
