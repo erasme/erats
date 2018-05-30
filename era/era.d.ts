@@ -3065,7 +3065,7 @@ declare namespace Ui {
         private _preferredHeight;
         actionBox: DialogButtonBox;
         contextBox: ContextBar;
-        private _autoClose;
+        private _autoClose?;
         openClock?: Anim.Clock;
         isClosed: boolean;
         scroll: ScrollingArea;

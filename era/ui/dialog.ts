@@ -156,7 +156,7 @@ namespace Ui {
 		private _preferredHeight: number | undefined;
 		actionBox: DialogButtonBox;
 		contextBox: ContextBar;
-		private _autoClose: boolean = true;
+		private _autoClose?: boolean;
 		openClock?: Anim.Clock;
 		isClosed: boolean = true;
 		scroll: ScrollingArea;
@@ -412,7 +412,7 @@ namespace Ui {
 		}
 
 		protected onShadowPress() {
-			if (this._autoClose)
+			if (this._autoClose || this.getStyleProperty('autoClose') == true)
 				this.close();
 		}
 	
@@ -462,6 +462,7 @@ namespace Ui {
 		}
 
 		static style: object = {
+			autoClose: true,
 			shadow: 'rgba(0,0,0,0.5)',
 			background: '#f8f8f8'
 		}

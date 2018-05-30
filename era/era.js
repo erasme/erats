@@ -14819,7 +14819,6 @@ var Ui;
         function Dialog(init) {
             var _this = _super.call(this, init) || this;
             _this.buttonsVisible = false;
-            _this._autoClose = true;
             _this.isClosed = true;
             _this.closed = new Core.Events();
             _this.dialogSelection = new Ui.Selection();
@@ -15053,7 +15052,7 @@ var Ui;
             }
         };
         Dialog.prototype.onShadowPress = function () {
-            if (this._autoClose)
+            if (this._autoClose || this.getStyleProperty('autoClose') == true)
                 this.close();
         };
         Dialog.prototype.onStyleChange = function () {
@@ -15082,6 +15081,7 @@ var Ui;
             this.lbox.arrange((width - usedWidth) / 2, (height - usedHeight) / 2, usedWidth, usedHeight);
         };
         Dialog.style = {
+            autoClose: true,
             shadow: 'rgba(0,0,0,0.5)',
             background: '#f8f8f8'
         };
