@@ -21945,7 +21945,7 @@ var Ui;
             if (child === this.headersScroll) {
                 for (var _i = 0, _a = this.vbox.children; _i < _a.length; _i++) {
                     var item = _a[_i];
-                    item.invalidateArrange();
+                    item.invalidateMeasure();
                 }
             }
         };
@@ -22066,7 +22066,6 @@ var Ui;
             _this.grip.content = lbox;
             lbox.append(new Ui.Rectangle({ width: 1, opacity: 0.2, fill: 'black', marginLeft: 14, marginRight: 8 + 2, marginTop: 6, marginBottom: 6 }));
             lbox.append(new Ui.Rectangle({ width: 1, opacity: 0.2, fill: 'black', marginLeft: 19, marginRight: 3 + 2, marginTop: 6, marginBottom: 6 }));
-            console.log("ListViewColBar resizable " + headerDef.resizable);
             if (headerDef.resizable === false)
                 _this.grip.hide(true);
             _this.separator = new Ui.Rectangle({ width: 1, fill: 'black', opacity: 0.3 });

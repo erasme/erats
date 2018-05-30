@@ -462,6 +462,7 @@ var Graph;
                 }
                 ctx.font = 'normal 10px Sans-Serif';
             }
+            // day
             else if (deltaMarkTime >= 24 * 60 * 60 * 1000) {
                 var currentTime = this.dayRound(new Date(startTime.getTime() + 12 * 60 * 60 * 1000));
                 var centerX = (12 * 60 * 60 * 1000 / deltaTime) * (w - 60);
@@ -490,6 +491,7 @@ var Graph;
                 }
                 ctx.font = 'normal 10px Sans-Serif';
             }
+            // hour
             else {
                 var currentTime = void 0;
                 //		currentTime = (Math.floor(currentTime / 60000) + 1) * 60000;
