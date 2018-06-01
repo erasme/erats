@@ -1,4 +1,12 @@
 
+function create<T>(ctor: new () => T, props: Partial<T>): T {
+    return Object.assign(new ctor(), props);
+}
+
+function assign<T>(obj: T, props: Partial<T>): T {
+	return Object.assign(this, props);
+}
+
 namespace Core {
 	//
 	// @class Object class from which every Era classes derives.
@@ -21,11 +29,15 @@ namespace Core {
 				return /function (.{1,})\(/.exec((this.constructor as any).toString())[0];
 		}
 
-		protected assign(init?: object) {
+		/*protected assign(init?: object) {
 			if (!init)
 				return;
 			for (var prop in init)
 				this[prop] = init[prop];
+		}*/
+
+		assign(props: Partial<this>): this {
+			return assign(this, props);
 		}
 
 		toString(): string {

@@ -1,8 +1,10 @@
+declare function create<T>(ctor: new () => T, props: Partial<T>): T;
+declare function assign<T>(obj: T, props: Partial<T>): T;
 declare namespace Core {
     class Object {
         serialize(): string;
         getClassName(): string;
-        protected assign(init?: object): void;
+        assign(props: Partial<this>): this;
         toString(): string;
     }
 }

@@ -1,3 +1,9 @@
+function create(ctor, props) {
+    return Object.assign(new ctor(), props);
+}
+function assign(obj, props) {
+    return Object.assign(this, props);
+}
 var Core;
 (function (Core) {
     var Object = (function () {
@@ -12,11 +18,8 @@ var Core;
             else
                 return /function (.{1,})\(/.exec(this.constructor.toString())[0];
         };
-        Object.prototype.assign = function (init) {
-            if (!init)
-                return;
-            for (var prop in init)
-                this[prop] = init[prop];
+        Object.prototype.assign = function (props) {
+            return assign(this, props);
         };
         Object.prototype.toString = function () {
             return "[object " + this.getClassName() + "]";
