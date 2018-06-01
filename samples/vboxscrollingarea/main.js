@@ -39,11 +39,11 @@ var TestScrollLoader = /** @class */ (function (_super) {
         else if (position % 4 === 3)
             color = 'lightblue';
         if (position % 4 === 2) {
-            item.append(new Ui.Button({ text: text }));
+            item.append(new Ui.Button().assign({ text: text }));
         }
         else {
-            item.append(new Ui.Rectangle({ fill: color }));
-            item.append(new Ui.Text({ text: text, margin: 10 * (position % 4), textAlign: 'center' }));
+            item.append(new Ui.Rectangle().assign({ fill: color }));
+            item.append(new Ui.Text().assign({ text: text, margin: 10 * (position % 4), textAlign: 'center' }));
         }
         return item;
     };
@@ -64,7 +64,7 @@ var TestScrollLoader2 = /** @class */ (function (_super) {
         return 2;
     };
     TestScrollLoader2.prototype.getElementAt = function (position) {
-        return new Ui.Image({ src: 'building.png', height: 700, width: 400, marginBottom: 10 });
+        return new Ui.Image().assign({ src: 'building.png', height: 700, width: 400, marginBottom: 10 });
     };
     return TestScrollLoader2;
 }(Ui.ScrollLoader));
@@ -72,19 +72,24 @@ var App = /** @class */ (function (_super) {
     __extends(App, _super);
     function App() {
         var _this = _super.call(this) || this;
-        var vbox = new Ui.VBox();
-        _this.content = vbox;
-        var button = new Ui.Button({ text: 'Reload' });
-        vbox.append(button);
-        var lbox = new Ui.LBox({ margin: 40 });
-        vbox.append(lbox, true);
-        lbox.append(new Ui.Frame({ frameWidth: 2, fill: '#444' }));
         var loader = new TestScrollLoader();
-        var scroll = new Ui.VBoxScrollingArea({
-            margin: 2, maxScale: 2, loader: loader
+        _this.content = new Ui.VBox().assign({
+            content: [
+                new Ui.Button().assign({
+                    text: 'Reload',
+                    onpressed: function (e) { return loader.signalChange(); }
+                }),
+                new Ui.LBox().assign({
+                    margin: 40, resizable: true,
+                    content: [
+                        new Ui.Frame().assign({ frameWidth: 2, fill: '#444' }),
+                        new Ui.VBoxScrollingArea().assign({
+                            margin: 2, maxScale: 2, loader: loader
+                        })
+                    ]
+                })
+            ]
         });
-        lbox.append(scroll);
-        button.pressed.connect(function (e) { return loader.signalChange(); });
         return _this;
     }
     return App;

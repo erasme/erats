@@ -30,11 +30,11 @@ class TestScrollLoader extends Ui.ScrollLoader {
 			color = 'lightblue';
 		
 		if(position % 4 === 2) {
-			item.append(new Ui.Button({ text: text }));
+			item.append(new Ui.Button().assign({ text: text }));
 		}
 		else {
-			item.append(new Ui.Rectangle({ fill: color }));
-			item.append(new Ui.Text({ text: text, margin: 10*(position%4), textAlign: 'center' }));
+			item.append(new Ui.Rectangle().assign({ fill: color }));
+			item.append(new Ui.Text().assign({ text: text, margin: 10*(position%4), textAlign: 'center' }));
 		}
 		return item;
 	}
@@ -55,33 +55,34 @@ class TestScrollLoader2 extends Ui.ScrollLoader {
 	}
 
 	getElementAt(position: number) {
-		return new Ui.Image({ src: 'building.png', height: 700, width: 400, marginBottom: 10 });
+		return new Ui.Image().assign({ src: 'building.png', height: 700, width: 400, marginBottom: 10 });
 	}
 }
 
 
 class App extends Ui.App {
     constructor() {
-        super();
-		let vbox = new Ui.VBox();
-		this.content = vbox;
-
-		let button = new Ui.Button({ text: 'Reload' });
-		vbox.append(button);
+		super();
 		
-		let lbox = new Ui.LBox({ margin: 40 });
-		vbox.append(lbox, true);
-
-		lbox.append(new Ui.Frame({ frameWidth: 2, fill: '#444' }));
-
 		let loader = new TestScrollLoader();
 
-		let scroll = new Ui.VBoxScrollingArea({
-			margin: 2, maxScale: 2, loader: loader
+		this.content = new Ui.VBox().assign({
+			content: [
+				new Ui.Button().assign({
+					text: 'Reload',
+					onpressed: e => loader.signalChange()
+				 }),
+				 new Ui.LBox().assign({
+					margin: 40, resizable: true,
+					content: [
+						new Ui.Frame().assign({ frameWidth: 2, fill: '#444' }),
+						new Ui.VBoxScrollingArea().assign({
+							margin: 2, maxScale: 2, loader: loader
+						})
+					]	
+				})
+			]
 		});
-		lbox.append(scroll);
-
-		button.pressed.connect(e => loader.signalChange());
 	}
 }
 
