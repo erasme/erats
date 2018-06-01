@@ -3,6 +3,7 @@
 class App extends Ui.App {
     constructor() {
         super();
+
         let vbox = new Ui.VBox();
         this.content = vbox;
 

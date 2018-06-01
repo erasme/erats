@@ -21,6 +21,7 @@ namespace Ui {
 		private autoPlayDelay: number | undefined;
 		private autoPlayTask?: Core.DelayedTask;
 		readonly changed = new Core.Events<{ target: Carouselable, position: number }>();
+		set onchanged(value: (event: { target: Carouselable, position: number }) => void) { this.changed.connect(value); }
 
 		constructor(init?: CarouselableInit) {
 			super(init);

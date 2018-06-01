@@ -25,8 +25,11 @@ namespace Ui {
 		protected isInMoveEvent: boolean = false;
 		protected cumulMove: number = 0;
 		readonly upped = new Core.Events<{ target: MovableBase, speedX: number, speedY: number, deltaX: number, deltaY: number, cumulMove: number, abort: boolean }>();
+		set onupped(value: (event: { target: MovableBase, speedX: number, speedY: number, deltaX: number, deltaY: number, cumulMove: number, abort: boolean }) => void) { this.upped.connect(value); }
 		readonly downed = new Core.Events<{ target: MovableBase }>();
+		set ondowned(value: (event: { target: MovableBase }) => void) { this.downed.connect(value); }
 		readonly moved = new Core.Events<{ target: MovableBase }>();
+		set onmoved(value: (event: { target: MovableBase }) => void) { this.moved.connect(value); }
 
 		constructor(init?: MovableBaseInit) {
 			super(init);

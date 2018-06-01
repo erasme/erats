@@ -10,18 +10,18 @@ class App extends Ui.App {
 		let toolbar = new Ui.ToolBar();
 		vbox.append(toolbar);
 		
-		toolbar.append(new Ui.CheckBox({
+		toolbar.append(new Ui.CheckBox().assign({
 			text: 'selectable',
 			ontoggled: () => text.selectable = true,
 			onuntoggled: () => text.selectable = false
 		}));
 				
-		let lbox = new Ui.LBox({ verticalAlign: 'center', horizontalAlign: 'stretch', margin: 100 });
+		let lbox = new Ui.LBox().assign({ verticalAlign: 'center', horizontalAlign: 'stretch', margin: 100 });
 		vbox.append(lbox, true);
 		
-		lbox.append(new Ui.Rectangle({ fill: 'lightgreen' }));
+		lbox.append(new Ui.Rectangle().assign({ fill: 'lightgreen' }));
 		
-		let text = new Ui.Text({
+		let text = new Ui.Text().assign({
 			margin: 5,
 			textAlign: 'center',
 			text: 'hello, this is a simple text, long enought to test the line break feature\n\nwith 2 chapters'

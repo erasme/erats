@@ -161,6 +161,7 @@ namespace Ui {
 		isClosed: boolean = true;
 		scroll: ScrollingArea;
 		readonly closed = new Core.Events<{ target: Dialog }>();
+		set onclosed(value: (event: { target: Dialog }) => void) { this.closed.connect(value); }
 
 		constructor(init?: DialogInit) {
 			super(init);

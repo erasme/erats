@@ -4,6 +4,8 @@ namespace Ui {
 
 	export class Fixed extends Container implements FixedInit {
 		readonly resize: Core.Events<{ target: Fixed, width: number, height: number }> = new Core.Events();
+		set onresize(value: (event: { target: Fixed, width: number, height: number }) => void) { this.resize.connect(value); }
+
 		constructor(init?: FixedInit) {
 			super(init);
 		}

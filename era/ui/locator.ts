@@ -12,6 +12,7 @@ namespace Ui {
 		private border: Rectangle;
 		private focusedPart: Pressable;
 		readonly changed = new Core.Events<{ target: Locator, path: string, position: number }>();
+		set onchanged(value: (event: { target: Locator, path: string, position: number }) => void) { this.changed.connect(value); }
 	
 		constructor(init?: LocatorInit) {
 			super(init);

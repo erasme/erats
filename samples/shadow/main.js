@@ -3,13 +3,13 @@
 //
 // Play with Ui.Shadow, the basic drawing element
 //
-new Ui.App({
-    content: new Ui.LBox({
+new Ui.App().assign({
+    content: new Ui.LBox().assign({
         verticalAlign: 'center',
         horizontalAlign: 'center',
         content: [
-            new Ui.Rectangle({ fill: '#cccccc' }),
-            new Ui.Shadow({
+            new Ui.Rectangle().assign({ fill: '#cccccc' }),
+            new Ui.Shadow().assign({
                 width: 100,
                 height: 100,
                 shadowWidth: 5,

@@ -27,11 +27,17 @@ namespace Ui {
 		// possible values [initial|playing|paused|buffering|error]
 		private _state: MediaState = 'initial';
 		readonly statechanged = new Core.Events<{ target: Video, state: MediaState }>();
+		set onstatechanged(value: (event: { target: Video, state: MediaState }) => void) { this.statechanged.connect(value); }
 		readonly ready = new Core.Events<{ target: Video }>();
+		set onready(value: (event: { target: Video }) => void) { this.ready.connect(value); }
 		readonly ended = new Core.Events<{ target: Video }>();
+		set onended(value: (event: { target: Video }) => void) { this.ended.connect(value); }
 		readonly error = new Core.Events<{ target: Video, code: number }>();
+		set onerror(value: (event: { target: Video, code: number }) => void) { this.error.connect(value); }
 		readonly timeupdated = new Core.Events<{ target: Video, time: number }>();
+		set ontimeupdated(value: (event: { target: Video, time: number }) => void) { this.timeupdated.connect(value); }
 		readonly bufferingupdated = new Core.Events<{ target: Video, buffer: number }>();
+		set onbufferingupdated(value: (event: { target: Video, buffer: number }) => void) { this.bufferingupdated.connect(value); }
 
 		// detect what video system is supported
 		static htmlVideo: boolean = false;

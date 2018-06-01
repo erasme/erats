@@ -34,10 +34,16 @@ namespace Core
 		pollInterval: number = 2.5;
 
 		readonly error = new Core.Events<{ target: Socket }>();
-		readonly message = new Core.Events<{ target: Socket, message: any }>();
-		readonly closed = new Core.Events<{ target: Socket }>();
-		readonly opened = new Core.Events<{ target: Socket }>();
+		set onerror(value: (event: { target: Socket }) => void) { this.error.connect(value); }
 
+		readonly message = new Core.Events<{ target: Socket, message: any }>();
+		set onmessage(value: (event: { target: Socket, message: any }) => void) { this.message.connect(value); }
+
+		readonly closed = new Core.Events<{ target: Socket }>();
+		set onclosed(value: (event: { target: Socket }) => void) { this.closed.connect(value); }
+
+		readonly opened = new Core.Events<{ target: Socket }>();
+		set onopened(value: (event: { target: Socket }) => void) { this.opened.connect(value); }
 
 		static supportWebSocket: boolean = true;
 

@@ -3,8 +3,8 @@
 //
 // Play with Ui.Label, the simplest text element
 //
-new Ui.App({
-    content: new Ui.Label({
+new Ui.App().assign({
+    content: new Ui.Label().assign({
         text: 'hello world',
         verticalAlign: 'center',
         horizontalAlign: 'center'

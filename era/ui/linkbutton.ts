@@ -10,6 +10,7 @@ namespace Ui {
 		openWindow: boolean = true;
 		target: string = '_blank';
 		readonly link = new Core.Events<{ target: LinkButton }>();
+		set onlink(value: (event: { target: LinkButton }) => void) { this.link.connect(value); }
 
 		constructor(init?: LinkButtonInit) {
 			super(init);

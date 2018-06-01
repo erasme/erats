@@ -17,6 +17,7 @@ namespace Ui {
 		private minContent2Size: number = 0;
 		private _pos: number = 0.5;
 		readonly changed = new Core.Events<{ target: Paned, position: number }>();
+		set onchanged(value: (event: { target: Paned, position: number }) => void) { this.changed.connect(value); }
 
 		constructor(init?: PanedInit) {
 			super(init);

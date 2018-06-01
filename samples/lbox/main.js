@@ -16,22 +16,18 @@ var App = /** @class */ (function (_super) {
         var _this = _super.call(this) || this;
         var lbox = new Ui.LPBox();
         _this.content = lbox;
-        var r = new Ui.Rectangle({
+        lbox.prepend(new Ui.Rectangle().assign({
             fill: 'orange', marginLeft: 40, marginTop: 40, marginBottom: 120, marginRight: 120
-        });
-        lbox.prepend(r);
-        r = new Ui.Rectangle({
+        }));
+        lbox.prependAtLayer(new Ui.Rectangle().assign({
             fill: 'pink', marginLeft: 60, marginTop: 60, marginBottom: 100, marginRight: 100
-        });
-        lbox.prependAtLayer(r, 2);
-        r = new Ui.Rectangle({
+        }), 2);
+        lbox.prepend(new Ui.Rectangle().assign({
             fill: 'green', marginLeft: 80, marginTop: 80, marginBottom: 80, marginRight: 80
-        });
-        lbox.prepend(r);
-        r = new Ui.Rectangle({
+        }));
+        lbox.prependAtLayer(new Ui.Rectangle().assign({
             fill: 'purple', marginLeft: 100, marginTop: 100, marginBottom: 60, marginRight: 60
-        });
-        lbox.prependAtLayer(r, 2);
+        }), 2);
         return _this;
     }
     return App;

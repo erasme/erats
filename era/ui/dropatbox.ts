@@ -2,7 +2,10 @@
 
 	export type DropAtEffectFunc = (data: any, position: number) => DropEffect[];
 	
-	export interface DropAtBoxInit extends DropBoxInit {
+	export interface DropAtBoxInit extends LBoxInit {
+		ondrageffect?: (event: Ui.DragEvent) => void;
+		ondragentered?: (event: { target: DropAtBox, data: any }) => void;
+		ondragleaved?: (event: { target: DropAtBox }) => void;
 		ondroppedat?: (event: { target: DropAtBox, data: any, effect: string, position: number, x: number, y: number }) => void;
 		ondroppedfileat?: (event: { target: DropAtBox, file: Core.File, effect: string, position: number, x: number, y: number }) => void;
 	}
@@ -14,11 +17,16 @@
 		private fixed: Fixed;
 		private markerOrientation: 'horizontal';
 		
-		readonly drageffect = new Core.Events<Ui.DragEvent>();
+		readonly drageffect = new Core.Events<DragEvent>();
+		set ondrageffect(value: (event: DragEvent) => void) { this.drageffect.connect(value); }
 		readonly dragentered = new Core.Events<{ target: DropAtBox, data: any }>();
+		set ondragentered(value: (event: { target: DropAtBox, data: any }) => void) { this.dragentered.connect(value); }
 		readonly dragleaved = new Core.Events<{ target: DropAtBox }>();
+		set ondragleaved(value: (event: { target: DropAtBox }) => void) { this.dragleaved.connect(value); }
 		readonly droppedat = new Core.Events<{ target: DropAtBox, data: any, effect: string, position: number, x: number, y: number }>();
+		set ondroppedat(value: (event: { target: DropAtBox, data: any, effect: string, position: number, x: number, y: number }) => void) { this.droppedat.connect(value); }
 		readonly droppedfileat = new Core.Events<{ target: DropAtBox, file: Core.File, effect: string, position: number, x: number, y: number }>();
+		set ondroppedfileat(value: (event: { target: DropAtBox, file: Core.File, effect: string, position: number, x: number, y: number }) => void) { this.droppedfileat.connect(value); }
 
 		constructor(init?: DropAtBoxInit) {
 			super(init);

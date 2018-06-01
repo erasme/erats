@@ -8,7 +8,7 @@ class App extends Ui.App {
 	constructor() {
 		super();
 
-		let locator = new Ui.Locator({
+		let locator = new Ui.Locator().assign({
 			path: '/Fun/Apps/Here/There/Everywhere',
 			verticalAlign: 'center', horizontalAlign: 'center',
 			onchanged: e => {

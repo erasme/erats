@@ -20,7 +20,9 @@ namespace Ui
 		private _value: string = '';
 		private _passwordMode: boolean = false;
 		readonly changed = new Core.Events<{ target: Entry, value: string }>();
+		set onchanged(value: (event: { target: Entry, value: string }) => void) { this.changed.connect(value); }
 		readonly validated = new Core.Events<{ target: Entry, value: string }>();
+		set onvalidated(value: (event: { target: Entry, value: string }) => void) { this.validated.connect(value); }
 
 		constructor(init?: EntryInit) {
 			super(init);

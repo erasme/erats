@@ -10,12 +10,12 @@ class App extends Ui.App {
         let toolbar = new Ui.ToolBar();
         vbox.append(toolbar);
 
-        toolbar.append(new Ui.Button({
+        toolbar.append(new Ui.Button().assign({
             text: 'begin',
             onpressed: () => clock.begin()
         }));
         
-        let progressbar = new Ui.ProgressBar({
+        let progressbar = new Ui.ProgressBar().assign({
             verticalAlign: 'center', horizontalAlign: 'center', width: 200
         });
 

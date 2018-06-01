@@ -3,6 +3,7 @@ namespace Ui {
 
 	export class DownloadButton extends LinkButton {
 		readonly download = new Core.Events<{ target: DownloadButton }>();
+		set ondownload(value: (event: { target: DownloadButton }) => void) { this.download.connect(value); }
 
 		constructor(init?: DownloadButtonInit) {
 			super(init);

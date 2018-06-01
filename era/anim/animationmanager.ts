@@ -51,15 +51,9 @@ namespace Anim
 				requestAnimationFrame(this.onTickBind);
 		}
 
-		static current: AnimationManager = null;
-		
-		static initialize() {
-			this.current = new Anim.AnimationManager();
-		}
+		static current = new AnimationManager();		
 	}
 }	
-
-Anim.AnimationManager.initialize();
 
 if(!('requestAnimationFrame' in window)) {
 	if('webkitRequestAnimationFrame' in window)

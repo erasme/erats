@@ -1,7 +1,7 @@
 "use strict";
 /// <reference path="../../era/era.d.ts" />
-new Ui.App({
-    content: new Ui.Shape({
+new Ui.App().assign({
+    content: new Ui.Shape().assign({
         width: 48,
         height: 48,
         fill: 'orange',

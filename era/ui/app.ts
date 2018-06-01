@@ -33,9 +33,16 @@ namespace Ui
 		selection: Selection;
 
 		readonly resized = new Core.Events<{ target: App, width: number, height: number }>();
+		set onresized(value: (event: { target: App, width: number, height: number }) => void) { this.resized.connect(value); }
+
 		readonly ready = new Core.Events<{ target: App }>();
+		set onready(value: (event: { target: App }) => void) { this.ready.connect(value); }
+
 		readonly parentmessage = new Core.Events<{ target: App, message: any }>();
+		set onparentmessage(value: (event: { target: App, message: any }) => void) { this.parentmessage.connect(value); }
+
 		readonly orientationchanged = new Core.Events<{ target: App, orientation: number }>();
+		set onorientationchanged(value: (event: { target: App, orientation: number }) => void) { this.orientationchanged.connect(value); }
 
 		//
 		// @constructs

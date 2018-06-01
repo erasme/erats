@@ -6,13 +6,13 @@ class App extends Ui.App {
 
 		let popup = new Ui.Popup();
 		
-		let vbox = new Ui.VBox({ verticalAlign: 'center', horizontalAlign: 'center', spacing: 5 });
+		let vbox = new Ui.VBox().assign({ verticalAlign: 'center', horizontalAlign: 'center', spacing: 5 });
 		this.content = vbox;
 		
-		let selectable = new Ui.Pressable({
+		let selectable = new Ui.Pressable().assign({
 			content: [
-				new Ui.Rectangle({ width: 50, height: 50, radius: 8, fill: 'lightgreen' }),
-				new Ui.Label({ text: 'click' })
+				new Ui.Rectangle().assign({ width: 50, height: 50, radius: 8, fill: 'lightgreen' }),
+				new Ui.Label().assign({ text: 'click' })
 			],
 			onpressed: e => {
 				console.log(`open the menu: ${e.x}x${e.y}`);
@@ -23,24 +23,24 @@ class App extends Ui.App {
 		vbox.append(selectable);
 				
 		
-		let button = new Ui.Button({
+		let button = new Ui.Button().assign({
 			text: 'open popup',
 			onpressed: e => popup.open()
 		});
 		vbox.append(button);
 		
-		popup.content = new Ui.VBox({
+		popup.content = new Ui.VBox().assign({
 			spacing: 5, margin: 10,
 			content: [
-				new Ui.Label({ text: 'bonjour' }),
+				new Ui.Label().assign({ text: 'bonjour' }),
 				new Ui.Separator(),
-				new Ui.Label({ text: 'bonjour2' }),
+				new Ui.Label().assign({ text: 'bonjour2' }),
 				new Ui.Separator(),
-				new Ui.Label({ text: 'bonjour3' }),
+				new Ui.Label().assign({ text: 'bonjour3' }),
 				new Ui.Separator(),
-				new Ui.Button({ text: 'click me' }),
+				new Ui.Button().assign({ text: 'click me' }),
 				new Ui.Separator(),
-				new Ui.Button({
+				new Ui.Button().assign({
 					text: 'popup',
 					onpressed: () => {
 						let newPopup = new Ui.Popup({ autoClose: true });
@@ -52,15 +52,15 @@ class App extends Ui.App {
 			]
 		});
 		
-		vbox.append(new Ui.Button({
+		vbox.append(new Ui.Button().assign({
 			text: 'close popup',
 			onpressed: () => popup.close()
 		}));
 				
-		vbox.append(new Ui.Pressable({
+		vbox.append(new Ui.Pressable().assign({
 			content: [
-				new Ui.Rectangle({ width: 50, height: 50, radius: 8, fill: 'lightgreen' }),
-				new Ui.Label({ text: 'click' })
+				new Ui.Rectangle().assign({ width: 50, height: 50, radius: 8, fill: 'lightgreen' }),
+				new Ui.Label().assign({ text: 'click' })
 			],
 			onpressed: e => {
 				console.log('open the menu at element');

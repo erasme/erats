@@ -17,7 +17,7 @@ var App = /** @class */ (function (_super) {
     __extends(App, _super);
     function App() {
         var _this = _super.call(this) || this;
-        _this.content = new Ui.Button({
+        _this.content = new Ui.Button().assign({
             text: 'hello world',
             verticalAlign: 'center', horizontalAlign: 'center',
             onpressed: function () { return console.log('button pressed'); }

@@ -2,6 +2,7 @@ namespace Ui {
 	export class Selection extends Core.Object {
 		private _watchers: SelectionableWatcher[];
 		readonly changed = new Core.Events<{ target: Selection }>();
+		set onchanged(value: (event: { target: Selection }) => void) { this.changed.connect(value); }
 
 		constructor() {
 			super();

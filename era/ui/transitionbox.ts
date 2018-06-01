@@ -19,7 +19,7 @@ namespace Ui {
 		protected progress: number;
 		children: TransitionBoxContent[];
 		readonly changed = new Core.Events<{ target: TransitionBox, position: number }>();
-
+		set onchanged(value: (event: { target: TransitionBox, position: number }) => void) { this.changed.connect(value); }
 
 		/**
 		 * @constructs

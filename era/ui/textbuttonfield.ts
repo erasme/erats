@@ -24,9 +24,13 @@ namespace Ui {
 		protected entry: Entry;
 		protected _textholder: Label;
 		protected button: TextFieldButton;
-		readonly changed = new Core.Events<{ target: TextButtonField, value: string }>()
+		readonly changed = new Core.Events<{ target: TextButtonField, value: string }>();
+		set onchanged(value: (event: { target: TextButtonField, value: string }) => void) { this.changed.connect(value); }
 		readonly buttonpressed = new Core.Events<{ target: TextButtonField }>();
+		set onbuttonpressed(value: (event: { target: TextButtonField }) => void) { this.buttonpressed.connect(value); }
 		readonly validated = new Core.Events<{ target: TextButtonField, value: string }>()
+		set onvalidated(value: (event: { target: TextButtonField, value: string }) => void) { this.validated.connect(value); }
+
 
 		constructor(init?: TextButtonFieldInit) {
 			super(init);

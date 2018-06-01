@@ -164,11 +164,16 @@ namespace Ui {
 	export class Pressable extends Overable implements PressableInit {
 		private pressWatcher: PressWatcher;
 
-		readonly downed: Core.Events<{ target: Pressable }> = new Core.Events();
-		readonly upped: Core.Events<{ target: Pressable }> = new Core.Events();
-		readonly pressed: Core.Events<{ target: Pressable, x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean }> = new Core.Events();
-		readonly activated: Core.Events<{ target: Pressable, x?: number, y?: number }> = new Core.Events();
-		readonly delayedpress: Core.Events<{ target: Pressable, x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean }> = new Core.Events();
+		readonly downed = new Core.Events<{ target: Pressable }>();
+		set ondowned(value: (event: { target: Pressable}) => void) { this.downed.connect(value); }
+		readonly upped = new Core.Events<{ target: Pressable }>();
+		set onupped(value: (event: { target: Pressable}) => void) { this.upped.connect(value); }
+		readonly pressed = new Core.Events<{ target: Pressable, x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean }>();
+		set onpressed(value: (event: { target: Pressable, x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean}) => void) { this.pressed.connect(value); }
+		readonly activated = new Core.Events<{ target: Pressable, x?: number, y?: number }>();
+		set onactivated(value: (event: { target: Pressable, x?: number, y?: number }) => void) { this.activated.connect(value); }
+		readonly delayedpress = new Core.Events<{ target: Pressable, x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean }>();
+		set ondelayedpress(value: (event:{ target: Pressable, x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean }) => void) { this.delayedpress.connect(value); }
 
 		constructor(init?: PressableInit) {
 			super(init);

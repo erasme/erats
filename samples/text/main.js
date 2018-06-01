@@ -18,15 +18,15 @@ var App = /** @class */ (function (_super) {
         _this.content = vbox;
         var toolbar = new Ui.ToolBar();
         vbox.append(toolbar);
-        toolbar.append(new Ui.CheckBox({
+        toolbar.append(new Ui.CheckBox().assign({
             text: 'selectable',
             ontoggled: function () { return text.selectable = true; },
             onuntoggled: function () { return text.selectable = false; }
         }));
-        var lbox = new Ui.LBox({ verticalAlign: 'center', horizontalAlign: 'stretch', margin: 100 });
+        var lbox = new Ui.LBox().assign({ verticalAlign: 'center', horizontalAlign: 'stretch', margin: 100 });
         vbox.append(lbox, true);
-        lbox.append(new Ui.Rectangle({ fill: 'lightgreen' }));
-        var text = new Ui.Text({
+        lbox.append(new Ui.Rectangle().assign({ fill: 'lightgreen' }));
+        var text = new Ui.Text().assign({
             margin: 5,
             textAlign: 'center',
             text: 'hello, this is a simple text, long enought to test the line break feature\n\nwith 2 chapters'

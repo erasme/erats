@@ -138,19 +138,46 @@ namespace Ui
 		mergeStyle: object | undefined;
 
 		readonly focused = new Core.Events<{ target: Element }>();
+		set onfocused(value: (event: { target: Element }) => void) { this.focused.connect(value); }
+
 		readonly blurred = new Core.Events<{ target: Element }>();
+		set onblurred(value: (event: { target: Element }) => void) { this.blurred.connect(value); }
+
 		readonly loaded = new Core.Events<{ target: Element }>();
+		set onloaded(value: (event: { target: Element }) => void) { this.loaded.connect(value); }
+
 		readonly unloaded = new Core.Events<{ target: Element }>();
+		set onunloaded(value: (event: { target: Element }) => void) { this.unloaded.connect(value);	}
+
 		readonly enabled = new Core.Events<{ target: Element }>();
+		set onenabled(value: (event: { target: Element }) => void) { this.enabled.connect(value); }
+
 		readonly disabled = new Core.Events<{ target: Element }>();
+		set ondisabled(value: (event: { target: Element }) => void) { this.disabled.connect(value);	}
+
 		readonly visible = new Core.Events<{ target: Element }>();
+		set onvisible(value: (event: { target: Element }) => void) { this.visible.connect(value); }
+
 		readonly hidden = new Core.Events<{ target: Element }>();
+		set onhidden(value: (event: { target: Element }) => void) { this.hidden.connect(value); }
+
 		readonly ptrdowned = new Core.Events<PointerEvent>();
+		set onptrdowned(value: (event: PointerEvent) => void) { this.ptrdowned.connect(value); }
+
 		readonly ptrmoved = new Core.Events<PointerEvent>();
+		set onptrmoved(value: (event: PointerEvent) => void) { this.ptrmoved.connect(value); }
+
 		readonly ptrupped = new Core.Events<PointerEvent>();
+		set onptrupped(value: (event: PointerEvent) => void) { this.ptrupped.connect(value); }
+
 		readonly ptrcanceled = new Core.Events<PointerEvent>();
+		set onptrcanceled(value: (event: PointerEvent) => void) { this.ptrcanceled.connect(value); }
+
 		readonly wheelchanged = new Core.Events<WheelEvent>();
+		set onwheelchanged(value: (event: WheelEvent) => void) { this.wheelchanged.connect(value); }
+
 		readonly dragover = new Core.Events<DragEvent>();
+		set ondragover(value: (event: DragEvent) => void) { this.dragover.connect(value); }
 
 	    // @constructs
 		// @class Define the base class for all GUI elements

@@ -53,6 +53,7 @@
 		relativeOffsetX: number;
 		relativeOffsetY: number;
 		readonly scrolled = new Core.Events<{ target: VBoxScrollable, offsetX: number, offsetY: number }>();
+		set onscrolled(value: (event: { target: VBoxScrollable, offsetX: number, offsetY: number }) => void) { this.scrolled.connect(value); }
 
 		constructor(init?: VBoxScrollableInit) {
 			super(init);
@@ -441,6 +442,7 @@
 		activeItemsHeight: number = 0;
 		reloadNeeded: boolean = false;
 		readonly scrolled = new Core.Events<{ target: VBoxScrollableContent, offsetX: number, offsetY: number }>();
+		set onscrolled(value: (event: { target: VBoxScrollableContent, offsetX: number, offsetY: number }) => void) { this.scrolled.connect(value); }
 
 		constructor() {
 			super();

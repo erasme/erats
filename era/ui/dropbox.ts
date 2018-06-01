@@ -258,10 +258,15 @@ namespace Ui
 		allowedTypes: { type: string | Function, effect: DropEffect[] | DropEffectFunc }[] = undefined;
 
 		readonly drageffect = new Core.Events<Ui.DragEvent>();
+		set ondrageffect(value: (event: DragEvent) => void) { this.drageffect.connect(value); }
 		readonly dragentered = new Core.Events<{ target: DropBox, data: any }>();
+		set ondragentered(value: (event: { target: DropBox, data: any }) => void) { this.dragentered.connect(value); }
 		readonly dragleaved = new Core.Events<{ target: DropBox }>();
+		set ondragleaved(value: (event: { target: DropBox }) => void) { this.dragleaved.connect(value); }
 		readonly dropped = new Core.Events<{ target: DropBox, data: any, effect: string, x: number, y: number, dataTransfer: DragDataTransfer }>();
+		set ondropped(value: (event: { target: DropBox, data: any, effect: string, x: number, y: number, dataTransfer: DragDataTransfer }) => void) { this.dropped.connect(value); }
 		readonly droppedfile = new Core.Events<{ target: DropBox, file: Core.File, effect: string, x: number, y: number }>();
+		set ondroppedfile(value: (event: { target: DropBox, file: Core.File, effect: string, x: number, y: number }) => void) { this.droppedfile.connect(value); }
 
 		constructor(init?: DropBoxInit) {
 			super(init);

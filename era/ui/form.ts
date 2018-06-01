@@ -4,6 +4,7 @@ namespace Ui {
 
 	export class Form extends LBox implements FormInit {
 		readonly submited = new Core.Events<{ target: Form }>();
+		set onsubmited(value: (event: { target: Form }) => void) { this.submited.connect(value); }
 
 		constructor(init?: FormInit) {
 			super(init);

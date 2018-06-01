@@ -6,6 +6,7 @@ namespace Ui {
 		protected _content: Element;
 		protected input: UploadableFileWrapper;
 		readonly file = new Core.Events<{ target: Uploadable, file: Core.File }>();
+		set onfile(value: (event: { target: Uploadable, file: Core.File }) => void) { this.file.connect(value); }
 
 		constructor(init?: UploadableInit) {
 			super(init);

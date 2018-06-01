@@ -19,6 +19,7 @@ namespace Ui {
 		private showPrevious: boolean = false;
 		private _alwaysShowArrows: boolean = false;
 		readonly changed = new Core.Events<{ target: Carousel, position: number }>();
+		set onchanged(value: (event: { target: Carousel, position: number }) => void) { this.changed.connect(value); }
 
 		constructor(init?: CarouselInit) {
 			super(init);

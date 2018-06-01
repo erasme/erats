@@ -33,9 +33,13 @@ namespace Ui {
 		private contentSize: number = 0;
 		private _animDuration: number = 0.5;
 		readonly folded = new Core.Events<{ target: Fold }>();
+		set onfolded(value: (event: { target: Fold}) => void) { this.folded.connect(value); }
 		readonly unfolded = new Core.Events<{ target: Fold }>();
+		set onunfolded(value: (event: {  target: Fold }) => void) { this.unfolded.connect(value); }
 		readonly positionchanged = new Core.Events<{ target: Fold, position: FoldDirection }>();
+		set onpositionchanged(value: (event: { target: Fold, position: FoldDirection }) => void) { this.positionchanged.connect(value); }
 		readonly progress = new Core.Events<{ target: Fold, offset: number }>();
+		set onprogress(value: (event: { target: Fold, offset: number }) => void) { this.progress.connect(value); }
 
 		constructor(init?: FoldInit) {
 			super(init);

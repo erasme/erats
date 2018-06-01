@@ -16,8 +16,12 @@ namespace Ui {
 		private _text: string;
 		private _isToggled: boolean = false;
 		readonly changed = new Core.Events<{ target: CheckBox, value: boolean }>();
+		set onchanged(value: (event: { target: CheckBox, value: boolean }) => void) { this.changed.connect(value); }
 		readonly toggled = new Core.Events<{ target: CheckBox }>();
+		set ontoggled(value: (event: { target: CheckBox }) => void) { this.toggled.connect(value); }
 		readonly untoggled = new Core.Events<{ target: CheckBox}>();
+		set onuntoggled(value: (event: { target: CheckBox }) => void) { this.untoggled.connect(value); }
+
 
 		constructor(init?: CheckBoxInit) {
 			super(init);

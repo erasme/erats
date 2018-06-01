@@ -46,12 +46,6 @@ namespace Anim
 			this.tick.fire({ target: this });
 		}
 
-		static current: TimeManager = null;
-		
-		static initialize() {
-			this.current = new Anim.TimeManager();
-		}
+		static current = new TimeManager();		
 	}
 }	
-
-Anim.TimeManager.initialize();

@@ -36,6 +36,7 @@ namespace Ui
 		scrollbarVerticalHeight: number = 0;
 		scrollbarHorizontalWidth: number = 0;
 		readonly scrolled = new Core.Events<{ target: Scrollable, offsetX: number, offsetY: number }>();
+		set onscrolled(value: (event: { target: Scrollable, offsetX: number, offsetY: number }) => void) { this.scrolled.connect(value); }
 
 		constructor(init?: ScrollableInit) {
 			super(init);
@@ -495,6 +496,7 @@ namespace Ui
 		private _contentWidth: number = 0;
 		private _contentHeight: number = 0;
 		readonly scrolled = new Core.Events<{ target: ScrollableContent, offsetX: number, offsetY: number }>();
+		set onscrolled(value: (event: { target: ScrollableContent, offsetX: number, offsetY: number }) => void) { this.scrolled.connect(value); }
 
 		constructor() {
 			super();

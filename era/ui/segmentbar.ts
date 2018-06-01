@@ -15,6 +15,7 @@ namespace Ui {
 		private _data: Array<any>;
 		private _orientation: 'horizontal' | 'vertical' = 'horizontal';
 		readonly changed = new Core.Events<{ target: SegmentBar, value: any }>();
+		set onchanged(value: (event: { target: SegmentBar, value: any }) => void) { this.changed.connect(value); }
 
 		constructor(init?: SegmentBarInit) {
 			super(init);

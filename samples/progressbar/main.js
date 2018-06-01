@@ -18,11 +18,11 @@ var App = /** @class */ (function (_super) {
         _this.content = vbox;
         var toolbar = new Ui.ToolBar();
         vbox.append(toolbar);
-        toolbar.append(new Ui.Button({
+        toolbar.append(new Ui.Button().assign({
             text: 'begin',
             onpressed: function () { return clock.begin(); }
         }));
-        var progressbar = new Ui.ProgressBar({
+        var progressbar = new Ui.ProgressBar().assign({
             verticalAlign: 'center', horizontalAlign: 'center', width: 200
         });
         vbox.append(progressbar, true);

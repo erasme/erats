@@ -7,6 +7,7 @@ namespace Ui {
 	export class UploadButton extends Button implements UploadButtonInit {
 		input: UploadableFileWrapper;
 		readonly filechanged = new Core.Events<{ target: UploadButton, file: Core.File }>();
+		set onfilechanged(value: (event: { target: UploadButton, file: Core.File }) => void) { this.filechanged.connect(value); }
 
 		constructor(init?: UploadButtonInit) {
 			super(init);

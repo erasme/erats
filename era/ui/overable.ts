@@ -62,8 +62,11 @@ namespace Ui {
 	export class Overable extends LBox implements OverableInit {
 		watcher: OverWatcher;
 		readonly entered = new Core.Events<{ target: Overable }>();
+		set onentered(value: (event: { target: Overable }) => void) { this.entered.connect(value); }
 		readonly leaved = new Core.Events<{ target: Overable }>();
+		set onleaved(value: (event: { target: Overable }) => void) { this.leaved.connect(value); }
 		readonly moved = new Core.Events<{ target: Overable }>();
+		set onmoved(value: (event: { target: Overable }) => void) { this.moved.connect(value); }
 
 		constructor(init?: OverableInit) {
 			super(init);

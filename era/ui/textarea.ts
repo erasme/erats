@@ -14,6 +14,7 @@ namespace Ui {
 		private _color?: Color;
 		private _value: string = '';
 		readonly changed = new Core.Events<{ target: TextArea, value: string }>();
+		set onchanged(value: (event: { target: TextArea, value: string }) => void) { this.changed.connect(value); }
 
 		constructor(init?: TextAreaInit) {
 			super(init);

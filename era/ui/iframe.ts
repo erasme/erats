@@ -7,6 +7,7 @@ namespace Ui {
 		protected iframeDrawing!: HTMLIFrameElement;
 		protected _isReady: boolean = false;
 		readonly ready = new Core.Events<{ target: IFrame }>();
+		set onready(value: (event: { target: IFrame }) => void) { this.ready.connect(value); }
 
 		constructor(init?: IFrameInit) {
 			super(init);

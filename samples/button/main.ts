@@ -7,7 +7,7 @@
 class App extends Ui.App {
 	constructor() {
 		super();
-		this.content = new Ui.Button({
+		this.content = new Ui.Button().assign({
 			text: 'hello world',
 			verticalAlign: 'center', horizontalAlign: 'center',
 			onpressed: () => console.log('button pressed')

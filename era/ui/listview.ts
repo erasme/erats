@@ -88,6 +88,7 @@ namespace Ui {
 		rowsHeight: number = 0;
 		headersHeight: number = 0;
 		readonly headerpressed = new Core.Events<{ target: ListViewHeadersBar, key: string }>();
+		set onheaderpressed(value: (event: { target: ListViewHeadersBar, key: string }) => void) { this.headerpressed.connect(value); }
 
 		constructor(config) {
 			super();
@@ -219,7 +220,9 @@ namespace Ui {
 		readonly selectionWatcher: SelectionableWatcher;
 		listView: ListView;
 		readonly selected = new Core.Events<{ target: ListViewRow }>();
+		set onselected(value: (event: { target: ListViewRow }) => void) { this.selected.connect(value); }
 		readonly unselected = new Core.Events<{ target: ListViewRow }>();
+		set onunselected(value: (event: { target: ListViewRow }) => void) { this.unselected.connect(value); }
 
 		constructor(init: ListViewRowInit) {
 			super();
@@ -421,10 +424,15 @@ namespace Ui {
 
 		private _selectionChangedLock = false;
 		readonly selectionchanged = new Core.Events<{ target: ListView }>();
+		set onselectionchanged(value: (event: { target: ListView }) => void) { this.selectionchanged.connect(value); }
 		readonly selected = new Core.Events<{ target: ListView }>();
+		set onselected(value: (event: { target: ListView }) => void) { this.selected.connect(value); }
 		readonly unselected = new Core.Events<{ target: ListView }>();
+		set onunselected(value: (event: { target: ListView }) => void) { this.unselected.connect(value); }
 		readonly activated = new Core.Events<{ target: ListView, position: number, value: any }>();
+		set onactivated(value: (event: { target: ListView, position: number, value: any }) => void) { this.activated.connect(value); }
 		readonly sortchanged = new Core.Events<{ target: ListView, key: string, invert: boolean }>();
+		set onsortchanged(value: (event: { target: ListView, key: string, invert: boolean }) => void) { this.sortchanged.connect(value); }
 
 		constructor(init?: ListViewInit) {
 			super(init);

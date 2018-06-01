@@ -609,10 +609,15 @@ namespace Ui {
 		private speedY: number = 0;
 
 		readonly downed = new Core.Events<{ target: Transformable }>();
+		set ondowned(value: (event: { target: Transformable}) => void) { this.downed.connect(value); }
 		readonly upped = new Core.Events<{ target: Transformable }>();
+		set onupped(value: (event: { target: Transformable}) => void) { this.upped.connect(value); }
 		readonly transformed = new Core.Events<{ target: Transformable }>();
+		set ontransformed(value: (event: { target: Transformable}) => void) { this.transformed.connect(value); }
 		readonly inertiastarted = new Core.Events<{ target: Transformable }>();
+		set oninertiastarted(value: (event: { target: Transformable}) => void) { this.inertiastarted.connect(value); }
 		readonly inertiaended = new Core.Events<{ target: Transformable }>();
+		set oninertiaended(value: (event: { target: Transformable}) => void) { this.inertiaended.connect(value); }
 
 		constructor(init?: TransformableInit) {
 			super();

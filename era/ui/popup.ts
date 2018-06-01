@@ -29,6 +29,7 @@ namespace Ui
 		openClock: Anim.Clock = undefined;
 		isClosed: boolean = true;
 		readonly closed = new Core.Events<{ target: Popup }>();
+		set onclosed(value: (event: { target: Popup }) => void) { this.closed.connect(value); }
 
 		constructor(init?: PopupInit) {
 			super(init);

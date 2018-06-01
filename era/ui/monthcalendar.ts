@@ -17,6 +17,7 @@ namespace Ui {
 		private _dayFilter: number[];
 		private _dateFilter: string[];
 		readonly dayselected = new Core.Events<{ target: MonthCalendar, value: Date }>();
+		set ondayselected(value: (event: { target: MonthCalendar, value: Date }) => void) { this.dayselected.connect(value); }
 
 		//
 		// @class The MonthCalendar is a small month calendar which allow

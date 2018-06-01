@@ -12,7 +12,9 @@ namespace Ui {
 		private graphic: TextBgGraphic;
 		private textholder: Label;
 		readonly changed = new Core.Events<{ target: TextField, value: string }>();
+		set onchanged(value: (event: { target: TextField, value: string }) => void) { this.changed.connect(value); }
 		readonly validated = new Core.Events<{ target: TextField }>();
+		set onvalidated(value: (event: { target: TextField }) => void) { this.validated.connect(value); }
 
 		constructor(init?: TextFieldInit) {
 			super(init);

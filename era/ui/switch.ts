@@ -18,6 +18,7 @@ namespace Ui {
 		private animStart: number = 0;
 		ease: Anim.EasingFunction;
 		readonly changed = new Core.Events<{ target: Switch, value: boolean }>();
+		set onchanged(value: (event: { target: Switch, value: boolean }) => void) { this.changed.connect(value); }
 	
 		constructor(init?: SwitchInit) {
 			super(init);

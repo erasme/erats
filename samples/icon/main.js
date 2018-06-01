@@ -14,20 +14,20 @@ var App = /** @class */ (function (_super) {
     __extends(App, _super);
     function App() {
         var _this = _super.call(this) || this;
-        var fbox = new Ui.Flow({
+        var fbox = new Ui.Flow().assign({
             margin: 40, spacing: 20, uniform: true
         });
         _this.content = fbox;
         var colors = ['lightblue', 'pink', 'lightgreen'];
         for (var i = 0; i < Ui.Icon.getNames().length; i++) {
-            var vbox = new Ui.VBox({ spacing: 5 });
-            vbox.append(new Ui.Icon({
+            var vbox = new Ui.VBox().assign({ spacing: 5 });
+            vbox.append(new Ui.Icon().assign({
                 icon: Ui.Icon.getNames()[i],
                 horizontalAlign: 'center',
                 width: 48, height: 48,
                 fill: colors[i % colors.length]
             }));
-            vbox.append(new Ui.Label({
+            vbox.append(new Ui.Label().assign({
                 horizontalAlign: 'center',
                 text: Ui.Icon.getNames()[i]
             }));

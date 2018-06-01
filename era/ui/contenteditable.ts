@@ -9,8 +9,12 @@ namespace Ui {
 		anchorNode?: Node;
 		anchorOffset: number = 0;
 		readonly anchorchanged = new Core.Events<{ target: ContentEditable }>();
+		set onanchorchanged(value: (event: { target: ContentEditable }) => void) { this.anchorchanged.connect(value); }
 		readonly changed = new Core.Events<{ target: ContentEditable }>();
+		set onchanged(value: (event: { target: ContentEditable }) => void) { this.changed.connect(value); }
 		readonly validated = new Core.Events<{ target: ContentEditable }>();
+		set onvalidated(value: (event: { target: ContentEditable }) => void) { this.validated.connect(value); }
+
 		private _lastHtml = '';
 	
 		constructor(init?: ContentEditableInit) {

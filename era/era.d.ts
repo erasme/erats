@@ -167,9 +167,16 @@ declare module Core {
             target: HttpRequest;
             code: number;
         }>;
+        onerror: (event: {
+            target: HttpRequest;
+            code: number;
+        }) => void;
         readonly done: Events<{
             target: HttpRequest;
         }>;
+        ondone: (event: {
+            target: HttpRequest;
+        }) => void;
         constructor(init?: HttpRequestInit);
         setRequestHeader(header: any, value: any): void;
         addArgument(argName: any, argValue: any): void;
@@ -208,6 +215,10 @@ declare namespace Core {
             target: Timer;
             arguments: any[];
         }>;
+        ontimeupdated: (event: {
+            target: Timer;
+            arguments: Array<any>;
+        }) => void;
         constructor(init?: TimerInit);
         abort(): void;
     }
@@ -246,16 +257,29 @@ declare namespace Core {
         readonly error: Events<{
             target: Socket;
         }>;
+        onerror: (event: {
+            target: Socket;
+        }) => void;
         readonly message: Events<{
             target: Socket;
             message: any;
         }>;
+        onmessage: (event: {
+            target: Socket;
+            message: any;
+        }) => void;
         readonly closed: Events<{
             target: Socket;
         }>;
+        onclosed: (event: {
+            target: Socket;
+        }) => void;
         readonly opened: Events<{
             target: Socket;
         }>;
+        onopened: (event: {
+            target: Socket;
+        }) => void;
         static supportWebSocket: boolean;
         constructor(init: SocketInit);
         send(msg: any): void;
@@ -351,13 +375,25 @@ declare namespace Core {
             loaded: number;
             total: number;
         }>;
+        onprogress: (event: {
+            target: FilePostUploader;
+            loaded: number;
+            total: number;
+        }) => void;
         readonly completed: Events<{
             target: FilePostUploader;
         }>;
+        oncompleted: (event: {
+            target: FilePostUploader;
+        }) => void;
         readonly error: Events<{
             target: FilePostUploader;
             status: number;
         }>;
+        onerror: (event: {
+            target: FilePostUploader;
+            status: number;
+        }) => void;
         constructor(init?: FilePostUploaderInit);
         method: string;
         file: File;
@@ -448,7 +484,6 @@ declare namespace Anim {
         remove(clock: any): void;
         private onTick();
         static current: TimeManager;
-        static initialize(): void;
     }
 }
 declare namespace Anim {
@@ -465,7 +500,6 @@ declare namespace Anim {
         forceTick(): void;
         private onTick();
         static current: AnimationManager;
-        static initialize(): void;
     }
 }
 declare namespace Anim {
@@ -797,33 +831,63 @@ declare namespace Ui {
         readonly focused: Core.Events<{
             target: Element;
         }>;
+        onfocused: (event: {
+            target: Element;
+        }) => void;
         readonly blurred: Core.Events<{
             target: Element;
         }>;
+        onblurred: (event: {
+            target: Element;
+        }) => void;
         readonly loaded: Core.Events<{
             target: Element;
         }>;
+        onloaded: (event: {
+            target: Element;
+        }) => void;
         readonly unloaded: Core.Events<{
             target: Element;
         }>;
+        onunloaded: (event: {
+            target: Element;
+        }) => void;
         readonly enabled: Core.Events<{
             target: Element;
         }>;
+        onenabled: (event: {
+            target: Element;
+        }) => void;
         readonly disabled: Core.Events<{
             target: Element;
         }>;
+        ondisabled: (event: {
+            target: Element;
+        }) => void;
         readonly visible: Core.Events<{
             target: Element;
         }>;
+        onvisible: (event: {
+            target: Element;
+        }) => void;
         readonly hidden: Core.Events<{
             target: Element;
         }>;
+        onhidden: (event: {
+            target: Element;
+        }) => void;
         readonly ptrdowned: Core.Events<PointerEvent>;
+        onptrdowned: (event: PointerEvent) => void;
         readonly ptrmoved: Core.Events<PointerEvent>;
+        onptrmoved: (event: PointerEvent) => void;
         readonly ptrupped: Core.Events<PointerEvent>;
+        onptrupped: (event: PointerEvent) => void;
         readonly ptrcanceled: Core.Events<PointerEvent>;
+        onptrcanceled: (event: PointerEvent) => void;
         readonly wheelchanged: Core.Events<WheelEvent>;
+        onwheelchanged: (event: WheelEvent) => void;
         readonly dragover: Core.Events<DragEvent>;
+        ondragover: (event: DragEvent) => void;
         constructor(init?: ElementInit);
         readonly drawing: any;
         selectable: boolean;
@@ -1691,12 +1755,21 @@ declare namespace Ui {
         readonly entered: Core.Events<{
             target: Overable;
         }>;
+        onentered: (event: {
+            target: Overable;
+        }) => void;
         readonly leaved: Core.Events<{
             target: Overable;
         }>;
+        onleaved: (event: {
+            target: Overable;
+        }) => void;
         readonly moved: Core.Events<{
             target: Overable;
         }>;
+        onmoved: (event: {
+            target: Overable;
+        }) => void;
         constructor(init?: OverableInit);
         readonly isOver: boolean;
     }
@@ -1771,9 +1844,15 @@ declare namespace Ui {
         readonly downed: Core.Events<{
             target: Pressable;
         }>;
+        ondowned: (event: {
+            target: Pressable;
+        }) => void;
         readonly upped: Core.Events<{
             target: Pressable;
         }>;
+        onupped: (event: {
+            target: Pressable;
+        }) => void;
         readonly pressed: Core.Events<{
             target: Pressable;
             x?: number;
@@ -1782,11 +1861,24 @@ declare namespace Ui {
             shiftKey?: boolean;
             ctrlKey?: boolean;
         }>;
+        onpressed: (event: {
+            target: Pressable;
+            x?: number;
+            y?: number;
+            altKey?: boolean;
+            shiftKey?: boolean;
+            ctrlKey?: boolean;
+        }) => void;
         readonly activated: Core.Events<{
             target: Pressable;
             x?: number;
             y?: number;
         }>;
+        onactivated: (event: {
+            target: Pressable;
+            x?: number;
+            y?: number;
+        }) => void;
         readonly delayedpress: Core.Events<{
             target: Pressable;
             x?: number;
@@ -1795,6 +1887,14 @@ declare namespace Ui {
             shiftKey?: boolean;
             ctrlKey?: boolean;
         }>;
+        ondelayedpress: (event: {
+            target: Pressable;
+            x?: number;
+            y?: number;
+            altKey?: boolean;
+            shiftKey?: boolean;
+            ctrlKey?: boolean;
+        }) => void;
         constructor(init?: PressableInit);
         readonly isDown: boolean;
         lock: boolean;
@@ -1847,10 +1947,18 @@ declare namespace Ui {
             target: Draggable;
             dataTransfer: DragEmuDataTransfer;
         }>;
+        ondragstarted: (event: {
+            target: Draggable;
+            dataTransfer: DragEmuDataTransfer;
+        }) => void;
         readonly dragended: Core.Events<{
             target: Draggable;
             effect: string;
         }>;
+        ondragended: (event: {
+            target: Draggable;
+            effect: string;
+        }) => void;
         constructor(init?: DraggableInit);
         setAllowedMode(allowedMode: any): void;
         readonly dragDelta: Point;
@@ -1905,9 +2013,15 @@ declare namespace Ui {
         readonly selected: Core.Events<{
             target: Selectionable;
         }>;
+        onselected: (event: {
+            target: Selectionable;
+        }) => void;
         readonly unselected: Core.Events<{
             target: Selectionable;
         }>;
+        onunselected: (event: {
+            target: Selectionable;
+        }) => void;
         constructor(init?: SelectionableInit);
         isSelected: boolean;
         protected onSelect(selection: Selection): void;
@@ -1923,6 +2037,9 @@ declare namespace Ui {
         readonly changed: Core.Events<{
             target: Selection;
         }>;
+        onchanged: (event: {
+            target: Selection;
+        }) => void;
         constructor();
         clear(): void;
         appendRange(start: SelectionableWatcher, end: SelectionableWatcher): void;
@@ -2081,12 +2198,27 @@ declare namespace Ui {
             cumulMove: number;
             abort: boolean;
         }>;
+        onupped: (event: {
+            target: MovableBase;
+            speedX: number;
+            speedY: number;
+            deltaX: number;
+            deltaY: number;
+            cumulMove: number;
+            abort: boolean;
+        }) => void;
         readonly downed: Core.Events<{
             target: MovableBase;
         }>;
+        ondowned: (event: {
+            target: MovableBase;
+        }) => void;
         readonly moved: Core.Events<{
             target: MovableBase;
         }>;
+        onmoved: (event: {
+            target: MovableBase;
+        }) => void;
         constructor(init?: MovableBaseInit);
         lock: boolean;
         readonly isDown: boolean;
@@ -2262,18 +2394,33 @@ declare namespace Ui {
         readonly downed: Core.Events<{
             target: Transformable;
         }>;
+        ondowned: (event: {
+            target: Transformable;
+        }) => void;
         readonly upped: Core.Events<{
             target: Transformable;
         }>;
+        onupped: (event: {
+            target: Transformable;
+        }) => void;
         readonly transformed: Core.Events<{
             target: Transformable;
         }>;
+        ontransformed: (event: {
+            target: Transformable;
+        }) => void;
         readonly inertiastarted: Core.Events<{
             target: Transformable;
         }>;
+        oninertiastarted: (event: {
+            target: Transformable;
+        }) => void;
         readonly inertiaended: Core.Events<{
             target: Transformable;
         }>;
+        oninertiaended: (event: {
+            target: Transformable;
+        }) => void;
         constructor(init?: TransformableInit);
         allowLeftMouse: boolean;
         allowScale: boolean;
@@ -2354,6 +2501,11 @@ declare namespace Ui {
             offsetX: number;
             offsetY: number;
         }>;
+        onscrolled: (event: {
+            target: Scrollable;
+            offsetX: number;
+            offsetY: number;
+        }) => void;
         constructor(init?: ScrollableInit);
         maxScale: number;
         content: Element;
@@ -2395,6 +2547,11 @@ declare namespace Ui {
             offsetX: number;
             offsetY: number;
         }>;
+        onscrolled: (event: {
+            target: ScrollableContent;
+            offsetX: number;
+            offsetY: number;
+        }) => void;
         constructor();
         readonly offsetX: number;
         readonly offsetY: number;
@@ -2605,13 +2762,21 @@ declare namespace Ui {
             effect: DropEffect[] | DropEffectFunc;
         }[];
         readonly drageffect: Core.Events<DragEvent>;
+        ondrageffect: (event: DragEvent) => void;
         readonly dragentered: Core.Events<{
             target: DropBox;
             data: any;
         }>;
+        ondragentered: (event: {
+            target: DropBox;
+            data: any;
+        }) => void;
         readonly dragleaved: Core.Events<{
             target: DropBox;
         }>;
+        ondragleaved: (event: {
+            target: DropBox;
+        }) => void;
         readonly dropped: Core.Events<{
             target: DropBox;
             data: any;
@@ -2620,6 +2785,14 @@ declare namespace Ui {
             y: number;
             dataTransfer: DragDataTransfer;
         }>;
+        ondropped: (event: {
+            target: DropBox;
+            data: any;
+            effect: string;
+            x: number;
+            y: number;
+            dataTransfer: DragDataTransfer;
+        }) => void;
         readonly droppedfile: Core.Events<{
             target: DropBox;
             file: Core.File;
@@ -2627,6 +2800,13 @@ declare namespace Ui {
             x: number;
             y: number;
         }>;
+        ondroppedfile: (event: {
+            target: DropBox;
+            file: Core.File;
+            effect: string;
+            x: number;
+            y: number;
+        }) => void;
         constructor(init?: DropBoxInit);
         addType(type: string | Function, effects: string | string[] | DropEffect[] | DropEffectFunc): void;
         protected onDragOver(event: DragEvent): void;
@@ -2789,6 +2969,9 @@ declare namespace Ui {
         readonly closed: Core.Events<{
             target: Popup;
         }>;
+        onclosed: (event: {
+            target: Popup;
+        }) => void;
         constructor(init?: PopupInit);
         preferredWidth: number;
         preferredHeight: number;
@@ -2933,17 +3116,33 @@ declare namespace Ui {
             width: number;
             height: number;
         }>;
+        onresized: (event: {
+            target: App;
+            width: number;
+            height: number;
+        }) => void;
         readonly ready: Core.Events<{
             target: App;
         }>;
+        onready: (event: {
+            target: App;
+        }) => void;
         readonly parentmessage: Core.Events<{
             target: App;
             message: any;
         }>;
+        onparentmessage: (event: {
+            target: App;
+            message: any;
+        }) => void;
         readonly orientationchanged: Core.Events<{
             target: App;
             orientation: number;
         }>;
+        onorientationchanged: (event: {
+            target: App;
+            orientation: number;
+        }) => void;
         constructor(init?: AppInit);
         setWebApp(webApp: boolean): void;
         getSelectionHandler(): Selection;
@@ -2996,6 +3195,9 @@ declare namespace Ui {
         readonly submited: Core.Events<{
             target: Form;
         }>;
+        onsubmited: (event: {
+            target: Form;
+        }) => void;
         constructor(init?: FormInit);
         protected onSubmit(event: any): void;
         submit(): void;
@@ -3074,6 +3276,9 @@ declare namespace Ui {
         readonly closed: Core.Events<{
             target: Dialog;
         }>;
+        onclosed: (event: {
+            target: Dialog;
+        }) => void;
         constructor(init?: DialogInit);
         getSelectionHandler(): Selection;
         preferredWidth: number;
@@ -3135,6 +3340,10 @@ declare namespace Ui {
             target: Html;
             ref: string;
         }>;
+        onlink: (event: {
+            target: Html;
+            ref: string;
+        }) => void;
         constructor(init?: HtmlInit);
         getElements(tagName: any): any[];
         searchElements(tagName: any, element: any, res: any): void;
@@ -3264,9 +3473,15 @@ declare namespace Ui {
         readonly ready: Core.Events<{
             target: Image;
         }>;
+        onready: (event: {
+            target: Image;
+        }) => void;
         readonly error: Core.Events<{
             target: Image;
         }>;
+        onerror: (event: {
+            target: Image;
+        }) => void;
         constructor(init?: ImageInit);
         src: string | undefined;
         readonly naturalWidth: number | undefined;
@@ -3326,10 +3541,18 @@ declare namespace Ui {
             target: Entry;
             value: string;
         }>;
+        onchanged: (event: {
+            target: Entry;
+            value: string;
+        }) => void;
         readonly validated: Core.Events<{
             target: Entry;
             value: string;
         }>;
+        onvalidated: (event: {
+            target: Entry;
+            value: string;
+        }) => void;
         constructor(init?: EntryInit);
         passwordMode: boolean;
         fontSize: number;
@@ -3364,6 +3587,11 @@ declare namespace Ui {
             width: number;
             height: number;
         }>;
+        onresize: (event: {
+            target: Fixed;
+            width: number;
+            height: number;
+        }) => void;
         constructor(init?: FixedInit);
         setPosition(item: Element, x: number, y: number): void;
         setRelativePosition(item: Element, x: number, y: number, absolute?: boolean): void;
@@ -3381,6 +3609,7 @@ declare namespace Ui {
     interface ToolBarInit extends ScrollingAreaInit {
     }
     class ToolBar extends ScrollingArea implements ToolBarInit {
+        private scroll;
         private hbox;
         constructor(init?: ToolBarInit);
         append(child: Element, resizable?: boolean): void;
@@ -3432,9 +3661,16 @@ declare namespace Ui {
             target: TextField;
             value: string;
         }>;
+        onchanged: (event: {
+            target: TextField;
+            value: string;
+        }) => void;
         readonly validated: Core.Events<{
             target: TextField;
         }>;
+        onvalidated: (event: {
+            target: TextField;
+        }) => void;
         constructor(init?: TextFieldInit);
         textHolder: string;
         passwordMode: boolean;
@@ -3500,12 +3736,22 @@ declare namespace Ui {
             target: CheckBox;
             value: boolean;
         }>;
+        onchanged: (event: {
+            target: CheckBox;
+            value: boolean;
+        }) => void;
         readonly toggled: Core.Events<{
             target: CheckBox;
         }>;
+        ontoggled: (event: {
+            target: CheckBox;
+        }) => void;
         readonly untoggled: Core.Events<{
             target: CheckBox;
         }>;
+        onuntoggled: (event: {
+            target: CheckBox;
+        }) => void;
         constructor(init?: CheckBoxInit);
         readonly isToggled: boolean;
         value: boolean;
@@ -3595,6 +3841,10 @@ declare namespace Ui {
             target: TextArea;
             value: string;
         }>;
+        onchanged: (event: {
+            target: TextArea;
+            value: string;
+        }) => void;
         constructor(init?: TextAreaInit);
         fontSize: number;
         fontFamily: string;
@@ -3645,6 +3895,10 @@ declare namespace Ui {
             target: TextAreaField;
             value: string;
         }>;
+        onchanged: (event: {
+            target: TextAreaField;
+            value: string;
+        }) => void;
         constructor(init?: TextAreaFieldInit);
         textHolder: string;
         value: string;
@@ -3756,6 +4010,10 @@ declare namespace Ui {
             target: Paned;
             position: number;
         }>;
+        onchanged: (event: {
+            target: Paned;
+            position: number;
+        }) => void;
         constructor(init?: PanedInit);
         orientation: Orientation;
         pos: number;
@@ -3810,6 +4068,10 @@ declare namespace Ui {
             target: Slider;
             value: number;
         }>;
+        onchanged: (event: {
+            target: Slider;
+            value: number;
+        }) => void;
         constructor(init?: SliderInit);
         value: number;
         setValue(value: number, dontSignal?: boolean): void;
@@ -3847,25 +4109,47 @@ declare namespace Ui {
         readonly ready: Core.Events<{
             target: Audio;
         }>;
+        onready: (event: {
+            target: Audio;
+        }) => void;
         readonly ended: Core.Events<{
             target: Audio;
         }>;
+        onended: (event: {
+            target: Audio;
+        }) => void;
         readonly timeupdate: Core.Events<{
             target: Audio;
             time: number;
         }>;
+        ontimeupdate: (event: {
+            target: Audio;
+            time: number;
+        }) => void;
         readonly bufferingupdate: Core.Events<{
             target: Audio;
             buffer: number;
         }>;
+        onbufferingupdate: (event: {
+            target: Audio;
+            buffer: number;
+        }) => void;
         readonly statechange: Core.Events<{
             target: Audio;
             state: MediaState;
         }>;
+        onstatechange: (event: {
+            target: Audio;
+            state: MediaState;
+        }) => void;
         readonly error: Core.Events<{
             target: Audio;
             code: number;
         }>;
+        onerror: (event: {
+            target: Audio;
+            code: number;
+        }) => void;
         static htmlAudio: boolean;
         static supportOgg: boolean;
         static supportMp3: boolean;
@@ -3907,6 +4191,9 @@ declare namespace Ui {
         readonly link: Core.Events<{
             target: LinkButton;
         }>;
+        onlink: (event: {
+            target: LinkButton;
+        }) => void;
         constructor(init?: LinkButtonInit);
         protected onLinkButtonPress(): void;
         static style: object;
@@ -4001,24 +4288,46 @@ declare namespace Ui {
             target: Video;
             state: MediaState;
         }>;
+        onstatechanged: (event: {
+            target: Video;
+            state: MediaState;
+        }) => void;
         readonly ready: Core.Events<{
             target: Video;
         }>;
+        onready: (event: {
+            target: Video;
+        }) => void;
         readonly ended: Core.Events<{
             target: Video;
         }>;
+        onended: (event: {
+            target: Video;
+        }) => void;
         readonly error: Core.Events<{
             target: Video;
             code: number;
         }>;
+        onerror: (event: {
+            target: Video;
+            code: number;
+        }) => void;
         readonly timeupdated: Core.Events<{
             target: Video;
             time: number;
         }>;
+        ontimeupdated: (event: {
+            target: Video;
+            time: number;
+        }) => void;
         readonly bufferingupdated: Core.Events<{
             target: Video;
             buffer: number;
         }>;
+        onbufferingupdated: (event: {
+            target: Video;
+            buffer: number;
+        }) => void;
         static htmlVideo: boolean;
         static flashVideo: boolean;
         static supportOgg: boolean;
@@ -4077,6 +4386,10 @@ declare namespace Ui {
             target: MonthCalendar;
             value: Date;
         }>;
+        ondayselected: (event: {
+            target: MonthCalendar;
+            value: Date;
+        }) => void;
         constructor(init?: MonthCalendarInit);
         dayFilter: number[];
         dateFilter: string[];
@@ -4121,13 +4434,24 @@ declare namespace Ui {
             target: TextButtonField;
             value: string;
         }>;
+        onchanged: (event: {
+            target: TextButtonField;
+            value: string;
+        }) => void;
         readonly buttonpressed: Core.Events<{
             target: TextButtonField;
         }>;
+        onbuttonpressed: (event: {
+            target: TextButtonField;
+        }) => void;
         readonly validated: Core.Events<{
             target: TextButtonField;
             value: string;
         }>;
+        onvalidated: (event: {
+            target: TextButtonField;
+            value: string;
+        }) => void;
         constructor(init?: TextButtonFieldInit);
         textHolder: string;
         widthText: number;
@@ -4149,12 +4473,12 @@ declare namespace Ui {
         selectedDate?: Date;
     }
     class DatePicker extends TextButtonField implements DatePickerInit {
-        protected popup: Popup;
-        protected calendar: MonthCalendar;
+        protected popup?: Popup;
+        protected calendar?: MonthCalendar;
         protected _selectedDate: Date;
         protected _isValid: boolean;
-        protected _dayFilter: number[];
-        protected _dateFilter: string[];
+        protected _dayFilter?: number[];
+        protected _dateFilter?: string[];
         constructor(init?: DatePickerInit);
         dayFilter: number[];
         dateFilter: string[];
@@ -4173,6 +4497,9 @@ declare namespace Ui {
         readonly download: Core.Events<{
             target: DownloadButton;
         }>;
+        ondownload: (event: {
+            target: DownloadButton;
+        }) => void;
         constructor(init?: DownloadButtonInit);
         protected onLinkPress(): void;
         style: object;
@@ -4196,6 +4523,9 @@ declare namespace Ui {
         readonly ready: Core.Events<{
             target: IFrame;
         }>;
+        onready: (event: {
+            target: IFrame;
+        }) => void;
         constructor(init?: IFrameInit);
         src: string;
         readonly isReady: boolean;
@@ -4222,12 +4552,21 @@ declare namespace Ui {
         readonly anchorchanged: Core.Events<{
             target: ContentEditable;
         }>;
+        onanchorchanged: (event: {
+            target: ContentEditable;
+        }) => void;
         readonly changed: Core.Events<{
             target: ContentEditable;
         }>;
+        onchanged: (event: {
+            target: ContentEditable;
+        }) => void;
         readonly validated: Core.Events<{
             target: ContentEditable;
         }>;
+        onvalidated: (event: {
+            target: ContentEditable;
+        }) => void;
         private _lastHtml;
         constructor(init?: ContentEditableInit);
         protected onKeyUp(event: any): void;
@@ -4287,6 +4626,11 @@ declare namespace Ui {
             offsetX: number;
             offsetY: number;
         }>;
+        onscrolled: (event: {
+            target: VBoxScrollable;
+            offsetX: number;
+            offsetY: number;
+        }) => void;
         constructor(init?: VBoxScrollableInit);
         reload(): void;
         getActiveItems(): Element[];
@@ -4332,6 +4676,11 @@ declare namespace Ui {
             offsetX: number;
             offsetY: number;
         }>;
+        onscrolled: (event: {
+            target: VBoxScrollableContent;
+            offsetX: number;
+            offsetY: number;
+        }) => void;
         constructor();
         setLoader(loader: any): void;
         getActiveItems(): Element[];
@@ -4416,6 +4765,11 @@ declare namespace Ui {
             value: any;
             position: number;
         }>;
+        onchanged: (event: {
+            target: Combo;
+            value: any;
+            position: number;
+        }) => void;
         constructor(init?: ComboInit);
         placeHolder: string;
         field: string;
@@ -4496,6 +4850,10 @@ declare namespace Ui {
             target: ListViewHeadersBar;
             key: string;
         }>;
+        onheaderpressed: (event: {
+            target: ListViewHeadersBar;
+            key: string;
+        }) => void;
         constructor(config: any);
         getSortColKey(): string;
         getSortInvert(): boolean;
@@ -4526,9 +4884,15 @@ declare namespace Ui {
         readonly selected: Core.Events<{
             target: ListViewRow;
         }>;
+        onselected: (event: {
+            target: ListViewRow;
+        }) => void;
         readonly unselected: Core.Events<{
             target: ListViewRow;
         }>;
+        onunselected: (event: {
+            target: ListViewRow;
+        }) => void;
         constructor(init: ListViewRowInit);
         getData(): object;
         isSelected: boolean;
@@ -4612,22 +4976,41 @@ declare namespace Ui {
         readonly selectionchanged: Core.Events<{
             target: ListView;
         }>;
+        onselectionchanged: (event: {
+            target: ListView;
+        }) => void;
         readonly selected: Core.Events<{
             target: ListView;
         }>;
+        onselected: (event: {
+            target: ListView;
+        }) => void;
         readonly unselected: Core.Events<{
             target: ListView;
         }>;
+        onunselected: (event: {
+            target: ListView;
+        }) => void;
         readonly activated: Core.Events<{
             target: ListView;
             position: number;
             value: any;
         }>;
+        onactivated: (event: {
+            target: ListView;
+            position: number;
+            value: any;
+        }) => void;
         readonly sortchanged: Core.Events<{
             target: ListView;
             key: string;
             invert: boolean;
         }>;
+        onsortchanged: (event: {
+            target: ListView;
+            key: string;
+            invert: boolean;
+        }) => void;
         constructor(init?: ListViewInit);
         scrolled: boolean;
         scrollVertical: boolean;
@@ -4707,6 +5090,10 @@ declare namespace Ui {
             target: Uploadable;
             file: Core.File;
         }>;
+        onfile: (event: {
+            target: Uploadable;
+            file: Core.File;
+        }) => void;
         constructor(init?: UploadableInit);
         setDirectoryMode(active: any): void;
         protected onFile(fileWrapper: any, file: Core.File): void;
@@ -4761,6 +5148,10 @@ declare namespace Ui {
             target: UploadButton;
             file: Core.File;
         }>;
+        onfilechanged: (event: {
+            target: UploadButton;
+            file: Core.File;
+        }) => void;
         constructor(init?: UploadButtonInit);
         directoryMode: boolean;
         protected onUploadButtonPress(): void;
@@ -4827,6 +5218,10 @@ declare namespace Ui {
             target: TransitionBox;
             position: number;
         }>;
+        onchanged: (event: {
+            target: TransitionBox;
+            position: number;
+        }) => void;
         constructor(init?: TransitionBoxInit);
         position: number;
         duration: number;
@@ -4894,17 +5289,31 @@ declare namespace Ui {
         readonly folded: Core.Events<{
             target: Fold;
         }>;
+        onfolded: (event: {
+            target: Fold;
+        }) => void;
         readonly unfolded: Core.Events<{
             target: Fold;
         }>;
+        onunfolded: (event: {
+            target: Fold;
+        }) => void;
         readonly positionchanged: Core.Events<{
             target: Fold;
             position: "left" | "right" | "top" | "bottom";
         }>;
+        onpositionchanged: (event: {
+            target: Fold;
+            position: FoldDirection;
+        }) => void;
         readonly progress: Core.Events<{
             target: Fold;
             offset: number;
         }>;
+        onprogress: (event: {
+            target: Fold;
+            offset: number;
+        }) => void;
         constructor(init?: FoldInit);
         isFolded: boolean;
         fold(): void;
@@ -4950,6 +5359,10 @@ declare namespace Ui {
             target: Switch;
             value: boolean;
         }>;
+        onchanged: (event: {
+            target: Switch;
+            value: boolean;
+        }) => void;
         constructor(init?: SwitchInit);
         value: boolean;
         private onButtonMove;
@@ -4988,6 +5401,11 @@ declare namespace Ui {
             page: AccordeonPage;
             position: number;
         }>;
+        onchanged: (event: {
+            target: Accordeonable;
+            page: AccordeonPage;
+            position: number;
+        }) => void;
         constructor(init?: AccordeonableInit);
         orientation: AccordeonOrientation;
         readonly pages: AccordeonPage[];
@@ -5052,7 +5470,15 @@ declare namespace Ui {
 }
 declare namespace Ui {
     type DropAtEffectFunc = (data: any, position: number) => DropEffect[];
-    interface DropAtBoxInit extends DropBoxInit {
+    interface DropAtBoxInit extends LBoxInit {
+        ondrageffect?: (event: Ui.DragEvent) => void;
+        ondragentered?: (event: {
+            target: DropAtBox;
+            data: any;
+        }) => void;
+        ondragleaved?: (event: {
+            target: DropAtBox;
+        }) => void;
         ondroppedat?: (event: {
             target: DropAtBox;
             data: any;
@@ -5080,13 +5506,21 @@ declare namespace Ui {
         private fixed;
         private markerOrientation;
         readonly drageffect: Core.Events<DragEvent>;
+        ondrageffect: (event: DragEvent) => void;
         readonly dragentered: Core.Events<{
             target: DropAtBox;
             data: any;
         }>;
+        ondragentered: (event: {
+            target: DropAtBox;
+            data: any;
+        }) => void;
         readonly dragleaved: Core.Events<{
             target: DropAtBox;
         }>;
+        ondragleaved: (event: {
+            target: DropAtBox;
+        }) => void;
         readonly droppedat: Core.Events<{
             target: DropAtBox;
             data: any;
@@ -5095,6 +5529,14 @@ declare namespace Ui {
             x: number;
             y: number;
         }>;
+        ondroppedat: (event: {
+            target: DropAtBox;
+            data: any;
+            effect: string;
+            position: number;
+            x: number;
+            y: number;
+        }) => void;
         readonly droppedfileat: Core.Events<{
             target: DropAtBox;
             file: Core.File;
@@ -5103,6 +5545,14 @@ declare namespace Ui {
             x: number;
             y: number;
         }>;
+        ondroppedfileat: (event: {
+            target: DropAtBox;
+            file: Core.File;
+            effect: string;
+            position: number;
+            x: number;
+            y: number;
+        }) => void;
         constructor(init?: DropAtBoxInit);
         addType(type: string | Function, effects: string | string[] | DropEffect[] | DropAtEffectFunc): void;
         setContainer(container: any): void;
@@ -5198,6 +5648,10 @@ declare namespace Ui {
             target: SegmentBar;
             value: any;
         }>;
+        onchanged: (event: {
+            target: SegmentBar;
+            value: any;
+        }) => void;
         constructor(init?: SegmentBarInit);
         orientation: 'horizontal' | 'vertical';
         field: string;
@@ -5265,6 +5719,11 @@ declare namespace Ui {
             path: string;
             position: number;
         }>;
+        onchanged: (event: {
+            target: Locator;
+            path: string;
+            position: number;
+        }) => void;
         constructor(init?: LocatorInit);
         path: string;
         private getBackground();
@@ -5347,6 +5806,10 @@ declare namespace Ui {
             target: Carouselable;
             position: number;
         }>;
+        onchanged: (event: {
+            target: Carouselable;
+            position: number;
+        }) => void;
         constructor(init?: CarouselableInit);
         autoPlay: number;
         stopAutoPlay(): void;
@@ -5411,6 +5874,10 @@ declare namespace Ui {
             target: Carousel;
             position: number;
         }>;
+        onchanged: (event: {
+            target: Carousel;
+            position: number;
+        }) => void;
         constructor(init?: CarouselInit);
         autoPlay: number;
         alwaysShowArrows: boolean;

@@ -11,6 +11,7 @@ namespace Core
 		arguments: Array<any>;
 		handle: any;
 		readonly timeupdated = new Core.Events<{ target: Timer, arguments: Array<any> }>();
+		set ontimeupdated(value: (event: { target: Timer, arguments: Array<any> }) => void) { this.timeupdated.connect(value); }
 
 		constructor(init?: TimerInit) {
 			super();

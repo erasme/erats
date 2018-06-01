@@ -15,12 +15,12 @@ var App = /** @class */ (function (_super) {
     function App() {
         var _this = _super.call(this) || this;
         var popup = new Ui.Popup();
-        var vbox = new Ui.VBox({ verticalAlign: 'center', horizontalAlign: 'center', spacing: 5 });
+        var vbox = new Ui.VBox().assign({ verticalAlign: 'center', horizontalAlign: 'center', spacing: 5 });
         _this.content = vbox;
-        var selectable = new Ui.Pressable({
+        var selectable = new Ui.Pressable().assign({
             content: [
-                new Ui.Rectangle({ width: 50, height: 50, radius: 8, fill: 'lightgreen' }),
-                new Ui.Label({ text: 'click' })
+                new Ui.Rectangle().assign({ width: 50, height: 50, radius: 8, fill: 'lightgreen' }),
+                new Ui.Label().assign({ text: 'click' })
             ],
             onpressed: function (e) {
                 console.log("open the menu: " + e.x + "x" + e.y);
@@ -29,23 +29,23 @@ var App = /** @class */ (function (_super) {
             }
         });
         vbox.append(selectable);
-        var button = new Ui.Button({
+        var button = new Ui.Button().assign({
             text: 'open popup',
             onpressed: function (e) { return popup.open(); }
         });
         vbox.append(button);
-        popup.content = new Ui.VBox({
+        popup.content = new Ui.VBox().assign({
             spacing: 5, margin: 10,
             content: [
-                new Ui.Label({ text: 'bonjour' }),
+                new Ui.Label().assign({ text: 'bonjour' }),
                 new Ui.Separator(),
-                new Ui.Label({ text: 'bonjour2' }),
+                new Ui.Label().assign({ text: 'bonjour2' }),
                 new Ui.Separator(),
-                new Ui.Label({ text: 'bonjour3' }),
+                new Ui.Label().assign({ text: 'bonjour3' }),
                 new Ui.Separator(),
-                new Ui.Button({ text: 'click me' }),
+                new Ui.Button().assign({ text: 'click me' }),
                 new Ui.Separator(),
-                new Ui.Button({
+                new Ui.Button().assign({
                     text: 'popup',
                     onpressed: function () {
                         var newPopup = new Ui.Popup({ autoClose: true });
@@ -56,14 +56,14 @@ var App = /** @class */ (function (_super) {
                 })
             ]
         });
-        vbox.append(new Ui.Button({
+        vbox.append(new Ui.Button().assign({
             text: 'close popup',
             onpressed: function () { return popup.close(); }
         }));
-        vbox.append(new Ui.Pressable({
+        vbox.append(new Ui.Pressable().assign({
             content: [
-                new Ui.Rectangle({ width: 50, height: 50, radius: 8, fill: 'lightgreen' }),
-                new Ui.Label({ text: 'click' })
+                new Ui.Rectangle().assign({ width: 50, height: 50, radius: 8, fill: 'lightgreen' }),
+                new Ui.Label().assign({ text: 'click' })
             ],
             onpressed: function (e) {
                 console.log('open the menu at element');

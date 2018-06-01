@@ -15,7 +15,9 @@ namespace Ui
 		private imageDrawing!: HTMLImageElement;
 		private setSrcLock: boolean = false;
 		readonly ready = new Core.Events<{ target: Image }>();
+		set onready(value: (event: { target: Image }) => void) { this.ready.connect(value); }
 		readonly error = new Core.Events<{ target: Image }>();
+		set onerror(value: (event: { target: Image }) => void) { this.error.connect(value); }
 
 		constructor(init?: ImageInit) {
 			super(init);

@@ -19,6 +19,7 @@ namespace Ui {
 		arrowbottom: Icon;
 		search: boolean;
 		readonly changed = new Core.Events<{ target: Combo, value: any, position: number }>();
+		set onchanged(value: (event: { target: Combo, value: any, position: number }) => void) { this.changed.connect(value); }
 
 		/**
 		 * @constructs

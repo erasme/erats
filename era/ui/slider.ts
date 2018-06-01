@@ -14,6 +14,7 @@ namespace Ui {
 		protected _orientation: Orientation = 'horizontal';
 		protected updateLock: boolean = false;
 		readonly changed = new Core.Events<{ target: Slider, value: number }>();
+		set onchanged(value: (event: { target: Slider, value: number }) => void) { this.changed.connect(value); }
 
 		constructor(init?: SliderInit) {
 			super(init);

@@ -27,6 +27,7 @@ namespace Ui
 		private _wordWrap: string = undefined;
 		private _whiteSpace: string = undefined;
 		readonly link = new Core.Events<{target: Html, ref: string }>();
+		set onlink(value: (event: { target: Html, ref: string }) => void) { this.link.connect(value); }
 
 		constructor(init?: HtmlInit) {
 			super(init);

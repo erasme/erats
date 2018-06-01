@@ -1,3 +1,5 @@
 /// <reference path="../../era/era.d.ts" />
 
-new Ui.App({ content: new Ui.Rectangle({ fill: 'orange', margin: 20 }) });
+new Ui.App().assign({
+    content: new Ui.Rectangle().assign({ fill: 'orange', margin: 20 })
+});

@@ -23,7 +23,11 @@ module Core
 		private request: XMLHttpRequest;
 		static requestHeaders: object = undefined;
 		readonly error = new Core.Events<{ target: HttpRequest, code: number }>();
+		set onerror(value: (event: { target: HttpRequest, code: number }) => void) { this.error.connect(value); }
+
 		readonly done = new Core.Events<{ target: HttpRequest }>();
+		set ondone(value: (event: { target: HttpRequest }) => void) { this.done.connect(value); }
+
 
 		constructor(init?: HttpRequestInit) {
 			super();

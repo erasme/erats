@@ -4,7 +4,7 @@ function create<T>(ctor: new () => T, props: Partial<T>): T {
 }
 
 function assign<T>(obj: T, props: Partial<T>): T {
-	return Object.assign(this, props);
+	return Object.assign(obj, props);
 }
 
 namespace Core {

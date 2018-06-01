@@ -11,8 +11,8 @@ namespace Ui {
 		private headersSize: number = 0;
 		private contentSize: number = 0;
 		private _orientation: AccordeonOrientation = 'horizontal';
-		readonly changed: Core.Events<{ target: Accordeonable, page: AccordeonPage, position: number }> = new Core.Events();
-
+		readonly changed = new Core.Events<{ target: Accordeonable, page: AccordeonPage, position: number }>();
+		set onchanged(value: (event: { target: Accordeonable, page: AccordeonPage, position: number }) => void) { this.changed.connect(value); }
 
 		/**
 		*	@constructs

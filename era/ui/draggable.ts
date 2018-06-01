@@ -98,7 +98,9 @@ namespace Ui {
 		private _dragDelta: Point;
 		private dataTransfer: DragDataTransfer;
 		readonly dragstarted = new Core.Events<{ target: Draggable, dataTransfer: DragEmuDataTransfer }>();
+		set ondragstarted(value: (event: { target: Draggable, dataTransfer: DragEmuDataTransfer }) => void) { this.dragstarted.connect(value); }
 		readonly dragended = new Core.Events<{ target: Draggable, effect: string }>();
+		set ondragended(value: (event: { target: Draggable, effect: string }) => void) { this.dragended.connect(value); }
 
 		constructor(init?: DraggableInit) {
 			super(init);

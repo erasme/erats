@@ -50,8 +50,13 @@ namespace Core {
 		protected totalOctets: number;
 
 		readonly progress = new Core.Events<{ target: FilePostUploader, loaded: number, total: number }>();
+		set onprogress(value: (event: { target: FilePostUploader, loaded: number, total: number }) => void) { this.progress.connect(value); }
+
 		readonly completed = new Core.Events<{ target: FilePostUploader }>();
+		set oncompleted(value: (event: { target: FilePostUploader}) => void) { this.completed.connect(value); }
+
 		readonly error = new Core.Events<{ target: FilePostUploader, status: number }>();
+		set onerror(value: (event: { target: FilePostUploader, status: number }) => void) { this.error.connect(value); }
 
 		/**
 		*	@constructs

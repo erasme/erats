@@ -6,12 +6,12 @@ namespace Ui {
 	}
 
 	export class DatePicker extends TextButtonField implements DatePickerInit {
-		protected popup: Popup;
-		protected calendar: MonthCalendar;
+		protected popup?: Popup;
+		protected calendar?: MonthCalendar;
 		protected _selectedDate: Date;
 		protected _isValid: boolean = false;
-		protected _dayFilter: number[];
-		protected _dateFilter: string[];
+		protected _dayFilter?: number[];
+		protected _dateFilter?: string[];
 
 		//
 		// @class TextButtonField that open a calendar to choose a day and then display it in a DD/MM/YYYY format 

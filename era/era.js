@@ -2,7 +2,7 @@ function create(ctor, props) {
     return Object.assign(new ctor(), props);
 }
 function assign(obj, props) {
-    return Object.assign(this, props);
+    return Object.assign(obj, props);
 }
 var Core;
 (function (Core) {
@@ -1193,6 +1193,16 @@ var Core;
             }
             return _this;
         }
+        Object.defineProperty(HttpRequest.prototype, "onerror", {
+            set: function (value) { this.error.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(HttpRequest.prototype, "ondone", {
+            set: function (value) { this.done.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         HttpRequest.prototype.setRequestHeader = function (header, value) {
             if (this.headers === undefined)
                 this.headers = {};
@@ -1372,6 +1382,11 @@ var Core;
             _this.handle = setTimeout(wrapper, 0);
             return _this;
         }
+        Object.defineProperty(Timer.prototype, "ontimeupdated", {
+            set: function (value) { this.timeupdated.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Timer.prototype.abort = function () {
             if (this.handle !== undefined) {
                 clearTimeout(this.handle);
@@ -1484,6 +1499,26 @@ var Core;
             }
             return _this;
         }
+        Object.defineProperty(Socket.prototype, "onerror", {
+            set: function (value) { this.error.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Socket.prototype, "onmessage", {
+            set: function (value) { this.message.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Socket.prototype, "onclosed", {
+            set: function (value) { this.closed.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Socket.prototype, "onopened", {
+            set: function (value) { this.opened.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Socket.prototype.send = function (msg) {
             var _this = this;
             if (this.websocket !== undefined) {
@@ -1839,6 +1874,21 @@ var Core;
             }
             return _this;
         }
+        Object.defineProperty(FilePostUploader.prototype, "onprogress", {
+            set: function (value) { this.progress.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(FilePostUploader.prototype, "oncompleted", {
+            set: function (value) { this.completed.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(FilePostUploader.prototype, "onerror", {
+            set: function (value) { this.error.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(FilePostUploader.prototype, "method", {
             set: function (method) {
                 this._method = method;
@@ -2216,15 +2266,11 @@ var Anim;
                 this.clocks[i].update(current);
             this.tick.fire({ target: this });
         };
-        TimeManager.initialize = function () {
-            this.current = new Anim.TimeManager();
-        };
-        TimeManager.current = null;
+        TimeManager.current = new TimeManager();
         return TimeManager;
     }(Core.Object));
     Anim.TimeManager = TimeManager;
 })(Anim || (Anim = {}));
-Anim.TimeManager.initialize();
 var Anim;
 (function (Anim) {
     var AnimationManager = (function (_super) {
@@ -2273,15 +2319,11 @@ var Anim;
             if (this.clocks.length > 0)
                 requestAnimationFrame(this.onTickBind);
         };
-        AnimationManager.initialize = function () {
-            this.current = new Anim.AnimationManager();
-        };
-        AnimationManager.current = null;
+        AnimationManager.current = new AnimationManager();
         return AnimationManager;
     }(Core.Object));
     Anim.AnimationManager = AnimationManager;
 })(Anim || (Anim = {}));
-Anim.AnimationManager.initialize();
 if (!('requestAnimationFrame' in window)) {
     if ('webkitRequestAnimationFrame' in window)
         window.requestAnimationFrame = window['webkitRequestAnimationFrame'];
@@ -3422,6 +3464,76 @@ var Ui;
             }
             return _this;
         }
+        Object.defineProperty(Element.prototype, "onfocused", {
+            set: function (value) { this.focused.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Element.prototype, "onblurred", {
+            set: function (value) { this.blurred.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Element.prototype, "onloaded", {
+            set: function (value) { this.loaded.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Element.prototype, "onunloaded", {
+            set: function (value) { this.unloaded.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Element.prototype, "onenabled", {
+            set: function (value) { this.enabled.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Element.prototype, "ondisabled", {
+            set: function (value) { this.disabled.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Element.prototype, "onvisible", {
+            set: function (value) { this.visible.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Element.prototype, "onhidden", {
+            set: function (value) { this.hidden.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Element.prototype, "onptrdowned", {
+            set: function (value) { this.ptrdowned.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Element.prototype, "onptrmoved", {
+            set: function (value) { this.ptrmoved.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Element.prototype, "onptrupped", {
+            set: function (value) { this.ptrupped.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Element.prototype, "onptrcanceled", {
+            set: function (value) { this.ptrcanceled.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Element.prototype, "onwheelchanged", {
+            set: function (value) { this.wheelchanged.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Element.prototype, "ondragover", {
+            set: function (value) { this.dragover.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(Element.prototype, "drawing", {
             get: function () {
                 return this._drawing;
@@ -8262,6 +8374,21 @@ var Ui;
             }
             return _this;
         }
+        Object.defineProperty(Overable.prototype, "onentered", {
+            set: function (value) { this.entered.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Overable.prototype, "onleaved", {
+            set: function (value) { this.leaved.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Overable.prototype, "onmoved", {
+            set: function (value) { this.moved.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(Overable.prototype, "isOver", {
             get: function () {
                 return this.watcher.isOver;
@@ -8438,6 +8565,31 @@ var Ui;
             }
             return _this;
         }
+        Object.defineProperty(Pressable.prototype, "ondowned", {
+            set: function (value) { this.downed.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Pressable.prototype, "onupped", {
+            set: function (value) { this.upped.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Pressable.prototype, "onpressed", {
+            set: function (value) { this.pressed.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Pressable.prototype, "onactivated", {
+            set: function (value) { this.activated.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Pressable.prototype, "ondelayedpress", {
+            set: function (value) { this.delayedpress.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(Pressable.prototype, "isDown", {
             get: function () {
                 return this.pressWatcher.isDown;
@@ -8567,6 +8719,16 @@ var Ui;
             }
             return _this;
         }
+        Object.defineProperty(Draggable.prototype, "ondragstarted", {
+            set: function (value) { this.dragstarted.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Draggable.prototype, "ondragended", {
+            set: function (value) { this.dragended.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Draggable.prototype.setAllowedMode = function (allowedMode) {
             this.allowedMode = allowedMode;
         };
@@ -8730,6 +8892,16 @@ var Ui;
             });
             return _this;
         }
+        Object.defineProperty(Selectionable.prototype, "onselected", {
+            set: function (value) { this.selected.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Selectionable.prototype, "onunselected", {
+            set: function (value) { this.unselected.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(Selectionable.prototype, "isSelected", {
             get: function () {
                 return this.selectionWatcher.isSelected;
@@ -8779,6 +8951,11 @@ var Ui;
             _this._watchers = [];
             return _this;
         }
+        Object.defineProperty(Selection.prototype, "onchanged", {
+            set: function (value) { this.changed.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Selection.prototype.clear = function () {
             var change = false;
             while (this._watchers.length > 0) {
@@ -9507,6 +9684,21 @@ var Ui;
             }
             return _this;
         }
+        Object.defineProperty(MovableBase.prototype, "onupped", {
+            set: function (value) { this.upped.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MovableBase.prototype, "ondowned", {
+            set: function (value) { this.downed.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MovableBase.prototype, "onmoved", {
+            set: function (value) { this.moved.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(MovableBase.prototype, "lock", {
             get: function () {
                 return this._lock;
@@ -10353,6 +10545,31 @@ var Ui;
             }
             return _this;
         }
+        Object.defineProperty(Transformable.prototype, "ondowned", {
+            set: function (value) { this.downed.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Transformable.prototype, "onupped", {
+            set: function (value) { this.upped.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Transformable.prototype, "ontransformed", {
+            set: function (value) { this.transformed.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Transformable.prototype, "oninertiastarted", {
+            set: function (value) { this.inertiastarted.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Transformable.prototype, "oninertiaended", {
+            set: function (value) { this.inertiaended.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(Transformable.prototype, "allowLeftMouse", {
             set: function (value) {
                 this._allowLeftMouse = value;
@@ -10883,6 +11100,11 @@ var Ui;
             }
             return _this;
         }
+        Object.defineProperty(Scrollable.prototype, "onscrolled", {
+            set: function (value) { this.scrolled.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(Scrollable.prototype, "maxScale", {
             set: function (maxScale) {
                 this.contentBox.maxScale = maxScale;
@@ -11260,6 +11482,11 @@ var Ui;
             _this.inertia = true;
             return _this;
         }
+        Object.defineProperty(ScrollableContent.prototype, "onscrolled", {
+            set: function (value) { this.scrolled.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(ScrollableContent.prototype, "offsetX", {
             get: function () {
                 return -this.translateX;
@@ -12244,6 +12471,31 @@ var Ui;
             }
             return _this;
         }
+        Object.defineProperty(DropBox.prototype, "ondrageffect", {
+            set: function (value) { this.drageffect.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(DropBox.prototype, "ondragentered", {
+            set: function (value) { this.dragentered.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(DropBox.prototype, "ondragleaved", {
+            set: function (value) { this.dragleaved.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(DropBox.prototype, "ondropped", {
+            set: function (value) { this.dropped.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(DropBox.prototype, "ondroppedfile", {
+            set: function (value) { this.droppedfile.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         DropBox.prototype.addType = function (type, effects) {
             if (typeof (type) === 'string')
                 type = type.toLowerCase();
@@ -13201,6 +13453,11 @@ var Ui;
             }
             return _this;
         }
+        Object.defineProperty(Popup.prototype, "onclosed", {
+            set: function (value) { this.closed.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(Popup.prototype, "preferredWidth", {
             set: function (width) {
                 this._preferredWidth = width;
@@ -14233,6 +14490,26 @@ var Ui;
             }
             return _this;
         }
+        Object.defineProperty(App.prototype, "onresized", {
+            set: function (value) { this.resized.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(App.prototype, "onready", {
+            set: function (value) { this.ready.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(App.prototype, "onparentmessage", {
+            set: function (value) { this.parentmessage.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(App.prototype, "onorientationchanged", {
+            set: function (value) { this.orientationchanged.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         App.prototype.setWebApp = function (webApp) {
             this.webApp = webApp;
         };
@@ -14679,6 +14956,11 @@ var Ui;
             _this.drawing.addEventListener('submit', function (e) { return _this.onSubmit(e); });
             return _this;
         }
+        Object.defineProperty(Form.prototype, "onsubmited", {
+            set: function (value) { this.submited.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Form.prototype.onSubmit = function (event) {
             event.preventDefault();
             event.stopPropagation();
@@ -14882,6 +15164,11 @@ var Ui;
             }
             return _this;
         }
+        Object.defineProperty(Dialog.prototype, "onclosed", {
+            set: function (value) { this.closed.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Dialog.prototype.getSelectionHandler = function () {
             return this.dialogSelection;
         };
@@ -15137,6 +15424,11 @@ var Ui;
             }
             return _this;
         }
+        Object.defineProperty(Html.prototype, "onlink", {
+            set: function (value) { this.link.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Html.prototype.getElements = function (tagName) {
             var res = [];
             this.searchElements(tagName.toUpperCase(), this.htmlDrawing, res);
@@ -15842,6 +16134,16 @@ var Ui;
             }
             return _this;
         }
+        Object.defineProperty(Image.prototype, "onready", {
+            set: function (value) { this.ready.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Image.prototype, "onerror", {
+            set: function (value) { this.error.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(Image.prototype, "src", {
             get: function () {
                 return this._src;
@@ -16070,6 +16372,16 @@ var Ui;
             }
             return _this;
         }
+        Object.defineProperty(Entry.prototype, "onchanged", {
+            set: function (value) { this.changed.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Entry.prototype, "onvalidated", {
+            set: function (value) { this.validated.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(Entry.prototype, "passwordMode", {
             set: function (passwordMode) {
                 if (this._passwordMode != passwordMode) {
@@ -16267,6 +16579,11 @@ var Ui;
             _this.resize = new Core.Events();
             return _this;
         }
+        Object.defineProperty(Fixed.prototype, "onresize", {
+            set: function (value) { this.resize.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Fixed.prototype.setPosition = function (item, x, y) {
             if (x !== undefined)
                 item['Ui.Fixed.x'] = x;
@@ -16504,6 +16821,16 @@ var Ui;
             }
             return _this;
         }
+        Object.defineProperty(TextField.prototype, "onchanged", {
+            set: function (value) { this.changed.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(TextField.prototype, "onvalidated", {
+            set: function (value) { this.validated.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(TextField.prototype, "textHolder", {
             set: function (text) {
                 this.textholder.text = text;
@@ -16705,6 +17032,21 @@ var Ui;
             }
             return _this;
         }
+        Object.defineProperty(CheckBox.prototype, "onchanged", {
+            set: function (value) { this.changed.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(CheckBox.prototype, "ontoggled", {
+            set: function (value) { this.toggled.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(CheckBox.prototype, "onuntoggled", {
+            set: function (value) { this.untoggled.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(CheckBox.prototype, "isToggled", {
             get: function () {
                 return this._isToggled;
@@ -17163,6 +17505,11 @@ var Ui;
             }
             return _this;
         }
+        Object.defineProperty(TextArea.prototype, "onchanged", {
+            set: function (value) { this.changed.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(TextArea.prototype, "fontSize", {
             get: function () {
                 if (this._fontSize !== undefined)
@@ -17407,6 +17754,11 @@ var Ui;
             }
             return _this;
         }
+        Object.defineProperty(TextAreaField.prototype, "onchanged", {
+            set: function (value) { this.changed.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(TextAreaField.prototype, "textHolder", {
             set: function (text) {
                 this.textholder.text = text;
@@ -18166,6 +18518,11 @@ var Ui;
             }
             return _this;
         }
+        Object.defineProperty(Paned.prototype, "onchanged", {
+            set: function (value) { this.changed.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(Paned.prototype, "orientation", {
             get: function () {
                 if (this.vertical)
@@ -18393,6 +18750,11 @@ var Ui;
             }
             return _this;
         }
+        Object.defineProperty(Slider.prototype, "onchanged", {
+            set: function (value) { this.changed.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(Slider.prototype, "value", {
             get: function () {
                 return this._value;
@@ -18584,6 +18946,36 @@ var Ui;
             }
             return _this;
         }
+        Object.defineProperty(Audio.prototype, "onready", {
+            set: function (value) { this.ready.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Audio.prototype, "onended", {
+            set: function (value) { this.ended.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Audio.prototype, "ontimeupdate", {
+            set: function (value) { this.timeupdate.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Audio.prototype, "onbufferingupdate", {
+            set: function (value) { this.bufferingupdate.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Audio.prototype, "onstatechange", {
+            set: function (value) { this.statechange.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Audio.prototype, "onerror", {
+            set: function (value) { this.error.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(Audio.prototype, "src", {
             set: function (src) {
                 this.canplaythrough = false;
@@ -18803,6 +19195,11 @@ var Ui;
             }
             return _this;
         }
+        Object.defineProperty(LinkButton.prototype, "onlink", {
+            set: function (value) { this.link.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         LinkButton.prototype.onLinkButtonPress = function () {
             this.link.fire({ target: this });
             if (this.src) {
@@ -19367,6 +19764,36 @@ var Ui;
             }
             return _this;
         }
+        Object.defineProperty(Video.prototype, "onstatechanged", {
+            set: function (value) { this.statechanged.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Video.prototype, "onready", {
+            set: function (value) { this.ready.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Video.prototype, "onended", {
+            set: function (value) { this.ended.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Video.prototype, "onerror", {
+            set: function (value) { this.error.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Video.prototype, "ontimeupdated", {
+            set: function (value) { this.timeupdated.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Video.prototype, "onbufferingupdated", {
+            set: function (value) { this.bufferingupdated.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(Video.prototype, "src", {
             set: function (src) {
                 this.canplaythrough = false;
@@ -19656,6 +20083,11 @@ var Ui;
             }
             return _this;
         }
+        Object.defineProperty(MonthCalendar.prototype, "ondayselected", {
+            set: function (value) { this.dayselected.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(MonthCalendar.prototype, "dayFilter", {
             set: function (dayFilter) {
                 this._dayFilter = dayFilter;
@@ -19882,6 +20314,21 @@ var Ui;
             }
             return _this;
         }
+        Object.defineProperty(TextButtonField.prototype, "onchanged", {
+            set: function (value) { this.changed.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(TextButtonField.prototype, "onbuttonpressed", {
+            set: function (value) { this.buttonpressed.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(TextButtonField.prototype, "onvalidated", {
+            set: function (value) { this.validated.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(TextButtonField.prototype, "textHolder", {
             set: function (text) {
                 this._textholder.text = text;
@@ -20077,6 +20524,11 @@ var Ui;
             _this.link.connect(function () { return _this.onLinkPress(); });
             return _this;
         }
+        Object.defineProperty(DownloadButton.prototype, "ondownload", {
+            set: function (value) { this.download.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         DownloadButton.prototype.onLinkPress = function () {
             this.download.fire({ target: this });
         };
@@ -20120,6 +20572,11 @@ var Ui;
             }
             return _this;
         }
+        Object.defineProperty(IFrame.prototype, "onready", {
+            set: function (value) { this.ready.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(IFrame.prototype, "src", {
             get: function () {
                 return this.iframeDrawing.getAttribute('src');
@@ -20202,6 +20659,21 @@ var Ui;
             }
             return _this;
         }
+        Object.defineProperty(ContentEditable.prototype, "onanchorchanged", {
+            set: function (value) { this.anchorchanged.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ContentEditable.prototype, "onchanged", {
+            set: function (value) { this.changed.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ContentEditable.prototype, "onvalidated", {
+            set: function (value) { this.validated.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         ContentEditable.prototype.onKeyUp = function (event) {
             this.testAnchorChange();
             var key = event.which;
@@ -20352,6 +20824,11 @@ var Ui;
             }
             return _this;
         }
+        Object.defineProperty(VBoxScrollable.prototype, "onscrolled", {
+            set: function (value) { this.scrolled.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         VBoxScrollable.prototype.reload = function () {
             this.contentBox.reload();
         };
@@ -20655,6 +21132,11 @@ var Ui;
             _this.removeChild(_this.contentBox);
             return _this;
         }
+        Object.defineProperty(VBoxScrollableContent.prototype, "onscrolled", {
+            set: function (value) { this.scrolled.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         VBoxScrollableContent.prototype.setLoader = function (loader) {
             if (this.loader !== loader) {
                 if (this.loader !== undefined)
@@ -21177,6 +21659,11 @@ var Ui;
             }
             return _this;
         }
+        Object.defineProperty(Combo.prototype, "onchanged", {
+            set: function (value) { this.changed.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(Combo.prototype, "placeHolder", {
             set: function (placeHolder) {
                 this._placeHolder = placeHolder;
@@ -21500,6 +21987,11 @@ var Ui;
             }
             return _this;
         }
+        Object.defineProperty(ListViewHeadersBar.prototype, "onheaderpressed", {
+            set: function (value) { this.headerpressed.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         ListViewHeadersBar.prototype.getSortColKey = function () {
             return this.sortColKey;
         };
@@ -21622,6 +22114,16 @@ var Ui;
             });
             return _this;
         }
+        Object.defineProperty(ListViewRow.prototype, "onselected", {
+            set: function (value) { this.selected.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ListViewRow.prototype, "onunselected", {
+            set: function (value) { this.unselected.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         ListViewRow.prototype.getData = function () {
             return this.data;
         };
@@ -21793,6 +22295,31 @@ var Ui;
             }
             return _this;
         }
+        Object.defineProperty(ListView.prototype, "onselectionchanged", {
+            set: function (value) { this.selectionchanged.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ListView.prototype, "onselected", {
+            set: function (value) { this.selected.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ListView.prototype, "onunselected", {
+            set: function (value) { this.unselected.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ListView.prototype, "onactivated", {
+            set: function (value) { this.activated.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ListView.prototype, "onsortchanged", {
+            set: function (value) { this.sortchanged.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(ListView.prototype, "scrolled", {
             set: function (scrolled) {
                 this.scrollVertical = scrolled;
@@ -22129,6 +22656,11 @@ var Ui;
             _this.input.file.connect(function (e) { return _this.onFile(e.target, e.file); });
             return _this;
         }
+        Object.defineProperty(Uploadable.prototype, "onfile", {
+            set: function (value) { this.file.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Uploadable.prototype.setDirectoryMode = function (active) {
             this.input.setDirectoryMode(active);
         };
@@ -22366,6 +22898,11 @@ var Ui;
             }
             return _this;
         }
+        Object.defineProperty(UploadButton.prototype, "onfilechanged", {
+            set: function (value) { this.filechanged.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(UploadButton.prototype, "directoryMode", {
             set: function (active) {
                 this.input.setDirectoryMode(active);
@@ -22594,6 +23131,11 @@ var Ui;
             }
             return _this;
         }
+        Object.defineProperty(TransitionBox.prototype, "onchanged", {
+            set: function (value) { this.changed.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(TransitionBox.prototype, "position", {
             get: function () {
                 return this._position;
@@ -22799,6 +23341,26 @@ var Ui;
             }
             return _this;
         }
+        Object.defineProperty(Fold.prototype, "onfolded", {
+            set: function (value) { this.folded.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Fold.prototype, "onunfolded", {
+            set: function (value) { this.unfolded.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Fold.prototype, "onpositionchanged", {
+            set: function (value) { this.positionchanged.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Fold.prototype, "onprogress", {
+            set: function (value) { this.progress.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(Fold.prototype, "isFolded", {
             get: function () {
                 return this._isFolded;
@@ -23139,6 +23701,11 @@ var Ui;
             }
             return _this;
         }
+        Object.defineProperty(Switch.prototype, "onchanged", {
+            set: function (value) { this.changed.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(Switch.prototype, "value", {
             get: function () {
                 return this._value;
@@ -23321,6 +23888,11 @@ var Ui;
             _this.clipToBounds = true;
             return _this;
         }
+        Object.defineProperty(Accordeonable.prototype, "onchanged", {
+            set: function (value) { this.changed.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(Accordeonable.prototype, "orientation", {
             get: function () {
                 return this._orientation;
@@ -23691,6 +24263,31 @@ var Ui;
             }
             return _this;
         }
+        Object.defineProperty(DropAtBox.prototype, "ondrageffect", {
+            set: function (value) { this.drageffect.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(DropAtBox.prototype, "ondragentered", {
+            set: function (value) { this.dragentered.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(DropAtBox.prototype, "ondragleaved", {
+            set: function (value) { this.dragleaved.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(DropAtBox.prototype, "ondroppedat", {
+            set: function (value) { this.droppedat.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(DropAtBox.prototype, "ondroppedfileat", {
+            set: function (value) { this.droppedfileat.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         DropAtBox.prototype.addType = function (type, effects) {
             if (typeof (type) === 'string')
                 type = type.toLowerCase();
@@ -24222,6 +24819,11 @@ var Ui;
             }
             return _this;
         }
+        Object.defineProperty(SegmentBar.prototype, "onchanged", {
+            set: function (value) { this.changed.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(SegmentBar.prototype, "orientation", {
             set: function (orientation) {
                 this._orientation = orientation;
@@ -24563,6 +25165,11 @@ var Ui;
             }
             return _this;
         }
+        Object.defineProperty(Locator.prototype, "onchanged", {
+            set: function (value) { this.changed.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(Locator.prototype, "path", {
             get: function () {
                 return this._path;
@@ -24975,6 +25582,11 @@ var Ui;
             }
             return _this;
         }
+        Object.defineProperty(Carouselable.prototype, "onchanged", {
+            set: function (value) { this.changed.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(Carouselable.prototype, "autoPlay", {
             set: function (delay) {
                 if (this.autoPlayDelay !== delay) {
@@ -25400,6 +26012,11 @@ var Ui;
             }
             return _this;
         }
+        Object.defineProperty(Carousel.prototype, "onchanged", {
+            set: function (value) { this.changed.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(Carousel.prototype, "autoPlay", {
             set: function (delay) {
                 this.carouselable.autoPlay = delay;

@@ -149,7 +149,9 @@ namespace Ui {
 		//private handler: Selection | undefined;
 		private selectionWatcher: SelectionableWatcher;
 		readonly selected = new Core.Events<{ target: Selectionable }>();
+		set onselected(value: (event: { target: Selectionable }) => void) { this.selected.connect(value); }
 		readonly unselected = new Core.Events<{ target: Selectionable }>();
+		set onunselected(value: (event: { target: Selectionable }) => void) { this.unselected.connect(value); }
 
 		constructor(init?: SelectionableInit) {
 			super(init);

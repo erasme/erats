@@ -10,6 +10,7 @@ namespace Ui {
 		graphic: TextBgGraphic;
 		textholder: Label;
 		readonly changed = new Core.Events<{ target: TextAreaField, value: string }>();
+		set onchanged(value: (event: { target: TextAreaField, value: string }) => void) { this.changed.connect(value); }
 
 		constructor(init?: TextAreaFieldInit) {
 			super(init);

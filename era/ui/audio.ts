@@ -18,11 +18,22 @@ namespace Ui {
 		private _state: MediaState = 'initial';
 
 		readonly ready = new Core.Events<{ target: Audio }>();
+		set onready(value: (event: { target: Audio }) => void) { this.ready.connect(value); }
+
 		readonly ended = new Core.Events<{ target: Audio }>();
+		set onended(value: (event: { target: Audio }) => void) { this.ended.connect(value); }
+
 		readonly timeupdate = new Core.Events<{ target: Audio, time: number }>();
+		set ontimeupdate(value: (event: { target: Audio, time: number }) => void) { this.timeupdate.connect(value); }
+
 		readonly bufferingupdate = new Core.Events<{ target: Audio, buffer: number }>();
+		set onbufferingupdate(value: (event: { target: Audio, buffer: number }) => void) { this.bufferingupdate.connect(value); }
+
 		readonly statechange = new Core.Events<{target: Audio, state: MediaState }>();
+		set onstatechange(value: (event: { target: Audio, state: MediaState }) => void) { this.statechange.connect(value); }
+
 		readonly error = new Core.Events<{ target: Audio, code: number }>();
+		set onerror(value: (event: { target: Audio, code: number }) => void) { this.error.connect(value); }
 
 		// detect what audio system is supported
 		static htmlAudio: boolean = false;
