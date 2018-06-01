@@ -4277,9 +4277,6 @@ declare namespace Ui {
         }) => void;
     }
     class Video extends Element {
-        oggSrc?: string;
-        mp4Src?: string;
-        webmSrc?: string;
         private loaddone;
         private videoDrawing;
         canplaythrough: boolean;

@@ -41,7 +41,7 @@ class App extends Ui.App {
 
         let video = new Ui.Video().assign({
             margin: 10, width: 512, height: 288,
-			oggSrc: 'video.ogv', mp4Src: 'video.m4v', webmSrc: 'video.webm', volume: 1,
+			src: 'video.m4v', volume: 1,
 			ontimeupdated: e => progressbar.value = e.time / video.duration,
 			onready: () => console.log('video ready'),
 			onended: () => console.log('video ended')

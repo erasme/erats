@@ -41,7 +41,7 @@ var App = /** @class */ (function (_super) {
         lbox.append(new Ui.Rectangle().assign({ fill: 'lightgreen' }));
         var video = new Ui.Video().assign({
             margin: 10, width: 512, height: 288,
-            oggSrc: 'video.ogv', mp4Src: 'video.m4v', webmSrc: 'video.webm', volume: 1,
+            src: 'video.m4v', volume: 1,
             ontimeupdated: function (e) { return progressbar.value = e.time / video.duration; },
             onready: function () { return console.log('video ready'); },
             onended: function () { return console.log('video ended'); }

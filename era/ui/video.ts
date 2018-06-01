@@ -18,9 +18,6 @@ namespace Ui {
 	}
 
 	export class Video extends Element {
-		oggSrc?: string;
-		mp4Src?: string;
-		webmSrc?: string;
 		private loaddone: boolean = false;
 		private videoDrawing!: HTMLVideoElement;
 		canplaythrough: boolean = false;
