@@ -11646,6 +11646,496 @@ var Ui;
 })(Ui || (Ui = {}));
 var Ui;
 (function (Ui) {
+    var NativeScrollableContent = (function (_super) {
+        __extends(NativeScrollableContent, _super);
+        function NativeScrollableContent() {
+            var _this = _super.call(this) || this;
+            _this.scrolled = new Core.Events();
+            _this.focusable = false;
+            _this.containerDrawing = _this.scrollDiv;
+            return _this;
+        }
+        Object.defineProperty(NativeScrollableContent.prototype, "onscrolled", {
+            set: function (value) { this.scrolled.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        NativeScrollableContent.prototype.renderDrawing = function () {
+            var _this = this;
+            var drawing = _super.prototype.renderDrawing.call(this);
+            drawing.style.overflow = 'hidden';
+            this.scrollDiv = document.createElement('div');
+            this.scrollDiv.style.position = 'absolute';
+            this.scrollDiv.style.top = '0px';
+            this.scrollDiv.style.left = '0px';
+            this.scrollDiv.style.right = "-" + NativeScrollableContent.nativeScrollBarWidth + "px";
+            this.scrollDiv.style.bottom = "-" + NativeScrollableContent.nativeScrollBarHeight + "px";
+            this.scrollDiv.style.overflow = 'scroll';
+            this.scrollDiv.style.setProperty('-webkit-overflow-scrolling', 'touch');
+            this.scrollDiv.onscroll = function () { return _this.onScroll(); };
+            drawing.appendChild(this.scrollDiv);
+            return drawing;
+        };
+        Object.defineProperty(NativeScrollableContent.prototype, "content", {
+            get: function () {
+                return this._content;
+            },
+            set: function (value) {
+                if (value !== this._content) {
+                    if (this._content !== undefined)
+                        this.removeChild(this._content);
+                    this._content = value;
+                    if (this._content)
+                        this.appendChild(this._content);
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(NativeScrollableContent.prototype, "offsetX", {
+            get: function () {
+                return this.scrollDiv.scrollLeft;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(NativeScrollableContent.prototype, "offsetY", {
+            get: function () {
+                return this.scrollDiv.scrollTop;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        NativeScrollableContent.prototype.stopInertia = function () {
+        };
+        NativeScrollableContent.prototype.setOffset = function (x, y) {
+            this.scrollDiv.scrollLeft = x;
+            this.scrollDiv.scrollTop = y;
+        };
+        Object.defineProperty(NativeScrollableContent.prototype, "contentWidth", {
+            get: function () {
+                return this._content ? this._content.layoutWidth : 0;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(NativeScrollableContent.prototype, "contentHeight", {
+            get: function () {
+                return this._content ? this._content.layoutHeight : 0;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        NativeScrollableContent.prototype.measureCore = function (width, height) {
+            var size = { width: 0, height: 0 };
+            if (this._content)
+                size = this._content.measure(width, height);
+            return size;
+        };
+        NativeScrollableContent.prototype.arrangeCore = function (width, height) {
+            _super.prototype.arrangeCore.call(this, Math.max(width, this.measureWidth), Math.max(height, this.measureHeight));
+            if (this._content)
+                this._content.arrange(0, 0, Math.max(width, this._content.measureWidth), Math.max(height, this._content.measureHeight));
+        };
+        NativeScrollableContent.prototype.onScroll = function () {
+            this.scrolled.fire({ target: this, offsetX: this.offsetX, offsetY: this.offsetY });
+        };
+        NativeScrollableContent.prototype.getInverseLayoutTransform = function () {
+            return Ui.Matrix.createTranslate(-this.scrollDiv.scrollLeft, -this.scrollDiv.scrollTop).multiply(_super.prototype.getInverseLayoutTransform.call(this));
+        };
+        NativeScrollableContent.prototype.getLayoutTransform = function () {
+            return _super.prototype.getLayoutTransform.call(this).multiply(Ui.Matrix.createTranslate(this.scrollDiv.scrollLeft, this.scrollDiv.scrollTop));
+        };
+        NativeScrollableContent.initialize = function () {
+            var div = document.createElement('div');
+            div.style.position = 'absolute';
+            div.style.display = 'block';
+            div.style.opacity = '0';
+            div.style.width = '100px';
+            div.style.height = '100px';
+            div.style.overflow = 'scroll';
+            if (document.body == null)
+                document.body = document.createElement('body');
+            document.body.appendChild(div);
+            NativeScrollableContent.nativeScrollBarWidth = 100 - div.clientWidth;
+            NativeScrollableContent.nativeScrollBarHeight = 100 - div.clientHeight;
+            document.body.removeChild(div);
+        };
+        NativeScrollableContent.nativeScrollBarWidth = 0;
+        NativeScrollableContent.nativeScrollBarHeight = 0;
+        return NativeScrollableContent;
+    }(Ui.Container));
+    Ui.NativeScrollableContent = NativeScrollableContent;
+    NativeScrollableContent.initialize();
+    var NativeScrollable = (function (_super) {
+        __extends(NativeScrollable, _super);
+        function NativeScrollable() {
+            var _this = _super.call(this) || this;
+            _this._scrollHorizontal = true;
+            _this._scrollVertical = true;
+            _this.showShadows = false;
+            _this.lock = false;
+            _this.isOver = false;
+            _this.offsetX = 0;
+            _this.offsetY = 0;
+            _this.relativeOffsetX = 0;
+            _this.relativeOffsetY = 0;
+            _this.viewWidth = 0;
+            _this.viewHeight = 0;
+            _this.contentWidth = 0;
+            _this.contentHeight = 0;
+            _this.scrollLock = false;
+            _this.scrollbarVerticalNeeded = false;
+            _this.scrollbarHorizontalNeeded = false;
+            _this.scrollbarVerticalHeight = 0;
+            _this.scrollbarHorizontalWidth = 0;
+            _this.scrolled = new Core.Events();
+            _this.autoShowScrollbars = function () {
+                if (_this.showClock === undefined) {
+                    _this.showClock = new Anim.Clock({ duration: 'forever' });
+                    _this.showClock.timeupdate.connect(function (e) { return _this.onShowBarsTick(e.target, e.progress, e.deltaTick); });
+                    _this.showClock.begin();
+                }
+            };
+            _this.autoHideScrollbars = function () {
+                if (_this.isOver)
+                    return;
+                if (_this.showClock === undefined) {
+                    _this.showClock = new Anim.Clock({ duration: 'forever' });
+                    _this.showClock.timeupdate.connect(function (e) { return _this.onShowBarsTick(e.target, e.progress, e.deltaTick); });
+                    _this.showClock.begin();
+                }
+            };
+            _this.onScrollbarHorizontalMove = function () {
+                if (_this.scrollLock)
+                    return;
+                var totalWidth = _this.viewWidth - _this.scrollbarHorizontalBox.layoutWidth;
+                var offsetX = Math.min(1, Math.max(0, _this.scrollbarHorizontalBox.positionX / totalWidth));
+                _this.setOffset(offsetX, undefined, false, true);
+                _this.scrollbarHorizontalBox.setPosition(offsetX * totalWidth, undefined);
+            };
+            _this.onScrollbarVerticalMove = function () {
+                if (_this.scrollLock)
+                    return;
+                var totalHeight = _this.viewHeight - _this.scrollbarVerticalBox.layoutHeight;
+                var offsetY = Math.min(1, Math.max(0, _this.scrollbarVerticalBox.positionY / totalHeight));
+                _this.setOffset(undefined, offsetY, false, true);
+                _this.scrollbarVerticalBox.setPosition(undefined, offsetY * totalHeight);
+            };
+            _this.contentBox = new NativeScrollableContent();
+            _this.contentBox.scrolled.connect(function () { return _this.onScroll(); });
+            _this.appendChild(_this.contentBox);
+            new Ui.OverWatcher({
+                element: _this,
+                onentered: function () {
+                    _this.isOver = true;
+                    _this.autoShowScrollbars();
+                },
+                onleaved: function () {
+                    _this.isOver = false;
+                    _this.autoHideScrollbars();
+                }
+            });
+            _this.setScrollbarHorizontal(new Ui.Movable());
+            _this.setScrollbarVertical(new Ui.Movable());
+            return _this;
+        }
+        Object.defineProperty(NativeScrollable.prototype, "onscrolled", {
+            set: function (value) { this.scrolled.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(NativeScrollable.prototype, "content", {
+            get: function () {
+                return this.contentBox.content;
+            },
+            set: function (content) {
+                this.contentBox.content = content;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(NativeScrollable.prototype, "scrollHorizontal", {
+            get: function () {
+                return this._scrollHorizontal;
+            },
+            set: function (scroll) {
+                if (scroll !== this._scrollHorizontal) {
+                    this._scrollHorizontal = scroll;
+                    this.invalidateMeasure();
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(NativeScrollable.prototype, "scrollVertical", {
+            get: function () {
+                return this._scrollVertical;
+            },
+            set: function (scroll) {
+                if (scroll !== this._scrollVertical) {
+                    this._scrollVertical = scroll;
+                    this.invalidateMeasure();
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        NativeScrollable.prototype.setScrollbarVertical = function (scrollbarVertical) {
+            if (this.scrollbarVerticalBox) {
+                this.scrollbarVerticalBox.downed.disconnect(this.autoShowScrollbars);
+                this.scrollbarVerticalBox.upped.disconnect(this.autoHideScrollbars);
+                this.scrollbarVerticalBox.moved.disconnect(this.onScrollbarVerticalMove);
+                this.removeChild(this.scrollbarVerticalBox);
+            }
+            if (scrollbarVertical) {
+                this.scrollbarVerticalBox = scrollbarVertical;
+                this.scrollbarVerticalBox.opacity = 0;
+                this.scrollbarVerticalBox.moveHorizontal = false;
+                this.scrollbarVerticalBox.downed.connect(this.autoShowScrollbars);
+                this.scrollbarVerticalBox.upped.connect(this.autoHideScrollbars);
+                this.scrollbarVerticalBox.moved.connect(this.onScrollbarVerticalMove);
+                this.appendChild(this.scrollbarVerticalBox);
+            }
+        };
+        NativeScrollable.prototype.setScrollbarHorizontal = function (scrollbarHorizontal) {
+            if (this.scrollbarHorizontalBox) {
+                this.scrollbarHorizontalBox.downed.disconnect(this.autoShowScrollbars);
+                this.scrollbarHorizontalBox.upped.disconnect(this.autoHideScrollbars);
+                this.scrollbarHorizontalBox.moved.disconnect(this.onScrollbarHorizontalMove);
+                this.removeChild(this.scrollbarHorizontalBox);
+            }
+            if (scrollbarHorizontal) {
+                this.scrollbarHorizontalBox = scrollbarHorizontal;
+                this.scrollbarHorizontalBox.opacity = 0;
+                this.scrollbarHorizontalBox.moveVertical = false;
+                this.scrollbarHorizontalBox.downed.connect(this.autoShowScrollbars);
+                this.scrollbarHorizontalBox.upped.connect(this.autoHideScrollbars);
+                this.scrollbarHorizontalBox.moved.connect(this.onScrollbarHorizontalMove);
+                this.appendChild(this.scrollbarHorizontalBox);
+            }
+        };
+        NativeScrollable.prototype.setOffset = function (offsetX, offsetY, absolute, align) {
+            if (absolute === void 0) { absolute = false; }
+            if (align === void 0) { align = false; }
+            if (absolute === undefined)
+                absolute = false;
+            if (offsetX === undefined)
+                offsetX = this.offsetX;
+            else if (!absolute)
+                offsetX *= this.contentWidth - this.viewWidth;
+            if (offsetY === undefined)
+                offsetY = this.offsetY;
+            else if (!absolute)
+                offsetY *= this.contentHeight - this.viewHeight;
+            if (offsetX < 0)
+                offsetX = 0;
+            else if (this.viewWidth + offsetX > this.contentWidth)
+                offsetX = this.contentWidth - this.viewWidth;
+            if (offsetY < 0)
+                offsetY = 0;
+            else if (this.viewHeight + offsetY > this.contentHeight)
+                offsetY = this.contentHeight - this.viewHeight;
+            if (this.contentWidth <= this.viewWidth)
+                this.relativeOffsetX = 0;
+            else
+                this.relativeOffsetX = offsetX / (this.contentWidth - this.viewWidth);
+            if (this.contentHeight <= this.viewHeight)
+                this.relativeOffsetY = 0;
+            else
+                this.relativeOffsetY = offsetY / (this.contentHeight - this.viewHeight);
+            if (align) {
+                offsetX = Math.round(offsetX);
+                offsetY = Math.round(offsetY);
+            }
+            if ((this.offsetX !== offsetX) || (this.offsetY !== offsetY)) {
+                this.offsetX = offsetX;
+                this.offsetY = offsetY;
+                this.contentBox.setOffset(offsetX, offsetY);
+                return true;
+            }
+            else
+                return false;
+        };
+        NativeScrollable.prototype.getOffsetX = function () {
+            return this.contentBox.offsetX;
+        };
+        NativeScrollable.prototype.getRelativeOffsetX = function () {
+            return this.relativeOffsetX;
+        };
+        NativeScrollable.prototype.getOffsetY = function () {
+            return this.contentBox.offsetY;
+        };
+        NativeScrollable.prototype.getRelativeOffsetY = function () {
+            return this.relativeOffsetY;
+        };
+        NativeScrollable.prototype.onShowBarsTick = function (clock, progress, delta) {
+            var show = this.isOver;
+            if (this.scrollbarVerticalBox)
+                show = show || this.scrollbarVerticalBox.isDown;
+            if (this.scrollbarHorizontalBox)
+                show = show || this.scrollbarHorizontalBox.isDown;
+            var stop = false;
+            var speed = 2;
+            var opacity = this.scrollbarHorizontalBox.opacity;
+            if (show) {
+                opacity += (delta * speed);
+                if (opacity >= 1) {
+                    opacity = 1;
+                    stop = true;
+                }
+            }
+            else {
+                opacity -= (delta * speed);
+                if (opacity <= 0) {
+                    opacity = 0;
+                    stop = true;
+                }
+            }
+            if (this.scrollbarHorizontalBox)
+                this.scrollbarHorizontalBox.opacity = opacity;
+            if (this.scrollbarVerticalBox)
+                this.scrollbarVerticalBox.opacity = opacity;
+            if (stop) {
+                if (this.showClock)
+                    this.showClock.stop();
+                this.showClock = undefined;
+            }
+        };
+        NativeScrollable.prototype.onScroll = function () {
+            this.updateOffset();
+            this.scrolled.fire({ target: this, offsetX: this.offsetX, offsetY: this.offsetY });
+        };
+        NativeScrollable.prototype.updateOffset = function () {
+            if (this.contentBox === undefined)
+                return;
+            this.offsetX = this.contentBox.offsetX;
+            this.offsetY = this.contentBox.offsetY;
+            this.viewWidth = this.layoutWidth;
+            this.viewHeight = this.layoutHeight;
+            this.contentWidth = this.contentBox.contentWidth;
+            this.contentHeight = this.contentBox.contentHeight;
+            if (this.contentWidth <= this.viewWidth)
+                this.relativeOffsetX = 0;
+            else
+                this.relativeOffsetX = this.offsetX / (this.contentWidth - this.viewWidth);
+            if (this.contentHeight <= this.viewHeight)
+                this.relativeOffsetY = 0;
+            else
+                this.relativeOffsetY = this.offsetY / (this.contentHeight - this.viewHeight);
+            if (this.contentHeight > this.viewHeight)
+                this.scrollbarVerticalNeeded = true;
+            else
+                this.scrollbarVerticalNeeded = false;
+            if (this.contentWidth > this.viewWidth)
+                this.scrollbarHorizontalNeeded = true;
+            else
+                this.scrollbarHorizontalNeeded = false;
+            if (this.scrollbarVerticalNeeded) {
+                if (this.scrollbarVerticalBox) {
+                    this.scrollbarVerticalHeight = Math.max((this.viewHeight / this.contentHeight) * this.viewHeight, this.scrollbarVerticalBox.measureHeight);
+                    this.scrollbarVerticalBox.arrange(this.layoutWidth - this.scrollbarVerticalBox.measureWidth, 0, this.scrollbarVerticalBox.measureWidth, this.scrollbarVerticalHeight);
+                    this.scrollbarVerticalBox.show();
+                }
+            }
+            else {
+                if (this.scrollbarVerticalBox)
+                    this.scrollbarVerticalBox.hide();
+                this.offsetY = 0;
+            }
+            if (this.scrollbarHorizontalNeeded) {
+                if (this.scrollbarHorizontalBox) {
+                    this.scrollbarHorizontalWidth = Math.max((this.viewWidth / this.contentWidth) * this.viewWidth, this.scrollbarHorizontalBox.measureWidth);
+                    this.scrollbarHorizontalBox.arrange(0, this.layoutHeight - this.scrollbarHorizontalBox.measureHeight, this.scrollbarHorizontalWidth, this.scrollbarHorizontalBox.measureHeight);
+                    this.scrollbarHorizontalBox.show();
+                }
+            }
+            else {
+                if (this.scrollbarHorizontalBox)
+                    this.scrollbarHorizontalBox.hide();
+                this.offsetX = 0;
+            }
+            this.scrollLock = true;
+            if (this.scrollbarHorizontalNeeded) {
+                var relOffsetX = this.offsetX / (this.contentWidth - this.viewWidth);
+                if (relOffsetX > 1) {
+                    relOffsetX = 1;
+                    this.setOffset(relOffsetX, undefined);
+                }
+                if (this.scrollbarHorizontalBox)
+                    this.scrollbarHorizontalBox.setPosition((this.viewWidth - this.scrollbarHorizontalWidth) * relOffsetX, undefined);
+            }
+            if (this.scrollbarVerticalNeeded) {
+                var relOffsetY = this.offsetY / (this.contentHeight - this.viewHeight);
+                if (relOffsetY > 1) {
+                    relOffsetY = 1;
+                    this.setOffset(undefined, relOffsetY);
+                }
+                if (this.scrollbarVerticalBox)
+                    this.scrollbarVerticalBox.setPosition(undefined, (this.viewHeight - this.scrollbarVerticalHeight) * relOffsetY);
+            }
+            this.scrollLock = false;
+        };
+        NativeScrollable.prototype.measureCore = function (width, height) {
+            var size = { width: 0, height: 0 };
+            if (this.scrollbarHorizontalBox)
+                this.scrollbarHorizontalBox.measure(width, height);
+            if (this.scrollbarVerticalBox)
+                this.scrollbarVerticalBox.measure(width, height);
+            var contentSize = this.contentBox.measure(width, height);
+            if (contentSize.width < width)
+                size.width = contentSize.width;
+            else
+                size.width = width;
+            if (contentSize.height < height)
+                size.height = contentSize.height;
+            else
+                size.height = height;
+            if (!this.scrollVertical)
+                size.height = contentSize.height;
+            if (!this.scrollHorizontal)
+                size.width = contentSize.width;
+            return size;
+        };
+        NativeScrollable.prototype.arrangeCore = function (width, height) {
+            this.viewWidth = width;
+            this.viewHeight = height;
+            this.contentBox.arrange(0, 0, this.viewWidth, this.viewHeight);
+            this.contentWidth = this.contentBox.contentWidth;
+            this.contentHeight = this.contentBox.contentHeight;
+            this.updateOffset();
+        };
+        return NativeScrollable;
+    }(Ui.Container));
+    Ui.NativeScrollable = NativeScrollable;
+    var NativeScrollingArea = (function (_super) {
+        __extends(NativeScrollingArea, _super);
+        function NativeScrollingArea() {
+            var _this = _super.call(this) || this;
+            _this.horizontalScrollbar = new Ui.Scrollbar('horizontal');
+            _this.setScrollbarHorizontal(_this.horizontalScrollbar);
+            _this.verticalScrollbar = new Ui.Scrollbar('vertical');
+            _this.setScrollbarVertical(_this.verticalScrollbar);
+            return _this;
+        }
+        NativeScrollingArea.prototype.onStyleChange = function () {
+            var radius = this.getStyleProperty('radius');
+            this.horizontalScrollbar.radius = radius;
+            this.verticalScrollbar.radius = radius;
+            var color = this.getStyleProperty('color');
+            this.horizontalScrollbar.fill = color;
+            this.verticalScrollbar.fill = color;
+        };
+        NativeScrollingArea.style = {
+            color: 'rgba(50,50,50,0.7)',
+            radius: 0
+        };
+        return NativeScrollingArea;
+    }(NativeScrollable));
+    Ui.NativeScrollingArea = NativeScrollingArea;
+})(Ui || (Ui = {}));
+var Ui;
+(function (Ui) {
     var CompactLabelContext = (function (_super) {
         __extends(CompactLabelContext, _super);
         function CompactLabelContext() {
@@ -15107,12 +15597,12 @@ var Ui;
             _this.isClosed = true;
             _this.closed = new Core.Events();
             _this.dialogSelection = new Ui.Selection();
-            _this.shadow = new Ui.Pressable();
-            _this.shadow.focusable = false;
-            _this.shadow.drawing.style.cursor = 'inherit';
-            _this.appendChild(_this.shadow);
             _this.shadowGraphic = new Ui.Rectangle();
-            _this.shadow.content = _this.shadowGraphic;
+            new Ui.PressWatcher({
+                element: _this,
+                onpressed: function () { return _this.onShadowPress(); }
+            });
+            _this.appendChild(_this.shadowGraphic);
             _this.lbox = new Ui.Form();
             _this.lbox.submited.connect(function () { return _this.onFormSubmit(); });
             _this.appendChild(_this.lbox);
@@ -15141,7 +15631,6 @@ var Ui;
             _this.buttonsBox.append(_this.actionBox);
             _this.dialogSelection.changed.connect(function (e) { return _this.onDialogSelectionChange(e.target); });
             _this.drawing.addEventListener('keyup', function (e) { return _this.onKeyUp(e); });
-            _this.shadow.pressed.connect(function (e) { return _this.onShadowPress(); });
             if (init) {
                 if (init.padding !== undefined)
                     _this.padding = init.padding;
@@ -15233,7 +15722,7 @@ var Ui;
             var end = (progress >= 1);
             if (this.isClosed)
                 progress = 1 - progress;
-            this.shadow.opacity = progress;
+            this.shadowGraphic.opacity = progress;
             this.lbox.opacity = progress;
             this.lbox.transform = Ui.Matrix.createTranslate(0, -20 * (1 - progress));
             if (end) {
@@ -15342,7 +15831,7 @@ var Ui;
             }
         };
         Dialog.prototype.onShadowPress = function () {
-            if (this._autoClose || this.getStyleProperty('autoClose') == true)
+            if (!this.isDisabled && (this._autoClose || this.getStyleProperty('autoClose') == true))
                 this.close();
         };
         Dialog.prototype.onStyleChange = function () {
@@ -15356,7 +15845,7 @@ var Ui;
             this.invalidateLayout();
         };
         Dialog.prototype.measureCore = function (width, height) {
-            this.shadow.measure(width, height);
+            this.shadowGraphic.measure(width, height);
             var preferredWidth = this._preferredWidth ? this._preferredWidth : width;
             var preferredHeight = this._preferredHeight ? this._preferredHeight : height;
             this.lbox.measure((width < preferredWidth) ? width : preferredWidth, (height < preferredHeight) ? height : preferredHeight);
@@ -15365,7 +15854,7 @@ var Ui;
         Dialog.prototype.arrangeCore = function (width, height) {
             if ((this.openClock !== undefined) && !this.openClock.isActive)
                 this.openClock.begin();
-            this.shadow.arrange(0, 0, width, height);
+            this.shadowGraphic.arrange(0, 0, width, height);
             var usedWidth = Math.min(this._preferredWidth ? Math.max(this.lbox.measureWidth, this._preferredWidth) : this.lbox.measureWidth, width);
             var usedHeight = Math.min(this._preferredHeight ? Math.max(this.lbox.measureHeight, this._preferredHeight) : this.lbox.measureHeight, height);
             this.lbox.arrange((width - usedWidth) / 2, (height - usedHeight) / 2, usedWidth, usedHeight);
@@ -16664,10 +17153,12 @@ var Ui;
         __extends(ToolBar, _super);
         function ToolBar(init) {
             var _this = _super.call(this, init) || this;
-            _this.scrollVertical = false;
+            _this.scroll = new Ui.ScrollingArea();
+            _this.scroll.scrollVertical = false;
+            _this.appendChild(_this.scroll);
             _this.hbox = new Ui.HBox();
             _this.hbox.eventsHidden = true;
-            _super.prototype.setContent.call(_this, _this.hbox);
+            _this.scroll.content = _this.hbox;
             return _this;
         }
         ToolBar.prototype.append = function (child, resizable) {
@@ -16684,6 +17175,12 @@ var Ui;
             enumerable: true,
             configurable: true
         });
+        ToolBar.prototype.measureCore = function (width, height) {
+            return this.scroll.measure(width, height);
+        };
+        ToolBar.prototype.arrangeCore = function (width, height) {
+            this.scroll.arrange(0, 0, width, height);
+        };
         ToolBar.prototype.onStyleChange = function () {
             var spacing = this.getStyleProperty('spacing');
             this.hbox.margin = spacing;
@@ -16693,7 +17190,7 @@ var Ui;
             spacing: 3
         };
         return ToolBar;
-    }(Ui.ScrollingArea));
+    }(Ui.Container));
     Ui.ToolBar = ToolBar;
 })(Ui || (Ui = {}));
 var Ui;

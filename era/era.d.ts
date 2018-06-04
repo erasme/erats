@@ -2585,6 +2585,106 @@ declare namespace Ui {
     }
 }
 declare namespace Ui {
+    class NativeScrollableContent extends Ui.Container {
+        private _content;
+        private scrollDiv;
+        readonly scrolled: Core.Events<{
+            target: NativeScrollableContent;
+            offsetX: number;
+            offsetY: number;
+        }>;
+        onscrolled: (event: {
+            target: NativeScrollableContent;
+            offsetX: number;
+            offsetY: number;
+        }) => void;
+        constructor();
+        renderDrawing(): HTMLDivElement;
+        content: Ui.Element | undefined;
+        readonly offsetX: number;
+        readonly offsetY: number;
+        stopInertia(): void;
+        setOffset(x: number, y: number): void;
+        readonly contentWidth: number;
+        readonly contentHeight: number;
+        protected measureCore(width: number, height: number): {
+            width: number;
+            height: number;
+        };
+        protected arrangeCore(width: number, height: number): void;
+        protected onScroll(): void;
+        getInverseLayoutTransform(): Ui.Matrix;
+        getLayoutTransform(): Ui.Matrix;
+        static nativeScrollBarWidth: number;
+        static nativeScrollBarHeight: number;
+        static initialize(): void;
+    }
+    class NativeScrollable extends Ui.Container {
+        private contentBox;
+        private _scrollHorizontal;
+        private _scrollVertical;
+        scrollbarHorizontalBox: Ui.Movable;
+        scrollbarVerticalBox: Ui.Movable;
+        showShadows: boolean;
+        lock: boolean;
+        isOver: boolean;
+        protected showClock?: Anim.Clock;
+        offsetX: number;
+        offsetY: number;
+        relativeOffsetX: number;
+        relativeOffsetY: number;
+        viewWidth: number;
+        viewHeight: number;
+        contentWidth: number;
+        contentHeight: number;
+        scrollLock: boolean;
+        scrollbarVerticalNeeded: boolean;
+        scrollbarHorizontalNeeded: boolean;
+        scrollbarVerticalHeight: number;
+        scrollbarHorizontalWidth: number;
+        readonly scrolled: Core.Events<{
+            target: NativeScrollable;
+            offsetX: number;
+            offsetY: number;
+        }>;
+        onscrolled: (event: {
+            target: NativeScrollable;
+            offsetX: number;
+            offsetY: number;
+        }) => void;
+        constructor();
+        content: Ui.Element | undefined;
+        scrollHorizontal: boolean;
+        scrollVertical: boolean;
+        setScrollbarVertical(scrollbarVertical: Ui.Movable): void;
+        setScrollbarHorizontal(scrollbarHorizontal: Ui.Movable): void;
+        setOffset(offsetX?: number, offsetY?: number, absolute?: boolean, align?: boolean): boolean;
+        getOffsetX(): number;
+        getRelativeOffsetX(): number;
+        getOffsetY(): number;
+        getRelativeOffsetY(): number;
+        autoShowScrollbars: () => void;
+        autoHideScrollbars: () => void;
+        protected onShowBarsTick(clock: Anim.Clock, progress: number, delta: number): void;
+        protected onScroll(): void;
+        updateOffset(): void;
+        protected onScrollbarHorizontalMove: () => void;
+        protected onScrollbarVerticalMove: () => void;
+        protected measureCore(width: number, height: number): {
+            width: number;
+            height: number;
+        };
+        protected arrangeCore(width: number, height: number): void;
+    }
+    class NativeScrollingArea extends NativeScrollable {
+        private horizontalScrollbar;
+        private verticalScrollbar;
+        constructor();
+        protected onStyleChange(): void;
+        static style: any;
+    }
+}
+declare namespace Ui {
     class CompactLabelContext extends Core.Object {
         text: string;
         fontSize: number;
@@ -3254,7 +3354,6 @@ declare namespace Ui {
     }
     class Dialog extends Container implements DialogInit {
         dialogSelection: Selection;
-        shadow: Pressable;
         shadowGraphic: Rectangle;
         graphic: DialogGraphic;
         lbox: Form;
@@ -3606,15 +3705,18 @@ declare namespace Ui {
     }
 }
 declare namespace Ui {
-    interface ToolBarInit extends ScrollingAreaInit {
+    interface ToolBarInit extends ContainerInit {
+        content?: Element | Element[];
     }
-    class ToolBar extends ScrollingArea implements ToolBarInit {
+    class ToolBar extends Container implements ToolBarInit {
         private scroll;
         private hbox;
         constructor(init?: ToolBarInit);
         append(child: Element, resizable?: boolean): void;
         remove(child: Element): void;
-        content: Element;
+        content: Element | Element[];
+        protected measureCore(width: number, height: number): Size;
+        protected arrangeCore(width: number, height: number): void;
         protected onStyleChange(): void;
         static style: object;
     }
