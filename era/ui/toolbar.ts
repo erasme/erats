@@ -1,17 +1,21 @@
 namespace Ui {
-	export interface ToolBarInit extends ScrollingAreaInit {
+	export interface ToolBarInit extends ContainerInit {
+		content?: Element | Element[];
 	}
 
-	export class ToolBar extends ScrollingArea implements ToolBarInit {
+	export class ToolBar extends Container implements ToolBarInit {
 		private scroll: ScrollingArea;
 		private hbox: HBox;
 
 		constructor(init?: ToolBarInit) {
 			super(init);
-			this.scrollVertical = false;
+			this.scroll = new ScrollingArea();
+			this.scroll.scrollVertical = false;
+			this.appendChild(this.scroll);
+
 			this.hbox = new HBox();
 			this.hbox.eventsHidden = true;
-			super.setContent(this.hbox);
+			this.scroll.content = this.hbox;
 		}
 
 		append(child: Element, resizable: boolean = false) {
@@ -22,8 +26,16 @@ namespace Ui {
 			this.hbox.remove(child);
 		}
 
-		set content(content: Element) {
+		set content(content: Element | Element[]) {
 			this.hbox.content = content;
+		}
+
+		protected measureCore(width: number, height: number) {
+			return this.scroll.measure(width, height);
+		}
+
+		protected arrangeCore(width: number, height: number) {
+			this.scroll.arrange(0, 0, width, height);
 		}
 
 		protected onStyleChange() {
