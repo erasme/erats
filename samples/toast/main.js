@@ -14,40 +14,44 @@ var App = /** @class */ (function (_super) {
     __extends(App, _super);
     function App() {
         var _this = _super.call(this) || this;
-        var vbox = new Ui.VBox();
-        _this.content = vbox;
-        var toolbar = new Ui.ToolBar();
-        vbox.append(toolbar);
-        var textfield = new Ui.TextField({
+        var textfield = new Ui.TextField().assign({
             verticalAlign: 'center', margin: 40, value: 'Hello World !'
         });
-        vbox.append(textfield);
-        toolbar.append(new Ui.Button({
-            text: 'Send toast',
-            onpressed: function () { return Ui.Toast.send(textfield.value); }
-        }));
-        toolbar.append(new Ui.Button({
-            text: 'Send delayed toast',
-            onpressed: function () { return new Core.DelayedTask(2, function () { return Ui.Toast.send(textfield.value + ' DELAY'); }); }
-        }));
-        toolbar.append(new Ui.Button({
-            text: 'Open dialog',
-            onpressed: function () {
-                var dialog = new Ui.Dialog({
-                    title: 'Dialog box',
-                    preferredWidth: 600,
-                    preferredHeight: 600,
-                    cancelButton: new Ui.DialogCloseButton()
-                });
-                dialog.content = new Ui.Button({
-                    text: 'Send toast',
-                    verticalAlign: 'center',
-                    horizontalAlign: 'center',
-                    onpressed: function () { return Ui.Toast.send('Dialog toast'); }
-                });
-                dialog.open();
-            }
-        }));
+        _this.content = new Ui.VBox().assign({
+            content: [
+                new Ui.ToolBar().assign({
+                    content: [
+                        new Ui.Button().assign({
+                            text: 'Send toast',
+                            onpressed: function () { return Ui.Toast.send(textfield.value); }
+                        }),
+                        new Ui.Button().assign({
+                            text: 'Send delayed toast',
+                            onpressed: function () { return new Core.DelayedTask(2, function () { return Ui.Toast.send(textfield.value + ' DELAY'); }); }
+                        }),
+                        new Ui.Button().assign({
+                            text: 'Open dialog',
+                            onpressed: function () {
+                                var dialog = new Ui.Dialog({
+                                    title: 'Dialog box',
+                                    preferredWidth: 600,
+                                    preferredHeight: 600,
+                                    cancelButton: new Ui.DialogCloseButton()
+                                });
+                                dialog.content = new Ui.Button({
+                                    text: 'Send toast',
+                                    verticalAlign: 'center',
+                                    horizontalAlign: 'center',
+                                    onpressed: function () { return Ui.Toast.send('Dialog toast'); }
+                                });
+                                dialog.open();
+                            }
+                        })
+                    ]
+                }),
+                textfield
+            ]
+        });
         return _this;
     }
     return App;
