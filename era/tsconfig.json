@@ -66,6 +66,7 @@
         "ui/transformable.ts",
         "ui/scrollable.ts",
         "ui/scrollingarea.ts",
+        "ui/nativescrollable.ts",
         "ui/compactlabel.ts",
         "ui/dropbox.ts",
         "ui/button.ts",
