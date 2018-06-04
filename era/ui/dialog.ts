@@ -141,7 +141,6 @@ namespace Ui {
 
 	export class Dialog extends Container implements DialogInit {
 		dialogSelection: Selection;
-		shadow: Pressable;
 		shadowGraphic: Rectangle;
 		graphic: DialogGraphic;
 		lbox: Form;
@@ -167,13 +166,13 @@ namespace Ui {
 			super(init);
 			this.dialogSelection = new Ui.Selection();
 
-			this.shadow = new Ui.Pressable();
-			this.shadow.focusable = false;
-			this.shadow.drawing.style.cursor = 'inherit';
-			this.appendChild(this.shadow);
-
 			this.shadowGraphic = new Ui.Rectangle();
-			this.shadow.content = this.shadowGraphic;
+			// handle auto hide
+			new PressWatcher({
+				element: this,
+				onpressed: () => this.onShadowPress()
+			});
+			this.appendChild(this.shadowGraphic);
 
 			this.lbox = new Ui.Form();
 			this.lbox.submited.connect(() => this.onFormSubmit());
@@ -214,9 +213,6 @@ namespace Ui {
 
 			// handle keyboard		
 			this.drawing.addEventListener('keyup', (e) => this.onKeyUp(e));
-
-			// handle auto hide
-			this.shadow.pressed.connect((e) => this.onShadowPress());
 
 			if (init) {
 				if (init.padding !== undefined)
@@ -305,7 +301,7 @@ namespace Ui {
 
 			if (this.isClosed)
 				progress = 1 - progress;
-			this.shadow.opacity = progress;
+			this.shadowGraphic.opacity = progress;
 			this.lbox.opacity = progress;
 			this.lbox.transform = Matrix.createTranslate(0, -20 * (1 - progress));
 
@@ -413,7 +409,7 @@ namespace Ui {
 		}
 
 		protected onShadowPress() {
-			if (this._autoClose || this.getStyleProperty('autoClose') == true)
+			if (!this.isDisabled && (this._autoClose || this.getStyleProperty('autoClose') == true))
 				this.close();
 		}
 	
@@ -433,7 +429,7 @@ namespace Ui {
 		}
 
 		protected measureCore(width: number, height: number): Size {
-			this.shadow.measure(width, height);
+			this.shadowGraphic.measure(width, height);
 			let preferredWidth = this._preferredWidth ? this._preferredWidth : width;
 			let preferredHeight = this._preferredHeight ? this._preferredHeight : height;
 			this.lbox.measure((width < preferredWidth) ? width : preferredWidth,
@@ -449,7 +445,7 @@ namespace Ui {
 			if ((this.openClock !== undefined) && !this.openClock.isActive)
 				this.openClock.begin();
 
-			this.shadow.arrange(0, 0, width, height);
+			this.shadowGraphic.arrange(0, 0, width, height);
 
 			let usedWidth = Math.min(
 				this._preferredWidth ? Math.max(this.lbox.measureWidth, this._preferredWidth) : this.lbox.measureWidth,
