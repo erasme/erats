@@ -1337,7 +1337,7 @@ namespace Ui
 			this._parent = parent;
 		}
 		
-		getParentByClass<T extends Ui.Element>(classFunc: new() => T): T | undefined {
+		getParentByClass<T extends Ui.Element>(classFunc: new(...args: any[]) => T): T | undefined {
 			let current = this.parent;
 			while(current != undefined) {
 				if (current instanceof classFunc)
