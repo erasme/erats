@@ -974,7 +974,7 @@ declare namespace Ui {
         private mergeStyles();
         getIsChildOf(parent: Element): boolean;
         parent: Element | undefined;
-        getParentByClass<T extends Ui.Element>(classFunc: new () => T): T | undefined;
+        getParentByClass<T extends Ui.Element>(classFunc: new (...args: any[]) => T): T | undefined;
         setParentStyle(parentStyle: object | undefined): void;
         style: object | undefined;
         setStyleProperty(property: string, value: any): void;
@@ -4685,7 +4685,7 @@ declare namespace Ui {
         constructor();
         getMin(): number;
         getMax(): number;
-        getElementAt(position: number): any;
+        getElementAt(position: number): Ui.Element;
     }
     interface VBoxScrollableInit extends ContainerInit {
         loader?: ScrollLoader;
@@ -4765,6 +4765,7 @@ declare namespace Ui {
         estimatedHeight: number;
         estimatedHeightNeeded: boolean;
         loader: ScrollLoader;
+        beforeRemoveItems: Element[];
         activeItems: Element[];
         activeItemsPos: number;
         activeItemsY: number;
@@ -4791,17 +4792,16 @@ declare namespace Ui {
         getEstimatedContentHeight(): number;
         getMinY(): number;
         getMaxY(): number;
-        loadItems(): void;
+        loadItems(w?: number, h?: number): void;
         updateItems(): void;
         reload(): void;
         onLoaderChange: () => void;
-        measureCore(width: any, height: any): {
-            width: any;
+        protected measureCore(width: number, height: number): {
+            width: number;
             height: number;
         };
-        arrangeCore(width: any, height: any): void;
+        protected arrangeCore(width: number, height: number): void;
         onContentTransform(testOnly: any): void;
-        protected onChildInvalidateMeasure(child: Element, event: any): void;
     }
     interface VBoxScrollingAreaInit extends VBoxScrollableInit {
     }

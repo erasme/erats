@@ -13,7 +13,7 @@
 			return -1;
 		}
 
-		getElementAt(position: number) {
+		getElementAt(position: number): Ui.Element {
 			return undefined;
 		}
 	}
@@ -436,6 +436,7 @@
 		estimatedHeight: number = 36;
 		estimatedHeightNeeded: boolean = true;
 		loader: ScrollLoader;
+		beforeRemoveItems: Element[] = [];
 		activeItems: Element[];
 		activeItemsPos: number = 0;
 		activeItemsY: number = 0;
@@ -447,7 +448,7 @@
 		constructor() {
 			super();
 			this.activeItems = [];
-
+			this.allowLeftMouse = false;
 			this.clipToBounds = true;
 			this.drawing.addEventListener('scroll', () => {
 				this.translateX -= this.drawing.scrollLeft;
@@ -523,11 +524,9 @@
 			return maxY;
 		}
 
-		loadItems() {
+		loadItems(w = this.layoutWidth, h = this.layoutHeight) {
 			if (this.loader.getMax() - this.loader.getMin() < 0)
 				return;
-			let w = this.layoutWidth;
-			let h = this.layoutHeight;
 			if ((w === 0) || (h === 0))
 				return;
 		
@@ -575,7 +574,9 @@
 				this.activeItems = [];
 
 				let item = this.loader.getElementAt(refPos);
-				this.appendChild(item);
+				// in not a recycled item, add it
+				if (item.parent !== this)
+					this.appendChild(item);
 				let size = item.measure(w, h);
 				item.arrange(0, 0, w, size.height);
 				item.setTransformOrigin(0, 0);
@@ -635,6 +636,13 @@
 				this.estimatedHeightNeeded = false;
 				this.estimatedHeight = this.activeItemsHeight / this.activeItems.length;
 			}
+
+			// remove deferred items if no more used
+			for (let i = 0; i < this.beforeRemoveItems.length; i++) {
+				if (this.activeItems.indexOf(this.beforeRemoveItems[i]) == -1)
+					this.removeChild(this.beforeRemoveItems[i]);
+			}
+			this.beforeRemoveItems = [];
 		}
 
 		updateItems() {
@@ -644,8 +652,11 @@
 		}
 
 		reload() {
-			for (let i = 0; i < this.activeItems.length; i++)
-				this.removeChild(this.activeItems[i]);
+			for (let i = 0; i < this.beforeRemoveItems.length; i++)
+				this.removeChild(this.beforeRemoveItems[i]);
+			// defer removing item in case of recycling
+			this.beforeRemoveItems = this.activeItems;
+			this.activeItems = [];
 			this.activeItems = [];
 			this.activeItemsPos = 0;
 			this.activeItemsY = 0;
@@ -659,23 +670,27 @@
 			this.invalidateMeasure();
 		}
 
-		measureCore(width, height) {
+		protected measureCore(width: number, height: number) {
 			if (this.reloadNeeded) {
 				this.reloadNeeded = false;
 				this.reload();
 			}
+			// load items for the proposed view
+			this.loadItems(width, height);
 
 			let y = 0;
+			let minWidth = 0;
 			for (let i = 0; i < this.activeItems.length; i++) {
 				let item = this.activeItems[i];
 				let size = item.measure(width, 0);
+				minWidth = Math.max(minWidth, size.width);
 				y += size.height;
 			}
 			this.activeItemsHeight = y;
-			return { width: width, height: this.getEstimatedContentHeight() };
+			return { width: Math.min(minWidth, width), height: this.getEstimatedContentHeight() };
 		}
 		
-		arrangeCore(width, height) {
+		protected arrangeCore(width: number, height: number) {
 			for (let i = 0; i < this.activeItems.length; i++) {
 				let activeItem = this.activeItems[i];
 				activeItem.arrange(0, 0, width, activeItem.measureHeight);
@@ -720,10 +735,6 @@
 
 			if (testOnly !== true)
 				this.scrolled.fire({ target: this, offsetX: this.offsetX, offsetY: this.offsetY });
-		}
-
-		protected onChildInvalidateMeasure(child: Element, event) {
-			this.invalidateLayout();
 		}
 	}
 	

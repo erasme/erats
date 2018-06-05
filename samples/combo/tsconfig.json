@@ -3,6 +3,7 @@
     "target": "es5",
     "module": "none",
     "strict": true,
+    "sourceMap": true,
     "outFile": "./main.js"
   },
   "exclude" : [ 

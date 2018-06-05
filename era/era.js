@@ -21602,6 +21602,7 @@ var Ui;
             _this.contentHeight = 0;
             _this.estimatedHeight = 36;
             _this.estimatedHeightNeeded = true;
+            _this.beforeRemoveItems = [];
             _this.activeItemsPos = 0;
             _this.activeItemsY = 0;
             _this.activeItemsHeight = 0;
@@ -21612,6 +21613,7 @@ var Ui;
                 _this.invalidateMeasure();
             };
             _this.activeItems = [];
+            _this.allowLeftMouse = false;
             _this.clipToBounds = true;
             _this.drawing.addEventListener('scroll', function () {
                 _this.translateX -= _this.drawing.scrollLeft;
@@ -21689,11 +21691,11 @@ var Ui;
             var maxY = this.activeItemsY + this.activeItemsHeight + (itemsAfter * this.estimatedHeight);
             return maxY;
         };
-        VBoxScrollableContent.prototype.loadItems = function () {
+        VBoxScrollableContent.prototype.loadItems = function (w, h) {
+            if (w === void 0) { w = this.layoutWidth; }
+            if (h === void 0) { h = this.layoutHeight; }
             if (this.loader.getMax() - this.loader.getMin() < 0)
                 return;
-            var w = this.layoutWidth;
-            var h = this.layoutHeight;
             if ((w === 0) || (h === 0))
                 return;
             var matrix = this.matrix;
@@ -21729,7 +21731,8 @@ var Ui;
                 this.activeItemsPos = refPos;
                 this.activeItems = [];
                 var item = this.loader.getElementAt(refPos);
-                this.appendChild(item);
+                if (item.parent !== this)
+                    this.appendChild(item);
                 var size = item.measure(w, h);
                 item.arrange(0, 0, w, size.height);
                 item.setTransformOrigin(0, 0);
@@ -21778,14 +21781,21 @@ var Ui;
                 this.estimatedHeightNeeded = false;
                 this.estimatedHeight = this.activeItemsHeight / this.activeItems.length;
             }
+            for (var i = 0; i < this.beforeRemoveItems.length; i++) {
+                if (this.activeItems.indexOf(this.beforeRemoveItems[i]) == -1)
+                    this.removeChild(this.beforeRemoveItems[i]);
+            }
+            this.beforeRemoveItems = [];
         };
         VBoxScrollableContent.prototype.updateItems = function () {
             var w = this.layoutWidth;
             var h = this.layoutHeight;
         };
         VBoxScrollableContent.prototype.reload = function () {
-            for (var i = 0; i < this.activeItems.length; i++)
-                this.removeChild(this.activeItems[i]);
+            for (var i = 0; i < this.beforeRemoveItems.length; i++)
+                this.removeChild(this.beforeRemoveItems[i]);
+            this.beforeRemoveItems = this.activeItems;
+            this.activeItems = [];
             this.activeItems = [];
             this.activeItemsPos = 0;
             this.activeItemsY = 0;
@@ -21798,14 +21808,17 @@ var Ui;
                 this.reloadNeeded = false;
                 this.reload();
             }
+            this.loadItems(width, height);
             var y = 0;
+            var minWidth = 0;
             for (var i = 0; i < this.activeItems.length; i++) {
                 var item = this.activeItems[i];
                 var size = item.measure(width, 0);
+                minWidth = Math.max(minWidth, size.width);
                 y += size.height;
             }
             this.activeItemsHeight = y;
-            return { width: width, height: this.getEstimatedContentHeight() };
+            return { width: Math.min(minWidth, width), height: this.getEstimatedContentHeight() };
         };
         VBoxScrollableContent.prototype.arrangeCore = function (width, height) {
             for (var i = 0; i < this.activeItems.length; i++) {
@@ -21838,9 +21851,6 @@ var Ui;
             this.contentHeight = this.getEstimatedContentHeight() * scale;
             if (testOnly !== true)
                 this.scrolled.fire({ target: this, offsetX: this.offsetX, offsetY: this.offsetY });
-        };
-        VBoxScrollableContent.prototype.onChildInvalidateMeasure = function (child, event) {
-            this.invalidateLayout();
         };
         return VBoxScrollableContent;
     }(Ui.Transformable));
