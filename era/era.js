@@ -14105,12 +14105,16 @@ var Ui;
                 constraintHeight = this._preferredHeight;
             this.background.measure(constraintWidth, constraintHeight);
             var size = this.contentBox.measure(constraintWidth, constraintHeight);
+            size.width = Math.min(this._preferredWidth ? Math.max(size.width, this._preferredWidth) : size.width, width);
+            size.height = Math.min(this._preferredHeight ? Math.max(size.height, this._preferredHeight) : size.height, height);
+            console.log('contentBox = ' + size.width + ' x ' + size.height);
             if ((this.posX !== undefined) || (this.attachedElement !== undefined))
                 return { width: Math.max(50, size.width), height: Math.max(50, size.height) };
             else
                 return { width: Math.max(width, size.width + 40), height: Math.max(height, size.height + 40) };
         };
         Popup.prototype.arrangeCore = function (width, height) {
+            console.log("Popup.arrangeCore(" + width + "," + height + ")");
             if ((this.openClock !== undefined) && !this.openClock.isActive)
                 this.openClock.begin();
             var x = 0;
@@ -14120,6 +14124,8 @@ var Ui;
             var border;
             var i;
             this.shadow.arrange(0, 0, width, height);
+            var usedWidth = Math.min(this._preferredWidth ? Math.max(this.contentBox.measureWidth, this._preferredWidth) : this.contentBox.measureWidth, width);
+            var usedHeight = Math.min(this._preferredHeight ? Math.max(this.contentBox.measureHeight, this._preferredHeight) : this.contentBox.measureHeight, height);
             if (((this.posX === undefined) && (this.attachedElement === undefined)) || (width < 150) || (height < 150)) {
                 this.setCenter(width, height);
             }
@@ -14131,28 +14137,28 @@ var Ui;
                     border = borders[i];
                     if (border === 'left') {
                         point = this.attachedElement.pointToWindow(new Ui.Point(0, this.attachedElement.layoutHeight / 2));
-                        if (this.contentBox.measureWidth + 10 < point.x) {
+                        if (usedWidth + 10 < point.x) {
                             this.setLeft(point.x, point.y, width, height);
                             break;
                         }
                     }
                     else if (border === 'right') {
                         point = this.attachedElement.pointToWindow(new Ui.Point(this.attachedElement.layoutWidth, this.attachedElement.layoutHeight / 2));
-                        if (this.contentBox.measureWidth + point.x + 10 < width) {
+                        if (usedWidth + point.x + 10 < width) {
                             this.setRight(point.x, point.y, width, height);
                             break;
                         }
                     }
                     else if (border === 'top') {
                         point = this.attachedElement.pointToWindow(new Ui.Point(this.attachedElement.layoutWidth / 2, 0));
-                        if (this.contentBox.measureHeight + 10 < point.y) {
+                        if (usedHeight + 10 < point.y) {
                             this.setTop(point.x, point.y, width, height);
                             break;
                         }
                     }
                     else if (border === 'bottom') {
                         point = this.attachedElement.pointToWindow(new Ui.Point(this.attachedElement.layoutWidth / 2, this.attachedElement.layoutHeight));
-                        if (this.contentBox.measureHeight + 10 + point.y < height) {
+                        if (usedHeight + 10 + point.y < height) {
                             this.setBottom(point.x, point.y, width, height);
                             break;
                         }
@@ -14170,25 +14176,25 @@ var Ui;
                 for (i = 0; i < borders.length; i++) {
                     border = borders[i];
                     if (border === 'left') {
-                        if (this.contentBox.measureWidth + 10 < this.posX) {
+                        if (usedWidth + 10 < this.posX) {
                             this.setLeft(this.posX, this.posY, width, height);
                             break;
                         }
                     }
                     else if (border === 'right') {
-                        if (this.contentBox.measureWidth + this.posX + 10 < width) {
+                        if (usedWidth + this.posX + 10 < width) {
                             this.setRight(this.posX, this.posY, width, height);
                             break;
                         }
                     }
                     else if (border === 'top') {
-                        if (this.contentBox.measureHeight + 10 < this.posY) {
+                        if (usedHeight + 10 < this.posY) {
                             this.setTop(this.posX, this.posY, width, height);
                             break;
                         }
                     }
                     else if (border === 'bottom') {
-                        if (this.contentBox.measureHeight + 10 + this.posY < height) {
+                        if (usedHeight + 10 + this.posY < height) {
                             this.setBottom(this.posX, this.posY, width, height);
                             break;
                         }
@@ -14201,48 +14207,54 @@ var Ui;
             }
         };
         Popup.prototype.setRight = function (x, y, width, height) {
-            var ofs = Math.max(10, Math.min(30, this.contentBox.measureHeight / 2));
+            var usedWidth = Math.min(this._preferredWidth ? Math.max(this.contentBox.measureWidth, this._preferredWidth) : this.contentBox.measureWidth, width - 40);
+            var usedHeight = Math.min(this._preferredHeight ? Math.max(this.contentBox.measureHeight, this._preferredHeight) : this.contentBox.measureHeight, height - 40);
+            var ofs = Math.max(10, Math.min(30, usedHeight / 2));
             var px = x + 10;
             var py = y - ofs;
             this.background.arrowBorder = 'left';
-            if (py + this.contentBox.measureHeight > height) {
-                py = height - this.contentBox.measureHeight;
+            if (py + usedHeight > height) {
+                py = height - usedHeight;
                 var offset = y - py;
-                if (offset > this.contentBox.measureHeight - 18)
-                    offset = this.contentBox.measureHeight - 18;
+                if (offset > usedHeight - 18)
+                    offset = usedHeight - 18;
                 this.background.arrowOffset = offset;
             }
             else
                 this.background.arrowOffset = ofs;
-            this.background.arrange(px - 10, py, this.contentBox.measureWidth + 10, this.contentBox.measureHeight);
-            this.contentBox.arrange(px, py, this.contentBox.measureWidth, this.contentBox.measureHeight);
+            this.background.arrange(px - 10, py, usedWidth + 10, usedHeight);
+            this.contentBox.arrange(px, py, usedWidth, usedHeight);
         };
         Popup.prototype.setLeft = function (x, y, width, height) {
-            var ofs = Math.max(10, Math.min(30, this.contentBox.measureHeight / 2));
-            var px = x - (10 + this.contentBox.measureWidth);
+            var usedWidth = Math.min(this._preferredWidth ? Math.max(this.contentBox.measureWidth, this._preferredWidth) : this.contentBox.measureWidth, width - 40);
+            var usedHeight = Math.min(this._preferredHeight ? Math.max(this.contentBox.measureHeight, this._preferredHeight) : this.contentBox.measureHeight, height - 40);
+            var ofs = Math.max(10, Math.min(30, usedHeight / 2));
+            var px = x - (10 + usedWidth);
             var py = y - ofs;
             this.background.arrowBorder = 'right';
-            if (py + this.contentBox.measureHeight > height) {
-                py = height - this.contentBox.measureHeight;
+            if (py + usedHeight > height) {
+                py = height - usedHeight;
                 var offset = y - py;
-                if (offset > this.contentBox.measureHeight - 18)
-                    offset = this.contentBox.measureHeight - 18;
+                if (offset > usedHeight - 18)
+                    offset = usedHeight - 18;
                 this.background.arrowOffset = offset;
             }
             else
                 this.background.arrowOffset = ofs;
-            this.background.arrange(px, py, this.contentBox.measureWidth + 10, this.contentBox.measureHeight);
-            this.contentBox.arrange(px, py, this.contentBox.measureWidth, this.contentBox.measureHeight);
+            this.background.arrange(px, py, usedWidth + 10, usedHeight);
+            this.contentBox.arrange(px, py, usedWidth, usedHeight);
         };
         Popup.prototype.setTop = function (x, y, width, height) {
-            var py = y - (this.contentBox.measureHeight);
+            var usedWidth = Math.min(this._preferredWidth ? Math.max(this.contentBox.measureWidth, this._preferredWidth) : this.contentBox.measureWidth, width - 40);
+            var usedHeight = Math.min(this._preferredHeight ? Math.max(this.contentBox.measureHeight, this._preferredHeight) : this.contentBox.measureHeight, height - 40);
+            var py = y - usedHeight;
             var px = x - 30;
             this.background.arrowBorder = 'bottom';
-            if (px + this.contentBox.measureWidth > width) {
-                px = width - this.contentBox.measureWidth;
+            if (px + usedWidth > width) {
+                px = width - usedWidth;
                 var offset = x - px;
-                if (offset > this.contentBox.measureWidth - 18)
-                    offset = this.contentBox.measureWidth - 18;
+                if (offset > usedWidth - 18)
+                    offset = usedWidth - 18;
                 this.background.arrowOffset = offset;
             }
             else if (px < 2) {
@@ -14251,18 +14263,20 @@ var Ui;
             }
             else
                 this.background.arrowOffset = 30;
-            this.background.arrange(px, py - 10, this.contentBox.measureWidth, this.contentBox.measureHeight + 10);
-            this.contentBox.arrange(px, py - 10, this.contentBox.measureWidth, this.contentBox.measureHeight);
+            this.background.arrange(px, py - 10, usedWidth, usedHeight + 10);
+            this.contentBox.arrange(px, py - 10, usedWidth, usedHeight);
         };
         Popup.prototype.setBottom = function (x, y, width, height) {
+            var usedWidth = Math.min(this._preferredWidth ? Math.max(this.contentBox.measureWidth, this._preferredWidth) : this.contentBox.measureWidth, width - 40);
+            var usedHeight = Math.min(this._preferredHeight ? Math.max(this.contentBox.measureHeight, this._preferredHeight) : this.contentBox.measureHeight, height - 40);
             var py = y + 10;
             var px = x - 30;
             this.background.arrowBorder = 'top';
-            if (px + this.contentBox.measureWidth > width) {
-                px = width - this.contentBox.measureWidth;
+            if (px + usedWidth > width) {
+                px = width - usedWidth;
                 var offset = x - px;
-                if (offset > this.contentBox.measureWidth - 18)
-                    offset = this.contentBox.measureWidth - 18;
+                if (offset > usedWidth - 18)
+                    offset = usedWidth - 18;
                 this.background.arrowOffset = offset;
             }
             else if (px < 2) {
@@ -14271,15 +14285,15 @@ var Ui;
             }
             else
                 this.background.arrowOffset = 30;
-            this.background.arrange(px, py - 10, this.contentBox.measureWidth, this.contentBox.measureHeight + 10);
-            this.contentBox.arrange(px, py, this.contentBox.measureWidth, this.contentBox.measureHeight);
+            this.background.arrange(px, py - 10, usedWidth, usedHeight + 10);
+            this.contentBox.arrange(px, py, usedWidth, usedHeight);
         };
         Popup.prototype.setCenter = function (width, height) {
             this.background.arrowBorder = 'none';
-            var usedWidth = Math.min(this._preferredWidth ? Math.max(this.contentBox.measureWidth, this._preferredWidth) : this.contentBox.measureWidth, width);
-            var usedHeight = Math.min(this._preferredHeight ? Math.max(this.contentBox.measureHeight, this._preferredHeight) : this.contentBox.measureHeight, height);
+            var usedWidth = Math.min(this._preferredWidth ? Math.max(this.contentBox.measureWidth, this._preferredWidth) : this.contentBox.measureWidth, width - 40);
+            var usedHeight = Math.min(this._preferredHeight ? Math.max(this.contentBox.measureHeight, this._preferredHeight) : this.contentBox.measureHeight, height - 40);
             var x = (width - usedWidth) / 2;
-            var y = (height - usedWidth) / 2;
+            var y = (height - usedHeight) / 2;
             this.background.arrange(x, y, usedWidth, usedHeight);
             this.contentBox.arrange(x, y, usedWidth, usedHeight);
         };

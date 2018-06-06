@@ -260,13 +260,13 @@ namespace Ui
 			this.background.measure(constraintWidth, constraintHeight);
 			let size = this.contentBox.measure(constraintWidth, constraintHeight);
 
-			/*size.width = Math.min(
+			size.width = Math.min(
 				this._preferredWidth ? Math.max(size.width, this._preferredWidth) : size.width,	width);
 			size.height = Math.min(
 				this._preferredHeight ? Math.max(size.height, this._preferredHeight) : size.height,
-				height);*/
+				height);
 
-			//console.log('contentBox = '+size.width+' x '+size.height);
+			console.log('contentBox = '+size.width+' x '+size.height);
 
 			if ((this.posX !== undefined) || (this.attachedElement !== undefined))
 				return { width: Math.max(50, size.width), height: Math.max(50, size.height) };
@@ -275,7 +275,7 @@ namespace Ui
 		}
 
 		protected arrangeCore(width: number, height: number) {
-			//console.log(`Popup.arrangeCore(${width},${height})`);
+			console.log(`Popup.arrangeCore(${width},${height})`);
 
 			// the delayed open animation
 			if ((this.openClock !== undefined) && !this.openClock.isActive)
@@ -286,6 +286,14 @@ namespace Ui
 			//console.log(this+'.arrangeCore('+width+','+height+')');
 
 			this.shadow.arrange(0, 0, width, height);
+
+			let usedWidth = Math.min(
+				this._preferredWidth ? Math.max(this.contentBox.measureWidth, this._preferredWidth) : this.contentBox.measureWidth,
+				width);
+			let usedHeight = Math.min(
+				this._preferredHeight ? Math.max(this.contentBox.measureHeight, this._preferredHeight) : this.contentBox.measureHeight,
+				height);
+
 
 			// handle open center screen
 			if (((this.posX === undefined) && (this.attachedElement === undefined)) || (width < 150) || (height < 150)) {
@@ -301,7 +309,7 @@ namespace Ui
 					if (border === 'left') {
 						point = this.attachedElement.pointToWindow(
 							new Point(0, this.attachedElement.layoutHeight / 2));
-						if (this.contentBox.measureWidth + 10 < point.x) {
+						if (usedWidth + 10 < point.x) {
 							this.setLeft(point.x, point.y, width, height);
 							break;
 						}
@@ -309,7 +317,7 @@ namespace Ui
 					else if (border === 'right') {
 						point = this.attachedElement.pointToWindow(
 							new Point(this.attachedElement.layoutWidth, this.attachedElement.layoutHeight / 2));
-						if (this.contentBox.measureWidth + point.x + 10 < width) {
+						if (usedWidth + point.x + 10 < width) {
 							this.setRight(point.x, point.y, width, height);
 							break;
 						}
@@ -317,7 +325,7 @@ namespace Ui
 					else if (border === 'top') {
 						point = this.attachedElement.pointToWindow(
 							new Point(this.attachedElement.layoutWidth / 2, 0));
-						if (this.contentBox.measureHeight + 10 < point.y) {
+						if (usedHeight + 10 < point.y) {
 							this.setTop(point.x, point.y, width, height);
 							break;
 						}
@@ -325,7 +333,7 @@ namespace Ui
 					else if (border === 'bottom') {
 						point = this.attachedElement.pointToWindow(
 							new Point(this.attachedElement.layoutWidth / 2, this.attachedElement.layoutHeight));
-						if (this.contentBox.measureHeight + 10 + point.y < height) {
+						if (usedHeight + 10 + point.y < height) {
 							this.setBottom(point.x, point.y, width, height);
 							break;
 						}
@@ -344,25 +352,25 @@ namespace Ui
 				for (i = 0; i < borders.length; i++) {
 					border = borders[i];
 					if (border === 'left') {
-						if (this.contentBox.measureWidth + 10 < this.posX) {
+						if (usedWidth + 10 < this.posX) {
 							this.setLeft(this.posX, this.posY, width, height);
 							break;
 						}
 					}
 					else if (border === 'right') {
-						if (this.contentBox.measureWidth + this.posX + 10 < width) {
+						if (usedWidth + this.posX + 10 < width) {
 							this.setRight(this.posX, this.posY, width, height);
 							break;
 						}
 					}
 					else if (border === 'top') {
-						if (this.contentBox.measureHeight + 10 < this.posY) {
+						if (usedHeight + 10 < this.posY) {
 							this.setTop(this.posX, this.posY, width, height);
 							break;
 						}
 					}
 					else if (border === 'bottom') {
-						if (this.contentBox.measureHeight + 10 + this.posY < height) {
+						if (usedHeight + 10 + this.posY < height) {
 							this.setBottom(this.posX, this.posY, width, height);
 							break;
 						}
@@ -376,13 +384,12 @@ namespace Ui
 		}
 
 		setRight(x, y, width, height) {
-			/*
 			let usedWidth = Math.min(
 				this._preferredWidth ? Math.max(this.contentBox.measureWidth, this._preferredWidth) : this.contentBox.measureWidth,
-				width);
+				width - 40);
 			let usedHeight = Math.min(
 				this._preferredHeight ? Math.max(this.contentBox.measureHeight, this._preferredHeight) : this.contentBox.measureHeight,
-				height);
+				height - 40);
 
 			let ofs = Math.max(10, Math.min(30, usedHeight / 2));
 			let px = x + 10;
@@ -401,61 +408,56 @@ namespace Ui
 			else
 				this.background.arrowOffset = ofs;
 			this.background.arrange(px - 10, py, usedWidth + 10, usedHeight);
-			this.contentBox.arrange(px, py, usedWidth, usedHeight);*/
-
-			let ofs = Math.max(10, Math.min(30, this.contentBox.measureHeight / 2));
-			let px = x + 10;
-			let py = y - ofs;
-
-			this.background.arrowBorder = 'left';
-
-			if (py + this.contentBox.measureHeight > height) {
-				py = height - this.contentBox.measureHeight;
-
-				let offset = y - py;
-				if (offset > this.contentBox.measureHeight - 18)
-					offset = this.contentBox.measureHeight - 18;
-				this.background.arrowOffset = offset;
-			}
-			else
-				this.background.arrowOffset = ofs;
-			this.background.arrange(px - 10, py, this.contentBox.measureWidth + 10, this.contentBox.measureHeight);
-			this.contentBox.arrange(px, py, this.contentBox.measureWidth, this.contentBox.measureHeight);
+			this.contentBox.arrange(px, py, usedWidth, usedHeight);
 		}
 
 		setLeft(x, y, width, height) {
-			let ofs = Math.max(10, Math.min(30, this.contentBox.measureHeight / 2));
-			let px = x - (10 + this.contentBox.measureWidth);
+			let usedWidth = Math.min(
+				this._preferredWidth ? Math.max(this.contentBox.measureWidth, this._preferredWidth) : this.contentBox.measureWidth,
+				width - 40);
+			let usedHeight = Math.min(
+				this._preferredHeight ? Math.max(this.contentBox.measureHeight, this._preferredHeight) : this.contentBox.measureHeight,
+				height - 40);
+
+			let ofs = Math.max(10, Math.min(30, usedHeight / 2));
+			let px = x - (10 + usedWidth);
 			let py = y - ofs;
 
 			this.background.arrowBorder = 'right';
 
-			if (py + this.contentBox.measureHeight > height) {
-				py = height - this.contentBox.measureHeight;
+			if (py + usedHeight > height) {
+				py = height - usedHeight;
 
 				let offset = y - py;
-				if (offset > this.contentBox.measureHeight - 18)
-					offset = this.contentBox.measureHeight - 18;
+				if (offset > usedHeight - 18)
+					offset = usedHeight - 18;
 				this.background.arrowOffset = offset;
 			}
 			else
 				this.background.arrowOffset = ofs;
-			this.background.arrange(px, py, this.contentBox.measureWidth + 10, this.contentBox.measureHeight);
-			this.contentBox.arrange(px, py, this.contentBox.measureWidth, this.contentBox.measureHeight);
+			this.background.arrange(px, py, usedWidth + 10, usedHeight);
+			this.contentBox.arrange(px, py, usedWidth, usedHeight);
 		}
 
 		setTop(x, y, width, height) {
-			let py = y - (this.contentBox.measureHeight);
+			let usedWidth = Math.min(
+				this._preferredWidth ? Math.max(this.contentBox.measureWidth, this._preferredWidth) : this.contentBox.measureWidth,
+				width - 40);
+			let usedHeight = Math.min(
+				this._preferredHeight ? Math.max(this.contentBox.measureHeight, this._preferredHeight) : this.contentBox.measureHeight,
+				height - 40);
+
+			let py = y - usedHeight;
 			let px = x - 30;
 
 			this.background.arrowBorder = 'bottom';
 
-			if (px + this.contentBox.measureWidth > width) {
-				px = width - this.contentBox.measureWidth;
+			if (px + usedWidth > width) {
+				px = width - usedWidth;
 
 				let offset = x - px;
-				if (offset > this.contentBox.measureWidth - 18)
-					offset = this.contentBox.measureWidth - 18;
+				if (offset > usedWidth - 18)
+					offset = usedWidth - 18;
 				this.background.arrowOffset = offset;
 			}
 			else if (px < 2) {
@@ -464,22 +466,29 @@ namespace Ui
 			}
 			else
 				this.background.arrowOffset = 30;
-			this.background.arrange(px, py - 10, this.contentBox.measureWidth, this.contentBox.measureHeight + 10);
-			this.contentBox.arrange(px, py - 10, this.contentBox.measureWidth, this.contentBox.measureHeight);
+			this.background.arrange(px, py - 10, usedWidth, usedHeight + 10);
+			this.contentBox.arrange(px, py - 10, usedWidth, usedHeight);
 		}
 
 		setBottom(x, y, width, height) {
+			let usedWidth = Math.min(
+				this._preferredWidth ? Math.max(this.contentBox.measureWidth, this._preferredWidth) : this.contentBox.measureWidth,
+				width - 40);
+			let usedHeight = Math.min(
+				this._preferredHeight ? Math.max(this.contentBox.measureHeight, this._preferredHeight) : this.contentBox.measureHeight,
+				height - 40);
+
 			let py = y + 10;
 			let px = x - 30;
 
 			this.background.arrowBorder = 'top';
 
-			if (px + this.contentBox.measureWidth > width) {
-				px = width - this.contentBox.measureWidth;
+			if (px + usedWidth > width) {
+				px = width - usedWidth;
 
 				let offset = x - px;
-				if (offset > this.contentBox.measureWidth - 18)
-					offset = this.contentBox.measureWidth - 18;
+				if (offset > usedWidth - 18)
+					offset = usedWidth - 18;
 				this.background.arrowOffset = offset;
 			}
 			else if (px < 2) {
@@ -488,8 +497,8 @@ namespace Ui
 			}
 			else
 				this.background.arrowOffset = 30;
-			this.background.arrange(px, py - 10, this.contentBox.measureWidth, this.contentBox.measureHeight + 10);
-			this.contentBox.arrange(px, py, this.contentBox.measureWidth, this.contentBox.measureHeight);
+			this.background.arrange(px, py - 10, usedWidth, usedHeight + 10);
+			this.contentBox.arrange(px, py, usedWidth, usedHeight);
 		}
 
 		setCenter(width, height) {
@@ -497,20 +506,15 @@ namespace Ui
 
 			let usedWidth = Math.min(
 				this._preferredWidth ? Math.max(this.contentBox.measureWidth, this._preferredWidth) : this.contentBox.measureWidth,
-				width);
+				width - 40);
 			let usedHeight = Math.min(
 				this._preferredHeight ? Math.max(this.contentBox.measureHeight, this._preferredHeight) : this.contentBox.measureHeight,
-				height);
-
+				height - 40);
+			
 			let x = (width - usedWidth) / 2;
-			let y = (height - usedWidth) / 2;
+			let y = (height - usedHeight) / 2;
 			this.background.arrange(x, y, usedWidth, usedHeight);
 			this.contentBox.arrange(x, y, usedWidth, usedHeight);
-
-			//let x = (width - this.contentBox.measureWidth) / 2;
-			//let y = (height - this.contentBox.measureHeight) / 2;
-			//this.background.arrange(x, y, this.contentBox.measureWidth, this.contentBox.measureHeight);
-			//this.contentBox.arrange(x, y, this.contentBox.measureWidth, this.contentBox.measureHeight);
 		}
 
 		static style: any = {
