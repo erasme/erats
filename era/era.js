@@ -14107,14 +14107,12 @@ var Ui;
             var size = this.contentBox.measure(constraintWidth, constraintHeight);
             size.width = Math.min(this._preferredWidth ? Math.max(size.width, this._preferredWidth) : size.width, width);
             size.height = Math.min(this._preferredHeight ? Math.max(size.height, this._preferredHeight) : size.height, height);
-            console.log('contentBox = ' + size.width + ' x ' + size.height);
             if ((this.posX !== undefined) || (this.attachedElement !== undefined))
                 return { width: Math.max(50, size.width), height: Math.max(50, size.height) };
             else
                 return { width: Math.max(width, size.width + 40), height: Math.max(height, size.height + 40) };
         };
         Popup.prototype.arrangeCore = function (width, height) {
-            console.log("Popup.arrangeCore(" + width + "," + height + ")");
             if ((this.openClock !== undefined) && !this.openClock.isActive)
                 this.openClock.begin();
             var x = 0;

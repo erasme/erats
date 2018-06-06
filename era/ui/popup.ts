@@ -250,8 +250,6 @@ namespace Ui
 			let constraintWidth = Math.max(width - 40, 0);
 			let constraintHeight = Math.max(height - 40, 0);
 
-			//console.log(`Popup.measureCore(${width},${height})`);
-
 			if ((this._preferredWidth !== undefined) && (this._preferredWidth < constraintWidth))
 				constraintWidth = this._preferredWidth;
 			if ((this._preferredHeight !== undefined) && (this._preferredHeight < constraintHeight))
@@ -266,8 +264,6 @@ namespace Ui
 				this._preferredHeight ? Math.max(size.height, this._preferredHeight) : size.height,
 				height);
 
-			console.log('contentBox = '+size.width+' x '+size.height);
-
 			if ((this.posX !== undefined) || (this.attachedElement !== undefined))
 				return { width: Math.max(50, size.width), height: Math.max(50, size.height) };
 			else
@@ -275,15 +271,11 @@ namespace Ui
 		}
 
 		protected arrangeCore(width: number, height: number) {
-			console.log(`Popup.arrangeCore(${width},${height})`);
-
 			// the delayed open animation
 			if ((this.openClock !== undefined) && !this.openClock.isActive)
 				this.openClock.begin();
 
 			let x = 0; let y = 0; let point; let borders; let border; let i;
-
-			//console.log(this+'.arrangeCore('+width+','+height+')');
 
 			this.shadow.arrange(0, 0, width, height);
 
