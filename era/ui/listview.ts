@@ -212,7 +212,7 @@ namespace Ui {
 
 	export class ListViewRow extends Container {
 		private headers: HeaderDef[];
-		data: any;
+		private _data: any;
 		private cells: ListViewCell[];
 		private background: Rectangle;
 		private sep: Rectangle;
@@ -228,7 +228,7 @@ namespace Ui {
 			super();
 			this.listView = init.listView;
 			this.headers = init.headers;
-			this.data = init.data;
+			this._data = init.data;
 			this.selectionActions = init.selectionActions;
 			if (init.height)
 				this.height = init.height;
@@ -247,7 +247,7 @@ namespace Ui {
 					cell = new ListViewCellString();
 				cell.setKey(key);
 				cell.setRow(this);
-				cell.setValue((key != undefined) ? this.data[this.headers[col].key] : this.data);
+				cell.setValue((key != undefined) ? this._data[this.headers[col].key] : this._data);
 				this.cells.push(cell);
 				this.appendChild(cell);
 			}
@@ -271,9 +271,21 @@ namespace Ui {
 			
 		}
 
-		getData(): object {
-			return this.data;
+		get data(): any {
+			return this._data;
 		}
+
+		set data(data: any) {
+			for (let  col = 0; col < this.headers.length; col++) {
+				let key = this.headers[col].key;
+				let cell : ListViewCell = this.cells[col];
+				cell.setValue((key != undefined) ? this._data[this.headers[col].key] : this._data);
+			}
+		}
+
+/*		getData(): object {
+			return this._data;
+		}*/
 
 		get isSelected(): boolean {
 			return this.selectionWatcher.isSelected;
@@ -679,7 +691,7 @@ namespace Ui {
 		}
 
 		onSelectionEdit(selection: Selection) {
-			let data = (selection.elements[0] as ListViewRow).getData();
+			let data = (selection.elements[0] as ListViewRow).data;
 			this.activated.fire({ target: this, position: this.findDataRow(data), value: data });
 		}
 
