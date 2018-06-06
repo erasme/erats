@@ -14276,10 +14276,12 @@ var Ui;
         };
         Popup.prototype.setCenter = function (width, height) {
             this.background.arrowBorder = 'none';
-            var x = (width - this.contentBox.measureWidth) / 2;
-            var y = (height - this.contentBox.measureHeight) / 2;
-            this.background.arrange(x, y, this.contentBox.measureWidth, this.contentBox.measureHeight);
-            this.contentBox.arrange(x, y, this.contentBox.measureWidth, this.contentBox.measureHeight);
+            var usedWidth = Math.min(this._preferredWidth ? Math.max(this.contentBox.measureWidth, this._preferredWidth) : this.contentBox.measureWidth, width);
+            var usedHeight = Math.min(this._preferredHeight ? Math.max(this.contentBox.measureHeight, this._preferredHeight) : this.contentBox.measureHeight, height);
+            var x = (width - usedWidth) / 2;
+            var y = (height - usedWidth) / 2;
+            this.background.arrange(x, y, usedWidth, usedHeight);
+            this.contentBox.arrange(x, y, usedWidth, usedHeight);
         };
         Popup.style = {
             background: '#f8f8f8',
@@ -22581,7 +22583,7 @@ var Ui;
             _this.unselected = new Core.Events();
             _this.listView = init.listView;
             _this.headers = init.headers;
-            _this.data = init.data;
+            _this._data = init.data;
             _this.selectionActions = init.selectionActions;
             if (init.height)
                 _this.height = init.height;
@@ -22599,7 +22601,7 @@ var Ui;
                     cell = new ListViewCellString();
                 cell.setKey(key);
                 cell.setRow(_this);
-                cell.setValue((key != undefined) ? _this.data[_this.headers[col].key] : _this.data);
+                cell.setValue((key != undefined) ? _this._data[_this.headers[col].key] : _this._data);
                 _this.cells.push(cell);
                 _this.appendChild(cell);
             }
@@ -22631,9 +22633,20 @@ var Ui;
             enumerable: true,
             configurable: true
         });
-        ListViewRow.prototype.getData = function () {
-            return this.data;
-        };
+        Object.defineProperty(ListViewRow.prototype, "data", {
+            get: function () {
+                return this._data;
+            },
+            set: function (data) {
+                for (var col = 0; col < this.headers.length; col++) {
+                    var key = this.headers[col].key;
+                    var cell = this.cells[col];
+                    cell.setValue((key != undefined) ? this._data[this.headers[col].key] : this._data);
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(ListViewRow.prototype, "isSelected", {
             get: function () {
                 return this.selectionWatcher.isSelected;
@@ -22974,7 +22987,7 @@ var Ui;
             this.sortBy(key, (this.sortColKey === key) ? !this.sortInvert : false);
         };
         ListView.prototype.onSelectionEdit = function (selection) {
-            var data = selection.elements[0].getData();
+            var data = selection.elements[0].data;
             this.activated.fire({ target: this, position: this.findDataRow(data), value: data });
         };
         ListView.prototype.onChildInvalidateArrange = function (child) {

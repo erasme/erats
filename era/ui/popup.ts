@@ -260,6 +260,12 @@ namespace Ui
 			this.background.measure(constraintWidth, constraintHeight);
 			let size = this.contentBox.measure(constraintWidth, constraintHeight);
 
+			/*size.width = Math.min(
+				this._preferredWidth ? Math.max(size.width, this._preferredWidth) : size.width,	width);
+			size.height = Math.min(
+				this._preferredHeight ? Math.max(size.height, this._preferredHeight) : size.height,
+				height);*/
+
 			//console.log('contentBox = '+size.width+' x '+size.height);
 
 			if ((this.posX !== undefined) || (this.attachedElement !== undefined))
@@ -370,6 +376,33 @@ namespace Ui
 		}
 
 		setRight(x, y, width, height) {
+			/*
+			let usedWidth = Math.min(
+				this._preferredWidth ? Math.max(this.contentBox.measureWidth, this._preferredWidth) : this.contentBox.measureWidth,
+				width);
+			let usedHeight = Math.min(
+				this._preferredHeight ? Math.max(this.contentBox.measureHeight, this._preferredHeight) : this.contentBox.measureHeight,
+				height);
+
+			let ofs = Math.max(10, Math.min(30, usedHeight / 2));
+			let px = x + 10;
+			let py = y - ofs;
+
+			this.background.arrowBorder = 'left';
+
+			if (py + usedHeight > height) {
+				py = height - usedHeight;
+
+				let offset = y - py;
+				if (offset > usedHeight - 18)
+					offset = usedHeight - 18;
+				this.background.arrowOffset = offset;
+			}
+			else
+				this.background.arrowOffset = ofs;
+			this.background.arrange(px - 10, py, usedWidth + 10, usedHeight);
+			this.contentBox.arrange(px, py, usedWidth, usedHeight);*/
+
 			let ofs = Math.max(10, Math.min(30, this.contentBox.measureHeight / 2));
 			let px = x + 10;
 			let py = y - ofs;
@@ -462,10 +495,22 @@ namespace Ui
 		setCenter(width, height) {
 			this.background.arrowBorder = 'none';
 
-			let x = (width - this.contentBox.measureWidth) / 2;
-			let y = (height - this.contentBox.measureHeight) / 2;
-			this.background.arrange(x, y, this.contentBox.measureWidth, this.contentBox.measureHeight);
-			this.contentBox.arrange(x, y, this.contentBox.measureWidth, this.contentBox.measureHeight);
+			let usedWidth = Math.min(
+				this._preferredWidth ? Math.max(this.contentBox.measureWidth, this._preferredWidth) : this.contentBox.measureWidth,
+				width);
+			let usedHeight = Math.min(
+				this._preferredHeight ? Math.max(this.contentBox.measureHeight, this._preferredHeight) : this.contentBox.measureHeight,
+				height);
+
+			let x = (width - usedWidth) / 2;
+			let y = (height - usedWidth) / 2;
+			this.background.arrange(x, y, usedWidth, usedHeight);
+			this.contentBox.arrange(x, y, usedWidth, usedHeight);
+
+			//let x = (width - this.contentBox.measureWidth) / 2;
+			//let y = (height - this.contentBox.measureHeight) / 2;
+			//this.background.arrange(x, y, this.contentBox.measureWidth, this.contentBox.measureHeight);
+			//this.contentBox.arrange(x, y, this.contentBox.measureWidth, this.contentBox.measureHeight);
 		}
 
 		static style: any = {

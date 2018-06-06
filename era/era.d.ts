@@ -4973,7 +4973,7 @@ declare namespace Ui {
     }
     class ListViewRow extends Container {
         private headers;
-        data: any;
+        private _data;
         private cells;
         private background;
         private sep;
@@ -4993,7 +4993,7 @@ declare namespace Ui {
             target: ListViewRow;
         }) => void;
         constructor(init: ListViewRowInit);
-        getData(): object;
+        data: any;
         isSelected: boolean;
         protected measureCore(width: number, height: number): {
             width: number;
