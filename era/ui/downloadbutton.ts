@@ -1,22 +1,22 @@
 namespace Ui {
-	export interface DownloadButtonInit extends LinkButtonInit { }
+    export interface DownloadButtonInit extends LinkButtonInit { }
 
-	export class DownloadButton extends LinkButton {
-		readonly download = new Core.Events<{ target: DownloadButton }>();
-		set ondownload(value: (event: { target: DownloadButton }) => void) { this.download.connect(value); }
+    export class DownloadButton extends LinkButton {
+        readonly download = new Core.Events<{ target: DownloadButton }>();
+        set ondownload(value: (event: { target: DownloadButton }) => void) { this.download.connect(value); }
 
-		constructor(init?: DownloadButtonInit) {
-			super(init);
-			this.link.connect(() => this.onLinkPress());
-		}
-	
-		protected onLinkPress() {
-			this.download.fire({ target: this });
-		}
+        constructor(init?: DownloadButtonInit) {
+            super(init);
+            this.link.connect(() => this.onLinkPress());
+        }
+    
+        protected onLinkPress() {
+            this.download.fire({ target: this });
+        }
 
-		style: object = {
-			background: '#a4f4a4'
-		}
-	}
+        style: object = {
+            background: '#a4f4a4'
+        }
+    }
 }	
 

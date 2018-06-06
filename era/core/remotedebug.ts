@@ -1,118 +1,118 @@
 namespace Core
 {
-	export interface RemoteDebugInit {
-		host: string;
-		port: number;
-	}
+    export interface RemoteDebugInit {
+        host: string;
+        port: number;
+    }
 
-	export class RemoteDebug extends Object
-	{
-		host: string = undefined;
-		port: number = undefined;
-		socket: Socket = undefined;
-		socketAlive: boolean = false;
-		retryTask: any = undefined;
-		nativeConsole: any = undefined;
-		buffer: Array<any> = [];
+    export class RemoteDebug extends Object
+    {
+        host: string = undefined;
+        port: number = undefined;
+        socket: Socket = undefined;
+        socketAlive: boolean = false;
+        retryTask: any = undefined;
+        nativeConsole: any = undefined;
+        buffer: Array<any> = [];
 
-		/**
-		*	@constructs
-		*	@class
-		*	@extends Core.Object
-		*/
-		constructor(init: RemoteDebugInit) {
-			super();
-			Core.RemoteDebug.current = this;
+        /**
+        *	@constructs
+        *	@class
+        *	@extends Core.Object
+        */
+        constructor(init: RemoteDebugInit) {
+            super();
+            Core.RemoteDebug.current = this;
 
-			this.host = init.host;
-			this.port = init.port;
+            this.host = init.host;
+            this.port = init.port;
 
-			this.nativeConsole = window.console;
-			(window as any).console = {
-				log: Core.RemoteDebug.onConsoleLog,
-				error: Core.RemoteDebug.onConsoleError,
-				warn: Core.RemoteDebug.onConsoleWarn
-			};
-			window.onerror = Core.RemoteDebug.onError;
-			this.startSocket();
-		}
+            this.nativeConsole = window.console;
+            (window as any).console = {
+                log: Core.RemoteDebug.onConsoleLog,
+                error: Core.RemoteDebug.onConsoleError,
+                warn: Core.RemoteDebug.onConsoleWarn
+            };
+            window.onerror = Core.RemoteDebug.onError;
+            this.startSocket();
+        }
 
-		startSocket() {
-			this.socket = new Core.Socket({ service: '/', host: this.host, port: this.port });
-			this.socket.opened.connect(this.onSocketOpen);
-			this.socket.message.connect(this.onSocketMessage);
-			this.socket.error.connect(this.onSocketError);
-			this.socket.closed.connect(this.onSocketClose);
-		}
+        startSocket() {
+            this.socket = new Core.Socket({ service: '/', host: this.host, port: this.port });
+            this.socket.opened.connect(this.onSocketOpen);
+            this.socket.message.connect(this.onSocketMessage);
+            this.socket.error.connect(this.onSocketError);
+            this.socket.closed.connect(this.onSocketClose);
+        }
 
-		protected onSocketOpen = () => {
-			this.socketAlive = true;
-			while (this.buffer.length > 0) {
-				this.socket.send(this.buffer.shift());
-			}
-		}
+        protected onSocketOpen = () => {
+            this.socketAlive = true;
+            while (this.buffer.length > 0) {
+                this.socket.send(this.buffer.shift());
+            }
+        }
 
-		protected onSocketMessage = (e: { target: any, message: string }) => {
-			eval(e.message);
-		}
+        protected onSocketMessage = (e: { target: any, message: string }) => {
+            eval(e.message);
+        }
 
-		protected onSocketError = () => {
-			this.socketAlive = false;
-			this.socket.close();
-		}
+        protected onSocketError = () => {
+            this.socketAlive = false;
+            this.socket.close();
+        }
 
-		protected onSocketClose = () => {
-			this.socketAlive = false;
-			this.socket.error.disconnect(this.onSocketError);
-			this.socket.closed.disconnect(this.onSocketClose);
-			this.socket = undefined;
-			this.retryTask = new Core.DelayedTask(5, this.startSocket);
-		}
+        protected onSocketClose = () => {
+            this.socketAlive = false;
+            this.socket.error.disconnect(this.onSocketError);
+            this.socket.closed.disconnect(this.onSocketClose);
+            this.socket = undefined;
+            this.retryTask = new Core.DelayedTask(5, this.startSocket);
+        }
 
-		onConsoleLog(message) {
-			if (this.socketAlive)
-				this.socket.send(JSON.stringify({ type: 'log', message: message }));
-			else
-				this.buffer.push(JSON.stringify({ type: 'log', message: message }));
-		}
+        onConsoleLog(message) {
+            if (this.socketAlive)
+                this.socket.send(JSON.stringify({ type: 'log', message: message }));
+            else
+                this.buffer.push(JSON.stringify({ type: 'log', message: message }));
+        }
 
-		onConsoleError(message) {
-			if (this.socketAlive)
-				this.socket.send(JSON.stringify({ type: 'error', message: message }));
-			else
-				this.buffer.push(JSON.stringify({ type: 'error', message: message }));
-		}
+        onConsoleError(message) {
+            if (this.socketAlive)
+                this.socket.send(JSON.stringify({ type: 'error', message: message }));
+            else
+                this.buffer.push(JSON.stringify({ type: 'error', message: message }));
+        }
 
-		onConsoleWarn(message) {
-			if (this.socketAlive)
-				this.socket.send(JSON.stringify({ type: 'warn', message: message }));
-			else
-				this.buffer.push(JSON.stringify({ type: 'warn', message: message }));
-		}
+        onConsoleWarn(message) {
+            if (this.socketAlive)
+                this.socket.send(JSON.stringify({ type: 'warn', message: message }));
+            else
+                this.buffer.push(JSON.stringify({ type: 'warn', message: message }));
+        }
 
-		onError(message, url, line) {
-			if (this.socketAlive)
-				this.socket.send(JSON.stringify({ type: 'warn', message: message, url: url, line: line }));
-			else
-				this.buffer.push(JSON.stringify({ type: 'warn', message: message, url: url, line: line }));
-		}
+        onError(message, url, line) {
+            if (this.socketAlive)
+                this.socket.send(JSON.stringify({ type: 'warn', message: message, url: url, line: line }));
+            else
+                this.buffer.push(JSON.stringify({ type: 'warn', message: message, url: url, line: line }));
+        }
 
-		static current: RemoteDebug = undefined;
+        static current: RemoteDebug = undefined;
 
-		static onConsoleLog(message) {
-			Core.RemoteDebug.current.onConsoleLog.call(Core.RemoteDebug.current, message);
-		}
+        static onConsoleLog(message) {
+            Core.RemoteDebug.current.onConsoleLog.call(Core.RemoteDebug.current, message);
+        }
 
-		static onConsoleError(message) {
-			Core.RemoteDebug.current.onConsoleError.call(Core.RemoteDebug.current, message);
-		}
+        static onConsoleError(message) {
+            Core.RemoteDebug.current.onConsoleError.call(Core.RemoteDebug.current, message);
+        }
 
-		static onConsoleWarn(message) {
-			Core.RemoteDebug.current.onConsoleWarn.call(Core.RemoteDebug.current, message);
-		}
+        static onConsoleWarn(message) {
+            Core.RemoteDebug.current.onConsoleWarn.call(Core.RemoteDebug.current, message);
+        }
 
-		static onError(message, url, line) {
-			Core.RemoteDebug.current.onError.call(Core.RemoteDebug.current, message, url, line);
-		}
-	}
+        static onError(message, url, line) {
+            Core.RemoteDebug.current.onError.call(Core.RemoteDebug.current, message, url, line);
+        }
+    }
 }

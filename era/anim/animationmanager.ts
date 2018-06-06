@@ -1,69 +1,69 @@
 namespace Anim
 {
-	export class AnimationManager extends Core.Object
-	{
-		clocks: any = undefined;
-		start: number = 0;
-		onTickBind: any = undefined;
-		readonly tick: Core.Events<{ target: AnimationManager }> = new Core.Events();
+    export class AnimationManager extends Core.Object
+    {
+        clocks: any = undefined;
+        start: number = 0;
+        onTickBind: any = undefined;
+        readonly tick: Core.Events<{ target: AnimationManager }> = new Core.Events();
 
-		constructor() {
-			super();
-			this.clocks = [];
-			this.start = new Date().getTime();
-			this.onTickBind = this.onTick.bind(this);
-		}
+        constructor() {
+            super();
+            this.clocks = [];
+            this.start = new Date().getTime();
+            this.onTickBind = this.onTick.bind(this);
+        }
 
-		add(clock) {
-			var found = false;
-			for (var i = 0; !found && (i < this.clocks.length); i++) {
-				found = this.clocks[i] === clock;
-			}
-			if (!found) {
-				this.clocks.push(clock);
-				if (this.clocks.length == 1)
-					requestAnimationFrame(this.onTickBind);
-			}
-		}
+        add(clock) {
+            var found = false;
+            for (var i = 0; !found && (i < this.clocks.length); i++) {
+                found = this.clocks[i] === clock;
+            }
+            if (!found) {
+                this.clocks.push(clock);
+                if (this.clocks.length == 1)
+                    requestAnimationFrame(this.onTickBind);
+            }
+        }
 
-		remove(clock) {
-			var i = 0;
-			while ((i < this.clocks.length) && (this.clocks[i] != clock)) { i++; }
-			if (i < this.clocks.length)
-				this.clocks.splice(i, 1);
-		}
+        remove(clock) {
+            var i = 0;
+            while ((i < this.clocks.length) && (this.clocks[i] != clock)) { i++; }
+            if (i < this.clocks.length)
+                this.clocks.splice(i, 1);
+        }
 
-		forceTick() {
-			if (this.clocks.length > 0)
-				this.onTickBind();
-		}
-	
-		private onTick() {
-			var startTime = (new Date().getTime()) / 1000;
+        forceTick() {
+            if (this.clocks.length > 0)
+                this.onTickBind();
+        }
 
-			var current = (new Date().getTime()) - this.start;
-			current /= 1000;
-			for (var i = 0; i < this.clocks.length; i++)
-				this.clocks[i].update(current);
-			this.tick.fire({ target: this });
+        private onTick() {
+            var startTime = (new Date().getTime()) / 1000;
 
-			if (this.clocks.length > 0)
-				requestAnimationFrame(this.onTickBind);
-		}
+            var current = (new Date().getTime()) - this.start;
+            current /= 1000;
+            for (var i = 0; i < this.clocks.length; i++)
+                this.clocks[i].update(current);
+            this.tick.fire({ target: this });
 
-		static current = new AnimationManager();		
-	}
-}	
+            if (this.clocks.length > 0)
+                requestAnimationFrame(this.onTickBind);
+        }
+
+        static current = new AnimationManager();
+    }
+}
 
 if(!('requestAnimationFrame' in window)) {
-	if('webkitRequestAnimationFrame' in window)
-		(window as any).requestAnimationFrame = window['webkitRequestAnimationFrame'];
-	else if('mozRequestAnimationFrame' in window)
-		(window as any).requestAnimationFrame = window['mozRequestAnimationFrame'];
-	else if('msRequestAnimationFrame' in window)
-		(window as any).requestAnimationFrame = window['msRequestAnimationFrame'];
-	else
-		(window as any).requestAnimationFrame = function(cb) { setTimeout(cb, 1/60);	};
+    if('webkitRequestAnimationFrame' in window)
+        (window as any).requestAnimationFrame = window['webkitRequestAnimationFrame'];
+    else if('mozRequestAnimationFrame' in window)
+        (window as any).requestAnimationFrame = window['mozRequestAnimationFrame'];
+    else if('msRequestAnimationFrame' in window)
+        (window as any).requestAnimationFrame = window['msRequestAnimationFrame'];
+    else
+        (window as any).requestAnimationFrame = function(cb) { setTimeout(cb, 1/60);	};
 }
 
 
