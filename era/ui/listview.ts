@@ -276,16 +276,13 @@ namespace Ui {
         }
 
         set data(data: any) {
+            this._data = data;
             for (let  col = 0; col < this.headers.length; col++) {
                 let key = this.headers[col].key;
                 let cell : ListViewCell = this.cells[col];
                 cell.setValue((key != undefined) ? this._data[this.headers[col].key] : this._data);
             }
         }
-
-/*		getData(): object {
-            return this._data;
-        }*/
 
         get isSelected(): boolean {
             return this.selectionWatcher.isSelected;

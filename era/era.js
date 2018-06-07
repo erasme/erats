@@ -22775,6 +22775,7 @@ var Ui;
                 return this._data;
             },
             set: function (data) {
+                this._data = data;
                 for (var col = 0; col < this.headers.length; col++) {
                     var key = this.headers[col].key;
                     var cell = this.cells[col];
