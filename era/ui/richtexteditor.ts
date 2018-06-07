@@ -85,6 +85,86 @@ namespace Ui {
                 })
             ];
         }
+
+        get html(): string {
+            return this._contentEditable.html;
+        }
+
+        set html(html: string) {
+            this._contentEditable.html = html;
+        }
+    
+        get text(): string {
+            return this._contentEditable.text;
+        }
+
+        set text(text: string) {
+            this._contentEditable.text = text;
+        }
+    
+        get textAlign(): string {
+            return this._contentEditable.textAlign;
+        }
+
+        set textAlign(textAlign: string) {
+            this._contentEditable.textAlign = textAlign;
+        }
+
+        get fontSize(): number {
+            return this._contentEditable.fontSize;
+        }
+    
+        set fontSize(fontSize: number) {
+            this._contentEditable.fontSize = fontSize;
+        }
+    
+        get fontFamily(): string {
+            return this._contentEditable.fontFamily;
+        }
+    
+        set fontFamily(fontFamily: string) {
+            this._contentEditable.fontFamily = fontFamily;
+        }
+    
+        get fontWeight() {
+            return this._contentEditable.fontWeight;
+        }
+    
+        set fontWeight(fontWeight) {
+            this._contentEditable.fontWeight = fontWeight;
+        }
+    
+        get interLine(): number {
+            return this._contentEditable.interLine;
+        }
+
+        set interLine(interLine: number) {
+            this._contentEditable.interLine = interLine;
+        }
+
+        get wordWrap(): string {
+            return this._contentEditable.wordWrap;
+        }
+
+        set wordWrap(wordWrap: string) {
+            this._contentEditable.wordWrap = wordWrap;
+        }
+
+        get whiteSpace(): string {
+            return this._contentEditable.whiteSpace;
+        }
+
+        set whiteSpace(whiteSpace: string) {
+            this._contentEditable.whiteSpace = whiteSpace;
+        }
+    
+        get color(): Color | string {
+            return this._contentEditable.color;
+        }
+
+        set color(color: Color | string) {
+            this._contentEditable.color = color;
+        }
     }
 }
 
