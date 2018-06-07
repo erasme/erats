@@ -70,6 +70,7 @@
         "ui/compactlabel.ts",
         "ui/dropbox.ts",
         "ui/button.ts",
+        "ui/togglebutton.ts",
         "ui/actionbutton.ts",
         "ui/contextbar.ts",
         "ui/popup.ts",
@@ -129,6 +130,7 @@
         "ui/segmentbar.ts",
         "ui/locator.ts",
         "ui/carouselable.ts",
-        "ui/carousel.ts"
+        "ui/carousel.ts",
+        "ui/richtexteditor.ts"
     ]
 }
