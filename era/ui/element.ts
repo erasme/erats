@@ -1452,10 +1452,12 @@ namespace Ui
             }
         }
 
-        private onFocus(event) {
-            if(this._focusable && !this.isDisabled) {
-                event.preventDefault();
-                event.stopPropagation();
+        protected onFocus(event?) {
+            if(!this._hasFocus && this._focusable && !this.isDisabled) {
+                if (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
                 this._hasFocus = true;
                 this.isMouseFocus = this.isMouseDownFocus;
                 this.scrollIntoView();
@@ -1463,10 +1465,12 @@ namespace Ui
             }
         }
 
-        private onBlur(event) {
-            if(this._focusable) {
-                event.preventDefault();
-                event.stopPropagation();
+        protected onBlur(event?) {
+            if(this._hasFocus) {
+                if (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
                 this.isMouseFocus = false;
                 this._hasFocus = false;
                 this.blurred.fire({ target: this });
