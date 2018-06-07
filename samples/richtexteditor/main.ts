@@ -3,7 +3,7 @@
 class App extends Ui.App {
     constructor() {
         super();
-        this.content = new Ui.RichTextEditor().assign({ margin: 50 });
+        this.content = new Ui.RichTextEditor().assign({ margin: 50, fontSize: 20 });
     }
 }
 

@@ -14,7 +14,7 @@ var App = /** @class */ (function (_super) {
     __extends(App, _super);
     function App() {
         var _this = _super.call(this) || this;
-        _this.content = new Ui.RichTextEditor().assign({ margin: 50 });
+        _this.content = new Ui.RichTextEditor().assign({ margin: 50, fontSize: 20 });
         return _this;
     }
     return App;
