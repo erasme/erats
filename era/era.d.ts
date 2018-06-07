@@ -6064,5 +6064,15 @@ declare namespace Ui {
     class RichTextEditor extends LBox {
         private _contentEditable;
         constructor();
+        html: string;
+        text: string;
+        textAlign: string;
+        fontSize: number;
+        fontFamily: string;
+        fontWeight: any;
+        interLine: number;
+        wordWrap: string;
+        whiteSpace: string;
+        color: Color | string;
     }
 }

@@ -26994,6 +26994,106 @@ var Ui;
             ];
             return _this;
         }
+        Object.defineProperty(RichTextEditor.prototype, "html", {
+            get: function () {
+                return this._contentEditable.html;
+            },
+            set: function (html) {
+                this._contentEditable.html = html;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(RichTextEditor.prototype, "text", {
+            get: function () {
+                return this._contentEditable.text;
+            },
+            set: function (text) {
+                this._contentEditable.text = text;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(RichTextEditor.prototype, "textAlign", {
+            get: function () {
+                return this._contentEditable.textAlign;
+            },
+            set: function (textAlign) {
+                this._contentEditable.textAlign = textAlign;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(RichTextEditor.prototype, "fontSize", {
+            get: function () {
+                return this._contentEditable.fontSize;
+            },
+            set: function (fontSize) {
+                this._contentEditable.fontSize = fontSize;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(RichTextEditor.prototype, "fontFamily", {
+            get: function () {
+                return this._contentEditable.fontFamily;
+            },
+            set: function (fontFamily) {
+                this._contentEditable.fontFamily = fontFamily;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(RichTextEditor.prototype, "fontWeight", {
+            get: function () {
+                return this._contentEditable.fontWeight;
+            },
+            set: function (fontWeight) {
+                this._contentEditable.fontWeight = fontWeight;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(RichTextEditor.prototype, "interLine", {
+            get: function () {
+                return this._contentEditable.interLine;
+            },
+            set: function (interLine) {
+                this._contentEditable.interLine = interLine;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(RichTextEditor.prototype, "wordWrap", {
+            get: function () {
+                return this._contentEditable.wordWrap;
+            },
+            set: function (wordWrap) {
+                this._contentEditable.wordWrap = wordWrap;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(RichTextEditor.prototype, "whiteSpace", {
+            get: function () {
+                return this._contentEditable.whiteSpace;
+            },
+            set: function (whiteSpace) {
+                this._contentEditable.whiteSpace = whiteSpace;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(RichTextEditor.prototype, "color", {
+            get: function () {
+                return this._contentEditable.color;
+            },
+            set: function (color) {
+                this._contentEditable.color = color;
+            },
+            enumerable: true,
+            configurable: true
+        });
         return RichTextEditor;
     }(Ui.LBox));
     Ui.RichTextEditor = RichTextEditor;
