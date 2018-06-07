@@ -4508,9 +4508,11 @@ var Ui;
             configurable: true
         });
         Element.prototype.onFocus = function (event) {
-            if (this._focusable && !this.isDisabled) {
-                event.preventDefault();
-                event.stopPropagation();
+            if (!this._hasFocus && this._focusable && !this.isDisabled) {
+                if (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
                 this._hasFocus = true;
                 this.isMouseFocus = this.isMouseDownFocus;
                 this.scrollIntoView();
@@ -4518,9 +4520,11 @@ var Ui;
             }
         };
         Element.prototype.onBlur = function (event) {
-            if (this._focusable) {
-                event.preventDefault();
-                event.stopPropagation();
+            if (this._hasFocus) {
+                if (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
                 this.isMouseFocus = false;
                 this._hasFocus = false;
                 this.blurred.fire({ target: this });
@@ -13732,6 +13736,75 @@ var Ui;
 })(Ui || (Ui = {}));
 var Ui;
 (function (Ui) {
+    var ToggleButton = (function (_super) {
+        __extends(ToggleButton, _super);
+        function ToggleButton() {
+            var _this = _super.call(this) || this;
+            _this._isToggled = false;
+            _this.toggled = new Core.Events();
+            _this.untoggled = new Core.Events();
+            _this.role = 'checkbox';
+            _this.drawing.setAttribute('aria-checked', 'false');
+            _this.pressed.connect(function () { return _this.onToggleButtonPress(); });
+            return _this;
+        }
+        Object.defineProperty(ToggleButton.prototype, "ontoggled", {
+            set: function (value) { this.toggled.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ToggleButton.prototype, "onuntoggled", {
+            set: function (value) { this.untoggled.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ToggleButton.prototype, "isToggled", {
+            get: function () {
+                return this._isToggled;
+            },
+            set: function (value) {
+                if (value)
+                    this.onToggle();
+                else
+                    this.onUntoggle();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        ToggleButton.prototype.onToggleButtonPress = function () {
+            if (!this.isToggled)
+                this.onToggle();
+            else
+                this.onUntoggle();
+        };
+        ToggleButton.prototype.onToggle = function () {
+            if (!this.isToggled) {
+                this._isToggled = true;
+                this.isActive = true;
+                this.drawing.setAttribute('aria-checked', 'true');
+                this.toggled.fire({ target: this });
+            }
+        };
+        ToggleButton.prototype.onUntoggle = function () {
+            if (this.isToggled) {
+                this._isToggled = false;
+                this.isActive = false;
+                this.drawing.setAttribute('aria-checked', 'false');
+                this.untoggled.fire({ target: this });
+            }
+        };
+        ToggleButton.prototype.toggle = function () {
+            this.onToggle();
+        };
+        ToggleButton.prototype.untoggle = function () {
+            this.onUntoggle();
+        };
+        return ToggleButton;
+    }(Ui.Button));
+    Ui.ToggleButton = ToggleButton;
+})(Ui || (Ui = {}));
+var Ui;
+(function (Ui) {
     var ActionButton = (function (_super) {
         __extends(ActionButton, _super);
         function ActionButton(init) {
@@ -21152,12 +21225,54 @@ var Ui;
         function ContentEditable(init) {
             var _this = _super.call(this, init) || this;
             _this.anchorOffset = 0;
+            _this._hasSelection = false;
             _this.anchorchanged = new Core.Events();
             _this.changed = new Core.Events();
             _this.validated = new Core.Events();
+            _this.selectionentered = new Core.Events();
+            _this.selectionleaved = new Core.Events();
             _this._lastHtml = '';
+            _this.testAnchorChange = function () {
+                var node = window.getSelection().anchorNode;
+                var currentNode = node;
+                while (currentNode != null && currentNode != _this.drawing) {
+                    currentNode = currentNode.parentNode;
+                }
+                var hasSelection = (currentNode != null);
+                if (_this._hasSelection != hasSelection) {
+                    _this._hasSelection = hasSelection;
+                    if (hasSelection)
+                        _this.selectionentered.fire({ target: _this });
+                    else
+                        _this.selectionleaved.fire({ target: _this });
+                }
+                if (!hasSelection) {
+                    if (_this.hasFocus)
+                        _this.onBlur();
+                    return;
+                }
+                if (!_this.hasFocus)
+                    _this.onFocus();
+                if ((window.getSelection().anchorNode != _this.anchorNode) ||
+                    (window.getSelection().anchorOffset != _this.anchorOffset)) {
+                    _this.anchorNode = window.getSelection().anchorNode;
+                    _this.anchorOffset = window.getSelection().anchorOffset;
+                    _this.anchorchanged.fire({ target: _this });
+                }
+            };
             _this.selectable = true;
+            _this.focusable = true;
+            _this.drawing.removeAttribute('tabindex');
             _this.htmlDrawing.setAttribute('contenteditable', 'true');
+            _this.drawing.addEventListener('blur', function (e) {
+                var node = window.getSelection().anchorNode;
+                if (window.getSelection().isCollapsed && _this._hasSelection) {
+                    _this._hasSelection = false;
+                    _this.selectionleaved.fire({ target: _this });
+                }
+                _this.onBlur();
+            }, true);
+            _this.drawing.addEventListener('focus', function (e) { return _this.onFocus(); }, true);
             _this.drawing.addEventListener('keyup', function (e) { return _this.onKeyUp(e); });
             _this.drawing.addEventListener('DOMSubtreeModified', function (e) { return _this.onContentSubtreeModified(e); });
             if (init) {
@@ -21185,19 +21300,29 @@ var Ui;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(ContentEditable.prototype, "onselectionentered", {
+            set: function (value) { this.selectionentered.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ContentEditable.prototype, "onselectionleaved", {
+            set: function (value) { this.selectionleaved.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        ContentEditable.prototype.onLoad = function () {
+            _super.prototype.onLoad.call(this);
+            document.addEventListener('selectionchange', this.testAnchorChange);
+        };
+        ContentEditable.prototype.onUnload = function () {
+            _super.prototype.onUnload.call(this);
+            document.removeEventListener('selectionchange', this.testAnchorChange);
+        };
         ContentEditable.prototype.onKeyUp = function (event) {
             this.testAnchorChange();
             var key = event.which;
             if (key == 13)
                 this.validated.fire({ target: this });
-        };
-        ContentEditable.prototype.testAnchorChange = function () {
-            if ((window.getSelection().anchorNode != this.anchorNode) ||
-                (window.getSelection().anchorOffset != this.anchorOffset)) {
-                this.anchorNode = window.getSelection().anchorNode;
-                this.anchorOffset = window.getSelection().anchorOffset;
-                this.anchorchanged.fire({ target: this });
-            }
         };
         ContentEditable.prototype.onContentSubtreeModified = function (event) {
             this.testAnchorChange();
@@ -26780,4 +26905,102 @@ var Ui;
     }(Ui.Container));
     Ui.Carousel = Carousel;
 })(Ui || (Ui = {}));
+var Ui;
+(function (Ui) {
+    var RichTextButton = (function (_super) {
+        __extends(RichTextButton, _super);
+        function RichTextButton() {
+            var _this = _super !== null && _super.apply(this, arguments) || this;
+            _this.style = {
+                borderWidth: 0,
+                background: 'rgba(255,255,255,0)',
+                activeBackground: 'rgba(255,255,255,0)'
+            };
+            return _this;
+        }
+        return RichTextButton;
+    }(Ui.ToggleButton));
+    Ui.RichTextButton = RichTextButton;
+    var RichTextEditor = (function (_super) {
+        __extends(RichTextEditor, _super);
+        function RichTextEditor() {
+            var _this = _super.call(this) || this;
+            var boldButton = new RichTextButton().assign({
+                icon: 'format-bold', focusable: false,
+                ontoggled: function () { return document.execCommand('bold', false, null); },
+                onuntoggled: function () { return document.execCommand('bold', false, null); }
+            });
+            var italicButton = new RichTextButton().assign({
+                icon: 'format-italic', focusable: false,
+                ontoggled: function () { return document.execCommand('italic', false, null); },
+                onuntoggled: function () { return document.execCommand('italic', false, null); }
+            });
+            var alignLeftButton = new RichTextButton().assign({
+                icon: 'format-align-left', focusable: false,
+                ontoggled: function () { return document.execCommand('justifyLeft', false, null); },
+                onuntoggled: function () { return document.execCommand('justifyLeft', false, null); }
+            });
+            var alignCenterButton = new RichTextButton().assign({
+                icon: 'format-align-center', focusable: false,
+                ontoggled: function () { return document.execCommand('justifyCenter', false, null); },
+                onuntoggled: function () { return document.execCommand('justifyCenter', false, null); }
+            });
+            var alignRightButton = new RichTextButton().assign({
+                icon: 'format-align-right', focusable: false,
+                ontoggled: function () { return document.execCommand('justifyRight', false, null); },
+                onuntoggled: function () { return document.execCommand('justifyRight', false, null); }
+            });
+            var controls = new Ui.HBox().assign({
+                uniform: true, isDisabled: false,
+                content: [
+                    boldButton,
+                    italicButton,
+                    alignLeftButton,
+                    alignCenterButton,
+                    alignRightButton
+                ]
+            });
+            var bg = new Ui.TextBgGraphic();
+            _this._contentEditable = new Ui.ContentEditable().assign({
+                margin: 10, interLine: 1.2, fontSize: 16,
+                html: '', resizable: true,
+                onfocused: function () { return bg.hasFocus = true; },
+                onblurred: function () { return bg.hasFocus = false; },
+                onanchorchanged: function () {
+                    boldButton.isActive = document.queryCommandState('bold');
+                    italicButton.isActive = document.queryCommandState('italic');
+                    alignLeftButton.isActive = document.queryCommandState('justifyLeft');
+                    alignCenterButton.isActive = document.queryCommandState('justifyCenter');
+                    alignRightButton.isActive = document.queryCommandState('justifyRight');
+                },
+                onselectionentered: function () { return controls.enable(); },
+                onselectionleaved: function () { return controls.disable(); },
+                selectable: true
+            });
+            _this.content = [
+                bg,
+                new Ui.VBox().assign({
+                    margin: 1,
+                    content: [
+                        new Ui.LBox().assign({
+                            content: [
+                                new Ui.Rectangle().assign({ fill: 'white', opacity: 0.6 }),
+                                controls
+                            ]
+                        }),
+                        _this._contentEditable
+                    ]
+                })
+            ];
+            return _this;
+        }
+        return RichTextEditor;
+    }(Ui.LBox));
+    Ui.RichTextEditor = RichTextEditor;
+})(Ui || (Ui = {}));
+Ui.Icon.register('format-bold', "M31.2 21.58c1.93-1.35 3.3-3.53 3.3-5.58 0-4.51-3.49-8-8-8h-12.5v28h14.08c4.19 0 7.42-3.4 7.42-7.58 0-3.04-1.73-5.63-4.3-6.84zm-11.2-8.58h6c1.66 0 3 1.34 3 3s-1.34 3-3 3h-6v-6zm7 18h-7v-6h7c1.66 0 3 1.34 3 3s-1.34 3-3 3z");
+Ui.Icon.register('format-italic', "M20 8v6h4.43l-6.86 16h-5.57v6h16v-6h-4.43l6.86-16h5.57v-6z");
+Ui.Icon.register('format-align-left', "M30 30h-24v4h24v-4zm0-16h-24v4h24v-4zm-24 12h36v-4h-36v4zm0 16h36v-4h-36v4zm0-36v4h36v-4h-36z");
+Ui.Icon.register('format-align-right', "M6 42h36v-4h-36v4zm12-8h24v-4h-24v4zm-12-8h36v-4h-36v4zm12-8h24v-4h-24v4zm-12-12v4h36v-4h-36z");
+Ui.Icon.register('format-align-center', "M14 30v4h20v-4h-20zm-8 12h36v-4h-36v4zm0-16h36v-4h-36v4zm8-12v4h20v-4h-20zm-8-8v4h36v-4h-36z");
 //# sourceMappingURL=era.js.map

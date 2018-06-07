@@ -284,16 +284,16 @@ declare namespace Core {
         constructor(init: SocketInit);
         send(msg: any): void;
         close(): void;
-        private onWebSocketOpenTimeout();
+        private onWebSocketOpenTimeout;
         private onWebSocketOpen;
         private onWebSocketError;
         private onWebSocketMessage;
         private onWebSocketClose;
-        private emuSocketDataAvailable(data);
-        private emuSocketUpdate(delta);
-        private onEmuSocketSendDone();
-        private onEmuSocketSendError();
-        private onEmuSocketOpenDone();
+        private emuSocketDataAvailable;
+        private emuSocketUpdate;
+        private onEmuSocketSendDone;
+        private onEmuSocketSendError;
+        private onEmuSocketOpenDone;
         onEmuSocketOpenError(request: any, status: any): void;
         onEmuSocketPollDone(): void;
         onEmuSocketPollError(): void;
@@ -482,7 +482,7 @@ declare namespace Anim {
         constructor();
         add(clock: any): void;
         remove(clock: any): void;
-        private onTick();
+        private onTick;
         static current: TimeManager;
     }
 }
@@ -498,7 +498,7 @@ declare namespace Anim {
         add(clock: any): void;
         remove(clock: any): void;
         forceTick(): void;
-        private onTick();
+        private onTick;
         static current: AnimationManager;
     }
 }
@@ -695,9 +695,9 @@ declare namespace Ui {
             v: number;
             a: number;
         };
-        private initFromHsl(h, s, l, a?);
-        private initFromYuv(y, u, v, a?);
-        private initFromRgb(r, g, b, a?);
+        private initFromHsl;
+        private initFromYuv;
+        private initFromRgb;
         toString(): string;
         static knownColor: object;
         static parse(color: string): Color;
@@ -968,10 +968,10 @@ declare namespace Ui {
         protected onDisable(): void;
         protected onInternalEnable(): void;
         protected onEnable(): void;
-        private containSubStyle(style);
-        private fusionStyle(dst, src);
-        private getClassStyle(style, classFunc);
-        private mergeStyles();
+        private containSubStyle;
+        private fusionStyle;
+        private getClassStyle;
+        private mergeStyles;
         getIsChildOf(parent: Element): boolean;
         parent: Element | undefined;
         getParentByClass<T extends Ui.Element>(classFunc: new (...args: any[]) => T): T | undefined;
@@ -986,11 +986,11 @@ declare namespace Ui {
         protected onScrollIntoView(el: Element): void;
         get(name: string): Element | undefined;
         isLoaded: boolean;
-        private onFocus(event);
-        private onBlur(event);
-        private updateTransform();
+        protected onFocus(event?: any): void;
+        protected onBlur(event?: any): void;
+        private updateTransform;
         setAnimClock(clock: Anim.Clock): void;
-        private onAnimClockComplete();
+        private onAnimClockComplete;
         protected onLoad(): void;
         protected onUnload(): void;
         static transformToWindow(element: Element): Matrix;
@@ -1706,9 +1706,9 @@ declare namespace Ui {
         insertAt(child: Element, position: number, resizable?: boolean): void;
         moveAt(child: Element, position: number): void;
         remove(child: Element): void;
-        private measureUniform(width, height);
-        private measureNonUniformVertical(width, height);
-        private measureNonUniformHorizontal(width, height);
+        private measureUniform;
+        private measureNonUniformVertical;
+        private measureNonUniformHorizontal;
         protected measureCore(width: number, height: number): any;
         protected arrangeCore(width: number, height: number): void;
     }
@@ -1736,7 +1736,7 @@ declare namespace Ui {
         });
         private onPtrMove;
         private onPtrUp;
-        private onPtrLeave(pointer);
+        private onPtrLeave;
         readonly isOver: boolean;
     }
     interface OverableInit extends LBoxInit {
@@ -1924,9 +1924,9 @@ declare namespace Ui {
             end?: (watcher: DraggableWatcher, effect: 'none' | 'copy' | 'link' | 'move' | string) => void;
         });
         readonly dragDelta: Point;
-        private onDraggablePointerDown(event);
-        private onDragStart(dataTransfer);
-        private onDragEnd(dataTransfer);
+        private onDraggablePointerDown;
+        private onDragStart;
+        private onDragEnd;
     }
     interface DraggableInit extends PressableInit {
         ondragstarted?: (event: {
@@ -1962,7 +1962,7 @@ declare namespace Ui {
         constructor(init?: DraggableInit);
         setAllowedMode(allowedMode: any): void;
         readonly dragDelta: Point;
-        private onDraggablePointerDown(event);
+        private onDraggablePointerDown;
         protected onDragStart(dataTransfer: DragEmuDataTransfer): void;
         protected onDragEnd(dataTransfer: DragEmuDataTransfer): void;
     }
@@ -2001,10 +2001,10 @@ declare namespace Ui {
         onSelect(selection: Selection): void;
         onUnselect(selection: Selection): void;
         protected onDelayedPress(watcher: PressWatcher): void;
-        private getParentSelectionHandler();
-        private onSelectionableDragStart(watcher);
-        private onSelectionableDragEnd(watcher);
-        private onSelectionableActivate(watcher);
+        private getParentSelectionHandler;
+        private onSelectionableDragStart;
+        private onSelectionableDragEnd;
+        private onSelectionableActivate;
     }
     interface SelectionableInit extends LBoxInit {
     }
@@ -2027,7 +2027,7 @@ declare namespace Ui {
         protected onSelect(selection: Selection): void;
         protected onUnselect(selection: Selection): void;
         getSelectionActions(): SelectionActions;
-        private getParentSelectionHandler();
+        private getParentSelectionHandler;
         static getParentSelectionHandler(element: Element): Selection | undefined;
     }
 }
@@ -2046,9 +2046,9 @@ declare namespace Ui {
         append(elements: Array<SelectionableWatcher> | SelectionableWatcher): void;
         extend(end: SelectionableWatcher): void;
         findRangeElements(start: SelectionableWatcher, end: SelectionableWatcher): Array<SelectionableWatcher>;
-        private internalAppend(watcher);
+        private internalAppend;
         remove(watcher: Array<SelectionableWatcher> | SelectionableWatcher): void;
-        private internalRemove(watcher);
+        private internalRemove;
         watchers: Array<SelectionableWatcher>;
         elements: Element[];
         getElementActions(watcher: SelectionableWatcher): SelectionActions;
@@ -2128,7 +2128,7 @@ declare namespace Ui {
         fontWeight: FontWeight;
         textTransform: TextTransform;
         color: Color | string;
-        private getColor();
+        private getColor;
         orientation: Orientation;
         onStyleChange(): void;
         renderDrawing(): HTMLElement;
@@ -2225,16 +2225,16 @@ declare namespace Ui {
         inertia: boolean;
         moveHorizontal: boolean;
         moveVertical: boolean;
-        private updateTouchAction();
+        private updateTouchAction;
         setPosition(x?: number, y?: number, dontSignal?: boolean): void;
         readonly positionX: number;
         readonly positionY: number;
         protected onMove(x: number, y: number): void;
-        private onDown();
-        private onUp(abort);
-        private onPointerDown(event);
-        private startInertia();
-        private stopInertia();
+        private onDown;
+        private onUp;
+        private onPointerDown;
+        private startInertia;
+        private stopInertia;
     }
 }
 declare namespace Ui {
@@ -2317,7 +2317,7 @@ declare namespace Ui {
         scale: number;
         translateX: number;
         translateY: number;
-        private buildMatrix(translateX, translateY, scale, angle);
+        private buildMatrix;
         readonly matrix: Matrix;
         getBoundaryBox(matrix: any): {
             x: number;
@@ -2434,7 +2434,7 @@ declare namespace Ui {
         scale: number;
         translateX: number;
         translateY: number;
-        private buildMatrix(translateX, translateY, scale, angle);
+        private buildMatrix;
         readonly matrix: Matrix;
         getBoundaryBox(matrix: any): {
             x: number;
@@ -2571,7 +2571,7 @@ declare namespace Ui {
         constructor(orientation: Orientation);
         radius: number;
         fill: Color;
-        private startAnim();
+        private startAnim;
         protected onTick(clock: Anim.Clock, progress: number, deltaTick: number): void;
     }
     interface ScrollingAreaInit extends ScrollableInit {
@@ -2823,7 +2823,7 @@ declare namespace Ui {
         protected onWatcherEnter(watcher: DragWatcher): void;
         protected onWatcherDrop(watcher: DragWatcher, effect: any, x: number, y: number): void;
         protected onWatcherLeave(watcher: DragWatcher): void;
-        private getAllowedTypesEffect(dataTransfer);
+        private getAllowedTypesEffect;
         protected onDragEffect(dataTransfer: DragDataTransfer): string | DropEffect[];
         protected onDragEffectFunction(dataTransfer: DragDataTransfer, func: DropEffectFunc): DropEffect[];
         protected onDrop(dataTransfer: DragDataTransfer, dropEffect: any, x: number, y: number): void;
@@ -3001,6 +3001,30 @@ declare namespace Ui {
     }
 }
 declare namespace Ui {
+    class ToggleButton extends Button {
+        private _isToggled;
+        readonly toggled: Core.Events<{
+            target: ToggleButton;
+        }>;
+        ontoggled: (event: {
+            target: ToggleButton;
+        }) => void;
+        readonly untoggled: Core.Events<{
+            target: ToggleButton;
+        }>;
+        onuntoggled: (event: {
+            target: ToggleButton;
+        }) => void;
+        constructor();
+        isToggled: boolean;
+        protected onToggleButtonPress(): void;
+        protected onToggle(): void;
+        protected onUntoggle(): void;
+        toggle(): void;
+        untoggle(): void;
+    }
+}
+declare namespace Ui {
     interface ActionButtonInit extends ButtonInit {
         action?: any;
         selection?: Selection;
@@ -3087,7 +3111,7 @@ declare namespace Ui {
         open(): void;
         openAt(posX: number, posY: number): void;
         openElement(element: Element, position?: AttachBorder): void;
-        private openPosOrElement(posX?, posY?);
+        private openPosOrElement;
         close(): void;
         protected measureCore(width: number, height: number): {
             width: number;
@@ -3112,7 +3136,7 @@ declare namespace Ui {
         arrowOffset: number;
         radius: number;
         fill: Color | string;
-        private genPath(width, height, radius, arrowBorder, arrowSize, arrowOffset);
+        private genPath;
         updateCanvas(ctx: any): void;
     }
     interface MenuPopupInit extends PopupInit {
@@ -3176,7 +3200,7 @@ declare namespace Ui {
         moveAt(child: Element, position: number): void;
         insertAt(child: Element, position: number, resizable: boolean): void;
         setContent(content: any): void;
-        private onMenuButtonPress();
+        private onMenuButtonPress;
         clear(): void;
         measureCore(width: number, height: number): any;
         arrangeCore(width: number, height: number): void;
@@ -3449,7 +3473,7 @@ declare namespace Ui {
         getParentElement(tagName: any, element: any): any;
         html: string;
         text: string;
-        private getTextContent(el);
+        private getTextContent;
         textAlign: string;
         fontSize: number;
         fontFamily: string;
@@ -3586,10 +3610,10 @@ declare namespace Ui {
         readonly naturalWidth: number | undefined;
         readonly naturalHeight: number | undefined;
         readonly isReady: boolean;
-        private onImageError(event);
-        private onImageLoad(event);
+        private onImageError;
+        private onImageLoad;
         private onAppReady;
-        private onImageDelayReady();
+        private onImageDelayReady;
         protected renderDrawing(): HTMLImageElement;
         protected measureCore(width: any, height: any): any;
         protected arrangeCore(width: number, height: number): void;
@@ -3657,14 +3681,14 @@ declare namespace Ui {
         fontSize: number;
         fontFamily: string;
         fontWeight: string;
-        private getColor();
+        private getColor;
         color: Color | string;
         value: string;
-        private onPaste(event);
-        private onAfterPaste();
-        private onChange(event);
-        private onKeyDown(event);
-        private onKeyUp(event);
+        private onPaste;
+        private onAfterPaste;
+        private onChange;
+        private onKeyDown;
+        private onKeyUp;
         renderDrawing(): HTMLInputElement;
         protected measureCore(width: number, height: number): {
             width: number;
@@ -3697,7 +3721,7 @@ declare namespace Ui {
         append(child: Element, x: number, y: number): void;
         remove(child: Element): void;
         protected updateItemTransform(child: Element): void;
-        private getItemPosition(child);
+        private getItemPosition;
         protected measureCore(width: number, height: number): Size;
         protected arrangeCore(width: number, height: number): void;
         protected onChildInvalidateMeasure(child: Element, event: any): void;
@@ -3777,9 +3801,9 @@ declare namespace Ui {
         textHolder: string;
         passwordMode: boolean;
         value: string;
-        private onEntryFocus();
-        private onEntryBlur();
-        private onEntryChange(entry, value);
+        private onEntryFocus;
+        private onEntryBlur;
+        private onEntryChange;
     }
 }
 declare namespace Ui {
@@ -3861,7 +3885,7 @@ declare namespace Ui {
         content: Element;
         toggle(): void;
         untoggle(): void;
-        private onCheckPress();
+        private onCheckPress;
         protected onToggle(): void;
         protected onUntoggle(): void;
         protected onCheckFocus(): void;
@@ -3952,7 +3976,7 @@ declare namespace Ui {
         fontFamily: string;
         fontWeight: string;
         color: Color | string;
-        private getColor();
+        private getColor;
         value: string;
         setOffset(offsetX: number, offsetY: number): void;
         readonly offsetX: number;
@@ -4023,8 +4047,8 @@ declare namespace Ui {
         setContent(content: any): void;
         attach(child: Element, col: number, row: number, colSpan?: number, rowSpan?: number): void;
         detach(child: Element): void;
-        private getColMin(colPos);
-        private getRowMin(rowPos);
+        private getColMin;
+        private getRowMin;
         protected measureCore(width: number, height: number): {
             width: number;
             height: number;
@@ -4063,8 +4087,8 @@ declare namespace Ui {
         insertAt(child: Element, position: number): void;
         moveAt(child: Element, position: number): void;
         remove(child: Element): void;
-        private measureChildrenNonUniform(width, height);
-        private measureChildrenUniform(width, height);
+        private measureChildrenNonUniform;
+        private measureChildrenUniform;
         protected measureCore(width: number, height: number): {
             width: number;
             height: number;
@@ -4585,7 +4609,7 @@ declare namespace Ui {
         selectedDate: Date;
         protected onDatePickerButtonPress(): void;
         protected onDatePickerChange(): void;
-        private zeroPad(val, size?);
+        private zeroPad;
         protected onDaySelect(monthcalendar: any, date: Date): void;
     }
 }
@@ -4648,6 +4672,7 @@ declare namespace Ui {
     class ContentEditable extends Html {
         anchorNode?: Node;
         anchorOffset: number;
+        private _hasSelection;
         readonly anchorchanged: Core.Events<{
             target: ContentEditable;
         }>;
@@ -4666,10 +4691,24 @@ declare namespace Ui {
         onvalidated: (event: {
             target: ContentEditable;
         }) => void;
+        readonly selectionentered: Core.Events<{
+            target: ContentEditable;
+        }>;
+        onselectionentered: (event: {
+            target: ContentEditable;
+        }) => void;
+        readonly selectionleaved: Core.Events<{
+            target: ContentEditable;
+        }>;
+        onselectionleaved: (event: {
+            target: ContentEditable;
+        }) => void;
         private _lastHtml;
         constructor(init?: ContentEditableInit);
+        protected onLoad(): void;
+        protected onUnload(): void;
         protected onKeyUp(event: any): void;
-        protected testAnchorChange(): void;
+        protected testAnchorChange: () => void;
         protected onContentSubtreeModified(event: any): void;
         protected measureCore(width: number, height: number): {
             width: number;
@@ -4823,17 +4862,17 @@ declare namespace Ui {
         private shiftStart;
         constructor(init?: SelectionAreaInit);
         getParentSelectionHandler(): Ui.Selection | undefined;
-        private findAreaElements(p1, p2);
-        private findSelectionableWatchers();
-        private findMatchSelectionable(element, filter);
-        private findRightSelectionable(element);
-        private findLeftSelectionable(element);
-        private findBottomSelectionable(element);
-        private findTopSelectionable(element);
-        private onPointerDown(event);
-        private onPtrUp(watcher);
-        private onPtrMove(watcher);
-        private onKeyDown(event);
+        private findAreaElements;
+        private findSelectionableWatchers;
+        private findMatchSelectionable;
+        private findRightSelectionable;
+        private findLeftSelectionable;
+        private findBottomSelectionable;
+        private findTopSelectionable;
+        private onPointerDown;
+        private onPtrUp;
+        private onPtrMove;
+        private onKeyDown;
     }
 }
 declare namespace Ui {
@@ -4900,7 +4939,7 @@ declare namespace Ui {
             position: number;
         }>;
         constructor(init?: ComboPopupInit);
-        private onSearchChange(field, value);
+        private onSearchChange;
         search: boolean;
         field: string;
         data: any[];
@@ -5465,17 +5504,17 @@ declare namespace Ui {
         constructor(init?: SwitchInit);
         value: boolean;
         private onButtonMove;
-        private updatePos();
-        private getColor();
-        private getForeground();
-        private getBackground();
-        private getButtonColor();
-        private updateColors();
-        private onDown();
-        private onUp(speedX, cumulMove, abort);
-        private startAnimation(speed);
-        private stopAnimation();
-        private onAlignTick(clock, progress, delta);
+        private updatePos;
+        private getColor;
+        private getForeground;
+        private getBackground;
+        private getButtonColor;
+        private updateColors;
+        private onDown;
+        private onUp;
+        private startAnimation;
+        private stopAnimation;
+        private onAlignTick;
         protected measureCore(width: number, height: number): Size;
         protected arrangeCore(width: number, height: number): void;
         protected onStyleChange(): void;
@@ -5512,11 +5551,11 @@ declare namespace Ui {
         currentPosition: number;
         appendPage(page: AccordeonPage): void;
         removePage(page: AccordeonPage): void;
-        private onClockTick(clock, progress);
+        private onClockTick;
         private onPageSelect;
         private onPageClose;
-        private measureHorizontal(width, height);
-        private measureVertical(width, height);
+        private measureHorizontal;
+        private measureVertical;
         protected measureCore(width: number, height: number): {
             width: number;
             height: number;
@@ -5558,7 +5597,7 @@ declare namespace Ui {
         hideContent(): void;
         getOffset(): number;
         setOffset(offset: any): void;
-        private onHeaderPress();
+        private onHeaderPress;
         protected measureCore(width: number, height: number): Size;
         protected arrangeCore(width: number, height: number): void;
     }
@@ -5759,7 +5798,7 @@ declare namespace Ui {
         next(): void;
         previous(): void;
         private onSegmentSelect;
-        private onKeyDown(event);
+        private onKeyDown;
         protected onStyleChange(): void;
         static style: any;
     }
@@ -5825,16 +5864,16 @@ declare namespace Ui {
         }) => void;
         constructor(init?: LocatorInit);
         path: string;
-        private getBackground();
-        private getLightColor();
-        private getBackgroundBorder();
-        private getDownColor();
-        private onPathPress(pathItem);
-        private onPathDown(pathItem);
-        private onPathUp(pathItem);
-        private onPathFocus(pressable);
-        private onPathBlur(pressable);
-        private updateColors();
+        private getBackground;
+        private getLightColor;
+        private getBackgroundBorder;
+        private getDownColor;
+        private onPathPress;
+        private onPathDown;
+        private onPathUp;
+        private onPathFocus;
+        private onPathBlur;
+        private updateColors;
         protected measureCore(width: number, height: number): {
             width: number;
             height: number;
@@ -5913,7 +5952,7 @@ declare namespace Ui {
         autoPlay: number;
         stopAutoPlay(): void;
         startAutoPlay(): void;
-        private onAutoPlayTimeout();
+        private onAutoPlayTimeout;
         bufferingSize: number;
         readonly logicalChildren: Element[];
         readonly currentPosition: number;
@@ -5928,16 +5967,16 @@ declare namespace Ui {
         remove(child: Element): void;
         insertAt(child: Element, position: number): void;
         moveAt(child: Element, position: number): void;
-        private onKeyDown(event);
-        private onWheel(event);
-        private onCarouselableDown();
-        private onCarouselableUp(el, speedX, speedY, deltaX, deltaY, cumulMove, abort);
-        private onChange();
-        private onAlignTick(clock, progress, delta);
-        private startAnimation(speed, next?);
-        private stopAnimation();
-        private loadItems();
-        private updateItems();
+        private onKeyDown;
+        private onWheel;
+        private onCarouselableDown;
+        private onCarouselableUp;
+        private onChange;
+        private onAlignTick;
+        private startAnimation;
+        private stopAnimation;
+        private loadItems;
+        private updateItems;
         protected onLoad(): void;
         protected onMove(x: any, y: any): void;
         protected measureCore(width: number, height: number): {
@@ -5993,18 +6032,18 @@ declare namespace Ui {
         insertAt(child: Element, pos: number): void;
         moveAt(child: Element, pos: number): void;
         content: Element[];
-        private onCarouselableChange(carouselable, position);
-        private onCarouselableFocus();
-        private onCarouselableBlur();
-        private onPreviousPress();
-        private onNextPress();
-        private onMouseEnter();
-        private onMouseOverMove();
-        private onMouseLeave();
-        private showArrows();
-        private hideArrows();
-        private onShowTick(clock, progress, delta);
-        private onKeyDown(event);
+        private onCarouselableChange;
+        private onCarouselableFocus;
+        private onCarouselableBlur;
+        private onPreviousPress;
+        private onNextPress;
+        private onMouseEnter;
+        private onMouseOverMove;
+        private onMouseLeave;
+        private showArrows;
+        private hideArrows;
+        private onShowTick;
+        private onKeyDown;
         protected measureCore(width: number, height: number): {
             width: number;
             height: number;
@@ -6012,5 +6051,18 @@ declare namespace Ui {
         protected arrangeCore(width: number, height: number): void;
         protected onStyleChange(): void;
         static style: any;
+    }
+}
+declare namespace Ui {
+    class RichTextButton extends ToggleButton {
+        style: {
+            borderWidth: number;
+            background: string;
+            activeBackground: string;
+        };
+    }
+    class RichTextEditor extends LBox {
+        private _contentEditable;
+        constructor();
     }
 }
