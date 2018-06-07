@@ -342,7 +342,7 @@ namespace Ui
                 measureWidth = Math.max(this.htmlDrawing.clientWidth, this.htmlDrawing.scrollWidth) + 1;
             return {
                 width: measureWidth,
-                height: this.htmlDrawing.clientHeight
+                height: Math.max(this.htmlDrawing.clientHeight, this.fontSize)
             };
         }
 
@@ -350,8 +350,8 @@ namespace Ui
             //		console.log(this+'.arrangeCore('+width+','+height+')');
             //		this.htmlDrawing.style.width = width+'px';// '100%';
             // add 1px to the width because of Chrome pixel bug
-            this.htmlDrawing.style.width = width.toString() + 'px';
-            //this.htmlDrawing.style.height = height + 'px';
+            this.htmlDrawing.style.width = `${width}px`;
+            this.htmlDrawing.style.height = `${height}px`;
         }
 
         static style: object = {

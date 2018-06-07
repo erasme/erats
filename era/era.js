@@ -16278,11 +16278,12 @@ var Ui;
                 measureWidth = Math.max(this.htmlDrawing.clientWidth, this.htmlDrawing.scrollWidth) + 1;
             return {
                 width: measureWidth,
-                height: this.htmlDrawing.clientHeight
+                height: Math.max(this.htmlDrawing.clientHeight, this.fontSize)
             };
         };
         Html.prototype.arrangeCore = function (width, height) {
-            this.htmlDrawing.style.width = width.toString() + 'px';
+            this.htmlDrawing.style.width = width + "px";
+            this.htmlDrawing.style.height = height + "px";
         };
         Html.style = {
             color: 'black',
