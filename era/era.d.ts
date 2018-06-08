@@ -4637,6 +4637,14 @@ declare namespace Ui {
     }
 }
 declare namespace Ui {
+    class SVGIcon extends Ui.Element {
+        static baseUrl: string;
+        fill: Ui.Color | string;
+        icon: string;
+        loadIcon(value: string): Promise<void>;
+    }
+}
+declare namespace Ui {
     interface IFrameInit extends ElementInit {
         src?: string;
     }
