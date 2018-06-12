@@ -2442,7 +2442,7 @@ declare namespace Ui {
             width: number;
             height: number;
         };
-        setContentTransform(translateX: any, translateY: any, scale: any, angle: any): void;
+        setContentTransform(translateX: number, translateY: number, scale: number, angle: number): void;
         inertia: boolean;
         protected onContentTransform(testOnly?: boolean): void;
         protected onDown(): void;
@@ -4639,9 +4639,12 @@ declare namespace Ui {
 declare namespace Ui {
     class SVGIcon extends Ui.Element {
         static baseUrl: string;
+        static forceExternal: boolean;
         fill: Ui.Color | string;
+        path: string;
         icon: string;
-        loadIcon(value: string): Promise<void>;
+        private loadIcon;
+        private normalize;
     }
 }
 declare namespace Ui {
@@ -4833,7 +4836,7 @@ declare namespace Ui {
         getActiveItems(): Element[];
         readonly offsetX: number;
         readonly offsetY: number;
-        setOffset(x: any, y: any): void;
+        setOffset(x: number, y: number): void;
         getContentWidth(): number;
         getContentHeight(): number;
         getEstimatedContentHeight(): number;
@@ -4848,7 +4851,7 @@ declare namespace Ui {
             height: number;
         };
         protected arrangeCore(width: number, height: number): void;
-        onContentTransform(testOnly: any): void;
+        onContentTransform(testOnly: boolean): void;
     }
     interface VBoxScrollingAreaInit extends VBoxScrollableInit {
     }

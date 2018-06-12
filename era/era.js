@@ -21191,16 +21191,34 @@ var Ui;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(SVGIcon.prototype, "path", {
+            set: function (value) {
+                var drawing = this.drawing;
+                drawing.innerHTML =
+                    "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"48\" height=\"48\" viewBox=\"0 0 48 48\">\n        <path d=\"" + value + "\"/>\n    </svg>";
+                this.normalize();
+            },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(SVGIcon.prototype, "icon", {
             set: function (value) {
-                this.loadIcon(value);
+                if (SVGIcon.forceExternal)
+                    this.loadIcon(value);
+                else {
+                    var path = Ui.Icon.getPath(value);
+                    if (path == undefined)
+                        this.loadIcon(value);
+                    else
+                        this.path = path;
+                }
             },
             enumerable: true,
             configurable: true
         });
         SVGIcon.prototype.loadIcon = function (value) {
             return __awaiter(this, void 0, void 0, function () {
-                var req, drawing, child, svgWidth, svgHeight, svgViewBox;
+                var req, drawing;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
                         case 0:
@@ -21215,21 +21233,7 @@ var Ui;
                             drawing = this.drawing;
                             if (req.status == 200) {
                                 drawing.innerHTML = req.responseText;
-                                child = this.drawing.children.item(0);
-                                if (child instanceof SVGSVGElement) {
-                                    svgWidth = child.getAttribute('width');
-                                    svgHeight = child.getAttribute('height');
-                                    svgViewBox = child.getAttribute('viewBox');
-                                    if (svgViewBox == null) {
-                                        if (svgWidth != null && svgHeight != null)
-                                            svgViewBox = "0 0 " + parseInt(svgWidth) + " " + parseInt(svgHeight);
-                                        else
-                                            svgViewBox = '0 0 48 48';
-                                        child.setAttribute('viewBox', svgViewBox);
-                                    }
-                                    child.style.width = '100%';
-                                    child.style.height = '100%';
-                                }
+                                this.normalize();
                             }
                             else
                                 drawing.innerHTML = '';
@@ -21238,7 +21242,25 @@ var Ui;
                 });
             });
         };
+        SVGIcon.prototype.normalize = function () {
+            var child = this.drawing.children.item(0);
+            if (child instanceof SVGSVGElement) {
+                var svgWidth = child.getAttribute('width');
+                var svgHeight = child.getAttribute('height');
+                var svgViewBox = child.getAttribute('viewBox');
+                if (svgViewBox == null) {
+                    if (svgWidth != null && svgHeight != null)
+                        svgViewBox = "0 0 " + parseInt(svgWidth) + " " + parseInt(svgHeight);
+                    else
+                        svgViewBox = '0 0 48 48';
+                    child.setAttribute('viewBox', svgViewBox);
+                }
+                child.style.width = '100%';
+                child.style.height = '100%';
+            }
+        };
         SVGIcon.baseUrl = '';
+        SVGIcon.forceExternal = false;
         return SVGIcon;
     }(Ui.Element));
     Ui.SVGIcon = SVGIcon;
@@ -22059,9 +22081,13 @@ var Ui;
                 y += size.height;
             }
             this.activeItemsHeight = y;
-            return { width: Math.min(minWidth, width), height: this.getEstimatedContentHeight() };
+            return { width: minWidth, height: this.getEstimatedContentHeight() };
         };
         VBoxScrollableContent.prototype.arrangeCore = function (width, height) {
+            for (var i = 0; i < this.activeItems.length; i++) {
+                var item = this.activeItems[i];
+                width = Math.max(width, item.measureWidth);
+            }
             for (var i = 0; i < this.activeItems.length; i++) {
                 var activeItem = this.activeItems[i];
                 activeItem.arrange(0, 0, width, activeItem.measureHeight);
@@ -22080,7 +22106,12 @@ var Ui;
             maxY *= scale;
             var viewWidth = this.layoutWidth;
             var viewHeight = this.layoutHeight;
-            this.contentWidth = this.layoutWidth * scale;
+            var contentWidth = 0;
+            for (var _i = 0, _a = this.activeItems; _i < _a.length; _i++) {
+                var item = _a[_i];
+                contentWidth = Math.max(contentWidth, item.measureWidth);
+            }
+            this.contentWidth = Math.max(contentWidth, viewWidth) * scale;
             this.contentHeight = this.getEstimatedContentHeight() * scale;
             this.translateX = Math.max(this.translateX, -(this.contentWidth - viewWidth));
             if (this.translateY < -(maxY - viewHeight))
@@ -22088,7 +22119,12 @@ var Ui;
             if (this.translateY > -minY)
                 this.translateY = -minY;
             this.loadItems();
-            this.contentWidth = this.layoutWidth * scale;
+            contentWidth = 0;
+            for (var _b = 0, _c = this.activeItems; _b < _c.length; _b++) {
+                var item = _c[_b];
+                contentWidth = Math.max(contentWidth, item.measureWidth);
+            }
+            this.contentWidth = contentWidth * scale;
             this.contentHeight = this.getEstimatedContentHeight() * scale;
             if (testOnly !== true)
                 this.scrolled.fire({ target: this, offsetX: this.offsetX, offsetY: this.offsetY });
