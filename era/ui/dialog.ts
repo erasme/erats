@@ -169,7 +169,7 @@ namespace Ui {
             this.shadowGraphic = new Ui.Rectangle();
             // handle auto hide
             new PressWatcher({
-                element: this,
+                element: this.shadowGraphic,
                 onpressed: () => this.onShadowPress()
             });
             this.appendChild(this.shadowGraphic);

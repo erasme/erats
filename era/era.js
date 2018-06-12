@@ -15686,7 +15686,7 @@ var Ui;
             _this.dialogSelection = new Ui.Selection();
             _this.shadowGraphic = new Ui.Rectangle();
             new Ui.PressWatcher({
-                element: _this,
+                element: _this.shadowGraphic,
                 onpressed: function () { return _this.onShadowPress(); }
             });
             _this.appendChild(_this.shadowGraphic);
