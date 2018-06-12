@@ -3,6 +3,7 @@ namespace Ui {
         textHolder?: string;
         passwordMode?: boolean;
         value?: string;
+        captureValidated?: boolean;
         onchanged?: (event: { target: TextField, value: string }) => void;
         onvalidated?: (event: { target: TextField }) => void;
     }
@@ -49,7 +50,9 @@ namespace Ui {
                 if (init.passwordMode !== undefined)
                     this.passwordMode = init.passwordMode;
                 if (init.value !== undefined)
-                    this.value = init.value;	
+                    this.value = init.value;
+                if (init.captureValidated !== undefined)
+                    this.captureValidated = init.captureValidated;
                 if (init.onchanged)
                     this.changed.connect(init.onchanged);
                 if (init.onvalidated)
@@ -75,6 +78,14 @@ namespace Ui {
                 this.textholder.show();
             else
                 this.textholder.hide();
+        }
+
+        get captureValidated(): boolean {
+            return this.entry.captureValidated;
+        }
+
+        set captureValidated(value: boolean) {
+            this.entry.captureValidated = value;
         }
 
         private onEntryFocus() {

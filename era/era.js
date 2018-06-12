@@ -16921,6 +16921,7 @@ var Ui;
             var _this = _super.call(this, init) || this;
             _this._value = '';
             _this._passwordMode = false;
+            _this.captureValidated = false;
             _this.changed = new Core.Events();
             _this.validated = new Core.Events();
             _this.selectable = true;
@@ -16942,6 +16943,8 @@ var Ui;
                     _this.color = init.color;
                 if (init.value !== undefined)
                     _this.value = init.value;
+                if (init.captureValidated !== undefined)
+                    _this.captureValidated = init.captureValidated;
                 if (init.onchanged)
                     _this.changed.connect(init.onchanged);
                 if (init.onvalidated)
@@ -17076,6 +17079,10 @@ var Ui;
             var key = event.which;
             if ((key == 37) || (key == 39) || (key == 46) || (key == 8))
                 event.stopPropagation();
+            if (key == 13 && this.captureValidated) {
+                event.stopPropagation();
+                event.preventDefault();
+            }
         };
         Entry.prototype.onKeyUp = function (event) {
             var key = event.which;
@@ -17085,8 +17092,13 @@ var Ui;
                 this._value = this.drawing.value;
                 this.changed.fire({ target: this, value: this._value });
             }
-            if (key == 13)
+            if (key == 13) {
                 this.validated.fire({ target: this, value: this._value });
+                if (this.captureValidated) {
+                    event.stopPropagation();
+                    event.preventDefault();
+                }
+            }
         };
         Entry.prototype.renderDrawing = function () {
             var drawing = document.createElement('input');
@@ -17399,6 +17411,8 @@ var Ui;
                     _this.passwordMode = init.passwordMode;
                 if (init.value !== undefined)
                     _this.value = init.value;
+                if (init.captureValidated !== undefined)
+                    _this.captureValidated = init.captureValidated;
                 if (init.onchanged)
                     _this.changed.connect(init.onchanged);
                 if (init.onvalidated)
@@ -17440,6 +17454,16 @@ var Ui;
                     this.textholder.show();
                 else
                     this.textholder.hide();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(TextField.prototype, "captureValidated", {
+            get: function () {
+                return this.entry.captureValidated;
+            },
+            set: function (value) {
+                this.entry.captureValidated = value;
             },
             enumerable: true,
             configurable: true

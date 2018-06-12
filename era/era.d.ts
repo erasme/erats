@@ -3644,6 +3644,7 @@ declare namespace Ui {
         fontWeight?: string;
         color?: Color | string;
         value?: string;
+        captureValidated?: boolean;
         onchanged?: (event: {
             target: Entry;
             value: string;
@@ -3660,6 +3661,7 @@ declare namespace Ui {
         private _color?;
         private _value;
         private _passwordMode;
+        captureValidated: boolean;
         readonly changed: Core.Events<{
             target: Entry;
             value: string;
@@ -3771,6 +3773,7 @@ declare namespace Ui {
         textHolder?: string;
         passwordMode?: boolean;
         value?: string;
+        captureValidated?: boolean;
         onchanged?: (event: {
             target: TextField;
             value: string;
@@ -3801,6 +3804,7 @@ declare namespace Ui {
         textHolder: string;
         passwordMode: boolean;
         value: string;
+        captureValidated: boolean;
         private onEntryFocus;
         private onEntryBlur;
         private onEntryChange;

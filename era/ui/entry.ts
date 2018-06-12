@@ -7,6 +7,7 @@ namespace Ui
         fontWeight?: string;
         color?: Color | string;
         value?: string;
+        captureValidated?: boolean;
         onchanged?: (event: { target: Entry, value: string }) => void;
         onvalidated?: (event: { target: Entry, value: string }) => void;
     }
@@ -19,6 +20,7 @@ namespace Ui
         private _color?: Color;
         private _value: string = '';
         private _passwordMode: boolean = false;
+        captureValidated = false;
         readonly changed = new Core.Events<{ target: Entry, value: string }>();
         set onchanged(value: (event: { target: Entry, value: string }) => void) { this.changed.connect(value); }
         readonly validated = new Core.Events<{ target: Entry, value: string }>();
@@ -52,6 +54,8 @@ namespace Ui
                     this.color = init.color;	
                 if (init.value !== undefined)
                     this.value = init.value;
+                if (init.captureValidated !== undefined)
+                    this.captureValidated = init.captureValidated;
                 if (init.onchanged)
                     this.changed.connect(init.onchanged);
                 if (init.onvalidated)
@@ -161,14 +165,18 @@ namespace Ui
             }
         }
 
-        private onKeyDown(event) {
+        private onKeyDown(event: KeyboardEvent) {
             let key = event.which;
             // keep arrows + Del + Backspace for us only
             if ((key == 37) || (key == 39) || (key == 46) || (key == 8))
                 event.stopPropagation();
+            if (key == 13 && this.captureValidated) {
+                event.stopPropagation();
+                event.preventDefault();
+            }
         }
 
-        private onKeyUp(event) {
+        private onKeyUp(event: KeyboardEvent) {
             let key = event.which;
             // keep arrows + Del + Backspace for us only
             if ((key == 37) || (key == 39) || (key == 46) || (key == 8))
@@ -178,8 +186,13 @@ namespace Ui
                 this._value = this.drawing.value;
                 this.changed.fire({ target: this, value: this._value });
             }
-            if (key == 13)
+            if (key == 13) {
                 this.validated.fire({ target: this, value: this._value });
+                if (this.captureValidated) {
+                    event.stopPropagation();
+                    event.preventDefault();
+                }
+            }
         }
 
         renderDrawing() {
