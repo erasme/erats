@@ -8,7 +8,8 @@ new Ui.App().assign({
         content: [
             new Ui.SVGIcon().assign({ width: 64, height: 64, icon: 'bell', fill: 'green' }),
             new Ui.SVGIcon().assign({ width: 64, height: 64, icon: 'add-person', fill: 'red' }),
-            new Ui.SVGIcon().assign({ width: 64, height: 64, icon: 'backarrow', fill: 'blue' })
+            new Ui.SVGIcon().assign({ width: 64, height: 64, icon: 'backarrow', fill: 'blue' }),
+            new Ui.SVGIcon().assign({ width: 64, height: 64, icon: 'eye', fill: 'orange' })
         ]
     })
 })
