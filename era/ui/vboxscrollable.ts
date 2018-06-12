@@ -490,7 +490,7 @@
             return Math.max(0, (((-this.translateY) / this.scale) - this.getMinY()) * this.scale);
         }
 
-        setOffset(x, y) {
+        setOffset(x: number, y: number) {
             let minY = this.getMinY();
             let translateY = -(((y / this.scale) + minY) * this.scale);
             this.setContentTransform(-x, translateY, undefined, undefined);
@@ -687,10 +687,14 @@
                 y += size.height;
             }
             this.activeItemsHeight = y;
-            return { width: Math.min(minWidth, width), height: this.getEstimatedContentHeight() };
+            return { width: minWidth, height: this.getEstimatedContentHeight() };
         }
         
         protected arrangeCore(width: number, height: number) {
+            for (let i = 0; i < this.activeItems.length; i++) {
+                let item = this.activeItems[i];
+                width = Math.max(width, item.measureWidth);
+            }
             for (let i = 0; i < this.activeItems.length; i++) {
                 let activeItem = this.activeItems[i];
                 activeItem.arrange(0, 0, width, activeItem.measureHeight);
@@ -698,7 +702,7 @@
             this.loadItems();
         }
         
-        onContentTransform(testOnly) {
+        onContentTransform(testOnly: boolean) {
             let scale = this.scale;
 
             if (this.translateX > 0)
@@ -716,10 +720,15 @@
             let viewWidth = this.layoutWidth;
             let viewHeight = this.layoutHeight;
 
-            this.contentWidth = this.layoutWidth * scale;
+            let contentWidth = 0;
+            for (let item of this.activeItems)
+                contentWidth = Math.max(contentWidth, item.measureWidth);
+            this.contentWidth = Math.max(contentWidth, viewWidth) * scale;
+            //this.contentWidth = this.layoutWidth * scale;
             this.contentHeight = this.getEstimatedContentHeight() * scale;
-
             this.translateX = Math.max(this.translateX, -(this.contentWidth - viewWidth));
+            //console.log(`${this}.onContentTransform contentWidth: ${this.contentWidth}, viewWidth: ${viewWidth}, translateX: ${this.translateX}`)
+            //this.translateX = 0;
 
             if (this.translateY < -(maxY - viewHeight))
                 this.translateY = -(maxY - viewHeight);
@@ -730,7 +739,12 @@
             // find the corresponding pos
             this.loadItems();
 
-            this.contentWidth = this.layoutWidth * scale;
+            contentWidth = 0;
+            for (let item of this.activeItems)
+                contentWidth = Math.max(contentWidth, item.measureWidth);
+            this.contentWidth = contentWidth * scale;
+            //this.contentWidth = contentWidth * scale;
+            //this.contentWidth = this.layoutWidth * scale;
             this.contentHeight = this.getEstimatedContentHeight() * scale;
 
             if (testOnly !== true)
