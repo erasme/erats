@@ -5,6 +5,8 @@ namespace Ui {
 
     export type TextTransform = 'none' | 'uppercase' | 'lowercase';
     
+    export type TextAlign = 'left' | 'right' | 'center' | 'justify';
+
     export interface LabelInit extends ElementInit {
         text?: string;
         fontSize?: number;
@@ -13,6 +15,7 @@ namespace Ui {
         color?: Color | string;
         orientation?: Orientation;
         textTransform?: TextTransform;
+        textAlign?: TextAlign;
     }
 
     export interface LabelStyle {
@@ -34,6 +37,7 @@ namespace Ui {
         private textWidth: number = 0;
         private textHeight: number = 0;
         private _textTransform?: TextTransform;
+        private _textAlign?: TextAlign;
 
         constructor(init?: LabelInit) {
             super(init);
@@ -58,6 +62,8 @@ namespace Ui {
                     this.orientation = init.orientation;
                 if (init.textTransform !== undefined)
                     this.textTransform = init.textTransform;
+                if (init.textAlign !== undefined)
+                    this.textAlign = init.textAlign;
             }
         }
 
@@ -142,6 +148,20 @@ namespace Ui {
                 return this.getStyleProperty('textTransform');
         }
 
+        get textAlign(): TextAlign {
+            if (this._textAlign !== undefined)
+                return this._textAlign;
+            else
+                return this.getStyleProperty('textAlign');
+        }
+
+        set textAlign(textAlign: TextAlign) {
+            if (this._textAlign !== textAlign) {
+                this._textAlign = textAlign;
+                this.drawing.style.textAlign = this.textAlign;
+            }
+        }
+
         set color(color: Color | string) {
             if (this._color !== color) {
                 this._color = Color.create(color);
@@ -176,6 +196,7 @@ namespace Ui {
             this.labelDrawing.style.fontFamily = this.fontFamily;
             this.labelDrawing.style.fontWeight = this.fontWeight;
             this.labelDrawing.style.textTransform = this.textTransform;
+            this.labelDrawing.style.textAlign = this.textAlign;
             if (Core.Navigator.supportRgba)
                 this.labelDrawing.style.color = this.getColor().getCssRgba();
             else
@@ -378,7 +399,8 @@ namespace Ui {
             fontSize: 16,
             fontFamily: 'Sans-serif',
             fontWeight: 'normal',
-            textTransform: 'none'
+            textTransform: 'none',
+            textAlign: 'left'
         }
     }
 }

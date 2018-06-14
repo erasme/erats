@@ -2094,6 +2094,7 @@ declare namespace Ui {
 declare namespace Ui {
     type FontWeight = 'normal' | 'bold' | 'bolder' | 'lighter' | '100' | '200' | '300' | '400' | '500' | '600' | '700' | '800' | '900';
     type TextTransform = 'none' | 'uppercase' | 'lowercase';
+    type TextAlign = 'left' | 'right' | 'center' | 'justify';
     interface LabelInit extends ElementInit {
         text?: string;
         fontSize?: number;
@@ -2102,6 +2103,7 @@ declare namespace Ui {
         color?: Color | string;
         orientation?: Orientation;
         textTransform?: TextTransform;
+        textAlign?: TextAlign;
     }
     interface LabelStyle {
         color: Color;
@@ -2121,12 +2123,14 @@ declare namespace Ui {
         private textWidth;
         private textHeight;
         private _textTransform?;
+        private _textAlign?;
         constructor(init?: LabelInit);
         text: string;
         fontSize: number;
         fontFamily: string;
         fontWeight: FontWeight;
         textTransform: TextTransform;
+        textAlign: TextAlign;
         color: Color | string;
         private getColor;
         orientation: Orientation;
@@ -3435,7 +3439,7 @@ declare namespace Ui {
     interface HtmlInit extends ElementInit {
         html?: string;
         text?: string;
-        textAlign?: string;
+        textAlign?: TextAlign;
         fontSize?: number;
         fontFamily?: string;
         fontWeight?: string;
@@ -3451,14 +3455,14 @@ declare namespace Ui {
     class Html extends Element implements HtmlInit {
         protected htmlDrawing: HTMLElement;
         private bindedOnImageLoad;
-        private _fontSize;
-        private _fontFamily;
-        private _fontWeight;
+        private _fontSize?;
+        private _fontFamily?;
+        private _fontWeight?;
         private _color;
-        private _textAlign;
-        private _interLine;
-        private _wordWrap;
-        private _whiteSpace;
+        private _textAlign?;
+        private _interLine?;
+        private _wordWrap?;
+        private _whiteSpace?;
         readonly link: Core.Events<{
             target: Html;
             ref: string;
@@ -3474,7 +3478,7 @@ declare namespace Ui {
         html: string;
         text: string;
         private getTextContent;
-        textAlign: string;
+        textAlign: TextAlign;
         fontSize: number;
         fontFamily: string;
         fontWeight: any;
@@ -6081,7 +6085,7 @@ declare namespace Ui {
         constructor();
         html: string;
         text: string;
-        textAlign: string;
+        textAlign: TextAlign;
         fontSize: number;
         fontFamily: string;
         fontWeight: any;

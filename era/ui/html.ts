@@ -3,7 +3,7 @@ namespace Ui
     export interface HtmlInit extends ElementInit {
         html?: string;
         text?: string;
-        textAlign?: string;
+        textAlign?: TextAlign;
         fontSize?: number;
         fontFamily?: string;
         fontWeight?: string;
@@ -18,14 +18,14 @@ namespace Ui
     {
         protected htmlDrawing: HTMLElement;
         private bindedOnImageLoad: any = undefined;
-        private _fontSize: number = undefined;
-        private _fontFamily: string = undefined;
-        private _fontWeight: any = undefined;
+        private _fontSize?: number;
+        private _fontFamily?: string;
+        private _fontWeight?: string;
         private _color: any = undefined;
-        private _textAlign: string = undefined;
-        private _interLine: number = undefined;
-        private _wordWrap: string = undefined;
-        private _whiteSpace: string = undefined;
+        private _textAlign?: TextAlign;
+        private _interLine?: number;
+        private _wordWrap?: string;
+        private _whiteSpace?: string;
         readonly link = new Core.Events<{target: Html, ref: string }>();
         set onlink(value: (event: { target: Html, ref: string }) => void) { this.link.connect(value); }
 
@@ -146,14 +146,14 @@ namespace Ui
             return text;
         }
     
-        get textAlign(): string {
+        get textAlign(): TextAlign {
             if (this._textAlign !== undefined)
                 return this._textAlign;
             else
                 return this.getStyleProperty('textAlign');
         }
 
-        set textAlign(textAlign: string) {
+        set textAlign(textAlign: TextAlign) {
             if (this._textAlign !== textAlign) {
                 this._textAlign = textAlign;
                 this.drawing.style.textAlign = this.textAlign;

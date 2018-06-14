@@ -102,11 +102,11 @@ namespace Ui {
             this._contentEditable.text = text;
         }
     
-        get textAlign(): string {
+        get textAlign(): TextAlign {
             return this._contentEditable.textAlign;
         }
 
-        set textAlign(textAlign: string) {
+        set textAlign(textAlign: TextAlign) {
             this._contentEditable.textAlign = textAlign;
         }
 

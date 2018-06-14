@@ -9325,6 +9325,8 @@ var Ui;
                     _this.orientation = init.orientation;
                 if (init.textTransform !== undefined)
                     _this.textTransform = init.textTransform;
+                if (init.textAlign !== undefined)
+                    _this.textAlign = init.textAlign;
             }
             return _this;
         }
@@ -9419,6 +9421,22 @@ var Ui;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(Label.prototype, "textAlign", {
+            get: function () {
+                if (this._textAlign !== undefined)
+                    return this._textAlign;
+                else
+                    return this.getStyleProperty('textAlign');
+            },
+            set: function (textAlign) {
+                if (this._textAlign !== textAlign) {
+                    this._textAlign = textAlign;
+                    this.drawing.style.textAlign = this.textAlign;
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(Label.prototype, "color", {
             set: function (color) {
                 if (this._color !== color) {
@@ -9457,6 +9475,7 @@ var Ui;
             this.labelDrawing.style.fontFamily = this.fontFamily;
             this.labelDrawing.style.fontWeight = this.fontWeight;
             this.labelDrawing.style.textTransform = this.textTransform;
+            this.labelDrawing.style.textAlign = this.textAlign;
             if (Core.Navigator.supportRgba)
                 this.labelDrawing.style.color = this.getColor().getCssRgba();
             else
@@ -9640,7 +9659,8 @@ var Ui;
             fontSize: 16,
             fontFamily: 'Sans-serif',
             fontWeight: 'normal',
-            textTransform: 'none'
+            textTransform: 'none',
+            textAlign: 'left'
         };
         return Label;
     }(Ui.Element));
@@ -15962,14 +15982,7 @@ var Ui;
         function Html(init) {
             var _this = _super.call(this, init) || this;
             _this.bindedOnImageLoad = undefined;
-            _this._fontSize = undefined;
-            _this._fontFamily = undefined;
-            _this._fontWeight = undefined;
             _this._color = undefined;
-            _this._textAlign = undefined;
-            _this._interLine = undefined;
-            _this._wordWrap = undefined;
-            _this._whiteSpace = undefined;
             _this.link = new Core.Events();
             _this.bindedOnImageLoad = _this.onImageLoad.bind(_this);
             _this.drawing.addEventListener('click', function (e) { return _this.onClick(e); });
