@@ -1,27 +1,96 @@
+namespace Ui {
 
-namespace Ui
-{
-    export interface IconInit extends ShapeInit {
+    export interface IconInit extends ElementInit {
         icon?: string;
+        fill?: string | Color;
+        path?: string;
     }
 
-    export class Icon extends Shape implements IconInit
-    {
+    export class Icon extends Element {
+        static baseUrl = '';
+        static forceExternal: boolean = false;
+        private _icon = '';
+        readonly loadingfailed = new Core.Events<{ target: Icon}>();
+        set onloadingfailed(value: ({ target: Icon}) => void) { this.loadingfailed.connect(value) }
+
         constructor(init?: IconInit) {
             super(init);
             if (init) {
                 if (init.icon !== undefined)
-                    this.icon = init.icon;	
+                    this.icon = init.icon;
+                if (init.fill !== undefined)
+                    this.fill = init.fill;
+                if (init.path !== undefined)
+                    this.path = init.path;
             }
         }
 
-        set icon(icon: string) {
-            this.path = Icon.icons[icon];
+        set fill(value: Color | string) {
+            (<HTMLDivElement>this.drawing).style.fill = Color.create(value).getCssRgba();
         }
 
-        protected arrangeCore(width: number, height: number) {
-            super.arrangeCore(width, height);
-            this.scale = Math.min(width, height) / 48;
+        set path(value: string) {
+            let drawing = <HTMLDivElement>this.drawing;
+            drawing.innerHTML =
+                `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+        <path d="${value}"/>
+    </svg>`;
+            this.normalize();
+        }
+
+        set icon(value: string) {
+            if (this._icon == value)
+                return;
+            this._icon = value;
+            if (Icon.forceExternal)
+                this.loadIcon(value);
+            else {
+                let path = Icon.getPath(value);
+                if (path == undefined)
+                    this.loadIcon(value);
+                else
+                    this.path = path;
+            }
+        }
+
+        protected onLoadingFailed() {
+            this.loadingfailed.fire({ target: this });
+        }
+
+        private async loadIcon(value: string) {
+            if (!(value.indexOf('.svg') + 4 == value.length && value.length > 4))
+                value = `${value}.svg`;
+            let req = new Core.HttpRequest().assign({
+                url: `${Icon.baseUrl}${value}`
+            });
+            await req.sendAsync();
+            let drawing = <HTMLDivElement>this.drawing;
+            if (req.status == 200) {
+                drawing.innerHTML = req.responseText;
+                this.normalize();
+            }
+            else {
+                drawing.innerHTML = '';
+                this.onLoadingFailed();
+            }
+        }
+
+        private normalize() {
+            let child = (<HTMLDivElement>this.drawing).children.item(0);
+            if (child instanceof SVGSVGElement) {
+                let svgWidth = child.getAttribute('width');
+                let svgHeight = child.getAttribute('height');
+                let svgViewBox = child.getAttribute('viewBox');
+                if (svgViewBox == null) {
+                    if (svgWidth != null && svgHeight != null)
+                        svgViewBox = `0 0 ${parseInt(svgWidth)} ${parseInt(svgHeight)}`;
+                    else
+                        svgViewBox = '0 0 48 48';
+                    child.setAttribute('viewBox', svgViewBox);
+                }
+                child.style.width = '100%';
+                child.style.height = '100%';
+            }
         }
 
         ///
@@ -90,7 +159,7 @@ namespace Ui
         }
 
         static parse(icon) {
-            let ico = new Ui.Icon();
+            let ico = new Icon();
             ico.icon = icon;
             return ico;
         }
@@ -124,7 +193,7 @@ namespace Ui
             ctx.closePath();
             ctx.clip();
 
-            ctx.svgPath(Ui.Icon.getPath(icon));
+            ctx.svgPath(Icon.getPath(icon));
             ctx.fillStyle = fill;
             ctx.fill();
 

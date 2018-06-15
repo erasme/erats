@@ -1259,13 +1259,28 @@ declare namespace Ui {
     }
 }
 declare namespace Ui {
-    interface IconInit extends ShapeInit {
+    interface IconInit extends ElementInit {
         icon?: string;
+        fill?: string | Color;
+        path?: string;
     }
-    class Icon extends Shape implements IconInit {
+    class Icon extends Element {
+        static baseUrl: string;
+        static forceExternal: boolean;
+        private _icon;
+        readonly loadingfailed: Core.Events<{
+            target: Icon;
+        }>;
+        onloadingfailed: ({ target: Icon }: {
+            target: any;
+        }) => void;
         constructor(init?: IconInit);
+        fill: Color | string;
+        path: string;
         icon: string;
-        protected arrangeCore(width: number, height: number): void;
+        protected onLoadingFailed(): void;
+        private loadIcon;
+        private normalize;
         static icons: object;
         static initialize(): void;
         static getPath(icon: any): any;
@@ -4645,14 +4660,13 @@ declare namespace Ui {
     }
 }
 declare namespace Ui {
-    class SVGIcon extends Ui.Element {
-        static baseUrl: string;
-        static forceExternal: boolean;
-        fill: Ui.Color | string;
-        path: string;
+    interface ShapeIconInit extends ShapeInit {
+        icon?: string;
+    }
+    class ShapeIcon extends Shape implements ShapeIconInit {
+        constructor(init?: IconInit);
         icon: string;
-        private loadIcon;
-        private normalize;
+        protected arrangeCore(width: number, height: number): void;
     }
 }
 declare namespace Ui {

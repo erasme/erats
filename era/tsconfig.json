@@ -109,7 +109,7 @@
         "ui/datepicker.ts",
         "ui/downloadbutton.ts",
         "ui/svgelement.ts",
-        "ui/svgicon.ts",
+        "ui/shapeicon.ts",
         "ui/iframe.ts",
         "ui/contenteditable.ts",
         "ui/vboxscrollable.ts",

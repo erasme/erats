@@ -5989,28 +5989,146 @@ var Ui;
     }(Ui.CanvasElement));
     Ui.Shape = Shape;
 })(Ui || (Ui = {}));
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [0, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 var Ui;
 (function (Ui) {
     var Icon = (function (_super) {
         __extends(Icon, _super);
         function Icon(init) {
             var _this = _super.call(this, init) || this;
+            _this._icon = '';
+            _this.loadingfailed = new Core.Events();
             if (init) {
                 if (init.icon !== undefined)
                     _this.icon = init.icon;
+                if (init.fill !== undefined)
+                    _this.fill = init.fill;
+                if (init.path !== undefined)
+                    _this.path = init.path;
             }
             return _this;
         }
-        Object.defineProperty(Icon.prototype, "icon", {
-            set: function (icon) {
-                this.path = Icon.icons[icon];
+        Object.defineProperty(Icon.prototype, "onloadingfailed", {
+            set: function (value) { this.loadingfailed.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Icon.prototype, "fill", {
+            set: function (value) {
+                this.drawing.style.fill = Ui.Color.create(value).getCssRgba();
             },
             enumerable: true,
             configurable: true
         });
-        Icon.prototype.arrangeCore = function (width, height) {
-            _super.prototype.arrangeCore.call(this, width, height);
-            this.scale = Math.min(width, height) / 48;
+        Object.defineProperty(Icon.prototype, "path", {
+            set: function (value) {
+                var drawing = this.drawing;
+                drawing.innerHTML =
+                    "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"48\" height=\"48\" viewBox=\"0 0 48 48\">\n        <path d=\"" + value + "\"/>\n    </svg>";
+                this.normalize();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Icon.prototype, "icon", {
+            set: function (value) {
+                if (this._icon == value)
+                    return;
+                this._icon = value;
+                if (Icon.forceExternal)
+                    this.loadIcon(value);
+                else {
+                    var path = Icon.getPath(value);
+                    if (path == undefined)
+                        this.loadIcon(value);
+                    else
+                        this.path = path;
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Icon.prototype.onLoadingFailed = function () {
+            this.loadingfailed.fire({ target: this });
+        };
+        Icon.prototype.loadIcon = function (value) {
+            return __awaiter(this, void 0, void 0, function () {
+                var req, drawing;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            if (!(value.indexOf('.svg') + 4 == value.length && value.length > 4))
+                                value = value + ".svg";
+                            req = new Core.HttpRequest().assign({
+                                url: "" + Icon.baseUrl + value
+                            });
+                            return [4, req.sendAsync()];
+                        case 1:
+                            _a.sent();
+                            drawing = this.drawing;
+                            if (req.status == 200) {
+                                drawing.innerHTML = req.responseText;
+                                this.normalize();
+                            }
+                            else {
+                                drawing.innerHTML = '';
+                                this.onLoadingFailed();
+                            }
+                            return [2];
+                    }
+                });
+            });
+        };
+        Icon.prototype.normalize = function () {
+            var child = this.drawing.children.item(0);
+            if (child instanceof SVGSVGElement) {
+                var svgWidth = child.getAttribute('width');
+                var svgHeight = child.getAttribute('height');
+                var svgViewBox = child.getAttribute('viewBox');
+                if (svgViewBox == null) {
+                    if (svgWidth != null && svgHeight != null)
+                        svgViewBox = "0 0 " + parseInt(svgWidth) + " " + parseInt(svgHeight);
+                    else
+                        svgViewBox = '0 0 48 48';
+                    child.setAttribute('viewBox', svgViewBox);
+                }
+                child.style.width = '100%';
+                child.style.height = '100%';
+            }
         };
         Icon.initialize = function () {
             this.register('check', 'M18 32.3L9.7 24l-2.8 2.8L18 38 42 14l-2.8-2.8z');
@@ -6067,7 +6185,7 @@ var Ui;
             Icon.icons[iconName] = iconPath;
         };
         Icon.parse = function (icon) {
-            var ico = new Ui.Icon();
+            var ico = new Icon();
             ico.icon = icon;
             return ico;
         };
@@ -6096,7 +6214,7 @@ var Ui;
             ctx.roundRect(1, 48 - 5 - badgeSize, badgeWidth + 4, badgeSize + 4, badgeSize / 2, badgeSize / 2, badgeSize / 2, badgeSize / 2, true);
             ctx.closePath();
             ctx.clip();
-            ctx.svgPath(Ui.Icon.getPath(icon));
+            ctx.svgPath(Icon.getPath(icon));
             ctx.fillStyle = fill;
             ctx.fill();
             ctx.restore();
@@ -6110,9 +6228,11 @@ var Ui;
             ctx.fillText(badgeText, 3 + ((badgeWidth - textWidth) / 2), 48 - (3 + (badgeSize / 2)));
             ctx.restore();
         };
+        Icon.baseUrl = '';
+        Icon.forceExternal = false;
         Icon.icons = {};
         return Icon;
-    }(Ui.Shape));
+    }(Ui.Element));
     Ui.Icon = Icon;
 })(Ui || (Ui = {}));
 Ui.Icon.initialize();
@@ -21179,128 +21299,32 @@ var Ui;
     }(Ui.Element));
     Ui.SVGElement = SVGElement;
 })(Ui || (Ui = {}));
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [0, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
 var Ui;
 (function (Ui) {
-    var SVGIcon = (function (_super) {
-        __extends(SVGIcon, _super);
-        function SVGIcon() {
-            return _super !== null && _super.apply(this, arguments) || this;
-        }
-        Object.defineProperty(SVGIcon.prototype, "fill", {
-            set: function (value) {
-                this.drawing.style.fill = Ui.Color.create(value).getCssRgba();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(SVGIcon.prototype, "path", {
-            set: function (value) {
-                var drawing = this.drawing;
-                drawing.innerHTML =
-                    "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"48\" height=\"48\" viewBox=\"0 0 48 48\">\n        <path d=\"" + value + "\"/>\n    </svg>";
-                this.normalize();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(SVGIcon.prototype, "icon", {
-            set: function (value) {
-                if (SVGIcon.forceExternal)
-                    this.loadIcon(value);
-                else {
-                    var path = Ui.Icon.getPath(value);
-                    if (path == undefined)
-                        this.loadIcon(value);
-                    else
-                        this.path = path;
-                }
-            },
-            enumerable: true,
-            configurable: true
-        });
-        SVGIcon.prototype.loadIcon = function (value) {
-            return __awaiter(this, void 0, void 0, function () {
-                var req, drawing;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (!(value.indexOf('.svg') + 4 == value.length && value.length > 4))
-                                value = value + ".svg";
-                            req = new Core.HttpRequest().assign({
-                                url: SVGIcon.baseUrl + "/" + value
-                            });
-                            return [4, req.sendAsync()];
-                        case 1:
-                            _a.sent();
-                            drawing = this.drawing;
-                            if (req.status == 200) {
-                                drawing.innerHTML = req.responseText;
-                                this.normalize();
-                            }
-                            else
-                                drawing.innerHTML = '';
-                            return [2];
-                    }
-                });
-            });
-        };
-        SVGIcon.prototype.normalize = function () {
-            var child = this.drawing.children.item(0);
-            if (child instanceof SVGSVGElement) {
-                var svgWidth = child.getAttribute('width');
-                var svgHeight = child.getAttribute('height');
-                var svgViewBox = child.getAttribute('viewBox');
-                if (svgViewBox == null) {
-                    if (svgWidth != null && svgHeight != null)
-                        svgViewBox = "0 0 " + parseInt(svgWidth) + " " + parseInt(svgHeight);
-                    else
-                        svgViewBox = '0 0 48 48';
-                    child.setAttribute('viewBox', svgViewBox);
-                }
-                child.style.width = '100%';
-                child.style.height = '100%';
+    var ShapeIcon = (function (_super) {
+        __extends(ShapeIcon, _super);
+        function ShapeIcon(init) {
+            var _this = _super.call(this, init) || this;
+            if (init) {
+                if (init.icon !== undefined)
+                    _this.icon = init.icon;
             }
+            return _this;
+        }
+        Object.defineProperty(ShapeIcon.prototype, "icon", {
+            set: function (icon) {
+                this.path = Ui.Icon.icons[icon];
+            },
+            enumerable: true,
+            configurable: true
+        });
+        ShapeIcon.prototype.arrangeCore = function (width, height) {
+            _super.prototype.arrangeCore.call(this, width, height);
+            this.scale = Math.min(width, height) / 48;
         };
-        SVGIcon.baseUrl = '';
-        SVGIcon.forceExternal = false;
-        return SVGIcon;
-    }(Ui.Element));
-    Ui.SVGIcon = SVGIcon;
+        return ShapeIcon;
+    }(Ui.Shape));
+    Ui.ShapeIcon = ShapeIcon;
 })(Ui || (Ui = {}));
 var Ui;
 (function (Ui) {
