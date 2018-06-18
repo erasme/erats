@@ -3,7 +3,10 @@
     "target": "es5",
     "module": "none",
     "strict": true,
-    "outFile": "./main.js"
+    "outFile": "./main.js",
+    "lib": [
+      "es2015", "dom"
+    ]
   },
   "exclude" : [ 
     "./build", 
