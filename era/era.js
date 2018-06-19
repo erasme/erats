@@ -18723,7 +18723,6 @@ var Ui;
             });
             _this.append(_this.textholder);
             _this.textarea = new Ui.TextArea({
-                verticalAlign: 'center',
                 margin: 7,
                 marginLeft: 10,
                 marginRight: 10,
