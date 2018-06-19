@@ -1483,6 +1483,13 @@ var Core;
                 _this.send();
             });
         };
+        HttpRequest.prototype.waitAsync = function () {
+            var _this = this;
+            return new Promise(function (resolve) {
+                _this.done.connect(function () { return resolve(_this); });
+                _this.error.connect(function () { return resolve(_this); });
+            });
+        };
         HttpRequest.prototype.getResponseHeader = function (header) {
             return this.request.getResponseHeader(header);
         };
@@ -6307,28 +6314,46 @@ var Ui;
         };
         Icon.prototype.loadIcon = function (value) {
             return __awaiter(this, void 0, void 0, function () {
-                var req, drawing;
+                var drawing, req;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
                         case 0:
                             if (!(value.indexOf('.svg') + 4 == value.length && value.length > 4))
                                 value = value + ".svg";
+                            drawing = this.drawing;
+                            if (!(Ui.Icon.iconsCache[value] != undefined)) return [3, 1];
+                            drawing.innerHTML = Ui.Icon.iconsCache[value];
+                            return [3, 6];
+                        case 1:
+                            req = void 0;
+                            if (!(Ui.Icon.loadingReqs[value] != undefined)) return [3, 3];
+                            req = Ui.Icon.loadingReqs[value];
+                            return [4, req.waitAsync()];
+                        case 2:
+                            _a.sent();
+                            return [3, 5];
+                        case 3:
                             req = new Core.HttpRequest().assign({
                                 url: "" + Icon.baseUrl + value
                             });
+                            Ui.Icon.loadingReqs[value] = req;
                             return [4, req.sendAsync()];
-                        case 1:
+                        case 4:
                             _a.sent();
-                            drawing = this.drawing;
+                            delete (Ui.Icon.loadingReqs[value]);
+                            _a.label = 5;
+                        case 5:
                             if (req.status == 200) {
                                 drawing.innerHTML = req.responseText;
                                 this.normalize();
+                                Ui.Icon.iconsCache[value] = this.drawing.innerHTML;
                             }
                             else {
                                 drawing.innerHTML = '';
                                 this.onLoadingFailed();
                             }
-                            return [2];
+                            _a.label = 6;
+                        case 6: return [2];
                     }
                 });
             });
@@ -6450,6 +6475,8 @@ var Ui;
         };
         Icon.baseUrl = '';
         Icon.forceExternal = false;
+        Icon.loadingReqs = {};
+        Icon.iconsCache = {};
         Icon.icons = {};
         return Icon;
     }(Ui.Element));

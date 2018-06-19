@@ -183,6 +183,7 @@ declare module Core {
         abort(): void;
         send(): void;
         sendAsync(): Promise<HttpRequest>;
+        waitAsync(): Promise<HttpRequest>;
         getResponseHeader(header: string): string;
         readonly responseText: string;
         readonly responseBase64: string;
@@ -1267,6 +1268,8 @@ declare namespace Ui {
     class Icon extends Element {
         static baseUrl: string;
         static forceExternal: boolean;
+        private static loadingReqs;
+        private static iconsCache;
         private _icon;
         readonly loadingfailed: Core.Events<{
             target: Icon;

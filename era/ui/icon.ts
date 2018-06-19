@@ -9,9 +9,11 @@ namespace Ui {
     export class Icon extends Element {
         static baseUrl = '';
         static forceExternal: boolean = false;
+        private static loadingReqs: Core.HashTable<Core.HttpRequest> = {};
+        private static iconsCache: Core.HashTable<string> = {};
         private _icon = '';
-        readonly loadingfailed = new Core.Events<{ target: Icon}>();
-        set onloadingfailed(value: ({ target: Icon}) => void) { this.loadingfailed.connect(value) }
+        readonly loadingfailed = new Core.Events<{ target: Icon }>();
+        set onloadingfailed(value: ({ target: Icon }) => void) { this.loadingfailed.connect(value) }
 
         constructor(init?: IconInit) {
             super(init);
@@ -60,18 +62,33 @@ namespace Ui {
         private async loadIcon(value: string) {
             if (!(value.indexOf('.svg') + 4 == value.length && value.length > 4))
                 value = `${value}.svg`;
-            let req = new Core.HttpRequest().assign({
-                url: `${Icon.baseUrl}${value}`
-            });
-            await req.sendAsync();
             let drawing = <HTMLDivElement>this.drawing;
-            if (req.status == 200) {
-                drawing.innerHTML = req.responseText;
-                this.normalize();
+            if (Ui.Icon.iconsCache[value] != undefined) {
+                drawing.innerHTML = Ui.Icon.iconsCache[value];
             }
             else {
-                drawing.innerHTML = '';
-                this.onLoadingFailed();
+                let req: Core.HttpRequest;
+                if (Ui.Icon.loadingReqs[value] != undefined) {
+                    req = Ui.Icon.loadingReqs[value];
+                    await req.waitAsync();
+                }
+                else {
+                    req = new Core.HttpRequest().assign({
+                        url: `${Icon.baseUrl}${value}`
+                    });
+                    Ui.Icon.loadingReqs[value] = req;
+                    await req.sendAsync();
+                    delete (Ui.Icon.loadingReqs[value]);
+                }
+                if (req.status == 200) {
+                    drawing.innerHTML = req.responseText;
+                    this.normalize();
+                    Ui.Icon.iconsCache[value] = this.drawing.innerHTML;
+                }
+                else {
+                    drawing.innerHTML = '';
+                    this.onLoadingFailed();
+                }
             }
         }
 
