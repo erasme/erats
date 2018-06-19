@@ -134,6 +134,13 @@ module Core
             });
         }
 
+        waitAsync() {
+            return new Promise<Core.HttpRequest>(resolve => {
+                this.done.connect(() => resolve(this));
+                this.error.connect(() => resolve(this));
+            });
+        }
+
         getResponseHeader(header: string) {
             return this.request.getResponseHeader(header);
         }
