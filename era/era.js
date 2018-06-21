@@ -13630,7 +13630,7 @@ var Ui;
             _this._badgeTextColor = undefined;
             _this._label.fontWeight = 'bold';
             _this.content = [
-                _this._bg, _this._label
+                _this._bg, _this._label.assign({ textAlign: 'center' })
             ];
             _this.badgeColor = 'red';
             _this.badgeTextColor = 'white';
@@ -13638,9 +13638,12 @@ var Ui;
         }
         Object.defineProperty(ButtonBadge.prototype, "fontSize", {
             set: function (value) {
+                value = Math.round(value);
                 this._label.fontSize = value;
-                this._label.margin = value / 4;
-                this._bg.radius = value * 3 / 4;
+                this._label.width = value;
+                var margin = Math.round(value / 4);
+                this._label.margin = margin;
+                this._bg.radius = (value + margin * 2) / 2;
             },
             enumerable: true,
             configurable: true

@@ -138,16 +138,19 @@ namespace Ui
             super();
             this._label.fontWeight = 'bold';
             this.content = [
-                this._bg, this._label
+                this._bg, this._label.assign({ textAlign: 'center' })
             ]
             this.badgeColor = 'red';
             this.badgeTextColor = 'white';
         }
 
         set fontSize(value: number) {
+            value = Math.round(value);
             this._label.fontSize = value;
-            this._label.margin = value / 4;
-            this._bg.radius = value * 3 / 4;
+            this._label.width = value;
+            let margin = Math.round(value / 4);
+            this._label.margin = margin;
+            this._bg.radius = (value + margin * 2) / 2;
         }
 
         set badge(badge: string) {
