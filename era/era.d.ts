@@ -2959,19 +2959,19 @@ declare namespace Ui {
         background: Color | string;
         updateCanvas(ctx: any): void;
     }
-    class ButtonIcon extends CanvasElement {
+    class ButtonBadge extends LBox {
+        private _bg;
+        private _label;
         private _badge;
         private _badgeColor;
         private _badgeTextColor;
-        private _fill;
-        private _icon;
         constructor();
-        icon: string;
+        fontSize: number;
         badge: string;
         badgeColor: Color | string;
         badgeTextColor: Color | string;
-        fill: Color | string;
-        updateCanvas(ctx: any): void;
+    }
+    class ButtonIcon extends Icon {
     }
     interface ButtonInit extends PressableInit {
         text?: string | undefined;
@@ -2990,8 +2990,9 @@ declare namespace Ui {
         private _iconBox;
         private _text;
         private _textBox;
-        private _marker;
-        private _badge;
+        private _marker?;
+        private _badge?;
+        private _badgeContent?;
         private bg;
         private _orientation;
         constructor(init?: ButtonInit);

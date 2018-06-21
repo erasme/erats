@@ -13619,88 +13619,72 @@ var Ui;
         return ButtonBackground;
     }(Ui.CanvasElement));
     Ui.ButtonBackground = ButtonBackground;
-    var ButtonIcon = (function (_super) {
-        __extends(ButtonIcon, _super);
-        function ButtonIcon() {
+    var ButtonBadge = (function (_super) {
+        __extends(ButtonBadge, _super);
+        function ButtonBadge() {
             var _this = _super.call(this) || this;
+            _this._bg = new Ui.Rectangle();
+            _this._label = new Ui.Label();
             _this._badge = undefined;
             _this._badgeColor = undefined;
             _this._badgeTextColor = undefined;
-            _this._fill = undefined;
-            _this._icon = 'eye';
-            _this.fill = 'black';
+            _this._label.fontWeight = 'bold';
+            _this.content = [
+                _this._bg, _this._label
+            ];
             _this.badgeColor = 'red';
             _this.badgeTextColor = 'white';
             return _this;
         }
-        Object.defineProperty(ButtonIcon.prototype, "icon", {
-            get: function () {
-                return this._icon;
-            },
-            set: function (icon) {
-                this._icon = icon;
-                this.invalidateDraw();
+        Object.defineProperty(ButtonBadge.prototype, "fontSize", {
+            set: function (value) {
+                this._label.fontSize = value;
+                this._label.margin = value / 4;
+                this._bg.radius = value * 3 / 4;
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(ButtonIcon.prototype, "badge", {
+        Object.defineProperty(ButtonBadge.prototype, "badge", {
             set: function (badge) {
                 this._badge = badge;
-                this.invalidateDraw();
+                this._label.text = badge;
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(ButtonIcon.prototype, "badgeColor", {
+        Object.defineProperty(ButtonBadge.prototype, "badgeColor", {
             set: function (badgeColor) {
                 this._badgeColor = Ui.Color.create(badgeColor);
-                this.invalidateDraw();
+                this._bg.fill = this._badgeColor;
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(ButtonIcon.prototype, "badgeTextColor", {
+        Object.defineProperty(ButtonBadge.prototype, "badgeTextColor", {
             set: function (badgeTextColor) {
                 this._badgeTextColor = Ui.Color.create(badgeTextColor);
-                this.invalidateDraw();
+                this._label.color = this._badgeTextColor;
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(ButtonIcon.prototype, "fill", {
-            set: function (fill) {
-                this._fill = Ui.Color.create(fill);
-                this.invalidateDraw();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        ButtonIcon.prototype.updateCanvas = function (ctx) {
-            var w = this.layoutWidth;
-            var h = this.layoutHeight;
-            var iconSize = Math.min(w, h);
-            ctx.save();
-            ctx.translate((w - iconSize) / 2, (h - iconSize) / 2);
-            if (this._badge !== undefined)
-                Ui.Icon.drawIconAndBadge(ctx, this._icon, iconSize, this._fill.getCssRgba(), this._badge, iconSize / 2.5, this._badgeColor.getCssRgba(), this._badgeTextColor.getCssRgba());
-            else
-                Ui.Icon.drawIcon(ctx, this._icon, iconSize, this._fill.getCssRgba());
-            ctx.restore();
-        };
+        return ButtonBadge;
+    }(Ui.LBox));
+    Ui.ButtonBadge = ButtonBadge;
+    var ButtonIcon = (function (_super) {
+        __extends(ButtonIcon, _super);
+        function ButtonIcon() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
         return ButtonIcon;
-    }(Ui.CanvasElement));
+    }(Ui.Icon));
     Ui.ButtonIcon = ButtonIcon;
     var Button = (function (_super) {
         __extends(Button, _super);
         function Button(init) {
             var _this = _super.call(this, init) || this;
             _this._isActive = false;
-            _this._icon = undefined;
-            _this._text = undefined;
-            _this._marker = undefined;
-            _this._badge = undefined;
-            _this._orientation = undefined;
             _this.bg = new ButtonBackground();
             _this.content = _this.bg;
             _this.mainBox = new Ui.HBox();
@@ -13826,27 +13810,27 @@ var Ui;
                         var ic = new ButtonIcon();
                         this._icon = ic;
                         ic.icon = icon;
-                        ic.badge = this._badge;
                         ic.fill = this.getForegroundColor();
-                        ic.badgeColor = this.getStyleProperty('badgeColor');
-                        ic.badgeTextColor = this.getStyleProperty('badgeTextColor');
                         this.iconBox.content = this._icon;
+                        if (this._badgeContent)
+                            this.iconBox.append(this._badgeContent);
                     }
                 }
                 else {
                     var ic = new ButtonIcon();
                     this._icon = ic;
                     ic.icon = icon;
-                    ic.badge = this._badge;
                     ic.fill = this.getForegroundColor();
-                    ic.badgeColor = this.getStyleProperty('badgeColor');
-                    ic.badgeTextColor = this.getStyleProperty('badgeTextColor');
                     this._iconBox.content = this._icon;
+                    if (this._badgeContent)
+                        this.iconBox.append(this._badgeContent);
                 }
             }
             else {
                 this._icon = icon;
                 this._iconBox.content = this._icon;
+                if (this._badgeContent)
+                    this.iconBox.append(this._badgeContent);
             }
             this.updateVisibles();
         };
@@ -13882,9 +13866,16 @@ var Ui;
             },
             set: function (text) {
                 this._badge = text;
-                if (this._icon instanceof ButtonIcon) {
-                    this._icon.badge = text;
+                if (!this._badgeContent) {
+                    this._badgeContent = new ButtonBadge().assign({
+                        verticalAlign: 'top', horizontalAlign: 'right',
+                        fontSize: parseInt(this.getStyleProperty('iconSize')) / 4,
+                        badgeColor: this.getStyleProperty('badgeColor'),
+                        badgeTextColor: this.getStyleProperty('badgeTextColor')
+                    });
+                    this.iconBox.append(this._badgeContent);
                 }
+                this._badgeContent.badge = text;
             },
             enumerable: true,
             configurable: true
@@ -14039,8 +14030,10 @@ var Ui;
                 this._text.color = fg;
             if (this._icon instanceof ButtonIcon) {
                 this._icon.fill = fg;
-                this._icon.badgeColor = this.getStyleProperty('badgeColor');
-                this._icon.badgeTextColor = this.getStyleProperty('badgeTextColor');
+            }
+            if (this._badgeContent) {
+                this._badgeContent.badgeColor = this.getStyleProperty('badgeColor');
+                this._badgeContent.badgeTextColor = this.getStyleProperty('badgeTextColor');
             }
         };
         Button.prototype.onDisable = function () {

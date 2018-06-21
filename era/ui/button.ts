@@ -62,7 +62,7 @@ namespace Ui
         }
     }
 
-    export class ButtonIcon extends CanvasElement
+    /*export class ButtonIcon extends CanvasElement
     {
         private _badge: string = undefined;
         private _badgeColor: Color = undefined;
@@ -124,7 +124,50 @@ namespace Ui
                 Icon.drawIcon(ctx, this._icon, iconSize, this._fill.getCssRgba());
             ctx.restore();
         }
+    }*/
+
+    export class ButtonBadge extends LBox
+    {
+        private _bg = new Rectangle();
+        private _label = new Label();
+        private _badge: string = undefined;
+        private _badgeColor: Color = undefined;
+        private _badgeTextColor: Color = undefined;
+
+        constructor() {
+            super();
+            this._label.fontWeight = 'bold';
+            this.content = [
+                this._bg, this._label
+            ]
+            this.badgeColor = 'red';
+            this.badgeTextColor = 'white';
+        }
+
+        set fontSize(value: number) {
+            this._label.fontSize = value;
+            this._label.margin = value / 4;
+            this._bg.radius = value * 3 / 4;
+        }
+
+        set badge(badge: string) {
+            this._badge = badge;
+            this._label.text = badge;
+        }
+
+        set badgeColor(badgeColor: Color | string) {
+            this._badgeColor = Color.create(badgeColor);
+            this._bg.fill = this._badgeColor;
+        }
+
+        set badgeTextColor(badgeTextColor: Color | string) {
+            this._badgeTextColor = Color.create(badgeTextColor);
+            this._label.color = this._badgeTextColor;
+        }
     }
+
+    export class ButtonIcon extends Icon {}
+
 
     export interface ButtonInit extends PressableInit {
         text?: string | undefined;
@@ -140,14 +183,15 @@ namespace Ui
         private _isActive: boolean = false;
         private mainBox: HBox;
         private buttonPartsBox: Box;
-        private _icon: Element = undefined;
+        private _icon: Element;
         private _iconBox: LBox;
-        private _text: Element = undefined;
+        private _text: Element;
         private _textBox: LBox;
-        private _marker: Element = undefined;
-        private _badge: string = undefined;
+        private _marker?: Element;
+        private _badge?: string;
+        private _badgeContent?: ButtonBadge;
         private bg: Element;
-        private _orientation: Orientation = undefined;
+        private _orientation: Orientation;
 
         constructor(init?: ButtonInit) {
             super(init);
@@ -272,27 +316,33 @@ namespace Ui
                         let ic = new ButtonIcon();
                         this._icon = ic;
                         ic.icon = icon;
-                        ic.badge = this._badge;
+//                        ic.badge = this._badge;
                         ic.fill = this.getForegroundColor();
-                        ic.badgeColor = this.getStyleProperty('badgeColor');
-                        ic.badgeTextColor = this.getStyleProperty('badgeTextColor');
+//                        ic.badgeColor = this.getStyleProperty('badgeColor');
+//                        ic.badgeTextColor = this.getStyleProperty('badgeTextColor');
                         this.iconBox.content = this._icon;
+                        if (this._badgeContent)
+                            this.iconBox.append(this._badgeContent);
                     }
                 }
                 else {
                     let ic = new ButtonIcon();
                     this._icon = ic
                     ic.icon = icon;
-                    ic.badge = this._badge;
+//                    ic.badge = this._badge;
                     ic.fill = this.getForegroundColor();
-                    ic.badgeColor = this.getStyleProperty('badgeColor');
-                    ic.badgeTextColor = this.getStyleProperty('badgeTextColor');
+//                    ic.badgeColor = this.getStyleProperty('badgeColor');
+//                    ic.badgeTextColor = this.getStyleProperty('badgeTextColor');
                     this._iconBox.content = this._icon;
+                    if (this._badgeContent)
+                        this.iconBox.append(this._badgeContent);
                 }
             }
             else {
                 this._icon = icon as Element;
                 this._iconBox.content = this._icon;
+                if (this._badgeContent)
+                    this.iconBox.append(this._badgeContent);
             }
             this.updateVisibles();
         }
@@ -325,9 +375,20 @@ namespace Ui
 
         set badge(text: string) {
             this._badge = text;
-            if (this._icon instanceof ButtonIcon) {
-                this._icon.badge = text;
+            if (!this._badgeContent) {
+                this._badgeContent = new ButtonBadge().assign({
+                    verticalAlign: 'top', horizontalAlign: 'right',
+                    fontSize: parseInt(this.getStyleProperty('iconSize')) / 4,
+                    badgeColor: this.getStyleProperty('badgeColor'),
+                    badgeTextColor: this.getStyleProperty('badgeTextColor')
+                });
+                this.iconBox.append(this._badgeContent);
             }
+            this._badgeContent.badge = text;
+
+//            if (this._icon instanceof ButtonIcon) {
+//                this._icon.badge = text;
+//            }
         }
 
         get orientation(): Orientation {
@@ -478,8 +539,12 @@ namespace Ui
                 this._text.color = fg;
             if (this._icon instanceof ButtonIcon) {
                 this._icon.fill = fg;
-                this._icon.badgeColor = this.getStyleProperty('badgeColor');
-                this._icon.badgeTextColor = this.getStyleProperty('badgeTextColor');
+//                this._icon.badgeColor = this.getStyleProperty('badgeColor');
+//                this._icon.badgeTextColor = this.getStyleProperty('badgeTextColor');
+            }
+            if (this._badgeContent) {
+                this._badgeContent.badgeColor = this.getStyleProperty('badgeColor');
+                this._badgeContent.badgeTextColor = this.getStyleProperty('badgeTextColor');
             }
         }
 
