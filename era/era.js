@@ -23044,32 +23044,31 @@ var Ui;
     Ui.ListViewHeader = ListViewHeader;
     var ListViewHeadersBar = (function (_super) {
         __extends(ListViewHeadersBar, _super);
-        function ListViewHeadersBar(config) {
+        function ListViewHeadersBar(init) {
             var _this = _super.call(this) || this;
             _this.sortInvert = false;
             _this.rowsHeight = 0;
             _this.headersHeight = 0;
             _this.headerpressed = new Core.Events();
-            _this.headers = config.headers;
-            delete (config.headers);
+            _this.headers = init.headers;
             _this.sortArrow = new Ui.Icon({ icon: 'sortarrow', width: 10, height: 10, margin: 4 });
             _this.appendChild(_this.sortArrow);
             _this.cols = [];
+            _this.uis = [];
             var _loop_3 = function (i) {
-                var header = this_3.headers[i];
+                var header = init.headers[i];
                 var headerUi = new ListViewHeader({
                     title: header.title, width: header.width,
                     onpressed: function (e) { return _this.onHeaderPress(headerUi); }
                 });
-                header['Ui.ListViewHeadersBar.ui'] = headerUi;
-                header.colWidth = header.width;
-                this_3.appendChild(header['Ui.ListViewHeadersBar.ui']);
+                this_3.uis.push(headerUi);
+                this_3.appendChild(headerUi);
                 var col = new ListViewColBar(headerUi, header);
                 this_3.cols.push(col);
                 this_3.appendChild(col);
             };
             var this_3 = this;
-            for (var i = 0; i < _this.headers.length; i++) {
+            for (var i = 0; i < init.headers.length; i++) {
                 _loop_3(i);
             }
             return _this;
@@ -23098,7 +23097,7 @@ var Ui;
             var key;
             for (var col = 0; col < this.headers.length; col++) {
                 var h = this.headers[col];
-                if (h['Ui.ListViewHeadersBar.ui'] === header)
+                if (h.ui === header)
                     key = h.key;
             }
             if (key !== undefined)
@@ -23110,17 +23109,15 @@ var Ui;
             var minHeight = 0;
             var col;
             var size;
-            var header;
-            for (col = 0; col < this.headers.length; col++) {
-                header = this.headers[col];
-                size = header['Ui.ListViewHeadersBar.ui'].measure(0, 0);
+            for (col = 0; col < this.uis.length; col++) {
+                size = this.uis[col].measure(0, 0);
                 if (size.height > minHeight)
                     minHeight = size.height;
             }
             this.headersHeight = minHeight;
             var minWidth = 0;
-            for (col = 0; col < this.headers.length; col++)
-                minWidth += this.headers[col]['Ui.ListViewHeadersBar.ui'].measureWidth;
+            for (col = 0; col < this.uis.length; col++)
+                minWidth += this.uis[col].measureWidth;
             this.sortArrow.measure(0, 0);
             for (var i = 0; i < this.cols.length; i++) {
                 col = this.cols[i];
@@ -23130,20 +23127,20 @@ var Ui;
         };
         ListViewHeadersBar.prototype.arrangeCore = function (width, height) {
             var x = 0;
-            var header;
             var colWidth;
             var col;
             var availableWidth = width;
             for (col = 0; col < this.headers.length; col++) {
-                header = this.headers[col];
+                var headerDef = this.headers[col];
+                var ui = this.uis[col];
                 var colbar = this.cols[col];
-                colWidth = header['Ui.ListViewHeadersBar.ui'].measureWidth;
+                colWidth = ui.measureWidth;
                 if (col == this.headers.length - 1)
                     colWidth = Math.max(colWidth, availableWidth);
-                header['Ui.ListViewHeadersBar.ui'].arrange(x, 0, colWidth, this.headersHeight);
+                ui.arrange(x, 0, colWidth, this.headersHeight);
                 colbar.setHeaderHeight(this.headersHeight);
                 colbar.arrange(x + colWidth - colbar.measureWidth, 0, colbar.measureWidth, this.headersHeight);
-                if (this.sortColKey === header.key) {
+                if (this.sortColKey === headerDef.key) {
                     this.sortArrow.arrange(x + colWidth - height * 0.8, height * 0.1, height * 0.8, height * 0.8);
                 }
                 x += colWidth;
@@ -23160,9 +23157,9 @@ var Ui;
             _this.selected = new Core.Events();
             _this.unselected = new Core.Events();
             _this.listView = init.listView;
-            _this.headers = init.headers;
+            _this.headers = _this.listView.headers;
             _this._data = init.data;
-            _this.selectionActions = init.selectionActions;
+            _this.selectionActions = _this.listView.selectionActions;
             if (init.height)
                 _this.height = init.height;
             _this.cells = [];
@@ -23247,7 +23244,7 @@ var Ui;
                 var size = child.measure(0, 0);
                 if (size.height > minHeight)
                     minHeight = size.height;
-                minWidth += header['Ui.ListViewHeadersBar.ui'].measureWidth;
+                minWidth += this.listView.headersBar.uis[col].measureWidth;
             }
             return { width: minWidth, height: minHeight };
         };
@@ -23258,7 +23255,7 @@ var Ui;
             for (var col = 0; col < this.headers.length; col++) {
                 var header = this.headers[col];
                 var cell = this.cells[col];
-                var colWidth = header['Ui.ListViewHeadersBar.ui'].layoutWidth;
+                var colWidth = this.listView.headersBar.uis[col].layoutWidth;
                 cell.arrange(x, 0, colWidth, height);
                 x += colWidth;
             }
@@ -23342,10 +23339,8 @@ var Ui;
             _this.unselected = new Core.Events();
             _this.activated = new Core.Events();
             _this.sortchanged = new Core.Events();
-            if (init && init.headers != undefined) {
+            if (init && init.headers != undefined)
                 _this.headers = init.headers;
-                delete (init.headers);
-            }
             else
                 _this.headers = [{ width: 100, type: 'string', title: 'Title', key: 'default' }];
             _this.selectionActions = {
@@ -23371,8 +23366,6 @@ var Ui;
             _this.vboxScroll.scrolled.connect(function (e) { return _this.headersScroll.setOffset(e.offsetX, undefined, true, true); });
             _this.headersScroll.scrolled.connect(function (e) { return _this.vboxScroll.setOffset(e.offsetX, undefined, true, true); });
             if (init) {
-                if (init.headers !== undefined)
-                    _this.headers = init.headers;
                 if (init.scrolled !== undefined)
                     _this.scrolled = init.scrolled;
                 if (init.scrollVertical !== undefined)
@@ -23469,13 +23462,11 @@ var Ui;
         ListView.prototype.getElementAt = function (position) {
             if ((position % 2) === 0)
                 return new ListViewRowOdd({
-                    headers: this.headers, listView: this,
-                    data: this._data[position], selectionActions: this.selectionActions
+                    listView: this, data: this._data[position]
                 });
             else
                 return new ListViewRowEven({
-                    headers: this.headers, listView: this,
-                    data: this._data[position], selectionActions: this.selectionActions
+                    listView: this, data: this._data[position]
                 });
         };
         ListView.prototype.appendData = function (data) {

@@ -5018,6 +5018,7 @@ declare namespace Ui {
         sortColKey: string;
         sortInvert: boolean;
         sortArrow: Icon;
+        uis: ListViewHeader[];
         cols: ListViewColBar[];
         rowsHeight: number;
         headersHeight: number;
@@ -5029,7 +5030,7 @@ declare namespace Ui {
             target: ListViewHeadersBar;
             key: string;
         }) => void;
-        constructor(config: any);
+        constructor(init: any);
         getSortColKey(): string;
         getSortInvert(): boolean;
         sortBy(key: string, invert: boolean): void;
@@ -5043,9 +5044,7 @@ declare namespace Ui {
     interface ListViewRowInit {
         height?: number;
         listView: ListView;
-        headers: HeaderDef[];
         data: any;
-        selectionActions?: SelectionActions;
     }
     class ListViewRow extends Container {
         private headers;
@@ -5129,7 +5128,7 @@ declare namespace Ui {
     class ListView extends VBox implements ListViewInit {
         private _data;
         headers: HeaderDef[];
-        headersBar: ListViewHeadersBar;
+        readonly headersBar: ListViewHeadersBar;
         headersScroll: ScrollingArea;
         firstRow: undefined;
         firstCol: undefined;
