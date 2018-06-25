@@ -15386,7 +15386,6 @@ var Ui;
             _this.parentmessage = new Core.Events();
             _this.orientationchanged = new Core.Events();
             _this.update = function () {
-                console.log("update START");
                 var innerWidth = document.body.clientWidth;
                 var innerHeight = document.body.clientHeight;
                 if ((_this.windowWidth !== innerWidth) || (_this.windowHeight !== innerHeight)) {
@@ -15409,7 +15408,6 @@ var Ui;
                     _this.drawList = next;
                 }
                 _this.updateTask = false;
-                console.log("update END layout: " + _this.layoutValid + ", measure: " + _this.measureValid + ",  arrange: " + _this.arrangeValid);
             };
             var args;
             _this.clipToBounds = true;
@@ -15787,7 +15785,6 @@ var Ui;
             }
         };
         App.prototype.enqueueLayout = function (element) {
-            console.log(this + ".enqueueLayout(" + element + ")");
             element.layoutNext = this.layoutList;
             this.layoutList = element;
             if ((this.updateTask === false) && this._ready) {
@@ -15863,7 +15860,6 @@ var Ui;
             return _super.prototype.getLayoutTransform.call(this).translate(document.body.scrollLeft, document.body.scrollTop);
         };
         App.prototype.invalidateMeasure = function () {
-            console.log(this + ".invalidateMeasure");
             this.invalidateLayout();
         };
         App.prototype.invalidateArrange = function () {
