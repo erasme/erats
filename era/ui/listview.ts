@@ -23,12 +23,9 @@ namespace Ui {
         constructor(init?: ListViewHeaderInit) {
             super(init);
 
-            this.content = this.vbox.assign({
-                content: [
-                    this.uiTitle.assign({ margin: 4, fontWeight: 'bold' }),
-                    this.background.assign({ height: 4 })
-                ]
-            });
+            this.content = this.vbox;
+            this.vbox.append(this.uiTitle.assign({ margin: 4, fontWeight: 'bold' }), true);
+            this.vbox.append(this.background.assign({ height: 4 }));
 
             this.downed.connect(() => this.onListViewHeaderDown());
             this.upped.connect(() => this.onListViewHeaderUp());
@@ -47,10 +44,14 @@ namespace Ui {
                 if (this._title instanceof Element)
                     this.vbox.remove(this._title);
                 this._title = title;
-                if (typeof (title) == 'string')
+                if (typeof (title) == 'string') {
                     this.uiTitle.text = title;
-                else if (title instanceof Element)
-                    this.vbox.prepend(title);
+                    this.uiTitle.show();
+                }
+                else if (title instanceof Element) {
+                    this.uiTitle.hide(true);
+                    this.vbox.prepend(title, true);
+                }
             }
         }
 

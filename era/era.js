@@ -23000,12 +23000,9 @@ var Ui;
             _this.vbox = new Ui.VBox();
             _this.uiTitle = new Ui.Label();
             _this.background = new Ui.Rectangle();
-            _this.content = _this.vbox.assign({
-                content: [
-                    _this.uiTitle.assign({ margin: 4, fontWeight: 'bold' }),
-                    _this.background.assign({ height: 4 })
-                ]
-            });
+            _this.content = _this.vbox;
+            _this.vbox.append(_this.uiTitle.assign({ margin: 4, fontWeight: 'bold' }), true);
+            _this.vbox.append(_this.background.assign({ height: 4 }));
             _this.downed.connect(function () { return _this.onListViewHeaderDown(); });
             _this.upped.connect(function () { return _this.onListViewHeaderUp(); });
             if (init) {
@@ -23023,10 +23020,14 @@ var Ui;
                     if (this._title instanceof Ui.Element)
                         this.vbox.remove(this._title);
                     this._title = title;
-                    if (typeof (title) == 'string')
+                    if (typeof (title) == 'string') {
                         this.uiTitle.text = title;
-                    else if (title instanceof Ui.Element)
-                        this.vbox.prepend(title);
+                        this.uiTitle.show();
+                    }
+                    else if (title instanceof Ui.Element) {
+                        this.uiTitle.hide(true);
+                        this.vbox.prepend(title, true);
+                    }
                 }
             },
             enumerable: true,
