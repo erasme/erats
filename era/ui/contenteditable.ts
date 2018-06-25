@@ -21,7 +21,7 @@ namespace Ui {
         set onselectionleaved(value: (event: { target: ContentEditable }) => void) { this.selectionleaved.connect(value); }
 
         private _lastHtml = '';
-    
+
         constructor(init?: ContentEditableInit) {
             super(init);
             this.selectable = true;
@@ -38,7 +38,17 @@ namespace Ui {
             }, true);
             this.drawing.addEventListener('focus', (e) => this.onFocus(), true);
             this.drawing.addEventListener('keyup', (e) => this.onKeyUp(e));
-            this.drawing.addEventListener('DOMSubtreeModified', (e) => this.onContentSubtreeModified(e));
+            if ((<any>window).MutationObserver) {
+                var observer = new MutationObserver((e) => this.onContentSubtreeModified(e));
+                observer.observe(this.drawing, {
+                    attributes: false,
+                    childList: true,
+                    subtree: true,
+                    characterData: true
+                });
+            }
+
+            //this.drawing.addEventListener('DOMSubtreeModified', (e) => this.onContentSubtreeModified(e));
             if (init) {
                 if (init.onanchorchanged)
                     this.anchorchanged.connect(init.onanchorchanged);
