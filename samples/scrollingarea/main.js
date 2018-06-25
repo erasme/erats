@@ -1,37 +1,67 @@
 "use strict";
 /// <reference path="../../era/era.d.ts" />
-var app = new Ui.App();
-var vbox = new Ui.VBox();
-app.content = vbox;
-var tb = new Ui.ToolBar();
-vbox.append(tb);
-var topLeftButton = new Ui.Button({
-    text: 'top left',
-    onpressed: function () { return scl.setOffset(0, 0); }
+var scl = new Ui.NativeScrollingArea();
+new Ui.App().assign({
+    content: new Ui.VBox().assign({
+        content: [
+            new Ui.ToolBar().assign({
+                content: [
+                    new Ui.Button().assign({
+                        text: 'top left',
+                        onpressed: function () { return scl.setOffset(0, 0); }
+                    }),
+                    new Ui.Button().assign({
+                        text: 'bottom right',
+                        onpressed: function () { return scl.setOffset(1, 1); }
+                    })
+                ]
+            }),
+            scl.assign({
+                resizable: true,
+                content: new Ui.Grid().assign({
+                    cols: 'auto,auto,auto',
+                    rows: 'auto,auto,auto,auto',
+                    content: [
+                        {
+                            child: new Ui.Rectangle().assign({ width: 200, height: 400, fill: 'lightgreen' }),
+                            col: 0, row: 0
+                        },
+                        {
+                            child: new Ui.Rectangle().assign({ width: 200, height: 400, fill: 'lightblue' }),
+                            col: 0, row: 1
+                        },
+                        {
+                            child: new Ui.Rectangle().assign({ width: 200, height: 400, fill: 'purple' }),
+                            col: 1, row: 0
+                        },
+                        {
+                            child: new Ui.Button().assign({
+                                width: 200, height: 200, text: 'fun',
+                                onpressed: function () { return console.log('grid button press'); }
+                            }),
+                            col: 1, row: 1
+                        },
+                        {
+                            child: new Ui.Rectangle().assign({ width: 400, height: 400, fill: 'pink' }),
+                            col: 2, row: 0
+                        },
+                        {
+                            child: new Ui.TextAreaField(),
+                            col: 2, row: 1
+                        },
+                        {
+                            child: new Ui.Rectangle().assign({ width: 200, height: 400, fill: 'orange' }),
+                            col: 0, row: 2, colSpan: 3, rowSpan: 1
+                        },
+                        {
+                            child: new Ui.Text().assign({
+                                text: 'Hello Daniel'
+                            }),
+                            col: 0, row: 3, colSpan: 3
+                        }
+                    ]
+                })
+            })
+        ]
+    })
 });
-tb.append(topLeftButton);
-var bottomRightButton = new Ui.Button({
-    text: 'bottom right',
-    onpressed: function () { return scl.setOffset(1, 1); }
-});
-tb.append(bottomRightButton);
-var scl = new Ui.ScrollingArea();
-vbox.append(scl, true);
-var grid = new Ui.Grid({ cols: 'auto,auto,auto', rows: 'auto,auto,auto' });
-scl.content = grid;
-var rect1 = new Ui.Rectangle({ width: 200, height: 400, fill: 'lightgreen' });
-grid.attach(rect1, 0, 0);
-var rect2 = new Ui.Rectangle({ width: 200, height: 400, fill: 'lightblue' });
-grid.attach(rect2, 0, 1);
-var rect3 = new Ui.Rectangle({ width: 200, height: 400, fill: 'purple' });
-grid.attach(rect3, 1, 0);
-var button4 = new Ui.Button({
-    width: 200, height: 200, text: 'fun',
-    onpressed: function () { return console.log('grid button press'); }
-});
-grid.attach(button4, 1, 1);
-var rect5 = new Ui.Rectangle({ width: 400, height: 400, fill: 'pink' });
-grid.attach(rect5, 2, 0);
-grid.attach(new Ui.TextAreaField(), 2, 1);
-var rect7 = new Ui.Rectangle({ width: 200, height: 400, fill: 'orange' });
-grid.attach(rect7, 0, 2, 3, 1);
