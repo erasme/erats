@@ -3961,6 +3961,7 @@ var Ui;
             if (!this.arrangeValid || (this.arrangeX != x) || (this.arrangeY != y) ||
                 (this.arrangeWidth != width) || (this.arrangeHeight != height) ||
                 (this.arrangePixelRatio != (window.devicePixelRatio || 1))) {
+                this.arrangeValid = true;
                 this.arrangeX = x;
                 this.arrangeY = y;
                 this.arrangeWidth = width;
@@ -4022,6 +4023,8 @@ var Ui;
                 }
                 this._drawing.style.visibility = 'inherit';
                 this.arrangeCore(this._layoutWidth, this._layoutHeight);
+                if (!this.arrangeValid)
+                    console.log(this + ".arrange PROBLEM. Arrange invalidated during arrange");
             }
             this.arrangeValid = true;
         };
@@ -9160,12 +9163,13 @@ var Ui;
                 ondelayedpress: function (w) { return _this.onDelayedPress(w); },
                 onactivated: function (w) { return _this.onSelectionableActivate(w); }
             });
-            new Ui.DraggableWatcher({
-                element: _this.element,
-                data: _this.element,
-                start: function (w) { return _this.onSelectionableDragStart(w); },
-                end: function (w) { return _this.onSelectionableDragEnd(w); }
-            });
+            if (init.draggable !== false)
+                new Ui.DraggableWatcher({
+                    element: _this.element,
+                    data: _this.element,
+                    start: function (w) { return _this.onSelectionableDragStart(w); },
+                    end: function (w) { return _this.onSelectionableDragEnd(w); }
+                });
             return _this;
         }
         SelectionableWatcher.getSelectionableWatcher = function (element) {
@@ -15381,6 +15385,32 @@ var Ui;
             _this.ready = new Core.Events();
             _this.parentmessage = new Core.Events();
             _this.orientationchanged = new Core.Events();
+            _this.update = function () {
+                console.log("update START");
+                var innerWidth = document.body.clientWidth;
+                var innerHeight = document.body.clientHeight;
+                if ((_this.windowWidth !== innerWidth) || (_this.windowHeight !== innerHeight)) {
+                    _this.windowWidth = innerWidth;
+                    _this.windowHeight = innerHeight;
+                    _this.resized.fire({ target: _this, width: _this.windowWidth, height: _this.windowHeight });
+                    _this.invalidateLayout();
+                }
+                while (_this.layoutList != undefined) {
+                    var next = _this.layoutList.layoutNext;
+                    _this.layoutList.layoutValid = true;
+                    _this.layoutList.layoutNext = undefined;
+                    _this.layoutList.updateLayout(_this.windowWidth, _this.windowHeight);
+                    _this.layoutList = next;
+                }
+                while (_this.drawList != undefined) {
+                    var next = _this.drawList.drawNext;
+                    _this.drawList.drawNext = undefined;
+                    _this.drawList.draw();
+                    _this.drawList = next;
+                }
+                _this.updateTask = false;
+                console.log("update END layout: " + _this.layoutValid + ", measure: " + _this.measureValid + ",  arrange: " + _this.arrangeValid);
+            };
             var args;
             _this.clipToBounds = true;
             Ui.App.current = _this;
@@ -15441,7 +15471,6 @@ var Ui;
             if ('onorientationchange' in window)
                 window.addEventListener('orientationchange', function (e) { return _this.onOrientationChange(e); });
             window.addEventListener('message', function (e) { return _this.onMessage(e); });
-            _this.bindedUpdate = _this.update.bind(_this);
             if (window['loaded'] === true)
                 _this.onWindowLoad();
             if (init) {
@@ -15596,30 +15625,6 @@ var Ui;
             this.orientationchanged.fire({ target: this, orientation: this.orientation });
             this.checkWindowSize();
         };
-        App.prototype.update = function () {
-            var innerWidth = document.body.clientWidth;
-            var innerHeight = document.body.clientHeight;
-            if ((this.windowWidth !== innerWidth) || (this.windowHeight !== innerHeight)) {
-                this.windowWidth = innerWidth;
-                this.windowHeight = innerHeight;
-                this.resized.fire({ target: this, width: this.windowWidth, height: this.windowHeight });
-                this.invalidateLayout();
-            }
-            while (this.layoutList != undefined) {
-                var next = this.layoutList.layoutNext;
-                this.layoutList.layoutValid = true;
-                this.layoutList.layoutNext = undefined;
-                this.layoutList.updateLayout(this.windowWidth, this.windowHeight);
-                this.layoutList = next;
-            }
-            while (this.drawList != undefined) {
-                var next = this.drawList.drawNext;
-                this.drawList.drawNext = undefined;
-                this.drawList.draw();
-                this.drawList = next;
-            }
-            this.updateTask = false;
-        };
         Object.defineProperty(App.prototype, "content", {
             get: function () {
                 return this._content;
@@ -15720,9 +15725,8 @@ var Ui;
                 this.ready.fire({ target: this });
                 this._ready = true;
                 if ((this.updateTask === false) && this._ready) {
-                    var app_1 = this;
                     this.updateTask = true;
-                    requestAnimationFrame(function () { app_1.update(); });
+                    requestAnimationFrame(this.update);
                 }
                 new Ui.WheelManager(this);
                 new Ui.PointerManager(this);
@@ -15779,15 +15783,16 @@ var Ui;
             this.drawList = element;
             if ((this.updateTask === false) && this._ready) {
                 this.updateTask = true;
-                setTimeout(this.bindedUpdate, 0);
+                setTimeout(this.update, 0);
             }
         };
         App.prototype.enqueueLayout = function (element) {
+            console.log(this + ".enqueueLayout(" + element + ")");
             element.layoutNext = this.layoutList;
             this.layoutList = element;
             if ((this.updateTask === false) && this._ready) {
                 this.updateTask = true;
-                requestAnimationFrame(this.bindedUpdate);
+                requestAnimationFrame(this.update);
             }
         };
         App.prototype.handleScrolling = function (drawing) {
@@ -15858,6 +15863,7 @@ var Ui;
             return _super.prototype.getLayoutTransform.call(this).translate(document.body.scrollLeft, document.body.scrollTop);
         };
         App.prototype.invalidateMeasure = function () {
+            console.log(this + ".invalidateMeasure");
             this.invalidateLayout();
         };
         App.prototype.invalidateArrange = function () {
@@ -18838,18 +18844,6 @@ var Ui;
             enumerable: true,
             configurable: true
         });
-        Grid.prototype.setContent = function (content) {
-            while (this.firstChild !== undefined)
-                this.removeChild(this.firstChild);
-            if ((content !== undefined) && (typeof (content) === 'object')) {
-                if (content.constructor == Array) {
-                    for (var i = 0; i < content.length; i++)
-                        this.appendChild(content[i]);
-                }
-                else
-                    this.appendChild(content);
-            }
-        };
         Grid.prototype.attach = function (child, col, row, colSpan, rowSpan) {
             if (colSpan === void 0) { colSpan = 1; }
             if (rowSpan === void 0) { rowSpan = 1; }
@@ -18862,6 +18856,18 @@ var Ui;
         Grid.prototype.detach = function (child) {
             this.removeChild(child);
         };
+        Object.defineProperty(Grid.prototype, "content", {
+            set: function (value) {
+                while (this.firstChild)
+                    this.removeChild(this.firstChild);
+                for (var _i = 0, value_1 = value; _i < value_1.length; _i++) {
+                    var item = value_1[_i];
+                    this.attach(item.child, item.col, item.row, item.colSpan, item.rowSpan);
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
         Grid.prototype.getColMin = function (colPos) {
             var i;
             var i2;
@@ -21701,7 +21707,15 @@ var Ui;
             }, true);
             _this.drawing.addEventListener('focus', function (e) { return _this.onFocus(); }, true);
             _this.drawing.addEventListener('keyup', function (e) { return _this.onKeyUp(e); });
-            _this.drawing.addEventListener('DOMSubtreeModified', function (e) { return _this.onContentSubtreeModified(e); });
+            if (window.MutationObserver) {
+                var observer = new MutationObserver(function (e) { return _this.onContentSubtreeModified(e); });
+                observer.observe(_this.drawing, {
+                    attributes: false,
+                    childList: true,
+                    subtree: true,
+                    characterData: true
+                });
+            }
             if (init) {
                 if (init.onanchorchanged)
                     _this.anchorchanged.connect(init.onanchorchanged);
@@ -26807,8 +26821,8 @@ var Ui;
             set: function (value) {
                 while (this.logicalChildren.length > 0)
                     this.remove(this.logicalChildren[0]);
-                for (var _i = 0, value_1 = value; _i < value_1.length; _i++) {
-                    var el = value_1[_i];
+                for (var _i = 0, value_2 = value; _i < value_2.length; _i++) {
+                    var el = value_2[_i];
                     this.append(el);
                 }
             },

@@ -2012,6 +2012,7 @@ declare namespace Ui {
             pressSelect?: boolean;
             onselected?: (selection: Selection) => void;
             onunselected?: (selection: Selection) => void;
+            draggable?: boolean;
         });
         static getSelectionableWatcher(element: Element): SelectionableWatcher | undefined;
         static getIsSelectionableItem(element: Element): boolean;
@@ -3256,7 +3257,6 @@ declare namespace Ui {
         private topLayers?;
         requireFonts: any;
         testFontTask: any;
-        bindedUpdate: any;
         selection: Selection;
         readonly resized: Core.Events<{
             target: App;
@@ -3306,7 +3306,7 @@ declare namespace Ui {
         protected onWindowLoad(): void;
         protected onWindowResize(event: any): void;
         protected onOrientationChange(event: any): void;
-        update(): void;
+        update: () => void;
         content: Element | undefined;
         getFocusElement(): any;
         appendDialog(dialog: any): void;
@@ -4071,9 +4071,15 @@ declare namespace Ui {
         constructor(init?: GridInit);
         cols: string;
         rows: string;
-        setContent(content: any): void;
         attach(child: Element, col: number, row: number, colSpan?: number, rowSpan?: number): void;
         detach(child: Element): void;
+        content: Array<{
+            child: Element;
+            col: number;
+            row: number;
+            colSpan?: number;
+            rowSpan?: number;
+        }>;
         private getColMin;
         private getRowMin;
         protected measureCore(width: number, height: number): {
