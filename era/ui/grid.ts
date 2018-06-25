@@ -77,19 +77,6 @@ namespace Ui {
             }
         }
 
-        setContent(content) {
-            while (this.firstChild !== undefined)
-                this.removeChild(this.firstChild);
-            if ((content !== undefined) && (typeof (content) === 'object')) {
-                if (content.constructor == Array) {
-                    for (let i = 0; i < content.length; i++)
-                        this.appendChild(content[i]);
-                }
-                else
-                    this.appendChild(content);
-            }
-        }
-
         //
         // Attach a given child on the grid
         //
@@ -106,6 +93,14 @@ namespace Ui {
         //
         detach(child: Element) {
             this.removeChild(child);
+        }
+
+        set content(value: Array<{ child: Element, col: number, row: number, colSpan?: number, rowSpan?: number}>) {
+            while(this.firstChild)
+                this.removeChild(this.firstChild);
+            for (let item of value) {
+                this.attach(item.child, item.col, item.row, item.colSpan, item.rowSpan);
+            }
         }
 
         private getColMin(colPos) {
