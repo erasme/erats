@@ -15,16 +15,20 @@ namespace Ui {
     }
 
     export class ListViewHeader extends Pressable {
+        protected vbox = new Ui.VBox();
         protected _title: string | Element;
-        protected uiTitle: Label;
-        protected background: Rectangle;
+        protected uiTitle = new Label();
+        protected background = new Rectangle();
 
         constructor(init?: ListViewHeaderInit) {
             super(init);
-            this.background = new Rectangle({ verticalAlign: 'bottom', height: 4 });
-            this.append(this.background);
-            this.uiTitle = new Label({ margin: 8, fontWeight: 'bold' });
-            this.append(this.uiTitle);
+
+            this.content = this.vbox.assign({
+                content: [
+                    this.uiTitle.assign({ margin: 4, fontWeight: 'bold' }),
+                    this.background.assign({ height: 4 })
+                ]
+            });
 
             this.downed.connect(() => this.onListViewHeaderDown());
             this.upped.connect(() => this.onListViewHeaderUp());
@@ -41,12 +45,12 @@ namespace Ui {
         set title(title: string | Element) {
             if (this._title !== title) {
                 if (this._title instanceof Element)
-                    this.remove(this._title);
+                    this.vbox.remove(this._title);
                 this._title = title;
                 if (typeof (title) == 'string')
                     this.uiTitle.text = title;
                 else if (title instanceof Element)
-                    this.append(title);
+                    this.vbox.prepend(title);
             }
         }
 
@@ -69,13 +73,10 @@ namespace Ui {
 
         protected onStyleChange() {
             this.background.fill = this.getStyleProperty('color');
-            let spacing = this.getStyleProperty('spacing');
-            this.uiTitle.margin = spacing + 2;
         }
 
         static style: object = {
-            color: '#444444',
-            spacing: 5
+            color: '#444444'
         }
     }
 

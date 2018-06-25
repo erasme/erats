@@ -5007,6 +5007,7 @@ declare namespace Ui {
         title?: string | Element;
     }
     class ListViewHeader extends Pressable {
+        protected vbox: VBox;
         protected _title: string | Element;
         protected uiTitle: Label;
         protected background: Rectangle;

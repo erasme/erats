@@ -22997,10 +22997,15 @@ var Ui;
         __extends(ListViewHeader, _super);
         function ListViewHeader(init) {
             var _this = _super.call(this, init) || this;
-            _this.background = new Ui.Rectangle({ verticalAlign: 'bottom', height: 4 });
-            _this.append(_this.background);
-            _this.uiTitle = new Ui.Label({ margin: 8, fontWeight: 'bold' });
-            _this.append(_this.uiTitle);
+            _this.vbox = new Ui.VBox();
+            _this.uiTitle = new Ui.Label();
+            _this.background = new Ui.Rectangle();
+            _this.content = _this.vbox.assign({
+                content: [
+                    _this.uiTitle.assign({ margin: 4, fontWeight: 'bold' }),
+                    _this.background.assign({ height: 4 })
+                ]
+            });
             _this.downed.connect(function () { return _this.onListViewHeaderDown(); });
             _this.upped.connect(function () { return _this.onListViewHeaderUp(); });
             if (init) {
@@ -23016,12 +23021,12 @@ var Ui;
             set: function (title) {
                 if (this._title !== title) {
                     if (this._title instanceof Ui.Element)
-                        this.remove(this._title);
+                        this.vbox.remove(this._title);
                     this._title = title;
                     if (typeof (title) == 'string')
                         this.uiTitle.text = title;
                     else if (title instanceof Ui.Element)
-                        this.append(title);
+                        this.vbox.prepend(title);
                 }
             },
             enumerable: true,
@@ -23042,12 +23047,9 @@ var Ui;
         };
         ListViewHeader.prototype.onStyleChange = function () {
             this.background.fill = this.getStyleProperty('color');
-            var spacing = this.getStyleProperty('spacing');
-            this.uiTitle.margin = spacing + 2;
         };
         ListViewHeader.style = {
-            color: '#444444',
-            spacing: 5
+            color: '#444444'
         };
         return ListViewHeader;
     }(Ui.Pressable));
