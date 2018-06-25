@@ -521,6 +521,7 @@ namespace Ui
             if(!this.arrangeValid || (this.arrangeX != x) || (this.arrangeY != y) ||
                 (this.arrangeWidth != width) ||	(this.arrangeHeight != height) ||
                 (this.arrangePixelRatio != (window.devicePixelRatio || 1))) {
+                this.arrangeValid = true;
                 this.arrangeX = x;
                 this.arrangeY = y;
                 this.arrangeWidth = width;
@@ -591,6 +592,8 @@ namespace Ui
 
                 this._drawing.style.visibility = 'inherit';
                 this.arrangeCore(this._layoutWidth, this._layoutHeight);
+                if (!this.arrangeValid)
+                    console.log(`${this}.arrange PROBLEM. Arrange invalidated during arrange`);
             }
             this.arrangeValid = true;
         }
