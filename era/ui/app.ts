@@ -28,7 +28,6 @@ namespace Ui
 
         requireFonts: any;
         testFontTask: any;
-        bindedUpdate: any;
 
         selection: Selection;
 
@@ -125,8 +124,6 @@ namespace Ui
 
             // handle messages
             window.addEventListener('message', (e) => this.onMessage(e));
-
-            this.bindedUpdate = this.update.bind(this);
 
             if (window['loaded'] === true)
                 this.onWindowLoad();
@@ -287,7 +284,7 @@ namespace Ui
             this.checkWindowSize();
         }
 
-        update() {
+        update = () => {
             //		if(this.updateCounter === undefined)
             //			this.updateCounter = 0;
             //		else
@@ -477,9 +474,8 @@ namespace Ui
 
                 this._ready = true;
                 if ((this.updateTask === false) && this._ready) {
-                    let app = this;
                     this.updateTask = true;
-                    requestAnimationFrame(function () { app.update(); });
+                    requestAnimationFrame(this.update);
                 }
 
                 // create a WheelManager to handle wheel events
@@ -550,7 +546,7 @@ namespace Ui
             this.drawList = element;
             if ((this.updateTask === false) && this._ready) {
                 this.updateTask = true;
-                setTimeout(this.bindedUpdate, 0);
+                setTimeout(this.update, 0);
             }
         }
 
@@ -559,7 +555,7 @@ namespace Ui
             this.layoutList = element;
             if ((this.updateTask === false) && this._ready) {
                 this.updateTask = true;
-                requestAnimationFrame(this.bindedUpdate);
+                requestAnimationFrame(this.update);
             }
         }
 
