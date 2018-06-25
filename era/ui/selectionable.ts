@@ -24,17 +24,18 @@ namespace Ui {
 
         constructor(init: {
             element: Element,
-            selectionActions?: SelectionActions,			
+            selectionActions?: SelectionActions,
             dragSelect?: boolean,
             pressSelect?: boolean,
             onselected?: (selection: Selection) => void,
-            onunselected?: (selection: Selection) => void
+            onunselected?: (selection: Selection) => void,
+            draggable?: boolean
         }) {
             super();
             this.element = init.element;
             this.element.focusable = true;
             if (init.selectionActions)
-                this.selectionActions = init.selectionActions;			
+                this.selectionActions = init.selectionActions;
             this.element['Ui.SelectionableWatcher.watcher'] = this;
             if (init.onselected)
                 this.select = init.onselected;
@@ -45,12 +46,13 @@ namespace Ui {
                 ondelayedpress: (w) => this.onDelayedPress(w),
                 onactivated: (w) => this.onSelectionableActivate(w)
             });
-            new DraggableWatcher({
-                element: this.element,
-                data: this.element,
-                start: (w) => this.onSelectionableDragStart(w),
-                end: (w) => this.onSelectionableDragEnd(w)
-            });
+            if (init.draggable !== false)
+                new DraggableWatcher({
+                    element: this.element,
+                    data: this.element,
+                    start: (w) => this.onSelectionableDragStart(w),
+                    end: (w) => this.onSelectionableDragEnd(w)
+                });
         }
 
         static getSelectionableWatcher(element: Element): SelectionableWatcher | undefined {
@@ -77,7 +79,7 @@ namespace Ui {
                 }
             }
         }
-    
+
         onSelect(selection: Selection) {
             this._isSelected = true;
             this.handler = selection;
@@ -91,7 +93,7 @@ namespace Ui {
             if (this.unselect)
                 this.unselect(selection);
         }
-        
+
         protected onDelayedPress(watcher: PressWatcher) {
             let selection = this.getParentSelectionHandler();
             if (selection) {
@@ -117,7 +119,7 @@ namespace Ui {
             if (selection && (selection.watchers.indexOf(this) == -1))
                 selection.watchers = [this];
         }
-    
+
         private onSelectionableDragEnd(watcher: DraggableWatcher) {
             if (this.isSelected) {
                 let handler = this.getParentSelectionHandler();
@@ -125,7 +127,7 @@ namespace Ui {
                     handler.clear();
             }
         }
-        
+
         private onSelectionableActivate(watcher: PressWatcher) {
             if (this.element.isLoaded) {
                 let handler = this.getParentSelectionHandler();
@@ -143,8 +145,7 @@ namespace Ui {
     export interface SelectionableInit extends LBoxInit {
     }
 
-    export class Selectionable extends LBox implements SelectionableInit
-    {
+    export class Selectionable extends LBox implements SelectionableInit {
         //private _isSelected: boolean = false;
         //private handler: Selection | undefined;
         private selectionWatcher: SelectionableWatcher;
@@ -167,7 +168,7 @@ namespace Ui {
         get isSelected(): boolean {
             return this.selectionWatcher.isSelected;
         }
-    
+
         set isSelected(isSelected: boolean) {
             this.selectionWatcher.isSelected = isSelected;
         }
@@ -179,7 +180,7 @@ namespace Ui {
         protected onUnselect(selection: Selection) {
             this.unselected.fire({ target: this });
         }
-        
+
         // ex:
         // {
         //   delete: { text: 'Delete', icon: 'trash', callback: this.onDelete, multiple: true },
@@ -195,7 +196,7 @@ namespace Ui {
 
         static getParentSelectionHandler(element: Element): Selection | undefined {
             // search for the selection handler
-            let parent : Element = element.parent;
+            let parent: Element = element.parent;
             while (parent !== undefined) {
                 if ('getSelectionHandler' in parent)
                     return (parent as any).getSelectionHandler();
