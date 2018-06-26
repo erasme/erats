@@ -70,6 +70,7 @@ namespace Ui {
                 this.box.append(segment, true);
                 segment.pressed.connect(this.onSegmentSelect);
             }
+            this.currentPosition = 0;
         }
 
         set currentPosition(position: number) {
