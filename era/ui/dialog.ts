@@ -6,7 +6,7 @@ namespace Ui {
     
         constructor(init?: DialogCloseButtonInit) {
             super(init);
-            this.icon = 'backarrow';
+            this.icon = 'close';
             this.text = 'Fermer';
         }
 
@@ -141,24 +141,24 @@ namespace Ui {
 
     export class Dialog extends Container implements DialogInit {
         dialogSelection: Selection;
-        shadowGraphic: Rectangle;
-        graphic: DialogGraphic;
-        lbox: Form;
-        vbox: VBox;
-        contentBox: LBox;
-        contentVBox: VBox;
+        private shadowGraphic: Rectangle;
+        private graphic: DialogGraphic;
+        private lbox: Form;
+        private vbox: VBox;
+        private contentBox: LBox;
+        private contentVBox: VBox;
         private _actionButtons?: Pressable[];
         private _cancelButton?: Pressable;
         private buttonsBox: LBox;
         buttonsVisible: boolean = false;
         private _preferredWidth: number | undefined;
         private _preferredHeight: number | undefined;
-        actionBox: DialogButtonBox;
-        contextBox: ContextBar;
+        private actionBox: DialogButtonBox;
+        private contextBox: ContextBar;
         private _autoClose?: boolean;
-        openClock?: Anim.Clock;
+        private openClock?: Anim.Clock;
         isClosed: boolean = true;
-        scroll: ScrollingArea;
+        private scroll: ScrollingArea;
         readonly closed = new Core.Events<{ target: Dialog }>();
         set onclosed(value: (event: { target: Dialog }) => void) { this.closed.connect(value); }
 
@@ -213,6 +213,8 @@ namespace Ui {
 
             // handle keyboard		
             this.drawing.addEventListener('keyup', (e) => this.onKeyUp(e));
+
+            this.cancelButton = new DialogCloseButton();
 
             if (init) {
                 if (init.padding !== undefined)
@@ -351,7 +353,7 @@ namespace Ui {
             }
         }
     
-        set cancelButton(button: Pressable) {
+        set cancelButton(button: Pressable | undefined) {
             this._cancelButton = button;
             this.actionBox.setCancelButton(button);
             this.updateButtonsBoxVisible();

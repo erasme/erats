@@ -3401,24 +3401,24 @@ declare namespace Ui {
     }
     class Dialog extends Container implements DialogInit {
         dialogSelection: Selection;
-        shadowGraphic: Rectangle;
-        graphic: DialogGraphic;
-        lbox: Form;
-        vbox: VBox;
-        contentBox: LBox;
-        contentVBox: VBox;
+        private shadowGraphic;
+        private graphic;
+        private lbox;
+        private vbox;
+        private contentBox;
+        private contentVBox;
         private _actionButtons?;
         private _cancelButton?;
         private buttonsBox;
         buttonsVisible: boolean;
         private _preferredWidth;
         private _preferredHeight;
-        actionBox: DialogButtonBox;
-        contextBox: ContextBar;
+        private actionBox;
+        private contextBox;
         private _autoClose?;
-        openClock?: Anim.Clock;
+        private openClock?;
         isClosed: boolean;
-        scroll: ScrollingArea;
+        private scroll;
         readonly closed: Core.Events<{
             target: Dialog;
         }>;
@@ -3437,7 +3437,7 @@ declare namespace Ui {
         defaultAction(): void;
         title: string;
         updateButtonsBoxVisible(): void;
-        cancelButton: Pressable;
+        cancelButton: Pressable | undefined;
         actionButtons: Pressable[];
         content: Element | undefined;
         autoClose: boolean;

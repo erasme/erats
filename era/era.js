@@ -15953,7 +15953,7 @@ var Ui;
         __extends(DialogCloseButton, _super);
         function DialogCloseButton(init) {
             var _this = _super.call(this, init) || this;
-            _this.icon = 'backarrow';
+            _this.icon = 'close';
             _this.text = 'Fermer';
             return _this;
         }
@@ -16103,6 +16103,7 @@ var Ui;
             _this.buttonsBox.append(_this.actionBox);
             _this.dialogSelection.changed.connect(function (e) { return _this.onDialogSelectionChange(e.target); });
             _this.drawing.addEventListener('keyup', function (e) { return _this.onKeyUp(e); });
+            _this.cancelButton = new DialogCloseButton();
             if (init) {
                 if (init.padding !== undefined)
                     _this.padding = init.padding;
