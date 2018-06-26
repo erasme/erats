@@ -25945,6 +25945,7 @@ var Ui;
         });
         Object.defineProperty(SegmentBar.prototype, "data", {
             set: function (data) {
+                var pos = this.currentPosition;
                 while (this.box.firstChild !== undefined) {
                     this.box.firstChild.pressed.disconnect(this.onSegmentSelect);
                     this.box.remove(this.box.firstChild);
@@ -25960,7 +25961,7 @@ var Ui;
                     this.box.append(segment, true);
                     segment.pressed.connect(this.onSegmentSelect);
                 }
-                this.currentPosition = 0;
+                this.currentPosition = Math.max(0, Math.min(pos, this.box.children.length - 1));
             },
             enumerable: true,
             configurable: true

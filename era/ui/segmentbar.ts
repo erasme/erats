@@ -55,6 +55,7 @@ namespace Ui {
         }
 
         set data(data: Array<any>) {
+            let pos = this.currentPosition;
             while (this.box.firstChild !== undefined) {
                 (this.box.firstChild as Ui.SegmentButton).pressed.disconnect(this.onSegmentSelect);
                 this.box.remove(this.box.firstChild);
@@ -70,7 +71,7 @@ namespace Ui {
                 this.box.append(segment, true);
                 segment.pressed.connect(this.onSegmentSelect);
             }
-            this.currentPosition = 0;
+            this.currentPosition = Math.max(0, Math.min(pos, this.box.children.length -1));
         }
 
         set currentPosition(position: number) {
