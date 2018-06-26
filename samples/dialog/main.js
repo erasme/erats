@@ -14,28 +14,31 @@ var App = /** @class */ (function (_super) {
     __extends(App, _super);
     function App() {
         var _this = _super.call(this) || this;
-        var vbox = new Ui.VBox();
-        _this.content = vbox;
-        var tb = new Ui.HBox();
-        vbox.append(tb);
-        tb.append(new Ui.Button({ text: 'test 1' }));
-        tb.append(new Ui.Button({ text: 'test 2' }));
-        vbox.append(new Ui.Button({
-            text: 'Open dialog',
-            verticalAlign: 'center', horizontalAlign: 'center',
-            onpressed: function () {
-                var dialog = new Ui.Dialog({
-                    title: 'Test Dialog',
-                    cancelButton: new Ui.DialogCloseButton({ text: 'Annuler' }),
-                    actionButtons: [
-                        new Ui.Button({ text: 'Previous' }),
-                        new Ui.Button({ text: 'Next' })
-                    ],
-                    content: new Ui.Rectangle({ fill: 'lightgreen', width: 350, height: 200 })
-                });
-                dialog.open();
-            }
-        }), true);
+        _this.content = new Ui.VBox().assign({
+            content: [
+                new Ui.HBox().assign({
+                    content: [
+                        new Ui.Button().assign({ text: 'test 1' }),
+                        new Ui.Button().assign({ text: 'test 2' })
+                    ]
+                }),
+                new Ui.Button().assign({
+                    text: 'Open dialog', resizable: true,
+                    verticalAlign: 'center', horizontalAlign: 'center',
+                    onpressed: function () {
+                        var dialog = new Ui.Dialog({
+                            title: 'Test Dialog',
+                            actionButtons: [
+                                new Ui.Button().assign({ text: 'Previous' }),
+                                new Ui.Button().assign({ text: 'Next' })
+                            ],
+                            content: new Ui.Rectangle().assign({ fill: 'lightgreen', width: 350, height: 200 })
+                        });
+                        dialog.open();
+                    }
+                })
+            ]
+        });
         return _this;
     }
     return App;
