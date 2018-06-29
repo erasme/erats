@@ -280,9 +280,13 @@ namespace Ui {
         orientation: 'vertical' | 'horizontal' = 'horizontal';
         isSelected: boolean = false;
         selected = new Core.Events<{ target: AccordeonPage }>();
+        set onselected(value: (event: { target: AccordeonPage }) => void) { this.selected.connect(value); }
         unselected = new Core.Events<{ target: AccordeonPage }>();
+        set onunselected(value: (event: { target: AccordeonPage }) => void) { this.unselected.connect(value); }
         closed = new Core.Events<{ target: AccordeonPage }>();
+        set onclosed(value: (event: { target: AccordeonPage }) => void) { this.closed.connect(value); }
         orientationchanged = new Core.Events<{ target: AccordeonPage, orientation: 'vertical' | 'horizontal' }>();
+        set onorientationchanged(value: (event: { target: AccordeonPage, orientation: 'vertical' | 'horizontal' }) => void) { this.orientationchanged.connect(value); }
 
         /**
         *	@constructs
