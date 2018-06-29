@@ -213,12 +213,12 @@ namespace Ui {
     export class ListViewRow extends Container {
         private headers: HeaderDef[];
         private _data: any;
-        private cells: ListViewCell[];
+        readonly cells: ListViewCell[];
         private background: Rectangle;
         private sep: Rectangle;
         private selectionActions: SelectionActions;
         readonly selectionWatcher: SelectionableWatcher;
-        listView: ListView;
+        readonly listView: ListView;
         readonly selected = new Core.Events<{ target: ListViewRow }>();
         set onselected(value: (event: { target: ListViewRow }) => void) { this.selected.connect(value); }
         readonly unselected = new Core.Events<{ target: ListViewRow }>();
@@ -442,6 +442,8 @@ namespace Ui {
         set onactivated(value: (event: { target: ListView, position: number, value: any }) => void) { this.activated.connect(value); }
         readonly sortchanged = new Core.Events<{ target: ListView, key: string, invert: boolean }>();
         set onsortchanged(value: (event: { target: ListView, key: string, invert: boolean }) => void) { this.sortchanged.connect(value); }
+        readonly datachanged = new Core.Events<{ target: ListView }>();
+        set ondatachanged(value: (event: { target: ListView }) => void) { this.datachanged.connect(value); }
 
         constructor(init?: ListViewInit) {
             super(init);
@@ -568,6 +570,7 @@ namespace Ui {
             //				this.dataLoader.signalChange();
             //			else
             this.vbox.append(this.getElementAt(this._data.length - 1));
+            this.datachanged.fire({ target: this });
         }
 
         updateData(data) {
@@ -580,6 +583,7 @@ namespace Ui {
                 this.vbox.append(this.getElementAt(i));
             }
             //			}
+            this.datachanged.fire({ target: this });
         }
 
         removeData(data) {
@@ -600,6 +604,7 @@ namespace Ui {
                 }
                 //				}
             }
+            this.datachanged.fire({ target: this });
         }
 
         clearData() {
@@ -609,6 +614,7 @@ namespace Ui {
             //				this.scroll.loader = this.dataLoader;
             //			else
             this.vbox.clear();
+            this.datachanged.fire({ target: this });
         }
 
         get data(): Array<any> {
@@ -616,22 +622,18 @@ namespace Ui {
         }
 
         set data(data: Array<any>) {
-            if (data !== undefined) {
-                this._data = data;
-                this.sortData();
-                //				this.dataLoader = new ListViewScrollLoader(this, this._data);
-                //				if (this._scrolled)
-                //					this.scroll.loader = this.dataLoader;
-                //				else {				
-                this.vbox.clear();
-                for (let i = 0; i < this._data.length; i++) {
-                    this.vbox.append(this.getElementAt(i));
-                }
-                //				}
+            this._data = data;
+            this.sortData();
+            //				this.dataLoader = new ListViewScrollLoader(this, this._data);
+            //				if (this._scrolled)
+            //					this.scroll.loader = this.dataLoader;
+            //				else {				
+            this.vbox.clear();
+            for (let i = 0; i < this._data.length; i++) {
+                this.vbox.append(this.getElementAt(i));
             }
-            else {
-                this.clearData();
-            }
+            //				}
+            this.datachanged.fire({ target: this });
         }
 
         sortData() {
