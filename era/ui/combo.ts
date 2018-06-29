@@ -14,7 +14,7 @@ namespace Ui {
         private _data: any[];
         private _position: number = -1;
         private _current: any;
-        private _placeHolder: string = '...';
+        private _placeHolder: string = '';
         sep: undefined;
         arrowbottom: Icon;
         search: boolean;
@@ -34,7 +34,7 @@ namespace Ui {
         constructor(init?: ComboInit) {
             super(init);
 
-            this.text = '';
+            this.text = this._placeHolder;
             this.arrowbottom = new Icon({ icon: 'arrowbottom', width: 16, height: 16 });
 
             this.marker = new Ui.VBox({
