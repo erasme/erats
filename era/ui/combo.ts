@@ -72,7 +72,12 @@ namespace Ui {
         }
 
         set data(data: any[]) {
+            let oldPosition = this.position;
             this._data = data;
+            this._position = -1;
+            this._current = undefined;
+            this.text = this._placeHolder;
+            this.position = oldPosition;
         }
 
         get data(): any[] {
