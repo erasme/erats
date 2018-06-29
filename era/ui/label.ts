@@ -277,7 +277,7 @@ namespace Ui {
         static measureBox: any = undefined;
         static measureContext: any = undefined;
 
-        static measureTextCanvas(text, fontSize, fontFamily, fontWeight) {
+        private static measureTextCanvas(text, fontSize, fontFamily, fontWeight) {
             if (Ui.Label.measureBox === undefined)
                 this.createMeasureCanvas();
             Ui.Label.measureContext.font = 'normal ' + fontWeight + ' ' + fontSize + 'px ' + fontFamily;
@@ -286,7 +286,7 @@ namespace Ui {
             return res;
         }
 
-        static createMeasureCanvas() {
+        private static createMeasureCanvas() {
             let measureWindow = window;
             if (Core.Navigator.isIE || Core.Navigator.isGecko)
                 measureWindow = Ui.App.getRootWindow();
@@ -352,7 +352,7 @@ namespace Ui {
             return false;
         }
 
-        static measureTextHtml(text: string, fontSize: number, fontFamily: string, fontWeight: string) {
+        private static measureTextHtml(text: string, fontSize: number, fontFamily: string, fontWeight: string) {
             if (Ui.Label.measureBox === undefined)
                 this.createMeasureHtml();
             Ui.Label.measureBox.style.fontSize = fontSize + 'px';
@@ -365,7 +365,7 @@ namespace Ui {
             return { width: Ui.Label.measureBox.offsetWidth, height: Ui.Label.measureBox.offsetHeight };
         }
 
-        static createMeasureHtml() {
+        private static createMeasureHtml() {
             let measureWindow = window;
             if (Core.Navigator.isIE || Core.Navigator.isGecko)
                 measureWindow = Ui.App.getRootWindow();
@@ -385,7 +385,7 @@ namespace Ui {
             measureWindow.document.body.appendChild(Ui.Label.measureBox);
         }
 
-        static measureText(text: string, fontSize: number, fontFamily: string, fontWeight: string) {
+        static measureText(text: string, fontSize: number, fontFamily: string, fontWeight: string): { width: number, height: number } {
             if ((text === '') ||  (text === undefined))
                 return { width: 0, height: 0 };
             if (Core.Navigator.supportCanvas)
