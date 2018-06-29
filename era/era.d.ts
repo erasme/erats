@@ -5595,7 +5595,7 @@ declare namespace Ui {
         readonly pages: AccordeonPage[];
         currentPage: AccordeonPage | undefined;
         currentPosition: number;
-        appendPage(page: AccordeonPage): void;
+        appendPage(page: AccordeonPage, autoSelect?: boolean): void;
         removePage(page: AccordeonPage): void;
         private onClockTick;
         private onPageSelect;

@@ -118,13 +118,14 @@ namespace Ui {
         * Append a new AccordeonPage in the current
         * accordeon
         */
-        appendPage(page: AccordeonPage) {
+        appendPage(page: AccordeonPage, autoSelect: boolean = true) {
             this.appendChild(page);
             page.setOffset(1);
             page.setOrientation(this._orientation);
             page.selected.connect(this.onPageSelect);
             page.closed.connect(this.onPageClose);
-            page.select();
+            if (autoSelect)
+                page.select();
         }
 
         /**

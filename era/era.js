@@ -25043,13 +25043,15 @@ var Ui;
             enumerable: true,
             configurable: true
         });
-        Accordeonable.prototype.appendPage = function (page) {
+        Accordeonable.prototype.appendPage = function (page, autoSelect) {
+            if (autoSelect === void 0) { autoSelect = true; }
             this.appendChild(page);
             page.setOffset(1);
             page.setOrientation(this._orientation);
             page.selected.connect(this.onPageSelect);
             page.closed.connect(this.onPageClose);
-            page.select();
+            if (autoSelect)
+                page.select();
         };
         Accordeonable.prototype.removePage = function (page) {
             var pos = -1;
