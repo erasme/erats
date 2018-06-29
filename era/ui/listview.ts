@@ -10,49 +10,33 @@ namespace Ui {
         resizable?: boolean;
     }
 
-    export interface ListViewHeaderInit extends PressableInit {
-        title?: string | Element;
-    }
-
     export class ListViewHeader extends Pressable {
-        protected vbox = new Ui.VBox();
-        protected _title: string | Element;
-        protected uiTitle = new Label();
+        protected ui: Element;
         protected background = new Rectangle();
 
-        constructor(init?: ListViewHeaderInit) {
-            super(init);
+        constructor(readonly headerDef: HeaderDef) {
+            super();
+            if (headerDef.title instanceof Element)
+                this.ui = headerDef.title;
+            else
+                this.ui = new Label().assign({ text: headerDef.title, margin: 4, fontWeight: 'bold' });
+            this.ui.resizable = true;
 
-            this.content = this.vbox;
-            this.vbox.append(this.uiTitle.assign({ margin: 4, fontWeight: 'bold' }), true);
-            this.vbox.append(this.background.assign({ height: 4 }));
+            this.content = new Ui.VBox().assign({
+                content: [
+                    new Ui.HBox().assign({
+                        resizable: true,
+                        content: [
+                            this.ui,
+                            new ListViewColBar(this, this.headerDef)
+                        ]
+                    }),
+                    this.background.assign({ height: 4 })
+                ]
+            });
 
             this.downed.connect(() => this.onListViewHeaderDown());
             this.upped.connect(() => this.onListViewHeaderUp());
-            if (init) {
-                if (init.title !== undefined)
-                    this.title = init.title;
-            }
-        }
-
-        get title(): string | Element {
-            return this._title;
-        }
-
-        set title(title: string | Element) {
-            if (this._title !== title) {
-                if (this._title instanceof Element)
-                    this.vbox.remove(this._title);
-                this._title = title;
-                if (typeof (title) == 'string') {
-                    this.uiTitle.text = title;
-                    this.uiTitle.show();
-                }
-                else if (title instanceof Element) {
-                    this.uiTitle.hide(true);
-                    this.vbox.prepend(title, true);
-                }
-            }
         }
 
         protected getColor() {
@@ -87,7 +71,6 @@ namespace Ui {
         sortInvert: boolean = false;
         sortArrow: Icon;
         uis: ListViewHeader[];
-        cols: ListViewColBar[];
         rowsHeight: number = 0;
         headersHeight: number = 0;
         readonly headerpressed = new Core.Events<{ target: ListViewHeadersBar, key: string }>();
@@ -98,24 +81,22 @@ namespace Ui {
 
             this.headers = init.headers;
 
-            this.sortArrow = new Icon({ icon: 'sortarrow', width: 10, height: 10, margin: 4 });
+            this.sortArrow = new Icon({ icon: 'sortarrow', width: 16, height: 16, margin: 4 });
             this.appendChild(this.sortArrow);
 
-            this.cols = [];
             this.uis = [];
 
             for (let i = 0; i < init.headers.length; i++) {
-                let header = init.headers[i];
-                let headerUi = new ListViewHeader({
-                    title: header.title, width: header.width,
-                    onpressed: e => this.onHeaderPress(headerUi)
+                let headerDef = init.headers[i];
+                let headerUi = new ListViewHeader(headerDef).assign({
+                    width: headerDef.width,
+                    onpressed: e => {
+                        if (headerDef.key !== undefined)
+                            this.headerpressed.fire({ target: this, key: headerDef.key });
+                    }
                 });
                 this.uis.push(headerUi);
                 this.appendChild(headerUi);
-
-                let col = new ListViewColBar(headerUi, header);
-                this.cols.push(col);
-                this.appendChild(col);
             }
         }
 
@@ -137,40 +118,22 @@ namespace Ui {
             this.invalidateArrange();
         }
 
-        protected onHeaderPress(header) {
-            let key: string;
-            for (let col = 0; col < this.headers.length; col++) {
-                let h = this.headers[col];
-                if (h.ui === header)
-                    key = h.key;
-            }
-            if (key !== undefined)
-                this.headerpressed.fire({ target: this, key: key });
-        }
-
         protected measureCore(width: number, height: number) {
             this.rowsHeight = 0;
             this.headersHeight = 0;
             let minHeight = 0;
-            let col; let size;
             // measure headers
-            for (col = 0; col < this.uis.length; col++) {
-                size = this.uis[col].measure(0, 0);
+            for (let col = 0; col < this.uis.length; col++) {
+                let size = this.uis[col].measure(0, 0);
                 if (size.height > minHeight)
                     minHeight = size.height;
             }
             this.headersHeight = minHeight;
             let minWidth = 0;
-            for (col = 0; col < this.uis.length; col++)
+            for (let col = 0; col < this.uis.length; col++)
                 minWidth += this.uis[col].measureWidth;
 
             this.sortArrow.measure(0, 0);
-
-            // measure col bars
-            for (let i = 0; i < this.cols.length; i++) {
-                col = this.cols[i];
-                col.measure(0, this.headersHeight + this.rowsHeight);
-            }
 
             return { width: minWidth, height: this.headersHeight };
         }
@@ -182,20 +145,15 @@ namespace Ui {
             for (col = 0; col < this.headers.length; col++) {
                 let headerDef = this.headers[col];
                 let ui = this.uis[col];
-                let colbar = this.cols[col];
                 colWidth = ui.measureWidth;
                 if (col == this.headers.length - 1)
                     colWidth = Math.max(colWidth, availableWidth);
                 ui.arrange(x, 0, colWidth, this.headersHeight);
 
-                colbar.setHeaderHeight(this.headersHeight);
-                colbar.arrange(x + colWidth - colbar.measureWidth, 0,
-                    colbar.measureWidth, this.headersHeight);
-
                 if (this.sortColKey === headerDef.key) {
-                    this.sortArrow.arrange(x + colWidth - height * 0.8,
-                        height * 0.1,
-                        height * 0.8, height * 0.8);
+                    this.sortArrow.arrange(x + colWidth - (this.sortArrow.measureWidth),
+                        (height - this.sortArrow.measureHeight) / 2,
+                        this.sortArrow.measureWidth, this.sortArrow.measureHeight);
                 }
 
                 x += colWidth;
@@ -812,38 +770,36 @@ namespace Ui {
     }
 
     export class ListViewColBar extends Container {
-        headerHeight: number = 0;
-        header: ListViewHeader;
-        headerDef: HeaderDef;
-        grip: Movable;
-        separator: Rectangle;
+        protected header: ListViewHeader;
+        protected headerDef: HeaderDef;
+        protected grip: Movable;
+        protected separator: Rectangle;
 
         constructor(header: ListViewHeader, headerDef: HeaderDef) {
             super();
             this.header = header;
             this.headerDef = headerDef;
-            this.grip = new Movable({ moveVertical: false });
+            this.grip = new Movable().assign({
+                moveVertical: false,
+                content: new LBox().assign({
+                    content: [
+                        new Rectangle().assign({ width: 1, opacity: 0.2, fill: 'black', marginLeft: 7, marginRight: 8 + 2, marginTop: 6, marginBottom: 6 }),
+                        new Rectangle().assign({ width: 1, opacity: 0.2, fill: 'black', marginLeft: 12, marginRight: 3 + 2, marginTop: 6, marginBottom: 6 })
+                    ]
+                }),
+                onmoved: () => this.onMove(),
+                onupped: () => this.onUp()
+            });
             this.appendChild(this.grip);
-            this.grip.moved.connect(() => this.onMove());
-            this.grip.upped.connect(() => this.onUp());
-
-            let lbox = new LBox();
-            this.grip.content = lbox;
-            lbox.append(new Rectangle({ width: 1, opacity: 0.2, fill: 'black', marginLeft: 14, marginRight: 8 + 2, marginTop: 6, marginBottom: 6 }));
-            lbox.append(new Rectangle({ width: 1, opacity: 0.2, fill: 'black', marginLeft: 19, marginRight: 3 + 2, marginTop: 6, marginBottom: 6 }));
             if (headerDef.resizable === false)
                 this.grip.hide(true);
 
-            this.separator = new Rectangle({ width: 1, fill: 'black', opacity: 0.3 });
+            this.separator = new Rectangle().assign({ width: 1, fill: 'black', opacity: 0.3 });
             this.appendChild(this.separator);
         }
 
-        setHeader(header) {
+        setHeader(header: ListViewHeader) {
             this.header = header;
-        }
-
-        setHeaderHeight(height) {
-            this.headerHeight = height;
         }
 
         protected onMove() {
@@ -859,13 +815,13 @@ namespace Ui {
         protected measureCore(width, height) {
             let size = this.grip.measure(width, height);
             this.separator.measure(width, height);
-            return { width: size.width, height: 0 };
+            return { width: Math.max(size.width, 1), height: 0 };
         }
 
         protected arrangeCore(width, height) {
             this.grip.setPosition(0, 0);
             this.separator.transform = Matrix.createTranslate(0, 0);
-            this.grip.arrange(0, 0, width, this.headerHeight);
+            this.grip.arrange(0, 0, width, height);
             this.separator.arrange(width - 1, 0, 1, height);
         }
 

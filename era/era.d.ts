@@ -5009,16 +5009,11 @@ declare namespace Ui {
         ui?: typeof ListViewCell;
         resizable?: boolean;
     }
-    interface ListViewHeaderInit extends PressableInit {
-        title?: string | Element;
-    }
     class ListViewHeader extends Pressable {
-        protected vbox: VBox;
-        protected _title: string | Element;
-        protected uiTitle: Label;
+        readonly headerDef: HeaderDef;
+        protected ui: Element;
         protected background: Rectangle;
-        constructor(init?: ListViewHeaderInit);
-        title: string | Element;
+        constructor(headerDef: HeaderDef);
         protected getColor(): Color;
         protected getColorDown(): Color;
         protected onListViewHeaderDown(): void;
@@ -5032,7 +5027,6 @@ declare namespace Ui {
         sortInvert: boolean;
         sortArrow: Icon;
         uis: ListViewHeader[];
-        cols: ListViewColBar[];
         rowsHeight: number;
         headersHeight: number;
         readonly headerpressed: Core.Events<{
@@ -5047,7 +5041,6 @@ declare namespace Ui {
         getSortColKey(): string;
         getSortInvert(): boolean;
         sortBy(key: string, invert: boolean): void;
-        protected onHeaderPress(header: any): void;
         protected measureCore(width: number, height: number): {
             width: number;
             height: number;
@@ -5254,14 +5247,12 @@ declare namespace Ui {
         protected onValueChange(value: any): void;
     }
     class ListViewColBar extends Container {
-        headerHeight: number;
-        header: ListViewHeader;
-        headerDef: HeaderDef;
-        grip: Movable;
-        separator: Rectangle;
+        protected header: ListViewHeader;
+        protected headerDef: HeaderDef;
+        protected grip: Movable;
+        protected separator: Rectangle;
         constructor(header: ListViewHeader, headerDef: HeaderDef);
-        setHeader(header: any): void;
-        setHeaderHeight(height: any): void;
+        setHeader(header: ListViewHeader): void;
         protected onMove(): void;
         protected onUp(): void;
         protected measureCore(width: any, height: any): {
