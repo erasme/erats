@@ -1192,7 +1192,10 @@ declare namespace Core {
         fillRect(x: any, y: any, w: any, h: any): void;
         strokeRect(x: any, y: any, w: any, h: any): void;
         createLinearGradient(x0: any, y0: any, x1: any, y1: any): SVGGradient;
-        measureText(text: any): any;
+        measureText(text: any): {
+            width: number;
+            height: number;
+        };
         svgPath(path: any): void;
         parseFont(font: any): {
             style: any;
@@ -2163,15 +2166,15 @@ declare namespace Ui {
         arrangeCore(width: any, height: any): void;
         static measureBox: any;
         static measureContext: any;
-        static measureTextCanvas(text: any, fontSize: any, fontFamily: any, fontWeight: any): any;
-        static createMeasureCanvas(): void;
+        private static measureTextCanvas;
+        private static createMeasureCanvas;
         static isFontAvailable(fontFamily: string, fontWeight: string): boolean;
-        static measureTextHtml(text: string, fontSize: number, fontFamily: string, fontWeight: string): {
-            width: any;
-            height: any;
+        private static measureTextHtml;
+        private static createMeasureHtml;
+        static measureText(text: string, fontSize: number, fontFamily: string, fontWeight: string): {
+            width: number;
+            height: number;
         };
-        static createMeasureHtml(): void;
-        static measureText(text: string, fontSize: number, fontFamily: string, fontWeight: string): any;
         static style: object;
     }
 }
@@ -2753,7 +2756,10 @@ declare namespace Ui {
             width: number;
             height: number;
         };
-        drawText(width: any, render: any): any;
+        drawText(width: any, render: any): {
+            width: number;
+            height: number;
+        };
     }
     interface CompactLabelInit extends ElementInit {
         maxLine?: number;
@@ -5056,12 +5062,12 @@ declare namespace Ui {
     class ListViewRow extends Container {
         private headers;
         private _data;
-        private cells;
+        readonly cells: ListViewCell[];
         private background;
         private sep;
         private selectionActions;
         readonly selectionWatcher: SelectionableWatcher;
-        listView: ListView;
+        readonly listView: ListView;
         readonly selected: Core.Events<{
             target: ListViewRow;
         }>;
@@ -5191,6 +5197,12 @@ declare namespace Ui {
             target: ListView;
             key: string;
             invert: boolean;
+        }) => void;
+        readonly datachanged: Core.Events<{
+            target: ListView;
+        }>;
+        ondatachanged: (event: {
+            target: ListView;
         }) => void;
         constructor(init?: ListViewInit);
         scrolled: boolean;

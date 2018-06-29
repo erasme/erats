@@ -22795,6 +22795,8 @@ var Ui;
                 return this._position;
             },
             set: function (position) {
+                if (this.position == position)
+                    return;
                 if (position === -1) {
                     this._position = -1;
                     this._current = undefined;
@@ -23353,6 +23355,7 @@ var Ui;
             _this.unselected = new Core.Events();
             _this.activated = new Core.Events();
             _this.sortchanged = new Core.Events();
+            _this.datachanged = new Core.Events();
             if (init && init.headers != undefined)
                 _this.headers = init.headers;
             else
@@ -23426,6 +23429,11 @@ var Ui;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(ListView.prototype, "ondatachanged", {
+            set: function (value) { this.datachanged.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(ListView.prototype, "scrolled", {
             set: function (scrolled) {
                 this.scrollVertical = scrolled;
@@ -23487,6 +23495,7 @@ var Ui;
             this._data.push(data);
             this.sortData();
             this.vbox.append(this.getElementAt(this._data.length - 1));
+            this.datachanged.fire({ target: this });
         };
         ListView.prototype.updateData = function (data) {
             this.sortData();
@@ -23494,6 +23503,7 @@ var Ui;
             for (var i = 0; i < this._data.length; i++) {
                 this.vbox.append(this.getElementAt(i));
             }
+            this.datachanged.fire({ target: this });
         };
         ListView.prototype.removeData = function (data) {
             var row = this.findDataRow(data);
@@ -23508,27 +23518,25 @@ var Ui;
                     this.vbox.append(this.getElementAt(i));
                 }
             }
+            this.datachanged.fire({ target: this });
         };
         ListView.prototype.clearData = function () {
             this._data = [];
             this.vbox.clear();
+            this.datachanged.fire({ target: this });
         };
         Object.defineProperty(ListView.prototype, "data", {
             get: function () {
                 return this._data;
             },
             set: function (data) {
-                if (data !== undefined) {
-                    this._data = data;
-                    this.sortData();
-                    this.vbox.clear();
-                    for (var i = 0; i < this._data.length; i++) {
-                        this.vbox.append(this.getElementAt(i));
-                    }
+                this._data = data;
+                this.sortData();
+                this.vbox.clear();
+                for (var i = 0; i < this._data.length; i++) {
+                    this.vbox.append(this.getElementAt(i));
                 }
-                else {
-                    this.clearData();
-                }
+                this.datachanged.fire({ target: this });
             },
             enumerable: true,
             configurable: true
