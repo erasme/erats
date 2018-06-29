@@ -84,6 +84,8 @@ namespace Ui {
         }
 
         set position(position: number) {
+            if (this.position == position)
+                return;
             if (position === -1) {
                 this._position = -1;
                 this._current = undefined;
