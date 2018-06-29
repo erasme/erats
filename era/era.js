@@ -22785,7 +22785,12 @@ var Ui;
                 return this._data;
             },
             set: function (data) {
+                var oldPosition = this.position;
                 this._data = data;
+                this._position = -1;
+                this._current = undefined;
+                this.text = this._placeHolder;
+                this.position = oldPosition;
             },
             enumerable: true,
             configurable: true
@@ -25198,6 +25203,26 @@ var Ui;
             _this.headerBox.pressed.connect(function (e) { return _this.onHeaderPress(); });
             return _this;
         }
+        Object.defineProperty(AccordeonPage.prototype, "onselected", {
+            set: function (value) { this.selected.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(AccordeonPage.prototype, "onunselected", {
+            set: function (value) { this.unselected.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(AccordeonPage.prototype, "onclosed", {
+            set: function (value) { this.closed.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(AccordeonPage.prototype, "onorientationchanged", {
+            set: function (value) { this.orientationchanged.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         AccordeonPage.prototype.close = function () {
             this.closed.fire({ target: this });
         };

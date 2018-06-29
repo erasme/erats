@@ -5618,16 +5618,29 @@ declare namespace Ui {
         selected: Core.Events<{
             target: AccordeonPage;
         }>;
+        onselected: (event: {
+            target: AccordeonPage;
+        }) => void;
         unselected: Core.Events<{
             target: AccordeonPage;
         }>;
+        onunselected: (event: {
+            target: AccordeonPage;
+        }) => void;
         closed: Core.Events<{
             target: AccordeonPage;
         }>;
+        onclosed: (event: {
+            target: AccordeonPage;
+        }) => void;
         orientationchanged: Core.Events<{
             target: AccordeonPage;
             orientation: Orientation;
         }>;
+        onorientationchanged: (event: {
+            target: AccordeonPage;
+            orientation: 'vertical' | 'horizontal';
+        }) => void;
         constructor(init?: any);
         close(): void;
         select(): void;
