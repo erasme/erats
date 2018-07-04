@@ -358,6 +358,8 @@ namespace Ui
             if (this._marker !== undefined)
                 this.mainBox.remove(this._marker);
             this._marker = marker;
+            if (marker instanceof Icon)
+                marker.fill = this.getForegroundColor();
             this.mainBox.append(this._marker);
         }
 
@@ -549,6 +551,8 @@ namespace Ui
                 this._badgeContent.badgeColor = this.getStyleProperty('badgeColor');
                 this._badgeContent.badgeTextColor = this.getStyleProperty('badgeTextColor');
             }
+            if (this._marker && this._marker instanceof Icon)
+                this._marker.fill = fg;
         }
 
         protected onDisable() {

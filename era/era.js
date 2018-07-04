@@ -13849,6 +13849,8 @@ var Ui;
                 if (this._marker !== undefined)
                     this.mainBox.remove(this._marker);
                 this._marker = marker;
+                if (marker instanceof Ui.Icon)
+                    marker.fill = this.getForegroundColor();
                 this.mainBox.append(this._marker);
             },
             enumerable: true,
@@ -14042,6 +14044,8 @@ var Ui;
                 this._badgeContent.badgeColor = this.getStyleProperty('badgeColor');
                 this._badgeContent.badgeTextColor = this.getStyleProperty('badgeTextColor');
             }
+            if (this._marker && this._marker instanceof Ui.Icon)
+                this._marker.fill = fg;
         };
         Button.prototype.onDisable = function () {
             _super.prototype.onDisable.call(this);
