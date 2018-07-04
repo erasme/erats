@@ -6,6 +6,7 @@ namespace Ui {
         position?: number;
         current?: any;
         search?: boolean;
+        allowNone?: boolean;
         onchanged?: (event: { target: Combo, value: any, position: number }) => void;
     }
 
@@ -18,6 +19,7 @@ namespace Ui {
         sep: undefined;
         arrowbottom: Icon;
         search: boolean;
+        allowNone = false;
         readonly changed = new Core.Events<{ target: Combo, value: any, position: number }>();
         set onchanged(value: (event: { target: Combo, value: any, position: number }) => void) { this.changed.connect(value); }
 
@@ -26,7 +28,7 @@ namespace Ui {
          * @class
          * @extends Ui.Pressable
          * @param {String} [config.field] Name of the data's field to display in the list
-         * @param [config.data] Object List
+         * @param [data] Object List
          * @param [currentAt] Default selected object position
          * @param [current] Default selected object
          * @param [placeHolder] Text displays when no selection
@@ -54,6 +56,8 @@ namespace Ui {
                     this.current = init.current;
                 if (init.search !== undefined)
                     this.search = init.search;
+                if (init.allowNone !== undefined)
+                    this.allowNone = init.allowNone;
                 if (init.onchanged)
                     this.changed.connect(init.onchanged);
             }
@@ -132,7 +136,10 @@ namespace Ui {
         }
 
         protected onPress() {
-            let popup = new Ui.ComboPopup({ field: this._field, data: this._data, search: this.search });
+            let popup = new Ui.ComboPopup().assign({
+                field: this._field, data: this._data,
+                search: this.search, allowNone: this.allowNone
+            });
             if (this._position !== -1)
                 popup.position = this._position;
             popup.item.connect(e => this.onItemPress(e.target, e.item, e.position));
@@ -162,36 +169,50 @@ namespace Ui {
 
     export interface ComboPopupInit extends MenuPopupInit {
         search?: boolean;
+        allowNone?: boolean;
         field?: string;
         data?: any[];
         position?: number;
     }
 
     export class ComboPopup extends MenuPopup {
-        private list: VBox;
+        private list = new VBox();
+        private _allowNone = false;
         private _data: any[];
         private _field: string;
-        private searchField: TextField;
+        private searchField = new TextField();
+        private emptyField = new ComboItem();
         readonly item = new Core.Events<{ target: ComboPopup, item: ComboItem, position: number }>();
 
         constructor(init?: ComboPopupInit) {
             super(init);
             this.autoClose = true;
 
-            let vbox = new VBox();
-            this.searchField = new TextField({ textHolder: 'Recherche', margin: 5 });
-            this.searchField.hide(true);
-            this.searchField.changed.connect((e) => this.onSearchChange(e.target, e.value));
-            vbox.append(this.searchField);
-            this.content = vbox;
+            this.content = new VBox().assign({
+                content: [
+                    this.searchField.assign({
+                        textHolder: 'Recherche', margin: 5,
+                        onchanged: (e) => this.onSearchChange(e.target, e.value)
+                    }),
+                    this.emptyField.assign({
+                        text: '',
+                        onpressed: () => {
+                            this.item.fire({ target: this, item: this.emptyField, position: -1 });
+                            this.close();
+                        }
+                    }),
+                    this.list
+                ]
+            });
 
-            this.list = new VBox();
-            vbox.append(this.list);
-            //this.content = this.list;
+            this.searchField.hide(true);
+            this.emptyField.hide(true);
 
             if (init) {
                 if (init.search !== undefined)
                     this.search = init.search;
+                if (init.allowNone !== undefined)
+                    this.allowNone = init.allowNone;
                 if (init.field !== undefined)
                     this.field = init.field;
                 if (init.data !== undefined)
@@ -202,6 +223,10 @@ namespace Ui {
         }
 
         private onSearchChange(field: TextField, value: string) {
+            if (value == '' && this.allowNone)
+                this.emptyField.show();
+            else
+                this.emptyField.hide(true);
             this.list.children.forEach((item: ComboItem) => {
                 if (value == '')
                     item.show();
@@ -230,6 +255,18 @@ namespace Ui {
                 this.searchField.show();
             else
                 this.searchField.hide(true);
+        }
+
+        get allowNone(): boolean {
+            return this._allowNone;
+        }
+
+        set allowNone(value: boolean) {
+            this._allowNone = value;
+            if (value)
+                this.emptyField.show();
+            else
+                this.emptyField.hide(true);
         }
 
         set field(field: string) {

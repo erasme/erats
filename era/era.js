@@ -22736,6 +22736,7 @@ var Ui;
             var _this = _super.call(this, init) || this;
             _this._position = -1;
             _this._placeHolder = '';
+            _this.allowNone = false;
             _this.changed = new Core.Events();
             _this.text = _this._placeHolder;
             _this.arrowbottom = new Ui.Icon({ icon: 'arrowbottom', width: 16, height: 16 });
@@ -22756,6 +22757,8 @@ var Ui;
                     _this.current = init.current;
                 if (init.search !== undefined)
                     _this.search = init.search;
+                if (init.allowNone !== undefined)
+                    _this.allowNone = init.allowNone;
                 if (init.onchanged)
                     _this.changed.connect(init.onchanged);
             }
@@ -22854,7 +22857,10 @@ var Ui;
         };
         Combo.prototype.onPress = function () {
             var _this = this;
-            var popup = new Ui.ComboPopup({ field: this._field, data: this._data, search: this.search });
+            var popup = new Ui.ComboPopup().assign({
+                field: this._field, data: this._data,
+                search: this.search, allowNone: this.allowNone
+            });
             if (this._position !== -1)
                 popup.position = this._position;
             popup.item.connect(function (e) { return _this.onItemPress(e.target, e.item, e.position); });
@@ -22883,19 +22889,35 @@ var Ui;
         __extends(ComboPopup, _super);
         function ComboPopup(init) {
             var _this = _super.call(this, init) || this;
+            _this.list = new Ui.VBox();
+            _this._allowNone = false;
+            _this.searchField = new Ui.TextField();
+            _this.emptyField = new ComboItem();
             _this.item = new Core.Events();
             _this.autoClose = true;
-            var vbox = new Ui.VBox();
-            _this.searchField = new Ui.TextField({ textHolder: 'Recherche', margin: 5 });
+            _this.content = new Ui.VBox().assign({
+                content: [
+                    _this.searchField.assign({
+                        textHolder: 'Recherche', margin: 5,
+                        onchanged: function (e) { return _this.onSearchChange(e.target, e.value); }
+                    }),
+                    _this.emptyField.assign({
+                        text: '',
+                        onpressed: function () {
+                            _this.item.fire({ target: _this, item: _this.emptyField, position: -1 });
+                            _this.close();
+                        }
+                    }),
+                    _this.list
+                ]
+            });
             _this.searchField.hide(true);
-            _this.searchField.changed.connect(function (e) { return _this.onSearchChange(e.target, e.value); });
-            vbox.append(_this.searchField);
-            _this.content = vbox;
-            _this.list = new Ui.VBox();
-            vbox.append(_this.list);
+            _this.emptyField.hide(true);
             if (init) {
                 if (init.search !== undefined)
                     _this.search = init.search;
+                if (init.allowNone !== undefined)
+                    _this.allowNone = init.allowNone;
                 if (init.field !== undefined)
                     _this.field = init.field;
                 if (init.data !== undefined)
@@ -22906,6 +22928,11 @@ var Ui;
             return _this;
         }
         ComboPopup.prototype.onSearchChange = function (field, value) {
+            console.log("onSearchChange value: " + value + ", allowNone: " + this.allowNone);
+            if (value == '' && this.allowNone)
+                this.emptyField.show();
+            else
+                this.emptyField.hide(true);
             this.list.children.forEach(function (item) {
                 if (value == '')
                     item.show();
@@ -22934,6 +22961,20 @@ var Ui;
                     this.searchField.show();
                 else
                     this.searchField.hide(true);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ComboPopup.prototype, "allowNone", {
+            get: function () {
+                return this._allowNone;
+            },
+            set: function (value) {
+                this._allowNone = value;
+                if (value)
+                    this.emptyField.show();
+                else
+                    this.emptyField.hide(true);
             },
             enumerable: true,
             configurable: true

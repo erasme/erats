@@ -4932,6 +4932,7 @@ declare namespace Ui {
         position?: number;
         current?: any;
         search?: boolean;
+        allowNone?: boolean;
         onchanged?: (event: {
             target: Combo;
             value: any;
@@ -4947,6 +4948,7 @@ declare namespace Ui {
         sep: undefined;
         arrowbottom: Icon;
         search: boolean;
+        allowNone: boolean;
         readonly changed: Core.Events<{
             target: Combo;
             value: any;
@@ -4973,15 +4975,18 @@ declare namespace Ui {
     }
     interface ComboPopupInit extends MenuPopupInit {
         search?: boolean;
+        allowNone?: boolean;
         field?: string;
         data?: any[];
         position?: number;
     }
     class ComboPopup extends MenuPopup {
         private list;
+        private _allowNone;
         private _data;
         private _field;
         private searchField;
+        private emptyField;
         readonly item: Core.Events<{
             target: ComboPopup;
             item: ComboItem;
@@ -4990,6 +4995,7 @@ declare namespace Ui {
         constructor(init?: ComboPopupInit);
         private onSearchChange;
         search: boolean;
+        allowNone: boolean;
         field: string;
         data: any[];
         position: number;
