@@ -16,7 +16,7 @@ var Core;
             if ('name' in this.constructor)
                 return this.constructor['name'];
             else
-                return /function (.{1,})\(/.exec(this.constructor.toString())[0];
+                return /function (.{1,})\(/.exec(this.constructor.toString())[1];
         };
         Object.prototype.assign = function (props) {
             return assign(this, props);
@@ -589,6 +589,30 @@ if (Object.assign == undefined) {
     if (!window.Promise)
         window.Promise = Promise;
 })();
+if (!Array.prototype.findIndex) {
+    Array.prototype.findIndex = function (callback, thisArg) {
+        thisArg = thisArg ? thisArg : window;
+        var i = 0;
+        for (var _i = 0, _a = this; _i < _a.length; _i++) {
+            var item = _a[_i];
+            if (callback.call(thisArg, item, i, this))
+                return i;
+        }
+        return -1;
+    };
+}
+if (!Array.prototype.find) {
+    Array.prototype.find = function (callback, thisArg) {
+        thisArg = thisArg ? thisArg : window;
+        var i = 0;
+        for (var _i = 0, _a = this; _i < _a.length; _i++) {
+            var item = _a[_i];
+            if (callback.call(thisArg, item, i, this))
+                return item;
+        }
+        return undefined;
+    };
+}
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
         ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||

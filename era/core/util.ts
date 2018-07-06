@@ -596,6 +596,34 @@ if (!(window as any).Promise)
   (window as any).Promise = Promise;
 })();
 
+
+// Provide a polyfill for findIndex
+if (!Array.prototype.findIndex) {
+  (Array.prototype as any).findIndex = function(callback, thisArg) {
+    thisArg = thisArg ? thisArg : window;
+    let i = 0;
+    for (let item of this) {
+      if (callback.call(thisArg, item, i, this))
+        return i;
+    }
+    return -1;
+  };
+}
+
+// Provide a polyfill for find
+if (!Array.prototype.find) {
+  (Array.prototype as any).find = function(callback, thisArg) {
+    thisArg = thisArg ? thisArg : window;
+    let i = 0;
+    for (let item of this) {
+      if (callback.call(thisArg, item, i, this))
+        return item;
+    }
+    return undefined;
+  };
+}
+
+
 /*
 // Implement trim if it's not natively available
 // Code from https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/String/Trim#Compatibility
