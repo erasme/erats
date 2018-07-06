@@ -3467,7 +3467,7 @@ declare namespace Ui {
         textAlign?: TextAlign;
         fontSize?: number;
         fontFamily?: string;
-        fontWeight?: string;
+        fontWeight?: FontWeight;
         interLine?: number;
         wordWrap?: string;
         whiteSpace?: string;
@@ -3506,7 +3506,7 @@ declare namespace Ui {
         textAlign: TextAlign;
         fontSize: number;
         fontFamily: string;
-        fontWeight: any;
+        fontWeight: FontWeight;
         interLine: number;
         wordWrap: string;
         whiteSpace: string;
@@ -6134,7 +6134,7 @@ declare namespace Ui {
         textAlign: TextAlign;
         fontSize: number;
         fontFamily: string;
-        fontWeight: any;
+        fontWeight: FontWeight;
         interLine: number;
         wordWrap: string;
         whiteSpace: string;

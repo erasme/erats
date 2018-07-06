@@ -6,7 +6,7 @@ namespace Ui
         textAlign?: TextAlign;
         fontSize?: number;
         fontFamily?: string;
-        fontWeight?: string;
+        fontWeight?: FontWeight;
         interLine?: number;
         wordWrap?: string;
         whiteSpace?: string;
@@ -20,7 +20,7 @@ namespace Ui
         private bindedOnImageLoad: any = undefined;
         private _fontSize?: number;
         private _fontFamily?: string;
-        private _fontWeight?: string;
+        private _fontWeight?: FontWeight;
         private _color: any = undefined;
         private _textAlign?: TextAlign;
         private _interLine?: number;
@@ -190,14 +190,14 @@ namespace Ui
             }
         }
     
-        get fontWeight() {
+        get fontWeight(): FontWeight {
             if (this._fontWeight !== undefined)
                 return this._fontWeight;
             else
                 return this.getStyleProperty('fontWeight');
         }
     
-        set fontWeight(fontWeight) {
+        set fontWeight(fontWeight: FontWeight) {
             if (this._fontWeight !== fontWeight) {
                 this._fontWeight = fontWeight;
                 this.drawing.style.fontWeight = this.fontWeight;

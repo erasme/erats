@@ -22928,7 +22928,6 @@ var Ui;
             return _this;
         }
         ComboPopup.prototype.onSearchChange = function (field, value) {
-            console.log("onSearchChange value: " + value + ", allowNone: " + this.allowNone);
             if (value == '' && this.allowNone)
                 this.emptyField.show();
             else
