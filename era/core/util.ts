@@ -623,6 +623,13 @@ if (!Array.prototype.find) {
   };
 }
 
+// Provide a polyfill for log10
+if (!Math.log10) {
+  Math.log10 = function(x) {
+    return Math.log(x) * Math.LOG10E;
+  };
+}
+
 
 /*
 // Implement trim if it's not natively available
