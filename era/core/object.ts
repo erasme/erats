@@ -26,7 +26,7 @@ namespace Core {
             if ('name' in this.constructor)
                 return this.constructor['name'];
             else
-                return /function (.{1,})\(/.exec((this.constructor as any).toString())[0];
+                return /function (.{1,})\(/.exec((this.constructor as any).toString())[1];
         }
 
         /*protected assign(init?: object) {
