@@ -445,14 +445,14 @@ namespace Ui
 
         protected onReady() {
             if (this._loaded) {
-                document.documentElement.style.position = 'fixed';
+                document.documentElement.style.position = 'absolute';
                 document.documentElement.style.padding = '0px';
                 document.documentElement.style.margin = '0px';
                 document.documentElement.style.border = '0px solid black';
                 document.documentElement.style.width = '100%';
                 document.documentElement.style.height = '100%';
 
-                document.body.style.position = 'fixed';
+                document.body.style.position = 'absolute';
                 document.body.style.overflow = 'hidden';
                 document.body.style.padding = '0px';
                 document.body.style.margin = '0px';
