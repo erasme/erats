@@ -257,10 +257,6 @@ namespace Ui {
                     this.labelDrawing.style.webkitTransform = matrix.toString();
                     this.labelDrawing.style.webkitTransformOrigin = '0% 0%';
                 }
-                else if (Core.Navigator.isOpera) {
-                    (this.labelDrawing.style as any).OTransform = matrix.toString();
-                    (this.labelDrawing.style as any).OTransformOrigin = '0% 0%';
-                }
             }
             else {
                 if (Core.Navigator.isIE && ('removeProperty' in this.labelDrawing.style))
@@ -269,8 +265,6 @@ namespace Ui {
                     this.labelDrawing.style.removeProperty('-moz-transform');
                 else if (Core.Navigator.isWebkit)
                     this.labelDrawing.style.removeProperty('-webkit-transform');
-                else if (Core.Navigator.isOpera)
-                    this.labelDrawing.style.removeProperty('-o-transform');
             }
         }
 
