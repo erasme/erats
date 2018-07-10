@@ -68,7 +68,7 @@ namespace Ui {
         }
     }
 
-    export interface ScrollingAreaInit extends ScrollableInit {
+/*    export interface ScrollingAreaInit extends ScrollableInit {
     }
 
     export class ScrollingArea extends Scrollable implements ScrollingAreaInit {
@@ -98,6 +98,32 @@ namespace Ui {
         static style: any = {
             color: 'rgba(50,50,50,0.7)',
             radius: 0
+        }
+    }*/
+
+    export interface ScrollingAreaInit extends NativeScrollingAreaInit {
+        maxScale?: number;
+        content?: Element;
+        inertia?: boolean;
+        scrollHorizontal?: boolean;
+        scrollVertical?: boolean;
+        scale?: number;
+        onscrolled?: (event: { target: NativeScrollable, offsetX: number, offsetY: number }) => void;
+    }
+
+    export class ScrollingArea extends NativeScrollingArea {
+        constructor(init?: ScrollingAreaInit) {
+            super(init);
+            if (init) {
+                if (init.content != undefined)
+                    this.content = init.content;
+                if (init.scrollHorizontal != undefined)
+                    this.scrollHorizontal = init.scrollHorizontal;
+                if (init.scrollVertical != undefined)
+                    this.scrollVertical = init.scrollVertical;
+                if (init.onscrolled != undefined)
+                    this.scrolled.connect(init.onscrolled);
+            }
         }
     }
 }

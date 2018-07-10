@@ -1,16 +1,17 @@
 namespace Ui {
-    export class NativeScrollableContent extends Ui.Container {
+
+    export class NativeScrollableContent extends Container {
         private _content: Ui.Element | undefined;
         private scrollDiv!: HTMLDivElement;
         readonly scrolled = new Core.Events<{ target: NativeScrollableContent, offsetX: number, offsetY: number }>();
         set onscrolled(value: (event: { target: NativeScrollableContent, offsetX: number, offsetY: number }) => void) { this.scrolled.connect(value); }
-    
+
         constructor() {
             super();
             this.focusable = false;
             this.containerDrawing = this.scrollDiv;
         }
-    
+
         renderDrawing(): HTMLDivElement {
             let drawing = super.renderDrawing();
             drawing.style.overflow = 'hidden';
@@ -21,16 +22,21 @@ namespace Ui {
             this.scrollDiv.style.right = `-${NativeScrollableContent.nativeScrollBarWidth}px`;
             this.scrollDiv.style.bottom = `-${NativeScrollableContent.nativeScrollBarHeight}px`;
             this.scrollDiv.style.overflow = 'scroll';
+            // added for Chrome performance problem
+            this.scrollDiv.style.setProperty('will-change', 'transform');
+            // added for Chrome performance problem
+            this.scrollDiv.style.setProperty('transform', 'translateZ(0)');
+            // added for iOS to allow scrolling
             this.scrollDiv.style.setProperty('-webkit-overflow-scrolling', 'touch');
             this.scrollDiv.onscroll = () => this.onScroll();
             drawing.appendChild(this.scrollDiv);
             return drawing;
         }
-    
+
         get content(): Ui.Element | undefined {
             return this._content;
         }
-    
+
         set content(value: Ui.Element | undefined) {
             if (value !== this._content) {
                 if (this._content !== undefined)
@@ -40,59 +46,59 @@ namespace Ui {
                     this.appendChild(this._content);
             }
         }
-    
+
         get offsetX(): number {
             return this.scrollDiv.scrollLeft;
         }
-    
+
         get offsetY(): number {
             return this.scrollDiv.scrollTop;
         }
-    
+
         stopInertia() {
         }
-    
+
         setOffset(x: number, y: number) {
             this.scrollDiv.scrollLeft = x;
             this.scrollDiv.scrollTop = y;
         }
-    
+
         get contentWidth(): number {
             return this._content ? this._content.layoutWidth : 0;
         }
-    
+
         get contentHeight(): number {
             return this._content ? this._content.layoutHeight : 0;
         }
-    
+
         protected measureCore(width: number, height: number) {
             let size = { width: 0, height: 0 };
             if (this._content)
                 size = this._content.measure(width, height);
             return size;
         }
-    
+
         protected arrangeCore(width: number, height: number) {
             super.arrangeCore(Math.max(width, this.measureWidth), Math.max(height, this.measureHeight));
             if (this._content)
                 this._content.arrange(0, 0, Math.max(width, this._content.measureWidth), Math.max(height, this._content.measureHeight));
         }
-    
+
         protected onScroll() {
             this.scrolled.fire({ target: this, offsetX: this.offsetX, offsetY: this.offsetY });
         }
-    
+
         getInverseLayoutTransform(): Ui.Matrix {
             return Ui.Matrix.createTranslate(-this.scrollDiv.scrollLeft, -this.scrollDiv.scrollTop).multiply(super.getInverseLayoutTransform());
         }
-    
+
         getLayoutTransform(): Ui.Matrix {
             return super.getLayoutTransform().multiply(Ui.Matrix.createTranslate(this.scrollDiv.scrollLeft, this.scrollDiv.scrollTop));
         }
-    
+
         static nativeScrollBarWidth = 0;
         static nativeScrollBarHeight = 0;
-    
+
         static initialize() {
             let div = document.createElement('div');
             div.style.position = 'absolute';
@@ -109,9 +115,15 @@ namespace Ui {
             document.body.removeChild(div);
         }
     }
-    
+
     NativeScrollableContent.initialize();
-    
+
+    export interface NativeScrollableInit extends ContainerInit {
+        content?: Element | undefined;
+        scrollHorizontal?: boolean;
+        scrollVertical?: boolean;
+    }
+
     export class NativeScrollable extends Ui.Container {
         private contentBox: NativeScrollableContent;
         private _scrollHorizontal: boolean = true;
@@ -137,13 +149,14 @@ namespace Ui {
         scrollbarHorizontalWidth: number = 0;
         readonly scrolled = new Core.Events<{ target: NativeScrollable, offsetX: number, offsetY: number }>();
         set onscrolled(value: (event: { target: NativeScrollable, offsetX: number, offsetY: number }) => void) { this.scrolled.connect(value); }
-    
-        constructor() {
-            super();
+
+        constructor(init?: NativeScrollableInit) {
+            super(init);
+            this.clipToBounds = true;
             this.contentBox = new NativeScrollableContent();
             this.contentBox.scrolled.connect(() => this.onScroll());
             this.appendChild(this.contentBox);
-    
+
             new Ui.OverWatcher({
                 element: this,
                 onentered: () => {
@@ -157,38 +170,47 @@ namespace Ui {
             });
             this.setScrollbarHorizontal(new Ui.Movable());
             this.setScrollbarVertical(new Ui.Movable());
+
+            if (init) {
+                if (init.content !== undefined)
+                    this.content = init.content;
+                if (init.scrollHorizontal !== undefined)
+                    this.scrollHorizontal = init.scrollHorizontal;
+                if (init.scrollVertical !== undefined)
+                    this.scrollVertical = init.scrollVertical;
+            }
         }
-    
+
         set content(content: Ui.Element | undefined) {
             this.contentBox.content = content;
         }
-    
+
         get content(): Ui.Element | undefined {
             return this.contentBox.content;
         }
-    
+
         get scrollHorizontal(): boolean {
             return this._scrollHorizontal;
         }
-    
+
         set scrollHorizontal(scroll: boolean) {
             if (scroll !== this._scrollHorizontal) {
                 this._scrollHorizontal = scroll;
                 this.invalidateMeasure();
             }
         }
-    
+
         get scrollVertical(): boolean {
             return this._scrollVertical;
         }
-    
+
         set scrollVertical(scroll: boolean) {
             if (scroll !== this._scrollVertical) {
                 this._scrollVertical = scroll;
                 this.invalidateMeasure();
             }
         }
-    
+
         setScrollbarVertical(scrollbarVertical: Ui.Movable) {
             if (this.scrollbarVerticalBox) {
                 this.scrollbarVerticalBox.downed.disconnect(this.autoShowScrollbars);
@@ -204,9 +226,11 @@ namespace Ui {
                 this.scrollbarVerticalBox.upped.connect(this.autoHideScrollbars);
                 this.scrollbarVerticalBox.moved.connect(this.onScrollbarVerticalMove);
                 this.appendChild(this.scrollbarVerticalBox);
+                if (NativeScrollableContent.nativeScrollBarHeight == 0)
+                    this.scrollbarVerticalBox.hide(true);
             }
         }
-    
+
         setScrollbarHorizontal(scrollbarHorizontal: Ui.Movable) {
             if (this.scrollbarHorizontalBox) {
                 this.scrollbarHorizontalBox.downed.disconnect(this.autoShowScrollbars);
@@ -222,11 +246,13 @@ namespace Ui {
                 this.scrollbarHorizontalBox.upped.connect(this.autoHideScrollbars);
                 this.scrollbarHorizontalBox.moved.connect(this.onScrollbarHorizontalMove);
                 this.appendChild(this.scrollbarHorizontalBox);
+                if (NativeScrollableContent.nativeScrollBarWidth == 0)
+                    this.scrollbarHorizontalBox.hide(true);
             }
         }
-    
+
         setOffset(offsetX?: number, offsetY?: number, absolute: boolean = false, align: boolean = false) {
-    
+
             if (absolute === undefined)
                 absolute = false;
             if (offsetX === undefined)
@@ -237,7 +263,7 @@ namespace Ui {
                 offsetY = this.offsetY;
             else if (!absolute)
                 offsetY *= this.contentHeight - this.viewHeight;
-    
+
             if (offsetX < 0)
                 offsetX = 0;
             else if (this.viewWidth + offsetX > this.contentWidth)
@@ -246,7 +272,7 @@ namespace Ui {
                 offsetY = 0;
             else if (this.viewHeight + offsetY > this.contentHeight)
                 offsetY = this.contentHeight - this.viewHeight;
-    
+
             if (this.contentWidth <= this.viewWidth)
                 this.relativeOffsetX = 0;
             else
@@ -255,7 +281,7 @@ namespace Ui {
                 this.relativeOffsetY = 0;
             else
                 this.relativeOffsetY = offsetY / (this.contentHeight - this.viewHeight);
-    
+
             if (align) {
                 offsetX = Math.round(offsetX);
                 offsetY = Math.round(offsetY);
@@ -269,23 +295,23 @@ namespace Ui {
             else
                 return false;
         }
-    
+
         getOffsetX() {
             return this.contentBox.offsetX;
         }
-    
+
         getRelativeOffsetX() {
             return this.relativeOffsetX;
         }
-    
+
         getOffsetY() {
             return this.contentBox.offsetY;
         }
-    
+
         getRelativeOffsetY() {
             return this.relativeOffsetY;
         }
-    
+
         autoShowScrollbars = () => {
             if (this.showClock === undefined) {
                 this.showClock = new Anim.Clock({ duration: 'forever' });
@@ -293,7 +319,7 @@ namespace Ui {
                 this.showClock.begin();
             }
         }
-    
+
         autoHideScrollbars = () => {
             if (this.isOver)
                 return;
@@ -303,7 +329,7 @@ namespace Ui {
                 this.showClock.begin();
             }
         }
-    
+
         protected onShowBarsTick(clock: Anim.Clock, progress: number, delta: number) {
             let show = this.isOver;
             if (this.scrollbarVerticalBox)
@@ -312,7 +338,7 @@ namespace Ui {
                 show = show || this.scrollbarHorizontalBox.isDown;
             let stop = false;
             let speed = 2;
-    
+
             let opacity = this.scrollbarHorizontalBox.opacity;
             if (show) {
                 opacity += (delta * speed);
@@ -338,25 +364,25 @@ namespace Ui {
                 this.showClock = undefined;
             }
         }
-    
+
         protected onScroll() {
             this.updateOffset();
             this.scrolled.fire({ target: this, offsetX: this.offsetX, offsetY: this.offsetY });
         }
-    
+
         updateOffset() {
             if (this.contentBox === undefined)
                 return;
-    
+
             this.offsetX = this.contentBox.offsetX;
             this.offsetY = this.contentBox.offsetY;
-    
+
             this.viewWidth = this.layoutWidth;
             this.viewHeight = this.layoutHeight;
-    
+
             this.contentWidth = this.contentBox.contentWidth;
             this.contentHeight = this.contentBox.contentHeight;
-    
+
             if (this.contentWidth <= this.viewWidth)
                 this.relativeOffsetX = 0;
             else
@@ -365,7 +391,7 @@ namespace Ui {
                 this.relativeOffsetY = 0;
             else
                 this.relativeOffsetY = this.offsetY / (this.contentHeight - this.viewHeight);
-    
+
             if (this.contentHeight > this.viewHeight)
                 this.scrollbarVerticalNeeded = true;
             else
@@ -374,12 +400,13 @@ namespace Ui {
                 this.scrollbarHorizontalNeeded = true;
             else
                 this.scrollbarHorizontalNeeded = false;
-    
+
             if (this.scrollbarVerticalNeeded) {
                 if (this.scrollbarVerticalBox) {
                     this.scrollbarVerticalHeight = Math.max((this.viewHeight / this.contentHeight) * this.viewHeight, this.scrollbarVerticalBox.measureHeight);
                     this.scrollbarVerticalBox.arrange(this.layoutWidth - this.scrollbarVerticalBox.measureWidth, 0,
                         this.scrollbarVerticalBox.measureWidth, this.scrollbarVerticalHeight);
+                    if (NativeScrollableContent.nativeScrollBarHeight != 0)
                     this.scrollbarVerticalBox.show();
                 }
             }
@@ -388,14 +415,16 @@ namespace Ui {
                     this.scrollbarVerticalBox.hide();
                 this.offsetY = 0;
             }
-    
-    
+
+
             if (this.scrollbarHorizontalNeeded) {
                 if (this.scrollbarHorizontalBox) {
                     this.scrollbarHorizontalWidth = Math.max((this.viewWidth / this.contentWidth) * this.viewWidth, this.scrollbarHorizontalBox.measureWidth);
                     this.scrollbarHorizontalBox.arrange(0, this.layoutHeight - this.scrollbarHorizontalBox.measureHeight,
                         this.scrollbarHorizontalWidth, this.scrollbarHorizontalBox.measureHeight);
-                    this.scrollbarHorizontalBox.show();
+
+                    if (NativeScrollableContent.nativeScrollBarWidth != 0)
+                        this.scrollbarHorizontalBox.show();
                 }
             }
             else {
@@ -403,7 +432,7 @@ namespace Ui {
                     this.scrollbarHorizontalBox.hide();
                 this.offsetX = 0;
             }
-    
+
             this.scrollLock = true;
             if (this.scrollbarHorizontalNeeded) {
                 let relOffsetX = this.offsetX / (this.contentWidth - this.viewWidth);
@@ -425,7 +454,7 @@ namespace Ui {
             }
             this.scrollLock = false;
         }
-    
+
         protected onScrollbarHorizontalMove = () => {
             if (this.scrollLock)
                 return;
@@ -434,7 +463,7 @@ namespace Ui {
             this.setOffset(offsetX, undefined, false, true);
             this.scrollbarHorizontalBox!.setPosition(offsetX * totalWidth, undefined);
         }
-    
+
         protected onScrollbarVerticalMove = () => {
             if (this.scrollLock)
                 return;
@@ -443,15 +472,15 @@ namespace Ui {
             this.setOffset(undefined, offsetY, false, true);
             this.scrollbarVerticalBox!.setPosition(undefined, offsetY * totalHeight);
         }
-    
+
         protected measureCore(width: number, height: number) {
             let size = { width: 0, height: 0 };
-    
+
             if (this.scrollbarHorizontalBox)
                 this.scrollbarHorizontalBox.measure(width, height);
             if (this.scrollbarVerticalBox)
                 this.scrollbarVerticalBox.measure(width, height);
-    
+
             let contentSize = this.contentBox.measure(width, height);
             if (contentSize.width < width)
                 size.width = contentSize.width;
@@ -467,7 +496,7 @@ namespace Ui {
                 size.width = contentSize.width;
             return size;
         }
-    
+
         protected arrangeCore(width: number, height: number) {
             this.viewWidth = width;
             this.viewHeight = height;
@@ -477,43 +506,37 @@ namespace Ui {
             this.updateOffset();
         }
     }
-    
+
+    export interface NativeScrollingAreaInit extends NativeScrollableInit {
+    }
+
     export class NativeScrollingArea extends NativeScrollable {
-    
+
         private horizontalScrollbar: Ui.Scrollbar;
         private verticalScrollbar: Ui.Scrollbar;
-    
-        constructor() {
-            super();
+
+        constructor(init?: NativeScrollableInit) {
+            super(init);
             this.horizontalScrollbar = new Ui.Scrollbar('horizontal');
             this.setScrollbarHorizontal(this.horizontalScrollbar);
-    
+
             this.verticalScrollbar = new Ui.Scrollbar('vertical');
             this.setScrollbarVertical(this.verticalScrollbar);
         }
-    
+
         protected onStyleChange() {
             let radius = this.getStyleProperty('radius');
             this.horizontalScrollbar.radius = radius;
             this.verticalScrollbar.radius = radius;
-    
+
             let color = this.getStyleProperty('color');
             this.horizontalScrollbar.fill = color;
             this.verticalScrollbar.fill = color;
         }
-    
+
         static style: any = {
             color: 'rgba(50,50,50,0.7)',
             radius: 0
         }
     }
-
-/*    export interface ScrollingAreaInit extends NativeScrollingAreaInit {
-    }
-
-    export class ScrollingArea extends NativeScrollingArea {
-        constructor(init?: ScrollingAreaInit) {
-            super(init);
-        }
-    }*/
 }
