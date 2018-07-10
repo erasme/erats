@@ -172,8 +172,6 @@ namespace Ui {
         private headers: HeaderDef[];
         private _data: any;
         readonly cells: ListViewCell[];
-        private background: Rectangle;
-        private sep: Rectangle;
         private selectionActions: SelectionActions;
         readonly selectionWatcher: SelectionableWatcher;
         readonly listView: ListView;
@@ -184,6 +182,9 @@ namespace Ui {
 
         constructor(init: ListViewRowInit) {
             super();
+            this.drawing.style.boxSizing = 'border-box';
+            this.drawing.style.borderBottomStyle = 'solid';
+            this.drawing.style.borderBottomWidth = '1px';
             this.listView = init.listView;
             this.headers = this.listView.headers;
             this._data = init.data;
@@ -192,10 +193,6 @@ namespace Ui {
                 this.height = init.height;
             this.cells = [];
 
-            this.background = new Rectangle();
-            this.appendChild(this.background);
-            this.sep = new Rectangle({ verticalAlign: 'bottom', height: 1, fill: 'rgba(0,0,0,0.5)' });
-            this.appendChild(this.sep);
             for (let col = 0; col < this.headers.length; col++) {
                 let key = this.headers[col].key;
                 let cell: ListViewCell;
@@ -251,12 +248,9 @@ namespace Ui {
         }
 
         protected measureCore(width: number, height: number) {
-            this.background.measure(width, height);
-            this.sep.measure(width, height);
             let minHeight = 0;
             let minWidth = 0;
             for (let col = 0; col < this.headers.length; col++) {
-                let header = this.headers[col];
                 let child = this.cells[col];
                 let size = child.measure(0, 0);
                 if (size.height > minHeight)
@@ -267,11 +261,8 @@ namespace Ui {
         }
 
         protected arrangeCore(width: number, height: number) {
-            this.background.arrange(0, 0, width, height);
-            this.sep.arrange(0, 0, width, height);
             let x = 0;
             for (let col = 0; col < this.headers.length; col++) {
-                let header = this.headers[col];
                 let cell = this.cells[col];
                 let colWidth = this.listView.headersBar.uis[col].layoutWidth;
                 cell.arrange(x, 0, colWidth, height);
@@ -281,10 +272,10 @@ namespace Ui {
 
         protected onStyleChange() {
             if (this.selectionWatcher.isSelected)
-                this.background.fill = this.getStyleProperty('selectColor');
+                this.drawing.style.background = Color.create(this.getStyleProperty('selectColor')).getCssRgba();
             else
-                this.background.fill = this.getStyleProperty('color');
-            this.sep.fill = this.getStyleProperty('sepColor');
+                this.drawing.style.background = Color.create(this.getStyleProperty('color')).getCssRgba();
+            this.drawing.style.borderColor = Color.create(this.getStyleProperty('sepColor')).getCssRgba();
         }
 
         static style: object = {
