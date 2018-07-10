@@ -21,19 +21,19 @@ namespace Ui {
             super(init);
             if (init) {
                 if (init.frameWidth !== undefined)
-                    this.frameWidth = init.frameWidth;	
+                    this.frameWidth = init.frameWidth;
                 if (init.fill !== undefined)
-                    this.fill = init.fill;	
+                    this.fill = init.fill;
                 if (init.radius !== undefined)
-                    this.radius = init.radius;	
+                    this.radius = init.radius;
                 if (init.radiusTopLeft !== undefined)
-                    this.radiusTopLeft = init.radiusTopLeft;	
+                    this.radiusTopLeft = init.radiusTopLeft;
                 if (init.radiusTopRight !== undefined)
-                    this.radiusTopRight = init.radiusTopRight;	
+                    this.radiusTopRight = init.radiusTopRight;
                 if (init.radiusBottomLeft !== undefined)
-                    this.radiusBottomLeft = init.radiusBottomLeft;	
+                    this.radiusBottomLeft = init.radiusBottomLeft;
                 if (init.radiusBottomRight !== undefined)
-                    this.radiusBottomRight = init.radiusBottomRight;	
+                    this.radiusBottomRight = init.radiusBottomRight;
             }
         }
 
@@ -143,5 +143,4 @@ namespace Ui {
             ctx.fill();
         }
     }
-}	
-    
+}
