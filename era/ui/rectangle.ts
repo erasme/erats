@@ -1,5 +1,4 @@
-namespace Ui
-{
+namespace Ui {
     export interface RectangleInit extends CanvasElementInit {
         fill?: Color | LinearGradient | string;
         radius?: number;
@@ -9,8 +8,7 @@ namespace Ui
         radiusBottomRight?: number;
     }
 
-    export class Rectangle extends CanvasElement implements RectangleInit
-    {
+    export class Rectangle extends Element implements RectangleInit {
         private _fill: Color | LinearGradient;
         private _radiusTopLeft: number = 0;
         private _radiusTopRight: number = 0;
@@ -22,13 +20,13 @@ namespace Ui
             this._fill = new Ui.Color(0, 0, 0);
             if (init) {
                 if (init.fill !== undefined)
-                    this.fill = init.fill;	
+                    this.fill = init.fill;
                 if (init.radius !== undefined)
-                    this.radius = init.radius;	
+                    this.radius = init.radius;
                 if (init.radiusTopLeft != undefined)
-                    this.radiusTopLeft = init.radiusTopLeft;	
+                    this.radiusTopLeft = init.radiusTopLeft;
                 if (init.radiusTopRight !== undefined)
-                    this.radiusTopRight = init.radiusTopRight;	
+                    this.radiusTopRight = init.radiusTopRight;
                 if (init.radiusBottomLeft !== undefined)
                     this.radiusBottomLeft = init.radiusBottomLeft;
                 if (init.radiusBottomRight !== undefined)
@@ -39,9 +37,12 @@ namespace Ui
         set fill(fill: Color | LinearGradient | string) {
             if (this._fill !== fill) {
                 if (typeof (fill) === 'string')
-                    fill = Ui.Color.create(fill);
+                    fill = Color.create(fill);
                 this._fill = fill;
-                this.invalidateDraw();
+                if (this._fill instanceof Color)
+                    this.drawing.style.background = this._fill.getCssRgba();
+                else if (this._fill instanceof LinearGradient)
+                    this.drawing.style.background = this._fill.getBackgroundImage();
             }
         }
 
@@ -57,10 +58,8 @@ namespace Ui
         }
 
         set radiusTopLeft(radiusTopLeft: number) {
-            if (this._radiusTopLeft != radiusTopLeft) {
-                this._radiusTopLeft = radiusTopLeft;
-                this.invalidateDraw();
-            }
+            this._radiusTopLeft = radiusTopLeft;
+            this.drawing.style.borderTopLeftRadius = `${radiusTopLeft}px`;
         }
 
         get radiusTopRight(): number {
@@ -68,10 +67,8 @@ namespace Ui
         }
 
         set radiusTopRight(radiusTopRight: number) {
-            if (this._radiusTopRight != radiusTopRight) {
-                this._radiusTopRight = radiusTopRight;
-                this.invalidateDraw();
-            }
+            this._radiusTopRight = radiusTopRight;
+            this.drawing.style.borderTopRightRadius = `${radiusTopRight}px`;
         }
 
         get radiusBottomLeft(): number {
@@ -79,10 +76,8 @@ namespace Ui
         }
 
         set radiusBottomLeft(radiusBottomLeft: number) {
-            if (this._radiusBottomLeft != radiusBottomLeft) {
-                this._radiusBottomLeft = radiusBottomLeft;
-                this.invalidateDraw();
-            }
+            this._radiusTopRight = radiusBottomLeft;
+            this.drawing.style.borderBottomLeftRadius = `${radiusBottomLeft}px`;
         }
 
         get radiusBottomRight(): number {
@@ -90,45 +85,9 @@ namespace Ui
         }
 
         set radiusBottomRight(radiusBottomRight: number) {
-            if (this._radiusBottomRight != radiusBottomRight) {
-                this._radiusBottomRight = radiusBottomRight;
-                this.invalidateDraw();
-            }
-        }
-
-        updateCanvas(ctx) {
-            let w = this.layoutWidth;
-            let h = this.layoutHeight;
-            let topLeft = this._radiusTopLeft;
-            let topRight = this._radiusTopRight;
-            if (topLeft + topRight > w) {
-                topLeft = w / 2;
-                topRight = w / 2;
-            }
-            let bottomLeft = this._radiusBottomLeft;
-            let bottomRight = this._radiusBottomRight;
-            if (bottomLeft + bottomRight > w) {
-                bottomLeft = w / 2;
-                bottomRight = w / 2;
-            }
-            if (topLeft + bottomLeft > h) {
-                topLeft = h / 2;
-                bottomLeft = h / 2;
-            }
-            if (topRight + bottomRight > h) {
-                topRight = h / 2;
-                bottomRight = h / 2;
-            }
-
-            ctx.beginPath();
-            ctx.roundRect(0, 0, w, h, topLeft, topRight, bottomRight, bottomLeft);
-            ctx.closePath();
-            if (this._fill instanceof Color)
-                ctx.fillStyle = this._fill.getCssRgba();
-            else if (this._fill instanceof LinearGradient)
-                ctx.fillStyle = this._fill.getCanvasGradient(ctx, w, h);
-            ctx.fill();
+            this._radiusTopRight = radiusBottomRight;
+            this.drawing.style.borderBottomRightRadius = `${radiusBottomRight}px`;
         }
     }
-}	
+}
 
