@@ -215,7 +215,7 @@ namespace Ui
         set interLine(interLine: number) {
             if (this._interLine !== interLine) {
                 this._interLine = interLine;
-                this.drawing.style.lineHeight = this.interLine;
+                this.drawing.style.lineHeight = this.interLine.toString();
                 this.invalidateMeasure();
             }
         }
@@ -302,7 +302,7 @@ namespace Ui
                 this.drawing.style.color = this.getColor().getCssRgba();
             else
                 this.drawing.style.color = this.getColor().getCssHtml();
-            this.drawing.style.lineHeight = this.interLine;
+            this.drawing.style.lineHeight = this.interLine.toString();
             this.drawing.style.wordWrap = this.wordWrap;
         }
 
