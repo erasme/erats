@@ -163,8 +163,8 @@ namespace Ui {
                     context.backingStorePixelRatio || 1;
             }
             this.dpiRatio = devicePixelRatio / backingStoreRatio;
-            this.drawing.setAttribute('width', Math.ceil(width * this.dpiRatio), null);
-            this.drawing.setAttribute('height', Math.ceil(height * this.dpiRatio), null);
+            this.drawing.setAttribute('width', Math.ceil(width * this.dpiRatio).toString());
+            this.drawing.setAttribute('height', Math.ceil(height * this.dpiRatio).toString());
 
             if (this.isVisible && this.isLoaded)
                 this.update();
