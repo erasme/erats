@@ -12,7 +12,7 @@ namespace Ui {
         protected _duration: number = 0.5;
         protected _ease: Anim.EasingFunction;
         protected _position: number = -1;
-        protected transitionClock: Anim.Clock;
+        protected transitionClock?: Anim.Clock;
         protected _current: Element;
         protected next: Element;
         protected replaceMode: boolean = false;
@@ -102,6 +102,7 @@ namespace Ui {
                 if (this.transitionClock !== undefined) {
                     this.transitionClock.completed.disconnect(this.onTransitionComplete);
                     this.transitionClock.stop();
+                    this.transitionClock = undefined;
                 }
 
                 if (this._position != -1)
