@@ -1,130 +1,33 @@
-namespace Ui
-{
+namespace Ui {
+
     export class ButtonText extends CompactLabel { }
 
-    export class ButtonBackground extends CanvasElement
-    {
-        private _borderWidth: number = 1;
-        private _border: Color = undefined;
-        private _background: Color = undefined;
-        private _radius: number = 3;
+    export class ButtonBackground extends Element {
 
         constructor() {
             super();
+            this.drawing.style.boxSizing = 'border-box';
+            this.drawing.style.borderStyle = 'solid';
             this.border = 'black';
             this.background = 'white';
         }
 
         set borderWidth(borderWidth: number) {
-            this._borderWidth = borderWidth;
-            this.invalidateDraw();
+            this.drawing.style.borderWidth = `${borderWidth}px`;
         }
 
         set border(border: Color | string) {
-            this._border = Color.create(border);
-            this.invalidateDraw();
+            this.drawing.style.borderColor = Color.create(border).getCssRgba();
         }
 
         set radius(radius: number) {
-            this._radius = radius;
-            this.invalidateDraw();
+            this.drawing.style.borderRadius = `${radius}px`;
         }
 
         set background(background: Color | string) {
-            this._background = Color.create(background);
-            this.invalidateDraw();
-        }
-
-        updateCanvas(ctx) {
-            let w = this.layoutWidth;
-            let h = this.layoutHeight;
-
-            let radius = Math.min(this._radius, Math.min(w, h) / 2);
-
-            ctx.beginPath();
-            let br = Math.max(0, radius - this._borderWidth);
-            ctx.roundRect(this._borderWidth, this._borderWidth,
-                w - this._borderWidth * 2, h - this._borderWidth * 2,
-                br, br, br, br);
-            ctx.closePath();
-            ctx.fillStyle = this._background.getCssRgba();
-            ctx.fill();
-            if (this._borderWidth > 0) {
-                ctx.beginPath();
-                ctx.roundRect(0, 0, w, h, radius, radius, radius, radius);
-                ctx.roundRect(this._borderWidth, this._borderWidth,
-                    w - this._borderWidth * 2, h - this._borderWidth * 2,
-                    br, br, br, br, true);
-                ctx.closePath();
-                ctx.fillStyle = this._border.getCssRgba();
-                ctx.fill();
-            }
+            this.drawing.style.backgroundColor = Color.create(background).getCssRgba();
         }
     }
-
-    /*export class ButtonIcon extends CanvasElement
-    {
-        private _badge: string = undefined;
-        private _badgeColor: Color = undefined;
-        private _badgeTextColor: Color = undefined;
-        private _fill: Color = undefined;
-        private _icon: string = 'eye';
-
-        constructor() {
-            super();
-            this.fill = 'black';
-            this.badgeColor = 'red';
-            this.badgeTextColor = 'white';
-        }
-
-        get icon(): string {
-            return this._icon;
-        }
-
-        set icon(icon: string) {
-            this._icon = icon;
-            this.invalidateDraw();
-        }
-
-        set badge(badge: string) {
-            this._badge = badge;
-            this.invalidateDraw();
-        }
-
-        set badgeColor(badgeColor: Color | string) {
-            this._badgeColor = Color.create(badgeColor);
-            this.invalidateDraw();
-        }
-
-        set badgeTextColor(badgeTextColor: Color | string) {
-            this._badgeTextColor = Color.create(badgeTextColor);
-            this.invalidateDraw();
-        }
-
-        set fill(fill: Color | string) {
-            this._fill = Color.create(fill);
-            this.invalidateDraw();
-        }
-
-        updateCanvas(ctx) {
-            let w = this.layoutWidth;
-            let h = this.layoutHeight;
-            let iconSize = Math.min(w, h);
-
-            // icon
-            ctx.save();
-            ctx.translate((w - iconSize) / 2, (h - iconSize) / 2);
-
-            if (this._badge !== undefined)
-                Icon.drawIconAndBadge(ctx, this._icon, iconSize, this._fill.getCssRgba(),
-                    this._badge, iconSize / 2.5,
-                    this._badgeColor.getCssRgba(),
-                    this._badgeTextColor.getCssRgba());
-            else
-                Icon.drawIcon(ctx, this._icon, iconSize, this._fill.getCssRgba());
-            ctx.restore();
-        }
-    }*/
 
     export class ButtonBadge extends LBox
     {
@@ -319,10 +222,7 @@ namespace Ui
                         let ic = new ButtonIcon();
                         this._icon = ic;
                         ic.icon = icon;
-//                        ic.badge = this._badge;
                         ic.fill = this.getForegroundColor();
-//                        ic.badgeColor = this.getStyleProperty('badgeColor');
-//                        ic.badgeTextColor = this.getStyleProperty('badgeTextColor');
                         this.iconBox.content = this._icon;
                         if (this._badgeContent)
                             this.iconBox.append(this._badgeContent);
@@ -332,10 +232,7 @@ namespace Ui
                     let ic = new ButtonIcon();
                     this._icon = ic
                     ic.icon = icon;
-//                    ic.badge = this._badge;
                     ic.fill = this.getForegroundColor();
-//                    ic.badgeColor = this.getStyleProperty('badgeColor');
-//                    ic.badgeTextColor = this.getStyleProperty('badgeTextColor');
                     this._iconBox.content = this._icon;
                     if (this._badgeContent)
                         this.iconBox.append(this._badgeContent);
@@ -390,10 +287,6 @@ namespace Ui
                 this.iconBox.append(this._badgeContent);
             }
             this._badgeContent.badge = text;
-
-//            if (this._icon instanceof ButtonIcon) {
-//                this._icon.badge = text;
-//            }
         }
 
         get orientation(): Orientation {
@@ -542,11 +435,8 @@ namespace Ui
             }
             if (this._text instanceof ButtonText)
                 this._text.color = fg;
-            if (this._icon instanceof ButtonIcon) {
+            if (this._icon instanceof ButtonIcon)
                 this._icon.fill = fg;
-//                this._icon.badgeColor = this.getStyleProperty('badgeColor');
-//                this._icon.badgeTextColor = this.getStyleProperty('badgeTextColor');
-            }
             if (this._badgeContent) {
                 this._badgeContent.badgeColor = this.getStyleProperty('badgeColor');
                 this._badgeContent.badgeTextColor = this.getStyleProperty('badgeTextColor');

@@ -15,7 +15,6 @@ namespace Ui
         popupSelection: Selection;
         background: PopupBackground;
         shadow: Pressable;
-        shadowGraphic: Rectangle;
         contextBox: ContextBar;
         contentBox: LBox;
         scroll: ScrollingArea;
@@ -43,9 +42,6 @@ namespace Ui
             this.shadow.focusable = false;
             this.shadow.drawing.style.cursor = 'inherit';
             this.appendChild(this.shadow);
-
-            this.shadowGraphic = new Rectangle();
-            this.shadow.content = this.shadowGraphic;
 
             this.background = new PopupBackground();
             this.background.radius = 0;
@@ -123,9 +119,7 @@ namespace Ui
                 progress = 1 - progress;
         
             this.opacity = progress;
-
             let arrowBorder = this.background.arrowBorder;
-            let arrowOffset = this.background.arrowOffset;
 
             if (arrowBorder === 'right') {
                 this.background.transform = Matrix.createTranslate(20 * (1 - progress), 0);
@@ -163,7 +157,7 @@ namespace Ui
 
         protected onStyleChange() {
             this.background.fill = this.getStyleProperty('background');
-            this.shadowGraphic.fill = this.getStyleProperty('shadow');
+            this.shadow.drawing.style.backgroundColor = Color.create(this.getStyleProperty('shadow')).getCssRgba();
         }
 
         protected onChildInvalidateMeasure(child: Element, type) {
