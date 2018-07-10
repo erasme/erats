@@ -2600,7 +2600,7 @@ var Anim;
             _this._parent = undefined;
             _this._time = undefined;
             _this._iteration = undefined;
-            _this._progress = undefined;
+            _this._progress = 0;
             _this._isActive = false;
             _this._globalTime = 0;
             _this.startTime = 0;
@@ -2846,7 +2846,7 @@ var Anim;
                         this.lastTick = this.startTime;
                         if (this._beginTime > 0) {
                             this._time = undefined;
-                            this._progress = undefined;
+                            this._progress = 0;
                             this._iteration = undefined;
                         }
                         else {
@@ -3638,29 +3638,27 @@ var Ui;
                 _this.isMouseDownFocus = false;
                 window.removeEventListener('mouseup', _this.onMouseUpFocus);
             };
-            _this._drawing = _this.renderDrawing();
+            _this.drawing = _this.renderDrawing();
             if (DEBUG) {
-                _this._drawing.setAttribute('class', _this.getClassName());
-                _this._drawing.data = _this;
+                _this.drawing.setAttribute('eraClass', _this.getClassName());
+                _this.drawing.data = _this;
             }
-            _this._drawing.style.position = 'absolute';
-            _this._drawing.style.left = '0px';
-            _this._drawing.style.top = '0px';
-            _this._drawing.style.width = '0px';
-            _this._drawing.style.height = '0px';
-            _this._drawing.style.visibility = 'hidden';
-            _this._drawing.style.outline = 'none';
-            _this._drawing.style.transformOrigin = '0 0';
+            _this.drawing.style.position = 'absolute';
+            _this.drawing.style.left = '0px';
+            _this.drawing.style.top = '0px';
+            _this.drawing.style.width = '0px';
+            _this.drawing.style.height = '0px';
+            _this.drawing.style.visibility = 'hidden';
+            _this.drawing.style.outline = 'none';
+            _this.drawing.style.transformOrigin = '0 0';
             if (Core.Navigator.isIE)
-                _this._drawing.style.msTransformOrigin = '0 0';
+                _this.drawing.style.msTransformOrigin = '0 0';
             else if (Core.Navigator.isGecko)
-                _this._drawing.style.MozTransformOrigin = '0 0';
+                _this.drawing.style.MozTransformOrigin = '0 0';
             else if (Core.Navigator.isWebkit)
-                _this._drawing.style.webkitTransformOrigin = '0 0';
-            else if (Core.Navigator.isOpera)
-                _this._drawing.style.OTransformOrigin = '0 0';
-            _this._drawing.addEventListener('focus', function (e) { return _this.onFocus(e); });
-            _this._drawing.addEventListener('blur', function (e) { return _this.onBlur(e); });
+                _this.drawing.style.webkitTransformOrigin = '0 0';
+            _this.drawing.addEventListener('focus', function (e) { return _this.onFocus(e); });
+            _this.drawing.addEventListener('blur', function (e) { return _this.onBlur(e); });
             _this.selectable = false;
             if (init) {
                 if (init.selectable !== undefined)
@@ -3790,13 +3788,6 @@ var Ui;
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(Element.prototype, "drawing", {
-            get: function () {
-                return this._drawing;
-            },
-            enumerable: true,
-            configurable: true
-        });
         Object.defineProperty(Element.prototype, "selectable", {
             get: function () {
                 return this._selectable;
@@ -3852,10 +3843,10 @@ var Ui;
         });
         Object.defineProperty(Element.prototype, "id", {
             get: function () {
-                return this._drawing.getAttribute('id');
+                return this.drawing.getAttribute('id');
             },
             set: function (id) {
-                this._drawing.setAttribute('id', id);
+                this.drawing.setAttribute('id', id);
             },
             enumerable: true,
             configurable: true
@@ -3868,12 +3859,12 @@ var Ui;
                 if (this._focusable !== focusable) {
                     this._focusable = focusable;
                     if (focusable && !this.isDisabled) {
-                        this._drawing.tabIndex = 0;
+                        this.drawing.tabIndex = 0;
                         this.drawing.addEventListener('mousedown', this.onMouseDownFocus, true);
                     }
                     else {
                         this.drawing.removeEventListener('mousedown', this.onMouseDownFocus);
-                        this._drawing.removeAttribute('tabIndex');
+                        this.drawing.removeAttribute('tabIndex');
                     }
                 }
             },
@@ -3885,13 +3876,13 @@ var Ui;
         };
         Object.defineProperty(Element.prototype, "role", {
             set: function (role) {
-                if ('setAttributeNS' in this._drawing) {
+                if ('setAttributeNS' in this.drawing) {
                     if (role === undefined) {
-                        if (this._drawing.hasAttributeNS('http://www.w3.org/2005/07/aaa', 'role'))
-                            this._drawing.removeAttributeNS('http://www.w3.org/2005/07/aaa', 'role');
+                        if (this.drawing.hasAttributeNS('http://www.w3.org/2005/07/aaa', 'role'))
+                            this.drawing.removeAttributeNS('http://www.w3.org/2005/07/aaa', 'role');
                     }
                     else
-                        this._drawing.setAttributeNS('http://www.w3.org/2005/07/aaa', 'role', role);
+                        this.drawing.setAttributeNS('http://www.w3.org/2005/07/aaa', 'role', role);
                 }
             },
             enumerable: true,
@@ -4038,19 +4029,19 @@ var Ui;
                 this._layoutY = y;
                 this._layoutWidth = Math.max(width, 0);
                 this._layoutHeight = Math.max(height, 0);
-                this._drawing.style.left = Math.round(this._layoutX) + 'px';
-                this._drawing.style.top = Math.round(this._layoutY) + 'px';
+                this.drawing.style.left = Math.round(this._layoutX) + 'px';
+                this.drawing.style.top = Math.round(this._layoutY) + 'px';
                 if (this._transform !== undefined)
                     this.updateTransform();
                 if (this._eventsHidden) {
-                    this._drawing.style.width = '0px';
-                    this._drawing.style.height = '0px';
+                    this.drawing.style.width = '0px';
+                    this.drawing.style.height = '0px';
                 }
                 else {
-                    this._drawing.style.width = Math.round(this._layoutWidth) + 'px';
-                    this._drawing.style.height = Math.round(this._layoutHeight) + 'px';
+                    this.drawing.style.width = Math.round(this._layoutWidth) + 'px';
+                    this.drawing.style.height = Math.round(this._layoutHeight) + 'px';
                 }
-                this._drawing.style.visibility = 'inherit';
+                this.drawing.style.visibility = 'inherit';
                 this.arrangeCore(this._layoutWidth, this._layoutHeight);
                 if (!this.arrangeValid)
                     console.log(this + ".arrange PROBLEM. Arrange invalidated during arrange");
@@ -4174,9 +4165,9 @@ var Ui;
                 if (this._clipToBounds !== clip) {
                     this._clipToBounds = clip;
                     if (clip)
-                        this._drawing.style.overflow = 'hidden';
+                        this.drawing.style.overflow = 'hidden';
                     else
-                        this._drawing.style.removeProperty('overflow');
+                        this.drawing.style.removeProperty('overflow');
                 }
             },
             enumerable: true,
@@ -4195,13 +4186,13 @@ var Ui;
                 var y = Math.round(this.clipY);
                 var width = Math.round(this.clipWidth);
                 var height = Math.round(this.clipHeight);
-                this._drawing.style.clip = 'rect(' + y + 'px ' + (x + width) + 'px ' + (y + height) + 'px ' + x + 'px)';
+                this.drawing.style.clip = 'rect(' + y + 'px ' + (x + width) + 'px ' + (y + height) + 'px ' + x + 'px)';
             }
             else {
-                if ('removeProperty' in this._drawing.style)
-                    this._drawing.style.removeProperty('clip');
-                else if ('removeAttribute' in this._drawing.style)
-                    this._drawing.style.removeAttribute('clip');
+                if ('removeProperty' in this.drawing.style)
+                    this.drawing.style.removeProperty('clip');
+                else if ('removeAttribute' in this.drawing.style)
+                    this.drawing.style.removeAttribute('clip');
             }
         };
         Object.defineProperty(Element.prototype, "margin", {
@@ -4273,7 +4264,7 @@ var Ui;
             set: function (opacity) {
                 if (this._opacity !== opacity) {
                     this._opacity = opacity;
-                    this._drawing.style.opacity = this._opacity;
+                    this.drawing.style.opacity = this._opacity.toString();
                 }
             },
             enumerable: true,
@@ -4282,14 +4273,14 @@ var Ui;
         Element.prototype.focus = function () {
             if (this._focusable) {
                 try {
-                    this._drawing.focus();
+                    this.drawing.focus();
                 }
                 catch (e) { }
             }
         };
         Element.prototype.blur = function () {
             try {
-                this._drawing.blur();
+                this.drawing.blur();
             }
             catch (e) { }
         };
@@ -4403,7 +4394,7 @@ var Ui;
             if ((this._visible === undefined) || this._visible) {
                 var old = this.isVisible;
                 this._visible = false;
-                this._drawing.style.display = 'none';
+                this.drawing.style.display = 'none';
                 this.collapse = collapse;
                 if (old)
                     this.onInternalHidden();
@@ -4415,7 +4406,7 @@ var Ui;
             if ((this._visible === undefined) || !this._visible) {
                 var old = this.isVisible;
                 this._visible = true;
-                this._drawing.style.display = 'block';
+                this.drawing.style.display = 'block';
                 if (this.isVisible && !old)
                     this.onInternalVisible();
                 if (this.collapse) {
@@ -4467,7 +4458,7 @@ var Ui;
             var visible = false;
             var current = this.drawing;
             while (current !== undefined) {
-                if (current.style.display === 'none') {
+                if (current instanceof HTMLElement && current.style.display === 'none') {
                     visible = false;
                     break;
                 }
@@ -4533,7 +4524,7 @@ var Ui;
         };
         Element.prototype.onInternalDisable = function () {
             if (this._focusable) {
-                this._drawing.tabIndex = -1;
+                this.drawing.tabIndex = -1;
                 if (this._hasFocus)
                     this.blur();
             }
@@ -4544,7 +4535,7 @@ var Ui;
         };
         Element.prototype.onInternalEnable = function () {
             if (this._focusable)
-                this._drawing.tabIndex = 0;
+                this.drawing.tabIndex = 0;
             this.onEnable();
             this.enabled.fire({ target: this });
         };
@@ -4768,22 +4759,13 @@ var Ui;
         });
         Element.prototype.onFocus = function (event) {
             if (!this._hasFocus && this._focusable && !this.isDisabled) {
-                if (event) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
                 this._hasFocus = true;
                 this.isMouseFocus = this.isMouseDownFocus;
-                this.scrollIntoView();
                 this.focused.fire({ target: this });
             }
         };
         Element.prototype.onBlur = function (event) {
             if (this._hasFocus) {
-                if (event) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
                 this.isMouseFocus = false;
                 this._hasFocus = false;
                 this.blurred.fire({ target: this });
@@ -4800,27 +4782,15 @@ var Ui;
                 }
                 if ((x !== 0) || (y !== 0))
                     matrix = Ui.Matrix.createTranslate(x, y).multiply(this._transform).translate(-x, -y);
-                this._drawing.style.transform = matrix.toString();
+                this.drawing.style.transform = matrix.toString();
                 if (Core.Navigator.isIE)
-                    this._drawing.style.msTransform = matrix.toString();
-                else if (Core.Navigator.isGecko)
-                    this._drawing.style.MozTransform = 'matrix(' + matrix.getA().toFixed(4) + ', ' + matrix.getB().toFixed(4) + ', ' + matrix.getC().toFixed(4) + ', ' + matrix.getD().toFixed(4) + ', ' + matrix.getE().toFixed(4) + 'px, ' + matrix.getF().toFixed(4) + 'px)';
-                else if (Core.Navigator.isWebkit)
-                    this._drawing.style.webkitTransform = matrix.toString() + ' translate3d(0,0,0)';
-                else if (Core.Navigator.isOpera)
-                    this._drawing.style.OTransform = matrix.toString();
+                    this.drawing.style.msTransform = matrix.toString();
             }
             else {
-                if ('removeProperty' in this._drawing.style)
-                    this._drawing.style.removeProperty('transform');
-                if (Core.Navigator.isIE && ('removeProperty' in this._drawing.style))
-                    this._drawing.style.removeProperty('-ms-transform');
-                else if (Core.Navigator.isGecko)
-                    this._drawing.style.removeProperty('-moz-transform');
-                else if (Core.Navigator.isWebkit)
-                    this._drawing.style.removeProperty('-webkit-transform');
-                else if (Core.Navigator.isOpera)
-                    this._drawing.style.removeProperty('-o-transform');
+                if ('removeProperty' in this.drawing.style)
+                    this.drawing.style.removeProperty('transform');
+                if (Core.Navigator.isIE && ('removeProperty' in this.drawing.style))
+                    this.drawing.style.removeProperty('-ms-transform');
             }
         };
         Element.prototype.setAnimClock = function (clock) {
@@ -5286,8 +5256,8 @@ var Ui;
                     context.backingStorePixelRatio || 1;
             }
             this.dpiRatio = devicePixelRatio / backingStoreRatio;
-            this.drawing.setAttribute('width', Math.ceil(width * this.dpiRatio), null);
-            this.drawing.setAttribute('height', Math.ceil(height * this.dpiRatio), null);
+            this.drawing.setAttribute('width', Math.ceil(width * this.dpiRatio).toString());
+            this.drawing.setAttribute('height', Math.ceil(height * this.dpiRatio).toString());
             if (this.isVisible && this.isLoaded)
                 this.update();
         };
@@ -6046,7 +6016,10 @@ var Ui;
                     if (typeof (fill) === 'string')
                         fill = Ui.Color.create(fill);
                     this._fill = fill;
-                    this.invalidateDraw();
+                    if (this._fill instanceof Ui.Color)
+                        this.drawing.style.background = this._fill.getCssRgba();
+                    else if (this._fill instanceof Ui.LinearGradient)
+                        this.drawing.style.background = this._fill.getBackgroundImage();
                 }
             },
             enumerable: true,
@@ -6067,10 +6040,8 @@ var Ui;
                 return this._radiusTopLeft;
             },
             set: function (radiusTopLeft) {
-                if (this._radiusTopLeft != radiusTopLeft) {
-                    this._radiusTopLeft = radiusTopLeft;
-                    this.invalidateDraw();
-                }
+                this._radiusTopLeft = radiusTopLeft;
+                this.drawing.style.borderTopLeftRadius = radiusTopLeft + "px";
             },
             enumerable: true,
             configurable: true
@@ -6080,10 +6051,8 @@ var Ui;
                 return this._radiusTopRight;
             },
             set: function (radiusTopRight) {
-                if (this._radiusTopRight != radiusTopRight) {
-                    this._radiusTopRight = radiusTopRight;
-                    this.invalidateDraw();
-                }
+                this._radiusTopRight = radiusTopRight;
+                this.drawing.style.borderTopRightRadius = radiusTopRight + "px";
             },
             enumerable: true,
             configurable: true
@@ -6093,10 +6062,8 @@ var Ui;
                 return this._radiusBottomLeft;
             },
             set: function (radiusBottomLeft) {
-                if (this._radiusBottomLeft != radiusBottomLeft) {
-                    this._radiusBottomLeft = radiusBottomLeft;
-                    this.invalidateDraw();
-                }
+                this._radiusTopRight = radiusBottomLeft;
+                this.drawing.style.borderBottomLeftRadius = radiusBottomLeft + "px";
             },
             enumerable: true,
             configurable: true
@@ -6106,48 +6073,14 @@ var Ui;
                 return this._radiusBottomRight;
             },
             set: function (radiusBottomRight) {
-                if (this._radiusBottomRight != radiusBottomRight) {
-                    this._radiusBottomRight = radiusBottomRight;
-                    this.invalidateDraw();
-                }
+                this._radiusTopRight = radiusBottomRight;
+                this.drawing.style.borderBottomRightRadius = radiusBottomRight + "px";
             },
             enumerable: true,
             configurable: true
         });
-        Rectangle.prototype.updateCanvas = function (ctx) {
-            var w = this.layoutWidth;
-            var h = this.layoutHeight;
-            var topLeft = this._radiusTopLeft;
-            var topRight = this._radiusTopRight;
-            if (topLeft + topRight > w) {
-                topLeft = w / 2;
-                topRight = w / 2;
-            }
-            var bottomLeft = this._radiusBottomLeft;
-            var bottomRight = this._radiusBottomRight;
-            if (bottomLeft + bottomRight > w) {
-                bottomLeft = w / 2;
-                bottomRight = w / 2;
-            }
-            if (topLeft + bottomLeft > h) {
-                topLeft = h / 2;
-                bottomLeft = h / 2;
-            }
-            if (topRight + bottomRight > h) {
-                topRight = h / 2;
-                bottomRight = h / 2;
-            }
-            ctx.beginPath();
-            ctx.roundRect(0, 0, w, h, topLeft, topRight, bottomRight, bottomLeft);
-            ctx.closePath();
-            if (this._fill instanceof Ui.Color)
-                ctx.fillStyle = this._fill.getCssRgba();
-            else if (this._fill instanceof Ui.LinearGradient)
-                ctx.fillStyle = this._fill.getCanvasGradient(ctx, w, h);
-            ctx.fill();
-        };
         return Rectangle;
-    }(Ui.CanvasElement));
+    }(Ui.Element));
     Ui.Rectangle = Rectangle;
 })(Ui || (Ui = {}));
 var Ui;
@@ -7050,10 +6983,10 @@ var Ui;
             _this.pointers = {};
             _this.app = app;
             if ('PointerEvent' in window) {
-                window.addEventListener('pointerdown', function (e) { return _this.onPointerDown(e); });
-                window.addEventListener('pointermove', function (e) { return _this.onPointerMove(e); });
-                window.addEventListener('pointerup', function (e) { return _this.onPointerUp(e); });
-                window.addEventListener('pointercancel', function (e) { return _this.onPointerCancel(e); });
+                window.addEventListener('pointerdown', function (e) { return _this.onPointerDown(e); }, { passive: false });
+                window.addEventListener('pointermove', function (e) { return _this.onPointerMove(e); }, { passive: false });
+                window.addEventListener('pointerup', function (e) { return _this.onPointerUp(e); }, { passive: false });
+                window.addEventListener('pointercancel', function (e) { return _this.onPointerCancel(e); }, { passive: false });
             }
             else {
                 _this.mouse = new Pointer('mouse', 0);
@@ -7073,10 +7006,10 @@ var Ui;
                         _this.mouse.move(_this.mouse.x, _this.mouse.y);
                     }
                 });
-                document.body.addEventListener('touchstart', function (e) { return _this.updateTouches(e); }, true);
-                document.body.addEventListener('touchmove', function (e) { return _this.updateTouches(e); }, true);
-                document.body.addEventListener('touchend', function (e) { return _this.updateTouches(e); }, true);
-                document.body.addEventListener('touchcancel', function (e) { return _this.updateTouches(e); }, true);
+                document.body.addEventListener('touchstart', function (e) { return _this.updateTouches(e); }, { passive: false, capture: true });
+                document.body.addEventListener('touchmove', function (e) { return _this.updateTouches(e); }, { passive: false, capture: true });
+                document.body.addEventListener('touchend', function (e) { return _this.updateTouches(e); }, { passive: false, capture: true });
+                document.body.addEventListener('touchcancel', function (e) { return _this.updateTouches(e); }, { passive: false, capture: true });
             }
             return _this;
         }
@@ -7174,6 +7107,8 @@ var Ui;
             }
             this.pointers[event.pointerId].setControls(event.altKey, event.ctrlKey, event.shiftKey);
             this.pointers[event.pointerId].down(event.clientX, event.clientY, event.buttons, event.button);
+            if (this.pointers[event.pointerId].getIsCaptured())
+                event.preventDefault();
         };
         PointerManager.prototype.onPointerMove = function (event) {
             if (this.pointers[event.pointerId] === undefined) {
@@ -7189,12 +7124,16 @@ var Ui;
             }
             this.pointers[event.pointerId].setControls(event.altKey, event.ctrlKey, event.shiftKey);
             this.pointers[event.pointerId].move(event.clientX, event.clientY);
+            if (this.pointers[event.pointerId].getIsCaptured())
+                event.preventDefault();
         };
         PointerManager.prototype.onPointerUp = function (event) {
             event.target.releasePointerCapture(event.pointerId);
             if (this.pointers[event.pointerId] !== undefined) {
                 this.pointers[event.pointerId].setControls(event.altKey, event.ctrlKey, event.shiftKey);
                 this.pointers[event.pointerId].up();
+                if (this.pointers[event.pointerId].getIsCaptured())
+                    event.preventDefault();
                 if (this.pointers[event.pointerId].getType() == 'touch')
                     delete (this.pointers[event.pointerId]);
             }
@@ -7244,7 +7183,6 @@ var Ui;
                     this.lastDownTouchY = event.changedTouches[i].clientY;
                 }
             }
-            console.log("updateTouches " + event.type + " " + eventTaken);
             if (eventTaken) {
                 event.preventDefault();
                 event.stopPropagation();
@@ -7622,8 +7560,6 @@ var Ui;
                         image.style.removeProperty('-moz-transform');
                     else if (Core.Navigator.isWebkit)
                         image.style.removeProperty('-webkit-transform');
-                    else if (Core.Navigator.isOpera)
-                        image.style.removeProperty('-o-transform');
                     image.style.left = '0px';
                     image.style.top = '0px';
                     image.style.touchAction = 'none';
@@ -9056,7 +8992,6 @@ var Ui;
             var _this = _super.call(this) || this;
             _this.allowedMode = 'all';
             _this.element = init.element;
-            _this.element.drawing.style.touchAction = 'none';
             _this.data = init.data;
             if (init.start !== undefined)
                 _this.start = init.start;
@@ -9112,7 +9047,7 @@ var Ui;
             _this.allowedMode = 'all';
             _this.dragstarted = new Core.Events();
             _this.dragended = new Core.Events();
-            _this.drawing.style.touchAction = 'none';
+            _this.drawing.oncontextmenu = function (e) { return e.preventDefault(); };
             _this.ptrdowned.connect(function (e) { return _this.onDraggablePointerDown(e); });
             if (init) {
                 if (init.ondragstarted)
@@ -9932,10 +9867,6 @@ var Ui;
                     this.labelDrawing.style.webkitTransform = matrix.toString();
                     this.labelDrawing.style.webkitTransformOrigin = '0% 0%';
                 }
-                else if (Core.Navigator.isOpera) {
-                    this.labelDrawing.style.OTransform = matrix.toString();
-                    this.labelDrawing.style.OTransformOrigin = '0% 0%';
-                }
             }
             else {
                 if (Core.Navigator.isIE && ('removeProperty' in this.labelDrawing.style))
@@ -9944,8 +9875,6 @@ var Ui;
                     this.labelDrawing.style.removeProperty('-moz-transform');
                 else if (Core.Navigator.isWebkit)
                     this.labelDrawing.style.removeProperty('-webkit-transform');
-                else if (Core.Navigator.isOpera)
-                    this.labelDrawing.style.removeProperty('-o-transform');
             }
         };
         Label.measureTextCanvas = function (text, fontSize, fontFamily, fontWeight) {
@@ -11971,105 +11900,6 @@ var Ui;
 })(Ui || (Ui = {}));
 var Ui;
 (function (Ui) {
-    var Scrollbar = (function (_super) {
-        __extends(Scrollbar, _super);
-        function Scrollbar(orientation) {
-            var _this = _super.call(this) || this;
-            _this.orientation = orientation;
-            _this.cursor = 'inherit';
-            _this.focusable = false;
-            _this.over = new Ui.Overable();
-            _this.content = _this.over;
-            _this.rect = new Ui.Rectangle();
-            if (orientation == 'horizontal') {
-                _this.rect.width = 30;
-                _this.rect.height = 5;
-                _this.over.height = 15;
-                _this.rect.verticalAlign = 'bottom';
-            }
-            else {
-                _this.rect.width = 5;
-                _this.rect.height = 30;
-                _this.over.width = 15;
-                _this.rect.horizontalAlign = 'right';
-            }
-            _this.over.content = _this.rect;
-            _this.over.entered.connect(function () { return _this.startAnim(); });
-            _this.over.leaved.connect(function () { return _this.startAnim(); });
-            _this.downed.connect(function () { return _this.startAnim(); });
-            _this.upped.connect(function () { return _this.startAnim(); });
-            return _this;
-        }
-        Object.defineProperty(Scrollbar.prototype, "radius", {
-            set: function (radius) {
-                this.rect.radius = radius;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Scrollbar.prototype, "fill", {
-            set: function (color) {
-                this.rect.fill = color;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Scrollbar.prototype.startAnim = function () {
-            var _this = this;
-            if (this.clock == undefined) {
-                this.clock = new Anim.Clock();
-                this.clock.duration = 'forever';
-                this.clock.timeupdate.connect(function (e) { return _this.onTick(e.target, e.progress, e.deltaTick); });
-                this.clock.begin();
-            }
-        };
-        Scrollbar.prototype.onTick = function (clock, progress, deltaTick) {
-            var d = deltaTick * 30;
-            var view = this.over.isOver || this.isDown;
-            if (!view)
-                d = -d;
-            var s = Math.max(5, Math.min(15, ((this.orientation == 'vertical') ? this.rect.width : this.rect.height) + d));
-            if (this.orientation == 'vertical')
-                this.rect.width = s;
-            else
-                this.rect.height = s;
-            if ((!view && s == 5) || (view && s == 15)) {
-                if (this.clock)
-                    this.clock.stop();
-                this.clock = undefined;
-            }
-        };
-        return Scrollbar;
-    }(Ui.Movable));
-    Ui.Scrollbar = Scrollbar;
-    var ScrollingArea = (function (_super) {
-        __extends(ScrollingArea, _super);
-        function ScrollingArea(init) {
-            var _this = _super.call(this, init) || this;
-            _this.horizontalScrollbar = new Scrollbar('horizontal');
-            _this.setScrollbarHorizontal(_this.horizontalScrollbar);
-            _this.verticalScrollbar = new Scrollbar('vertical');
-            _this.setScrollbarVertical(_this.verticalScrollbar);
-            return _this;
-        }
-        ScrollingArea.prototype.onStyleChange = function () {
-            var radius = this.getStyleProperty('radius');
-            this.horizontalScrollbar.radius = radius;
-            this.verticalScrollbar.radius = radius;
-            var color = this.getStyleProperty('color');
-            this.horizontalScrollbar.fill = color;
-            this.verticalScrollbar.fill = color;
-        };
-        ScrollingArea.style = {
-            color: 'rgba(50,50,50,0.7)',
-            radius: 0
-        };
-        return ScrollingArea;
-    }(Ui.Scrollable));
-    Ui.ScrollingArea = ScrollingArea;
-})(Ui || (Ui = {}));
-var Ui;
-(function (Ui) {
     var NativeScrollableContent = (function (_super) {
         __extends(NativeScrollableContent, _super);
         function NativeScrollableContent() {
@@ -12095,6 +11925,8 @@ var Ui;
             this.scrollDiv.style.right = "-" + NativeScrollableContent.nativeScrollBarWidth + "px";
             this.scrollDiv.style.bottom = "-" + NativeScrollableContent.nativeScrollBarHeight + "px";
             this.scrollDiv.style.overflow = 'scroll';
+            this.scrollDiv.style.setProperty('will-change', 'transform');
+            this.scrollDiv.style.setProperty('transform', 'translateZ(0)');
             this.scrollDiv.style.setProperty('-webkit-overflow-scrolling', 'touch');
             this.scrollDiv.onscroll = function () { return _this.onScroll(); };
             drawing.appendChild(this.scrollDiv);
@@ -12193,8 +12025,8 @@ var Ui;
     NativeScrollableContent.initialize();
     var NativeScrollable = (function (_super) {
         __extends(NativeScrollable, _super);
-        function NativeScrollable() {
-            var _this = _super.call(this) || this;
+        function NativeScrollable(init) {
+            var _this = _super.call(this, init) || this;
             _this._scrollHorizontal = true;
             _this._scrollVertical = true;
             _this.showShadows = false;
@@ -12246,6 +12078,7 @@ var Ui;
                 _this.setOffset(undefined, offsetY, false, true);
                 _this.scrollbarVerticalBox.setPosition(undefined, offsetY * totalHeight);
             };
+            _this.clipToBounds = true;
             _this.contentBox = new NativeScrollableContent();
             _this.contentBox.scrolled.connect(function () { return _this.onScroll(); });
             _this.appendChild(_this.contentBox);
@@ -12262,6 +12095,14 @@ var Ui;
             });
             _this.setScrollbarHorizontal(new Ui.Movable());
             _this.setScrollbarVertical(new Ui.Movable());
+            if (init) {
+                if (init.content !== undefined)
+                    _this.content = init.content;
+                if (init.scrollHorizontal !== undefined)
+                    _this.scrollHorizontal = init.scrollHorizontal;
+                if (init.scrollVertical !== undefined)
+                    _this.scrollVertical = init.scrollVertical;
+            }
             return _this;
         }
         Object.defineProperty(NativeScrollable.prototype, "onscrolled", {
@@ -12320,6 +12161,8 @@ var Ui;
                 this.scrollbarVerticalBox.upped.connect(this.autoHideScrollbars);
                 this.scrollbarVerticalBox.moved.connect(this.onScrollbarVerticalMove);
                 this.appendChild(this.scrollbarVerticalBox);
+                if (NativeScrollableContent.nativeScrollBarHeight == 0)
+                    this.scrollbarVerticalBox.hide(true);
             }
         };
         NativeScrollable.prototype.setScrollbarHorizontal = function (scrollbarHorizontal) {
@@ -12337,6 +12180,8 @@ var Ui;
                 this.scrollbarHorizontalBox.upped.connect(this.autoHideScrollbars);
                 this.scrollbarHorizontalBox.moved.connect(this.onScrollbarHorizontalMove);
                 this.appendChild(this.scrollbarHorizontalBox);
+                if (NativeScrollableContent.nativeScrollBarWidth == 0)
+                    this.scrollbarHorizontalBox.hide(true);
             }
         };
         NativeScrollable.prototype.setOffset = function (offsetX, offsetY, absolute, align) {
@@ -12459,7 +12304,8 @@ var Ui;
                 if (this.scrollbarVerticalBox) {
                     this.scrollbarVerticalHeight = Math.max((this.viewHeight / this.contentHeight) * this.viewHeight, this.scrollbarVerticalBox.measureHeight);
                     this.scrollbarVerticalBox.arrange(this.layoutWidth - this.scrollbarVerticalBox.measureWidth, 0, this.scrollbarVerticalBox.measureWidth, this.scrollbarVerticalHeight);
-                    this.scrollbarVerticalBox.show();
+                    if (NativeScrollableContent.nativeScrollBarHeight != 0)
+                        this.scrollbarVerticalBox.show();
                 }
             }
             else {
@@ -12471,7 +12317,8 @@ var Ui;
                 if (this.scrollbarHorizontalBox) {
                     this.scrollbarHorizontalWidth = Math.max((this.viewWidth / this.contentWidth) * this.viewWidth, this.scrollbarHorizontalBox.measureWidth);
                     this.scrollbarHorizontalBox.arrange(0, this.layoutHeight - this.scrollbarHorizontalBox.measureHeight, this.scrollbarHorizontalWidth, this.scrollbarHorizontalBox.measureHeight);
-                    this.scrollbarHorizontalBox.show();
+                    if (NativeScrollableContent.nativeScrollBarWidth != 0)
+                        this.scrollbarHorizontalBox.show();
                 }
             }
             else {
@@ -12534,8 +12381,8 @@ var Ui;
     Ui.NativeScrollable = NativeScrollable;
     var NativeScrollingArea = (function (_super) {
         __extends(NativeScrollingArea, _super);
-        function NativeScrollingArea() {
-            var _this = _super.call(this) || this;
+        function NativeScrollingArea(init) {
+            var _this = _super.call(this, init) || this;
             _this.horizontalScrollbar = new Ui.Scrollbar('horizontal');
             _this.setScrollbarHorizontal(_this.horizontalScrollbar);
             _this.verticalScrollbar = new Ui.Scrollbar('vertical');
@@ -12557,6 +12404,99 @@ var Ui;
         return NativeScrollingArea;
     }(NativeScrollable));
     Ui.NativeScrollingArea = NativeScrollingArea;
+})(Ui || (Ui = {}));
+var Ui;
+(function (Ui) {
+    var Scrollbar = (function (_super) {
+        __extends(Scrollbar, _super);
+        function Scrollbar(orientation) {
+            var _this = _super.call(this) || this;
+            _this.orientation = orientation;
+            _this.cursor = 'inherit';
+            _this.focusable = false;
+            _this.over = new Ui.Overable();
+            _this.content = _this.over;
+            _this.rect = new Ui.Rectangle();
+            if (orientation == 'horizontal') {
+                _this.rect.width = 30;
+                _this.rect.height = 5;
+                _this.over.height = 15;
+                _this.rect.verticalAlign = 'bottom';
+            }
+            else {
+                _this.rect.width = 5;
+                _this.rect.height = 30;
+                _this.over.width = 15;
+                _this.rect.horizontalAlign = 'right';
+            }
+            _this.over.content = _this.rect;
+            _this.over.entered.connect(function () { return _this.startAnim(); });
+            _this.over.leaved.connect(function () { return _this.startAnim(); });
+            _this.downed.connect(function () { return _this.startAnim(); });
+            _this.upped.connect(function () { return _this.startAnim(); });
+            return _this;
+        }
+        Object.defineProperty(Scrollbar.prototype, "radius", {
+            set: function (radius) {
+                this.rect.radius = radius;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Scrollbar.prototype, "fill", {
+            set: function (color) {
+                this.rect.fill = color;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Scrollbar.prototype.startAnim = function () {
+            var _this = this;
+            if (this.clock == undefined) {
+                this.clock = new Anim.Clock();
+                this.clock.duration = 'forever';
+                this.clock.timeupdate.connect(function (e) { return _this.onTick(e.target, e.progress, e.deltaTick); });
+                this.clock.begin();
+            }
+        };
+        Scrollbar.prototype.onTick = function (clock, progress, deltaTick) {
+            var d = deltaTick * 30;
+            var view = this.over.isOver || this.isDown;
+            if (!view)
+                d = -d;
+            var s = Math.max(5, Math.min(15, ((this.orientation == 'vertical') ? this.rect.width : this.rect.height) + d));
+            if (this.orientation == 'vertical')
+                this.rect.width = s;
+            else
+                this.rect.height = s;
+            if ((!view && s == 5) || (view && s == 15)) {
+                if (this.clock)
+                    this.clock.stop();
+                this.clock = undefined;
+            }
+        };
+        return Scrollbar;
+    }(Ui.Movable));
+    Ui.Scrollbar = Scrollbar;
+    var ScrollingArea = (function (_super) {
+        __extends(ScrollingArea, _super);
+        function ScrollingArea(init) {
+            var _this = _super.call(this, init) || this;
+            if (init) {
+                if (init.content != undefined)
+                    _this.content = init.content;
+                if (init.scrollHorizontal != undefined)
+                    _this.scrollHorizontal = init.scrollHorizontal;
+                if (init.scrollVertical != undefined)
+                    _this.scrollVertical = init.scrollVertical;
+                if (init.onscrolled != undefined)
+                    _this.scrolled.connect(init.onscrolled);
+            }
+            return _this;
+        }
+        return ScrollingArea;
+    }(Ui.NativeScrollingArea));
+    Ui.ScrollingArea = ScrollingArea;
 })(Ui || (Ui = {}));
 var Ui;
 (function (Ui) {
@@ -13590,67 +13530,42 @@ var Ui;
         __extends(ButtonBackground, _super);
         function ButtonBackground() {
             var _this = _super.call(this) || this;
-            _this._borderWidth = 1;
-            _this._border = undefined;
-            _this._background = undefined;
-            _this._radius = 3;
+            _this.drawing.style.boxSizing = 'border-box';
+            _this.drawing.style.borderStyle = 'solid';
             _this.border = 'black';
             _this.background = 'white';
             return _this;
         }
         Object.defineProperty(ButtonBackground.prototype, "borderWidth", {
             set: function (borderWidth) {
-                this._borderWidth = borderWidth;
-                this.invalidateDraw();
+                this.drawing.style.borderWidth = borderWidth + "px";
             },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(ButtonBackground.prototype, "border", {
             set: function (border) {
-                this._border = Ui.Color.create(border);
-                this.invalidateDraw();
+                this.drawing.style.borderColor = Ui.Color.create(border).getCssRgba();
             },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(ButtonBackground.prototype, "radius", {
             set: function (radius) {
-                this._radius = radius;
-                this.invalidateDraw();
+                this.drawing.style.borderRadius = radius + "px";
             },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(ButtonBackground.prototype, "background", {
             set: function (background) {
-                this._background = Ui.Color.create(background);
-                this.invalidateDraw();
+                this.drawing.style.backgroundColor = Ui.Color.create(background).getCssRgba();
             },
             enumerable: true,
             configurable: true
         });
-        ButtonBackground.prototype.updateCanvas = function (ctx) {
-            var w = this.layoutWidth;
-            var h = this.layoutHeight;
-            var radius = Math.min(this._radius, Math.min(w, h) / 2);
-            ctx.beginPath();
-            var br = Math.max(0, radius - this._borderWidth);
-            ctx.roundRect(this._borderWidth, this._borderWidth, w - this._borderWidth * 2, h - this._borderWidth * 2, br, br, br, br);
-            ctx.closePath();
-            ctx.fillStyle = this._background.getCssRgba();
-            ctx.fill();
-            if (this._borderWidth > 0) {
-                ctx.beginPath();
-                ctx.roundRect(0, 0, w, h, radius, radius, radius, radius);
-                ctx.roundRect(this._borderWidth, this._borderWidth, w - this._borderWidth * 2, h - this._borderWidth * 2, br, br, br, br, true);
-                ctx.closePath();
-                ctx.fillStyle = this._border.getCssRgba();
-                ctx.fill();
-            }
-        };
         return ButtonBackground;
-    }(Ui.CanvasElement));
+    }(Ui.Element));
     Ui.ButtonBackground = ButtonBackground;
     var ButtonBadge = (function (_super) {
         __extends(ButtonBadge, _super);
@@ -14066,9 +13981,8 @@ var Ui;
             }
             if (this._text instanceof ButtonText)
                 this._text.color = fg;
-            if (this._icon instanceof ButtonIcon) {
+            if (this._icon instanceof ButtonIcon)
                 this._icon.fill = fg;
-            }
             if (this._badgeContent) {
                 this._badgeContent.badgeColor = this.getStyleProperty('badgeColor');
                 this._badgeContent.badgeTextColor = this.getStyleProperty('badgeTextColor');
@@ -14404,8 +14318,6 @@ var Ui;
             _this.shadow.focusable = false;
             _this.shadow.drawing.style.cursor = 'inherit';
             _this.appendChild(_this.shadow);
-            _this.shadowGraphic = new Ui.Rectangle();
-            _this.shadow.content = _this.shadowGraphic;
             _this.background = new PopupBackground();
             _this.background.radius = 0;
             _this.background.fill = '#f8f8f8';
@@ -14487,7 +14399,6 @@ var Ui;
                 progress = 1 - progress;
             this.opacity = progress;
             var arrowBorder = this.background.arrowBorder;
-            var arrowOffset = this.background.arrowOffset;
             if (arrowBorder === 'right') {
                 this.background.transform = Ui.Matrix.createTranslate(20 * (1 - progress), 0);
                 this.contentBox.transform = Ui.Matrix.createTranslate(20 * (1 - progress), 0);
@@ -14521,7 +14432,7 @@ var Ui;
         };
         Popup.prototype.onStyleChange = function () {
             this.background.fill = this.getStyleProperty('background');
-            this.shadowGraphic.fill = this.getStyleProperty('shadow');
+            this.shadow.drawing.style.backgroundColor = Ui.Color.create(this.getStyleProperty('shadow')).getCssRgba();
         };
         Popup.prototype.onChildInvalidateMeasure = function (child, type) {
             this.invalidateLayout();
@@ -15734,13 +15645,13 @@ var Ui;
         });
         App.prototype.onReady = function () {
             if (this._loaded) {
-                document.documentElement.style.position = 'fixed';
+                document.documentElement.style.position = 'absolute';
                 document.documentElement.style.padding = '0px';
                 document.documentElement.style.margin = '0px';
                 document.documentElement.style.border = '0px solid black';
                 document.documentElement.style.width = '100%';
                 document.documentElement.style.height = '100%';
-                document.body.style.position = 'fixed';
+                document.body.style.position = 'absolute';
                 document.body.style.overflow = 'hidden';
                 document.body.style.padding = '0px';
                 document.body.style.margin = '0px';
@@ -15965,8 +15876,7 @@ var Ui;
             this.drawing.submit();
         };
         Form.prototype.renderDrawing = function () {
-            var drawing;
-            drawing = document.createElement('form');
+            var drawing = document.createElement('form');
             var submit = document.createElement('input');
             submit.type = 'submit';
             submit.style.visibility = 'hidden';
@@ -16575,7 +16485,7 @@ var Ui;
             set: function (interLine) {
                 if (this._interLine !== interLine) {
                     this._interLine = interLine;
-                    this.drawing.style.lineHeight = this.interLine;
+                    this.drawing.style.lineHeight = this.interLine.toString();
                     this.invalidateMeasure();
                 }
             },
@@ -16664,7 +16574,7 @@ var Ui;
                 this.drawing.style.color = this.getColor().getCssRgba();
             else
                 this.drawing.style.color = this.getColor().getCssHtml();
-            this.drawing.style.lineHeight = this.interLine;
+            this.drawing.style.lineHeight = this.interLine.toString();
             this.drawing.style.wordWrap = this.wordWrap;
         };
         Html.prototype.renderDrawing = function () {
@@ -23217,6 +23127,9 @@ var Ui;
             var _this = _super.call(this) || this;
             _this.selected = new Core.Events();
             _this.unselected = new Core.Events();
+            _this.drawing.style.boxSizing = 'border-box';
+            _this.drawing.style.borderBottomStyle = 'solid';
+            _this.drawing.style.borderBottomWidth = '1px';
             _this.listView = init.listView;
             _this.headers = _this.listView.headers;
             _this._data = init.data;
@@ -23224,10 +23137,6 @@ var Ui;
             if (init.height)
                 _this.height = init.height;
             _this.cells = [];
-            _this.background = new Ui.Rectangle();
-            _this.appendChild(_this.background);
-            _this.sep = new Ui.Rectangle({ verticalAlign: 'bottom', height: 1, fill: 'rgba(0,0,0,0.5)' });
-            _this.appendChild(_this.sep);
             for (var col = 0; col < _this.headers.length; col++) {
                 var key = _this.headers[col].key;
                 var cell = void 0;
@@ -23295,12 +23204,9 @@ var Ui;
             configurable: true
         });
         ListViewRow.prototype.measureCore = function (width, height) {
-            this.background.measure(width, height);
-            this.sep.measure(width, height);
             var minHeight = 0;
             var minWidth = 0;
             for (var col = 0; col < this.headers.length; col++) {
-                var header = this.headers[col];
                 var child = this.cells[col];
                 var size = child.measure(0, 0);
                 if (size.height > minHeight)
@@ -23310,11 +23216,8 @@ var Ui;
             return { width: minWidth, height: minHeight };
         };
         ListViewRow.prototype.arrangeCore = function (width, height) {
-            this.background.arrange(0, 0, width, height);
-            this.sep.arrange(0, 0, width, height);
             var x = 0;
             for (var col = 0; col < this.headers.length; col++) {
-                var header = this.headers[col];
                 var cell = this.cells[col];
                 var colWidth = this.listView.headersBar.uis[col].layoutWidth;
                 cell.arrange(x, 0, colWidth, height);
@@ -23323,10 +23226,10 @@ var Ui;
         };
         ListViewRow.prototype.onStyleChange = function () {
             if (this.selectionWatcher.isSelected)
-                this.background.fill = this.getStyleProperty('selectColor');
+                this.drawing.style.background = Ui.Color.create(this.getStyleProperty('selectColor')).getCssRgba();
             else
-                this.background.fill = this.getStyleProperty('color');
-            this.sep.fill = this.getStyleProperty('sepColor');
+                this.drawing.style.background = Ui.Color.create(this.getStyleProperty('color')).getCssRgba();
+            this.drawing.style.borderColor = Ui.Color.create(this.getStyleProperty('sepColor')).getCssRgba();
         };
         ListViewRow.style = {
             sepColor: 'rgba(0,0,0,0.5)',
@@ -24353,6 +24256,7 @@ var Ui;
                 if (this.transitionClock !== undefined) {
                     this.transitionClock.completed.disconnect(this.onTransitionComplete);
                     this.transitionClock.stop();
+                    this.transitionClock = undefined;
                 }
                 if (this._position != -1)
                     this._current = this.children[this._position];

@@ -779,7 +779,7 @@ declare namespace Ui {
         private _height?;
         private _maxWidth?;
         private _maxHeight?;
-        private _drawing;
+        readonly drawing: HTMLElement;
         private collapse;
         private measureValid;
         private measureConstraintPixelRatio;
@@ -890,7 +890,6 @@ declare namespace Ui {
         readonly dragover: Core.Events<DragEvent>;
         ondragover: (event: DragEvent) => void;
         constructor(init?: ElementInit);
-        readonly drawing: any;
         selectable: boolean;
         resizable: boolean;
         readonly layoutX: number;
@@ -1217,7 +1216,7 @@ declare namespace Ui {
         radiusBottomLeft?: number;
         radiusBottomRight?: number;
     }
-    class Rectangle extends CanvasElement implements RectangleInit {
+    class Rectangle extends Element implements RectangleInit {
         private _fill;
         private _radiusTopLeft;
         private _radiusTopRight;
@@ -1230,7 +1229,6 @@ declare namespace Ui {
         radiusTopRight: number;
         radiusBottomLeft: number;
         radiusBottomRight: number;
-        updateCanvas(ctx: any): void;
     }
 }
 declare namespace Ui {
@@ -2589,29 +2587,7 @@ declare namespace Ui {
     }
 }
 declare namespace Ui {
-    class Scrollbar extends Movable {
-        private orientation;
-        private rect;
-        private over;
-        private clock?;
-        constructor(orientation: Orientation);
-        radius: number;
-        fill: Color;
-        private startAnim;
-        protected onTick(clock: Anim.Clock, progress: number, deltaTick: number): void;
-    }
-    interface ScrollingAreaInit extends ScrollableInit {
-    }
-    class ScrollingArea extends Scrollable implements ScrollingAreaInit {
-        private horizontalScrollbar;
-        private verticalScrollbar;
-        constructor(init?: ScrollingAreaInit);
-        protected onStyleChange(): void;
-        static style: any;
-    }
-}
-declare namespace Ui {
-    class NativeScrollableContent extends Ui.Container {
+    class NativeScrollableContent extends Container {
         private _content;
         private scrollDiv;
         readonly scrolled: Core.Events<{
@@ -2644,6 +2620,11 @@ declare namespace Ui {
         static nativeScrollBarWidth: number;
         static nativeScrollBarHeight: number;
         static initialize(): void;
+    }
+    interface NativeScrollableInit extends ContainerInit {
+        content?: Element | undefined;
+        scrollHorizontal?: boolean;
+        scrollVertical?: boolean;
     }
     class NativeScrollable extends Ui.Container {
         private contentBox;
@@ -2678,7 +2659,7 @@ declare namespace Ui {
             offsetX: number;
             offsetY: number;
         }) => void;
-        constructor();
+        constructor(init?: NativeScrollableInit);
         content: Ui.Element | undefined;
         scrollHorizontal: boolean;
         scrollVertical: boolean;
@@ -2702,12 +2683,43 @@ declare namespace Ui {
         };
         protected arrangeCore(width: number, height: number): void;
     }
+    interface NativeScrollingAreaInit extends NativeScrollableInit {
+    }
     class NativeScrollingArea extends NativeScrollable {
         private horizontalScrollbar;
         private verticalScrollbar;
-        constructor();
+        constructor(init?: NativeScrollableInit);
         protected onStyleChange(): void;
         static style: any;
+    }
+}
+declare namespace Ui {
+    class Scrollbar extends Movable {
+        private orientation;
+        private rect;
+        private over;
+        private clock?;
+        constructor(orientation: Orientation);
+        radius: number;
+        fill: Color;
+        private startAnim;
+        protected onTick(clock: Anim.Clock, progress: number, deltaTick: number): void;
+    }
+    interface ScrollingAreaInit extends NativeScrollingAreaInit {
+        maxScale?: number;
+        content?: Element;
+        inertia?: boolean;
+        scrollHorizontal?: boolean;
+        scrollVertical?: boolean;
+        scale?: number;
+        onscrolled?: (event: {
+            target: NativeScrollable;
+            offsetX: number;
+            offsetY: number;
+        }) => void;
+    }
+    class ScrollingArea extends NativeScrollingArea {
+        constructor(init?: ScrollingAreaInit);
     }
 }
 declare namespace Ui {
@@ -2954,17 +2966,12 @@ declare namespace Ui {
 declare namespace Ui {
     class ButtonText extends CompactLabel {
     }
-    class ButtonBackground extends CanvasElement {
-        private _borderWidth;
-        private _border;
-        private _background;
-        private _radius;
+    class ButtonBackground extends Element {
         constructor();
         borderWidth: number;
         border: Color | string;
         radius: number;
         background: Color | string;
-        updateCanvas(ctx: any): void;
     }
     class ButtonBadge extends LBox {
         private _bg;
@@ -3107,7 +3114,6 @@ declare namespace Ui {
         popupSelection: Selection;
         background: PopupBackground;
         shadow: Pressable;
-        shadowGraphic: Rectangle;
         contextBox: ContextBar;
         contentBox: LBox;
         scroll: ScrollingArea;
@@ -3345,6 +3351,7 @@ declare namespace Ui {
     interface FormInit extends LBoxInit {
     }
     class Form extends LBox implements FormInit {
+        readonly drawing: HTMLFormElement;
         readonly submited: Core.Events<{
             target: Form;
         }>;
@@ -3354,7 +3361,7 @@ declare namespace Ui {
         constructor(init?: FormInit);
         protected onSubmit(event: any): void;
         submit(): void;
-        renderDrawing(): any;
+        renderDrawing(): HTMLFormElement;
     }
 }
 declare namespace Ui {
@@ -3684,6 +3691,7 @@ declare namespace Ui {
         }) => void;
     }
     class Entry extends Element implements EntryInit {
+        readonly drawing: HTMLInputElement;
         private _fontSize?;
         private _fontFamily?;
         private _fontWeight?;
@@ -3991,6 +3999,7 @@ declare namespace Ui {
         value?: string;
     }
     class TextArea extends Element {
+        readonly drawing: HTMLTextAreaElement;
         private _fontSize?;
         private _fontFamily?;
         private _fontWeight?;
@@ -4021,7 +4030,7 @@ declare namespace Ui {
         protected onKeyUp(event: any): void;
         protected renderDrawing(): HTMLTextAreaElement;
         protected measureCore(width: any, height: any): {
-            width: any;
+            width: number;
             height: number;
         };
         protected arrangeCore(width: any, height: any): void;
@@ -5062,8 +5071,6 @@ declare namespace Ui {
         private headers;
         private _data;
         readonly cells: ListViewCell[];
-        private background;
-        private sep;
         private selectionActions;
         readonly selectionWatcher: SelectionableWatcher;
         readonly listView: ListView;
@@ -5398,7 +5405,7 @@ declare namespace Ui {
         protected _duration: number;
         protected _ease: Anim.EasingFunction;
         protected _position: number;
-        protected transitionClock: Anim.Clock;
+        protected transitionClock?: Anim.Clock;
         protected _current: Element;
         protected next: Element;
         protected replaceMode: boolean;
