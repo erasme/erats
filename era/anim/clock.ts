@@ -37,7 +37,7 @@ namespace Anim
         private _parent: Clock = undefined;
         private _time: number = undefined;
         private _iteration: number = undefined;
-        private _progress: number = undefined;
+        private _progress: number = 0;
         private _isActive: boolean = false;
         private _globalTime: number = 0;
         private startTime: number = 0;
@@ -266,7 +266,7 @@ namespace Anim
                         this.lastTick = this.startTime;
                         if (this._beginTime > 0) {
                             this._time = undefined;
-                            this._progress = undefined;
+                            this._progress = 0;
                             this._iteration = undefined;
                         }
                         else {
