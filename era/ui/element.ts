@@ -1,5 +1,4 @@
-namespace Ui
-{
+namespace Ui {
     export type Size = { width: number, height: number };
 
     export type VerticalAlign = 'top' | 'center' | 'bottom' | 'stretch';
@@ -36,8 +35,7 @@ namespace Ui
         onunloaded?: (event: { target: Element }) => void;
     }
 
-    export class Element extends Core.Object implements Anim.Target
-    {
+    export class Element extends Core.Object implements Anim.Target {
         name?: string;
 
         private _marginTop: number = 0;
@@ -56,8 +54,9 @@ namespace Ui
         private _maxWidth?: number;
         private _maxHeight?: number;
 
-        // rendering
-        private _drawing: any;
+        // the HTML element that correspond to
+        // the current element rendering
+        readonly drawing: HTMLElement;
 
         // measurement
         private collapse: boolean = false;
@@ -147,13 +146,13 @@ namespace Ui
         set onloaded(value: (event: { target: Element }) => void) { this.loaded.connect(value); }
 
         readonly unloaded = new Core.Events<{ target: Element }>();
-        set onunloaded(value: (event: { target: Element }) => void) { this.unloaded.connect(value);	}
+        set onunloaded(value: (event: { target: Element }) => void) { this.unloaded.connect(value); }
 
         readonly enabled = new Core.Events<{ target: Element }>();
         set onenabled(value: (event: { target: Element }) => void) { this.enabled.connect(value); }
 
         readonly disabled = new Core.Events<{ target: Element }>();
-        set ondisabled(value: (event: { target: Element }) => void) { this.disabled.connect(value);	}
+        set ondisabled(value: (event: { target: Element }) => void) { this.disabled.connect(value); }
 
         readonly visible = new Core.Events<{ target: Element }>();
         set onvisible(value: (event: { target: Element }) => void) { this.visible.connect(value); }
@@ -181,36 +180,33 @@ namespace Ui
 
         // @constructs
         // @class Define the base class for all GUI elements
-        constructor(init?: ElementInit)
-        {
+        constructor(init?: ElementInit) {
             super();
             // create the drawing container
-            this._drawing = this.renderDrawing();
+            this.drawing = this.renderDrawing();
             if (DEBUG) {
-                this._drawing.setAttribute('class', this.getClassName());
-                this._drawing.data = this;
+                this.drawing.setAttribute('eraClass', this.getClassName());
+                (<any>this.drawing).data = this;
             }
-            this._drawing.style.position = 'absolute';
-            this._drawing.style.left = '0px';
-            this._drawing.style.top = '0px';
-            this._drawing.style.width = '0px';
-            this._drawing.style.height = '0px';
-            this._drawing.style.visibility = 'hidden';
+            this.drawing.style.position = 'absolute';
+            this.drawing.style.left = '0px';
+            this.drawing.style.top = '0px';
+            this.drawing.style.width = '0px';
+            this.drawing.style.height = '0px';
+            this.drawing.style.visibility = 'hidden';
 
-            this._drawing.style.outline = 'none';
+            this.drawing.style.outline = 'none';
             // set the transformOrigin to 0 0. Do it only once for performance
-            this._drawing.style.transformOrigin = '0 0';
-            if(Core.Navigator.isIE)
-                this._drawing.style.msTransformOrigin = '0 0';
-            else if(Core.Navigator.isGecko)
-                this._drawing.style.MozTransformOrigin = '0 0';
-            else if(Core.Navigator.isWebkit)
-                this._drawing.style.webkitTransformOrigin = '0 0';
-            else if(Core.Navigator.isOpera)
-                this._drawing.style.OTransformOrigin = '0 0';
+            this.drawing.style.transformOrigin = '0 0';
+            if (Core.Navigator.isIE)
+                (<any>this.drawing).style.msTransformOrigin = '0 0';
+            else if (Core.Navigator.isGecko)
+                (<any>this.drawing).style.MozTransformOrigin = '0 0';
+            else if (Core.Navigator.isWebkit)
+                (<any>this.drawing).style.webkitTransformOrigin = '0 0';
 
-            this._drawing.addEventListener('focus', (e) => this.onFocus(e));
-            this._drawing.addEventListener('blur', (e) => this.onBlur(e));
+            this.drawing.addEventListener('focus', (e) => this.onFocus(e));
+            this.drawing.addEventListener('blur', (e) => this.onBlur(e));
             this.selectable = false;
 
             if (init) {
@@ -243,15 +239,15 @@ namespace Ui
                 if (init.marginTop !== undefined)
                     this.marginTop = init.marginTop;
                 if (init.marginBottom !== undefined)
-                    this.marginBottom = init.marginBottom;	
+                    this.marginBottom = init.marginBottom;
                 if (init.marginLeft !== undefined)
                     this.marginLeft = init.marginLeft;
                 if (init.marginRight !== undefined)
                     this.marginRight = init.marginRight;
                 if (init.opacity !== undefined)
-                    this.opacity = init.opacity;	
+                    this.opacity = init.opacity;
                 if (init.transform !== undefined)
-                    this.transform = init.transform;	
+                    this.transform = init.transform;
                 if (init.eventsHidden !== undefined)
                     this.eventsHidden = init.eventsHidden;
                 if (init.style !== undefined)
@@ -271,21 +267,13 @@ namespace Ui
             }
         }
 
-        //
-        // Return the HTML element that correspond to
-        // the current element rendering
-        //
-        get drawing() : any {
-            return this._drawing;
-        }
-
         get selectable(): boolean {
             return this._selectable;
         }
 
-        set selectable(selectable : boolean) {
+        set selectable(selectable: boolean) {
             this._selectable = selectable;
-            this.drawing.selectable = selectable;
+            (<any>this.drawing).selectable = selectable;
             Element.setSelectable(this.drawing, selectable);
         }
 
@@ -300,58 +288,58 @@ namespace Ui
             }
         }
 
-        get layoutX() : number {
+        get layoutX(): number {
             return this._layoutX;
         }
 
-        get layoutY() : number {
+        get layoutY(): number {
             return this._layoutY;
         }
 
-        get layoutWidth() : number {
+        get layoutWidth(): number {
             return this._layoutWidth;
         }
 
-        get layoutHeight() : number {
+        get layoutHeight(): number {
             return this._layoutHeight;
         }
 
         //
         // Set a unique id for the current element
         //
-        set id(id : string) {
-            this._drawing.setAttribute('id', id);
+        set id(id: string) {
+            this.drawing.setAttribute('id', id);
         }
 
         //
         // Return the id of the current element
         //
-        get id() : string {
-            return this._drawing.getAttribute('id') as string;
+        get id(): string {
+            return this.drawing.getAttribute('id') as string;
         }
 
         //
         // Return whether or not the current element can get the focus
         //
-        get focusable() : boolean {
+        get focusable(): boolean {
             return this._focusable;
         }
 
         //
         // Defined if the current element can have the focus
         //
-        set focusable(focusable : boolean) {
-            if(this._focusable !== focusable) {
+        set focusable(focusable: boolean) {
+            if (this._focusable !== focusable) {
                 this._focusable = focusable;
-                if(focusable && !this.isDisabled) {
-                    this._drawing.tabIndex = 0;
+                if (focusable && !this.isDisabled) {
+                    this.drawing.tabIndex = 0;
                     this.drawing.addEventListener('mousedown', this.onMouseDownFocus, true);
                 }
                 else {
                     this.drawing.removeEventListener('mousedown', this.onMouseDownFocus);
                     // remove the attribute because with the -1 value
                     // the element is still focusable by the mouse
-                    this._drawing.removeAttribute('tabIndex');
+                    this.drawing.removeAttribute('tabIndex');
                 }
             }
         }
@@ -366,7 +354,7 @@ namespace Ui
             window.removeEventListener('mouseup', this.onMouseUpFocus);
         }
 
-        getIsMouseFocus() : boolean {
+        getIsMouseFocus(): boolean {
             return this.isMouseFocus;
         }
 
@@ -375,13 +363,13 @@ namespace Ui
         // the WAI-ARIA. To remove a role, use undefined
         //
         set role(role: string) {
-            if('setAttributeNS' in this._drawing) {
-                if(role === undefined) {
-                    if(this._drawing.hasAttributeNS('http://www.w3.org/2005/07/aaa', 'role'))
-                        this._drawing.removeAttributeNS('http://www.w3.org/2005/07/aaa', 'role');
+            if ('setAttributeNS' in this.drawing) {
+                if (role === undefined) {
+                    if (this.drawing.hasAttributeNS('http://www.w3.org/2005/07/aaa', 'role'))
+                        this.drawing.removeAttributeNS('http://www.w3.org/2005/07/aaa', 'role');
                 }
                 else
-                    this._drawing.setAttributeNS('http://www.w3.org/2005/07/aaa', 'role', role);
+                    this.drawing.setAttributeNS('http://www.w3.org/2005/07/aaa', 'role', role);
             }
         }
 
@@ -393,15 +381,15 @@ namespace Ui
             //console.log(this.getClassName()+'.measure ('+width+','+height+'), loaded: '+this._isLoaded+', valid: '+this.measureValid+', constraint: ('+this.measureConstraintWidth+' x '+this.measureConstraintHeight+')');
 
             // no need to measure if the element is not loaded
-            if(!this._isLoaded)
+            if (!this._isLoaded)
                 return { width: 0, height: 0 };
 
-            if(this.collapse) {
+            if (this.collapse) {
                 this.measureValid = true;
                 return { width: 0, height: 0 };
             }
 
-            if(this.measureValid && (this.measureConstraintWidth === width) && (this.measureConstraintHeight === height) &&
+            if (this.measureValid && (this.measureConstraintWidth === width) && (this.measureConstraintHeight === height) &&
                 (this.measureConstraintPixelRatio == (window.devicePixelRatio || 1)))
                 return { width: this._measureWidth, height: this._measureHeight };
 
@@ -414,31 +402,31 @@ namespace Ui
             let marginTop = this.marginTop;
             let marginBottom = this.marginBottom;
 
-            let constraintWidth = Math.max(width - (marginLeft+marginRight), 0);
-            let constraintHeight = Math.max(height - (marginTop+marginBottom), 0);
-            if(this._maxWidth !== undefined)
+            let constraintWidth = Math.max(width - (marginLeft + marginRight), 0);
+            let constraintHeight = Math.max(height - (marginTop + marginBottom), 0);
+            if (this._maxWidth !== undefined)
                 constraintWidth = Math.min(constraintWidth, this._maxWidth);
-            if(this._maxHeight !== undefined)
-                constraintHeight = Math.min(constraintHeight, this._maxHeight);	
+            if (this._maxHeight !== undefined)
+                constraintHeight = Math.min(constraintHeight, this._maxHeight);
 
-            if(this._horizontalAlign !== 'stretch')
+            if (this._horizontalAlign !== 'stretch')
                 constraintWidth = 0;
-            if(this._verticalAlign !== 'stretch')
+            if (this._verticalAlign !== 'stretch')
                 constraintHeight = 0;
 
-            if(this._width !== undefined)
+            if (this._width !== undefined)
                 constraintWidth = Math.max(this._width, constraintWidth);
-            if(this._height !== undefined)
+            if (this._height !== undefined)
                 constraintHeight = Math.max(this._height, constraintHeight);
 
             let size = this.measureCore(constraintWidth, constraintHeight);
 
             // if width and height are set they are taken as a minimum
-            if((this._width !== undefined) && (size.width < this._width))
+            if ((this._width !== undefined) && (size.width < this._width))
                 this._measureWidth = this._width + marginLeft + marginRight;
             else
                 this._measureWidth = Math.ceil(size.width) + marginLeft + marginRight;
-            if((this._height !== undefined) && (size.height < this._height))
+            if ((this._height !== undefined) && (size.height < this._height))
                 this._measureHeight = this._height + marginTop + marginBottom;
             else
                 this._measureHeight = Math.ceil(size.height) + marginTop + marginBottom;
@@ -463,17 +451,17 @@ namespace Ui
         // updated
         //
         invalidateMeasure() {
-            if(this.measureValid) {
+            if (this.measureValid) {
                 this.measureValid = false;
-                if((this._parent != undefined) && (this._parent.measureValid))
+                if ((this._parent != undefined) && (this._parent.measureValid))
                     this._parent.onChildInvalidateMeasure(this, 'change');
             }
             this.invalidateArrange();
         }
 
         invalidateLayout() {
-            if(this.layoutValid) {
-            // console.log('invalidateLayout enqueue ('+(new Date()).getTime()+')');
+            if (this.layoutValid) {
+                // console.log('invalidateLayout enqueue ('+(new Date()).getTime()+')');
                 this.layoutValid = false;
                 this.measureValid = false;
                 this.arrangeValid = false;
@@ -503,23 +491,23 @@ namespace Ui
         //
         arrange(x: number, y: number, width: number, height: number) {
             // no need to arrange if not loaded
-            if(!this._isLoaded || this.collapse)
+            if (!this._isLoaded || this.collapse)
                 return;
-            if(isNaN(x))
+            if (isNaN(x))
                 x = 0;
-            if(isNaN(y))
+            if (isNaN(y))
                 y = 0;
-            if(isNaN(width))
+            if (isNaN(width))
                 width = 0;
-            if(isNaN(height))
+            if (isNaN(height))
                 height = 0;
             x = Math.round(x);
             y = Math.round(y);
             width = Math.ceil(width);
             height = Math.ceil(height);
 
-            if(!this.arrangeValid || (this.arrangeX != x) || (this.arrangeY != y) ||
-                (this.arrangeWidth != width) ||	(this.arrangeHeight != height) ||
+            if (!this.arrangeValid || (this.arrangeX != x) || (this.arrangeY != y) ||
+                (this.arrangeWidth != width) || (this.arrangeHeight != height) ||
                 (this.arrangePixelRatio != (window.devicePixelRatio || 1))) {
                 this.arrangeValid = true;
                 this.arrangeX = x;
@@ -529,14 +517,14 @@ namespace Ui
                 this.arrangePixelRatio = (window.devicePixelRatio || 1);
 
                 // handle alignment
-                if(this._verticalAlign == 'top') {
+                if (this._verticalAlign == 'top') {
                     height = this._measureHeight;
                 }
-                else if(this._verticalAlign == 'bottom') {
+                else if (this._verticalAlign == 'bottom') {
                     y += height - this._measureHeight;
                     height = this._measureHeight;
                 }
-                else if(this._verticalAlign == 'center') {
+                else if (this._verticalAlign == 'center') {
                     y += (height - this._measureHeight) / 2;
                     height = this._measureHeight;
                 }
@@ -576,21 +564,21 @@ namespace Ui
                 this._layoutWidth = Math.max(width, 0);
                 this._layoutHeight = Math.max(height, 0);
 
-                this._drawing.style.left = Math.round(this._layoutX)+'px';
-                this._drawing.style.top = Math.round(this._layoutY)+'px';
-                if(this._transform !== undefined)
+                this.drawing.style.left = Math.round(this._layoutX) + 'px';
+                this.drawing.style.top = Math.round(this._layoutY) + 'px';
+                if (this._transform !== undefined)
                     this.updateTransform();
 
-                if(this._eventsHidden) {
-                    this._drawing.style.width ='0px';
-                    this._drawing.style.height = '0px';
+                if (this._eventsHidden) {
+                    this.drawing.style.width = '0px';
+                    this.drawing.style.height = '0px';
                 }
                 else {
-                    this._drawing.style.width = Math.round(this._layoutWidth)+'px';
-                    this._drawing.style.height = Math.round(this._layoutHeight)+'px';
+                    this.drawing.style.width = Math.round(this._layoutWidth) + 'px';
+                    this.drawing.style.height = Math.round(this._layoutHeight) + 'px';
                 }
 
-                this._drawing.style.visibility = 'inherit';
+                this.drawing.style.visibility = 'inherit';
                 this.arrangeCore(this._layoutWidth, this._layoutHeight);
                 if (!this.arrangeValid)
                     console.log(`${this}.arrange PROBLEM. Arrange invalidated during arrange`);
@@ -610,9 +598,9 @@ namespace Ui
         // to be updated
         //
         invalidateArrange() {
-            if(this.arrangeValid) {
+            if (this.arrangeValid) {
                 this.arrangeValid = false;
-                if(this._parent != undefined)
+                if (this._parent != undefined)
                     this._parent.onChildInvalidateArrange(this);
             }
         }
@@ -641,9 +629,9 @@ namespace Ui
         // to be updated
         //
         invalidateDraw() {
-            if(Ui.App.current === undefined)
+            if (Ui.App.current === undefined)
                 return;
-            if(this.drawValid) {
+            if (this.drawValid) {
                 this.drawValid = false;
                 Ui.App.current.enqueueDraw(this);
             }
@@ -670,7 +658,7 @@ namespace Ui
         // Set the preferred width of the element
         //
         set width(width: number | undefined) {
-            if(this._width !== width) {
+            if (this._width !== width) {
                 this._width = width;
                 this.invalidateMeasure();
             }
@@ -688,7 +676,7 @@ namespace Ui
         // Set the preferred height of the element
         //
         set height(height: number | undefined) {
-            if(this._height !== height) {
+            if (this._height !== height) {
                 this._height = height;
                 this.invalidateMeasure();
             }
@@ -699,9 +687,9 @@ namespace Ui
         }
 
         set maxWidth(width: number | undefined) {
-            if(this._maxWidth !== width) {
+            if (this._maxWidth !== width) {
                 this._maxWidth = width;
-                if(this._layoutWidth > this._maxWidth)
+                if (this._layoutWidth > this._maxWidth)
                     this.invalidateMeasure();
             }
         }
@@ -711,9 +699,9 @@ namespace Ui
         }
 
         set maxHeight(height: number | undefined) {
-            if(this._maxWidth !== height) {
+            if (this._maxWidth !== height) {
                 this._maxHeight = height;
-                if(this._layoutHeight > this._maxHeight)
+                if (this._layoutHeight > this._maxHeight)
                     this.invalidateMeasure();
             }
         }
@@ -729,7 +717,7 @@ namespace Ui
         // Set the vertical alignment from the parent.
         //
         set verticalAlign(align: VerticalAlign) {
-            if(this._verticalAlign !== align) {
+            if (this._verticalAlign !== align) {
                 this._verticalAlign = align;
                 this.invalidateArrange();
             }
@@ -746,7 +734,7 @@ namespace Ui
         // Set the horizontal alignment from the parent.
         //
         set horizontalAlign(align: HorizontalAlign) {
-            if(this._horizontalAlign !== align) {
+            if (this._horizontalAlign !== align) {
                 this._horizontalAlign = align;
                 this.invalidateArrange();
             }
@@ -757,12 +745,12 @@ namespace Ui
         }
 
         set clipToBounds(clip: boolean) {
-            if(this._clipToBounds !== clip) {
+            if (this._clipToBounds !== clip) {
                 this._clipToBounds = clip;
-                if(clip)
-                    this._drawing.style.overflow = 'hidden';
+                if (clip)
+                    this.drawing.style.overflow = 'hidden';
                 else
-                    this._drawing.style.removeProperty('overflow');
+                    this.drawing.style.removeProperty('overflow');
             }
         }
 
@@ -775,18 +763,18 @@ namespace Ui
         }
 
         updateClipRectangle() {
-            if(this.clipX !== undefined) {
+            if (this.clipX !== undefined) {
                 let x = Math.round(this.clipX);
                 let y = Math.round(this.clipY);
                 let width = Math.round(this.clipWidth);
                 let height = Math.round(this.clipHeight);
-                this._drawing.style.clip = 'rect('+y+'px '+(x+width)+'px '+(y+height)+'px '+x+'px)';
+                this.drawing.style.clip = 'rect(' + y + 'px ' + (x + width) + 'px ' + (y + height) + 'px ' + x + 'px)';
             }
             else {
-                if('removeProperty' in this._drawing.style)
-                    this._drawing.style.removeProperty('clip');
-                else if('removeAttribute' in this._drawing.style)
-                    this._drawing.style.removeAttribute('clip');
+                if ('removeProperty' in this.drawing.style)
+                    this.drawing.style.removeProperty('clip');
+                else if ('removeAttribute' in this.drawing.style)
+                    (<any>this.drawing.style).removeAttribute('clip');
             }
         }
 
@@ -810,7 +798,7 @@ namespace Ui
         // Set the current element top margin
         //
         set marginTop(marginTop: number) {
-            if(marginTop !== this._marginTop) {
+            if (marginTop !== this._marginTop) {
                 this._marginTop = marginTop;
                 this.invalidateMeasure();
             }
@@ -827,7 +815,7 @@ namespace Ui
         // Set the current element bottom margin
         //
         set marginBottom(marginBottom: number) {
-            if(marginBottom !== this._marginBottom) {
+            if (marginBottom !== this._marginBottom) {
                 this._marginBottom = marginBottom;
                 this.invalidateMeasure();
             }
@@ -844,7 +832,7 @@ namespace Ui
         // Set the current element left margin
         //
         set marginLeft(marginLeft: number) {
-            if(marginLeft !== this._marginLeft) {
+            if (marginLeft !== this._marginLeft) {
                 this._marginLeft = marginLeft;
                 this.invalidateMeasure();
             }
@@ -861,7 +849,7 @@ namespace Ui
         // Set the current element right margin
         //
         set marginRight(marginRight: number) {
-            if(marginRight !== this._marginRight) {
+            if (marginRight !== this._marginRight) {
                 this._marginRight = marginRight;
                 this.invalidateMeasure();
             }
@@ -878,9 +866,9 @@ namespace Ui
         // Set the current element opacity
         //
         set opacity(opacity: number) {
-            if(this._opacity !== opacity) {
+            if (this._opacity !== opacity) {
                 this._opacity = opacity;
-                this._drawing.style.opacity = this._opacity;
+                this.drawing.style.opacity = this._opacity.toString();
             }
         }
 
@@ -888,10 +876,10 @@ namespace Ui
         // Ask for focus on the current element
         //
         focus() {
-            if(this._focusable) {
+            if (this._focusable) {
                 try {
-                    this._drawing.focus();
-                } catch(e) {}
+                    this.drawing.focus();
+                } catch (e) { }
             }
         }
 
@@ -900,8 +888,8 @@ namespace Ui
         //
         blur() {
             try {
-                this._drawing.blur();
-            } catch(e) {}
+                this.drawing.blur();
+            } catch (e) { }
         }
 
         //
@@ -909,7 +897,7 @@ namespace Ui
         // This transformation is not taken in account for the arrangement
         //
         set transform(transform: Matrix | undefined) {
-            if(this._transform !== transform) {
+            if (this._transform !== transform) {
                 this._transform = transform;
                 this.updateTransform();
             }
@@ -922,7 +910,7 @@ namespace Ui
         // width and height of the current element.
         //
         setTransformOrigin(x: number, y: number, absolute: boolean = false) {
-            if((this.transformOriginX !== x) || (this.transformOriginY !== y) || (this.transformOriginAbsolute !== absolute)) {
+            if ((this.transformOriginX !== x) || (this.transformOriginY !== y) || (this.transformOriginAbsolute !== absolute)) {
                 this.transformOriginX = x;
                 this.transformOriginY = y;
                 this.transformOriginAbsolute = absolute;
@@ -936,9 +924,9 @@ namespace Ui
         //
         getInverseLayoutTransform(): Matrix {
             let matrix = Ui.Matrix.createTranslate(this._layoutX, this._layoutY);
-            if(this._transform !== undefined) {
-                let originX = this.transformOriginX*this._layoutWidth;
-                let originY = this.transformOriginY*this._layoutHeight;
+            if (this._transform !== undefined) {
+                let originX = this.transformOriginX * this._layoutWidth;
+                let originY = this.transformOriginY * this._layoutHeight;
                 matrix = matrix.translate(-originX, -originY).multiply(this._transform).translate(originX, originY);
             }
             return matrix;
@@ -951,9 +939,9 @@ namespace Ui
         getLayoutTransform(): Matrix {
             let matrix = new Ui.Matrix();
 
-            if(this._transform !== undefined) {
-                let originX = this.transformOriginX*this._layoutWidth;
-                let originY = this.transformOriginY*this._layoutHeight;
+            if (this._transform !== undefined) {
+                let originX = this.transformOriginX * this._layoutWidth;
+                let originY = this.transformOriginY * this._layoutHeight;
                 matrix = Ui.Matrix.createTranslate(-originX, -originY).
                     multiply(this._transform).
                     translate(originX, originY).
@@ -969,7 +957,6 @@ namespace Ui
         //
         transformToWindow(): Matrix {
             return Ui.Element.transformToWindow(this);
-            //return Ui.Element.transformToWindow(this.drawing);
         }
 
         //
@@ -978,8 +965,7 @@ namespace Ui
         // coordinate system
         //
         transformFromWindow(): Matrix {
-            return  Ui.Element.transformFromWindow(this);
-            //return Ui.Element.transformFromWindow(this.drawing);
+            return Ui.Element.transformFromWindow(this);
         }
 
         //
@@ -1019,8 +1005,8 @@ namespace Ui
 
         getIsInside(point: Point): boolean {
             let p = point.multiply(this.getLayoutTransform());
-            if((p.x >= 0) && (p.x <= this._layoutWidth) &&
-               (p.y >= 0) && (p.y <= this._layoutHeight))
+            if ((p.x >= 0) && (p.x <= this._layoutWidth) &&
+                (p.y >= 0) && (p.y <= this._layoutHeight))
                 return true;
             return false;
         }
@@ -1035,7 +1021,7 @@ namespace Ui
         }
 
         elementFromPoint(point: Point): Element | undefined {
-            if(!this._eventsHidden && this.isVisible && this.getIsInside(point))
+            if (!this._eventsHidden && this.isVisible && this.getIsInside(point))
                 return this;
             else
                 return undefined;
@@ -1060,26 +1046,26 @@ namespace Ui
         }
 
         hide(collapse: boolean = false) {
-            if((this._visible === undefined) || this._visible) {
+            if ((this._visible === undefined) || this._visible) {
                 let old = this.isVisible;
                 this._visible = false;
-                this._drawing.style.display = 'none';
+                this.drawing.style.display = 'none';
                 this.collapse = collapse;
-                if(old)
+                if (old)
                     this.onInternalHidden();
-                if(this.collapse)
+                if (this.collapse)
                     this.invalidateMeasure();
             }
         }
 
         show() {
-            if((this._visible === undefined) || !this._visible) {
+            if ((this._visible === undefined) || !this._visible) {
                 let old = this.isVisible;
                 this._visible = true;
-                this._drawing.style.display = 'block';
-                if(this.isVisible && !old)
+                this.drawing.style.display = 'block';
+                if (this.isVisible && !old)
                     this.onInternalVisible();
-                if(this.collapse) {
+                if (this.collapse) {
                     this.collapse = false;
                     this.invalidateMeasure();
                 }
@@ -1100,8 +1086,8 @@ namespace Ui
         set parentVisible(visible: boolean) {
             let old = this.isVisible;
             this._parentVisible = visible;
-            if(old != this.isVisible) {
-                if(this.isVisible)
+            if (old != this.isVisible) {
+                if (this.isVisible)
                     this.onInternalVisible();
                 else
                     this.onInternalHidden();
@@ -1122,64 +1108,64 @@ namespace Ui
         }
 
         checkVisible() {
-            if(this.drawing === undefined)
+            if (this.drawing === undefined)
                 return;
             let visible = false;
-            let current = this.drawing;
-            while(current !== undefined) {
-                if(current.style.display === 'none') {
+            let current: Node = this.drawing;
+            while (current !== undefined) {
+                if (current instanceof HTMLElement && current.style.display === 'none') {
                     visible = false;
                     break;
                 }
-                if(current == document.body) {
+                if (current == document.body) {
                     visible = true;
                     break;
                 }
                 current = current.parentNode;
             }
-            if(this.isVisible !== visible)
-                console.log('checkVisible expect: '+this.isVisible+', got: '+visible+' (on '+this+')');
-                // throw('checkVisible expect: '+this.isVisible+', got: '+visible+' (on '+this+')');
+            if (this.isVisible !== visible)
+                console.log('checkVisible expect: ' + this.isVisible + ', got: ' + visible + ' (on ' + this + ')');
+            // throw('checkVisible expect: '+this.isVisible+', got: '+visible+' (on '+this+')');
         }
 
         protected onVisible() {
         }
 
         disable() {
-            if((this._disabled === undefined) || !this._disabled) {
+            if ((this._disabled === undefined) || !this._disabled) {
                 let old = this.isDisabled;
                 this._disabled = true;
-                if(!old)
+                if (!old)
                     this.onInternalDisable();
             }
         }
 
         enable() {
-            if((this._disabled === undefined) || this._disabled) {
+            if ((this._disabled === undefined) || this._disabled) {
                 let old = this.isDisabled;
                 this._disabled = false;
-                if(old && !this.isDisabled)
+                if (old && !this.isDisabled)
                     this.onInternalEnable();
             }
         }
 
-        setEnable(enable: boolean){
-            if(enable)
+        setEnable(enable: boolean) {
+            if (enable)
                 this.enable();
             else
                 this.disable();
         }
 
         get isDisabled(): boolean {
-            if((this._disabled !== undefined) && (this._disabled === true))
+            if ((this._disabled !== undefined) && (this._disabled === true))
                 return true;
-            if((this.parentDisabled !== undefined) && (this.parentDisabled === true))
+            if ((this.parentDisabled !== undefined) && (this.parentDisabled === true))
                 return true;
             return false;
         }
 
         set isDisabled(disabled: boolean) {
-            if(disabled)
+            if (disabled)
                 this.disable();
             else
                 this.enable();
@@ -1188,8 +1174,8 @@ namespace Ui
         setParentDisabled(disabled: boolean) {
             let old = this.isDisabled;
             this.parentDisabled = disabled;
-            if(old !== this.isDisabled) {
-                if(this.isDisabled)
+            if (old !== this.isDisabled) {
+                if (this.isDisabled)
                     this.onInternalDisable();
                 else
                     this.onInternalEnable();
@@ -1197,9 +1183,9 @@ namespace Ui
         }
 
         protected onInternalDisable() {
-            if(this._focusable) {
-                this._drawing.tabIndex = -1;
-                if(this._hasFocus)
+            if (this._focusable) {
+                this.drawing.tabIndex = -1;
+                if (this._hasFocus)
                     this.blur();
             }
             this.onDisable();
@@ -1210,8 +1196,8 @@ namespace Ui
         }
 
         protected onInternalEnable() {
-            if(this._focusable)
-                this._drawing.tabIndex = 0;
+            if (this._focusable)
+                this.drawing.tabIndex = 0;
             this.onEnable();
             this.enabled.fire({ target: this });
         }
@@ -1225,11 +1211,11 @@ namespace Ui
 
         private fusionStyle(dst, src) {
             if (src['types'] == undefined || !(src['types'] instanceof Array))
-                return;	
+                return;
 
             if (dst['types'] == undefined)
                 dst['types'] = [];
-            
+
             let mergeTypes = [];
             for (let i = 0; i < src['types'].length; i++) {
                 let srcStyle = src['types'][i];
@@ -1237,16 +1223,16 @@ namespace Ui
                 if (dstStyle != undefined) {
                     // merge
                     let mergeStyle = {};
-                    for(let prop in dstStyle)
+                    for (let prop in dstStyle)
                         mergeStyle[prop] = dstStyle[prop];
-                    for(let prop in srcStyle)
+                    for (let prop in srcStyle)
                         mergeStyle[prop] = srcStyle[prop];
                     mergeTypes.push(mergeStyle);
                 }
                 else
                     mergeTypes.push(srcStyle);
             }
-            dst['types'] = mergeTypes;			
+            dst['types'] = mergeTypes;
         }
 
         private getClassStyle(style: object, classFunc: Function): object | undefined {
@@ -1255,7 +1241,7 @@ namespace Ui
                 for (let i = 0; i < style['types'].length; i++) {
                     let pStyle = style['types'][i];
                     if (pStyle.type == classFunc)
-                        return pStyle;	
+                        return pStyle;
                 }
             }
             return undefined;
@@ -1264,7 +1250,7 @@ namespace Ui
         private mergeStyles() {
             let current: Function; let found: boolean;
             this.mergeStyle = undefined;
-            if(this._parentStyle != undefined) {
+            if (this._parentStyle != undefined) {
                 current = this.constructor;
                 found = false;
                 while (current != undefined) {
@@ -1280,11 +1266,11 @@ namespace Ui
                     if (current != null)
                         current = current.constructor;
                 }
-                if(!found)
+                if (!found)
                     this.mergeStyle = this._parentStyle;
             }
-            if(this._style != undefined) {
-                if(this.mergeStyle != undefined) {
+            if (this._style != undefined) {
+                if (this.mergeStyle != undefined) {
                     this.mergeStyle = Core.Util.clone(this.mergeStyle);
                     this.fusionStyle(this.mergeStyle, this._style);
 
@@ -1306,7 +1292,7 @@ namespace Ui
                     while (current != undefined) {
                         let classStyle = this.getClassStyle(this._style, current);
                         if (classStyle != undefined) {
-                            if(this.mergeStyle == undefined)
+                            if (this.mergeStyle == undefined)
                                 this.mergeStyle = Core.Util.clone(this._style);
                             this.fusionStyle(this.mergeStyle, classStyle);
                             found = true;
@@ -1316,7 +1302,7 @@ namespace Ui
                         if (current != null)
                             current = current.constructor;
                     }
-                    if(!found)
+                    if (!found)
                         this.mergeStyle = this._style;
                 }
             }
@@ -1324,8 +1310,8 @@ namespace Ui
 
         getIsChildOf(parent: Element) {
             let current: Element | undefined = this;
-            while(current != undefined) {
-                if(current === parent)
+            while (current != undefined) {
+                if (current === parent)
                     return true;
                 current = current.parent;
             }
@@ -1339,10 +1325,10 @@ namespace Ui
         set parent(parent: Element | undefined) {
             this._parent = parent;
         }
-        
-        getParentByClass<T extends Ui.Element>(classFunc: new(...args: any[]) => T): T | undefined {
+
+        getParentByClass<T extends Ui.Element>(classFunc: new (...args: any[]) => T): T | undefined {
             let current = this.parent;
-            while(current != undefined) {
+            while (current != undefined) {
                 if (current instanceof classFunc)
                     return current as T;
                 current = current.parent;
@@ -1351,7 +1337,7 @@ namespace Ui
         }
 
         setParentStyle(parentStyle: object | undefined) {
-            if(this._parentStyle !== parentStyle)
+            if (this._parentStyle !== parentStyle)
                 this._parentStyle = parentStyle;
             this.mergeStyles();
             this.onInternalStyleChange();
@@ -1364,21 +1350,21 @@ namespace Ui
         }
 
         setStyleProperty(property: string, value: any) {
-            if(this._style === undefined)
+            if (this._style === undefined)
                 this._style = {};
             this._style[property] = value;
             this.mergeStyles();
             this.onInternalStyleChange();
         }
 
-        getStyleProperty(property: string): any {			
+        getStyleProperty(property: string): any {
             let current: Function;
             if (this._style != undefined && this._style[property] != undefined)
-                return this._style[property];	
-            if(this.mergeStyle != undefined) {
+                return this._style[property];
+            if (this.mergeStyle != undefined) {
                 current = this.constructor;
                 while (current != undefined) {
-                    
+
                     if (this.mergeStyle['types'] != undefined && (this.mergeStyle['types'] instanceof Array)) {
                         let classStyle = undefined;
                         for (let i = 0; classStyle == undefined && i < this.mergeStyle['types'].length; i++) {
@@ -1390,9 +1376,9 @@ namespace Ui
                             return classStyle[property];
                     }
 
-//					if((this.mergeStyle[current.name] !== undefined) && (this.mergeStyle[current.name][property] !== undefined))
-//						return this.mergeStyle[current.name][property];
-                    
+                    //					if((this.mergeStyle[current.name] !== undefined) && (this.mergeStyle[current.name][property] !== undefined))
+                    //						return this.mergeStyle[current.name][property];
+
                     current = Object.getPrototypeOf(current.prototype);
                     if (current != null)
                         current = current.constructor;
@@ -1401,15 +1387,15 @@ namespace Ui
             // look for static default
             current = this.constructor;
             while (current != undefined) {
-                if(('style' in current) && (property in (current as any).style))
+                if (('style' in current) && (property in (current as any).style))
                     return (current as any).style[property];
                 current = Object.getPrototypeOf(current);
             }
             return undefined;
         }
 
-        protected onInternalStyleChange() {			
-            if(!this._isLoaded)
+        protected onInternalStyleChange() {
+            if (!this._isLoaded)
                 return;
             this.onStyleChange();
         }
@@ -1429,7 +1415,7 @@ namespace Ui
         }
 
         protected onScrollIntoView(el: Element) {
-            if(this._parent != undefined)
+            if (this._parent != undefined)
                 this._parent.onScrollIntoView(el);
         }
 
@@ -1446,9 +1432,9 @@ namespace Ui
         }
 
         set isLoaded(isLoaded: boolean) {
-            if(this._isLoaded !== isLoaded) {
+            if (this._isLoaded !== isLoaded) {
                 this._isLoaded = isLoaded;
-                if(isLoaded)
+                if (isLoaded)
                     this.onLoad();
                 else
                     this.onUnload();
@@ -1456,24 +1442,15 @@ namespace Ui
         }
 
         protected onFocus(event?) {
-            if(!this._hasFocus && this._focusable && !this.isDisabled) {
-                if (event) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
+            if (!this._hasFocus && this._focusable && !this.isDisabled) {
                 this._hasFocus = true;
                 this.isMouseFocus = this.isMouseDownFocus;
-                this.scrollIntoView();
                 this.focused.fire({ target: this });
             }
         }
 
         protected onBlur(event?) {
-            if(this._hasFocus) {
-                if (event) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
+            if (this._hasFocus) {
                 this.isMouseFocus = false;
                 this._hasFocus = false;
                 this.blurred.fire({ target: this });
@@ -1481,47 +1458,35 @@ namespace Ui
         }
 
         private updateTransform() {
-            if(this._transform !== undefined) {
+            if (this._transform !== undefined) {
                 let matrix = this._transform;
                 let x = this.transformOriginX;
                 let y = this.transformOriginY;
-                if(!this.transformOriginAbsolute) {
+                if (!this.transformOriginAbsolute) {
                     x *= this._layoutWidth;
                     y *= this._layoutHeight;
                 }
-                if((x !== 0) || (y !== 0))
+                if ((x !== 0) || (y !== 0))
                     matrix = Ui.Matrix.createTranslate(x, y).multiply(this._transform).translate(-x, -y);
 
-                this._drawing.style.transform = matrix.toString();
-                if(Core.Navigator.isIE)
-                    this._drawing.style.msTransform = matrix.toString();
-                else if(Core.Navigator.isGecko)
-                    this._drawing.style.MozTransform = 'matrix('+matrix.getA().toFixed(4)+', '+matrix.getB().toFixed(4)+', '+matrix.getC().toFixed(4)+', '+matrix.getD().toFixed(4)+', '+matrix.getE().toFixed(4)+'px, '+matrix.getF().toFixed(4)+'px)';
-                else if(Core.Navigator.isWebkit)
-                    this._drawing.style.webkitTransform = matrix.toString()+' translate3d(0,0,0)';
-                else if(Core.Navigator.isOpera)
-                    this._drawing.style.OTransform = matrix.toString();
+                this.drawing.style.transform = matrix.toString();
+                if (Core.Navigator.isIE)
+                    (<any>this.drawing.style).msTransform = matrix.toString();
             }
             else {
-                if('removeProperty' in this._drawing.style)
-                    this._drawing.style.removeProperty('transform');
-                if(Core.Navigator.isIE && ('removeProperty' in this._drawing.style))
-                    this._drawing.style.removeProperty('-ms-transform');
-                else if(Core.Navigator.isGecko)
-                    this._drawing.style.removeProperty('-moz-transform');
-                else if(Core.Navigator.isWebkit)
-                    this._drawing.style.removeProperty('-webkit-transform');
-                else if(Core.Navigator.isOpera)
-                    this._drawing.style.removeProperty('-o-transform');
+                if ('removeProperty' in this.drawing.style)
+                    this.drawing.style.removeProperty('transform');
+                if (Core.Navigator.isIE && ('removeProperty' in this.drawing.style))
+                    this.drawing.style.removeProperty('-ms-transform');
             }
         }
 
         setAnimClock(clock: Anim.Clock): void {
             // if an anim clock is already set stop it
-            if(this.animClock != undefined)
+            if (this.animClock != undefined)
                 this.animClock.stop();
             this.animClock = clock;
-            if(clock != undefined)
+            if (clock != undefined)
                 clock.completed.connect(() => this.onAnimClockComplete());
         }
 
@@ -1530,7 +1495,7 @@ namespace Ui
         }
 
         protected onLoad() {
-            if(this._parent != undefined) {
+            if (this._parent != undefined) {
                 this.setParentStyle(this._parent.mergeStyle);
                 this.setParentDisabled(this._parent.isDisabled);
                 this.parentVisible = this._parent.isVisible;
@@ -1539,7 +1504,7 @@ namespace Ui
         }
 
         protected onUnload() {
-            if(this.animClock != undefined) {
+            if (this.animClock != undefined) {
                 this.animClock.stop();
                 this.animClock = undefined;
             }
@@ -1549,7 +1514,7 @@ namespace Ui
         static transformToWindow(element: Element): Matrix {
             let matrix = new Ui.Matrix();
             let current: Element | undefined = element;
-            while(current != undefined) {
+            while (current != undefined) {
                 matrix = current.getInverseLayoutTransform().multiply(matrix);
                 current = current._parent;
             }
@@ -1566,8 +1531,8 @@ namespace Ui
 
         static getIsDrawingChildOf(drawing, parent): boolean {
             let current = drawing;
-            while(current != undefined) {
-                if(current === parent)
+            while (current != undefined) {
+                if (current === parent)
                     return true;
                 current = current.offsetParent;
             }
@@ -1576,24 +1541,24 @@ namespace Ui
 
         static setSelectable(drawing, selectable) {
             drawing.selectable = selectable;
-            if(selectable) {
+            if (selectable) {
                 drawing.style.cursor = 'text';
                 drawing.style.userSelect = 'text';
-                if(Core.Navigator.isWebkit)
+                if (Core.Navigator.isWebkit)
                     drawing.style.webkitUserSelect = 'text';
-                else if(Core.Navigator.isGecko)
+                else if (Core.Navigator.isGecko)
                     drawing.style.MozUserSelect = 'text';
-                else if(Core.Navigator.isIE)
+                else if (Core.Navigator.isIE)
                     drawing.style.msUserSelect = 'element';
             }
             else {
                 drawing.style.cursor = 'inherit';
                 drawing.style.userSelect = 'none';
-                if(Core.Navigator.isWebkit)
+                if (Core.Navigator.isWebkit)
                     drawing.style.webkitUserSelect = 'none';
-                else if(Core.Navigator.isGecko)
+                else if (Core.Navigator.isGecko)
                     drawing.style.MozUserSelect = 'none';
-                else if(Core.Navigator.isIE)
+                else if (Core.Navigator.isIE)
                     drawing.style.msUserSelect = 'none';
             }
         }
