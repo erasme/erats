@@ -289,8 +289,6 @@ namespace Ui
                         image.style.removeProperty('-moz-transform');
                     else if (Core.Navigator.isWebkit)
                         image.style.removeProperty('-webkit-transform');
-                    else if (Core.Navigator.isOpera)
-                        image.style.removeProperty('-o-transform');
                     image.style.left = '0px';
                     image.style.top = '0px';
                     image.style.touchAction = 'none';
