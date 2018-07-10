@@ -3,6 +3,7 @@ namespace Ui {
     }
 
     export class Form extends LBox implements FormInit {
+        readonly drawing: HTMLFormElement;
         readonly submited = new Core.Events<{ target: Form }>();
         set onsubmited(value: (event: { target: Form }) => void) { this.submited.connect(value); }
 
@@ -22,8 +23,7 @@ namespace Ui {
         }
 
         renderDrawing() {
-            let drawing;
-            drawing = document.createElement('form');
+            let drawing = document.createElement('form');
 
             // create an input type submit button. Else
             // the form might never raise submit event

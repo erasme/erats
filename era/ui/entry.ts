@@ -14,6 +14,7 @@ namespace Ui
 
     export class Entry extends Element implements EntryInit
     {
+        readonly drawing: HTMLInputElement;
         private _fontSize?: number;
         private _fontFamily?: string;
         private _fontWeight?: string;

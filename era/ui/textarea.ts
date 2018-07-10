@@ -8,6 +8,7 @@ namespace Ui {
     }
 
     export class TextArea extends Element {
+        readonly drawing: HTMLTextAreaElement;
         private _fontSize?: number;
         private _fontFamily?: string;
         private _fontWeight?: string;
