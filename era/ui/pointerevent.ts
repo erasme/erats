@@ -427,10 +427,10 @@ namespace Ui
             this.app = app;
 
             if ('PointerEvent' in (window as any)) {
-                (window as any).addEventListener('pointerdown', e => this.onPointerDown(e));
-                (window as any).addEventListener('pointermove', e => this.onPointerMove(e));
-                (window as any).addEventListener('pointerup', e => this.onPointerUp(e));
-                (window as any).addEventListener('pointercancel', e => this.onPointerCancel(e));
+                (window as any).addEventListener('pointerdown', e => this.onPointerDown(e), { passive: false });
+                (window as any).addEventListener('pointermove', e => this.onPointerMove(e), { passive: false });
+                (window as any).addEventListener('pointerup', e => this.onPointerUp(e), { passive: false });
+                (window as any).addEventListener('pointercancel', e => this.onPointerCancel(e), { passive: false });
             }
             else {
                 this.mouse = new Pointer('mouse', 0);
@@ -460,10 +460,10 @@ namespace Ui
                     }
                 });
 
-                document.body.addEventListener('touchstart', e => this.updateTouches(e as TouchEvent), true);
-                document.body.addEventListener('touchmove', e => this.updateTouches(e as TouchEvent), true);
-                document.body.addEventListener('touchend', e => this.updateTouches(e as TouchEvent), true);
-                document.body.addEventListener('touchcancel', e => this.updateTouches(e as TouchEvent), true);
+                document.body.addEventListener('touchstart', e => this.updateTouches(e as TouchEvent), { passive: false, capture: true });
+                document.body.addEventListener('touchmove', e => this.updateTouches(e as TouchEvent), { passive: false, capture: true });
+                document.body.addEventListener('touchend', e => this.updateTouches(e as TouchEvent), { passive: false, capture: true });
+                document.body.addEventListener('touchcancel', e => this.updateTouches(e as TouchEvent), { passive: false, capture: true });
             }
         }
 
@@ -585,6 +585,8 @@ namespace Ui
             }	
             this.pointers[event.pointerId].setControls(event.altKey, event.ctrlKey, event.shiftKey);
             this.pointers[event.pointerId].down(event.clientX, event.clientY, event.buttons, event.button);
+            if (this.pointers[event.pointerId].getIsCaptured())
+                event.preventDefault();
         }
 
         onPointerMove(event) {
@@ -601,6 +603,8 @@ namespace Ui
             }
             this.pointers[event.pointerId].setControls(event.altKey, event.ctrlKey, event.shiftKey);
             this.pointers[event.pointerId].move(event.clientX, event.clientY);
+            if (this.pointers[event.pointerId].getIsCaptured())
+                event.preventDefault();
         }
 
         onPointerUp(event) {
@@ -608,6 +612,8 @@ namespace Ui
             if (this.pointers[event.pointerId] !== undefined) {
                 this.pointers[event.pointerId].setControls(event.altKey, event.ctrlKey, event.shiftKey);
                 this.pointers[event.pointerId].up();
+                if (this.pointers[event.pointerId].getIsCaptured())
+                    event.preventDefault();
                 if (this.pointers[event.pointerId].getType() == 'touch')
                     delete (this.pointers[event.pointerId]);
             }
@@ -662,7 +668,7 @@ namespace Ui
                 }
             }
 
-            console.log(`updateTouches ${event.type} ${eventTaken}`);
+            //console.log(`updateTouches ${event.type} ${eventTaken}`);
 
             // we dont prevent default for all events because we need
             // default behavious like focus handling, text selection,

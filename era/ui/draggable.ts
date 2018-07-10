@@ -18,7 +18,6 @@ namespace Ui {
         }) {
             super();
             this.element = init.element;
-            this.element.drawing.style.touchAction = 'none';
             this.data = init.data;
             if (init.start !== undefined)
                 this.start = init.start;
@@ -104,7 +103,7 @@ namespace Ui {
 
         constructor(init?: DraggableInit) {
             super(init);
-            this.drawing.style.touchAction = 'none';
+            this.drawing.oncontextmenu = (e) => e.preventDefault();
             this.ptrdowned.connect((e) => this.onDraggablePointerDown(e));
             if (init) {
                 if (init.ondragstarted)
