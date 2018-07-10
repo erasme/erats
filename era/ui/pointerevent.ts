@@ -570,7 +570,9 @@ namespace Ui
         }
 
         onPointerDown(event: any) {
-            event.target.setPointerCapture(event.pointerId);
+            // quick hack for IE support need more work
+            if (!(event.target.tagName == 'INPUT' || event.target.tagName == 'TEXTAREA'))
+                event.target.setPointerCapture(event.pointerId);
             if (this.pointers[event.pointerId] === undefined) {
                 let type;
                 if (event.pointerType === 'pen')

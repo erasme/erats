@@ -7093,7 +7093,8 @@ var Ui;
             catch (e) { }
         };
         PointerManager.prototype.onPointerDown = function (event) {
-            event.target.setPointerCapture(event.pointerId);
+            if (!(event.target.tagName == 'INPUT' || event.target.tagName == 'TEXTAREA'))
+                event.target.setPointerCapture(event.pointerId);
             if (this.pointers[event.pointerId] === undefined) {
                 var type = void 0;
                 if (event.pointerType === 'pen')
