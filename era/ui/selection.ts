@@ -9,11 +9,11 @@ namespace Ui {
             this._watchers = [];
         }
 
-        clear() {			
+        clear() {
             let change = false;
             while (this._watchers.length > 0) {
                 if (this.internalRemove(this._watchers[0]))
-                    change = true;	
+                    change = true;
             }
             if (change)
                 this.changed.fire({ target: this });
@@ -23,8 +23,6 @@ namespace Ui {
             let change = false;
             let res = this.findRangeElements(start, end);
             res.forEach(el => { if (this.internalAppend(el)) change = true; });
-            if (end.element.focusable)
-                end.element.focus();	
             if (change)
                 this.changed.fire({ target: this });
         }
@@ -34,16 +32,11 @@ namespace Ui {
             if (elements instanceof SelectionableWatcher) {
                 if (this.internalAppend(elements))
                     change = true;
-                if (elements.element.focusable)
-                    elements.element.focus();	
             }
-            else {
+            else
                 elements.forEach(el => { if (this.internalAppend(el)) change = true });
-                if (elements[elements.length - 1].element.focusable)
-                    elements[elements.length - 1].element.focus();
-            }
             if (change)
-                this.changed.fire({ target: this });	
+                this.changed.fire({ target: this });
         }
 
         extend(end: SelectionableWatcher) {
@@ -53,7 +46,7 @@ namespace Ui {
                 let focusElement = this._watchers.find(el => el.element.hasFocus);
                 if (!focusElement)
                     focusElement = this._watchers[0];
-                
+
                 this.watchers = this.findRangeElements(focusElement, end);
             }
         }
@@ -78,7 +71,7 @@ namespace Ui {
             let all = new Array<SelectionableWatcher>();
             let add_selectionable = (el: Element) => {
                 let w = SelectionableWatcher.getSelectionableWatcher(el);
-                if (w)	
+                if (w)
                     all.push(w);
                 else if (el instanceof Container)
                     el.children.forEach(el2 => add_selectionable(el2));
@@ -103,7 +96,7 @@ namespace Ui {
             watcher.onSelect(this);
             return true;
         }
-    
+
         remove(watcher: Array<SelectionableWatcher> | SelectionableWatcher) {
             let change = false;
             if (watcher instanceof SelectionableWatcher) {
@@ -116,7 +109,7 @@ namespace Ui {
                 this.changed.fire({ target: this });
         }
 
-        private internalRemove(watcher: SelectionableWatcher): boolean  {
+        private internalRemove(watcher: SelectionableWatcher): boolean {
             // test if we already have it
             let foundPos = this._watchers.indexOf(watcher);
             if (foundPos != -1) {
@@ -127,7 +120,7 @@ namespace Ui {
             }
             return false;
         }
-    
+
         get watchers(): Array<SelectionableWatcher> {
             return this._watchers.slice();
         }
@@ -145,10 +138,8 @@ namespace Ui {
             });
             removeList.forEach(el => this.internalRemove(el));
             addList.forEach(el => this.internalAppend(el));
-            if (watchers.length > 0 && watchers[watchers.length - 1].element.focusable)
-            watchers[watchers.length - 1].element.focus();
             if (addList.length > 0 || removeList.length > 0)
-                this.changed.fire({ target: this });	
+                this.changed.fire({ target: this });
         }
 
         get elements(): Element[] {
@@ -225,7 +216,7 @@ namespace Ui {
                 }
             }
         }
-    
+
         getDefaultAction() {
             let actions = this.getActions();
             for (let actionName in actions) {
@@ -234,7 +225,7 @@ namespace Ui {
             }
             return undefined;
         }
-    
+
         executeDefaultAction() {
             let action = this.getDefaultAction();
             if (action !== undefined) {
@@ -246,7 +237,7 @@ namespace Ui {
                 return false;
             }
         }
-    
+
         getDeleteAction() {
             let actions = this.getActions();
             if ('delete' in actions)
@@ -256,7 +247,7 @@ namespace Ui {
             else
                 return undefined;
         }
-    
+
         executeDeleteAction() {
             let action = this.getDeleteAction();
             if (action !== undefined) {
@@ -268,7 +259,7 @@ namespace Ui {
                 return false;
             }
         }
-    
+
         onElementUnload = (e: { target: Element }) => {
             // remove the element from the selection
             // if removed from the DOM
