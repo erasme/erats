@@ -1745,17 +1745,16 @@ declare namespace Ui {
 declare namespace Ui {
     class OverWatcher extends Core.Object {
         private element;
-        private pointer?;
         private enter?;
         private leave?;
+        private _isOver;
         constructor(init: {
             element: Ui.Element;
             onentered?: (watcher: OverWatcher) => void;
             onleaved?: (watcher: OverWatcher) => void;
         });
-        private onPtrMove;
-        private onPtrUp;
-        private onPtrLeave;
+        private onPointerMove;
+        private onWindowPointerMove;
         readonly isOver: boolean;
     }
     interface OverableInit extends LBoxInit {
@@ -1763,9 +1762,6 @@ declare namespace Ui {
             target: Overable;
         }) => void;
         onleaved?: (event: {
-            target: Overable;
-        }) => void;
-        onmoved?: (event: {
             target: Overable;
         }) => void;
     }
@@ -1781,12 +1777,6 @@ declare namespace Ui {
             target: Overable;
         }>;
         onleaved: (event: {
-            target: Overable;
-        }) => void;
-        readonly moved: Core.Events<{
-            target: Overable;
-        }>;
-        onmoved: (event: {
             target: Overable;
         }) => void;
         constructor(init?: OverableInit);

@@ -2,9 +2,9 @@ namespace Ui {
 
     export class OverWatcher extends Core.Object {
         private element: Ui.Element;
-        private pointer?: Pointer;
         private enter?: (watcher: OverWatcher) => void;
         private leave?: (watcher: OverWatcher) => void;
+        private _isOver: boolean = false;
 
         constructor(init: {
             element: Ui.Element,
@@ -18,45 +18,47 @@ namespace Ui {
                 this.leave = init.onleaved;
 
             this.element = init.element;
-            init.element.ptrmoved.connect((event: EmuPointerEvent) => {
-                if (!this.element.isDisabled && (this.pointer == undefined)) {
-                    this.pointer = event.pointer;
-                    if (this.enter)
-                        this.enter(this);
-                    this.pointer.ptrmoved.connect(this.onPtrMove);
-                    this.pointer.ptrupped.connect(this.onPtrUp);
-                }
-            });
+            if ('PointerEvent' in window)
+                this.element.drawing.addEventListener('pointermove', this.onPointerMove, { passive: true });
         }
 
-        private onPtrMove = (e: { target: Pointer }) => {
-            if (!e.target.getIsInside(this.element))
-                this.onPtrLeave(e.target);
+        private onPointerMove = (e: PointerEvent) => {
+            if (this.element.isDisabled)
+                return;
+            if (e.pointerType == 'touch')
+                return;
+            if (!this._isOver) {
+                this._isOver = true;
+                if (this.enter)
+                    this.enter(this);
+                // watch for leave
+                window.addEventListener('pointermove', this.onWindowPointerMove, { passive: true, capture: true });
+            }
         }
 
-        private onPtrUp = (e: { target: Pointer }) => {
-            if (e.target.type == 'touch')
-                this.onPtrLeave(e.target);
-        }
-
-        private onPtrLeave(pointer: Pointer) {
-            pointer.ptrmoved.disconnect(this.onPtrMove);
-            pointer.ptrupped.disconnect(this.onPtrUp);
-            this.pointer = undefined;
-            // leave
-            if (this.leave)
-                this.leave(this);
+        private onWindowPointerMove = (e: PointerEvent) => {
+            let isInside = false;
+            let currentNode: Node = e.target as Node;
+            while(!isInside && currentNode) {
+                isInside = (currentNode === this.element.drawing);
+                currentNode = currentNode.parentNode;
+            }
+            if (!isInside) {
+                this._isOver = false;
+                window.removeEventListener('pointermove', this.onWindowPointerMove, { capture: true });
+                if (this.leave)
+                    this.leave(this);
+            }
         }
 
         get isOver(): boolean {
-            return (this.pointer !== undefined);
+            return this._isOver;
         }
     }
 
     export interface OverableInit extends LBoxInit {
         onentered?: (event: { target: Overable }) => void;
         onleaved?: (event: { target: Overable }) => void;
-        onmoved?: (event: { target: Overable }) => void;
     }
 
     export class Overable extends LBox implements OverableInit {
@@ -65,8 +67,6 @@ namespace Ui {
         set onentered(value: (event: { target: Overable }) => void) { this.entered.connect(value); }
         readonly leaved = new Core.Events<{ target: Overable }>();
         set onleaved(value: (event: { target: Overable }) => void) { this.leaved.connect(value); }
-        readonly moved = new Core.Events<{ target: Overable }>();
-        set onmoved(value: (event: { target: Overable }) => void) { this.moved.connect(value); }
 
         constructor(init?: OverableInit) {
             super(init);
@@ -80,8 +80,6 @@ namespace Ui {
                     this.entered.connect(init.onentered);
                 if (init.onleaved)
                     this.leaved.connect(init.onleaved);
-                if (init.onmoved)
-                    this.moved.connect(init.onmoved);
             }
         }
 

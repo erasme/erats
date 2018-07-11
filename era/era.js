@@ -8651,40 +8651,45 @@ var Ui;
         __extends(OverWatcher, _super);
         function OverWatcher(init) {
             var _this = _super.call(this) || this;
-            _this.onPtrMove = function (e) {
-                if (!e.target.getIsInside(_this.element))
-                    _this.onPtrLeave(e.target);
+            _this._isOver = false;
+            _this.onPointerMove = function (e) {
+                if (_this.element.isDisabled)
+                    return;
+                if (e.pointerType == 'touch')
+                    return;
+                if (!_this._isOver) {
+                    _this._isOver = true;
+                    if (_this.enter)
+                        _this.enter(_this);
+                    window.addEventListener('pointermove', _this.onWindowPointerMove, { passive: true, capture: true });
+                }
             };
-            _this.onPtrUp = function (e) {
-                if (e.target.type == 'touch')
-                    _this.onPtrLeave(e.target);
+            _this.onWindowPointerMove = function (e) {
+                var isInside = false;
+                var currentNode = e.target;
+                while (!isInside && currentNode) {
+                    isInside = (currentNode === _this.element.drawing);
+                    currentNode = currentNode.parentNode;
+                }
+                if (!isInside) {
+                    _this._isOver = false;
+                    window.removeEventListener('pointermove', _this.onWindowPointerMove, { capture: true });
+                    if (_this.leave)
+                        _this.leave(_this);
+                }
             };
             if (init.onentered)
                 _this.enter = init.onentered;
             if (init.onleaved)
                 _this.leave = init.onleaved;
             _this.element = init.element;
-            init.element.ptrmoved.connect(function (event) {
-                if (!_this.element.isDisabled && (_this.pointer == undefined)) {
-                    _this.pointer = event.pointer;
-                    if (_this.enter)
-                        _this.enter(_this);
-                    _this.pointer.ptrmoved.connect(_this.onPtrMove);
-                    _this.pointer.ptrupped.connect(_this.onPtrUp);
-                }
-            });
+            if ('PointerEvent' in window)
+                _this.element.drawing.addEventListener('pointermove', _this.onPointerMove, { passive: true });
             return _this;
         }
-        OverWatcher.prototype.onPtrLeave = function (pointer) {
-            pointer.ptrmoved.disconnect(this.onPtrMove);
-            pointer.ptrupped.disconnect(this.onPtrUp);
-            this.pointer = undefined;
-            if (this.leave)
-                this.leave(this);
-        };
         Object.defineProperty(OverWatcher.prototype, "isOver", {
             get: function () {
-                return (this.pointer !== undefined);
+                return this._isOver;
             },
             enumerable: true,
             configurable: true
@@ -8698,7 +8703,6 @@ var Ui;
             var _this = _super.call(this, init) || this;
             _this.entered = new Core.Events();
             _this.leaved = new Core.Events();
-            _this.moved = new Core.Events();
             _this.watcher = new OverWatcher({
                 element: _this,
                 onentered: function () { return _this.entered.fire({ target: _this }); },
@@ -8709,8 +8713,6 @@ var Ui;
                     _this.entered.connect(init.onentered);
                 if (init.onleaved)
                     _this.leaved.connect(init.onleaved);
-                if (init.onmoved)
-                    _this.moved.connect(init.onmoved);
             }
             return _this;
         }
@@ -8721,11 +8723,6 @@ var Ui;
         });
         Object.defineProperty(Overable.prototype, "onleaved", {
             set: function (value) { this.leaved.connect(value); },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Overable.prototype, "onmoved", {
-            set: function (value) { this.moved.connect(value); },
             enumerable: true,
             configurable: true
         });
