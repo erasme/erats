@@ -46,7 +46,7 @@ namespace Ui {
                 ondelayedpress: (w) => this.onDelayedPress(w),
                 onactivated: (w) => this.onSelectionableActivate(w)
             });
-            if (init.draggable !== false)
+            if (init.draggable === true)
                 new DraggableWatcher({
                     element: this.element,
                     data: this.element,
