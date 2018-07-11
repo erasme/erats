@@ -9128,7 +9128,7 @@ var Ui;
                 ondelayedpress: function (w) { return _this.onDelayedPress(w); },
                 onactivated: function (w) { return _this.onSelectionableActivate(w); }
             });
-            if (init.draggable !== false)
+            if (init.draggable === true)
                 new Ui.DraggableWatcher({
                     element: _this.element,
                     data: _this.element,
@@ -9311,8 +9311,6 @@ var Ui;
             var res = this.findRangeElements(start, end);
             res.forEach(function (el) { if (_this.internalAppend(el))
                 change = true; });
-            if (end.element.focusable)
-                end.element.focus();
             if (change)
                 this.changed.fire({ target: this });
         };
@@ -9322,14 +9320,10 @@ var Ui;
             if (elements instanceof Ui.SelectionableWatcher) {
                 if (this.internalAppend(elements))
                     change = true;
-                if (elements.element.focusable)
-                    elements.element.focus();
             }
             else {
                 elements.forEach(function (el) { if (_this.internalAppend(el))
                     change = true; });
-                if (elements[elements.length - 1].element.focusable)
-                    elements[elements.length - 1].element.focus();
             }
             if (change)
                 this.changed.fire({ target: this });
@@ -9424,8 +9418,6 @@ var Ui;
                 });
                 removeList.forEach(function (el) { return _this.internalRemove(el); });
                 addList.forEach(function (el) { return _this.internalAppend(el); });
-                if (watchers.length > 0 && watchers[watchers.length - 1].element.focusable)
-                    watchers[watchers.length - 1].element.focus();
                 if (addList.length > 0 || removeList.length > 0)
                     this.changed.fire({ target: this });
             },
