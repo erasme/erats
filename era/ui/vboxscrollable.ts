@@ -63,7 +63,7 @@
             this.contentBox.inertiaended.connect(() => this.autoHideScrollbars());
             this.appendChild(this.contentBox);
 
-            this.ptrmoved.connect((event: PointerEvent) => {
+            this.ptrmoved.connect((event: EmuPointerEvent) => {
                 if (!this.isDisabled && !event.pointer.getIsDown() && (this.overWatcher === undefined)) {
                     this.overWatcher = event.pointer.watch(this);
                     this.isOver = true;

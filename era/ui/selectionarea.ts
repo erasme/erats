@@ -175,7 +175,7 @@ namespace Ui {
                 });
         }
 
-        private onPointerDown(event: Ui.PointerEvent) {
+        private onPointerDown(event: EmuPointerEvent) {
             if (this.watcher != undefined)
                 return;
             if (event.pointerType == 'mouse' && event.pointer.button == 0) {

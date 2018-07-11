@@ -6627,9 +6627,9 @@ var Ui;
 })(Ui || (Ui = {}));
 var Ui;
 (function (Ui) {
-    var PointerEvent = (function (_super) {
-        __extends(PointerEvent, _super);
-        function PointerEvent(type, pointer) {
+    var EmuPointerEvent = (function (_super) {
+        __extends(EmuPointerEvent, _super);
+        function EmuPointerEvent(type, pointer) {
             var _this = _super.call(this) || this;
             _this.pointer = undefined;
             _this.clientX = 0;
@@ -6642,9 +6642,9 @@ var Ui;
             _this.pointerType = _this.pointer.getType();
             return _this;
         }
-        return PointerEvent;
+        return EmuPointerEvent;
     }(Ui.Event));
-    Ui.PointerEvent = PointerEvent;
+    Ui.EmuPointerEvent = EmuPointerEvent;
     var PointerWatcher = (function (_super) {
         __extends(PointerWatcher, _super);
         function PointerWatcher(element, pointer) {
@@ -6870,7 +6870,7 @@ var Ui;
             if (this.captureWatcher === undefined) {
                 var target = Ui.App.current.elementFromPoint(new Ui.Point(this.x, this.y));
                 if (target != undefined) {
-                    var pointerEvent = new PointerEvent('ptrmoved', this);
+                    var pointerEvent = new EmuPointerEvent('ptrmoved', this);
                     pointerEvent.dispatchEvent(target);
                 }
             }
@@ -6919,7 +6919,7 @@ var Ui;
             for (var i = 0; i < watchers.length; i++)
                 watchers[i].down();
             var target = Ui.App.current.elementFromPoint(new Ui.Point(this.x, this.y));
-            var pointerEvent = new PointerEvent('ptrdowned', this);
+            var pointerEvent = new EmuPointerEvent('ptrdowned', this);
             if (target !== undefined)
                 pointerEvent.dispatchEvent(target);
             this.ptrdowned.fire({ target: this });
@@ -6931,7 +6931,7 @@ var Ui;
             if (this.type == 'touch')
                 this.watchers = [];
             this.buttons = 0;
-            var pointerEvent = new PointerEvent('ptrupped', this);
+            var pointerEvent = new EmuPointerEvent('ptrupped', this);
             if (this.captureWatcher === undefined) {
                 var target = Ui.App.current.elementFromPoint(new Ui.Point(this.x, this.y));
                 if (target != undefined)
@@ -9321,10 +9321,9 @@ var Ui;
                 if (this.internalAppend(elements))
                     change = true;
             }
-            else {
+            else
                 elements.forEach(function (el) { if (_this.internalAppend(el))
                     change = true; });
-            }
             if (change)
                 this.changed.fire({ target: this });
         };
@@ -10259,7 +10258,6 @@ var Ui;
             var _this = _super.call(this, init) || this;
             _this._cursor = 'inherit';
             _this.focusable = true;
-            _this.drawing.style.touchAction = 'none';
             _this.drawing.style.cursor = _this._cursor;
             _this.drawing.addEventListener('keydown', function (e) { return _this.onKeyDown(e); });
             if (init) {

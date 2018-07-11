@@ -30,7 +30,7 @@ namespace Ui {
             return this._dragDelta;
         }
 
-        private onDraggablePointerDown(event: PointerEvent): void {
+        private onDraggablePointerDown(event: EmuPointerEvent): void {
             // left and middle mouse button only
             if (event.pointerType == 'mouse' && event.pointer.button != 0 && event.pointer.button != 1)
                 return;	
@@ -125,7 +125,7 @@ namespace Ui {
             return this._dragDelta;
         }
 
-        private onDraggablePointerDown(event: PointerEvent): void {
+        private onDraggablePointerDown(event: EmuPointerEvent): void {
             // left and middle mouse button only
             if (event.pointerType == 'mouse' && event.pointer.button != 0 && event.pointer.button != 1)
                 return;	

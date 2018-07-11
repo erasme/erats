@@ -877,14 +877,14 @@ declare namespace Ui {
         onhidden: (event: {
             target: Element;
         }) => void;
-        readonly ptrdowned: Core.Events<PointerEvent>;
-        onptrdowned: (event: PointerEvent) => void;
-        readonly ptrmoved: Core.Events<PointerEvent>;
-        onptrmoved: (event: PointerEvent) => void;
-        readonly ptrupped: Core.Events<PointerEvent>;
-        onptrupped: (event: PointerEvent) => void;
-        readonly ptrcanceled: Core.Events<PointerEvent>;
-        onptrcanceled: (event: PointerEvent) => void;
+        readonly ptrdowned: Core.Events<EmuPointerEvent>;
+        onptrdowned: (event: EmuPointerEvent) => void;
+        readonly ptrmoved: Core.Events<EmuPointerEvent>;
+        onptrmoved: (event: EmuPointerEvent) => void;
+        readonly ptrupped: Core.Events<EmuPointerEvent>;
+        onptrupped: (event: EmuPointerEvent) => void;
+        readonly ptrcanceled: Core.Events<EmuPointerEvent>;
+        onptrcanceled: (event: EmuPointerEvent) => void;
         readonly wheelchanged: Core.Events<WheelEvent>;
         onwheelchanged: (event: WheelEvent) => void;
         readonly dragover: Core.Events<DragEvent>;
@@ -1335,7 +1335,7 @@ declare namespace Ui {
     }
 }
 declare namespace Ui {
-    class PointerEvent extends Event {
+    class EmuPointerEvent extends Event {
         pointer: Pointer;
         clientX: number;
         clientY: number;
@@ -1819,7 +1819,7 @@ declare namespace Ui {
             ondelayedpress?: (watcher: PressWatcher) => void;
         });
         readonly isDown: boolean;
-        protected onPointerDown(event: PointerEvent): void;
+        protected onPointerDown(event: EmuPointerEvent): void;
         protected onKeyDown(event: KeyboardEvent): void;
         protected onKeyUp(event: KeyboardEvent): void;
         protected onDown(): void;
@@ -2104,7 +2104,7 @@ declare namespace Ui {
         lock: boolean;
         constructor(init: ContextMenuWatcherInit);
         readonly isDown: boolean;
-        protected onPointerDown(event: PointerEvent): void;
+        protected onPointerDown(event: EmuPointerEvent): void;
         protected onKeyUp(event: KeyboardEvent): void;
         protected onDown(): void;
         protected onUp(): void;
@@ -2353,7 +2353,7 @@ declare namespace Ui {
         inertia: boolean;
         protected onDown(): void;
         protected onUp(): void;
-        protected onPointerDown(event: PointerEvent): void;
+        protected onPointerDown(event: EmuPointerEvent): void;
         protected onPointerMove(watcher: any): void;
         protected onPointerCancel(watcher: any): void;
         protected onPointerUp(watcher: any): void;
@@ -2471,7 +2471,7 @@ declare namespace Ui {
         protected onContentTransform(testOnly?: boolean): void;
         protected onDown(): void;
         protected onUp(): void;
-        protected onPointerDown(event: PointerEvent): void;
+        protected onPointerDown(event: EmuPointerEvent): void;
         protected onPointerMove(watcher: any): void;
         protected onPointerCancel(watcher: any): void;
         protected onPointerUp(watcher: any): void;

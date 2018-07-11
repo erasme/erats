@@ -153,7 +153,7 @@ namespace Ui {
             });
         }
 
-        private onPointerDown(event: PointerEvent) {
+        private onPointerDown(event: EmuPointerEvent) {
             if (this._isDown || this.isDisabled || this._lock)
                 return;
             

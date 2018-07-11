@@ -259,7 +259,7 @@ namespace Ui {
                 this.up(this);
         }
     
-        protected onPointerDown(event: PointerEvent) {
+        protected onPointerDown(event: EmuPointerEvent) {
             if (!this._allowLeftMouse && event.pointerType == 'mouse' && event.pointer.button == 0)
                 return;	
 
@@ -824,7 +824,7 @@ namespace Ui {
             this.upped.fire({ target: this });
         }
     
-        protected onPointerDown(event: PointerEvent) {
+        protected onPointerDown(event: EmuPointerEvent) {
             if (!this._allowLeftMouse && event.pointerType == 'mouse' && event.pointer.button == 0)
                 return;	
             

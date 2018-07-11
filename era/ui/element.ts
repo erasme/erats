@@ -160,17 +160,17 @@ namespace Ui {
         readonly hidden = new Core.Events<{ target: Element }>();
         set onhidden(value: (event: { target: Element }) => void) { this.hidden.connect(value); }
 
-        readonly ptrdowned = new Core.Events<PointerEvent>();
-        set onptrdowned(value: (event: PointerEvent) => void) { this.ptrdowned.connect(value); }
+        readonly ptrdowned = new Core.Events<EmuPointerEvent>();
+        set onptrdowned(value: (event: EmuPointerEvent) => void) { this.ptrdowned.connect(value); }
 
-        readonly ptrmoved = new Core.Events<PointerEvent>();
-        set onptrmoved(value: (event: PointerEvent) => void) { this.ptrmoved.connect(value); }
+        readonly ptrmoved = new Core.Events<EmuPointerEvent>();
+        set onptrmoved(value: (event: EmuPointerEvent) => void) { this.ptrmoved.connect(value); }
 
-        readonly ptrupped = new Core.Events<PointerEvent>();
-        set onptrupped(value: (event: PointerEvent) => void) { this.ptrupped.connect(value); }
+        readonly ptrupped = new Core.Events<EmuPointerEvent>();
+        set onptrupped(value: (event: EmuPointerEvent) => void) { this.ptrupped.connect(value); }
 
-        readonly ptrcanceled = new Core.Events<PointerEvent>();
-        set onptrcanceled(value: (event: PointerEvent) => void) { this.ptrcanceled.connect(value); }
+        readonly ptrcanceled = new Core.Events<EmuPointerEvent>();
+        set onptrcanceled(value: (event: EmuPointerEvent) => void) { this.ptrcanceled.connect(value); }
 
         readonly wheelchanged = new Core.Events<WheelEvent>();
         set onwheelchanged(value: (event: WheelEvent) => void) { this.wheelchanged.connect(value); }

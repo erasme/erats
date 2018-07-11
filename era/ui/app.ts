@@ -560,7 +560,7 @@ namespace Ui
         }
 
         handleScrolling(drawing) {
-            this.ptrdowned.connect((event: PointerEvent) => {
+            this.ptrdowned.connect((event: EmuPointerEvent) => {
                 let startOffsetX = drawing.scrollLeft;
                 let startOffsetY = drawing.scrollTop;
                 let watcher = event.pointer.watch(this);

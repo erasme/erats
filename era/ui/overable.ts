@@ -18,7 +18,7 @@ namespace Ui {
                 this.leave = init.onleaved;
 
             this.element = init.element;
-            init.element.ptrmoved.connect((event: PointerEvent) => {
+            init.element.ptrmoved.connect((event: EmuPointerEvent) => {
                 if (!this.element.isDisabled && (this.pointer == undefined)) {
                     this.pointer = event.pointer;
                     if (this.enter)

@@ -1,6 +1,6 @@
 namespace Ui
 {
-    export class PointerEvent extends Event
+    export class EmuPointerEvent extends Event
     {
         pointer: Pointer = undefined;
         clientX: number = 0;
@@ -294,7 +294,7 @@ namespace Ui
             if (this.captureWatcher === undefined) {
                 let target = App.current.elementFromPoint(new Point(this.x, this.y));
                 if (target != undefined) {
-                    let pointerEvent = new PointerEvent('ptrmoved', this);
+                    let pointerEvent = new EmuPointerEvent('ptrmoved', this);
                     pointerEvent.dispatchEvent(target);
                 }
             }
@@ -357,7 +357,7 @@ namespace Ui
                 watchers[i].down();
 
             let target = App.current.elementFromPoint(new Point(this.x, this.y));
-            let pointerEvent = new PointerEvent('ptrdowned', this);
+            let pointerEvent = new EmuPointerEvent('ptrdowned', this);
             if (target !== undefined)
                 pointerEvent.dispatchEvent(target);
             this.ptrdowned.fire({ target: this });
@@ -371,7 +371,7 @@ namespace Ui
                 this.watchers = [];
             this.buttons = 0;
 
-            let pointerEvent = new PointerEvent('ptrupped', this);
+            let pointerEvent = new EmuPointerEvent('ptrupped', this);
             if (this.captureWatcher === undefined) {
                 let target = App.current.elementFromPoint(new Point(this.x, this.y));
                 if (target != undefined)

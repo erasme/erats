@@ -50,7 +50,7 @@ namespace Ui {
             return this._isDown;
         }
 
-        protected onPointerDown(event: PointerEvent) {
+        protected onPointerDown(event: EmuPointerEvent) {
             if (this.lock || this.element.isDisabled || this._isDown)
                 return;
             if (event.pointer.type == 'mouse' && event.pointer.button != 0)
@@ -261,4 +261,4 @@ namespace Ui {
                 this.drawing.style.cursor = 'pointer';
         }
     }
-}	
+}
