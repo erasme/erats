@@ -1570,7 +1570,7 @@ declare namespace Ui {
         readonly ended: Core.Events<{
             target: DragEmuDataTransfer;
         }>;
-        constructor(draggable: Element, x: number, y: number, delayed: boolean, pointer: Pointer);
+        constructor(draggable: Element, x: number, y: number, delayed: boolean, pointerEvent?: PointerEvent, touchEvent?: TouchEvent);
         setData(data: any): void;
         getData(): any;
         hasData(): boolean;
@@ -1791,6 +1791,7 @@ declare namespace Ui {
         private up;
         private activate;
         private delayedpress;
+        private _pointerId?;
         private _isDown;
         private lastTime;
         private delayedTimer;
@@ -1809,7 +1810,7 @@ declare namespace Ui {
             ondelayedpress?: (watcher: PressWatcher) => void;
         });
         readonly isDown: boolean;
-        protected onPointerDown(event: EmuPointerEvent): void;
+        protected onPointerDown(event: PointerEvent): void;
         protected onKeyDown(event: KeyboardEvent): void;
         protected onKeyUp(event: KeyboardEvent): void;
         protected onDown(): void;
@@ -1922,18 +1923,19 @@ declare namespace Ui {
         allowedMode: string | 'copy' | 'copyLink' | 'copyMove' | 'link' | 'linkMove' | 'move' | 'all';
         data: any;
         private _dragDelta;
-        private dataTransfer;
+        dataTransfer: DragEmuDataTransfer;
         private element;
         private start;
         private end;
         constructor(init: {
-            element: Ui.Element;
+            element: Element;
             data: any;
             start?: (watcher: DraggableWatcher) => void;
             end?: (watcher: DraggableWatcher, effect: 'none' | 'copy' | 'link' | 'move' | string) => void;
         });
         readonly dragDelta: Point;
         private onDraggablePointerDown;
+        private onDraggableTouchStart;
         private onDragStart;
         private onDragEnd;
     }
@@ -1949,9 +1951,8 @@ declare namespace Ui {
     }
     class Draggable extends Pressable implements DraggableInit {
         allowedMode: any;
-        draggableData: any;
+        draggableWatcher: DraggableWatcher;
         private _dragDelta;
-        private dataTransfer;
         readonly dragstarted: Core.Events<{
             target: Draggable;
             dataTransfer: DragEmuDataTransfer;
@@ -1969,9 +1970,9 @@ declare namespace Ui {
             effect: string;
         }) => void;
         constructor(init?: DraggableInit);
+        draggableData: any;
         setAllowedMode(allowedMode: any): void;
         readonly dragDelta: Point;
-        private onDraggablePointerDown;
         protected onDragStart(dataTransfer: DragEmuDataTransfer): void;
         protected onDragEnd(dataTransfer: DragEmuDataTransfer): void;
     }
@@ -2076,16 +2077,11 @@ declare namespace Ui {
     interface ContextMenuWatcherInit {
         element: Ui.Element;
         press?: (watcher: ContextMenuWatcher) => void;
-        down?: (watcher: ContextMenuWatcher) => void;
-        up?: (watcher: ContextMenuWatcher) => void;
         lock?: boolean;
     }
     class ContextMenuWatcher extends Core.Object {
         readonly element: Ui.Element;
         private press;
-        private down;
-        private up;
-        private _isDown;
         x?: number;
         y?: number;
         altKey?: boolean;
@@ -2093,11 +2089,6 @@ declare namespace Ui {
         ctrlKey?: boolean;
         lock: boolean;
         constructor(init: ContextMenuWatcherInit);
-        readonly isDown: boolean;
-        protected onPointerDown(event: EmuPointerEvent): void;
-        protected onKeyUp(event: KeyboardEvent): void;
-        protected onDown(): void;
-        protected onUp(): void;
         protected onPress(x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean): void;
     }
 }
@@ -2201,8 +2192,15 @@ declare namespace Ui {
         private _inertia;
         private _isDown;
         private _lock;
+        private _pointerId?;
+        private _touchCapture;
         protected isInMoveEvent: boolean;
         protected cumulMove: number;
+        protected history: {
+            time: number;
+            x: number;
+            y: number;
+        }[];
         readonly upped: Core.Events<{
             target: MovableBase;
             speedX: number;
@@ -2240,12 +2238,14 @@ declare namespace Ui {
         moveHorizontal: boolean;
         moveVertical: boolean;
         private updateTouchAction;
+        private getSpeed;
         setPosition(x?: number, y?: number, dontSignal?: boolean): void;
         readonly positionX: number;
         readonly positionY: number;
         protected onMove(x: number, y: number): void;
         private onDown;
         private onUp;
+        private onTouchStart;
         private onPointerDown;
         private startInertia;
         private stopInertia;

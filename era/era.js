@@ -7326,7 +7326,7 @@ var Ui;
     Ui.DragWatcher = DragWatcher;
     var DragEmuDataTransfer = (function (_super) {
         __extends(DragEmuDataTransfer, _super);
-        function DragEmuDataTransfer(draggable, x, y, delayed, pointer) {
+        function DragEmuDataTransfer(draggable, x, y, delayed, pointerEvent, touchEvent) {
             var _this = _super.call(this) || this;
             _this.startX = 0;
             _this.startY = 0;
@@ -7472,9 +7472,67 @@ var Ui;
             _this.startX = x;
             _this.startY = y;
             _this.delayed = delayed;
-            _this.pointer = pointer;
-            _this.watcher = _this.pointer.watch(Ui.App.current);
             _this.dragDelta = _this.draggable.pointFromWindow(new Ui.Point(_this.startX, _this.startY));
+            if (pointerEvent) {
+                _this.pointer = new Ui.Pointer(pointerEvent.type, pointerEvent.pointerId);
+                _this.pointer.setInitialPosition(pointerEvent.clientX, pointerEvent.clientY);
+                _this.pointer.down(pointerEvent.clientX, pointerEvent.clientY, pointerEvent.buttons, pointerEvent.button);
+                var onPointerMove_1 = function (e) {
+                    _this.pointer.move(e.clientX, e.clientY);
+                };
+                var onPointerUp_1 = function (e) {
+                    _this.pointer.up();
+                    window.removeEventListener('pointermove', onPointerMove_1, { capture: true });
+                    window.removeEventListener('pointerup', onPointerUp_1, { capture: true });
+                    window.removeEventListener('pointercancel', onPointerCancel_1, { capture: true });
+                };
+                var onPointerCancel_1 = function (e) {
+                    _this.pointer.cancel();
+                    window.removeEventListener('pointermove', onPointerMove_1, { capture: true });
+                    window.removeEventListener('pointerup', onPointerUp_1, { capture: true });
+                    window.removeEventListener('pointercancel', onPointerCancel_1, { capture: true });
+                };
+                window.addEventListener('pointermove', onPointerMove_1, { capture: true, passive: false });
+                window.addEventListener('pointerup', onPointerUp_1, { capture: true, passive: false });
+                window.addEventListener('pointercancel', onPointerCancel_1, { capture: true, passive: false });
+            }
+            else if (touchEvent) {
+                var touch = touchEvent.targetTouches[0];
+                _this.pointer = new Ui.Pointer('touch', touch.identifier);
+                _this.pointer.setInitialPosition(touch.clientX, touch.clientY);
+                _this.pointer.down(touch.clientX, touch.clientY, 1, 1);
+                var onTouchMove_1 = function (e) {
+                    var touch;
+                    for (var i = 0; touch == undefined && i < e.touches.length; i++)
+                        if (e.touches[i].identifier == _this.pointer.id)
+                            touch = e.touches[i];
+                    if (!touch)
+                        return;
+                    _this.pointer.move(touch.clientX, touch.clientY);
+                    e.stopPropagation();
+                    if (_this.pointer.getIsCaptured())
+                        e.preventDefault();
+                };
+                var onTouchEnd_1 = function (e) {
+                    _this.pointer.up();
+                    window.removeEventListener('touchmove', onTouchMove_1, { capture: true });
+                    window.removeEventListener('touchend', onTouchEnd_1, { capture: true });
+                    window.removeEventListener('touchcancel', onTouchCancel_1, { capture: true });
+                    e.stopPropagation();
+                    if (_this.pointer.getIsCaptured())
+                        e.preventDefault();
+                };
+                var onTouchCancel_1 = function (e) {
+                    _this.pointer.cancel();
+                    window.removeEventListener('touchmove', onTouchMove_1, { capture: true });
+                    window.removeEventListener('touchend', onTouchEnd_1, { capture: true });
+                    window.removeEventListener('touchcancel', onTouchCancel_1, { capture: true });
+                };
+                window.addEventListener('touchmove', onTouchMove_1, { capture: true, passive: false });
+                window.addEventListener('touchend', onTouchEnd_1, { capture: true, passive: false });
+                window.addEventListener('touchcancel', onTouchCancel_1, { capture: true, passive: false });
+            }
+            _this.watcher = _this.pointer.watch(Ui.App.current);
             _this.watcher.moved.connect(_this.onPointerMove);
             _this.watcher.upped.connect(_this.onPointerUp);
             _this.watcher.cancelled.connect(_this.onPointerCancel);
@@ -8757,7 +8815,12 @@ var Ui;
                 _this.activate = init.onactivated;
             if (init.ondelayedpress)
                 _this.delayedpress = init.ondelayedpress;
-            _this.element.ptrdowned.connect(function (e) { return _this.onPointerDown(e); });
+            if ('PointerEvent' in window)
+                _this.element.drawing.addEventListener('pointerdown', function (e) { return _this.onPointerDown(e); }, { passive: true });
+            _this.element.drawing.addEventListener('click', function (e) {
+                e.stopPropagation();
+                _this.onPress(e.clientX, e.clientY, e.altKey, e.shiftKey, e.ctrlKey);
+            });
             _this.element.drawing.addEventListener('keydown', function (e) { return _this.onKeyDown(e); });
             _this.element.drawing.addEventListener('keyup', function (e) { return _this.onKeyUp(e); });
             return _this;
@@ -8773,25 +8836,35 @@ var Ui;
             var _this = this;
             if (this.lock || this.element.isDisabled || this._isDown)
                 return;
-            if (event.pointer.type == 'mouse' && event.pointer.button != 0)
+            if (event.pointerType == 'touch')
                 return;
-            var watcher = event.pointer.watch(this);
-            watcher.moved.connect(function () {
-                if (watcher.pointer.getIsMove())
-                    watcher.cancel();
-            });
-            watcher.upped.connect(function () {
+            if (event.pointerType == 'mouse' && event.button != 0)
+                return;
+            this._pointerId = event.pointerId;
+            this.element.drawing.setPointerCapture(event.pointerId);
+            this._isDown = true;
+            var onPointerCancel = function (e) {
+                if (e.pointerId != _this._pointerId)
+                    return;
+                _this.element.drawing.removeEventListener('pointercancel', onPointerCancel);
+                _this.element.drawing.removeEventListener('pointerup', onPointerUp);
+                _this.element.drawing.releasePointerCapture(event.pointerId);
+                _this._pointerId = undefined;
+                e.stopPropagation();
                 _this.onUp();
-                var x = event.pointer.getX();
-                var y = event.pointer.getY();
-                var altKey = event.pointer.getAltKey();
-                var shiftKey = event.pointer.getShiftKey();
-                var ctrlKey = event.pointer.getCtrlKey();
-                _this.onPress(x, y, altKey, shiftKey, ctrlKey);
-                watcher.capture();
-                watcher.cancel();
-            });
-            watcher.cancelled.connect(function () { return _this.onUp(); });
+            };
+            var onPointerUp = function (e) {
+                if (e.pointerId != _this._pointerId)
+                    return;
+                _this.element.drawing.removeEventListener('pointercancel', onPointerCancel);
+                _this.element.drawing.removeEventListener('pointerup', onPointerUp);
+                _this.element.drawing.releasePointerCapture(event.pointerId);
+                _this._pointerId = undefined;
+                e.stopPropagation();
+                _this.onUp();
+            };
+            this.element.drawing.addEventListener('pointercancel', onPointerCancel);
+            this.element.drawing.addEventListener('pointerup', onPointerUp);
             this.onDown();
         };
         PressWatcher.prototype.onKeyDown = function (event) {
@@ -8995,7 +9068,10 @@ var Ui;
                 _this.start = init.start;
             if (init.end !== undefined)
                 _this.end = init.end;
-            _this.element.ptrdowned.connect(function (e) { return _this.onDraggablePointerDown(e); });
+            if ('PointerEvent' in window)
+                _this.element.drawing.addEventListener('pointerdown', function (e) { return _this.onDraggablePointerDown(e); }, { passive: false });
+            if ('TouchEvent' in window)
+                _this.element.drawing.addEventListener('touchstart', function (e) { return _this.onDraggableTouchStart(e); }, { passive: false });
             return _this;
         }
         Object.defineProperty(DraggableWatcher.prototype, "dragDelta", {
@@ -9007,14 +9083,27 @@ var Ui;
         });
         DraggableWatcher.prototype.onDraggablePointerDown = function (event) {
             var _this = this;
-            if (event.pointerType == 'mouse' && event.pointer.button != 0 && event.pointer.button != 1)
-                return;
             if (this.element.isDisabled || (this.data === undefined))
                 return;
-            var delayed = !(event.pointerType == 'mouse' && event.pointer.button == 0);
-            var dataTransfer = new Ui.DragEmuDataTransfer(this.element, event.clientX, event.clientY, delayed, event.pointer);
+            if (event.pointerType == 'touch')
+                return;
+            console.log("onDraggablePointerDown " + event.pointerType);
+            var delayed = false;
+            var dataTransfer = new Ui.DragEmuDataTransfer(this.element, event.clientX, event.clientY, delayed, event);
             this.dataTransfer = dataTransfer;
             this._dragDelta = this.element.pointFromWindow(new Ui.Point(event.clientX, event.clientY));
+            dataTransfer.started.connect(function (e) { return _this.onDragStart(dataTransfer); });
+            dataTransfer.ended.connect(function (e) { return _this.onDragEnd(dataTransfer); });
+        };
+        DraggableWatcher.prototype.onDraggableTouchStart = function (event) {
+            var _this = this;
+            if (this.element.isDisabled || (this.data === undefined) || (event.targetTouches.length != 1))
+                return;
+            console.log("onDraggableTouchStart");
+            var delayed = true;
+            var dataTransfer = new Ui.DragEmuDataTransfer(this.element, event.targetTouches[0].clientX, event.targetTouches[0].clientY, delayed, undefined, event);
+            this.dataTransfer = dataTransfer;
+            this._dragDelta = this.element.pointFromWindow(new Ui.Point(event.targetTouches[0].clientX, event.targetTouches[0].clientY));
             dataTransfer.started.connect(function (e) { return _this.onDragStart(dataTransfer); });
             dataTransfer.ended.connect(function (e) { return _this.onDragEnd(dataTransfer); });
         };
@@ -9046,7 +9135,12 @@ var Ui;
             _this.dragstarted = new Core.Events();
             _this.dragended = new Core.Events();
             _this.drawing.oncontextmenu = function (e) { return e.preventDefault(); };
-            _this.ptrdowned.connect(function (e) { return _this.onDraggablePointerDown(e); });
+            _this.draggableWatcher = new DraggableWatcher({
+                element: _this,
+                data: _this.draggableData,
+                start: function (watcher) { return _this.onDragStart(watcher.dataTransfer); },
+                end: function (watcher) { return _this.onDragEnd(watcher.dataTransfer); }
+            });
             if (init) {
                 if (init.ondragstarted)
                     _this.dragstarted.connect(init.ondragstarted);
@@ -9065,6 +9159,16 @@ var Ui;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(Draggable.prototype, "draggableData", {
+            get: function () {
+                return this.draggableWatcher ? this.draggableWatcher.data : undefined;
+            },
+            set: function (data) {
+                this.draggableWatcher.data = data;
+            },
+            enumerable: true,
+            configurable: true
+        });
         Draggable.prototype.setAllowedMode = function (allowedMode) {
             this.allowedMode = allowedMode;
         };
@@ -9075,19 +9179,6 @@ var Ui;
             enumerable: true,
             configurable: true
         });
-        Draggable.prototype.onDraggablePointerDown = function (event) {
-            var _this = this;
-            if (event.pointerType == 'mouse' && event.pointer.button != 0 && event.pointer.button != 1)
-                return;
-            if (this.lock || this.isDisabled || (this.draggableData === undefined))
-                return;
-            var delayed = !(event.pointerType == 'mouse' && event.pointer.button == 0);
-            var dataTransfer = new Ui.DragEmuDataTransfer(this, event.clientX, event.clientY, delayed, event.pointer);
-            this.dataTransfer = dataTransfer;
-            this._dragDelta = this.pointFromWindow(new Ui.Point(event.clientX, event.clientY));
-            dataTransfer.started.connect(function (e) { return _this.onDragStart(dataTransfer); });
-            dataTransfer.ended.connect(function (e) { return _this.onDragEnd(dataTransfer); });
-        };
         Draggable.prototype.onDragStart = function (dataTransfer) {
             var selection = Ui.Selectionable.getParentSelectionHandler(this);
             if (selection && (selection.elements.indexOf(this) != -1))
@@ -9539,71 +9630,21 @@ var Ui;
         __extends(ContextMenuWatcher, _super);
         function ContextMenuWatcher(init) {
             var _this = _super.call(this) || this;
-            _this._isDown = false;
             _this.lock = false;
             _this.element = init.element;
             if (init.press !== undefined)
                 _this.press = init.press;
-            if (init.down !== undefined)
-                _this.down = init.down;
-            if (init.up !== undefined)
-                _this.up = init.up;
             if (init.lock !== undefined)
                 _this.lock = init.lock;
-            _this.element.drawing.addEventListener('contextmenu', function (event) { return event.preventDefault(); });
-            _this.element.ptrdowned.connect(function (e) { return _this.onPointerDown(e); });
-            _this.element.drawing.addEventListener('keyup', function (e) { return _this.onKeyUp(e); });
+            _this.element.drawing.addEventListener('contextmenu', function (e) {
+                if (!_this.lock) {
+                    _this.onPress(e.clientX, e.clientY, e.altKey, e.shiftKey, e.ctrlKey);
+                    e.stopPropagation();
+                    e.preventDefault();
+                }
+            });
             return _this;
         }
-        Object.defineProperty(ContextMenuWatcher.prototype, "isDown", {
-            get: function () {
-                return this._isDown;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        ContextMenuWatcher.prototype.onPointerDown = function (event) {
-            var _this = this;
-            if (this.lock || this.element.isDisabled || this._isDown)
-                return;
-            if (event.pointer.type != 'mouse' || event.pointer.button != 2)
-                return;
-            var watcher = event.pointer.watch(this);
-            watcher.moved.connect(function () {
-                if (watcher.pointer.getIsMove())
-                    watcher.cancel();
-            });
-            watcher.upped.connect(function () {
-                _this.onUp();
-                var x = event.pointer.getX();
-                var y = event.pointer.getY();
-                var altKey = event.pointer.getAltKey();
-                var shiftKey = event.pointer.getShiftKey();
-                var ctrlKey = event.pointer.getCtrlKey();
-                _this.onPress(x, y, altKey, shiftKey, ctrlKey);
-                watcher.capture();
-                watcher.cancel();
-            });
-            watcher.cancelled.connect(function () { return _this.onUp(); });
-            this.onDown();
-        };
-        ContextMenuWatcher.prototype.onKeyUp = function (event) {
-            if (!this.lock && !this.element.isDisabled && event.ctrlKey && (event.which == 77)) {
-                event.preventDefault();
-                event.stopPropagation();
-                this.onPress(undefined, undefined, event.altKey, event.shiftKey, event.ctrlKey);
-            }
-        };
-        ContextMenuWatcher.prototype.onDown = function () {
-            this._isDown = true;
-            if (this.down)
-                this.down(this);
-        };
-        ContextMenuWatcher.prototype.onUp = function () {
-            this._isDown = false;
-            if (this.up)
-                this.up(this);
-        };
         ContextMenuWatcher.prototype.onPress = function (x, y, altKey, shiftKey, ctrlKey) {
             this.x = x;
             this.y = y;
@@ -10003,11 +10044,15 @@ var Ui;
             _this._lock = false;
             _this.isInMoveEvent = false;
             _this.cumulMove = 0;
+            _this.history = [];
             _this.upped = new Core.Events();
             _this.downed = new Core.Events();
             _this.moved = new Core.Events();
             _this.drawing.style.touchAction = 'none';
-            _this.ptrdowned.connect(function (e) { return _this.onPointerDown(e); });
+            if ('PointerEvent' in window)
+                _this.drawing.addEventListener('pointerdown', function (e) { return _this.onPointerDown(e); }, { passive: false });
+            else if ('TouchEvent' in window)
+                _this.drawing.addEventListener('touchstart', function (e) { return _this.onTouchStart(e); });
             if (init) {
                 if (init.lock !== undefined)
                     _this.lock = init.lock;
@@ -10102,6 +10147,23 @@ var Ui;
             else
                 this.drawing.style.touchAction = 'auto';
         };
+        MovableBase.prototype.getSpeed = function () {
+            if (this.history.length < 2)
+                return { x: 0, y: 0 };
+            else {
+                var measure = void 0;
+                var i = this.history.length;
+                var now = this.history[--i];
+                do {
+                    measure = this.history[--i];
+                } while ((i > 0) && ((now.time - measure.time) < 0.08));
+                var deltaTime = now.time - measure.time;
+                return {
+                    x: (now.x - measure.x) / deltaTime,
+                    y: (now.y - measure.y) / deltaTime
+                };
+            }
+        };
         MovableBase.prototype.setPosition = function (x, y, dontSignal) {
             if (dontSignal === void 0) { dontSignal = false; }
             if ((x !== undefined) && (this._moveHorizontal)) {
@@ -10140,6 +10202,7 @@ var Ui;
         MovableBase.prototype.onMove = function (x, y) {
         };
         MovableBase.prototype.onDown = function () {
+            this.history = [];
             this.cumulMove = 0;
             this._isDown = true;
             this.downed.fire({ target: this });
@@ -10154,60 +10217,129 @@ var Ui;
                 abort: abort
             });
         };
-        MovableBase.prototype.onPointerDown = function (event) {
+        MovableBase.prototype.onTouchStart = function (event) {
             var _this = this;
             if (this._isDown || this.isDisabled || this._lock)
                 return;
+            if (event.targetTouches.length != 1)
+                return;
+            var initialPosition = new Ui.Point(event.targetTouches[0].clientX, event.targetTouches[0].clientY);
+            this._pointerId = event.targetTouches[0].identifier;
             this.stopInertia();
             this.startPosX = this.posX;
             this.startPosY = this.posY;
             this.onDown();
-            var cancelLock = false;
-            var watcher = event.pointer.watch(this);
-            watcher.moved.connect(function () {
-                if (!watcher.getIsCaptured()) {
-                    if (watcher.pointer.getIsMove()) {
-                        var deltaObj = watcher.getDelta();
-                        var delta = Math.sqrt(deltaObj.x * deltaObj.x + deltaObj.y * deltaObj.y);
-                        _this.setPosition(_this.startPosX + deltaObj.x, _this.startPosY + deltaObj.y);
-                        var deltaPosX = _this.posX - _this.startPosX;
-                        var deltaPosY = _this.posY - _this.startPosY;
-                        var deltaPos = Math.sqrt(deltaPosX * deltaPosX + deltaPosY * deltaPosY);
-                        var test = 0;
-                        if (delta > 0)
-                            test = deltaPos / delta;
-                        var testLevel = 0.7;
-                        if (event.pointer.type == 'mouse' && event.pointer.button == 0)
-                            testLevel = 0;
-                        if (test >= testLevel)
-                            watcher.capture();
-                        else {
-                            _this.setPosition(_this.startPosX, _this.startPosY);
-                            watcher.cancel();
-                        }
-                    }
+            var onTouchMove = function (e) {
+                var touch;
+                for (var i = 0; touch == undefined && i < e.touches.length; i++)
+                    if (e.touches[i].identifier == _this._pointerId)
+                        touch = e.touches[i];
+                if (!touch)
+                    return;
+                e.stopPropagation();
+                e.preventDefault();
+                var initial = _this.pointFromWindow(initialPosition);
+                var current = _this.pointFromWindow(new Ui.Point(touch.clientX, touch.clientY));
+                var delta = { x: current.x - initial.x, y: current.y - initial.y };
+                var time = (new Date().getTime()) / 1000;
+                _this.history.push({ time: time, x: _this.startPosX + delta.x, y: _this.startPosY + delta.y });
+                while ((_this.history.length > 2) && (time - _this.history[0].time > Ui.Pointer.HISTORY_TIMELAPS)) {
+                    _this.history.shift();
                 }
-                else {
-                    var delta = watcher.getDelta();
-                    _this.setPosition(_this.startPosX + delta.x, _this.startPosY + delta.y);
+                _this.setPosition(_this.startPosX + delta.x, _this.startPosY + delta.y);
+            };
+            var onTouchCancel = function (e) {
+                _this.drawing.removeEventListener('touchmove', onTouchMove);
+                _this.drawing.removeEventListener('touchend', onTouchEnd);
+                _this.drawing.removeEventListener('touchcancel', onTouchCancel);
+                _this._pointerId = undefined;
+                _this.onUp(true);
+            };
+            var onTouchEnd = function (e) {
+                _this.drawing.removeEventListener('touchmove', onTouchMove);
+                _this.drawing.removeEventListener('touchend', onTouchEnd);
+                _this.drawing.removeEventListener('touchcancel', onTouchCancel);
+                _this._pointerId = undefined;
+                e.stopPropagation();
+                e.preventDefault();
+                if (_this.history.length > 0) {
+                    var time = (new Date().getTime()) / 1000;
+                    _this.history.push({ time: time, x: _this.history[_this.history.length - 1].x, y: _this.history[_this.history.length - 1].y });
                 }
-            });
-            watcher.upped.connect(function () {
-                _this.cumulMove = watcher.pointer.getCumulMove();
-                var speed = watcher.getSpeed();
+                var speed = _this.getSpeed();
                 _this.speedX = speed.x;
                 _this.speedY = speed.y;
                 if (_this.inertia)
                     _this.startInertia();
                 _this.onUp(false);
-                cancelLock = true;
-                watcher.cancel();
-                cancelLock = false;
-            });
-            watcher.cancelled.connect(function () {
-                if (!cancelLock)
-                    _this.onUp(true);
-            });
+            };
+            this.drawing.addEventListener('touchmove', onTouchMove, { passive: false });
+            this.drawing.addEventListener('touchend', onTouchEnd, { passive: false });
+            this.drawing.addEventListener('touchcancel', onTouchCancel, { passive: false });
+        };
+        MovableBase.prototype.onPointerDown = function (event) {
+            var _this = this;
+            if (this._isDown || this.isDisabled || this._lock)
+                return;
+            var initialPosition = new Ui.Point(event.clientX, event.clientY);
+            this.stopInertia();
+            this.startPosX = this.posX;
+            this.startPosY = this.posY;
+            this.onDown();
+            this._pointerId = event.pointerId;
+            this.drawing.setPointerCapture(event.pointerId);
+            var onPointerMove = function (e) {
+                if (e.pointerId != _this._pointerId)
+                    return;
+                e.stopPropagation();
+                e.preventDefault();
+                var initial = _this.pointFromWindow(initialPosition);
+                var current = _this.pointFromWindow(new Ui.Point(e.clientX, e.clientY));
+                var delta = { x: current.x - initial.x, y: current.y - initial.y };
+                var time = (new Date().getTime()) / 1000;
+                _this.history.push({ time: time, x: _this.startPosX + delta.x, y: _this.startPosY + delta.y });
+                while ((_this.history.length > 2) && (time - _this.history[0].time > Ui.Pointer.HISTORY_TIMELAPS)) {
+                    _this.history.shift();
+                }
+                _this.setPosition(_this.startPosX + delta.x, _this.startPosY + delta.y);
+            };
+            var onPointerCancel = function (e) {
+                if (e.pointerId != _this._pointerId)
+                    return;
+                _this.drawing.removeEventListener('pointermove', onPointerMove);
+                _this.drawing.removeEventListener('pointercancel', onPointerCancel);
+                _this.drawing.removeEventListener('pointerup', onPointerUp);
+                _this.drawing.releasePointerCapture(event.pointerId);
+                _this._pointerId = undefined;
+                e.stopPropagation();
+                e.preventDefault();
+                _this.onUp(true);
+            };
+            var onPointerUp = function (e) {
+                if (e.pointerId != _this._pointerId)
+                    return;
+                _this.drawing.removeEventListener('pointermove', onPointerMove);
+                _this.drawing.removeEventListener('pointercancel', onPointerCancel);
+                _this.drawing.removeEventListener('pointerup', onPointerUp);
+                _this.drawing.releasePointerCapture(event.pointerId);
+                _this._pointerId = undefined;
+                e.stopPropagation();
+                e.preventDefault();
+                var initial = _this.pointFromWindow(initialPosition);
+                var current = _this.pointFromWindow(new Ui.Point(e.clientX, e.clientY));
+                var delta = { x: current.x - initial.x, y: current.y - initial.y };
+                var time = (new Date().getTime()) / 1000;
+                _this.history.push({ time: time, x: _this.startPosX + delta.x, y: _this.startPosY + delta.y });
+                var speed = _this.getSpeed();
+                _this.speedX = speed.x;
+                _this.speedY = speed.y;
+                if (_this.inertia)
+                    _this.startInertia();
+                _this.onUp(false);
+            };
+            this.drawing.addEventListener('pointermove', onPointerMove);
+            this.drawing.addEventListener('pointercancel', onPointerCancel);
+            this.drawing.addEventListener('pointerup', onPointerUp);
         };
         MovableBase.prototype.startInertia = function () {
             var _this = this;
@@ -15318,8 +15450,8 @@ var Ui;
             _this.parentmessage = new Core.Events();
             _this.orientationchanged = new Core.Events();
             _this.update = function () {
-                var innerWidth = document.body.clientWidth;
-                var innerHeight = document.body.clientHeight;
+                var innerWidth = (window.innerWidth !== undefined) ? window.innerWidth : document.body.clientWidth;
+                var innerHeight = (window.innerHeight !== undefined) ? window.innerHeight : document.body.clientHeight;
                 if ((_this.windowWidth !== innerWidth) || (_this.windowHeight !== innerHeight)) {
                     _this.windowWidth = innerWidth;
                     _this.windowHeight = innerHeight;
@@ -15528,7 +15660,7 @@ var Ui;
             }
             meta = document.createElement('meta');
             meta.name = 'viewport';
-            meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+            meta.content = 'width=device-width, initial-scale=1.0';
             document.getElementsByTagName("head")[0].appendChild(meta);
             if (Core.Navigator.isWebkit) {
                 style = document.createElement('style');
@@ -15659,7 +15791,6 @@ var Ui;
                     requestAnimationFrame(this.update);
                 }
                 new Ui.WheelManager(this);
-                new Ui.PointerManager(this);
                 new Ui.DragNativeManager(this);
             }
         };

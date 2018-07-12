@@ -7,6 +7,7 @@ namespace Ui {
         private up: (watcher: PressWatcher) => void;
         private activate: (watcher: PressWatcher) => void;
         private delayedpress: (watcher: PressWatcher) => void;
+        private _pointerId?: number;
         private _isDown: boolean = false;
         private lastTime: number = undefined;
         private delayedTimer: Core.DelayedTask;
@@ -36,44 +37,60 @@ namespace Ui {
             if (init.onactivated)
                 this.activate = init.onactivated;
             if (init.ondelayedpress)
-                this.delayedpress = init.ondelayedpress;	
+                this.delayedpress = init.ondelayedpress;
 
             // handle pointers
-            this.element.ptrdowned.connect((e) => this.onPointerDown(e));
+            if ('PointerEvent' in window)
+                this.element.drawing.addEventListener('pointerdown', (e) => this.onPointerDown(e), { passive: true });
+
+            this.element.drawing.addEventListener('click', e => {
+                e.stopPropagation();
+                this.onPress(e.clientX, e.clientY, e.altKey, e.shiftKey, e.ctrlKey);
+            });
 
             // handle keyboard
             this.element.drawing.addEventListener('keydown', (e) => this.onKeyDown(e));
             this.element.drawing.addEventListener('keyup', (e) => this.onKeyUp(e));
         }
-    
+
         get isDown(): boolean {
             return this._isDown;
         }
 
-        protected onPointerDown(event: EmuPointerEvent) {
+        protected onPointerDown(event: PointerEvent) {
             if (this.lock || this.element.isDisabled || this._isDown)
                 return;
-            if (event.pointer.type == 'mouse' && event.pointer.button != 0)
+            if (event.pointerType == 'touch')
                 return;
-        
-            let watcher = event.pointer.watch(this);
-            watcher.moved.connect(()  => {
-                if (watcher.pointer.getIsMove())
-                    watcher.cancel();
-            });
-            watcher.upped.connect(() => {
-                this.onUp();
-                let x = event.pointer.getX();
-                let y = event.pointer.getY();
-                let altKey = event.pointer.getAltKey();
-                let shiftKey = event.pointer.getShiftKey();
-                let ctrlKey = event.pointer.getCtrlKey();
-                this.onPress(x, y, altKey, shiftKey, ctrlKey);
+            if (event.pointerType == 'mouse' && event.button != 0)
+                return;
 
-                watcher.capture();
-                watcher.cancel();
-            });
-            watcher.cancelled.connect(() => this.onUp());
+            this._pointerId = event.pointerId;
+            this.element.drawing.setPointerCapture(event.pointerId);
+            this._isDown = true;
+
+            let onPointerCancel = (e: PointerEvent) => {
+                if (e.pointerId != this._pointerId)
+                    return;
+                this.element.drawing.removeEventListener('pointercancel', onPointerCancel);
+                this.element.drawing.removeEventListener('pointerup', onPointerUp);
+                this.element.drawing.releasePointerCapture(event.pointerId);
+                this._pointerId = undefined;
+                e.stopPropagation();
+                this.onUp();
+            }
+            let onPointerUp = (e: PointerEvent) => {
+                if (e.pointerId != this._pointerId)
+                    return;
+                this.element.drawing.removeEventListener('pointercancel', onPointerCancel);
+                this.element.drawing.removeEventListener('pointerup', onPointerUp);
+                this.element.drawing.releasePointerCapture(event.pointerId);
+                this._pointerId = undefined;
+                e.stopPropagation();
+                this.onUp();
+            }
+            this.element.drawing.addEventListener('pointercancel', onPointerCancel);
+            this.element.drawing.addEventListener('pointerup', onPointerUp);
             this.onDown();
         }
 
@@ -135,7 +152,7 @@ namespace Ui {
 
         protected onActivate(x?: number, y?: number) {
             if (this.activate)
-                this.activate(this);	
+                this.activate(this);
         }
 
         protected onDelayedPress(x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean) {
@@ -143,9 +160,9 @@ namespace Ui {
             this.altKey = altKey; this.shiftKey = shiftKey; this.ctrlKey = ctrlKey;
             if (this.delayedTimer) {
                 if (!this.delayedTimer.isDone)
-                    this.delayedTimer.abort();	
+                    this.delayedTimer.abort();
                 this.delayedTimer = undefined;
-            }	
+            }
             if (this.delayedpress)
                 this.delayedpress(this);
         }
@@ -165,15 +182,15 @@ namespace Ui {
         private pressWatcher: PressWatcher;
 
         readonly downed = new Core.Events<{ target: Pressable }>();
-        set ondowned(value: (event: { target: Pressable}) => void) { this.downed.connect(value); }
+        set ondowned(value: (event: { target: Pressable }) => void) { this.downed.connect(value); }
         readonly upped = new Core.Events<{ target: Pressable }>();
-        set onupped(value: (event: { target: Pressable}) => void) { this.upped.connect(value); }
+        set onupped(value: (event: { target: Pressable }) => void) { this.upped.connect(value); }
         readonly pressed = new Core.Events<{ target: Pressable, x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean }>();
-        set onpressed(value: (event: { target: Pressable, x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean}) => void) { this.pressed.connect(value); }
+        set onpressed(value: (event: { target: Pressable, x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean }) => void) { this.pressed.connect(value); }
         readonly activated = new Core.Events<{ target: Pressable, x?: number, y?: number }>();
         set onactivated(value: (event: { target: Pressable, x?: number, y?: number }) => void) { this.activated.connect(value); }
         readonly delayedpress = new Core.Events<{ target: Pressable, x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean }>();
-        set ondelayedpress(value: (event:{ target: Pressable, x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean }) => void) { this.delayedpress.connect(value); }
+        set ondelayedpress(value: (event: { target: Pressable, x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean }) => void) { this.delayedpress.connect(value); }
 
         constructor(init?: PressableInit) {
             super(init);
@@ -197,7 +214,7 @@ namespace Ui {
                 if (init.onpressed !== undefined)
                     this.pressed.connect(init.onpressed);
                 if (init.ondowned !== undefined)
-                    this.downed.connect(init.ondowned);	
+                    this.downed.connect(init.ondowned);
                 if (init.onupped !== undefined)
                     this.upped.connect(init.onupped);
                 if (init.onactivated !== undefined)
@@ -206,7 +223,7 @@ namespace Ui {
                     this.delayedpress.connect(init.ondelayedpress);
             }
         }
-    
+
         get isDown(): boolean {
             return this.pressWatcher.isDown;
         }

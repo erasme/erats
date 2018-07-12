@@ -173,7 +173,7 @@ namespace Ui
         readonly started = new Core.Events<{ target: DragEmuDataTransfer }>();
         readonly ended = new Core.Events<{ target: DragEmuDataTransfer }>();
 
-        constructor(draggable: Element, x: number, y: number, delayed: boolean, pointer: Pointer) {
+        constructor(draggable: Element, x: number, y: number, delayed: boolean, pointerEvent?: PointerEvent, touchEvent?: TouchEvent) {
             super();
             this.dropEffect = [];
             this.effectAllowed = [];
@@ -181,11 +181,73 @@ namespace Ui
             this.startX = x;
             this.startY = y;
             this.delayed = delayed;
-            this.pointer = pointer;
-            this.watcher = this.pointer.watch(App.current);
 
             this.dragDelta = this.draggable.pointFromWindow(new Point(this.startX, this.startY));
 
+            if (pointerEvent) {
+                this.pointer = new Pointer(pointerEvent.type, pointerEvent.pointerId);
+                this.pointer.setInitialPosition(pointerEvent.clientX, pointerEvent.clientY);
+                this.pointer.down(pointerEvent.clientX, pointerEvent.clientY, pointerEvent.buttons, pointerEvent.button);
+
+                let onPointerMove = (e: PointerEvent) => {
+                    this.pointer.move(e.clientX, e.clientY);
+                };
+                let onPointerUp = (e: PointerEvent) => {
+                    this.pointer.up();
+                    window.removeEventListener('pointermove', onPointerMove, { capture: true });
+                    window.removeEventListener('pointerup', onPointerUp, { capture: true });
+                    window.removeEventListener('pointercancel', onPointerCancel, { capture: true });
+
+                };
+                let onPointerCancel = (e: PointerEvent) => {
+                    this.pointer.cancel();
+                    window.removeEventListener('pointermove', onPointerMove, { capture: true });
+                    window.removeEventListener('pointerup', onPointerUp, { capture: true });
+                    window.removeEventListener('pointercancel', onPointerCancel, { capture: true });
+                };
+                window.addEventListener('pointermove', onPointerMove, { capture: true, passive: false });
+                window.addEventListener('pointerup', onPointerUp, { capture: true, passive: false });
+                window.addEventListener('pointercancel', onPointerCancel, { capture: true, passive: false });
+            }
+            else if (touchEvent) {
+                let touch = touchEvent.targetTouches[0];
+                this.pointer = new Pointer('touch', touch.identifier);
+                this.pointer.setInitialPosition(touch.clientX, touch.clientY);
+                this.pointer.down(touch.clientX, touch.clientY, 1, 1);
+
+                let onTouchMove = (e: TouchEvent) => {
+                    let touch: Touch | undefined;
+                    for (let i = 0; touch == undefined && i < e.touches.length; i++)
+                        if (e.touches[i].identifier == this.pointer.id)
+                            touch = e.touches[i];
+                    if (!touch)
+                        return;
+                    this.pointer.move(touch.clientX, touch.clientY);
+                    e.stopPropagation();
+                    if (this.pointer.getIsCaptured())
+                        e.preventDefault();
+                };
+                let onTouchEnd = (e: TouchEvent) => {
+                    this.pointer.up();
+                    window.removeEventListener('touchmove', onTouchMove, { capture: true });
+                    window.removeEventListener('touchend', onTouchEnd, { capture: true });
+                    window.removeEventListener('touchcancel', onTouchCancel, { capture: true });
+                    e.stopPropagation();
+                    if (this.pointer.getIsCaptured())
+                        e.preventDefault();
+                };
+                let onTouchCancel = (e: TouchEvent) => {
+                    this.pointer.cancel();
+                    window.removeEventListener('touchmove', onTouchMove, { capture: true });
+                    window.removeEventListener('touchend', onTouchEnd, { capture: true });
+                    window.removeEventListener('touchcancel', onTouchCancel, { capture: true });
+                };
+                window.addEventListener('touchmove', onTouchMove, { capture: true, passive: false });
+                window.addEventListener('touchend', onTouchEnd, { capture: true, passive: false });
+                window.addEventListener('touchcancel', onTouchCancel, { capture: true, passive: false });
+            }
+
+            this.watcher = this.pointer.watch(App.current);
             this.watcher.moved.connect(this.onPointerMove);
             this.watcher.upped.connect(this.onPointerUp);
             this.watcher.cancelled.connect(this.onPointerCancel);

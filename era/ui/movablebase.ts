@@ -22,8 +22,11 @@ namespace Ui {
         private _inertia: boolean = false;
         private _isDown: boolean = false;
         private _lock: boolean = false;
+        private _pointerId?: number;
+        private _touchCapture: false;
         protected isInMoveEvent: boolean = false;
         protected cumulMove: number = 0;
+        protected history: { time: number, x: number, y: number }[] = [];
         readonly upped = new Core.Events<{ target: MovableBase, speedX: number, speedY: number, deltaX: number, deltaY: number, cumulMove: number, abort: boolean }>();
         set onupped(value: (event: { target: MovableBase, speedX: number, speedY: number, deltaX: number, deltaY: number, cumulMove: number, abort: boolean }) => void) { this.upped.connect(value); }
         readonly downed = new Core.Events<{ target: MovableBase }>();
@@ -34,18 +37,24 @@ namespace Ui {
         constructor(init?: MovableBaseInit) {
             super(init);
             this.drawing.style.touchAction = 'none';
-            this.ptrdowned.connect((e) => this.onPointerDown(e));
+            //this.ptrdowned.connect((e) => this.onPointerDown(e));
+
+            if ('PointerEvent' in window)
+                this.drawing.addEventListener('pointerdown', (e) => this.onPointerDown(e), { passive: false });
+            else if ('TouchEvent' in window)
+                this.drawing.addEventListener('touchstart', (e) => this.onTouchStart(e));
+
             if (init) {
                 if (init.lock !== undefined)
-                    this.lock = init.lock;	
+                    this.lock = init.lock;
                 if (init.inertia !== undefined)
                     this.inertia = init.inertia;
                 if (init.moveHorizontal !== undefined)
-                    this.moveHorizontal = init.moveHorizontal;	
+                    this.moveHorizontal = init.moveHorizontal;
                 if (init.moveVertical !== undefined)
-                    this.moveVertical = init.moveVertical;	
+                    this.moveVertical = init.moveVertical;
                 if (init.onupped)
-                    this.upped.connect(init.onupped);	
+                    this.upped.connect(init.onupped);
                 if (init.ondowned)
                     this.downed.connect(init.ondowned);
                 if (init.onmoved)
@@ -104,6 +113,26 @@ namespace Ui {
                 this.drawing.style.touchAction = 'auto';
         }
 
+        private getSpeed() {
+            if (this.history.length < 2)
+                return { x: 0, y: 0 };
+            else {
+                let measure;
+                let i = this.history.length;
+                let now = this.history[--i];
+                do {
+                    measure = this.history[--i];
+                }
+                while ((i > 0) && ((now.time - measure.time) < 0.08));
+                let deltaTime = now.time - measure.time;
+                return {
+                    x: (now.x - measure.x) / deltaTime,
+                    y: (now.y - measure.y) / deltaTime
+                };
+            }
+        }
+
+
         setPosition(x?: number, y?: number, dontSignal: boolean = false) {
             if ((x !== undefined) && (this._moveHorizontal)) {
                 if (isNaN(x))
@@ -137,6 +166,7 @@ namespace Ui {
         }
 
         private onDown() {
+            this.history = [];
             this.cumulMove = 0;
             this._isDown = true;
             this.downed.fire({ target: this });
@@ -144,6 +174,7 @@ namespace Ui {
 
         private onUp(abort) {
             this._isDown = false;
+
             this.upped.fire({
                 target: this, speedX: this.speedX, speedY: this.speedY,
                 deltaX: (this.posX - this.startPosX),
@@ -153,70 +184,205 @@ namespace Ui {
             });
         }
 
-        private onPointerDown(event: EmuPointerEvent) {
+        private onTouchStart(event: TouchEvent) {
             if (this._isDown || this.isDisabled || this._lock)
                 return;
-            
+            if (event.targetTouches.length != 1)
+                return;
+
+            let initialPosition = new Point(event.targetTouches[0].clientX, event.targetTouches[0].clientY);
+            this._pointerId = event.targetTouches[0].identifier;
+
             this.stopInertia();
             this.startPosX = this.posX;
             this.startPosY = this.posY;
 
             this.onDown();
 
-            let cancelLock = false;
-            let watcher = event.pointer.watch(this);
-            watcher.moved.connect(() => {
-                if (!watcher.getIsCaptured()) {
-                    if (watcher.pointer.getIsMove()) {
+            let onTouchMove = (e: TouchEvent) => {
+                let touch: Touch | undefined;
+                for (let i = 0; touch == undefined && i < e.touches.length; i++)
+                    if (e.touches[i].identifier == this._pointerId)
+                        touch = e.touches[i];
+                if (!touch)
+                    return;
+                e.stopPropagation();
+                e.preventDefault();
+                let initial = this.pointFromWindow(initialPosition);
+                let current = this.pointFromWindow(new Point(touch.clientX, touch.clientY));
+                let delta = { x: current.x - initial.x, y: current.y - initial.y };
 
-                        let deltaObj = watcher.getDelta();
-                        let delta = Math.sqrt(deltaObj.x * deltaObj.x + deltaObj.y * deltaObj.y);
-
-                        this.setPosition(this.startPosX + deltaObj.x, this.startPosY + deltaObj.y);
-
-                        let deltaPosX = this.posX - this.startPosX;
-                        let deltaPosY = this.posY - this.startPosY;
-                        let deltaPos = Math.sqrt(deltaPosX * deltaPosX + deltaPosY * deltaPosY);
-
-                        let test = 0;
-                        if (delta > 0)
-                            test = deltaPos / delta;
-                        
-                        let testLevel = 0.7;
-                        // if mouse left button, directly capture. No valid move needed
-                        // to validate the pointer capture
-                        if (event.pointer.type == 'mouse' && event.pointer.button == 0)
-                            testLevel = 0;	
-                        
-                        if (test >= testLevel)
-                            watcher.capture();
-                        else {
-                            this.setPosition(this.startPosX, this.startPosY);
-                            watcher.cancel();
-                        }
-                    }
+                // store an history for the inertia
+                let time = (new Date().getTime()) / 1000;
+                this.history.push({ time: time, x: this.startPosX + delta.x, y: this.startPosY + delta.y });
+                while ((this.history.length > 2) && (time - this.history[0].time > Ui.Pointer.HISTORY_TIMELAPS)) {
+                    this.history.shift();
                 }
-                else {
-                    let delta = watcher.getDelta();
-                    this.setPosition(this.startPosX + delta.x, this.startPosY + delta.y);
+
+                this.setPosition(this.startPosX + delta.x, this.startPosY + delta.y);
+            }
+            let onTouchCancel = (e: TouchEvent) => {
+                this.drawing.removeEventListener('touchmove', onTouchMove);
+                this.drawing.removeEventListener('touchend', onTouchEnd);
+                this.drawing.removeEventListener('touchcancel', onTouchCancel);
+                this._pointerId = undefined;
+                this.onUp(true);
+            }
+            let onTouchEnd = (e: TouchEvent) => {
+                this.drawing.removeEventListener('touchmove', onTouchMove);
+                this.drawing.removeEventListener('touchend', onTouchEnd);
+                this.drawing.removeEventListener('touchcancel', onTouchCancel);
+                this._pointerId = undefined;
+                e.stopPropagation();
+                e.preventDefault();
+
+                if (this.history.length > 0) {
+                    // store an history for the inertia
+                    let time = (new Date().getTime()) / 1000;
+                    this.history.push({ time: time, x: this.history[this.history.length - 1].x, y: this.history[this.history.length - 1].y });
                 }
-            });
-            watcher.upped.connect(() => {
-                this.cumulMove = watcher.pointer.getCumulMove();
-                let speed = watcher.getSpeed();
+
+                let speed = this.getSpeed();
                 this.speedX = speed.x;
                 this.speedY = speed.y;
                 if (this.inertia)
                     this.startInertia();
                 this.onUp(false);
-                cancelLock = true;
-                watcher.cancel();
-                cancelLock = false;
-            });
-            watcher.cancelled.connect(() => {
-                if (!cancelLock)
-                    this.onUp(true);
-            });
+            }
+
+            this.drawing.addEventListener('touchmove', onTouchMove, { passive: false });
+            this.drawing.addEventListener('touchend', onTouchEnd, { passive: false });
+            this.drawing.addEventListener('touchcancel', onTouchCancel, { passive: false });
+        }
+
+        private onPointerDown(event: PointerEvent) {
+            if (this._isDown || this.isDisabled || this._lock)
+                return;
+
+            let initialPosition = new Point(event.clientX, event.clientY);
+
+            this.stopInertia();
+            this.startPosX = this.posX;
+            this.startPosY = this.posY;
+
+            this.onDown();
+
+            this._pointerId = event.pointerId;
+            this.drawing.setPointerCapture(event.pointerId);
+
+            let onPointerMove = (e: PointerEvent) => {
+                if (e.pointerId != this._pointerId)
+                    return;
+                e.stopPropagation();
+                e.preventDefault();
+                let initial = this.pointFromWindow(initialPosition);
+                let current = this.pointFromWindow(new Point(e.clientX, e.clientY));
+                let delta = { x: current.x - initial.x, y: current.y - initial.y };
+
+                // store an history for the inertia
+                let time = (new Date().getTime()) / 1000;
+                this.history.push({ time: time, x: this.startPosX + delta.x, y: this.startPosY + delta.y });
+                while ((this.history.length > 2) && (time - this.history[0].time > Ui.Pointer.HISTORY_TIMELAPS)) {
+                    this.history.shift();
+                }
+
+                this.setPosition(this.startPosX + delta.x, this.startPosY + delta.y);
+            }
+            let onPointerCancel = (e: PointerEvent) => {
+                if (e.pointerId != this._pointerId)
+                    return;
+                this.drawing.removeEventListener('pointermove', onPointerMove);
+                this.drawing.removeEventListener('pointercancel', onPointerCancel);
+                this.drawing.removeEventListener('pointerup', onPointerUp);
+                this.drawing.releasePointerCapture(event.pointerId);
+                this._pointerId = undefined;
+                e.stopPropagation();
+                e.preventDefault();
+                this.onUp(true);
+            }
+            let onPointerUp = (e: PointerEvent) => {
+                if (e.pointerId != this._pointerId)
+                    return;
+                this.drawing.removeEventListener('pointermove', onPointerMove);
+                this.drawing.removeEventListener('pointercancel', onPointerCancel);
+                this.drawing.removeEventListener('pointerup', onPointerUp);
+                this.drawing.releasePointerCapture(event.pointerId);
+                this._pointerId = undefined;
+                e.stopPropagation();
+                e.preventDefault();
+
+                let initial = this.pointFromWindow(initialPosition);
+                let current = this.pointFromWindow(new Point(e.clientX, e.clientY));
+                let delta = { x: current.x - initial.x, y: current.y - initial.y };
+
+                // store an history for the inertia
+                let time = (new Date().getTime()) / 1000;
+                this.history.push({ time: time, x: this.startPosX + delta.x, y: this.startPosY + delta.y });
+                let speed = this.getSpeed();
+                this.speedX = speed.x;
+                this.speedY = speed.y;
+                if (this.inertia)
+                    this.startInertia();
+                this.onUp(false);
+            }
+
+            this.drawing.addEventListener('pointermove', onPointerMove);
+            this.drawing.addEventListener('pointercancel', onPointerCancel);
+            this.drawing.addEventListener('pointerup', onPointerUp);
+
+            /*            let watcher = event.pointer.watch(this);
+                        watcher.moved.connect(() => {
+                            if (!watcher.getIsCaptured()) {
+                                if (watcher.pointer.getIsMove()) {
+            
+                                    let deltaObj = watcher.getDelta();
+                                    let delta = Math.sqrt(deltaObj.x * deltaObj.x + deltaObj.y * deltaObj.y);
+            
+                                    this.setPosition(this.startPosX + deltaObj.x, this.startPosY + deltaObj.y);
+            
+                                    let deltaPosX = this.posX - this.startPosX;
+                                    let deltaPosY = this.posY - this.startPosY;
+                                    let deltaPos = Math.sqrt(deltaPosX * deltaPosX + deltaPosY * deltaPosY);
+            
+                                    let test = 0;
+                                    if (delta > 0)
+                                        test = deltaPos / delta;
+                                    
+                                    let testLevel = 0.7;
+                                    // if mouse left button, directly capture. No valid move needed
+                                    // to validate the pointer capture
+                                    if (event.pointer.type == 'mouse' && event.pointer.button == 0)
+                                        testLevel = 0;	
+                                    
+                                    if (test >= testLevel)
+                                        watcher.capture();
+                                    else {
+                                        this.setPosition(this.startPosX, this.startPosY);
+                                        watcher.cancel();
+                                    }
+                                }
+                            }
+                            else {
+                                let delta = watcher.getDelta();
+                                this.setPosition(this.startPosX + delta.x, this.startPosY + delta.y);
+                            }
+                        });
+                        watcher.upped.connect(() => {
+                            this.cumulMove = watcher.pointer.getCumulMove();
+                            let speed = watcher.getSpeed();
+                            this.speedX = speed.x;
+                            this.speedY = speed.y;
+                            if (this.inertia)
+                                this.startInertia();
+                            this.onUp(false);
+                            cancelLock = true;
+                            watcher.cancel();
+                            cancelLock = false;
+                        });
+                        watcher.cancelled.connect(() => {
+                            if (!cancelLock)
+                                this.onUp(true);
+                        });*/
         }
 
         private startInertia() {
@@ -257,5 +423,5 @@ namespace Ui {
             }
         }
     }
-}	
+}
 

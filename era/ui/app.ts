@@ -242,16 +242,11 @@ namespace Ui
                     document.getElementsByTagName("head")[0].appendChild(meta);
                 }
             }
-            // stop the scaling of the page for Safari and Chrome*
+            // set initial device scale for mobile app
             meta = document.createElement('meta');
             meta.name = 'viewport';
-            meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+            meta.content = 'width=device-width, initial-scale=1.0';
             document.getElementsByTagName("head")[0].appendChild(meta);
-
-            //style = document.createElement('style');
-            //style.type = 'text/css';
-            //style.innerHTML = '* { touch-action: none; }';
-            //document.getElementsByTagName('head')[0].appendChild(style);
 
             // hide scroll tap focus (webkit)
             if (Core.Navigator.isWebkit) {
@@ -285,25 +280,10 @@ namespace Ui
         }
 
         update = () => {
-            //		if(this.updateCounter === undefined)
-            //			this.updateCounter = 0;
-            //		else
-            //			this.updateCounter++;
-            //		let localCounter = this.updateCounter;
-            //		console.log('update START '+localCounter+' task: '+this.updateTask);
-            // clean the updateTask to allow a new one
-            // important to do it first because iOS with its
-            // bad thread system can trigger code that will ask for an
-            // update without having finish this code
-            //		this.updateTask = false;
-            //		console.log('update task: '+this.updateTask);
-
             // update measure
-            //		let innerWidth = (window.innerWidth !== undefined) ? window.innerWidth : document.body.clientWidth;
-            //		let innerHeight = (window.innerHeight !== undefined) ? window.innerHeight : document.body.clientHeight;
+            let innerWidth = (window.innerWidth !== undefined) ? window.innerWidth : document.body.clientWidth;
+            let innerHeight = (window.innerHeight !== undefined) ? window.innerHeight : document.body.clientHeight;
 
-            let innerWidth = document.body.clientWidth;
-            let innerHeight = document.body.clientHeight;
             // to work like Windows 8 and iOS. Take outer size for not
             // taking care of the virtual keyboard size
             //		if(navigator.Android) {
@@ -317,25 +297,6 @@ namespace Ui
                 this.resized.fire({ target: this, width: this.windowWidth, height: this.windowHeight });
                 this.invalidateLayout();
             }
-
-            // disable page scroll horizontal that might happened because of focused elements
-            // out of the screen
-
-            //		document.body.scrollLeft = 0;
-            //		document.body.scrollTop = 0;
-
-            //		let innerWidth = document.body.clientWidth;
-            //		let innerHeight = document.body.clientHeight;
-
-            //		let size = this.measure(innerWidth, innerHeight);
-            //			console.log('update M1 '+localCounter+', task: '+this.updateTask);
-
-            //		console.log(this+'.update size: '+this.windowWidth+' x '+this.windowHeight+', child: '+size.width+' x '+size.height);
-
-            //		this.arrange(0, 0, Math.max(this.windowWidth * this.windowScale, size.width), Math.max(this.windowHeight * this.windowScale, size.height));
-            //		this.arrange(0, 0, innerWidth, innerHeight);
-
-            //		console.log('update A1 '+localCounter+', task: '+this.updateTask);
 
             // update measure/arrange
             while (this.layoutList != undefined) {
@@ -353,12 +314,6 @@ namespace Ui
                 this.drawList.draw();
                 this.drawList = next;
             }
-
-            //		console.log('update D1 '+localCounter+', task: '+this.updateTask);
-
-            //		console.log(this+'.update end ('+(new Date()).getTime()+')');
-
-            //		console.log('update STOP '+localCounter+', task: '+this.updateTask);
 
             this.updateTask = false;
         }
@@ -482,7 +437,7 @@ namespace Ui
                 new Ui.WheelManager(this);
 
                 // handle pointer events
-                new Ui.PointerManager(this);
+                //new Ui.PointerManager(this);
 
                 // handle native drag & drop
                 new Ui.DragNativeManager(this);
