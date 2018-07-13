@@ -10,7 +10,7 @@ namespace Ui {
         onchanged?: (event: { target: Combo<T>, value: any, position: number }) => void;
     }
 
-    export class Combo<T> extends Button implements ComboInit<T> {
+    export class Combo<T = any> extends Button implements ComboInit<T> {
         private _field: string;
         private _data: T[];
         private _position: number = -1;
