@@ -147,7 +147,7 @@ namespace Ui
         draggable: Element;
         image: HTMLElement;
         imageEffect: DragEffectIcon;
-        catcher: HTMLElement;
+//        catcher: HTMLElement;
         startX: number = 0;
         startY: number = 0;
         dropX: number = 0;
@@ -165,7 +165,7 @@ namespace Ui
         dropEffect: any;
         dropEffectIcon: any;
         private _data: any;
-        timer: Core.DelayedTask;
+        timer?: Core.DelayedTask;
         dropFailsTimer: Anim.Clock;
         delayed: boolean = false;
 
@@ -397,7 +397,7 @@ namespace Ui
                 this.image.style.top = (this.startImagePoint.y + ofs) + 'px';
 
                 // avoid IFrame problems for mouse
-                if (this.watcher.pointer.getType() === 'mouse') {
+/*                if (this.watcher.pointer.getType() === 'mouse') {
                     this.catcher = document.createElement('div');
                     this.catcher.style.position = 'absolute';
                     this.catcher.style.left = '0px';
@@ -406,7 +406,7 @@ namespace Ui
                     this.catcher.style.bottom = '0px';
                     this.catcher.style.zIndex = '1000';
                     document.body.appendChild(this.catcher);
-                }
+                }*/
 
                 document.body.appendChild(this.image);
 
@@ -451,13 +451,13 @@ namespace Ui
                 this.y = clientY;
 
                 document.body.removeChild(this.image);
-                if (this.catcher !== undefined)
-                    document.body.removeChild(this.catcher);
+//                if (this.catcher !== undefined)
+//                    document.body.removeChild(this.catcher);
 
                 let overElement = App.current.elementFromPoint(new Point(clientX, clientY));
 
-                if (this.catcher !== undefined)
-                    document.body.appendChild(this.catcher);
+//                if (this.catcher !== undefined)
+//                    document.body.appendChild(this.catcher);
                 document.body.appendChild(this.image);
 
                 deltaX = clientX - this.startX;
@@ -541,6 +541,11 @@ namespace Ui
         }
 
         protected onPointerUp = (e: { target: PointerWatcher }) => {
+            if (this.timer !== undefined) {
+                this.timer.abort();
+                this.timer = undefined;
+            }
+
             let watcher = e.target;
             //console.log('onPointerUp isCaptured: ' + watcher.getIsCaptured());
             this.watcher.moved.disconnect(this.onPointerMove);
@@ -602,10 +607,10 @@ namespace Ui
 
         protected removeImage() {
             document.body.removeChild(this.image);
-            if (this.catcher !== undefined) {
-                document.body.removeChild(this.catcher);
-                this.catcher = undefined;
-            }
+//            if (this.catcher !== undefined) {
+//                document.body.removeChild(this.catcher);
+//                this.catcher = undefined;
+//            }
         }
 
         protected onDropFailsTimerUpdate(clock, progress) {

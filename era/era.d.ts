@@ -1543,7 +1543,6 @@ declare namespace Ui {
         draggable: Element;
         image: HTMLElement;
         imageEffect: DragEffectIcon;
-        catcher: HTMLElement;
         startX: number;
         startY: number;
         dropX: number;
@@ -1560,7 +1559,7 @@ declare namespace Ui {
         dropEffect: any;
         dropEffectIcon: any;
         private _data;
-        timer: Core.DelayedTask;
+        timer?: Core.DelayedTask;
         dropFailsTimer: Anim.Clock;
         delayed: boolean;
         dragWatcher: DragWatcher;

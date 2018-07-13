@@ -7351,11 +7351,7 @@ var Ui;
                     _this.x = clientX;
                     _this.y = clientY;
                     document.body.removeChild(_this.image);
-                    if (_this.catcher !== undefined)
-                        document.body.removeChild(_this.catcher);
                     var overElement = Ui.App.current.elementFromPoint(new Ui.Point(clientX, clientY));
-                    if (_this.catcher !== undefined)
-                        document.body.appendChild(_this.catcher);
                     document.body.appendChild(_this.image);
                     deltaX = clientX - _this.startX;
                     deltaY = clientY - _this.startY;
@@ -7419,6 +7415,10 @@ var Ui;
                 }
             };
             _this.onPointerUp = function (e) {
+                if (_this.timer !== undefined) {
+                    _this.timer.abort();
+                    _this.timer = undefined;
+                }
                 var watcher = e.target;
                 _this.watcher.moved.disconnect(_this.onPointerMove);
                 _this.watcher.upped.disconnect(_this.onPointerUp);
@@ -7658,16 +7658,6 @@ var Ui;
                 this.startImagePoint = this.draggable.pointToWindow(new Ui.Point());
                 this.image.style.left = (this.startImagePoint.x + ofs) + 'px';
                 this.image.style.top = (this.startImagePoint.y + ofs) + 'px';
-                if (this.watcher.pointer.getType() === 'mouse') {
-                    this.catcher = document.createElement('div');
-                    this.catcher.style.position = 'absolute';
-                    this.catcher.style.left = '0px';
-                    this.catcher.style.right = '0px';
-                    this.catcher.style.top = '0px';
-                    this.catcher.style.bottom = '0px';
-                    this.catcher.style.zIndex = '1000';
-                    document.body.appendChild(this.catcher);
-                }
                 document.body.appendChild(this.image);
                 this.watcher.capture();
             }
@@ -7692,10 +7682,6 @@ var Ui;
         };
         DragEmuDataTransfer.prototype.removeImage = function () {
             document.body.removeChild(this.image);
-            if (this.catcher !== undefined) {
-                document.body.removeChild(this.catcher);
-                this.catcher = undefined;
-            }
         };
         DragEmuDataTransfer.prototype.onDropFailsTimerUpdate = function (clock, progress) {
             if (progress >= 1)
