@@ -15450,8 +15450,8 @@ var Ui;
             _this.parentmessage = new Core.Events();
             _this.orientationchanged = new Core.Events();
             _this.update = function () {
-                var innerWidth = (window.innerWidth !== undefined) ? window.innerWidth : document.body.clientWidth;
-                var innerHeight = (window.innerHeight !== undefined) ? window.innerHeight : document.body.clientHeight;
+                var innerWidth = document.body.clientWidth;
+                var innerHeight = document.body.clientHeight;
                 if ((_this.windowWidth !== innerWidth) || (_this.windowHeight !== innerHeight)) {
                     _this.windowWidth = innerWidth;
                     _this.windowHeight = innerHeight;
@@ -15616,8 +15616,8 @@ var Ui;
                 this.testFontTask = undefined;
         };
         App.prototype.checkWindowSize = function () {
-            var innerWidth = (window.innerWidth !== undefined) ? window.innerWidth : document.body.clientWidth;
-            var innerHeight = (window.innerHeight !== undefined) ? window.innerHeight : document.body.clientHeight;
+            var innerWidth = document.body.clientWidth;
+            var innerHeight = document.body.clientHeight;
             if ((innerWidth !== this.layoutWidth) || (innerHeight !== this.layoutHeight))
                 this.invalidateMeasure();
         };
@@ -15660,7 +15660,7 @@ var Ui;
             }
             meta = document.createElement('meta');
             meta.name = 'viewport';
-            meta.content = 'width=device-width, initial-scale=1.0';
+            meta.content = 'width=device-width, initial-scale=1.0, minimum-scale=1';
             document.getElementsByTagName("head")[0].appendChild(meta);
             if (Core.Navigator.isWebkit) {
                 style = document.createElement('style');

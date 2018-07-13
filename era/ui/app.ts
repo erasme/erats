@@ -192,8 +192,8 @@ namespace Ui
         }
 
         checkWindowSize() {
-            let innerWidth = (window.innerWidth !== undefined) ? window.innerWidth : document.body.clientWidth;
-            let innerHeight = (window.innerHeight !== undefined) ? window.innerHeight : document.body.clientHeight;
+            let innerWidth = document.body.clientWidth;
+            let innerHeight = document.body.clientHeight;
             if ((innerWidth !== this.layoutWidth) || (innerHeight !== this.layoutHeight))
                 this.invalidateMeasure();
         }
@@ -245,7 +245,7 @@ namespace Ui
             // set initial device scale for mobile app
             meta = document.createElement('meta');
             meta.name = 'viewport';
-            meta.content = 'width=device-width, initial-scale=1.0';
+            meta.content = 'width=device-width, initial-scale=1.0, minimum-scale=1';
             document.getElementsByTagName("head")[0].appendChild(meta);
 
             // hide scroll tap focus (webkit)
@@ -281,8 +281,8 @@ namespace Ui
 
         update = () => {
             // update measure
-            let innerWidth = (window.innerWidth !== undefined) ? window.innerWidth : document.body.clientWidth;
-            let innerHeight = (window.innerHeight !== undefined) ? window.innerHeight : document.body.clientHeight;
+            let innerWidth = document.body.clientWidth;
+            let innerHeight = document.body.clientHeight;
 
             // to work like Windows 8 and iOS. Take outer size for not
             // taking care of the virtual keyboard size
