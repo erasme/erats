@@ -1,27 +1,27 @@
 namespace Ui {
-    export interface ComboInit extends ButtonInit {
+    export interface ComboInit<T> extends ButtonInit {
         placeHolder?: string;
         field?: string;
-        data?: any[];
+        data?: T[];
         position?: number;
         current?: any;
         search?: boolean;
         allowNone?: boolean;
-        onchanged?: (event: { target: Combo, value: any, position: number }) => void;
+        onchanged?: (event: { target: Combo<T>, value: any, position: number }) => void;
     }
 
-    export class Combo extends Button implements ComboInit {
+    export class Combo<T> extends Button implements ComboInit<T> {
         private _field: string;
-        private _data: any[];
+        private _data: T[];
         private _position: number = -1;
-        private _current: any;
+        private _current: T;
         private _placeHolder: string = '';
         sep: undefined;
         arrowbottom: Icon;
         search: boolean;
         allowNone = false;
-        readonly changed = new Core.Events<{ target: Combo, value: any, position: number }>();
-        set onchanged(value: (event: { target: Combo, value: any, position: number }) => void) { this.changed.connect(value); }
+        readonly changed = new Core.Events<{ target: Combo<T>, value: any, position: number }>();
+        set onchanged(value: (event: { target: Combo<T>, value: any, position: number }) => void) { this.changed.connect(value); }
 
         /**
          * @constructs
@@ -33,7 +33,7 @@ namespace Ui {
          * @param [current] Default selected object
          * @param [placeHolder] Text displays when no selection
          */
-        constructor(init?: ComboInit) {
+        constructor(init?: ComboInit<T>) {
             super(init);
 
             this.text = this._placeHolder;
@@ -75,7 +75,7 @@ namespace Ui {
                 this.data = this._data;
         }
 
-        set data(data: any[]) {
+        set data(data: T[]) {
             let oldPosition = this.position;
             this._data = data;
             this._position = -1;
@@ -84,7 +84,7 @@ namespace Ui {
             this.position = oldPosition;
         }
 
-        get data(): any[] {
+        get data(): T[] {
             return this._data;
         }
 
@@ -109,15 +109,15 @@ namespace Ui {
             }
         }
 
-        get current(): any {
+        get current(): T {
             return this._current;
         }
 
-        get value(): any {
+        get value(): T {
             return this._current;
         }
 
-        set current(current: any) {
+        set current(current: T) {
             if (current == undefined)
                 this.position = -1;
             let position = -1;
@@ -167,24 +167,24 @@ namespace Ui {
         }
     }
 
-    export interface ComboPopupInit extends MenuPopupInit {
+    export interface ComboPopupInit<T> extends MenuPopupInit {
         search?: boolean;
         allowNone?: boolean;
         field?: string;
-        data?: any[];
+        data?: T[];
         position?: number;
     }
 
-    export class ComboPopup extends MenuPopup {
+    export class ComboPopup<T> extends MenuPopup {
         private list = new VBox();
         private _allowNone = false;
-        private _data: any[];
+        private _data: T[];
         private _field: string;
         private searchField = new TextField();
         private emptyField = new ComboItem();
-        readonly item = new Core.Events<{ target: ComboPopup, item: ComboItem, position: number }>();
+        readonly item = new Core.Events<{ target: ComboPopup<T>, item: ComboItem, position: number }>();
 
-        constructor(init?: ComboPopupInit) {
+        constructor(init?: ComboPopupInit<T>) {
             super(init);
             this.autoClose = true;
 
@@ -275,7 +275,7 @@ namespace Ui {
                 this.data = this._data;
         }
 
-        set data(data: any[]) {
+        set data(data: T[]) {
             this._data = data;
             if (this._field === undefined)
                 return;

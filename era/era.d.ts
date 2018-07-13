@@ -4923,21 +4923,21 @@ declare namespace Ui {
     }
 }
 declare namespace Ui {
-    interface ComboInit extends ButtonInit {
+    interface ComboInit<T> extends ButtonInit {
         placeHolder?: string;
         field?: string;
-        data?: any[];
+        data?: T[];
         position?: number;
         current?: any;
         search?: boolean;
         allowNone?: boolean;
         onchanged?: (event: {
-            target: Combo;
+            target: Combo<T>;
             value: any;
             position: number;
         }) => void;
     }
-    class Combo extends Button implements ComboInit {
+    class Combo<T> extends Button implements ComboInit<T> {
         private _field;
         private _data;
         private _position;
@@ -4948,22 +4948,22 @@ declare namespace Ui {
         search: boolean;
         allowNone: boolean;
         readonly changed: Core.Events<{
-            target: Combo;
+            target: Combo<T>;
             value: any;
             position: number;
         }>;
         onchanged: (event: {
-            target: Combo;
+            target: Combo<T>;
             value: any;
             position: number;
         }) => void;
-        constructor(init?: ComboInit);
+        constructor(init?: ComboInit<T>);
         placeHolder: string;
         field: string;
-        data: any[];
+        data: T[];
         position: number;
-        current: any;
-        readonly value: any;
+        current: T;
+        readonly value: T;
         protected onItemPress(popup: any, item: any, position: any): void;
         protected onPress(): void;
         protected updateColors(): void;
@@ -4971,14 +4971,14 @@ declare namespace Ui {
         protected onEnable(): void;
         static style: object;
     }
-    interface ComboPopupInit extends MenuPopupInit {
+    interface ComboPopupInit<T> extends MenuPopupInit {
         search?: boolean;
         allowNone?: boolean;
         field?: string;
-        data?: any[];
+        data?: T[];
         position?: number;
     }
-    class ComboPopup extends MenuPopup {
+    class ComboPopup<T> extends MenuPopup {
         private list;
         private _allowNone;
         private _data;
@@ -4986,16 +4986,16 @@ declare namespace Ui {
         private searchField;
         private emptyField;
         readonly item: Core.Events<{
-            target: ComboPopup;
+            target: ComboPopup<T>;
             item: ComboItem;
             position: number;
         }>;
-        constructor(init?: ComboPopupInit);
+        constructor(init?: ComboPopupInit<T>);
         private onSearchChange;
         search: boolean;
         allowNone: boolean;
         field: string;
-        data: any[];
+        data: T[];
         position: number;
         protected onItemPress(item: ComboItem): void;
     }
