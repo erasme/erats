@@ -23550,7 +23550,7 @@ var Ui;
             this.vbox.append(this.getElementAt(this._data.length - 1));
             this.datachanged.fire({ target: this });
         };
-        ListView.prototype.updateData = function (data) {
+        ListView.prototype.updateData = function () {
             this.sortData();
             this.vbox.clear();
             for (var i = 0; i < this._data.length; i++) {
@@ -23567,9 +23567,8 @@ var Ui;
             if (position < this._data.length) {
                 this._data.splice(position, 1);
                 this.vbox.clear();
-                for (var i = 0; i < this._data.length; i++) {
+                for (var i = 0; i < this._data.length; i++)
                     this.vbox.append(this.getElementAt(i));
-                }
             }
             this.datachanged.fire({ target: this });
         };

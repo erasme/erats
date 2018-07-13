@@ -162,25 +162,25 @@ namespace Ui {
         }
     }
 
-    export interface ListViewRowInit {
+    export interface ListViewRowInit<T> {
         height?: number;
-        listView: ListView;
+        listView: ListView<T>;
         data: any;
     }
 
-    export class ListViewRow extends Container {
+    export class ListViewRow<T> extends Container {
         private headers: HeaderDef[];
-        private _data: any;
+        private _data: T;
         readonly cells: ListViewCell[];
         private selectionActions: SelectionActions;
         readonly selectionWatcher: SelectionableWatcher;
-        readonly listView: ListView;
-        readonly selected = new Core.Events<{ target: ListViewRow }>();
-        set onselected(value: (event: { target: ListViewRow }) => void) { this.selected.connect(value); }
-        readonly unselected = new Core.Events<{ target: ListViewRow }>();
-        set onunselected(value: (event: { target: ListViewRow }) => void) { this.unselected.connect(value); }
+        readonly listView: ListView<T>;
+        readonly selected = new Core.Events<{ target: ListViewRow<T> }>();
+        set onselected(value: (event: { target: ListViewRow<T> }) => void) { this.selected.connect(value); }
+        readonly unselected = new Core.Events<{ target: ListViewRow<T> }>();
+        set onunselected(value: (event: { target: ListViewRow<T> }) => void) { this.unselected.connect(value); }
 
-        constructor(init: ListViewRowInit) {
+        constructor(init: ListViewRowInit<T>) {
             super();
             this.drawing.style.boxSizing = 'border-box';
             this.drawing.style.borderBottomStyle = 'solid';
@@ -226,11 +226,11 @@ namespace Ui {
 
         }
 
-        get data(): any {
+        get data(): T {
             return this._data;
         }
 
-        set data(data: any) {
+        set data(data: T) {
             this._data = data;
             for (let col = 0; col < this.headers.length; col++) {
                 let key = this.headers[col].key;
@@ -285,10 +285,10 @@ namespace Ui {
         }
     }
 
-    export interface ListViewRowOddInit extends ListViewRowInit { }
+    export interface ListViewRowOddInit<T> extends ListViewRowInit<T> { }
 
-    export class ListViewRowOdd extends ListViewRow {
-        constructor(init: ListViewRowOddInit) {
+    export class ListViewRowOdd<T> extends ListViewRow<T> {
+        constructor(init: ListViewRowOddInit<T>) {
             super(init);
         }
 
@@ -298,10 +298,10 @@ namespace Ui {
         }
     }
 
-    export interface ListViewRowEvenInit extends ListViewRowInit { }
+    export interface ListViewRowEvenInit<T> extends ListViewRowInit<T> { }
 
-    export class ListViewRowEven extends ListViewRow {
-        constructor(init: ListViewRowEvenInit) {
+    export class ListViewRowEven<T> extends ListViewRow<T> {
+        constructor(init: ListViewRowEvenInit<T>) {
             super(init);
         }
 
@@ -311,11 +311,11 @@ namespace Ui {
         }
     }
 
-    export class ListViewScrollLoader extends ScrollLoader {
-        listView: ListView;
-        data: object[];
+    export class ListViewScrollLoader<T> extends ScrollLoader {
+        listView: ListView<T>;
+        data: T[];
 
-        constructor(listView: ListView, data: object[]) {
+        constructor(listView: ListView<T>, data: T[]) {
             super();
             this.listView = listView;
             this.data = data;
@@ -344,21 +344,21 @@ namespace Ui {
                         scope: this, callback: this.onSelectionEdit, multiple: false
     }*/
 
-    export interface ListViewInit extends VBoxInit {
+    export interface ListViewInit<T> extends VBoxInit {
         headers?: HeaderDef[];
         scrolled?: boolean;
         scrollVertical?: boolean;
         scrollHorizontal?: boolean;
         selectionActions?: SelectionActions;
-        onselectionchanged?: (event: { target: ListView }) => void;
-        onselected?: (event: { target: ListView }) => void;
-        onunselected?: (event: { target: ListView }) => void;
-        onactivated?: (event: { target: ListView, position: number, value: any }) => void;
-        onsortchanged?: (event: { target: ListView, key: string, invert: boolean }) => void;
+        onselectionchanged?: (event: { target: ListView<T> }) => void;
+        onselected?: (event: { target: ListView<T> }) => void;
+        onunselected?: (event: { target: ListView<T> }) => void;
+        onactivated?: (event: { target: ListView<T>, position: number, value: any }) => void;
+        onsortchanged?: (event: { target: ListView<T>, key: string, invert: boolean }) => void;
     }
 
-    export class ListView extends VBox implements ListViewInit {
-        private _data: object[];
+    export class ListView<T = any> extends VBox implements ListViewInit<T> {
+        private _data: T[];
         headers: HeaderDef[];
         readonly headersBar: ListViewHeadersBar;
         headersScroll: ScrollingArea;
@@ -381,20 +381,20 @@ namespace Ui {
         vboxScroll: ScrollingArea;
 
         private _selectionChangedLock = false;
-        readonly selectionchanged = new Core.Events<{ target: ListView }>();
-        set onselectionchanged(value: (event: { target: ListView }) => void) { this.selectionchanged.connect(value); }
-        readonly selected = new Core.Events<{ target: ListView }>();
-        set onselected(value: (event: { target: ListView }) => void) { this.selected.connect(value); }
-        readonly unselected = new Core.Events<{ target: ListView }>();
-        set onunselected(value: (event: { target: ListView }) => void) { this.unselected.connect(value); }
-        readonly activated = new Core.Events<{ target: ListView, position: number, value: any }>();
-        set onactivated(value: (event: { target: ListView, position: number, value: any }) => void) { this.activated.connect(value); }
-        readonly sortchanged = new Core.Events<{ target: ListView, key: string, invert: boolean }>();
-        set onsortchanged(value: (event: { target: ListView, key: string, invert: boolean }) => void) { this.sortchanged.connect(value); }
-        readonly datachanged = new Core.Events<{ target: ListView }>();
-        set ondatachanged(value: (event: { target: ListView }) => void) { this.datachanged.connect(value); }
+        readonly selectionchanged = new Core.Events<{ target: ListView<T> }>();
+        set onselectionchanged(value: (event: { target: ListView<T> }) => void) { this.selectionchanged.connect(value); }
+        readonly selected = new Core.Events<{ target: ListView<T> }>();
+        set onselected(value: (event: { target: ListView<T> }) => void) { this.selected.connect(value); }
+        readonly unselected = new Core.Events<{ target: ListView<T> }>();
+        set onunselected(value: (event: { target: ListView<T> }) => void) { this.unselected.connect(value); }
+        readonly activated = new Core.Events<{ target: ListView<T>, position: number, value: any }>();
+        set onactivated(value: (event: { target: ListView<T>, position: number, value: any }) => void) { this.activated.connect(value); }
+        readonly sortchanged = new Core.Events<{ target: ListView<T>, key: string, invert: boolean }>();
+        set onsortchanged(value: (event: { target: ListView<T>, key: string, invert: boolean }) => void) { this.sortchanged.connect(value); }
+        readonly datachanged = new Core.Events<{ target: ListView<T> }>();
+        set ondatachanged(value: (event: { target: ListView<T> }) => void) { this.datachanged.connect(value); }
 
-        constructor(init?: ListViewInit) {
+        constructor(init?: ListViewInit<T>) {
             super(init);
             if (init && init.headers != undefined)
                 this.headers = init.headers;
@@ -501,37 +501,30 @@ namespace Ui {
             this.selectionActions = value;
         }
 
-        getElementAt(position: number): ListViewRow {
+        getElementAt(position: number): ListViewRow<T> {
             if ((position % 2) === 0)
-                return new ListViewRowOdd({
+                return new ListViewRowOdd<T>({
                     listView: this, data: this._data[position]
                 });
             else
-                return new ListViewRowEven({
+                return new ListViewRowEven<T>({
                     listView: this, data: this._data[position]
                 });
         }
 
-        appendData(data) {
+        appendData(data: T) {
             this._data.push(data);
             this.sortData();
-            //			if (this._scrolled)
-            //				this.dataLoader.signalChange();
-            //			else
             this.vbox.append(this.getElementAt(this._data.length - 1));
             this.datachanged.fire({ target: this });
         }
 
-        updateData(data) {
+        updateData() {
             this.sortData();
-            /*			if (this._scrolled)
-                            this.scroll.reload();
-                        else {*/
             this.vbox.clear();
             for (let i = 0; i < this._data.length; i++) {
                 this.vbox.append(this.getElementAt(i));
             }
-            //			}
             this.datachanged.fire({ target: this });
         }
 
@@ -544,14 +537,9 @@ namespace Ui {
         removeDataAt(position: number) {
             if (position < this._data.length) {
                 this._data.splice(position, 1);
-                //				if (this._scrolled)
-                //					this.scroll.reload();
-                //				else {
                 this.vbox.clear();
-                for (let i = 0; i < this._data.length; i++) {
+                for (let i = 0; i < this._data.length; i++)
                     this.vbox.append(this.getElementAt(i));
-                }
-                //				}
             }
             this.datachanged.fire({ target: this });
         }
@@ -566,11 +554,11 @@ namespace Ui {
             this.datachanged.fire({ target: this });
         }
 
-        get data(): Array<any> {
+        get data(): Array<T> {
             return this._data;
         }
 
-        set data(data: Array<any>) {
+        set data(data: Array<T>) {
             this._data = data;
             this.sortData();
             //				this.dataLoader = new ListViewScrollLoader(this, this._data);
@@ -620,7 +608,7 @@ namespace Ui {
             this.sortchanged.fire({ target: this, key: this.sortColKey, invert: this.sortInvert });
         }
 
-        findDataRow(data) {
+        findDataRow(data: T): number {
             for (let row = 0; row < this._data.length; row++) {
                 if (data == this._data[row])
                     return row;
@@ -633,7 +621,7 @@ namespace Ui {
         }
 
         onSelectionEdit(selection: Selection) {
-            let data = (selection.elements[0] as ListViewRow).data;
+            let data = (selection.elements[0] as ListViewRow<T>).data;
             this.activated.fire({ target: this, position: this.findDataRow(data), value: data });
         }
 
@@ -654,11 +642,11 @@ namespace Ui {
                 this.selectionchanged.fire({ target: this });
         }
 
-        get rows(): Array<ListViewRow> {
-            return this.vbox.children as Array<ListViewRow>;
+        get rows(): Array<ListViewRow<T>> {
+            return this.vbox.children as Array<ListViewRow<T>>;
         }
 
-        get selectedRows(): Array<ListViewRow> {
+        get selectedRows(): Array<ListViewRow<T>> {
             return this.rows.filter((value) => value.isSelected);
         }
 
@@ -693,7 +681,7 @@ namespace Ui {
         value: any;
         ui: Element;
         key: string;
-        row: ListViewRow;
+        row: ListViewRow<any>;
 
         constructor() {
             super();
@@ -710,7 +698,7 @@ namespace Ui {
             this.key = key;
         }
 
-        setRow(row: ListViewRow) {
+        setRow(row: ListViewRow<any>) {
             this.row = row;
         }
 

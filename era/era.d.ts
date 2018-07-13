@@ -4937,7 +4937,7 @@ declare namespace Ui {
             position: number;
         }) => void;
     }
-    class Combo<T> extends Button implements ComboInit<T> {
+    class Combo<T = any> extends Button implements ComboInit<T> {
         private _field;
         private _data;
         private _position;
@@ -5051,32 +5051,32 @@ declare namespace Ui {
         };
         protected arrangeCore(width: number, height: number): void;
     }
-    interface ListViewRowInit {
+    interface ListViewRowInit<T> {
         height?: number;
-        listView: ListView;
+        listView: ListView<T>;
         data: any;
     }
-    class ListViewRow extends Container {
+    class ListViewRow<T> extends Container {
         private headers;
         private _data;
         readonly cells: ListViewCell[];
         private selectionActions;
         readonly selectionWatcher: SelectionableWatcher;
-        readonly listView: ListView;
+        readonly listView: ListView<T>;
         readonly selected: Core.Events<{
-            target: ListViewRow;
+            target: ListViewRow<T>;
         }>;
         onselected: (event: {
-            target: ListViewRow;
+            target: ListViewRow<T>;
         }) => void;
         readonly unselected: Core.Events<{
-            target: ListViewRow;
+            target: ListViewRow<T>;
         }>;
         onunselected: (event: {
-            target: ListViewRow;
+            target: ListViewRow<T>;
         }) => void;
-        constructor(init: ListViewRowInit);
-        data: any;
+        constructor(init: ListViewRowInit<T>);
+        data: T;
         isSelected: boolean;
         protected measureCore(width: number, height: number): {
             width: number;
@@ -5086,54 +5086,54 @@ declare namespace Ui {
         protected onStyleChange(): void;
         static style: object;
     }
-    interface ListViewRowOddInit extends ListViewRowInit {
+    interface ListViewRowOddInit<T> extends ListViewRowInit<T> {
     }
-    class ListViewRowOdd extends ListViewRow {
-        constructor(init: ListViewRowOddInit);
+    class ListViewRowOdd<T> extends ListViewRow<T> {
+        constructor(init: ListViewRowOddInit<T>);
         static style: object;
     }
-    interface ListViewRowEvenInit extends ListViewRowInit {
+    interface ListViewRowEvenInit<T> extends ListViewRowInit<T> {
     }
-    class ListViewRowEven extends ListViewRow {
-        constructor(init: ListViewRowEvenInit);
+    class ListViewRowEven<T> extends ListViewRow<T> {
+        constructor(init: ListViewRowEvenInit<T>);
         static style: object;
     }
-    class ListViewScrollLoader extends ScrollLoader {
-        listView: ListView;
-        data: object[];
-        constructor(listView: ListView, data: object[]);
+    class ListViewScrollLoader<T> extends ScrollLoader {
+        listView: ListView<T>;
+        data: T[];
+        constructor(listView: ListView<T>, data: T[]);
         signalChange(): void;
         getMin(): number;
         getMax(): number;
-        getElementAt(position: any): ListViewRow;
+        getElementAt(position: any): ListViewRow<T>;
     }
-    interface ListViewInit extends VBoxInit {
+    interface ListViewInit<T> extends VBoxInit {
         headers?: HeaderDef[];
         scrolled?: boolean;
         scrollVertical?: boolean;
         scrollHorizontal?: boolean;
         selectionActions?: SelectionActions;
         onselectionchanged?: (event: {
-            target: ListView;
+            target: ListView<T>;
         }) => void;
         onselected?: (event: {
-            target: ListView;
+            target: ListView<T>;
         }) => void;
         onunselected?: (event: {
-            target: ListView;
+            target: ListView<T>;
         }) => void;
         onactivated?: (event: {
-            target: ListView;
+            target: ListView<T>;
             position: number;
             value: any;
         }) => void;
         onsortchanged?: (event: {
-            target: ListView;
+            target: ListView<T>;
             key: string;
             invert: boolean;
         }) => void;
     }
-    class ListView extends VBox implements ListViewInit {
+    class ListView<T = any> extends VBox implements ListViewInit<T> {
         private _data;
         headers: HeaderDef[];
         readonly headersBar: ListViewHeadersBar;
@@ -5156,50 +5156,50 @@ declare namespace Ui {
         vboxScroll: ScrollingArea;
         private _selectionChangedLock;
         readonly selectionchanged: Core.Events<{
-            target: ListView;
+            target: ListView<T>;
         }>;
         onselectionchanged: (event: {
-            target: ListView;
+            target: ListView<T>;
         }) => void;
         readonly selected: Core.Events<{
-            target: ListView;
+            target: ListView<T>;
         }>;
         onselected: (event: {
-            target: ListView;
+            target: ListView<T>;
         }) => void;
         readonly unselected: Core.Events<{
-            target: ListView;
+            target: ListView<T>;
         }>;
         onunselected: (event: {
-            target: ListView;
+            target: ListView<T>;
         }) => void;
         readonly activated: Core.Events<{
-            target: ListView;
+            target: ListView<T>;
             position: number;
             value: any;
         }>;
         onactivated: (event: {
-            target: ListView;
+            target: ListView<T>;
             position: number;
             value: any;
         }) => void;
         readonly sortchanged: Core.Events<{
-            target: ListView;
+            target: ListView<T>;
             key: string;
             invert: boolean;
         }>;
         onsortchanged: (event: {
-            target: ListView;
+            target: ListView<T>;
             key: string;
             invert: boolean;
         }) => void;
         readonly datachanged: Core.Events<{
-            target: ListView;
+            target: ListView<T>;
         }>;
         ondatachanged: (event: {
-            target: ListView;
+            target: ListView<T>;
         }) => void;
-        constructor(init?: ListViewInit);
+        constructor(init?: ListViewInit<T>);
         scrolled: boolean;
         scrollVertical: boolean;
         scrollHorizontal: boolean;
@@ -5207,22 +5207,22 @@ declare namespace Ui {
         hideHeaders(): void;
         getSelectionActions(): SelectionActions;
         setSelectionActions(value: SelectionActions): void;
-        getElementAt(position: number): ListViewRow;
-        appendData(data: any): void;
-        updateData(data: any): void;
+        getElementAt(position: number): ListViewRow<T>;
+        appendData(data: T): void;
+        updateData(): void;
         removeData(data: any): void;
         removeDataAt(position: number): void;
         clearData(): void;
-        data: Array<any>;
+        data: Array<T>;
         sortData(): void;
         sortBy(key: string, invert: boolean): void;
-        findDataRow(data: any): number;
+        findDataRow(data: T): number;
         onHeaderPress(header: any, key: any): void;
         onSelectionEdit(selection: Selection): void;
         protected onChildInvalidateArrange(child: Element): void;
         onRowSelectionChanged(): void;
-        readonly rows: Array<ListViewRow>;
-        readonly selectedRows: Array<ListViewRow>;
+        readonly rows: Array<ListViewRow<T>>;
+        readonly selectedRows: Array<ListViewRow<T>>;
         selectAll(): void;
         unselectAll(): void;
     }
@@ -5230,11 +5230,11 @@ declare namespace Ui {
         value: any;
         ui: Element;
         key: string;
-        row: ListViewRow;
+        row: ListViewRow<any>;
         constructor();
         getKey(): string;
         setKey(key: any): void;
-        setRow(row: ListViewRow): void;
+        setRow(row: ListViewRow<any>): void;
         getValue(): any;
         setValue(value: any): void;
         protected generateUi(): Element;
