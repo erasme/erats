@@ -5,7 +5,7 @@ namespace Ui {
         // the data that we drag & drop
         data: any;
         private _dragDelta: Point;
-        dataTransfer: DragEmuDataTransfer;
+        dataTransfer?: DragEmuDataTransfer;
         private element: Element;
         private start: (watcher: DraggableWatcher) => void;
         private end: (watcher: DraggableWatcher, effect: 'none' | 'copy' | 'link' | 'move' | string) => void;
@@ -26,16 +26,23 @@ namespace Ui {
             //this.element.ptrdowned.connect(e => this.onDraggablePointerDown(e));
 
             if ('PointerEvent' in window)
-                this.element.drawing.addEventListener('pointerdown', (e) => this.onDraggablePointerDown(e), { passive: false });
+                this.element.drawing.addEventListener('pointerdown', this.onDraggablePointerDown, { passive: false });
             if ('TouchEvent' in window)
-                this.element.drawing.addEventListener('touchstart', (e) => this.onDraggableTouchStart(e), { passive: false });
+                this.element.drawing.addEventListener('touchstart', this.onDraggableTouchStart, { passive: false });
         }
 
         get dragDelta(): Point {
             return this._dragDelta;
         }
 
-        private onDraggablePointerDown(event: PointerEvent): void {
+        dispose() {
+            if ('PointerEvent' in window)
+                this.element.drawing.removeEventListener('pointerdown', this.onDraggablePointerDown);
+            if ('TouchEvent' in window)
+                this.element.drawing.removeEventListener('touchstart', this.onDraggableTouchStart);
+        }
+
+        private onDraggablePointerDown = (event: PointerEvent) => {
             // left and middle mouse button only
             //if (event.pointerType == 'mouse' && event.pointer.button != 0 && event.pointer.button != 1)
             //    return;	
@@ -45,10 +52,7 @@ namespace Ui {
             if (event.pointerType == 'touch')
                 return;
 
-            console.log(`onDraggablePointerDown ${event.pointerType}`);
-
-            let delayed = false;
-            
+            let delayed = false;            
             let dataTransfer = new DragEmuDataTransfer(
                 this.element, event.clientX, event.clientY, delayed, event);
             this.dataTransfer = dataTransfer;
@@ -57,14 +61,11 @@ namespace Ui {
             dataTransfer.ended.connect(e => this.onDragEnd(dataTransfer));
         }
 
-        private onDraggableTouchStart(event: TouchEvent): void {
+        private onDraggableTouchStart = (event: TouchEvent) => {
             if (this.element.isDisabled || (this.data === undefined) || (event.targetTouches.length != 1))
                 return;
 
-            console.log(`onDraggableTouchStart`);
-
-            let delayed = true;
-            
+            let delayed = true;            
             let dataTransfer = new DragEmuDataTransfer(
                 this.element, event.targetTouches[0].clientX, event.targetTouches[0].clientY, delayed, undefined, event);
             this.dataTransfer = dataTransfer;

@@ -1,7 +1,5 @@
-namespace Ui
-{
-    export class DragEffectIcon extends DualIcon
-    {
+namespace Ui {
+    export class DragEffectIcon extends DualIcon {
         protected onStyleChange() {
             let size = this.getStyleProperty('size');
             this.width = size;
@@ -16,8 +14,7 @@ namespace Ui
         }
     }
 
-    export class DragEvent extends Event
-    {
+    export class DragEvent extends Event {
         clientX: number = 0;
         clientY: number = 0;
         ctrlKey: boolean = false;
@@ -38,8 +35,7 @@ namespace Ui
         }
     }
 
-    export class DragNativeData extends Core.Object
-    {
+    export class DragNativeData extends Core.Object {
         dataTransfer: any = undefined;
 
         constructor(dataTransfer) {
@@ -147,7 +143,7 @@ namespace Ui
         draggable: Element;
         image: HTMLElement;
         imageEffect: DragEffectIcon;
-//        catcher: HTMLElement;
+        //        catcher: HTMLElement;
         startX: number = 0;
         startY: number = 0;
         dropX: number = 0;
@@ -183,6 +179,11 @@ namespace Ui
             this.delayed = delayed;
 
             this.dragDelta = this.draggable.pointFromWindow(new Point(this.startX, this.startY));
+            let onContextMenu = (e) => {
+                e.stopImmediatePropagation();
+                e.preventDefault();
+            };
+            this.draggable.drawing.addEventListener('contextmenu', onContextMenu, { capture: true });
 
             if (pointerEvent) {
                 this.pointer = new Pointer(pointerEvent.type, pointerEvent.pointerId);
@@ -197,6 +198,7 @@ namespace Ui
                     window.removeEventListener('pointermove', onPointerMove, { capture: true });
                     window.removeEventListener('pointerup', onPointerUp, { capture: true });
                     window.removeEventListener('pointercancel', onPointerCancel, { capture: true });
+                    this.draggable.drawing.removeEventListener('contextmenu', onContextMenu, { capture: true });
 
                 };
                 let onPointerCancel = (e: PointerEvent) => {
@@ -204,6 +206,7 @@ namespace Ui
                     window.removeEventListener('pointermove', onPointerMove, { capture: true });
                     window.removeEventListener('pointerup', onPointerUp, { capture: true });
                     window.removeEventListener('pointercancel', onPointerCancel, { capture: true });
+                    this.draggable.drawing.removeEventListener('contextmenu', onContextMenu, { capture: true });
                 };
                 window.addEventListener('pointermove', onPointerMove, { capture: true, passive: false });
                 window.addEventListener('pointerup', onPointerUp, { capture: true, passive: false });
@@ -222,8 +225,9 @@ namespace Ui
                             touch = e.touches[i];
                     if (!touch)
                         return;
+
                     this.pointer.move(touch.clientX, touch.clientY);
-                    e.stopPropagation();
+                    e.stopImmediatePropagation();
                     if (this.pointer.getIsCaptured())
                         e.preventDefault();
                 };
@@ -232,7 +236,8 @@ namespace Ui
                     window.removeEventListener('touchmove', onTouchMove, { capture: true });
                     window.removeEventListener('touchend', onTouchEnd, { capture: true });
                     window.removeEventListener('touchcancel', onTouchCancel, { capture: true });
-                    e.stopPropagation();
+                    this.draggable.drawing.removeEventListener('contextmenu', onContextMenu, { capture: true });
+                    e.stopImmediatePropagation();
                     if (this.pointer.getIsCaptured())
                         e.preventDefault();
                 };
@@ -241,6 +246,7 @@ namespace Ui
                     window.removeEventListener('touchmove', onTouchMove, { capture: true });
                     window.removeEventListener('touchend', onTouchEnd, { capture: true });
                     window.removeEventListener('touchcancel', onTouchCancel, { capture: true });
+                    this.draggable.drawing.removeEventListener('contextmenu', onContextMenu, { capture: true });
                 };
                 window.addEventListener('touchmove', onTouchMove, { capture: true, passive: false });
                 window.addEventListener('touchend', onTouchEnd, { capture: true, passive: false });
@@ -252,12 +258,8 @@ namespace Ui
             this.watcher.upped.connect(this.onPointerUp);
             this.watcher.cancelled.connect(this.onPointerCancel);
 
-            //console.log(`DragEmuDataTransfer delay? ${delayed}`);
-
             if (this.delayed)
                 this.timer = new Core.DelayedTask(0.5, () => this.onTimer());
-            //else
-            //	this.onTimer();
         }
 
         setData(data): void {
@@ -323,13 +325,13 @@ namespace Ui
                 return false;
             };
             if ('style' in res)
-                res.style.touchAction = 'none';	
+                res.style.touchAction = 'none';
             return res;
         }
 
         protected onTimer() {
             this.timer = undefined;
-    
+
             this.started.fire({ target: this });
 
             if (this.hasData()) {
@@ -369,7 +371,7 @@ namespace Ui
                         else if (invPos == 1)
                             op = 0.95;
                         else if (invPos == 2)
-                            op = 0.7;	
+                            op = 0.7;
                         else if (invPos == 3)
                             op = 0.5;
                         else if (invPos == 4)
@@ -384,8 +386,8 @@ namespace Ui
                 else {
                     let image = generateImage(this.draggable);
                     this.image.appendChild(image);
-                }	
-            
+                }
+
                 if (Core.Navigator.supportOpacity)
                     this.image.style.opacity = '0.8';
 
@@ -397,16 +399,16 @@ namespace Ui
                 this.image.style.top = (this.startImagePoint.y + ofs) + 'px';
 
                 // avoid IFrame problems for mouse
-/*                if (this.watcher.pointer.getType() === 'mouse') {
-                    this.catcher = document.createElement('div');
-                    this.catcher.style.position = 'absolute';
-                    this.catcher.style.left = '0px';
-                    this.catcher.style.right = '0px';
-                    this.catcher.style.top = '0px';
-                    this.catcher.style.bottom = '0px';
-                    this.catcher.style.zIndex = '1000';
-                    document.body.appendChild(this.catcher);
-                }*/
+                /*                if (this.watcher.pointer.getType() === 'mouse') {
+                                    this.catcher = document.createElement('div');
+                                    this.catcher.style.position = 'absolute';
+                                    this.catcher.style.left = '0px';
+                                    this.catcher.style.right = '0px';
+                                    this.catcher.style.top = '0px';
+                                    this.catcher.style.bottom = '0px';
+                                    this.catcher.style.zIndex = '1000';
+                                    document.body.appendChild(this.catcher);
+                                }*/
 
                 document.body.appendChild(this.image);
 
@@ -436,7 +438,7 @@ namespace Ui
                 this.dragWatcher = undefined;
             }
         }
-    
+
         protected onPointerMove = (e: { target: PointerWatcher }) => {
             let deltaX; let deltaY; let delta; let dragEvent; let ofs;
             let watcher = e.target;
@@ -451,13 +453,13 @@ namespace Ui
                 this.y = clientY;
 
                 document.body.removeChild(this.image);
-//                if (this.catcher !== undefined)
-//                    document.body.removeChild(this.catcher);
+                //                if (this.catcher !== undefined)
+                //                    document.body.removeChild(this.catcher);
 
                 let overElement = App.current.elementFromPoint(new Point(clientX, clientY));
 
-//                if (this.catcher !== undefined)
-//                    document.body.appendChild(this.catcher);
+                //                if (this.catcher !== undefined)
+                //                    document.body.appendChild(this.catcher);
                 document.body.appendChild(this.image);
 
                 deltaX = clientX - this.startX;
@@ -475,7 +477,7 @@ namespace Ui
                     dragEvent.clientX = clientX;
                     dragEvent.clientY = clientY;
                     dragEvent.dataTransfer = this;
-                    
+
                     let effectAllowed = [];
                     dragEvent.dispatchEvent(overElement);
                     if (this.dragWatcher !== undefined)
@@ -487,11 +489,11 @@ namespace Ui
                     }
 
                     if (this.dragWatcher !== undefined)
-                        this.dragWatcher.move(clientX, clientY);					
-                    
+                        this.dragWatcher.move(clientX, clientY);
+
                     this.dropEffect = DragEmuDataTransfer.getMatchingDropEffect(this.effectAllowed, effectAllowed,
                         watcher.pointer.getType(), watcher.pointer.getCtrlKey(), watcher.pointer.getAltKey(),
-                        watcher.pointer.getShiftKey());	
+                        watcher.pointer.getShiftKey());
 
                     if (this.dropEffect.length > 1)
                         this.dropEffectIcon = 'dragchoose';
@@ -499,7 +501,7 @@ namespace Ui
                         this.dropEffectIcon = this.dropEffect[0].dragicon;
                     else
                         this.dropEffectIcon = undefined;
-                    
+
                     // handle the drop effect icon feedback
                     if (this.dropEffectIcon !== oldDropEffectIcon) {
                         if (this.imageEffect !== undefined) {
@@ -535,7 +537,7 @@ namespace Ui
                     if (this.delayed)
                         watcher.cancel();
                     else
-                        this.onTimer();	
+                        this.onTimer();
                 }
             }
         }
@@ -607,10 +609,10 @@ namespace Ui
 
         protected removeImage() {
             document.body.removeChild(this.image);
-//            if (this.catcher !== undefined) {
-//                document.body.removeChild(this.catcher);
-//                this.catcher = undefined;
-//            }
+            //            if (this.catcher !== undefined) {
+            //                document.body.removeChild(this.catcher);
+            //                this.catcher = undefined;
+            //            }
         }
 
         protected onDropFailsTimerUpdate(clock, progress) {
@@ -624,7 +626,7 @@ namespace Ui
                 this.image.style.top = (this.startImagePoint.y + deltaY) + 'px';
             }
         }
-        
+
         static getMergedEffectAllowed(effectAllowed1, effectAllowed2) {
             if ((effectAllowed1 === undefined) || (effectAllowed1 === 'all'))
                 return effectAllowed2;
@@ -754,7 +756,7 @@ namespace Ui
                 dragEvent.clientX = event.clientX;
                 dragEvent.clientY = event.clientY;
                 dragEvent.dataTransfer = this.dataTransfer;
-                
+
                 dragEvent.dispatchEvent(overElement);
 
                 if ((this.dataTransfer.dragWatcher !== undefined) &&
@@ -785,7 +787,7 @@ namespace Ui
             if (this.nativeTarget !== e.target)
                 return;
             this.nativeTarget = undefined;
-            
+
             if (this.dataTransfer.dragWatcher !== undefined) {
                 this.dataTransfer.dragWatcher.leave();
                 this.dataTransfer.dragWatcher = undefined;

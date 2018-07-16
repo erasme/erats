@@ -24,13 +24,15 @@ namespace Ui {
             if (init.lock !== undefined)
                 this.lock = init.lock;
 
-            this.element.drawing.addEventListener('contextmenu', (e) => {
-                if (!this.lock) {
-                    this.onPress(e.clientX, e.clientY, e.altKey, e.shiftKey, e.ctrlKey);
-                    e.stopPropagation();
-                    e.preventDefault();
-                }
-            });
+            this.element.drawing.addEventListener('contextmenu', this.onContextMenu);
+        }
+
+        private onContextMenu = (e) => {            
+            if (!this.lock) {
+                this.onPress(e.clientX, e.clientY, e.altKey, e.shiftKey, e.ctrlKey);
+                e.stopImmediatePropagation();
+                e.preventDefault();
+            }
         }
 
         protected onPress(x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean) {
@@ -38,6 +40,10 @@ namespace Ui {
             this.altKey = altKey; this.shiftKey = shiftKey; this.ctrlKey = ctrlKey;
             if (this.press)
                 this.press(this);
+        }
+
+        dispose() {
+            this.element.drawing.removeEventListener('contextmenu', this.onContextMenu);
         }
     }
 }

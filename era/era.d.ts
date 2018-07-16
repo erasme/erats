@@ -1922,7 +1922,7 @@ declare namespace Ui {
         allowedMode: string | 'copy' | 'copyLink' | 'copyMove' | 'link' | 'linkMove' | 'move' | 'all';
         data: any;
         private _dragDelta;
-        dataTransfer: DragEmuDataTransfer;
+        dataTransfer?: DragEmuDataTransfer;
         private element;
         private start;
         private end;
@@ -1933,6 +1933,7 @@ declare namespace Ui {
             end?: (watcher: DraggableWatcher, effect: 'none' | 'copy' | 'link' | 'move' | string) => void;
         });
         readonly dragDelta: Point;
+        dispose(): void;
         private onDraggablePointerDown;
         private onDraggableTouchStart;
         private onDragStart;
@@ -1996,6 +1997,7 @@ declare namespace Ui {
         private handler;
         private select?;
         private unselect?;
+        private draggableWatcher?;
         constructor(init: {
             element: Element;
             selectionActions?: SelectionActions;
@@ -2007,6 +2009,7 @@ declare namespace Ui {
         });
         static getSelectionableWatcher(element: Element): SelectionableWatcher | undefined;
         static getIsSelectionableItem(element: Element): boolean;
+        draggable: boolean;
         isSelected: boolean;
         onSelect(selection: Selection): void;
         onUnselect(selection: Selection): void;
@@ -2088,7 +2091,9 @@ declare namespace Ui {
         ctrlKey?: boolean;
         lock: boolean;
         constructor(init: ContextMenuWatcherInit);
+        private onContextMenu;
         protected onPress(x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean): void;
+        dispose(): void;
     }
 }
 declare namespace Ui {

@@ -21,6 +21,7 @@ namespace Ui {
         private handler: Selection | undefined;
         private select?: (selection: Selection) => void;
         private unselect?: (selection: Selection) => void;
+        private draggableWatcher?: DraggableWatcher;
 
         constructor(init: {
             element: Element,
@@ -47,12 +48,7 @@ namespace Ui {
                 onactivated: (w) => this.onSelectionableActivate(w)
             });
             if (init.draggable === true)
-                new DraggableWatcher({
-                    element: this.element,
-                    data: this.element,
-                    start: (w) => this.onSelectionableDragStart(w),
-                    end: (w) => this.onSelectionableDragEnd(w)
-                });
+                this.draggable = init.draggable;
         }
 
         static getSelectionableWatcher(element: Element): SelectionableWatcher | undefined {
@@ -62,6 +58,26 @@ namespace Ui {
         static getIsSelectionableItem(element: Element): boolean {
             // TODO: remove instanceof
             return (element instanceof Selectionable) || (SelectionableWatcher.getSelectionableWatcher(element) != undefined);
+        }
+
+        get draggable(): boolean {
+            return this.draggableWatcher !== undefined;
+        }
+
+        set draggable(value: boolean) {
+            if (value !== this.draggable) {
+                if (value)
+                    this.draggableWatcher = new DraggableWatcher({
+                        element: this.element,
+                        data: this.element,
+                        start: (w) => this.onSelectionableDragStart(w),
+                        end: (w) => this.onSelectionableDragEnd(w)
+                    });
+                else {
+                    this.draggableWatcher.dispose();
+                    this.draggableWatcher = undefined;
+                }
+            }
         }
 
         get isSelected(): boolean {
