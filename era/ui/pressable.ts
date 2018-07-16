@@ -44,7 +44,7 @@ namespace Ui {
                 this.element.drawing.addEventListener('pointerdown', (e) => this.onPointerDown(e), { passive: true });
 
             this.element.drawing.addEventListener('click', e => {
-                e.stopPropagation();
+                e.stopImmediatePropagation();
                 this.onPress(e.clientX, e.clientY, e.altKey, e.shiftKey, e.ctrlKey);
             });
 
@@ -99,7 +99,7 @@ namespace Ui {
             // handle Enter and Space key
             if (!this.lock && !this.element.isDisabled && (key == 13 || key == 32)) {
                 event.preventDefault();
-                event.stopPropagation();
+                event.stopImmediatePropagation();
                 this.onDown();
             }
         }
@@ -109,7 +109,7 @@ namespace Ui {
             // handle Enter and Space key
             if (!this.lock && !this.element.isDisabled && this._isDown && (key == 13 || key == 32)) {
                 event.preventDefault();
-                event.stopPropagation();
+                event.stopImmediatePropagation();
                 this.onUp();
                 this.onPress(undefined, undefined, event.altKey, event.shiftKey, event.ctrlKey);
             }

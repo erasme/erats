@@ -8804,7 +8804,7 @@ var Ui;
             if ('PointerEvent' in window)
                 _this.element.drawing.addEventListener('pointerdown', function (e) { return _this.onPointerDown(e); }, { passive: true });
             _this.element.drawing.addEventListener('click', function (e) {
-                e.stopPropagation();
+                e.stopImmediatePropagation();
                 _this.onPress(e.clientX, e.clientY, e.altKey, e.shiftKey, e.ctrlKey);
             });
             _this.element.drawing.addEventListener('keydown', function (e) { return _this.onKeyDown(e); });
@@ -8857,7 +8857,7 @@ var Ui;
             var key = event.which;
             if (!this.lock && !this.element.isDisabled && (key == 13 || key == 32)) {
                 event.preventDefault();
-                event.stopPropagation();
+                event.stopImmediatePropagation();
                 this.onDown();
             }
         };
@@ -8865,7 +8865,7 @@ var Ui;
             var key = event.which;
             if (!this.lock && !this.element.isDisabled && this._isDown && (key == 13 || key == 32)) {
                 event.preventDefault();
-                event.stopPropagation();
+                event.stopImmediatePropagation();
                 this.onUp();
                 this.onPress(undefined, undefined, event.altKey, event.shiftKey, event.ctrlKey);
             }
