@@ -10417,7 +10417,7 @@ var Ui;
             var onPointerMove = function (e) {
                 if (e.pointerId != _this._pointerId)
                     return;
-                e.stopPropagation();
+                e.stopImmediatePropagation();
                 e.preventDefault();
                 var initial = _this.pointFromWindow(initialPosition);
                 var current = _this.pointFromWindow(new Ui.Point(e.clientX, e.clientY));
@@ -10437,7 +10437,7 @@ var Ui;
                 _this.drawing.removeEventListener('pointerup', onPointerUp);
                 _this.drawing.releasePointerCapture(event.pointerId);
                 _this._pointerId = undefined;
-                e.stopPropagation();
+                e.stopImmediatePropagation();
                 e.preventDefault();
                 _this.onUp(true);
             };
@@ -10449,7 +10449,7 @@ var Ui;
                 _this.drawing.removeEventListener('pointerup', onPointerUp);
                 _this.drawing.releasePointerCapture(event.pointerId);
                 _this._pointerId = undefined;
-                e.stopPropagation();
+                e.stopImmediatePropagation();
                 e.preventDefault();
                 var initial = _this.pointFromWindow(initialPosition);
                 var current = _this.pointFromWindow(new Ui.Point(e.clientX, e.clientY));
@@ -10466,6 +10466,8 @@ var Ui;
             this.drawing.addEventListener('pointermove', onPointerMove);
             this.drawing.addEventListener('pointercancel', onPointerCancel);
             this.drawing.addEventListener('pointerup', onPointerUp);
+            event.stopImmediatePropagation();
+            event.preventDefault();
         };
         MovableBase.prototype.onMouseDown = function (event) {
             var _this = this;

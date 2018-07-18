@@ -275,7 +275,7 @@ namespace Ui {
             let onPointerMove = (e: PointerEvent) => {
                 if (e.pointerId != this._pointerId)
                     return;
-                e.stopPropagation();
+                e.stopImmediatePropagation();
                 e.preventDefault();
                 let initial = this.pointFromWindow(initialPosition);
                 let current = this.pointFromWindow(new Point(e.clientX, e.clientY));
@@ -298,7 +298,7 @@ namespace Ui {
                 this.drawing.removeEventListener('pointerup', onPointerUp);
                 this.drawing.releasePointerCapture(event.pointerId);
                 this._pointerId = undefined;
-                e.stopPropagation();
+                e.stopImmediatePropagation();
                 e.preventDefault();
                 this.onUp(true);
             }
@@ -310,7 +310,7 @@ namespace Ui {
                 this.drawing.removeEventListener('pointerup', onPointerUp);
                 this.drawing.releasePointerCapture(event.pointerId);
                 this._pointerId = undefined;
-                e.stopPropagation();
+                e.stopImmediatePropagation();
                 e.preventDefault();
 
                 let initial = this.pointFromWindow(initialPosition);
@@ -331,6 +331,8 @@ namespace Ui {
             this.drawing.addEventListener('pointermove', onPointerMove);
             this.drawing.addEventListener('pointercancel', onPointerCancel);
             this.drawing.addEventListener('pointerup', onPointerUp);
+            event.stopImmediatePropagation();
+            event.preventDefault();
         }
 
         private onMouseDown(event: MouseEvent) {
