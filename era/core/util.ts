@@ -598,19 +598,32 @@ if (!(window as any).Promise)
 
 
 // Provide a polyfill for findIndex
+// https://tc39.github.io/ecma262/#sec-array.prototype.findIndex
 if (!Array.prototype.findIndex) {
-  (Array.prototype as any).findIndex = function(callback, thisArg) {
-    thisArg = thisArg ? thisArg : window;
-    let i = 0;
-    for (let item of this) {
-      if (callback.call(thisArg, item, i, this))
-        return i;
-    }
-    return -1;
-  };
+  Object.defineProperty(Array.prototype, 'findIndex', {
+    value: function(predicate) {
+      if (this == null)
+        throw new TypeError('"this" is null or not defined');
+      var o = Object(this);
+      var len = o.length >>> 0;
+      if (typeof predicate !== 'function')
+        throw new TypeError('predicate must be a function');
+      var thisArg = arguments[1];
+      var k = 0;
+      while (k < len) {
+        var kValue = o[k];
+        if (predicate.call(thisArg, kValue, k, o))
+          return k;
+        k++;
+      }
+      return -1;
+    },
+    configurable: true,
+    writable: true
+  });
 }
 
-// Provide a polyfill for find
+// Provide a polyfill for Array.find
 if (!Array.prototype.find) {
   (Array.prototype as any).find = function(callback, thisArg) {
     thisArg = thisArg ? thisArg : window;
@@ -620,6 +633,86 @@ if (!Array.prototype.find) {
         return item;
     }
     return undefined;
+  };
+}
+
+// Provide a polyfill for Array.from
+// Production steps of ECMA-262, Edition 6, 22.1.2.1
+// Référence : https://people.mozilla.org/~jorendorff/es6-draft.html#sec-array.from
+if (!Array.from) {
+  Array.from = (function () {
+    var toStr = Object.prototype.toString;
+    var isCallable = function (fn) { 
+      return typeof fn === 'function' || toStr.call(fn) === '[object Function]';
+    };
+    var toInteger = function (value) { 
+      var number = Number(value); 
+      if (isNaN(number)) { return 0; }
+      if (number === 0 || !isFinite(number)) { return number; }
+      return (number > 0 ? 1 : -1) * Math.floor(Math.abs(number)); 
+    };
+    var maxSafeInteger = Math.pow(2, 53) - 1;
+    var toLength = function (value) { 
+      var len = toInteger(value);
+      return Math.min(Math.max(len, 0), maxSafeInteger);
+    }; 
+    return function from(arrayLike/*, mapFn, thisArg */) { 
+      var C = this;
+      var items = Object(arrayLike); 
+      if (arrayLike == null)
+        throw new TypeError("Array.from doit utiliser un objet semblable à un tableau - null ou undefined ne peuvent pas être utilisés");
+      var mapFn = arguments.length > 1 ? arguments[1] : void undefined;
+      var T;
+      if (typeof mapFn !== 'undefined') {  
+        if (!isCallable(mapFn))
+          throw new TypeError('Array.from: lorsqu il est utilisé le deuxième argument doit être une fonction'); 
+        if (arguments.length > 2)
+          T = arguments[2];
+      }
+      var len = toLength(items.length);  
+      var A = isCallable(C) ? Object(new C(len)) : new Array(len);
+      var k = 0;
+      var kValue;
+      while (k < len) {
+        kValue = items[k]; 
+        if (mapFn)
+          A[k] = typeof T === 'undefined' ? mapFn(kValue, k) : mapFn.call(T, kValue, k); 
+        else
+          A[k] = kValue;
+        k += 1;
+      }
+      A.length = len;
+      return A;
+    };
+  }());
+}
+
+// Production steps / ECMA-262, Edition 5, 15.4.4.19
+// Référence : https://es5.github.io/#x15.4.4.19
+if (!Array.prototype.map) {
+
+  Array.prototype.map = function(callback /*, thisArg*/) {
+    var T, A, k;
+    if (this == null)
+      throw new TypeError(' this est null ou non défini');
+    var O = Object(this);
+    var len = O.length >>> 0;
+    if (typeof callback !== 'function')
+      throw new TypeError(callback + ' n est pas une fonction');
+    if (arguments.length > 1)
+      T = arguments[1];
+    A = new Array(len);
+    k = 0;
+    while (k < len) {
+      var kValue, mappedValue;
+      if (k in O) {
+        kValue = O[k];
+        mappedValue = callback.call(T, kValue, k, O);
+        A[k] = mappedValue;
+      }
+      k++;
+    }
+    return A;
   };
 }
 
