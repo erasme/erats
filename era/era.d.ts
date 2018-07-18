@@ -1569,7 +1569,7 @@ declare namespace Ui {
         readonly ended: Core.Events<{
             target: DragEmuDataTransfer;
         }>;
-        constructor(draggable: Element, x: number, y: number, delayed: boolean, pointerEvent?: PointerEvent, touchEvent?: TouchEvent);
+        constructor(draggable: Element, x: number, y: number, delayed: boolean, pointerEvent?: PointerEvent, touchEvent?: TouchEvent, mouseEvent?: MouseEvent);
         setData(data: any): void;
         getData(): any;
         hasData(): boolean;
@@ -1933,6 +1933,7 @@ declare namespace Ui {
         readonly dragDelta: Point;
         dispose(): void;
         private onDraggablePointerDown;
+        private onDraggableMouseDown;
         private onDraggableTouchStart;
         private onDragStart;
         private onDragEnd;

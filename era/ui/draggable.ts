@@ -29,6 +29,8 @@ namespace Ui {
                 this.element.drawing.addEventListener('pointerdown', this.onDraggablePointerDown, { passive: false });
             if ('TouchEvent' in window)
                 this.element.drawing.addEventListener('touchstart', this.onDraggableTouchStart, { passive: false });
+            if (!('PointerEvent' in window) && !('TouchEvent' in window))
+                this.element.drawing.addEventListener('mousedown', this.onDraggableMouseDown);
         }
 
         get dragDelta(): Point {
@@ -40,6 +42,8 @@ namespace Ui {
                 this.element.drawing.removeEventListener('pointerdown', this.onDraggablePointerDown);
             if ('TouchEvent' in window)
                 this.element.drawing.removeEventListener('touchstart', this.onDraggableTouchStart);
+            if (!('PointerEvent' in window) && !('TouchEvent' in window))
+                this.element.drawing.removeEventListener('mousedown', this.onDraggableMouseDown);
         }
 
         private onDraggablePointerDown = (event: PointerEvent) => {
@@ -55,6 +59,19 @@ namespace Ui {
             let delayed = false;            
             let dataTransfer = new DragEmuDataTransfer(
                 this.element, event.clientX, event.clientY, delayed, event);
+            this.dataTransfer = dataTransfer;
+            this._dragDelta = this.element.pointFromWindow(new Point(event.clientX, event.clientY));
+            dataTransfer.started.connect(e => this.onDragStart(dataTransfer));
+            dataTransfer.ended.connect(e => this.onDragEnd(dataTransfer));
+        }
+
+        private onDraggableMouseDown = (event: MouseEvent) => {
+            // left mouse button only
+            if (this.element.isDisabled || (this.data === undefined) || event.button != 0)
+                return;
+            let delayed = false;
+            let dataTransfer = new DragEmuDataTransfer(
+                this.element, event.clientX, event.clientY, delayed, undefined, undefined, event);
             this.dataTransfer = dataTransfer;
             this._dragDelta = this.element.pointFromWindow(new Point(event.clientX, event.clientY));
             dataTransfer.started.connect(e => this.onDragStart(dataTransfer));

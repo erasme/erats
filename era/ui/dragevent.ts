@@ -169,7 +169,7 @@ namespace Ui {
         readonly started = new Core.Events<{ target: DragEmuDataTransfer }>();
         readonly ended = new Core.Events<{ target: DragEmuDataTransfer }>();
 
-        constructor(draggable: Element, x: number, y: number, delayed: boolean, pointerEvent?: PointerEvent, touchEvent?: TouchEvent) {
+        constructor(draggable: Element, x: number, y: number, delayed: boolean, pointerEvent?: PointerEvent, touchEvent?: TouchEvent, mouseEvent?: MouseEvent) {
             super();
             this.dropEffect = [];
             this.effectAllowed = [];
@@ -251,6 +251,25 @@ namespace Ui {
                 window.addEventListener('touchmove', onTouchMove, { capture: true, passive: false });
                 window.addEventListener('touchend', onTouchEnd, { capture: true, passive: false });
                 window.addEventListener('touchcancel', onTouchCancel, { capture: true, passive: false });
+            }
+            else if (mouseEvent) {
+                this.pointer = new Pointer(mouseEvent.type, 0);
+                this.pointer.setInitialPosition(mouseEvent.clientX, mouseEvent.clientY);
+                this.pointer.down(mouseEvent.clientX, mouseEvent.clientY, mouseEvent.buttons, mouseEvent.button);
+
+                let onMouseMove = (e: MouseEvent) => {
+                    if (e.button == 0)
+                        this.pointer.move(e.clientX, e.clientY);
+                };
+                let onMouseUp = (e: MouseEvent) => {
+                    if (e.button == 0) {
+                        this.pointer.up();
+                        window.removeEventListener('mousemove', onMouseMove, true);
+                        window.removeEventListener('mouseup', onMouseUp, true);
+                    }
+                };
+                window.addEventListener('mousemove', onMouseMove, true);
+                window.addEventListener('mouseup', onMouseUp, true);
             }
 
             this.watcher = this.pointer.watch(App.current);

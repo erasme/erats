@@ -7413,7 +7413,7 @@ var Ui;
     Ui.DragWatcher = DragWatcher;
     var DragEmuDataTransfer = (function (_super) {
         __extends(DragEmuDataTransfer, _super);
-        function DragEmuDataTransfer(draggable, x, y, delayed, pointerEvent, touchEvent) {
+        function DragEmuDataTransfer(draggable, x, y, delayed, pointerEvent, touchEvent, mouseEvent) {
             var _this = _super.call(this) || this;
             _this.startX = 0;
             _this.startY = 0;
@@ -7627,6 +7627,24 @@ var Ui;
                 window.addEventListener('touchmove', onTouchMove_1, { capture: true, passive: false });
                 window.addEventListener('touchend', onTouchEnd_1, { capture: true, passive: false });
                 window.addEventListener('touchcancel', onTouchCancel_1, { capture: true, passive: false });
+            }
+            else if (mouseEvent) {
+                _this.pointer = new Ui.Pointer(mouseEvent.type, 0);
+                _this.pointer.setInitialPosition(mouseEvent.clientX, mouseEvent.clientY);
+                _this.pointer.down(mouseEvent.clientX, mouseEvent.clientY, mouseEvent.buttons, mouseEvent.button);
+                var onMouseMove_1 = function (e) {
+                    if (e.button == 0)
+                        _this.pointer.move(e.clientX, e.clientY);
+                };
+                var onMouseUp_1 = function (e) {
+                    if (e.button == 0) {
+                        _this.pointer.up();
+                        window.removeEventListener('mousemove', onMouseMove_1, true);
+                        window.removeEventListener('mouseup', onMouseUp_1, true);
+                    }
+                };
+                window.addEventListener('mousemove', onMouseMove_1, true);
+                window.addEventListener('mouseup', onMouseUp_1, true);
             }
             _this.watcher = _this.pointer.watch(Ui.App.current);
             _this.watcher.moved.connect(_this.onPointerMove);
@@ -9142,6 +9160,16 @@ var Ui;
                 dataTransfer.started.connect(function (e) { return _this.onDragStart(dataTransfer); });
                 dataTransfer.ended.connect(function (e) { return _this.onDragEnd(dataTransfer); });
             };
+            _this.onDraggableMouseDown = function (event) {
+                if (_this.element.isDisabled || (_this.data === undefined) || event.button != 0)
+                    return;
+                var delayed = false;
+                var dataTransfer = new Ui.DragEmuDataTransfer(_this.element, event.clientX, event.clientY, delayed, undefined, undefined, event);
+                _this.dataTransfer = dataTransfer;
+                _this._dragDelta = _this.element.pointFromWindow(new Ui.Point(event.clientX, event.clientY));
+                dataTransfer.started.connect(function (e) { return _this.onDragStart(dataTransfer); });
+                dataTransfer.ended.connect(function (e) { return _this.onDragEnd(dataTransfer); });
+            };
             _this.onDraggableTouchStart = function (event) {
                 if (_this.element.isDisabled || (_this.data === undefined) || (event.targetTouches.length != 1))
                     return;
@@ -9162,6 +9190,8 @@ var Ui;
                 _this.element.drawing.addEventListener('pointerdown', _this.onDraggablePointerDown, { passive: false });
             if ('TouchEvent' in window)
                 _this.element.drawing.addEventListener('touchstart', _this.onDraggableTouchStart, { passive: false });
+            if (!('PointerEvent' in window) && !('TouchEvent' in window))
+                _this.element.drawing.addEventListener('mousedown', _this.onDraggableMouseDown);
             return _this;
         }
         Object.defineProperty(DraggableWatcher.prototype, "dragDelta", {
@@ -9176,6 +9206,8 @@ var Ui;
                 this.element.drawing.removeEventListener('pointerdown', this.onDraggablePointerDown);
             if ('TouchEvent' in window)
                 this.element.drawing.removeEventListener('touchstart', this.onDraggableTouchStart);
+            if (!('PointerEvent' in window) && !('TouchEvent' in window))
+                this.element.drawing.removeEventListener('mousedown', this.onDraggableMouseDown);
         };
         DraggableWatcher.prototype.onDragStart = function (dataTransfer) {
             var selection = Ui.Selectionable.getParentSelectionHandler(this.element);
