@@ -18,37 +18,21 @@ namespace Ui {
                 this.leave = init.onleaved;
 
             this.element = init.element;
-            if ('PointerEvent' in window)
-                this.element.drawing.addEventListener('pointermove', this.onPointerMove, { passive: true });
-        }
 
-        private onPointerMove = (e: PointerEvent) => {
-            if (this.element.isDisabled)
-                return;
-            if (e.pointerType == 'touch')
-                return;
-            if (!this._isOver) {
+            this.element.drawing.addEventListener('mouseenter', (e) => {
+                if (this._isOver)
+                    return;
                 this._isOver = true;
                 if (this.enter)
                     this.enter(this);
-                // watch for leave
-                window.addEventListener('pointermove', this.onWindowPointerMove, { passive: true, capture: true });
-            }
-        }
-
-        private onWindowPointerMove = (e: PointerEvent) => {
-            let isInside = false;
-            let currentNode: Node = e.target as Node;
-            while(!isInside && currentNode) {
-                isInside = (currentNode === this.element.drawing);
-                currentNode = currentNode.parentNode;
-            }
-            if (!isInside) {
+            });
+            this.element.drawing.addEventListener('mouseleave', (e) => {
+                if (e.target != this.element.drawing || !this._isOver)
+                    return;
                 this._isOver = false;
-                window.removeEventListener('pointermove', this.onWindowPointerMove, { capture: true });
                 if (this.leave)
                     this.leave(this);
-            }
+            });
         }
 
         get isOver(): boolean {

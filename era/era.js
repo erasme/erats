@@ -590,16 +590,27 @@ if (Object.assign == undefined) {
         window.Promise = Promise;
 })();
 if (!Array.prototype.findIndex) {
-    Array.prototype.findIndex = function (callback, thisArg) {
-        thisArg = thisArg ? thisArg : window;
-        var i = 0;
-        for (var _i = 0, _a = this; _i < _a.length; _i++) {
-            var item = _a[_i];
-            if (callback.call(thisArg, item, i, this))
-                return i;
-        }
-        return -1;
-    };
+    Object.defineProperty(Array.prototype, 'findIndex', {
+        value: function (predicate) {
+            if (this == null)
+                throw new TypeError('"this" is null or not defined');
+            var o = Object(this);
+            var len = o.length >>> 0;
+            if (typeof predicate !== 'function')
+                throw new TypeError('predicate must be a function');
+            var thisArg = arguments[1];
+            var k = 0;
+            while (k < len) {
+                var kValue = o[k];
+                if (predicate.call(thisArg, kValue, k, o))
+                    return k;
+                k++;
+            }
+            return -1;
+        },
+        configurable: true,
+        writable: true
+    });
 }
 if (!Array.prototype.find) {
     Array.prototype.find = function (callback, thisArg) {
@@ -611,6 +622,82 @@ if (!Array.prototype.find) {
                 return item;
         }
         return undefined;
+    };
+}
+if (!Array.from) {
+    Array.from = (function () {
+        var toStr = Object.prototype.toString;
+        var isCallable = function (fn) {
+            return typeof fn === 'function' || toStr.call(fn) === '[object Function]';
+        };
+        var toInteger = function (value) {
+            var number = Number(value);
+            if (isNaN(number)) {
+                return 0;
+            }
+            if (number === 0 || !isFinite(number)) {
+                return number;
+            }
+            return (number > 0 ? 1 : -1) * Math.floor(Math.abs(number));
+        };
+        var maxSafeInteger = Math.pow(2, 53) - 1;
+        var toLength = function (value) {
+            var len = toInteger(value);
+            return Math.min(Math.max(len, 0), maxSafeInteger);
+        };
+        return function from(arrayLike) {
+            var C = this;
+            var items = Object(arrayLike);
+            if (arrayLike == null)
+                throw new TypeError("Array.from doit utiliser un objet semblable à un tableau - null ou undefined ne peuvent pas être utilisés");
+            var mapFn = arguments.length > 1 ? arguments[1] : void undefined;
+            var T;
+            if (typeof mapFn !== 'undefined') {
+                if (!isCallable(mapFn))
+                    throw new TypeError('Array.from: lorsqu il est utilisé le deuxième argument doit être une fonction');
+                if (arguments.length > 2)
+                    T = arguments[2];
+            }
+            var len = toLength(items.length);
+            var A = isCallable(C) ? Object(new C(len)) : new Array(len);
+            var k = 0;
+            var kValue;
+            while (k < len) {
+                kValue = items[k];
+                if (mapFn)
+                    A[k] = typeof T === 'undefined' ? mapFn(kValue, k) : mapFn.call(T, kValue, k);
+                else
+                    A[k] = kValue;
+                k += 1;
+            }
+            A.length = len;
+            return A;
+        };
+    }());
+}
+if (!Array.prototype.map) {
+    Array.prototype.map = function (callback) {
+        var T, A, k;
+        if (this == null)
+            throw new TypeError(' this est null ou non défini');
+        var O = Object(this);
+        var len = O.length >>> 0;
+        if (typeof callback !== 'function')
+            throw new TypeError(callback + ' n est pas une fonction');
+        if (arguments.length > 1)
+            T = arguments[1];
+        A = new Array(len);
+        k = 0;
+        while (k < len) {
+            var kValue, mappedValue;
+            if (k in O) {
+                kValue = O[k];
+                mappedValue = callback.call(T, kValue, k, O);
+                A[k] = mappedValue;
+            }
+            k++;
+        }
+        return A;
     };
 }
 if (!Math.log10) {
@@ -8705,39 +8792,25 @@ var Ui;
         function OverWatcher(init) {
             var _this = _super.call(this) || this;
             _this._isOver = false;
-            _this.onPointerMove = function (e) {
-                if (_this.element.isDisabled)
-                    return;
-                if (e.pointerType == 'touch')
-                    return;
-                if (!_this._isOver) {
-                    _this._isOver = true;
-                    if (_this.enter)
-                        _this.enter(_this);
-                    window.addEventListener('pointermove', _this.onWindowPointerMove, { passive: true, capture: true });
-                }
-            };
-            _this.onWindowPointerMove = function (e) {
-                var isInside = false;
-                var currentNode = e.target;
-                while (!isInside && currentNode) {
-                    isInside = (currentNode === _this.element.drawing);
-                    currentNode = currentNode.parentNode;
-                }
-                if (!isInside) {
-                    _this._isOver = false;
-                    window.removeEventListener('pointermove', _this.onWindowPointerMove, { capture: true });
-                    if (_this.leave)
-                        _this.leave(_this);
-                }
-            };
             if (init.onentered)
                 _this.enter = init.onentered;
             if (init.onleaved)
                 _this.leave = init.onleaved;
             _this.element = init.element;
-            if ('PointerEvent' in window)
-                _this.element.drawing.addEventListener('pointermove', _this.onPointerMove, { passive: true });
+            _this.element.drawing.addEventListener('mouseenter', function (e) {
+                if (_this._isOver)
+                    return;
+                _this._isOver = true;
+                if (_this.enter)
+                    _this.enter(_this);
+            });
+            _this.element.drawing.addEventListener('mouseleave', function (e) {
+                if (e.target != _this.element.drawing || !_this._isOver)
+                    return;
+                _this._isOver = false;
+                if (_this.leave)
+                    _this.leave(_this);
+            });
             return _this;
         }
         Object.defineProperty(OverWatcher.prototype, "isOver", {

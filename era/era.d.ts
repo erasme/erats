@@ -1752,8 +1752,6 @@ declare namespace Ui {
             onentered?: (watcher: OverWatcher) => void;
             onleaved?: (watcher: OverWatcher) => void;
         });
-        private onPointerMove;
-        private onWindowPointerMove;
         readonly isOver: boolean;
     }
     interface OverableInit extends LBoxInit {
