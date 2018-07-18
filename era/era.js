@@ -10145,6 +10145,8 @@ var Ui;
                 _this.drawing.addEventListener('pointerdown', function (e) { return _this.onPointerDown(e); }, { passive: false });
             else if ('TouchEvent' in window)
                 _this.drawing.addEventListener('touchstart', function (e) { return _this.onTouchStart(e); });
+            else
+                _this.drawing.addEventListener('mousedown', function (e) { return _this.onMouseDown(e); });
             if (init) {
                 if (init.lock !== undefined)
                     _this.lock = init.lock;
@@ -10432,6 +10434,53 @@ var Ui;
             this.drawing.addEventListener('pointermove', onPointerMove);
             this.drawing.addEventListener('pointercancel', onPointerCancel);
             this.drawing.addEventListener('pointerup', onPointerUp);
+        };
+        MovableBase.prototype.onMouseDown = function (event) {
+            var _this = this;
+            if (this._isDown || this.isDisabled || this._lock || event.button != 0)
+                return;
+            var initialPosition = new Ui.Point(event.clientX, event.clientY);
+            this.stopInertia();
+            this.startPosX = this.posX;
+            this.startPosY = this.posY;
+            this.onDown();
+            var onMouseMove = function (e) {
+                if (e.button != 0)
+                    return;
+                e.stopPropagation();
+                e.preventDefault();
+                var initial = _this.pointFromWindow(initialPosition);
+                var current = _this.pointFromWindow(new Ui.Point(e.clientX, e.clientY));
+                var delta = { x: current.x - initial.x, y: current.y - initial.y };
+                var time = (new Date().getTime()) / 1000;
+                _this.history.push({ time: time, x: _this.startPosX + delta.x, y: _this.startPosY + delta.y });
+                while ((_this.history.length > 2) && (time - _this.history[0].time > Ui.Pointer.HISTORY_TIMELAPS)) {
+                    _this.history.shift();
+                }
+                _this.setPosition(_this.startPosX + delta.x, _this.startPosY + delta.y);
+            };
+            var onMouseUp = function (e) {
+                if (e.button != 0)
+                    return;
+                window.removeEventListener('mousemove', onMouseMove, true);
+                window.removeEventListener('mouseup', onMouseUp, true);
+                _this._pointerId = undefined;
+                e.stopPropagation();
+                e.preventDefault();
+                var initial = _this.pointFromWindow(initialPosition);
+                var current = _this.pointFromWindow(new Ui.Point(e.clientX, e.clientY));
+                var delta = { x: current.x - initial.x, y: current.y - initial.y };
+                var time = (new Date().getTime()) / 1000;
+                _this.history.push({ time: time, x: _this.startPosX + delta.x, y: _this.startPosY + delta.y });
+                var speed = _this.getSpeed();
+                _this.speedX = speed.x;
+                _this.speedY = speed.y;
+                if (_this.inertia)
+                    _this.startInertia();
+                _this.onUp(false);
+            };
+            window.addEventListener('mousemove', onMouseMove, true);
+            window.addEventListener('mouseup', onMouseUp, true);
         };
         MovableBase.prototype.startInertia = function () {
             var _this = this;

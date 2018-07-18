@@ -2249,6 +2249,7 @@ declare namespace Ui {
         private onUp;
         private onTouchStart;
         private onPointerDown;
+        private onMouseDown;
         private startInertia;
         private stopInertia;
     }

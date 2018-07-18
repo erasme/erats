@@ -43,6 +43,8 @@ namespace Ui {
                 this.drawing.addEventListener('pointerdown', (e) => this.onPointerDown(e), { passive: false });
             else if ('TouchEvent' in window)
                 this.drawing.addEventListener('touchstart', (e) => this.onTouchStart(e));
+            else
+                this.drawing.addEventListener('mousedown', (e) => this.onMouseDown(e));
 
             if (init) {
                 if (init.lock !== undefined)
@@ -329,61 +331,66 @@ namespace Ui {
             this.drawing.addEventListener('pointermove', onPointerMove);
             this.drawing.addEventListener('pointercancel', onPointerCancel);
             this.drawing.addEventListener('pointerup', onPointerUp);
-
-            /*            let watcher = event.pointer.watch(this);
-                        watcher.moved.connect(() => {
-                            if (!watcher.getIsCaptured()) {
-                                if (watcher.pointer.getIsMove()) {
-            
-                                    let deltaObj = watcher.getDelta();
-                                    let delta = Math.sqrt(deltaObj.x * deltaObj.x + deltaObj.y * deltaObj.y);
-            
-                                    this.setPosition(this.startPosX + deltaObj.x, this.startPosY + deltaObj.y);
-            
-                                    let deltaPosX = this.posX - this.startPosX;
-                                    let deltaPosY = this.posY - this.startPosY;
-                                    let deltaPos = Math.sqrt(deltaPosX * deltaPosX + deltaPosY * deltaPosY);
-            
-                                    let test = 0;
-                                    if (delta > 0)
-                                        test = deltaPos / delta;
-                                    
-                                    let testLevel = 0.7;
-                                    // if mouse left button, directly capture. No valid move needed
-                                    // to validate the pointer capture
-                                    if (event.pointer.type == 'mouse' && event.pointer.button == 0)
-                                        testLevel = 0;	
-                                    
-                                    if (test >= testLevel)
-                                        watcher.capture();
-                                    else {
-                                        this.setPosition(this.startPosX, this.startPosY);
-                                        watcher.cancel();
-                                    }
-                                }
-                            }
-                            else {
-                                let delta = watcher.getDelta();
-                                this.setPosition(this.startPosX + delta.x, this.startPosY + delta.y);
-                            }
-                        });
-                        watcher.upped.connect(() => {
-                            this.cumulMove = watcher.pointer.getCumulMove();
-                            let speed = watcher.getSpeed();
-                            this.speedX = speed.x;
-                            this.speedY = speed.y;
-                            if (this.inertia)
-                                this.startInertia();
-                            this.onUp(false);
-                            cancelLock = true;
-                            watcher.cancel();
-                            cancelLock = false;
-                        });
-                        watcher.cancelled.connect(() => {
-                            if (!cancelLock)
-                                this.onUp(true);
-                        });*/
         }
+
+        private onMouseDown(event: MouseEvent) {
+            if (this._isDown || this.isDisabled || this._lock || event.button != 0)
+                return;
+
+            let initialPosition = new Point(event.clientX, event.clientY);
+
+            this.stopInertia();
+            this.startPosX = this.posX;
+            this.startPosY = this.posY;
+
+            this.onDown();
+
+            let onMouseMove = (e: MouseEvent) => {
+                if (e.button != 0)
+                    return;
+                e.stopPropagation();
+                e.preventDefault();
+                let initial = this.pointFromWindow(initialPosition);
+                let current = this.pointFromWindow(new Point(e.clientX, e.clientY));
+                let delta = { x: current.x - initial.x, y: current.y - initial.y };
+
+                // store an history for the inertia
+                let time = (new Date().getTime()) / 1000;
+                this.history.push({ time: time, x: this.startPosX + delta.x, y: this.startPosY + delta.y });
+                while ((this.history.length > 2) && (time - this.history[0].time > Ui.Pointer.HISTORY_TIMELAPS)) {
+                    this.history.shift();
+                }
+
+                this.setPosition(this.startPosX + delta.x, this.startPosY + delta.y);
+            }
+            let onMouseUp = (e: MouseEvent) => {
+                if (e.button != 0)
+                    return;
+                window.removeEventListener('mousemove', onMouseMove, true);
+                window.removeEventListener('mouseup', onMouseUp, true);
+                this._pointerId = undefined;
+                e.stopPropagation();
+                e.preventDefault();
+
+                let initial = this.pointFromWindow(initialPosition);
+                let current = this.pointFromWindow(new Point(e.clientX, e.clientY));
+                let delta = { x: current.x - initial.x, y: current.y - initial.y };
+
+                // store an history for the inertia
+                let time = (new Date().getTime()) / 1000;
+                this.history.push({ time: time, x: this.startPosX + delta.x, y: this.startPosY + delta.y });
+                let speed = this.getSpeed();
+                this.speedX = speed.x;
+                this.speedY = speed.y;
+                if (this.inertia)
+                    this.startInertia();
+                this.onUp(false);
+            }
+
+            window.addEventListener('mousemove', onMouseMove, true);
+            window.addEventListener('mouseup', onMouseUp, true);
+        }
+
 
         private startInertia() {
             if (this.inertiaClock == undefined) {
