@@ -25,7 +25,6 @@ namespace Ui {
         constructor(init?: ContentEditableInit) {
             super(init);
             this.selectable = true;
-            this.focusable = true;
             (this.drawing as HTMLDivElement).removeAttribute('tabindex');
             this.htmlDrawing.setAttribute('contenteditable', 'true');
             this.drawing.addEventListener('blur', (e) => {

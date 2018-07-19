@@ -21929,7 +21929,6 @@ var Ui;
                 }
             };
             _this.selectable = true;
-            _this.focusable = true;
             _this.drawing.removeAttribute('tabindex');
             _this.htmlDrawing.setAttribute('contenteditable', 'true');
             _this.drawing.addEventListener('blur', function (e) {
