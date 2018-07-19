@@ -12,6 +12,7 @@ namespace Ui {
         private static loadingReqs: Core.HashTable<Core.HttpRequest> = {};
         private static iconsCache: Core.HashTable<string> = {};
         private _icon = '';
+        private _fill?: Color | string;
         readonly loadingfailed = new Core.Events<{ target: Icon }>();
         set onloadingfailed(value: ({ target: Icon }) => void) { this.loadingfailed.connect(value) }
 
@@ -27,8 +28,16 @@ namespace Ui {
             }
         }
 
+        get fill(): Color | string {
+            if (this._fill === undefined)
+                return Color.create(this.getStyleProperty('color'));
+            else
+                return this._fill;
+        }
+
         set fill(value: Color | string) {
-            (<HTMLDivElement>this.drawing).style.fill = Color.create(value).getCssRgba();
+            this._fill = value;
+            this.drawing.style.fill = Color.create(this.fill).getCssRgba();
         }
 
         set path(value: string) {
@@ -53,6 +62,10 @@ namespace Ui {
                 else
                     this.path = path;
             }
+        }
+
+        protected onStyleChange() {
+            this.drawing.style.fill = Color.create(this.fill).getCssRgba();
         }
 
         protected onLoadingFailed() {
@@ -108,6 +121,10 @@ namespace Ui {
                 child.style.width = '100%';
                 child.style.height = '100%';
             }
+        }
+
+        static style: any = {
+            color: '#444444'
         }
 
         ///
