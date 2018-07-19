@@ -4779,6 +4779,8 @@ var Ui;
             if (this._style != undefined && this._style[property] != undefined)
                 return this._style[property];
             if (this.mergeStyle != undefined) {
+                if (this.mergeStyle[property] != undefined)
+                    return this.mergeStyle[property];
                 current = this.constructor;
                 while (current != undefined) {
                     if (this.mergeStyle['types'] != undefined && (this.mergeStyle['types'] instanceof Array)) {
