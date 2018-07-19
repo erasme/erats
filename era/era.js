@@ -6327,8 +6327,15 @@ var Ui;
             configurable: true
         });
         Object.defineProperty(Icon.prototype, "fill", {
+            get: function () {
+                if (this._fill === undefined)
+                    return Ui.Color.create(this.getStyleProperty('color'));
+                else
+                    return this._fill;
+            },
             set: function (value) {
-                this.drawing.style.fill = Ui.Color.create(value).getCssRgba();
+                this._fill = value;
+                this.drawing.style.fill = Ui.Color.create(this.fill).getCssRgba();
             },
             enumerable: true,
             configurable: true
@@ -6361,6 +6368,9 @@ var Ui;
             enumerable: true,
             configurable: true
         });
+        Icon.prototype.onStyleChange = function () {
+            this.drawing.style.fill = Ui.Color.create(this.fill).getCssRgba();
+        };
         Icon.prototype.onLoadingFailed = function () {
             this.loadingfailed.fire({ target: this });
         };
@@ -6529,6 +6539,9 @@ var Ui;
         Icon.forceExternal = false;
         Icon.loadingReqs = {};
         Icon.iconsCache = {};
+        Icon.style = {
+            color: '#444444'
+        };
         Icon.icons = {};
         return Icon;
     }(Ui.Element));
@@ -15991,6 +16004,10 @@ var Ui;
                 event.preventDefault();
                 event.stopPropagation();
             }
+        };
+        App.prototype.onLoad = function () {
+            this.onInternalStyleChange();
+            _super.prototype.onLoad.call(this);
         };
         App.prototype.onMessage = function (event) {
             if (parent === event.source) {

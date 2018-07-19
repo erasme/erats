@@ -470,6 +470,12 @@ namespace Ui
             }
         }
 
+        protected onLoad() {
+            this.onInternalStyleChange();
+            super.onLoad();
+
+        }
+
         protected onMessage(event) {
             if (parent === event.source) {
                 event.preventDefault();

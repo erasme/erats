@@ -1272,6 +1272,7 @@ declare namespace Ui {
         private static loadingReqs;
         private static iconsCache;
         private _icon;
+        private _fill?;
         readonly loadingfailed: Core.Events<{
             target: Icon;
         }>;
@@ -1282,9 +1283,11 @@ declare namespace Ui {
         fill: Color | string;
         path: string;
         icon: string;
+        protected onStyleChange(): void;
         protected onLoadingFailed(): void;
         private loadIcon;
         private normalize;
+        static style: any;
         static icons: object;
         static initialize(): void;
         static getPath(icon: any): any;
@@ -3323,6 +3326,7 @@ declare namespace Ui {
         readonly isReady: boolean;
         protected onReady(): void;
         protected onWindowKeyUp(event: any): void;
+        protected onLoad(): void;
         protected onMessage(event: any): void;
         sendMessageToParent(msg: any): void;
         findFocusableDiv(current: any): any;
