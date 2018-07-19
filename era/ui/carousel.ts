@@ -31,10 +31,6 @@ namespace Ui {
                 onleaved: () => this.onMouseLeave()
             });
 
-            //this.entered.connect(() => this.onMouseEnter());
-            //this.leaved.connect(() => this.onMouseLeave());
-            //this.moved.connect(() => this.onMouseOverMove());
-
             this.carouselable = new Ui.Carouselable();
             this.appendChild(this.carouselable);
             this.focused.connect(() => this.onCarouselableFocus());
@@ -45,6 +41,7 @@ namespace Ui {
                 horizontalAlign: 'left', verticalAlign: 'center', opacity: 0, focusable: false,
                 onpressed: () => this.onPreviousPress()
             });
+            this.buttonPrevious.drawing.style.backgroundColor = 'rgba(255,255,255,0.6)';
             this.buttonPreviousIcon = new Ui.Icon({ icon: 'arrowleft', width: 48, height: 48 });
             this.buttonPrevious.append(this.buttonPreviousIcon);
             this.appendChild(this.buttonPrevious);
@@ -53,6 +50,7 @@ namespace Ui {
                 horizontalAlign: 'right', verticalAlign: 'center', opacity: 0, focusable: false,
                 onpressed: () => this.onNextPress()
             });
+            this.buttonNext.drawing.style.backgroundColor = 'rgba(255,255,255,0.6)';
             this.buttonNextIcon = new Ui.Icon({ icon: 'arrowright', width: 48, height: 48 });
             this.buttonNext.append(this.buttonNextIcon);
             this.appendChild(this.buttonNext);

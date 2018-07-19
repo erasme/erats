@@ -27366,6 +27366,7 @@ var Ui;
                 horizontalAlign: 'left', verticalAlign: 'center', opacity: 0, focusable: false,
                 onpressed: function () { return _this.onPreviousPress(); }
             });
+            _this.buttonPrevious.drawing.style.backgroundColor = 'rgba(255,255,255,0.6)';
             _this.buttonPreviousIcon = new Ui.Icon({ icon: 'arrowleft', width: 48, height: 48 });
             _this.buttonPrevious.append(_this.buttonPreviousIcon);
             _this.appendChild(_this.buttonPrevious);
@@ -27373,6 +27374,7 @@ var Ui;
                 horizontalAlign: 'right', verticalAlign: 'center', opacity: 0, focusable: false,
                 onpressed: function () { return _this.onNextPress(); }
             });
+            _this.buttonNext.drawing.style.backgroundColor = 'rgba(255,255,255,0.6)';
             _this.buttonNextIcon = new Ui.Icon({ icon: 'arrowright', width: 48, height: 48 });
             _this.buttonNext.append(_this.buttonNextIcon);
             _this.appendChild(_this.buttonNext);
