@@ -45,6 +45,8 @@ namespace Ui {
                 this.drawing.addEventListener('touchstart', (e) => this.onTouchStart(e));
             else
                 this.drawing.addEventListener('mousedown', (e) => this.onMouseDown(e));
+            // Chrome dont prevent the click event, so block it to avoid conflict
+            this.drawing.addEventListener('click', (e) => { e.stopImmediatePropagation(); e.preventDefault(); });
 
             if (init) {
                 if (init.lock !== undefined)
@@ -260,7 +262,6 @@ namespace Ui {
         private onPointerDown(event: PointerEvent) {
             if (this._isDown || this.isDisabled || this._lock)
                 return;
-
             let initialPosition = new Point(event.clientX, event.clientY);
 
             this.stopInertia();
@@ -328,9 +329,9 @@ namespace Ui {
                 this.onUp(false);
             }
 
-            this.drawing.addEventListener('pointermove', onPointerMove);
-            this.drawing.addEventListener('pointercancel', onPointerCancel);
-            this.drawing.addEventListener('pointerup', onPointerUp);
+            this.drawing.addEventListener('pointermove', onPointerMove, { passive: false });
+            this.drawing.addEventListener('pointercancel', onPointerCancel, { passive: false });
+            this.drawing.addEventListener('pointerup', onPointerUp, { passive: false });
             event.stopImmediatePropagation();
             event.preventDefault();
         }

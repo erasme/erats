@@ -10179,6 +10179,7 @@ var Ui;
                 _this.drawing.addEventListener('touchstart', function (e) { return _this.onTouchStart(e); });
             else
                 _this.drawing.addEventListener('mousedown', function (e) { return _this.onMouseDown(e); });
+            _this.drawing.addEventListener('click', function (e) { e.stopImmediatePropagation(); e.preventDefault(); });
             if (init) {
                 if (init.lock !== undefined)
                     _this.lock = init.lock;
@@ -10463,9 +10464,9 @@ var Ui;
                     _this.startInertia();
                 _this.onUp(false);
             };
-            this.drawing.addEventListener('pointermove', onPointerMove);
-            this.drawing.addEventListener('pointercancel', onPointerCancel);
-            this.drawing.addEventListener('pointerup', onPointerUp);
+            this.drawing.addEventListener('pointermove', onPointerMove, { passive: false });
+            this.drawing.addEventListener('pointercancel', onPointerCancel, { passive: false });
+            this.drawing.addEventListener('pointerup', onPointerUp, { passive: false });
             event.stopImmediatePropagation();
             event.preventDefault();
         };
