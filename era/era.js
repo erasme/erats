@@ -4676,6 +4676,7 @@ var Ui;
                         if (this.mergeStyle == undefined)
                             this.mergeStyle = Core.Util.clone(this._parentStyle);
                         this.fusionStyle(this.mergeStyle, classStyle);
+                        this.mergeStyle['types'].push(classStyle);
                         found = true;
                         break;
                     }
