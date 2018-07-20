@@ -8917,6 +8917,8 @@ var Ui;
             if ('PointerEvent' in window)
                 _this.element.drawing.addEventListener('pointerdown', function (e) { return _this.onPointerDown(e); }, { passive: true });
             _this.element.drawing.addEventListener('click', function (e) {
+                if (_this.lock || _this.element.isDisabled)
+                    return;
                 e.stopImmediatePropagation();
                 _this.onPress(e.clientX, e.clientY, e.altKey, e.shiftKey, e.ctrlKey);
             });

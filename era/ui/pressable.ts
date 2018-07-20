@@ -44,6 +44,8 @@ namespace Ui {
                 this.element.drawing.addEventListener('pointerdown', (e) => this.onPointerDown(e), { passive: true });
 
             this.element.drawing.addEventListener('click', e => {
+                if (this.lock || this.element.isDisabled)
+                    return;
                 e.stopImmediatePropagation();
                 this.onPress(e.clientX, e.clientY, e.altKey, e.shiftKey, e.ctrlKey);
             });
