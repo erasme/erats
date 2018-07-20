@@ -1237,7 +1237,6 @@ namespace Ui {
 
         private getClassStyle(style: object, classFunc: Function): object | undefined {
             if (style['types'] != undefined && (style['types'] instanceof Array)) {
-                let classStyle = undefined;
                 for (let i = 0; i < style['types'].length; i++) {
                     let pStyle = style['types'][i];
                     if (pStyle.type == classFunc)
@@ -1259,6 +1258,7 @@ namespace Ui {
                         if (this.mergeStyle == undefined)
                             this.mergeStyle = Core.Util.clone(this._parentStyle);
                         this.fusionStyle(this.mergeStyle, classStyle);
+                        this.mergeStyle['types'].push(classStyle);
                         found = true;
                         break;
                     }
@@ -1362,8 +1362,6 @@ namespace Ui {
             if (this._style != undefined && this._style[property] != undefined)
                 return this._style[property];
             if (this.mergeStyle != undefined) {
-                if (this.mergeStyle[property] != undefined)
-                    return this.mergeStyle[property];
                 current = this.constructor;
                 while (current != undefined) {
                     if (this.mergeStyle['types'] != undefined && (this.mergeStyle['types'] instanceof Array)) {

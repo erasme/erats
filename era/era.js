@@ -4655,7 +4655,6 @@ var Ui;
         };
         Element.prototype.getClassStyle = function (style, classFunc) {
             if (style['types'] != undefined && (style['types'] instanceof Array)) {
-                var classStyle = undefined;
                 for (var i = 0; i < style['types'].length; i++) {
                     var pStyle = style['types'][i];
                     if (pStyle.type == classFunc)
@@ -4779,8 +4778,6 @@ var Ui;
             if (this._style != undefined && this._style[property] != undefined)
                 return this._style[property];
             if (this.mergeStyle != undefined) {
-                if (this.mergeStyle[property] != undefined)
-                    return this.mergeStyle[property];
                 current = this.constructor;
                 while (current != undefined) {
                     if (this.mergeStyle['types'] != undefined && (this.mergeStyle['types'] instanceof Array)) {
