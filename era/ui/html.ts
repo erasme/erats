@@ -16,6 +16,7 @@ namespace Ui
 
     export class Html extends Element implements HtmlInit
     {
+        captureLink = true;
         protected htmlDrawing: HTMLElement;
         private bindedOnImageLoad: any = undefined;
         private _fontSize?: number;
@@ -282,8 +283,10 @@ namespace Ui
         protected onClick(event) {
             let target = this.getParentElement('A', event.target);
             if (target !== undefined) {
-                event.preventDefault();
-                event.stopPropagation();
+                if (this.captureLink) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
                 this.link.fire({ target: this, ref: target.href });
             }
         }

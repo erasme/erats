@@ -16604,6 +16604,7 @@ var Ui;
         __extends(Html, _super);
         function Html(init) {
             var _this = _super.call(this, init) || this;
+            _this.captureLink = true;
             _this.bindedOnImageLoad = undefined;
             _this._color = undefined;
             _this.link = new Core.Events();
@@ -16871,8 +16872,10 @@ var Ui;
         Html.prototype.onClick = function (event) {
             var target = this.getParentElement('A', event.target);
             if (target !== undefined) {
-                event.preventDefault();
-                event.stopPropagation();
+                if (this.captureLink) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
                 this.link.fire({ target: this, ref: target.href });
             }
         };
