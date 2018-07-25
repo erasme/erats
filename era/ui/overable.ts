@@ -20,7 +20,7 @@ namespace Ui {
             this.element = init.element;
 
             this.element.drawing.addEventListener('mouseenter', (e) => {
-                if (this._isOver)
+                if (this._isOver || this.element.isDisabled)
                     return;
                 this._isOver = true;
                 if (this.enter)

@@ -8829,7 +8829,7 @@ var Ui;
                 _this.leave = init.onleaved;
             _this.element = init.element;
             _this.element.drawing.addEventListener('mouseenter', function (e) {
-                if (_this._isOver)
+                if (_this._isOver || _this.element.isDisabled)
                     return;
                 _this._isOver = true;
                 if (_this.enter)
