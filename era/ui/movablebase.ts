@@ -262,6 +262,9 @@ namespace Ui {
         private onPointerDown(event: PointerEvent) {
             if (this._isDown || this.isDisabled || this._lock)
                 return;
+            // allow only left button for mouse
+            if (event.pointerType == 'mouse' && event.button != 0)
+                return;
             let initialPosition = new Point(event.clientX, event.clientY);
 
             this.stopInertia();

@@ -10423,6 +10423,8 @@ var Ui;
             var _this = this;
             if (this._isDown || this.isDisabled || this._lock)
                 return;
+            if (event.pointerType == 'mouse' && event.button != 0)
+                return;
             var initialPosition = new Ui.Point(event.clientX, event.clientY);
             this.stopInertia();
             this.startPosX = this.posX;
