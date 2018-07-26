@@ -332,9 +332,9 @@ namespace Ui {
                 this.onUp(false);
             }
 
-            this.drawing.addEventListener('pointermove', onPointerMove, { passive: false });
-            this.drawing.addEventListener('pointercancel', onPointerCancel, { passive: false });
-            this.drawing.addEventListener('pointerup', onPointerUp, { passive: false });
+            this.drawing.addEventListener('pointermove', onPointerMove);
+            this.drawing.addEventListener('pointercancel', onPointerCancel);
+            this.drawing.addEventListener('pointerup', onPointerUp);
             event.stopImmediatePropagation();
             event.preventDefault();
         }
