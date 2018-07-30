@@ -23,6 +23,7 @@ namespace Ui {
         }
 
         set src(src: string) {
+            this._isReady = false;
             this.iframeDrawing.setAttribute('src', src);
         }
 
