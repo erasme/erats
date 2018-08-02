@@ -23115,8 +23115,10 @@ var Ui;
         };
         Combo.prototype.onPress = function () {
             var _this = this;
-            var popup = new Ui.ComboPopup().assign({
-                field: this._field, data: this._data,
+            var popup = new Ui.ComboPopup({
+                field: this._field,
+            }).assign({
+                data: this._data,
                 search: this.search, allowNone: this.allowNone
             });
             if (this._position !== -1)

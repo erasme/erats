@@ -1,7 +1,7 @@
 namespace Ui {
     export interface ComboInit<T> extends ButtonInit {
         placeHolder?: string;
-        field?: string;
+        field?: keyof T;
         data?: T[];
         position?: number;
         current?: any;
@@ -11,7 +11,7 @@ namespace Ui {
     }
 
     export class Combo<T = any> extends Button implements ComboInit<T> {
-        private _field: string;
+        private _field: keyof T;
         private _data: T[];
         private _position: number = -1;
         private _current: T;
@@ -69,7 +69,7 @@ namespace Ui {
                 this.text = this._placeHolder;
         }
 
-        set field(field: string) {
+        set field(field: keyof T) {
             this._field = field;
             if (this._data !== undefined)
                 this.data = this._data;
@@ -104,7 +104,7 @@ namespace Ui {
             else if ((position >= 0) && (position < this._data.length)) {
                 this._current = this._data[position];
                 this._position = position;
-                this.text = this._current[this._field];
+                this.text = this._current[this._field as string];
                 this.changed.fire({ target: this, value: this._current, position: this._position });
             }
         }
@@ -136,8 +136,10 @@ namespace Ui {
         }
 
         protected onPress() {
-            let popup = new Ui.ComboPopup().assign({
-                field: this._field, data: this._data,
+            let popup = new Ui.ComboPopup({
+                field: this._field,
+            }).assign({
+                data: this._data,
                 search: this.search, allowNone: this.allowNone
             });
             if (this._position !== -1)
@@ -170,7 +172,7 @@ namespace Ui {
     export interface ComboPopupInit<T> extends MenuPopupInit {
         search?: boolean;
         allowNone?: boolean;
-        field?: string;
+        field?: keyof T;
         data?: T[];
         position?: number;
     }
@@ -179,7 +181,7 @@ namespace Ui {
         private list = new VBox();
         private _allowNone = false;
         private _data: T[];
-        private _field: string;
+        private _field: keyof T;
         private searchField = new TextField();
         private emptyField = new ComboItem();
         readonly item = new Core.Events<{ target: ComboPopup<T>, item: ComboItem, position: number }>();
@@ -269,7 +271,7 @@ namespace Ui {
                 this.emptyField.hide(true);
         }
 
-        set field(field: string) {
+        set field(field: keyof T) {
             this._field = field;
             if (this._data !== undefined)
                 this.data = this._data;
@@ -281,7 +283,7 @@ namespace Ui {
                 return;
             for (let i = 0; i < data.length; i++) {
                 let item = new ComboItem({
-                    text: data[i][this._field],
+                    text: data[i][this._field as string],
                     onpressed: () => this.onItemPress(item)
                 });
                 this.list.append(item);

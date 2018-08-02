@@ -4935,7 +4935,7 @@ declare namespace Ui {
 declare namespace Ui {
     interface ComboInit<T> extends ButtonInit {
         placeHolder?: string;
-        field?: string;
+        field?: keyof T;
         data?: T[];
         position?: number;
         current?: any;
@@ -4969,7 +4969,7 @@ declare namespace Ui {
         }) => void;
         constructor(init?: ComboInit<T>);
         placeHolder: string;
-        field: string;
+        field: keyof T;
         data: T[];
         position: number;
         current: T;
@@ -4984,7 +4984,7 @@ declare namespace Ui {
     interface ComboPopupInit<T> extends MenuPopupInit {
         search?: boolean;
         allowNone?: boolean;
-        field?: string;
+        field?: keyof T;
         data?: T[];
         position?: number;
     }
@@ -5004,7 +5004,7 @@ declare namespace Ui {
         private onSearchChange;
         search: boolean;
         allowNone: boolean;
-        field: string;
+        field: keyof T;
         data: T[];
         position: number;
         protected onItemPress(item: ComboItem): void;
