@@ -721,6 +721,7 @@ declare namespace Ui {
         getBackgroundImage(): any;
         getSVGGradient(): any;
         getCanvasGradient(context: any, width: any, height: any): any;
+        getCssGradient(): string;
     }
 }
 declare namespace Ui {

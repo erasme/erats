@@ -3558,65 +3558,9 @@ var Ui;
             return _this;
         }
         LinearGradient.prototype.getBackgroundImage = function () {
-            var i;
-            var stop;
-            var gradient;
             if (this.image !== undefined)
                 return this.image;
-            if (Core.Navigator.isWebkit) {
-                this.image = '-webkit-gradient(linear, 0% 0%, ';
-                if (this.orientation == 'vertical')
-                    this.image += '0% 100%';
-                else
-                    this.image += '100% 0%';
-                for (i = 0; i < this.stops.length; i++) {
-                    stop = this.stops[i];
-                    this.image += ', color-stop(' + stop.offset + ', ' + stop.color.getCssRgba() + ')';
-                }
-                this.image += ')';
-            }
-            else if (Core.Navigator.isGecko) {
-                this.image = '-moz-linear-gradient(';
-                if (this.orientation == 'vertical')
-                    this.image += '-90deg';
-                else
-                    this.image += '0deg';
-                for (i = 0; i < this.stops.length; i++) {
-                    stop = this.stops[i];
-                    this.image += ', ' + stop.color.getCssRgba() + ' ' + Math.round(stop.offset * 100) + '%';
-                }
-                this.image += ')';
-            }
-            else if (Core.Navigator.supportCanvas) {
-                var canvas = document.createElement('canvas');
-                var context = canvas.getContext('2d');
-                if (this.orientation == 'vertical') {
-                    canvas.setAttribute('width', 1, null);
-                    canvas.setAttribute('height', 100, null);
-                    gradient = context.createLinearGradient(0, 0, 0, 100);
-                    for (i = 0; i < this.stops.length; i++) {
-                        stop = this.stops[i];
-                        gradient.addColorStop(stop.offset, stop.color.getCssRgba());
-                    }
-                    context.fillStyle = gradient;
-                    context.fillRect(0, 0, 1, 100);
-                }
-                else {
-                    canvas.setAttribute('width', 100, null);
-                    canvas.setAttribute('height', 1, null);
-                    gradient = context.createLinearGradient(0, 0, 100, 0);
-                    for (i = 0; i < this.stops.length; i++) {
-                        stop = this.stops[i];
-                        gradient.addColorStop(stop.offset, stop.color.getCssRgba());
-                    }
-                    context.fillStyle = gradient;
-                    context.fillRect(0, 0, 100, 1);
-                }
-                this.image = 'url(' + canvas.toDataURL() + ')';
-            }
-            else {
-                this.image = 'url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAACCAYAAACddGYaAAAAAXNSR0IArs4c6QAAAAZiS0dEAO8AUQBRItXOlAAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9gJDxcIBl8Z3A0AAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAAC0lEQVQI12NgwAUAABoAASRETuUAAAAASUVORK5CYII%3D)';
-            }
+            this.image = this.getCssGradient();
             return this.image;
         };
         LinearGradient.prototype.getSVGGradient = function () {
@@ -3653,6 +3597,19 @@ var Ui;
                 gradient.addColorStop(stop_2.offset, stop_2.color.getCssRgba());
             }
             return gradient;
+        };
+        LinearGradient.prototype.getCssGradient = function () {
+            var image = 'linear-gradient(';
+            if (this.orientation == 'vertical')
+                image += 'to bottom';
+            else
+                image += 'to right';
+            for (var i = 0; i < this.stops.length; i++) {
+                var stop_3 = this.stops[i];
+                image += ", " + Ui.Color.create(stop_3.color).getCssRgba() + " " + Math.round(stop_3.offset * 100) + "%";
+            }
+            image += ')';
+            return image;
         };
         return LinearGradient;
     }(Core.Object));
@@ -6283,8 +6240,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
         while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
+            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [0, t.value];
             switch (op[0]) {
                 case 0: case 1: t = op; break;
                 case 4: _.label++; return { value: op[1], done: false };
