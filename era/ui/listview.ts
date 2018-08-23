@@ -202,7 +202,7 @@ namespace Ui {
                     cell = new ListViewCellString();
                 cell.setKey(key);
                 cell.setRow(this);
-                cell.setValue((key != undefined) ? this._data[this.headers[col].key] : this._data);
+                cell.setValue((key != undefined) ? this.getValueFrom(key, this._data) : this._data);
                 this.cells.push(cell);
                 this.appendChild(cell);
             }
@@ -226,6 +226,15 @@ namespace Ui {
 
         }
 
+        getValueFrom(key: string, data: T) {
+            if (key.indexOf('.') == -1 && key.indexOf('[') == -1)
+                return data[key];
+
+            let pathIndex = key.replace(/]/g, "").replace(/\[/g, ".");
+            let result =  pathIndex.split('.').reduce((o, i) => o != undefined && i in o ? o[i] : undefined, data);
+            return result != undefined ? result : data;
+        }
+
         get data(): T {
             return this._data;
         }
@@ -235,7 +244,7 @@ namespace Ui {
             for (let col = 0; col < this.headers.length; col++) {
                 let key = this.headers[col].key;
                 let cell: ListViewCell = this.cells[col];
-                cell.setValue((key != undefined) ? this._data[this.headers[col].key] : this._data);
+                cell.setValue((key != undefined) ? this.getValueFrom(key, this._data) : this._data);
             }
         }
 

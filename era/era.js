@@ -23425,7 +23425,7 @@ var Ui;
                     cell = new ListViewCellString();
                 cell.setKey(key);
                 cell.setRow(_this);
-                cell.setValue((key != undefined) ? _this._data[_this.headers[col].key] : _this._data);
+                cell.setValue((key != undefined) ? _this.getValueFrom(key, _this._data) : _this._data);
                 _this.cells.push(cell);
                 _this.appendChild(cell);
             }
@@ -23457,6 +23457,13 @@ var Ui;
             enumerable: true,
             configurable: true
         });
+        ListViewRow.prototype.getValueFrom = function (key, data) {
+            if (key.indexOf('.') == -1 && key.indexOf('[') == -1)
+                return data[key];
+            var pathIndex = key.replace(/]/g, "").replace(/\[/g, ".");
+            var result = pathIndex.split('.').reduce(function (o, i) { return o != undefined && i in o ? o[i] : undefined; }, data);
+            return result != undefined ? result : data;
+        };
         Object.defineProperty(ListViewRow.prototype, "data", {
             get: function () {
                 return this._data;
@@ -23466,7 +23473,7 @@ var Ui;
                 for (var col = 0; col < this.headers.length; col++) {
                     var key = this.headers[col].key;
                     var cell = this.cells[col];
-                    cell.setValue((key != undefined) ? this._data[this.headers[col].key] : this._data);
+                    cell.setValue((key != undefined) ? this.getValueFrom(key, this._data) : this._data);
                 }
             },
             enumerable: true,

@@ -5087,6 +5087,7 @@ declare namespace Ui {
             target: ListViewRow<T>;
         }) => void;
         constructor(init: ListViewRowInit<T>);
+        getValueFrom(key: string, data: T): any;
         data: T;
         isSelected: boolean;
         protected measureCore(width: number, height: number): {
