@@ -7,8 +7,7 @@ namespace Core {
         fileApi?: any;
     }
 
-    export class File extends Object
-    {
+    export class File extends Object {
         iframe?: HTMLIFrameElement;
         form?: HTMLFormElement;
         fileInput?: HTMLInputElement;
@@ -61,7 +60,7 @@ namespace Core {
         //
         getMimetype() {
             var mimetype = Core.File.getMimetypeFromName(this.getFileName());
-            if ((mimetype === 'application/octet-stream') && (this.fileApi !== undefined) && ('type' in this.fileApi))
+            if ((mimetype === 'application/octet-stream') && (this.fileApi !== undefined) && ('type' in this.fileApi) && this.fileApi.type != "")
                 mimetype = this.fileApi.type;
             return mimetype;
         }
@@ -126,6 +125,7 @@ namespace Core {
             "crt": "application/pkix-cert",
             "csh": "application/x-csh",
             "css": "text/css",
+            "csv": "text/csv",
             "cxx": "text/plain",
             "dcr": "application/x-director",
             "deepv": "application/x-deepv",
