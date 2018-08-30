@@ -3,17 +3,21 @@ namespace Ui {
     }
 
     export class SelectionArea extends Ui.LBox implements SelectionAreaInit {
-        watcher: Ui.PointerWatcher | undefined;
-        rectangle: Ui.Rectangle;
-        startPos: Ui.Point;
+        private _pointerId?: number;
+        private rectangle?: Ui.Rectangle;
+        private startPos: Ui.Point;
         private shiftStart: Ui.SelectionableWatcher;
+        lock: boolean = false;
 
         constructor(init?: SelectionAreaInit) {
             super(init);
 
             // handle pointers
-            this.ptrdowned.connect((e) => this.onPointerDown(e));
-        
+            if ('PointerEvent' in window)
+                this.drawing.addEventListener('pointerdown', (e) => this.onPointerDown(e), { passive: false });
+            else
+                this.drawing.addEventListener('mousedown', (e) => this.onMouseDown(e));
+
             // handle keyboard
             this.drawing.addEventListener('keydown', (e) => this.onKeyDown(e));
         }
@@ -41,7 +45,7 @@ namespace Ui {
                 let pe2 = (new Ui.Point(el.layoutWidth, el.layoutHeight)).multiply(m);
                 let pe = new Ui.Point(Math.min(pe1.x, pe2.x), Math.min(pe1.y, pe2.y));
                 let se = { width: Math.abs(pe1.x - pe2.x), height: Math.abs(pe1.y - pe2.y) };
-            
+
                 let hoverlap = (p.x < pe.x + se.width) && (pe.x < p.x + s.width);
                 let voverlap = (p.y < pe.y + se.height) && (pe.y < p.y + s.height);
                 return hoverlap && voverlap;
@@ -63,7 +67,7 @@ namespace Ui {
                 let m = a.element.transformToElement(this);
                 let c1 = (new Ui.Point(a.element.layoutWidth / 2, a.element.layoutHeight / 2)).multiply(m);
                 let d1 = Math.sqrt(Math.pow((c1.x - p2.x), 2) + Math.pow((c1.y - p2.y), 2));
-                
+
                 m = b.element.transformToElement(this);
                 let c2 = (new Ui.Point(b.element.layoutWidth / 2, b.element.layoutHeight / 2)).multiply(m);
                 let d2 = Math.sqrt(Math.pow((c2.x - p2.x), 2) + Math.pow((c2.y - p2.y), 2));
@@ -73,7 +77,7 @@ namespace Ui {
 
             return res;
         }
-    
+
         private findSelectionableWatchers(): Array<Ui.SelectionableWatcher> {
             let res = new Array<Ui.SelectionableWatcher>();
 
@@ -87,7 +91,7 @@ namespace Ui {
             addSelectionable(this);
             return res;
         }
-    
+
         private findMatchSelectionable(
             element: Ui.Element,
             filter: (p: Ui.Point, s: { width: number, height: number }, c: Ui.Point,
@@ -96,7 +100,7 @@ namespace Ui {
             let all = this.findSelectionableWatchers();
             if (all.length == 0)
                 return undefined;
-                    
+
             let m = element.transformToElement(this);
             let p1 = (new Ui.Point(0, 0)).multiply(m);
             let p2 = (new Ui.Point(element.layoutWidth, element.layoutHeight)).multiply(m);
@@ -175,86 +179,171 @@ namespace Ui {
                 });
         }
 
-        private onPointerDown(event: EmuPointerEvent) {
-            if (this.watcher != undefined)
+        private onPointerDown(event: PointerEvent) {
+            if (this._pointerId != undefined)
                 return;
-            if (event.pointerType == 'mouse' && event.pointer.button == 0) {
-                this.watcher = event.pointer.watch(this);
-                this.watcher.moved.connect((e) => this.onPtrMove(e.target));
-                this.watcher.upped.connect((e) => this.onPtrUp(e.target));
-                this.watcher.cancelled.connect(() => this.watcher = undefined);
-            }
-        }
+            if (this.isDisabled || this.lock || event.pointerType == 'touch')
+                return;
+            if (event.pointerType == 'mouse' && event.button != 0)
+                return;
 
-        private onPtrUp(watcher: Ui.PointerWatcher) {
-            // selection end
-            if (watcher.getIsCaptured()) {
-                let endPos = watcher.pointer.getPosition(this);
-                let res = this.findAreaElements(this.startPos, endPos);
-                let selection = this.getParentSelectionHandler();
+            this._pointerId = event.pointerId;
+            let initialPosition = new Point(event.clientX, event.clientY);
+            this.drawing.setPointerCapture(event.pointerId);
+            this.startPos = this.pointFromWindow(initialPosition);
 
-                // Shift = selection append
-                if (watcher.pointer.shiftKey)
-                    selection.append(res);
-                // Ctrl = selection append the inverted selection status
-                else if (watcher.pointer.ctrlKey) {
-                    let watchers = selection.watchers;
-                    let res2 = new Array<SelectionableWatcher>();
-                    watchers.forEach(w => {
-                        if (res.indexOf(w) == -1)
-                            res2.push(w);
-                    });
-                    res.forEach(w => {
-                        if (watchers.indexOf(w) == -1)
-                            res2.push(w);    
-                    });
-                    selection.watchers = res2;
-                }
-                // set the current selection    
-                else
-                    selection.watchers = res;
+            let onPointerMove = (e: PointerEvent) => {
+                if (e.pointerId != this._pointerId)
+                    return;
+                e.stopImmediatePropagation();
+                let current = this.pointFromWindow(new Point(e.clientX, e.clientY));
 
-                if (this.rectangle.parent == this)
-                    this.remove(this.rectangle);
-            }
-            // click only
-            else if (watcher.getIsInside() && !watcher.pointer.getIsMove()) {
-                let selection = this.getParentSelectionHandler();
-                if (selection)
-                    selection.clear();
-                let sel: Selection;
-            }
-            if (this.watcher)
-                this.watcher.cancel();
-        }
-
-        private onPtrMove(watcher: Ui.PointerWatcher) {
-            if (!watcher.getIsCaptured()) {
-                if (watcher.pointer.getIsMove()) {
-                    watcher.capture();
-                    this.startPos = watcher.pointer.getPosition(this);
+                if (this.rectangle == undefined) {
                     this.rectangle = new Ui.Rectangle({
                         width: 0, height: 0,
                         fill: 'rgba(0,0,0,0.1)'
                     });
-                
                     this.append(this.rectangle);
                 }
+                else {
+                    let movePos = current;
+                    this.rectangle.arrange(
+                        Math.min(movePos.x, this.startPos.x),
+                        Math.min(movePos.y, this.startPos.y),
+                        Math.abs(movePos.x - this.startPos.x),
+                        Math.abs(movePos.y - this.startPos.y));
+                }
             }
-            else {
-                let movePos = watcher.pointer.getPosition(this);
-                this.rectangle.arrange(
-                    Math.min(movePos.x, this.startPos.x),
-                    Math.min(movePos.y, this.startPos.y),
-                    Math.abs(movePos.x - this.startPos.x),
-                    Math.abs(movePos.y - this.startPos.y));
+            let onPointerCancel = (e: PointerEvent) => {
+                if (e.pointerId != this._pointerId)
+                    return;
+                this.drawing.removeEventListener('pointermove', onPointerMove);
+                this.drawing.removeEventListener('pointercancel', onPointerCancel);
+                this.drawing.removeEventListener('pointerup', onPointerUp);
+                this.drawing.releasePointerCapture(event.pointerId);
+                this._pointerId = undefined;
+                if (this.rectangle != undefined) {
+                    this.remove(this.rectangle);
+                    this.rectangle = undefined;
+                }
+                e.stopImmediatePropagation();
+            }
+            let onPointerUp = (e: PointerEvent) => {
+                if (e.pointerId != this._pointerId)
+                    return;
+                this.drawing.removeEventListener('pointermove', onPointerMove);
+                this.drawing.removeEventListener('pointercancel', onPointerCancel);
+                this.drawing.removeEventListener('pointerup', onPointerUp);
+                this.drawing.releasePointerCapture(event.pointerId);
+                this._pointerId = undefined;
+                if (this.rectangle != undefined) {
+                    let current = this.pointFromWindow(new Point(e.clientX, e.clientY));
+                    let res = this.findAreaElements(this.startPos, current);
+                    let selection = this.getParentSelectionHandler();
+
+                    // Shift = selection append
+                    if (e.shiftKey)
+                        selection.append(res);
+                    // Ctrl = selection append the inverted selection status
+                    else if (e.ctrlKey) {
+                        let watchers = selection.watchers;
+                        let res2 = new Array<SelectionableWatcher>();
+                        watchers.forEach(w => {
+                            if (res.indexOf(w) == -1)
+                                res2.push(w);
+                        });
+                        res.forEach(w => {
+                            if (watchers.indexOf(w) == -1)
+                                res2.push(w);
+                        });
+                        selection.watchers = res2;
+                    }
+                    // set the current selection    
+                    else
+                        selection.watchers = res;
+
+                    this.remove(this.rectangle);
+                    this.rectangle = undefined;
+                }
+                e.stopImmediatePropagation();
             }
 
+            this.drawing.addEventListener('pointermove', onPointerMove);
+            this.drawing.addEventListener('pointercancel', onPointerCancel);
+            this.drawing.addEventListener('pointerup', onPointerUp);
+            event.stopImmediatePropagation();
+        }
+
+        private onMouseDown(event: MouseEvent) {
+            if (this._pointerId != undefined)
+                return;
+            if (this.isDisabled || this.lock || event.button != 0)
+                return;
+
+            let initialPosition = new Point(event.clientX, event.clientY);
+            this.startPos = this.pointFromWindow(initialPosition);
+
+            let onMouseMove = (e: MouseEvent) => {
+                e.stopImmediatePropagation();
+                let current = this.pointFromWindow(new Point(e.clientX, e.clientY));
+
+                if (this.rectangle == undefined) {
+                    this.rectangle = new Ui.Rectangle({
+                        width: 0, height: 0,
+                        fill: 'rgba(0,0,0,0.1)'
+                    });
+                    this.append(this.rectangle);
+                }
+                else {
+                    let movePos = current;
+                    this.rectangle.arrange(
+                        Math.min(movePos.x, this.startPos.x),
+                        Math.min(movePos.y, this.startPos.y),
+                        Math.abs(movePos.x - this.startPos.x),
+                        Math.abs(movePos.y - this.startPos.y));
+                }
+            }
+            let onMouseUp = (e: MouseEvent) => {
+                this.drawing.removeEventListener('mousemove', onMouseMove);
+                this.drawing.removeEventListener('mouseup', onMouseUp);
+                if (this.rectangle != undefined) {
+                    let current = this.pointFromWindow(new Point(e.clientX, e.clientY));
+                    let res = this.findAreaElements(this.startPos, current);
+                    let selection = this.getParentSelectionHandler();
+
+                    // Shift = selection append
+                    if (e.shiftKey)
+                        selection.append(res);
+                    // Ctrl = selection append the inverted selection status
+                    else if (e.ctrlKey) {
+                        let watchers = selection.watchers;
+                        let res2 = new Array<SelectionableWatcher>();
+                        watchers.forEach(w => {
+                            if (res.indexOf(w) == -1)
+                                res2.push(w);
+                        });
+                        res.forEach(w => {
+                            if (watchers.indexOf(w) == -1)
+                                res2.push(w);
+                        });
+                        selection.watchers = res2;
+                    }
+                    // set the current selection    
+                    else
+                        selection.watchers = res;
+
+                    this.remove(this.rectangle);
+                    this.rectangle = undefined;
+                }
+                e.stopImmediatePropagation();
+            }
+
+            this.drawing.addEventListener('mousemove', onMouseMove);
+            this.drawing.addEventListener('mouseup', onMouseUp);
+            event.stopImmediatePropagation();
         }
 
         private onKeyDown(event: KeyboardEvent) {
-            console.log(`onKeyDown ${event.which}`);
-
             if ((event.which >= 37 && event.which <= 40) || event.which == 65 || event.which == 16 || event.which == 46) {
                 let selection = this.getParentSelectionHandler();
                 if (!selection)
@@ -265,13 +354,13 @@ namespace Ui {
 
                 if (ours.length == 0)
                     return;
-                
+
                 let focusElement: Ui.Element;
                 let focusWatcher = ours.find(w => w.element.hasFocus);
                 if (!focusWatcher)
                     focusWatcher = ours[0];
                 focusElement = focusWatcher.element;
-        
+
                 let found: Ui.SelectionableWatcher | undefined;
                 // left (37)
                 if (event.which == 37) {
@@ -310,7 +399,7 @@ namespace Ui {
                     this.shiftStart = focusWatcher;
                 // Del
                 if (event.which == 46)
-                    selection.executeDeleteAction();    
+                    selection.executeDeleteAction();
             }
         }
     }

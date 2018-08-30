@@ -4914,10 +4914,11 @@ declare namespace Ui {
     interface SelectionAreaInit extends Ui.LBoxInit {
     }
     class SelectionArea extends Ui.LBox implements SelectionAreaInit {
-        watcher: Ui.PointerWatcher | undefined;
-        rectangle: Ui.Rectangle;
-        startPos: Ui.Point;
+        private _pointerId?;
+        private rectangle?;
+        private startPos;
         private shiftStart;
+        lock: boolean;
         constructor(init?: SelectionAreaInit);
         getParentSelectionHandler(): Ui.Selection | undefined;
         private findAreaElements;
@@ -4928,8 +4929,7 @@ declare namespace Ui {
         private findBottomSelectionable;
         private findTopSelectionable;
         private onPointerDown;
-        private onPtrUp;
-        private onPtrMove;
+        private onMouseDown;
         private onKeyDown;
     }
 }
@@ -5498,7 +5498,7 @@ declare namespace Ui {
         }) => void;
         readonly positionchanged: Core.Events<{
             target: Fold;
-            position: "left" | "right" | "top" | "bottom";
+            position: "bottom" | "left" | "right" | "top";
         }>;
         onpositionchanged: (event: {
             target: Fold;

@@ -706,9 +706,12 @@ if (!Math.log10) {
     };
 }
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -6241,8 +6244,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
         while (_) try {
-            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [0, t.value];
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
                 case 0: case 1: t = op; break;
                 case 4: _.label++; return { value: op[1], done: false };
@@ -22698,7 +22701,11 @@ var Ui;
         __extends(SelectionArea, _super);
         function SelectionArea(init) {
             var _this = _super.call(this, init) || this;
-            _this.ptrdowned.connect(function (e) { return _this.onPointerDown(e); });
+            _this.lock = false;
+            if ('PointerEvent' in window)
+                _this.drawing.addEventListener('pointerdown', function (e) { return _this.onPointerDown(e); }, { passive: false });
+            else
+                _this.drawing.addEventListener('mousedown', function (e) { return _this.onMouseDown(e); });
             _this.drawing.addEventListener('keydown', function (e) { return _this.onKeyDown(e); });
             return _this;
         }
@@ -22832,69 +22839,144 @@ var Ui;
         };
         SelectionArea.prototype.onPointerDown = function (event) {
             var _this = this;
-            if (this.watcher != undefined)
+            if (this._pointerId != undefined)
                 return;
-            if (event.pointerType == 'mouse' && event.pointer.button == 0) {
-                this.watcher = event.pointer.watch(this);
-                this.watcher.moved.connect(function (e) { return _this.onPtrMove(e.target); });
-                this.watcher.upped.connect(function (e) { return _this.onPtrUp(e.target); });
-                this.watcher.cancelled.connect(function () { return _this.watcher = undefined; });
-            }
-        };
-        SelectionArea.prototype.onPtrUp = function (watcher) {
-            if (watcher.getIsCaptured()) {
-                var endPos = watcher.pointer.getPosition(this);
-                var res_1 = this.findAreaElements(this.startPos, endPos);
-                var selection = this.getParentSelectionHandler();
-                if (watcher.pointer.shiftKey)
-                    selection.append(res_1);
-                else if (watcher.pointer.ctrlKey) {
-                    var watchers_2 = selection.watchers;
-                    var res2_1 = new Array();
-                    watchers_2.forEach(function (w) {
-                        if (res_1.indexOf(w) == -1)
-                            res2_1.push(w);
-                    });
-                    res_1.forEach(function (w) {
-                        if (watchers_2.indexOf(w) == -1)
-                            res2_1.push(w);
-                    });
-                    selection.watchers = res2_1;
-                }
-                else
-                    selection.watchers = res_1;
-                if (this.rectangle.parent == this)
-                    this.remove(this.rectangle);
-            }
-            else if (watcher.getIsInside() && !watcher.pointer.getIsMove()) {
-                var selection = this.getParentSelectionHandler();
-                if (selection)
-                    selection.clear();
-                var sel = void 0;
-            }
-            if (this.watcher)
-                this.watcher.cancel();
-        };
-        SelectionArea.prototype.onPtrMove = function (watcher) {
-            if (!watcher.getIsCaptured()) {
-                if (watcher.pointer.getIsMove()) {
-                    watcher.capture();
-                    this.startPos = watcher.pointer.getPosition(this);
-                    this.rectangle = new Ui.Rectangle({
+            if (this.isDisabled || this.lock || event.pointerType == 'touch')
+                return;
+            if (event.pointerType == 'mouse' && event.button != 0)
+                return;
+            this._pointerId = event.pointerId;
+            var initialPosition = new Ui.Point(event.clientX, event.clientY);
+            this.drawing.setPointerCapture(event.pointerId);
+            this.startPos = this.pointFromWindow(initialPosition);
+            var onPointerMove = function (e) {
+                if (e.pointerId != _this._pointerId)
+                    return;
+                e.stopImmediatePropagation();
+                var current = _this.pointFromWindow(new Ui.Point(e.clientX, e.clientY));
+                if (_this.rectangle == undefined) {
+                    _this.rectangle = new Ui.Rectangle({
                         width: 0, height: 0,
                         fill: 'rgba(0,0,0,0.1)'
                     });
-                    this.append(this.rectangle);
+                    _this.append(_this.rectangle);
                 }
-            }
-            else {
-                var movePos = watcher.pointer.getPosition(this);
-                this.rectangle.arrange(Math.min(movePos.x, this.startPos.x), Math.min(movePos.y, this.startPos.y), Math.abs(movePos.x - this.startPos.x), Math.abs(movePos.y - this.startPos.y));
-            }
+                else {
+                    var movePos = current;
+                    _this.rectangle.arrange(Math.min(movePos.x, _this.startPos.x), Math.min(movePos.y, _this.startPos.y), Math.abs(movePos.x - _this.startPos.x), Math.abs(movePos.y - _this.startPos.y));
+                }
+            };
+            var onPointerCancel = function (e) {
+                if (e.pointerId != _this._pointerId)
+                    return;
+                _this.drawing.removeEventListener('pointermove', onPointerMove);
+                _this.drawing.removeEventListener('pointercancel', onPointerCancel);
+                _this.drawing.removeEventListener('pointerup', onPointerUp);
+                _this.drawing.releasePointerCapture(event.pointerId);
+                _this._pointerId = undefined;
+                if (_this.rectangle != undefined) {
+                    _this.remove(_this.rectangle);
+                    _this.rectangle = undefined;
+                }
+                e.stopImmediatePropagation();
+            };
+            var onPointerUp = function (e) {
+                if (e.pointerId != _this._pointerId)
+                    return;
+                _this.drawing.removeEventListener('pointermove', onPointerMove);
+                _this.drawing.removeEventListener('pointercancel', onPointerCancel);
+                _this.drawing.removeEventListener('pointerup', onPointerUp);
+                _this.drawing.releasePointerCapture(event.pointerId);
+                _this._pointerId = undefined;
+                if (_this.rectangle != undefined) {
+                    var current = _this.pointFromWindow(new Ui.Point(e.clientX, e.clientY));
+                    var res_1 = _this.findAreaElements(_this.startPos, current);
+                    var selection = _this.getParentSelectionHandler();
+                    if (e.shiftKey)
+                        selection.append(res_1);
+                    else if (e.ctrlKey) {
+                        var watchers_2 = selection.watchers;
+                        var res2_1 = new Array();
+                        watchers_2.forEach(function (w) {
+                            if (res_1.indexOf(w) == -1)
+                                res2_1.push(w);
+                        });
+                        res_1.forEach(function (w) {
+                            if (watchers_2.indexOf(w) == -1)
+                                res2_1.push(w);
+                        });
+                        selection.watchers = res2_1;
+                    }
+                    else
+                        selection.watchers = res_1;
+                    _this.remove(_this.rectangle);
+                    _this.rectangle = undefined;
+                }
+                e.stopImmediatePropagation();
+            };
+            this.drawing.addEventListener('pointermove', onPointerMove);
+            this.drawing.addEventListener('pointercancel', onPointerCancel);
+            this.drawing.addEventListener('pointerup', onPointerUp);
+            event.stopImmediatePropagation();
+        };
+        SelectionArea.prototype.onMouseDown = function (event) {
+            var _this = this;
+            if (this._pointerId != undefined)
+                return;
+            if (this.isDisabled || this.lock || event.button != 0)
+                return;
+            var initialPosition = new Ui.Point(event.clientX, event.clientY);
+            this.startPos = this.pointFromWindow(initialPosition);
+            var onMouseMove = function (e) {
+                e.stopImmediatePropagation();
+                var current = _this.pointFromWindow(new Ui.Point(e.clientX, e.clientY));
+                if (_this.rectangle == undefined) {
+                    _this.rectangle = new Ui.Rectangle({
+                        width: 0, height: 0,
+                        fill: 'rgba(0,0,0,0.1)'
+                    });
+                    _this.append(_this.rectangle);
+                }
+                else {
+                    var movePos = current;
+                    _this.rectangle.arrange(Math.min(movePos.x, _this.startPos.x), Math.min(movePos.y, _this.startPos.y), Math.abs(movePos.x - _this.startPos.x), Math.abs(movePos.y - _this.startPos.y));
+                }
+            };
+            var onMouseUp = function (e) {
+                _this.drawing.removeEventListener('mousemove', onMouseMove);
+                _this.drawing.removeEventListener('mouseup', onMouseUp);
+                if (_this.rectangle != undefined) {
+                    var current = _this.pointFromWindow(new Ui.Point(e.clientX, e.clientY));
+                    var res_2 = _this.findAreaElements(_this.startPos, current);
+                    var selection = _this.getParentSelectionHandler();
+                    if (e.shiftKey)
+                        selection.append(res_2);
+                    else if (e.ctrlKey) {
+                        var watchers_3 = selection.watchers;
+                        var res2_2 = new Array();
+                        watchers_3.forEach(function (w) {
+                            if (res_2.indexOf(w) == -1)
+                                res2_2.push(w);
+                        });
+                        res_2.forEach(function (w) {
+                            if (watchers_3.indexOf(w) == -1)
+                                res2_2.push(w);
+                        });
+                        selection.watchers = res2_2;
+                    }
+                    else
+                        selection.watchers = res_2;
+                    _this.remove(_this.rectangle);
+                    _this.rectangle = undefined;
+                }
+                e.stopImmediatePropagation();
+            };
+            this.drawing.addEventListener('mousemove', onMouseMove);
+            this.drawing.addEventListener('mouseup', onMouseUp);
+            event.stopImmediatePropagation();
         };
         SelectionArea.prototype.onKeyDown = function (event) {
             var _this = this;
-            console.log("onKeyDown " + event.which);
             if ((event.which >= 37 && event.which <= 40) || event.which == 65 || event.which == 16 || event.which == 46) {
                 var selection = this.getParentSelectionHandler();
                 if (!selection)
