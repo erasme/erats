@@ -93,6 +93,7 @@ namespace Ui {
             }
             this.element.drawing.addEventListener('pointercancel', onPointerCancel);
             this.element.drawing.addEventListener('pointerup', onPointerUp);
+            event.stopPropagation();
             this.onDown();
         }
 
