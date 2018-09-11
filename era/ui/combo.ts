@@ -4,10 +4,10 @@ namespace Ui {
         field?: keyof T;
         data?: T[];
         position?: number;
-        current?: any;
+        current?: T;
         search?: boolean;
         allowNone?: boolean;
-        onchanged?: (event: { target: Combo<T>, value: any, position: number }) => void;
+        onchanged?: (event: { target: Combo<T>, value: T, position: number }) => void;
     }
 
     export class Combo<T = any> extends Button implements ComboInit<T> {
@@ -20,8 +20,8 @@ namespace Ui {
         arrowbottom: Icon;
         search: boolean;
         allowNone = false;
-        readonly changed = new Core.Events<{ target: Combo<T>, value: any, position: number }>();
-        set onchanged(value: (event: { target: Combo<T>, value: any, position: number }) => void) { this.changed.connect(value); }
+        readonly changed = new Core.Events<{ target: Combo<T>, value: T, position: number }>();
+        set onchanged(value: (event: { target: Combo<T>, value: T, position: number }) => void) { this.changed.connect(value); }
 
         /**
          * @constructs

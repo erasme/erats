@@ -4939,12 +4939,12 @@ declare namespace Ui {
         field?: keyof T;
         data?: T[];
         position?: number;
-        current?: any;
+        current?: T;
         search?: boolean;
         allowNone?: boolean;
         onchanged?: (event: {
             target: Combo<T>;
-            value: any;
+            value: T;
             position: number;
         }) => void;
     }
@@ -4960,12 +4960,12 @@ declare namespace Ui {
         allowNone: boolean;
         readonly changed: Core.Events<{
             target: Combo<T>;
-            value: any;
+            value: T;
             position: number;
         }>;
         onchanged: (event: {
             target: Combo<T>;
-            value: any;
+            value: T;
             position: number;
         }) => void;
         constructor(init?: ComboInit<T>);
