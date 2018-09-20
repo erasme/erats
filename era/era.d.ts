@@ -4153,12 +4153,24 @@ declare namespace Ui {
 declare namespace Ui {
     class LimitedFlow extends Flow {
         private _maxLines;
+        private _canExpand;
+        readonly canexpandchanged: Core.Events<{
+            target: LimitedFlow;
+            value: boolean;
+        }>;
+        oncanexpandchanged: (event: {
+            target: LimitedFlow;
+            value: boolean;
+        }) => void;
         constructor();
         maxLines: number | undefined;
+        readonly linesCount: number;
+        readonly canExpand: boolean;
         protected measureCore(width: number, height: number): {
             width: number;
             height: number;
         };
+        protected arrangeCore(width: number, height: number): void;
     }
 }
 declare namespace Ui {

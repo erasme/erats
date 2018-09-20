@@ -19601,9 +19601,16 @@ var Ui;
         __extends(LimitedFlow, _super);
         function LimitedFlow() {
             var _this = _super.call(this) || this;
+            _this._canExpand = false;
+            _this.canexpandchanged = new Core.Events();
             _this.clipToBounds = true;
             return _this;
         }
+        Object.defineProperty(LimitedFlow.prototype, "oncanexpandchanged", {
+            set: function (value) { this.canexpandchanged.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(LimitedFlow.prototype, "maxLines", {
             get: function () {
                 return this._maxLines;
@@ -19611,6 +19618,23 @@ var Ui;
             set: function (value) {
                 this._maxLines = value;
                 this.invalidateMeasure();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(LimitedFlow.prototype, "linesCount", {
+            get: function () {
+                if (!this.uniform)
+                    return this.lines.length;
+                var countPerLine = Math.max(Math.floor((this.layoutWidth + this.spacing) / (this.uniformWidth + this.spacing)), 1);
+                return Math.ceil(this.children.length / countPerLine);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(LimitedFlow.prototype, "canExpand", {
+            get: function () {
+                return this._canExpand;
             },
             enumerable: true,
             configurable: true
@@ -19631,6 +19655,14 @@ var Ui;
                     width: res.width,
                     height: nbLine * this.uniformHeight + (nbLine - 1) * this.spacing
                 };
+            }
+        };
+        LimitedFlow.prototype.arrangeCore = function (width, height) {
+            _super.prototype.arrangeCore.call(this, width, height);
+            var canExpand = this._maxLines != undefined && this.linesCount > this._maxLines;
+            if (canExpand != this._canExpand) {
+                this._canExpand = canExpand;
+                this.canexpandchanged.fire({ target: this, value: this._canExpand });
             }
         };
         return LimitedFlow;
