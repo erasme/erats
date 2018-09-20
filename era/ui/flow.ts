@@ -8,9 +8,10 @@ namespace Ui {
     }
 
     export class Flow extends Container implements FlowInit {
+        protected lines: Array<{ pos: number, y: number, width: number, height: number }>;
         private _uniform: boolean = false;
-        private uniformWidth: number = 0;
-        private uniformHeight: number = 0;
+        protected uniformWidth: number = 0;
+        protected uniformHeight: number = 0;
         private _itemAlign: 'left' | 'right' = 'left';
         private _spacing: number = 0;
 
@@ -133,6 +134,7 @@ namespace Ui {
         }
 
         private measureChildrenNonUniform(width: number, height: number) {
+            this.lines = [];
             let line = { pos: 0, y: 0, width: 0, height: 0 };
             let ctx = { lineX: 0, lineY: 0, lineCount: 0, lineHeight: 0, minWidth: 0 };
 
@@ -148,6 +150,7 @@ namespace Ui {
                     ctx.lineHeight = 0;
                     isFirst = true;
                     ctx.lineCount++;
+                    this.lines.push(line);
                     line = { pos: ctx.lineCount, y: ctx.lineY, width: 0, height: 0 };
                 }
                 child['Ui.Flow.flowLine'] = line;
@@ -163,6 +166,7 @@ namespace Ui {
             ctx.lineY += ctx.lineHeight;
             line.width = ctx.lineX;
             line.height = ctx.lineHeight;
+            this.lines.push(line);
             return { width: ctx.minWidth, height: ctx.lineY };
         }
 
@@ -178,8 +182,7 @@ namespace Ui {
                 if (size.height > maxHeight)
                     maxHeight = size.height;
             }
-            let countPerLine = Math.max(Math.floor((width + this._spacing) / (maxWidth + this._spacing)), 1);
-        
+            let countPerLine = Math.max(Math.floor((width + this._spacing) / (maxWidth + this._spacing)), 1);        
             let nbLine = Math.ceil(this.children.length / countPerLine);
 
             for (i = 0; i < this.children.length; i++)
