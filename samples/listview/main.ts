@@ -77,7 +77,7 @@ class App extends Ui.App {
 						data0: ((i % 3) === 0),
 						data1: 'hi number '+i,
 						data2: 'col 2 '+i,
-						data3: Math.random()*50,
+						data3: Math.floor(Math.random()*50),
 						data4: i
 					});
 				}
@@ -99,7 +99,7 @@ class App extends Ui.App {
 						data0: ((i % 3) === 0),
 						data1: 'hi number '+i,
 						data2: 'col 2 '+i,
-						data3: Math.random()*50,
+						data3: Math.floor(Math.random()*50),
 						data4: count + i
 					});
 				}
@@ -112,9 +112,9 @@ class App extends Ui.App {
 				let data = listview.data;
 				for (let i = 0; i < data.length; i++) {
 					let obj = data[i];
-					(data[i] as any).data3 = Math.random()*50;
+					(data[i] as any).data3 = Math.floor(Math.random()*50);
 				}
-				listview.updateData(data);
+				listview.updateData();
 			}
 		}));
 
@@ -143,7 +143,7 @@ class App extends Ui.App {
 				data0: ((i % 3) === 0),
 				data1: 'hi number '+i,
 				data2: 'col 2 '+i,
-				data3: Math.random()*50,
+				data3: Math.floor(Math.random()*50),
 				data4: i 
 			});
 		}

@@ -4120,9 +4120,15 @@ declare namespace Ui {
         content?: Element[] | undefined;
     }
     class Flow extends Container implements FlowInit {
+        protected lines: Array<{
+            pos: number;
+            y: number;
+            width: number;
+            height: number;
+        }>;
         private _uniform;
-        private uniformWidth;
-        private uniformHeight;
+        protected uniformWidth: number;
+        protected uniformHeight: number;
         private _itemAlign;
         private _spacing;
         constructor(init?: FlowInit);
@@ -4142,6 +4148,17 @@ declare namespace Ui {
             height: number;
         };
         protected arrangeCore(width: number, height: number): void;
+    }
+}
+declare namespace Ui {
+    class LimitedFlow extends Flow {
+        private _maxLines;
+        constructor();
+        maxLines: number | undefined;
+        protected measureCore(width: number, height: number): {
+            width: number;
+            height: number;
+        };
     }
 }
 declare namespace Ui {
@@ -5028,7 +5045,16 @@ declare namespace Ui {
         readonly headerDef: HeaderDef;
         protected ui: Element;
         protected background: Rectangle;
+        protected sortBox: HBox;
+        protected sortOrderLabel: Label;
+        protected sortArrow: Icon;
+        protected _sortOrder: number | undefined;
+        protected _sortInvert: boolean;
         constructor(headerDef: HeaderDef);
+        sort: {
+            order: number | undefined;
+            invert: boolean;
+        };
         protected getColor(): Color;
         protected getColorDown(): Color;
         protected onListViewHeaderDown(): void;
@@ -5038,24 +5064,32 @@ declare namespace Ui {
     }
     class ListViewHeadersBar extends Container {
         private headers;
-        sortColKey: string;
-        sortInvert: boolean;
-        sortArrow: Icon;
+        private _sortOrder;
         uis: ListViewHeader[];
         rowsHeight: number;
         headersHeight: number;
-        readonly headerpressed: Core.Events<{
+        readonly sortchanged: Core.Events<{
             target: ListViewHeadersBar;
-            key: string;
+            sortOrder: {
+                key: string;
+                invert: boolean;
+            }[];
         }>;
-        onheaderpressed: (event: {
+        onsortchanged: (event: {
             target: ListViewHeadersBar;
-            key: string;
+            sortOrder: Array<{
+                key: string;
+                invert: boolean;
+            }>;
         }) => void;
         constructor(init: any);
-        getSortColKey(): string;
-        getSortInvert(): boolean;
+        readonly sortColKey: string;
+        readonly sortInvert: boolean;
         sortBy(key: string, invert: boolean): void;
+        sortOrder: Array<{
+            key: string;
+            invert: boolean;
+        }>;
         protected measureCore(width: number, height: number): {
             width: number;
             height: number;
@@ -5156,9 +5190,6 @@ declare namespace Ui {
         rowsHeight: number;
         headersHeight: number;
         headersVisible: boolean;
-        sortColKey: string;
-        sortInvert: boolean;
-        sortArrow: undefined;
         scroll: VBoxScrollingArea;
         selectionActions: SelectionActions;
         private _scrolled;
@@ -5228,8 +5259,13 @@ declare namespace Ui {
         data: Array<T>;
         sortData(): void;
         sortBy(key: string, invert: boolean): void;
+        sortOrder: Array<{
+            key: string;
+            invert: boolean;
+        }>;
+        readonly sortColKey: string;
+        readonly sortInvert: boolean;
         findDataRow(data: T): number;
-        onHeaderPress(header: any, key: any): void;
         onSelectionEdit(selection: Selection): void;
         protected onChildInvalidateArrange(child: Element): void;
         onRowSelectionChanged(): void;

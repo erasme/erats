@@ -19476,6 +19476,7 @@ var Ui;
             this.removeChild(child);
         };
         Flow.prototype.measureChildrenNonUniform = function (width, height) {
+            this.lines = [];
             var line = { pos: 0, y: 0, width: 0, height: 0 };
             var ctx = { lineX: 0, lineY: 0, lineCount: 0, lineHeight: 0, minWidth: 0 };
             for (var i = 0; i < this.children.length; i++) {
@@ -19490,6 +19491,7 @@ var Ui;
                     ctx.lineHeight = 0;
                     isFirst = true;
                     ctx.lineCount++;
+                    this.lines.push(line);
                     line = { pos: ctx.lineCount, y: ctx.lineY, width: 0, height: 0 };
                 }
                 child['Ui.Flow.flowLine'] = line;
@@ -19505,6 +19507,7 @@ var Ui;
             ctx.lineY += ctx.lineHeight;
             line.width = ctx.lineX;
             line.height = ctx.lineHeight;
+            this.lines.push(line);
             return { width: ctx.minWidth, height: ctx.lineY };
         };
         Flow.prototype.measureChildrenUniform = function (width, height) {
@@ -19591,6 +19594,48 @@ var Ui;
         return Flow;
     }(Ui.Container));
     Ui.Flow = Flow;
+})(Ui || (Ui = {}));
+var Ui;
+(function (Ui) {
+    var LimitedFlow = (function (_super) {
+        __extends(LimitedFlow, _super);
+        function LimitedFlow() {
+            var _this = _super.call(this) || this;
+            _this.clipToBounds = true;
+            return _this;
+        }
+        Object.defineProperty(LimitedFlow.prototype, "maxLines", {
+            get: function () {
+                return this._maxLines;
+            },
+            set: function (value) {
+                this._maxLines = value;
+                this.invalidateMeasure();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        LimitedFlow.prototype.measureCore = function (width, height) {
+            var res = _super.prototype.measureCore.call(this, width, height);
+            if (this._maxLines == undefined)
+                return res;
+            if (!this.uniform) {
+                var pos = Math.min(this._maxLines, this.lines.length) - 1;
+                return { width: res.width, height: this.lines[pos].y + this.lines[pos].height };
+            }
+            else {
+                var countPerLine = Math.max(Math.floor((width + this.spacing) / (this.uniformWidth + this.spacing)), 1);
+                var nbLine = Math.ceil(this.children.length / countPerLine);
+                nbLine = Math.min(nbLine, this._maxLines);
+                return {
+                    width: res.width,
+                    height: nbLine * this.uniformHeight + (nbLine - 1) * this.spacing
+                };
+            }
+        };
+        return LimitedFlow;
+    }(Ui.Flow));
+    Ui.LimitedFlow = LimitedFlow;
 })(Ui || (Ui = {}));
 var Ui;
 (function (Ui) {
@@ -23352,27 +23397,63 @@ var Ui;
             var _this = _super.call(this) || this;
             _this.headerDef = headerDef;
             _this.background = new Ui.Rectangle();
+            _this.sortBox = new Ui.HBox();
+            _this.sortOrderLabel = new Ui.Label();
+            _this.sortArrow = new Ui.Icon();
+            _this._sortInvert = false;
             if (headerDef.title instanceof Ui.Element)
                 _this.ui = headerDef.title;
             else
                 _this.ui = new Ui.Label().assign({ text: headerDef.title, margin: 4, fontWeight: 'bold' });
             _this.ui.resizable = true;
-            _this.content = new Ui.VBox().assign({
-                content: [
-                    new Ui.HBox().assign({
-                        resizable: true,
-                        content: [
-                            _this.ui,
-                            new ListViewColBar(_this, _this.headerDef)
-                        ]
-                    }),
-                    _this.background.assign({ height: 4 })
-                ]
-            });
+            _this.content = [
+                _this.sortBox.assign({
+                    isVisible: false,
+                    horizontalAlign: 'right', verticalAlign: 'center',
+                    content: [
+                        _this.sortOrderLabel.assign({ fontSize: 10, fontWeight: 'bold', text: '1' }),
+                        _this.sortArrow.assign({ icon: 'sortarrow', width: 16, height: 16 })
+                    ]
+                }),
+                new Ui.VBox().assign({
+                    content: [
+                        new Ui.HBox().assign({
+                            resizable: true,
+                            content: [
+                                _this.ui,
+                                new ListViewColBar(_this, _this.headerDef)
+                            ]
+                        }),
+                        _this.background.assign({ height: 4 })
+                    ]
+                })
+            ];
             _this.downed.connect(function () { return _this.onListViewHeaderDown(); });
             _this.upped.connect(function () { return _this.onListViewHeaderUp(); });
             return _this;
         }
+        Object.defineProperty(ListViewHeader.prototype, "sort", {
+            get: function () {
+                return { order: this._sortOrder, invert: this._sortInvert };
+            },
+            set: function (value) {
+                this._sortOrder = value.order;
+                this._sortInvert = value.invert;
+                this.sortBox.isVisible = (value.order != undefined);
+                if (value.order == undefined)
+                    this.sortBox.hide();
+                else {
+                    this.sortBox.show();
+                    this.sortOrderLabel.text = (value.order > 1) ? value.order.toFixed().toString() : '';
+                    if (value.invert)
+                        this.sortArrow.transform = Ui.Matrix.createRotate(180);
+                    else
+                        this.sortArrow.transform = undefined;
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
         ListViewHeader.prototype.getColor = function () {
             return Ui.Color.create(this.getStyleProperty('color'));
         };
@@ -23395,56 +23476,204 @@ var Ui;
         return ListViewHeader;
     }(Ui.Pressable));
     Ui.ListViewHeader = ListViewHeader;
+    var ListViewHeaderSortPopup = (function (_super) {
+        __extends(ListViewHeaderSortPopup, _super);
+        function ListViewHeaderSortPopup(headers) {
+            var _this = _super.call(this) || this;
+            _this.headers = headers;
+            _this._changedLock = false;
+            _this.vbox = new Ui.VBox();
+            _this.fields = new Array();
+            _this.changed = new Core.Events();
+            _this.content = _this.vbox.assign({
+                padding: 10, spacing: 10,
+                content: [
+                    new Ui.Label().assign({ text: 'Ordre de tri', fontWeight: 'bold', horizontalAlign: 'left' })
+                ]
+            });
+            var _loop_3 = function (i) {
+                var sortBox = new Ui.HBox();
+                if (i > 0)
+                    sortBox.disable();
+                var sortField = new Ui.Combo();
+                var sortDir = new Ui.Combo();
+                var field = { box: sortBox, field: sortField, dir: sortDir, position: i };
+                sortBox.assign({
+                    spacing: 10,
+                    content: [
+                        sortField.assign({
+                            field: 'title', allowNone: true,
+                            data: this_3.headers.filter(function (h) { return h.key != undefined; }),
+                            onchanged: function () { return _this.onChanged(field); }
+                        }),
+                        sortDir.assign({
+                            field: 'name',
+                            data: [
+                                { name: 'Asc', value: false },
+                                { name: 'Desc', value: true }
+                            ],
+                            onchanged: function () { return _this.onChanged(field); }
+                        })
+                    ]
+                });
+                this_3.vbox.append(sortBox);
+                this_3.fields.push(field);
+            };
+            var this_3 = this;
+            for (var i = 0; i < 3; i++) {
+                _loop_3(i);
+            }
+            return _this;
+        }
+        Object.defineProperty(ListViewHeaderSortPopup.prototype, "onchanged", {
+            set: function (value) { this.changed.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        ListViewHeaderSortPopup.prototype.onChanged = function (field) {
+            if (this._changedLock)
+                return;
+            this._changedLock = true;
+            try {
+                this.updateFields();
+            }
+            catch (e) { }
+            this._changedLock = false;
+            this.changed.fire({ target: this, sortOrder: this.sortOrder });
+        };
+        ListViewHeaderSortPopup.prototype.updateFields = function () {
+            var needClear = false;
+            for (var i = 0; i < this.fields.length; i++) {
+                if (needClear) {
+                    this.fields[i].box.disable();
+                    this.fields[i].dir.position = -1;
+                    this.fields[i].field.position = -1;
+                }
+                else {
+                    this.fields[i].box.enable();
+                    if (this.fields[i].field.position == -1) {
+                        this.fields[i].dir.position = -1;
+                        needClear = true;
+                    }
+                    else {
+                        if (this.fields[i].dir.position == -1)
+                            this.fields[i].dir.position = 0;
+                    }
+                }
+            }
+        };
+        Object.defineProperty(ListViewHeaderSortPopup.prototype, "sortOrder", {
+            get: function () {
+                var order = new Array();
+                for (var i = 0; i < this.fields.length; i++) {
+                    var item = this.fields[i];
+                    if (item.field.value)
+                        order.push({ key: item.field.value.key, invert: item.dir.value ? item.dir.value.value : false });
+                }
+                return order;
+            },
+            set: function (value) {
+                this._changedLock = true;
+                var _loop_4 = function (i) {
+                    var field = this_4.fields[i];
+                    field.field.position = field.field.data.findIndex(function (f) { return f.key == value[i].key; });
+                    field.dir.position = value[i].invert ? 1 : 0;
+                };
+                var this_4 = this;
+                for (var i = 0; i < value.length && i < this.fields.length; i++) {
+                    _loop_4(i);
+                }
+                this.updateFields();
+                this._changedLock = false;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return ListViewHeaderSortPopup;
+    }(Ui.Popup));
     var ListViewHeadersBar = (function (_super) {
         __extends(ListViewHeadersBar, _super);
         function ListViewHeadersBar(init) {
             var _this = _super.call(this) || this;
-            _this.sortInvert = false;
+            _this._sortOrder = new Array();
             _this.rowsHeight = 0;
             _this.headersHeight = 0;
-            _this.headerpressed = new Core.Events();
+            _this.sortchanged = new Core.Events();
             _this.headers = init.headers;
-            _this.sortArrow = new Ui.Icon({ icon: 'sortarrow', width: 16, height: 16, margin: 4 });
-            _this.appendChild(_this.sortArrow);
             _this.uis = [];
-            var _loop_3 = function (i) {
+            var _loop_5 = function (i) {
                 var headerDef = init.headers[i];
                 var headerUi = new ListViewHeader(headerDef).assign({
                     width: headerDef.width,
                     onpressed: function (e) {
                         if (headerDef.key !== undefined)
-                            _this.headerpressed.fire({ target: _this, key: headerDef.key });
+                            _this.sortBy(headerDef.key, headerDef.key == _this.sortColKey ? !headerUi.sort.invert : false);
+                        _this.sortchanged.fire({ target: _this, sortOrder: _this.sortOrder });
                     }
                 });
-                this_3.uis.push(headerUi);
-                this_3.appendChild(headerUi);
+                this_5.uis.push(headerUi);
+                this_5.appendChild(headerUi);
             };
-            var this_3 = this;
+            var this_5 = this;
             for (var i = 0; i < init.headers.length; i++) {
-                _loop_3(i);
+                _loop_5(i);
             }
+            new Ui.ContextMenuWatcher({
+                element: _this,
+                press: function (e) { return new ListViewHeaderSortPopup(_this.headers).assign({
+                    sortOrder: _this._sortOrder,
+                    onchanged: function (e) {
+                        _this.sortOrder = e.sortOrder;
+                        _this.sortchanged.fire({ target: _this, sortOrder: _this.sortOrder });
+                    }
+                }).openAt(e.x, e.y); }
+            });
             return _this;
         }
-        Object.defineProperty(ListViewHeadersBar.prototype, "onheaderpressed", {
-            set: function (value) { this.headerpressed.connect(value); },
+        Object.defineProperty(ListViewHeadersBar.prototype, "onsortchanged", {
+            set: function (value) { this.sortchanged.connect(value); },
             enumerable: true,
             configurable: true
         });
-        ListViewHeadersBar.prototype.getSortColKey = function () {
-            return this.sortColKey;
-        };
-        ListViewHeadersBar.prototype.getSortInvert = function () {
-            return this.sortInvert;
-        };
+        Object.defineProperty(ListViewHeadersBar.prototype, "sortColKey", {
+            get: function () {
+                return (this._sortOrder.length > 0) ? this._sortOrder[0].key : undefined;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ListViewHeadersBar.prototype, "sortInvert", {
+            get: function () {
+                return (this._sortOrder.length > 0) ? this._sortOrder[0].invert : false;
+            },
+            enumerable: true,
+            configurable: true
+        });
         ListViewHeadersBar.prototype.sortBy = function (key, invert) {
-            this.sortColKey = key;
-            this.sortInvert = invert === true;
-            if (this.sortInvert)
-                this.sortArrow.transform = Ui.Matrix.createRotate(180);
-            else
-                this.sortArrow.transform = undefined;
-            this.invalidateArrange();
+            this.sortOrder = [{ key: key, invert: invert }];
         };
+        Object.defineProperty(ListViewHeadersBar.prototype, "sortOrder", {
+            get: function () {
+                return this._sortOrder;
+            },
+            set: function (value) {
+                this._sortOrder = value;
+                var _loop_6 = function (ui) {
+                    pos = this_6._sortOrder.findIndex(function (s) { return s.key == ui.headerDef.key; });
+                    if (pos == -1)
+                        ui.sort = { order: undefined, invert: this_6.sortInvert };
+                    else
+                        ui.sort = { order: pos + 1, invert: this_6._sortOrder[pos].invert };
+                };
+                var this_6 = this, pos;
+                for (var _i = 0, _a = this.uis; _i < _a.length; _i++) {
+                    var ui = _a[_i];
+                    _loop_6(ui);
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
         ListViewHeadersBar.prototype.measureCore = function (width, height) {
             this.rowsHeight = 0;
             this.headersHeight = 0;
@@ -23458,7 +23687,6 @@ var Ui;
             var minWidth = 0;
             for (var col = 0; col < this.uis.length; col++)
                 minWidth += this.uis[col].measureWidth;
-            this.sortArrow.measure(0, 0);
             return { width: minWidth, height: this.headersHeight };
         };
         ListViewHeadersBar.prototype.arrangeCore = function (width, height) {
@@ -23467,15 +23695,11 @@ var Ui;
             var col;
             var availableWidth = width;
             for (col = 0; col < this.headers.length; col++) {
-                var headerDef = this.headers[col];
                 var ui = this.uis[col];
                 colWidth = ui.measureWidth;
                 if (col == this.headers.length - 1)
                     colWidth = Math.max(colWidth, availableWidth);
                 ui.arrange(x, 0, colWidth, this.headersHeight);
-                if (this.sortColKey === headerDef.key) {
-                    this.sortArrow.arrange(x + colWidth - (this.sortArrow.measureWidth), (height - this.sortArrow.measureHeight) / 2, this.sortArrow.measureWidth, this.sortArrow.measureHeight);
-                }
                 x += colWidth;
                 availableWidth -= colWidth;
             }
@@ -23662,7 +23886,6 @@ var Ui;
             _this.rowsHeight = 0;
             _this.headersHeight = 0;
             _this.headersVisible = true;
-            _this.sortInvert = false;
             _this._scrolled = true;
             _this._scrollVertical = true;
             _this._scrollHorizontal = true;
@@ -23689,8 +23912,9 @@ var Ui;
             });
             _this.headersScroll.setScrollbarHorizontal(new Ui.Movable());
             _this.append(_this.headersScroll);
-            _this.headersBar = new ListViewHeadersBar({ headers: _this.headers });
-            _this.headersBar.headerpressed.connect(function (e) { return _this.onHeaderPress(e.target, e.key); });
+            _this.headersBar = new ListViewHeadersBar({ headers: _this.headers }).assign({
+                onsortchanged: function (e) { return _this.sortOrder = e.sortOrder; }
+            });
             _this.headersScroll.content = _this.headersBar;
             _this._data = [];
             _this.vboxScroll = new Ui.ScrollingArea();
@@ -23858,41 +24082,58 @@ var Ui;
             configurable: true
         });
         ListView.prototype.sortData = function () {
-            var key = this.sortColKey;
-            var invert = this.sortInvert;
+            var sortOrder = this.sortOrder;
+            var cmp = function (a, b) {
+                return (a < b) ? -1 : (a > b) ? 1 : 0;
+            };
             this._data.sort(function (a, b) {
-                var res;
-                if (a[key] < b[key])
-                    res = -1;
-                else if (a[key] > b[key])
-                    res = 1;
-                else
-                    res = 0;
-                return invert ? -res : res;
+                var res = 0;
+                for (var i = 0; i < sortOrder.length && res == 0; i++) {
+                    res = cmp(a[sortOrder[i].key], b[sortOrder[i].key]);
+                    res = sortOrder[i].invert ? -res : res;
+                }
+                return res;
             });
         };
         ListView.prototype.sortBy = function (key, invert) {
-            if (this.sortColKey == key && this.sortInvert == invert)
-                return;
-            this.sortColKey = key;
-            this.sortInvert = invert === true;
-            this.headersBar.sortBy(this.sortColKey, this.sortInvert);
-            this.sortData();
-            this.vbox.clear();
-            for (var i = 0; i < this._data.length; i++) {
-                this.vbox.append(this.getElementAt(i));
-            }
-            this.sortchanged.fire({ target: this, key: this.sortColKey, invert: this.sortInvert });
+            this.sortOrder = [{ key: key, invert: invert }];
         };
+        Object.defineProperty(ListView.prototype, "sortOrder", {
+            get: function () {
+                return this.headersBar.sortOrder;
+            },
+            set: function (value) {
+                this.headersBar.sortOrder = value;
+                this.sortData();
+                this.vbox.clear();
+                for (var i = 0; i < this._data.length; i++) {
+                    this.vbox.append(this.getElementAt(i));
+                }
+                this.sortchanged.fire({ target: this, key: this.sortColKey, invert: this.sortInvert });
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ListView.prototype, "sortColKey", {
+            get: function () {
+                return this.headersBar.sortColKey;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ListView.prototype, "sortInvert", {
+            get: function () {
+                return this.headersBar.sortInvert;
+            },
+            enumerable: true,
+            configurable: true
+        });
         ListView.prototype.findDataRow = function (data) {
             for (var row = 0; row < this._data.length; row++) {
                 if (data == this._data[row])
                     return row;
             }
             return -1;
-        };
-        ListView.prototype.onHeaderPress = function (header, key) {
-            this.sortBy(key, (this.sortColKey === key) ? !this.sortInvert : false);
         };
         ListView.prototype.onSelectionEdit = function (selection) {
             var data = selection.elements[0].data;
@@ -26698,7 +26939,7 @@ var Ui;
                     fg_2.appendChild(home);
                     this.foregrounds.push(fg_2);
                     this.appendChild(fg_2);
-                    var _loop_4 = function (i) {
+                    var _loop_7 = function (i) {
                         currentPath += paths[i];
                         var fg_3 = new Ui.Pressable({
                             padding: padding,
@@ -26711,13 +26952,13 @@ var Ui;
                         fg_3.locatorPos = i + 1;
                         fg_3.locatorPath = currentPath;
                         fg_3.appendChild(new Ui.Label({ text: paths[i], verticalAlign: 'center' }));
-                        this_4.foregrounds.push(fg_3);
-                        this_4.appendChild(fg_3);
+                        this_7.foregrounds.push(fg_3);
+                        this_7.appendChild(fg_3);
                         currentPath += '/';
                     };
-                    var this_4 = this;
+                    var this_7 = this;
                     for (var i = 0; i < paths.length; i++) {
-                        _loop_4(i);
+                        _loop_7(i);
                     }
                 }
                 this.updateColors();

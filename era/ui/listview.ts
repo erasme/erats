@@ -13,6 +13,11 @@ namespace Ui {
     export class ListViewHeader extends Pressable {
         protected ui: Element;
         protected background = new Rectangle();
+        protected sortBox = new Ui.HBox();
+        protected sortOrderLabel = new Ui.Label();
+        protected sortArrow = new Ui.Icon();
+        protected _sortOrder: number | undefined;
+        protected _sortInvert: boolean = false;
 
         constructor(readonly headerDef: HeaderDef) {
             super();
@@ -22,21 +27,51 @@ namespace Ui {
                 this.ui = new Label().assign({ text: headerDef.title, margin: 4, fontWeight: 'bold' });
             this.ui.resizable = true;
 
-            this.content = new Ui.VBox().assign({
-                content: [
-                    new Ui.HBox().assign({
-                        resizable: true,
-                        content: [
-                            this.ui,
-                            new ListViewColBar(this, this.headerDef)
-                        ]
-                    }),
-                    this.background.assign({ height: 4 })
-                ]
-            });
+            this.content = [
+                this.sortBox.assign({
+                    isVisible: false,
+                    horizontalAlign: 'right', verticalAlign: 'center',
+                    content: [
+                        this.sortOrderLabel.assign({ fontSize: 10, fontWeight: 'bold', text: '1' }),
+                        this.sortArrow.assign({ icon: 'sortarrow', width: 16, height: 16 })
+                    ]
+                }),
+                new Ui.VBox().assign({
+                    content: [
+                        new Ui.HBox().assign({
+                            resizable: true,
+                            content: [
+                                this.ui,
+                                new ListViewColBar(this, this.headerDef)
+                            ]
+                        }),
+                        this.background.assign({ height: 4 })
+                    ]
+                })
+            ];
 
             this.downed.connect(() => this.onListViewHeaderDown());
             this.upped.connect(() => this.onListViewHeaderUp());
+        }
+
+        set sort(value: { order: number | undefined, invert: boolean }) {
+            this._sortOrder = value.order;
+            this._sortInvert = value.invert;
+            this.sortBox.isVisible = (value.order != undefined);
+            if (value.order == undefined)
+                this.sortBox.hide();
+            else {
+                this.sortBox.show();
+                this.sortOrderLabel.text = (value.order > 1) ? value.order.toFixed().toString() : '';
+                if (value.invert)
+                    this.sortArrow.transform = Matrix.createRotate(180);
+                else
+                    this.sortArrow.transform = undefined;
+            }
+        }
+
+        get sort(): { order: number | undefined, invert: boolean } {
+            return { order: this._sortOrder, invert: this._sortInvert };
         }
 
         protected getColor() {
@@ -65,25 +100,121 @@ namespace Ui {
         }
     }
 
+    class ListViewHeaderSortPopup extends Ui.Popup {
+        private _changedLock = false;
+        private vbox = new Ui.VBox();
+        private fields = new Array<{ box: Ui.HBox, field: Ui.Combo<HeaderDef>, dir: Ui.Combo<{ name: 'Asc' | 'Desc', value: boolean }> }>()
+        readonly changed = new Core.Events<{ target: ListViewHeaderSortPopup, sortOrder: Array<{ key: string, invert: boolean }> }>();
+        set onchanged(value: (event: { target: ListViewHeaderSortPopup, sortOrder: Array<{ key: string, invert: boolean }> }) => void) { this.changed.connect(value); }
+
+        constructor(private headers: HeaderDef[]) {
+            super();
+
+            this.content = this.vbox.assign({
+                padding: 10, spacing: 10,
+                content: [
+                    new Ui.Label().assign({ text: 'Ordre de tri', fontWeight: 'bold', horizontalAlign: 'left' })
+                ]
+            });
+
+            for (let i = 0; i < 3; i++) {
+                let sortBox = new Ui.HBox();
+                if (i > 0)
+                    sortBox.disable();
+                let sortField = new Ui.Combo<HeaderDef>();
+                let sortDir = new Ui.Combo<{ name: 'Asc' | 'Desc', value: boolean }>();
+                let field = { box: sortBox, field: sortField, dir: sortDir, position: i };
+                sortBox.assign({
+                    spacing: 10,
+                    content: [
+                        sortField.assign({
+                            field: 'title', allowNone: true,
+                            data: this.headers.filter(h => h.key != undefined),
+                            onchanged: () => this.onChanged(field)
+                        }),
+                        sortDir.assign({
+                            field: 'name',
+                            data: [
+                                { name: 'Asc', value: false },
+                                { name: 'Desc', value: true }
+                            ],
+                            onchanged: () => this.onChanged(field)
+                        })
+                    ]
+                });
+                this.vbox.append(sortBox);
+                this.fields.push(field);
+            }
+        }
+
+        protected onChanged(field: { box: Ui.HBox, field: Ui.Combo<HeaderDef>, dir: Ui.Combo, position: number }) {
+            if (this._changedLock)
+                return;
+            this._changedLock = true;
+            try {
+                this.updateFields();
+            } catch (e) { }
+            this._changedLock = false;
+            this.changed.fire({ target: this, sortOrder: this.sortOrder });
+        }
+
+        protected updateFields() {
+            let needClear = false;
+            for (let i = 0; i < this.fields.length; i++) {
+                if (needClear) {
+                    this.fields[i].box.disable();
+                    this.fields[i].dir.position = -1;
+                    this.fields[i].field.position = -1;
+                }
+                else {
+                    this.fields[i].box.enable();
+                    if (this.fields[i].field.position == -1) {
+                        this.fields[i].dir.position = -1;
+                        needClear = true;
+                    }
+                    else {
+                        if (this.fields[i].dir.position == -1)
+                            this.fields[i].dir.position = 0;
+                    }
+                }
+            }
+        }
+
+        set sortOrder(value: Array<{ key: string, invert: boolean }>) {
+            this._changedLock = true;
+            for (let i = 0; i < value.length && i < this.fields.length; i++) {
+                let field = this.fields[i];
+                field.field.position = field.field.data.findIndex(f => f.key == value[i].key);
+                field.dir.position = value[i].invert ? 1 : 0;
+            }
+            this.updateFields();
+            this._changedLock = false;
+        }
+
+        get sortOrder(): Array<{ key: string, invert: boolean }> {
+            let order = new Array<{ key: string, invert: boolean }>();
+            for (let i = 0; i < this.fields.length; i++) {
+                let item = this.fields[i];
+                if (item.field.value)
+                    order.push({ key: item.field.value.key, invert: item.dir.value ? item.dir.value.value : false });
+            }
+            return order;
+        }
+    }
+
     export class ListViewHeadersBar extends Container {
         private headers: HeaderDef[];
-        sortColKey: string;
-        sortInvert: boolean = false;
-        sortArrow: Icon;
+        private _sortOrder = new Array<{ key: string, invert: boolean }>();
         uis: ListViewHeader[];
         rowsHeight: number = 0;
         headersHeight: number = 0;
-        readonly headerpressed = new Core.Events<{ target: ListViewHeadersBar, key: string }>();
-        set onheaderpressed(value: (event: { target: ListViewHeadersBar, key: string }) => void) { this.headerpressed.connect(value); }
+        readonly sortchanged = new Core.Events<{ target: ListViewHeadersBar, sortOrder: Array<{ key: string, invert: boolean }> }>();
+        set onsortchanged(value: (event: { target: ListViewHeadersBar, sortOrder: Array<{ key: string, invert: boolean }> }) => void) { this.sortchanged.connect(value); }
 
         constructor(init) {
             super();
 
             this.headers = init.headers;
-
-            this.sortArrow = new Icon({ icon: 'sortarrow', width: 16, height: 16, margin: 4 });
-            this.appendChild(this.sortArrow);
-
             this.uis = [];
 
             for (let i = 0; i < init.headers.length; i++) {
@@ -92,30 +223,51 @@ namespace Ui {
                     width: headerDef.width,
                     onpressed: e => {
                         if (headerDef.key !== undefined)
-                            this.headerpressed.fire({ target: this, key: headerDef.key });
+                            this.sortBy(headerDef.key, headerDef.key == this.sortColKey ? !headerUi.sort.invert : false);
+                        this.sortchanged.fire({ target: this, sortOrder: this.sortOrder });
                     }
                 });
                 this.uis.push(headerUi);
                 this.appendChild(headerUi);
             }
+
+            new ContextMenuWatcher({
+                element: this,
+                press: (e) => new ListViewHeaderSortPopup(this.headers).assign({
+                    sortOrder: this._sortOrder,
+                    onchanged: e => {
+                        this.sortOrder = e.sortOrder;
+                        this.sortchanged.fire({ target: this, sortOrder: this.sortOrder });
+                    }
+                }).openAt(e.x, e.y)
+            })
         }
 
-        getSortColKey() {
-            return this.sortColKey;
+        get sortColKey() {
+            return (this._sortOrder.length > 0) ? this._sortOrder[0].key : undefined;
         }
 
-        getSortInvert() {
-            return this.sortInvert;
+        get sortInvert(): boolean {
+            return (this._sortOrder.length > 0) ? this._sortOrder[0].invert : false;
         }
 
         sortBy(key: string, invert: boolean) {
-            this.sortColKey = key;
-            this.sortInvert = invert === true;
-            if (this.sortInvert)
-                this.sortArrow.transform = Matrix.createRotate(180);
-            else
-                this.sortArrow.transform = undefined;
-            this.invalidateArrange();
+            this.sortOrder = [{ key: key, invert: invert }];
+        }
+
+        get sortOrder(): Array<{ key: string, invert: boolean }> {
+            return this._sortOrder;
+        }
+
+        set sortOrder(value: Array<{ key: string, invert: boolean }>) {
+            this._sortOrder = value;
+            for (let ui of this.uis) {
+                var pos = this._sortOrder.findIndex(s => s.key == ui.headerDef.key);
+                if (pos == -1)
+                    ui.sort = { order: undefined, invert: this.sortInvert };
+                else
+                    ui.sort = { order: pos + 1, invert: this._sortOrder[pos].invert };
+            }
         }
 
         protected measureCore(width: number, height: number) {
@@ -133,8 +285,6 @@ namespace Ui {
             for (let col = 0; col < this.uis.length; col++)
                 minWidth += this.uis[col].measureWidth;
 
-            this.sortArrow.measure(0, 0);
-
             return { width: minWidth, height: this.headersHeight };
         }
 
@@ -143,19 +293,11 @@ namespace Ui {
             let availableWidth = width;
 
             for (col = 0; col < this.headers.length; col++) {
-                let headerDef = this.headers[col];
                 let ui = this.uis[col];
                 colWidth = ui.measureWidth;
                 if (col == this.headers.length - 1)
                     colWidth = Math.max(colWidth, availableWidth);
                 ui.arrange(x, 0, colWidth, this.headersHeight);
-
-                if (this.sortColKey === headerDef.key) {
-                    this.sortArrow.arrange(x + colWidth - (this.sortArrow.measureWidth),
-                        (height - this.sortArrow.measureHeight) / 2,
-                        this.sortArrow.measureWidth, this.sortArrow.measureHeight);
-                }
-
                 x += colWidth;
                 availableWidth -= colWidth;
             }
@@ -231,7 +373,7 @@ namespace Ui {
                 return data[key];
 
             let pathIndex = key.replace(/]/g, "").replace(/\[/g, ".");
-            let result =  pathIndex.split('.').reduce((o, i) => o != undefined && i in o ? o[i] : undefined, data);
+            let result = pathIndex.split('.').reduce((o, i) => o != undefined && i in o ? o[i] : undefined, data);
             return result != undefined ? result : data;
         }
 
@@ -377,9 +519,9 @@ namespace Ui {
         rowsHeight: number = 0;
         headersHeight: number = 0;
         headersVisible: boolean = true;
-        sortColKey: string;
-        sortInvert: boolean = false;
-        sortArrow: undefined;
+        //sortColKey: string;
+        //sortInvert: boolean = false;
+        //sortArrow: undefined;
         //		dataLoader: ListViewScrollLoader;
         scroll: VBoxScrollingArea;
         selectionActions: SelectionActions;
@@ -424,8 +566,10 @@ namespace Ui {
             this.headersScroll.setScrollbarHorizontal(new Movable());
             this.append(this.headersScroll);
 
-            this.headersBar = new ListViewHeadersBar({ headers: this.headers });
-            this.headersBar.headerpressed.connect((e) => this.onHeaderPress(e.target, e.key));
+            this.headersBar = new ListViewHeadersBar({ headers: this.headers }).assign({
+                onsortchanged: (e) => this.sortOrder = e.sortOrder
+            });
+            //this.headersBar.headerpressed.connect((e) => this.onHeaderPress(e.target, e.key));
             this.headersScroll.content = this.headersBar;
 
             this._data = [];
@@ -583,38 +727,56 @@ namespace Ui {
         }
 
         sortData() {
-            let key = this.sortColKey;
-            let invert = this.sortInvert;
+            let sortOrder = this.sortOrder;
+            let cmp = function (a, b) {
+                return (a < b) ? -1 : (a > b) ? 1 : 0;
+            }
+            //let key = this.sortColKey;
+            //let invert = this.sortInvert;
+            //console.log(`sortData key: ${key}, invert: ${invert}`);
             this._data.sort(function (a, b) {
-                let res;
-                if (a[key] < b[key])
-                    res = -1;
-                else if (a[key] > b[key])
-                    res = 1;
-                else
-                    res = 0;
-                return invert ? -res : res;
+                let res = 0;
+                for (let i = 0; i < sortOrder.length && res == 0; i++) {
+                    res = cmp(a[sortOrder[i].key], b[sortOrder[i].key]);
+                    res = sortOrder[i].invert ? -res : res;
+                }
+                return res;
+
+                /*                let res;
+                                if (a[key] < b[key])
+                                    res = -1;
+                                else if (a[key] > b[key])
+                                    res = 1;
+                                else
+                                    res = 0;
+                                return invert ? -res : res;*/
             });
         }
 
         sortBy(key: string, invert: boolean) {
-            if (this.sortColKey == key && this.sortInvert == invert)
-                return;
-            this.sortColKey = key;
-            this.sortInvert = invert === true;
-            this.headersBar.sortBy(this.sortColKey, this.sortInvert);
+            this.sortOrder = [{ key: key, invert: invert }];
+        }
+
+        get sortOrder(): Array<{ key: string, invert: boolean }> {
+            return this.headersBar.sortOrder;
+        }
+
+        set sortOrder(value: Array<{ key: string, invert: boolean }>) {
+            this.headersBar.sortOrder = value;
             this.sortData();
-            //			if (this._scrolled) {
-            //				this.scroll.reload();
-            //				this.invalidateArrange();
-            //			}
-            //			else {
             this.vbox.clear();
             for (let i = 0; i < this._data.length; i++) {
                 this.vbox.append(this.getElementAt(i));
             }
-            //			}
             this.sortchanged.fire({ target: this, key: this.sortColKey, invert: this.sortInvert });
+        }
+
+        get sortColKey(): string {
+            return this.headersBar.sortColKey;
+        }
+
+        get sortInvert(): boolean {
+            return this.headersBar.sortInvert;
         }
 
         findDataRow(data: T): number {
@@ -625,10 +787,6 @@ namespace Ui {
             return -1;
         }
 
-        onHeaderPress(header, key) {
-            this.sortBy(key, (this.sortColKey === key) ? !this.sortInvert : false);
-        }
-
         onSelectionEdit(selection: Selection) {
             let data = (selection.elements[0] as ListViewRow<T>).data;
             this.activated.fire({ target: this, position: this.findDataRow(data), value: data });
@@ -637,9 +795,6 @@ namespace Ui {
         protected onChildInvalidateArrange(child: Element) {
             super.onChildInvalidateArrange(child);
             if (child === this.headersScroll) {
-                //				if (this._scrolled && (this.scroll !== undefined))
-                //					this.scroll.getActiveItems().forEach(function (item) { item.invalidateArrange(); });
-                //				else if (!this._scrolled)
                 for (let item of this.vbox.children)
                     item.invalidateMeasure();
             }
