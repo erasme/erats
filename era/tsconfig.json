@@ -97,6 +97,7 @@
         "ui/textareafield.ts",
         "ui/grid.ts",
         "ui/flow.ts",
+        "ui/limitedflow.ts",
         "ui/progressbar.ts",
         "ui/paned.ts",
         "ui/slider.ts",
