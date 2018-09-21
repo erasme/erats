@@ -24141,7 +24141,7 @@ var Ui;
                 for (var i = 0; i < this._data.length; i++) {
                     this.vbox.append(this.getElementAt(i));
                 }
-                this.sortchanged.fire({ target: this, key: this.sortColKey, invert: this.sortInvert });
+                this.sortchanged.fire({ target: this, sortOrder: this.sortOrder });
             },
             enumerable: true,
             configurable: true

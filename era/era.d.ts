@@ -5074,32 +5074,32 @@ declare namespace Ui {
         protected onStyleChange(): void;
         static style: object;
     }
-    class ListViewHeadersBar extends Container {
+    class ListViewHeadersBar<T> extends Container {
         private headers;
         private _sortOrder;
         uis: ListViewHeader[];
         rowsHeight: number;
         headersHeight: number;
         readonly sortchanged: Core.Events<{
-            target: ListViewHeadersBar;
+            target: ListViewHeadersBar<T>;
             sortOrder: {
-                key: string;
+                key: keyof T;
                 invert: boolean;
             }[];
         }>;
         onsortchanged: (event: {
-            target: ListViewHeadersBar;
+            target: ListViewHeadersBar<T>;
             sortOrder: Array<{
-                key: string;
+                key: keyof T;
                 invert: boolean;
             }>;
         }) => void;
         constructor(init: any);
-        readonly sortColKey: string;
+        readonly sortColKey: keyof T;
         readonly sortInvert: boolean;
-        sortBy(key: string, invert: boolean): void;
+        sortBy(key: keyof T, invert: boolean): void;
         sortOrder: Array<{
-            key: string;
+            key: keyof T;
             invert: boolean;
         }>;
         protected measureCore(width: number, height: number): {
@@ -5187,14 +5187,16 @@ declare namespace Ui {
         }) => void;
         onsortchanged?: (event: {
             target: ListView<T>;
-            key: string;
-            invert: boolean;
+            sortOrder: Array<{
+                key: keyof T;
+                invert: boolean;
+            }>;
         }) => void;
     }
     class ListView<T = any> extends VBox implements ListViewInit<T> {
         private _data;
         headers: HeaderDef[];
-        readonly headersBar: ListViewHeadersBar;
+        readonly headersBar: ListViewHeadersBar<T>;
         headersScroll: ScrollingArea;
         firstRow: undefined;
         firstCol: undefined;
@@ -5240,13 +5242,17 @@ declare namespace Ui {
         }) => void;
         readonly sortchanged: Core.Events<{
             target: ListView<T>;
-            key: string;
-            invert: boolean;
+            sortOrder: {
+                key: keyof T;
+                invert: boolean;
+            }[];
         }>;
         onsortchanged: (event: {
             target: ListView<T>;
-            key: string;
-            invert: boolean;
+            sortOrder: Array<{
+                key: keyof T;
+                invert: boolean;
+            }>;
         }) => void;
         readonly datachanged: Core.Events<{
             target: ListView<T>;
@@ -5270,12 +5276,12 @@ declare namespace Ui {
         clearData(): void;
         data: Array<T>;
         sortData(): void;
-        sortBy(key: string, invert: boolean): void;
+        sortBy(key: keyof T, invert: boolean): void;
         sortOrder: Array<{
-            key: string;
+            key: keyof T;
             invert: boolean;
         }>;
-        readonly sortColKey: string;
+        readonly sortColKey: keyof T;
         readonly sortInvert: boolean;
         findDataRow(data: T): number;
         onSelectionEdit(selection: Selection): void;

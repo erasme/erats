@@ -100,12 +100,12 @@ namespace Ui {
         }
     }
 
-    class ListViewHeaderSortPopup extends Ui.Popup {
+    class ListViewHeaderSortPopup<T> extends Ui.Popup {
         private _changedLock = false;
         private vbox = new Ui.VBox();
         private fields = new Array<{ box: Ui.HBox, field: Ui.Combo<HeaderDef>, dir: Ui.Combo<{ name: 'Asc' | 'Desc', value: boolean }> }>()
-        readonly changed = new Core.Events<{ target: ListViewHeaderSortPopup, sortOrder: Array<{ key: string, invert: boolean }> }>();
-        set onchanged(value: (event: { target: ListViewHeaderSortPopup, sortOrder: Array<{ key: string, invert: boolean }> }) => void) { this.changed.connect(value); }
+        readonly changed = new Core.Events<{ target: ListViewHeaderSortPopup<T>, sortOrder: Array<{ key: keyof T, invert: boolean }> }>();
+        set onchanged(value: (event: { target: ListViewHeaderSortPopup<T>, sortOrder: Array<{ key: keyof T, invert: boolean }> }) => void) { this.changed.connect(value); }
 
         constructor(private headers: HeaderDef[]) {
             super();
@@ -180,7 +180,7 @@ namespace Ui {
             }
         }
 
-        set sortOrder(value: Array<{ key: string, invert: boolean }>) {
+        set sortOrder(value: Array<{ key: keyof T, invert: boolean }>) {
             this._changedLock = true;
             for (let i = 0; i < value.length && i < this.fields.length; i++) {
                 let field = this.fields[i];
@@ -191,25 +191,25 @@ namespace Ui {
             this._changedLock = false;
         }
 
-        get sortOrder(): Array<{ key: string, invert: boolean }> {
-            let order = new Array<{ key: string, invert: boolean }>();
+        get sortOrder(): Array<{ key: keyof T, invert: boolean }> {
+            let order = new Array<{ key: keyof T, invert: boolean }>();
             for (let i = 0; i < this.fields.length; i++) {
                 let item = this.fields[i];
                 if (item.field.value)
-                    order.push({ key: item.field.value.key, invert: item.dir.value ? item.dir.value.value : false });
+                    order.push({ key: item.field.value.key as any, invert: item.dir.value ? item.dir.value.value : false });
             }
             return order;
         }
     }
 
-    export class ListViewHeadersBar extends Container {
+    export class ListViewHeadersBar<T> extends Container {
         private headers: HeaderDef[];
-        private _sortOrder = new Array<{ key: string, invert: boolean }>();
+        private _sortOrder = new Array<{ key: keyof T, invert: boolean }>();
         uis: ListViewHeader[];
         rowsHeight: number = 0;
         headersHeight: number = 0;
-        readonly sortchanged = new Core.Events<{ target: ListViewHeadersBar, sortOrder: Array<{ key: string, invert: boolean }> }>();
-        set onsortchanged(value: (event: { target: ListViewHeadersBar, sortOrder: Array<{ key: string, invert: boolean }> }) => void) { this.sortchanged.connect(value); }
+        readonly sortchanged = new Core.Events<{ target: ListViewHeadersBar<T>, sortOrder: Array<{ key: keyof T, invert: boolean }> }>();
+        set onsortchanged(value: (event: { target: ListViewHeadersBar<T>, sortOrder: Array<{ key: keyof T, invert: boolean }> }) => void) { this.sortchanged.connect(value); }
 
         constructor(init) {
             super();
@@ -233,7 +233,7 @@ namespace Ui {
 
             new ContextMenuWatcher({
                 element: this,
-                press: (e) => new ListViewHeaderSortPopup(this.headers).assign({
+                press: (e) => new ListViewHeaderSortPopup<T>(this.headers).assign({
                     sortOrder: this._sortOrder,
                     onchanged: e => {
                         this.sortOrder = e.sortOrder;
@@ -251,15 +251,15 @@ namespace Ui {
             return (this._sortOrder.length > 0) ? this._sortOrder[0].invert : false;
         }
 
-        sortBy(key: string, invert: boolean) {
+        sortBy(key: keyof T, invert: boolean) {
             this.sortOrder = [{ key: key, invert: invert }];
         }
 
-        get sortOrder(): Array<{ key: string, invert: boolean }> {
+        get sortOrder(): Array<{ key: keyof T, invert: boolean }> {
             return this._sortOrder;
         }
 
-        set sortOrder(value: Array<{ key: string, invert: boolean }>) {
+        set sortOrder(value: Array<{ key: keyof T, invert: boolean }>) {
             this._sortOrder = value;
             for (let ui of this.uis) {
                 var pos = this._sortOrder.findIndex(s => s.key == ui.headerDef.key);
@@ -505,13 +505,13 @@ namespace Ui {
         onselected?: (event: { target: ListView<T> }) => void;
         onunselected?: (event: { target: ListView<T> }) => void;
         onactivated?: (event: { target: ListView<T>, position: number, value: any }) => void;
-        onsortchanged?: (event: { target: ListView<T>, key: string, invert: boolean }) => void;
+        onsortchanged?: (event: { target: ListView<T>, sortOrder: Array<{ key: keyof T, invert: boolean }> }) => void;
     }
 
     export class ListView<T = any> extends VBox implements ListViewInit<T> {
         private _data: T[];
         headers: HeaderDef[];
-        readonly headersBar: ListViewHeadersBar;
+        readonly headersBar: ListViewHeadersBar<T>;
         headersScroll: ScrollingArea;
         firstRow: undefined;
         firstCol: undefined;
@@ -519,10 +519,6 @@ namespace Ui {
         rowsHeight: number = 0;
         headersHeight: number = 0;
         headersVisible: boolean = true;
-        //sortColKey: string;
-        //sortInvert: boolean = false;
-        //sortArrow: undefined;
-        //		dataLoader: ListViewScrollLoader;
         scroll: VBoxScrollingArea;
         selectionActions: SelectionActions;
         private _scrolled: boolean = true;
@@ -540,8 +536,8 @@ namespace Ui {
         set onunselected(value: (event: { target: ListView<T> }) => void) { this.unselected.connect(value); }
         readonly activated = new Core.Events<{ target: ListView<T>, position: number, value: any }>();
         set onactivated(value: (event: { target: ListView<T>, position: number, value: any }) => void) { this.activated.connect(value); }
-        readonly sortchanged = new Core.Events<{ target: ListView<T>, key: string, invert: boolean }>();
-        set onsortchanged(value: (event: { target: ListView<T>, key: string, invert: boolean }) => void) { this.sortchanged.connect(value); }
+        readonly sortchanged = new Core.Events<{ target: ListView<T>, sortOrder: Array<{ key: keyof T, invert: boolean }> }>();
+        set onsortchanged(value: (event: { target: ListView<T>, sortOrder: Array<{ key: keyof T, invert: boolean }> }) => void) { this.sortchanged.connect(value); }
         readonly datachanged = new Core.Events<{ target: ListView<T> }>();
         set ondatachanged(value: (event: { target: ListView<T> }) => void) { this.datachanged.connect(value); }
 
@@ -569,19 +565,13 @@ namespace Ui {
             this.headersBar = new ListViewHeadersBar({ headers: this.headers }).assign({
                 onsortchanged: (e) => this.sortOrder = e.sortOrder
             });
-            //this.headersBar.headerpressed.connect((e) => this.onHeaderPress(e.target, e.key));
             this.headersScroll.content = this.headersBar;
 
             this._data = [];
-            //this.dataLoader = new ListViewScrollLoader(this, this._data);
-            //this.scroll = new VBoxScrollingArea({ loader: this.dataLoader });
-            //this.append(this.scroll, true);
-
             this.vboxScroll = new ScrollingArea();
             this.append(this.vboxScroll, true);
 
             this.vbox = new VBox();
-            //this.append(this.vbox, true);
             this.vboxScroll.content = this.vbox;
 
             this.vboxScroll.scrolled.connect((e) => this.headersScroll.setOffset(e.offsetX, undefined, true, true));
@@ -714,15 +704,10 @@ namespace Ui {
         set data(data: Array<T>) {
             this._data = data;
             this.sortData();
-            //				this.dataLoader = new ListViewScrollLoader(this, this._data);
-            //				if (this._scrolled)
-            //					this.scroll.loader = this.dataLoader;
-            //				else {				
             this.vbox.clear();
             for (let i = 0; i < this._data.length; i++) {
                 this.vbox.append(this.getElementAt(i));
             }
-            //				}
             this.datachanged.fire({ target: this });
         }
 
@@ -731,9 +716,6 @@ namespace Ui {
             let cmp = function (a, b) {
                 return (a < b) ? -1 : (a > b) ? 1 : 0;
             }
-            //let key = this.sortColKey;
-            //let invert = this.sortInvert;
-            //console.log(`sortData key: ${key}, invert: ${invert}`);
             this._data.sort(function (a, b) {
                 let res = 0;
                 for (let i = 0; i < sortOrder.length && res == 0; i++) {
@@ -741,37 +723,28 @@ namespace Ui {
                     res = sortOrder[i].invert ? -res : res;
                 }
                 return res;
-
-                /*                let res;
-                                if (a[key] < b[key])
-                                    res = -1;
-                                else if (a[key] > b[key])
-                                    res = 1;
-                                else
-                                    res = 0;
-                                return invert ? -res : res;*/
             });
         }
 
-        sortBy(key: string, invert: boolean) {
+        sortBy(key: keyof T, invert: boolean) {
             this.sortOrder = [{ key: key, invert: invert }];
         }
 
-        get sortOrder(): Array<{ key: string, invert: boolean }> {
+        get sortOrder(): Array<{ key: keyof T, invert: boolean }> {
             return this.headersBar.sortOrder;
         }
 
-        set sortOrder(value: Array<{ key: string, invert: boolean }>) {
+        set sortOrder(value: Array<{ key: keyof T, invert: boolean }>) {
             this.headersBar.sortOrder = value;
             this.sortData();
             this.vbox.clear();
             for (let i = 0; i < this._data.length; i++) {
                 this.vbox.append(this.getElementAt(i));
             }
-            this.sortchanged.fire({ target: this, key: this.sortColKey, invert: this.sortInvert });
+            this.sortchanged.fire({ target: this, sortOrder: this.sortOrder });
         }
 
-        get sortColKey(): string {
+        get sortColKey(): keyof T {
             return this.headersBar.sortColKey;
         }
 
