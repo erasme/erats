@@ -4162,6 +4162,15 @@ declare namespace Ui {
             target: LimitedFlow;
             value: boolean;
         }) => void;
+        private _linesCount;
+        readonly linechanged: Core.Events<{
+            target: LimitedFlow;
+            value: number;
+        }>;
+        onlinechanged: (event: {
+            target: LimitedFlow;
+            value: number;
+        }) => void;
         constructor();
         maxLines: number | undefined;
         readonly linesCount: number;

@@ -19603,11 +19603,17 @@ var Ui;
             var _this = _super.call(this) || this;
             _this._canExpand = false;
             _this.canexpandchanged = new Core.Events();
+            _this.linechanged = new Core.Events();
             _this.clipToBounds = true;
             return _this;
         }
         Object.defineProperty(LimitedFlow.prototype, "oncanexpandchanged", {
             set: function (value) { this.canexpandchanged.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(LimitedFlow.prototype, "onlinechanged", {
+            set: function (value) { this.linechanged.connect(value); },
             enumerable: true,
             configurable: true
         });
@@ -19659,10 +19665,15 @@ var Ui;
         };
         LimitedFlow.prototype.arrangeCore = function (width, height) {
             _super.prototype.arrangeCore.call(this, width, height);
-            var canExpand = this._maxLines != undefined && this.linesCount > this._maxLines;
+            var linesCount = this.linesCount;
+            var canExpand = this._maxLines != undefined && linesCount > this._maxLines;
             if (canExpand != this._canExpand) {
                 this._canExpand = canExpand;
                 this.canexpandchanged.fire({ target: this, value: this._canExpand });
+            }
+            if (this._linesCount != linesCount) {
+                this._linesCount = linesCount;
+                this.linechanged.fire({ target: this, value: linesCount });
             }
         };
         return LimitedFlow;

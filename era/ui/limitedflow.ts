@@ -4,16 +4,20 @@ namespace Ui {
         private _canExpand: boolean = false;
         readonly canexpandchanged = new Core.Events<{ target: LimitedFlow, value: boolean }>();
         set oncanexpandchanged(value: (event: { target: LimitedFlow, value: boolean }) => void) { this.canexpandchanged.connect(value); }
-    
+
+        private _linesCount: number;
+        readonly linechanged = new Core.Events<{ target: LimitedFlow, value: number }>();
+        set onlinechanged(value: (event: { target: LimitedFlow, value: number }) => void) { this.linechanged.connect(value); }
+
         constructor() {
             super();
             this.clipToBounds = true;
         }
-    
+
         get maxLines(): number | undefined {
             return this._maxLines;
         }
-    
+
         set maxLines(value: number | undefined) {
             this._maxLines = value;
             this.invalidateMeasure();
@@ -29,7 +33,7 @@ namespace Ui {
         get canExpand(): boolean {
             return this._canExpand;
         }
-    
+
         protected measureCore(width: number, height: number) {
             let res = super.measureCore(width, height);
             if (this._maxLines == undefined)
@@ -51,10 +55,15 @@ namespace Ui {
 
         protected arrangeCore(width: number, height: number) {
             super.arrangeCore(width, height);
-            let canExpand = this._maxLines != undefined && this.linesCount > this._maxLines;
+            let linesCount = this.linesCount;
+            let canExpand = this._maxLines != undefined && linesCount > this._maxLines;
             if (canExpand != this._canExpand) {
                 this._canExpand = canExpand;
                 this.canexpandchanged.fire({ target: this, value: this._canExpand });
+            }
+            if (this._linesCount != linesCount) {
+                this._linesCount = linesCount;
+                this.linechanged.fire({ target: this, value: linesCount });
             }
         }
     }
