@@ -19390,6 +19390,7 @@ var Ui;
         __extends(Flow, _super);
         function Flow(init) {
             var _this = _super.call(this, init) || this;
+            _this.lines = new Array();
             _this._uniform = false;
             _this.uniformWidth = 0;
             _this.uniformHeight = 0;
@@ -19651,7 +19652,10 @@ var Ui;
                 return res;
             if (!this.uniform) {
                 var pos = Math.min(this._maxLines, this.lines.length) - 1;
-                return { width: res.width, height: this.lines[pos].y + this.lines[pos].height };
+                if (pos < 0)
+                    return { width: 0, height: 0 };
+                else
+                    return { width: res.width, height: this.lines[pos].y + this.lines[pos].height };
             }
             else {
                 var countPerLine = Math.max(Math.floor((width + this.spacing) / (this.uniformWidth + this.spacing)), 1);

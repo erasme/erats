@@ -40,7 +40,10 @@ namespace Ui {
                 return res;
             if (!this.uniform) {
                 let pos = Math.min(this._maxLines, this.lines.length) - 1;
-                return { width: res.width, height: this.lines[pos].y + this.lines[pos].height };
+                if (pos < 0)
+                    return { width: 0, height: 0 };
+                else
+                    return { width: res.width, height: this.lines[pos].y + this.lines[pos].height };
             }
             else {
                 let countPerLine = Math.max(Math.floor((width + this.spacing) / (this.uniformWidth + this.spacing)), 1);

@@ -4120,12 +4120,12 @@ declare namespace Ui {
         content?: Element[] | undefined;
     }
     class Flow extends Container implements FlowInit {
-        protected lines: Array<{
+        protected lines: {
             pos: number;
             y: number;
             width: number;
             height: number;
-        }>;
+        }[];
         private _uniform;
         protected uniformWidth: number;
         protected uniformHeight: number;

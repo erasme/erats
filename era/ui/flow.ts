@@ -8,7 +8,7 @@ namespace Ui {
     }
 
     export class Flow extends Container implements FlowInit {
-        protected lines: Array<{ pos: number, y: number, width: number, height: number }>;
+        protected lines = new Array<{ pos: number, y: number, width: number, height: number }>();
         private _uniform: boolean = false;
         protected uniformWidth: number = 0;
         protected uniformHeight: number = 0;
