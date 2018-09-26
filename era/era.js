@@ -3956,9 +3956,9 @@ var Ui;
             var constraintWidth = Math.max(width - (marginLeft + marginRight), 0);
             var constraintHeight = Math.max(height - (marginTop + marginBottom), 0);
             if (this._maxWidth !== undefined)
-                constraintWidth = Math.min(constraintWidth, this._maxWidth);
+                constraintWidth = Math.min(constraintWidth, this._maxWidth - (marginLeft + marginRight));
             if (this._maxHeight !== undefined)
-                constraintHeight = Math.min(constraintHeight, this._maxHeight);
+                constraintHeight = Math.min(constraintHeight, this._maxHeight - (marginTop + marginBottom));
             if (this._horizontalAlign !== 'stretch')
                 constraintWidth = 0;
             if (this._verticalAlign !== 'stretch')
