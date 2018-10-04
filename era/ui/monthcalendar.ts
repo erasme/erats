@@ -10,11 +10,13 @@ namespace Ui {
     export class MonthCalendar extends VBox {
         private _selectedDate: Date;
         private _date: Date;
-        private title: Label;
+        private monthLabel: Label;
+        private yearLabel: Label;
         private leftarrow: Icon;
         private rightarrow: Icon;
         private grid: Grid;
         private _dayFilter: number[];
+        private _mode: 'DAY' | 'MONTH' | 'YEAR' = 'DAY';
         private _dateFilter: string[];
         readonly dayselected = new Core.Events<{ target: MonthCalendar, value: Date }>();
         set ondayselected(value: (event: { target: MonthCalendar, value: Date }) => void) { this.dayselected.connect(value); }
@@ -32,14 +34,29 @@ namespace Ui {
 
             let button = new Pressable({
                 verticalAlign: 'center',
-                onpressed: () => this.onLeftButtonPress()
+                onpressed: () => this.onLeftButtonPress(),
             });
             this.leftarrow = new Icon({ icon: 'arrowleft', width: 24, height: 24 });
             button.append(this.leftarrow);
             hbox.append(button);
 
-            this.title = new Label({ fontWeight: 'bold', fontSize: 18, margin: 5 });
-            hbox.append(this.title, true);
+            let datehbox = new HBox({ spacing: 5, horizontalAlign: 'center' });
+            button = new Pressable({
+                onpressed: () => this.mode = this.mode == 'MONTH' ? 'DAY' : 'MONTH'
+            });
+
+            this.monthLabel = new Label({ fontWeight: 'bold', fontSize: 18, margin: 5 });
+            button.append(this.monthLabel);
+            datehbox.append(button);
+
+            button = new Pressable({
+                onpressed: () => this.mode = this.mode == 'YEAR' ? 'DAY' : 'YEAR'
+            });
+            this.yearLabel = new Label({ fontWeight: 'bold', fontSize: 18, margin: 5 });
+            button.append(this.yearLabel);
+            datehbox.append(button);
+
+            hbox.append(datehbox, true);
 
             button = new Pressable({
                 verticalAlign: 'center',
@@ -48,13 +65,6 @@ namespace Ui {
             this.rightarrow = new Icon({ icon: 'arrowright', width: 24, height: 24 });
             button.append(this.rightarrow);
             hbox.append(button);
-
-            this.grid = new Grid({
-                cols: '*,*,*,*,*,*,*',
-                rows: '*,*,*,*,*,*,*',
-                horizontalAlign: 'stretch'
-            });
-            this.append(this.grid);
 
             this.updateDate();
 
@@ -106,13 +116,34 @@ namespace Ui {
             this.updateDate();
         }
 
+        set mode(value: 'DAY' | 'MONTH' | 'YEAR') {
+            if (value != this.mode) {
+                this._mode = value;
+                this.updateDate(false);
+            }
+        }
+
+        get mode(): 'DAY' | 'MONTH' | 'YEAR' {
+            return this._mode;
+        }
+
         protected onLeftButtonPress() {
-            this._date.setMonth(this._date.getMonth() - 1);
+            if (this.mode == 'YEAR')
+                this._date.setFullYear(this._date.getFullYear() - 12);
+            else {
+                this._date.setDate(1);
+                this._date.setMonth(this._date.getMonth() - 1);
+            }
             this.updateDate();
         }
 
         protected onRightButtonPress() {
-            this._date.setMonth(this._date.getMonth() + 1);
+            if (this.mode == 'YEAR')
+                this._date.setFullYear(this._date.getFullYear() + 12);
+            else {
+                this._date.setDate(1);
+                this._date.setMonth(this._date.getMonth() + 1);
+            }
             this.updateDate();
         }
 
@@ -122,20 +153,41 @@ namespace Ui {
             this.dayselected.fire({ target: this, value: this._selectedDate });
         }
 
-        protected updateDate() {
+        protected updateDate(reuseGrid: boolean = true) {
+            let monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+
+            this.monthLabel.text = monthNames[this._date.getMonth()];
+            this.yearLabel.text = this._date.getFullYear().toString();
+
+            if (this.mode == 'DAY')
+                this.updateDayGrid(reuseGrid);
+            else if (this.mode == 'MONTH')
+                this.updateMonthGrid(reuseGrid);
+            else
+                this.updateYearGrid(reuseGrid);
+
+            this.onStyleChange();
+        }
+
+        private updateDayGrid(reuseGrid: boolean) {
             let i;
             let dayPivot = [6, 0, 1, 2, 3, 4, 5];
             let dayNames = ['Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa', 'Di'];
-            let monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
 
-            this.title.text = monthNames[this._date.getMonth()] + ' ' + this._date.getFullYear();
-
-            while (this.grid.firstChild !== undefined)
-                this.grid.detach(this.grid.firstChild);
-
+            if (reuseGrid && this.grid)
+                while (this.grid.firstChild !== undefined)
+                    this.grid.detach(this.grid.firstChild);
+            else {
+                this.remove(this.grid);
+                this.grid = new Grid({
+                    cols: '*,*,*,*,*,*,*',
+                    rows: '*,*,*,*,*,*,*',
+                    horizontalAlign: 'stretch'
+                });
+                this.append(this.grid);
+            }
             for (i = 0; i < 7; i++)
                 this.grid.attach(new Label({ text: dayNames[i], fontWeight: 'bold', margin: 5 }), i, 0);
-
             let month = this._date.getMonth();
             let current = new Date(this._date.getTime());
             current.setDate(1);
@@ -146,7 +198,6 @@ namespace Ui {
                     onpressed: () => this.onDaySelect(day)
                 });
                 day.monthCalendarDate = current;
-
                 let bg;
                 if ((current.getFullYear() == now.getFullYear()) && (current.getMonth() == now.getMonth()) && (current.getDate() == now.getDate())) {
                     day.monthCalendarCurrent = true;
@@ -157,10 +208,8 @@ namespace Ui {
                     bg = new Rectangle({ fill: new Color(0.8, 0.8, 0.8, 0.4), margin: 1 });
                     day.append(bg);
                 }
-
-                if ((this._selectedDate !== undefined) && (current.getFullYear() === this._selectedDate.getFullYear()) && (current.getMonth() === this._selectedDate.getMonth()) && (current.getDate() === this.selectedDate.getDate()))
+                if ((this._selectedDate !== undefined) && (current.getFullYear() === this._selectedDate.getFullYear()) && (current.getMonth() === this._selectedDate.getMonth()) && (current.getDate() === this._selectedDate.getDate()))
                     day.append(new Frame({ frameWidth: 3, fill: 'red', radius: 0 }));
-
                 let disable = false;
                 if (this._dayFilter !== undefined) {
                     let weekday = current.getDay();
@@ -183,27 +232,146 @@ namespace Ui {
                         }
                     }
                 }
-
                 if (disable) {
                     day.disable();
                     day.opacity = 0.2;
                 }
-
                 day.append(new Label({ text: current.getDate().toString(), margin: 5 }));
-
                 this.grid.attach(day, dayPivot[current.getDay()], row);
                 current = new Date(current.getTime() + 1000 * 60 * 60 * 24);
                 if (dayPivot[current.getDay()] === 0)
                     row++;
             } while (month == current.getMonth());
-            this.onStyleChange();
+        }
+
+        private updateMonthGrid(reuseGrid: boolean) {
+            if (reuseGrid && this.grid)
+                while (this.grid.firstChild !== undefined)
+                    this.grid.detach(this.grid.firstChild);
+            else {
+                this.remove(this.grid);
+                this.grid = new Grid({
+                    cols: '*,*,*,*',
+                    rows: '*,*,*',
+                    horizontalAlign: 'stretch'
+                });
+                this.append(this.grid);
+            }
+
+            let monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jui', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+            let nbCols = 4;
+
+            for (let i = 0; i < monthNames.length; i++) {
+                let row = Math.trunc(i / nbCols);
+                let col = i % nbCols;
+                let current = new Date(this._date.getTime());
+                current.setDate(1);
+                current.setMonth(i);
+
+                let month = new MonthYearButton({
+                    onpressed: () => {
+                        this._date = month.monthCalendarDate;
+                        this.mode = 'DAY';
+                    },
+                });
+                month.monthCalendarDate = current;
+                let label = new Label({
+                    text: monthNames[i], fontWeight: 'bold',
+                    marginLeft: 10, marginRight: 25,
+                    marginBottom: 10, marginTop: 10,
+                    color: this._date && this._date.getMonth() == current.getMonth() ? '#ff0000' : undefined
+                });
+
+                month.append(label);
+                let disable = false;
+
+                if (this._dateFilter !== undefined) {
+                    let daystr = current.getFullYear() + '/';
+                    if (current.getMonth() + 1 < 10)
+                        daystr += '0';
+                    daystr += (current.getMonth() + 1) + '/';
+                    // Regex are tried against YYYY/MM/
+                    // if (current.getDate() < 10)
+                    //     daystr += '0';
+                    // daystr += current.getDate(); 
+                    for (i = 0; (i < this._dateFilter.length) && !disable; i++) {
+                        let re = new RegExp(this._dateFilter[i]);
+                        if (re.test(daystr)) {
+                            disable = true;
+                        }
+                    }
+                }
+                if (disable) {
+                    month.disable();
+                    month.opacity = 0.2;
+                }
+                this.grid.attach(month, col, row);
+            }
+        }
+
+        private updateYearGrid(reuseGrid: boolean) {
+            if (reuseGrid && this.grid)
+                while (this.grid.firstChild !== undefined)
+                    this.grid.detach(this.grid.firstChild);
+            else {
+                this.remove(this.grid);
+                this.grid = new Grid({
+                    cols: '*,*,*,*',
+                    rows: '*,*,*',
+                    horizontalAlign: 'stretch'
+                });
+                this.append(this.grid);
+            }
+
+            let nbCols = 4;
+
+            for (let i = 0; i < 12; i++) {
+                let currentYear = this._date.getFullYear() - 6 + i;
+                let row = Math.trunc(i / nbCols);
+                let col = i % nbCols;
+                let current = new Date(currentYear, 0, 1);
+
+                let year = new MonthYearButton({
+                    onpressed: () => {
+                        this._date = year.monthCalendarDate;
+                        this.mode = 'DAY';
+                    },
+                });
+                year.monthCalendarDate = current;
+                let label = new Label({
+                    text: currentYear.toString(), fontWeight: 'bold',
+                    marginLeft: 10, marginRight: 25,
+                    marginBottom: 10, marginTop: 10,
+                    color: this._date && this._date.getFullYear() == current.getFullYear() ? '#ff0000' : undefined
+                });
+
+                year.append(label);
+                let disable = false;
+
+                if (this._dateFilter !== undefined) {
+                    let daystr = current.getFullYear() + '/';
+                    // Regex are tried against YYYY/
+                    for (currentYear = 0; (currentYear < this._dateFilter.length) && !disable; currentYear++) {
+                        let re = new RegExp(this._dateFilter[currentYear]);
+                        if (re.test(daystr)) {
+                            disable = true;
+                        }
+                    }
+                }
+                if (disable) {
+                    year.disable();
+                    year.opacity = 0.2;
+                }
+                this.grid.attach(year, col, row);
+            }
         }
 
         protected onStyleChange(): void {
             let color = this.getStyleProperty('color');
             let dayColor = this.getStyleProperty('dayColor');
             let currentDayColor = this.getStyleProperty('currentDayColor');
-            this.title.color = color;
+            this.monthLabel.color = color;
+            this.yearLabel.color = color;
             this.leftarrow.fill = color;
             this.rightarrow.fill = color;
 
@@ -239,4 +407,8 @@ namespace Ui {
         monthCalendarCurrent: boolean;
     }
 
+    class MonthYearButton extends Pressable {
+        monthCalendarDate: Date;
+        monthCalendarCurrent: boolean;
+    }
 }
