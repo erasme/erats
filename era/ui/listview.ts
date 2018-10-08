@@ -844,10 +844,8 @@ namespace Ui {
         }
 
         setValue(value: any) {
-            if (this.value !== value) {
-                this.value = value;
-                this.onValueChange(value);
-            }
+            this.value = value;
+            this.onValueChange(value);
         }
 
         protected generateUi(): Element {

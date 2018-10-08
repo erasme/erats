@@ -24262,10 +24262,8 @@ var Ui;
             return this.value;
         };
         ListViewCell.prototype.setValue = function (value) {
-            if (this.value !== value) {
-                this.value = value;
-                this.onValueChange(value);
-            }
+            this.value = value;
+            this.onValueChange(value);
         };
         ListViewCell.prototype.generateUi = function () {
             return new Ui.Label({ margin: 8, horizontalAlign: 'left' });
