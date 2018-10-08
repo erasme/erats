@@ -25,11 +25,11 @@ namespace Ui {
             this.changed.connect(() => this.onDatePickerChange());
             if (init) {
                 if (init.dayFilter !== undefined)
-                    this.dayFilter = init.dayFilter;	
+                    this.dayFilter = init.dayFilter;
                 if (init.dateFilter !== undefined)
-                    this.dateFilter = init.dateFilter;	
+                    this.dateFilter = init.dateFilter;
                 if (init.selectedDate !== undefined)
-                    this.selectedDate = init.selectedDate;	
+                    this.selectedDate = init.selectedDate;
             }
         }
 
@@ -44,7 +44,7 @@ namespace Ui {
         get isValid(): boolean {
             return this._isValid;
         }
-    
+
         get selectedDate(): Date {
             return this._selectedDate;
         }
@@ -56,7 +56,7 @@ namespace Ui {
             }
             else {
                 this._selectedDate = date;
-                this.textValue = `${this.zeroPad(date.getDate(), 2)}/${this.zeroPad(date.getMonth()+1,2)}/${date.getFullYear()}`;
+                this.textValue = `${this.zeroPad(date.getDate(), 2)}/${this.zeroPad(date.getMonth() + 1, 2)}/${date.getFullYear()}`;
             }
 
             this._isValid = true;
@@ -70,7 +70,7 @@ namespace Ui {
                 this.selectedDate = new Date(parseInt(splitDate[3]), parseInt(splitDate[2]) - 1, parseInt(splitDate[1]));
             this.popup = new Popup();
             if (this.selectedDate !== undefined)
-                this.calendar = new MonthCalendar({ horizontalAlign: 'center', margin: 10, selectedDate: this.selectedDate, date: this.selectedDate });
+                this.calendar = new MonthCalendar({ horizontalAlign: 'center', margin: 10, selectedDate: new Date(this.selectedDate.getTime()), date: new Date(this.selectedDate.getTime()) });
             else
                 this.calendar = new MonthCalendar({ horizontalAlign: 'center', margin: 10 });
             if (this._dayFilter !== undefined)

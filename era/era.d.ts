@@ -4585,11 +4585,13 @@ declare namespace Ui {
     class MonthCalendar extends VBox {
         private _selectedDate;
         private _date;
-        private title;
+        private monthLabel;
+        private yearLabel;
         private leftarrow;
         private rightarrow;
         private grid;
         private _dayFilter;
+        private _mode;
         private _dateFilter;
         readonly dayselected: Core.Events<{
             target: MonthCalendar;
@@ -4604,10 +4606,14 @@ declare namespace Ui {
         dateFilter: string[];
         date: Date;
         selectedDate: Date;
+        mode: 'DAY' | 'MONTH' | 'YEAR';
         protected onLeftButtonPress(): void;
         protected onRightButtonPress(): void;
         protected onDaySelect(button: any): void;
-        protected updateDate(): void;
+        protected updateDate(reuseGrid?: boolean): void;
+        private updateDayGrid;
+        private updateMonthGrid;
+        private updateYearGrid;
         protected onStyleChange(): void;
         static style: object;
     }

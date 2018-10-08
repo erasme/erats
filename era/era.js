@@ -21345,19 +21345,32 @@ var Ui;
         __extends(MonthCalendar, _super);
         function MonthCalendar(init) {
             var _this = _super.call(this, init) || this;
+            _this._mode = 'DAY';
             _this.dayselected = new Core.Events();
             _this._date = new Date();
             var hbox = new Ui.HBox();
             _this.append(hbox);
             var button = new Ui.Pressable({
                 verticalAlign: 'center',
-                onpressed: function () { return _this.onLeftButtonPress(); }
+                onpressed: function () { return _this.onLeftButtonPress(); },
             });
             _this.leftarrow = new Ui.Icon({ icon: 'arrowleft', width: 24, height: 24 });
             button.append(_this.leftarrow);
             hbox.append(button);
-            _this.title = new Ui.Label({ fontWeight: 'bold', fontSize: 18, margin: 5 });
-            hbox.append(_this.title, true);
+            var datehbox = new Ui.HBox({ spacing: 5, horizontalAlign: 'center' });
+            button = new Ui.Pressable({
+                onpressed: function () { return _this.mode = _this.mode == 'MONTH' ? 'DAY' : 'MONTH'; }
+            });
+            _this.monthLabel = new Ui.Label({ fontWeight: 'bold', fontSize: 18, margin: 5 });
+            button.append(_this.monthLabel);
+            datehbox.append(button);
+            button = new Ui.Pressable({
+                onpressed: function () { return _this.mode = _this.mode == 'YEAR' ? 'DAY' : 'YEAR'; }
+            });
+            _this.yearLabel = new Ui.Label({ fontWeight: 'bold', fontSize: 18, margin: 5 });
+            button.append(_this.yearLabel);
+            datehbox.append(button);
+            hbox.append(datehbox, true);
             button = new Ui.Pressable({
                 verticalAlign: 'center',
                 onpressed: function () { return _this.onRightButtonPress(); }
@@ -21365,12 +21378,6 @@ var Ui;
             _this.rightarrow = new Ui.Icon({ icon: 'arrowright', width: 24, height: 24 });
             button.append(_this.rightarrow);
             hbox.append(button);
-            _this.grid = new Ui.Grid({
-                cols: '*,*,*,*,*,*,*',
-                rows: '*,*,*,*,*,*,*',
-                horizontalAlign: 'stretch'
-            });
-            _this.append(_this.grid);
             _this.updateDate();
             if (init) {
                 if (init.date !== undefined)
@@ -21426,12 +21433,35 @@ var Ui;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(MonthCalendar.prototype, "mode", {
+            get: function () {
+                return this._mode;
+            },
+            set: function (value) {
+                if (value != this.mode) {
+                    this._mode = value;
+                    this.updateDate(false);
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
         MonthCalendar.prototype.onLeftButtonPress = function () {
-            this._date.setMonth(this._date.getMonth() - 1);
+            if (this.mode == 'YEAR')
+                this._date.setFullYear(this._date.getFullYear() - 12);
+            else {
+                this._date.setDate(1);
+                this._date.setMonth(this._date.getMonth() - 1);
+            }
             this.updateDate();
         };
         MonthCalendar.prototype.onRightButtonPress = function () {
-            this._date.setMonth(this._date.getMonth() + 1);
+            if (this.mode == 'YEAR')
+                this._date.setFullYear(this._date.getFullYear() + 12);
+            else {
+                this._date.setDate(1);
+                this._date.setMonth(this._date.getMonth() + 1);
+            }
             this.updateDate();
         };
         MonthCalendar.prototype.onDaySelect = function (button) {
@@ -21439,15 +21469,36 @@ var Ui;
             this.updateDate();
             this.dayselected.fire({ target: this, value: this._selectedDate });
         };
-        MonthCalendar.prototype.updateDate = function () {
+        MonthCalendar.prototype.updateDate = function (reuseGrid) {
+            if (reuseGrid === void 0) { reuseGrid = true; }
+            var monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+            this.monthLabel.text = monthNames[this._date.getMonth()];
+            this.yearLabel.text = this._date.getFullYear().toString();
+            if (this.mode == 'DAY')
+                this.updateDayGrid(reuseGrid);
+            else if (this.mode == 'MONTH')
+                this.updateMonthGrid(reuseGrid);
+            else
+                this.updateYearGrid(reuseGrid);
+            this.onStyleChange();
+        };
+        MonthCalendar.prototype.updateDayGrid = function (reuseGrid) {
             var _this = this;
             var i;
             var dayPivot = [6, 0, 1, 2, 3, 4, 5];
             var dayNames = ['Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa', 'Di'];
-            var monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
-            this.title.text = monthNames[this._date.getMonth()] + ' ' + this._date.getFullYear();
-            while (this.grid.firstChild !== undefined)
-                this.grid.detach(this.grid.firstChild);
+            if (reuseGrid && this.grid)
+                while (this.grid.firstChild !== undefined)
+                    this.grid.detach(this.grid.firstChild);
+            else {
+                this.remove(this.grid);
+                this.grid = new Ui.Grid({
+                    cols: '*,*,*,*,*,*,*',
+                    rows: '*,*,*,*,*,*,*',
+                    horizontalAlign: 'stretch'
+                });
+                this.append(this.grid);
+            }
             for (i = 0; i < 7; i++)
                 this.grid.attach(new Ui.Label({ text: dayNames[i], fontWeight: 'bold', margin: 5 }), i, 0);
             var month = this._date.getMonth();
@@ -21470,7 +21521,7 @@ var Ui;
                     bg = new Ui.Rectangle({ fill: new Ui.Color(0.8, 0.8, 0.8, 0.4), margin: 1 });
                     day.append(bg);
                 }
-                if ((this_1._selectedDate !== undefined) && (current.getFullYear() === this_1._selectedDate.getFullYear()) && (current.getMonth() === this_1._selectedDate.getMonth()) && (current.getDate() === this_1.selectedDate.getDate()))
+                if ((this_1._selectedDate !== undefined) && (current.getFullYear() === this_1._selectedDate.getFullYear()) && (current.getMonth() === this_1._selectedDate.getMonth()) && (current.getDate() === this_1._selectedDate.getDate()))
                     day.append(new Ui.Frame({ frameWidth: 3, fill: 'red', radius: 0 }));
                 var disable = false;
                 if (this_1._dayFilter !== undefined) {
@@ -21508,13 +21559,130 @@ var Ui;
             do {
                 _loop_1();
             } while (month == current.getMonth());
-            this.onStyleChange();
+        };
+        MonthCalendar.prototype.updateMonthGrid = function (reuseGrid) {
+            var _this = this;
+            if (reuseGrid && this.grid)
+                while (this.grid.firstChild !== undefined)
+                    this.grid.detach(this.grid.firstChild);
+            else {
+                this.remove(this.grid);
+                this.grid = new Ui.Grid({
+                    cols: '*,*,*,*',
+                    rows: '*,*,*',
+                    horizontalAlign: 'stretch'
+                });
+                this.append(this.grid);
+            }
+            var monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jui', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+            var nbCols = 4;
+            var _loop_2 = function (i) {
+                var row = Math.trunc(i / nbCols);
+                var col = i % nbCols;
+                var current = new Date(this_2._date.getTime());
+                current.setDate(1);
+                current.setMonth(i);
+                var month = new MonthYearButton({
+                    onpressed: function () {
+                        _this._date = month.monthCalendarDate;
+                        _this.mode = 'DAY';
+                    },
+                });
+                month.monthCalendarDate = current;
+                var label = new Ui.Label({
+                    text: monthNames[i], fontWeight: 'bold',
+                    marginLeft: 10, marginRight: 25,
+                    marginBottom: 10, marginTop: 10,
+                    color: this_2._date && this_2._date.getMonth() == current.getMonth() ? '#ff0000' : undefined
+                });
+                month.append(label);
+                var disable = false;
+                if (this_2._dateFilter !== undefined) {
+                    var daystr = current.getFullYear() + '/';
+                    if (current.getMonth() + 1 < 10)
+                        daystr += '0';
+                    daystr += (current.getMonth() + 1) + '/';
+                    for (i = 0; (i < this_2._dateFilter.length) && !disable; i++) {
+                        var re = new RegExp(this_2._dateFilter[i]);
+                        if (re.test(daystr)) {
+                            disable = true;
+                        }
+                    }
+                }
+                if (disable) {
+                    month.disable();
+                    month.opacity = 0.2;
+                }
+                this_2.grid.attach(month, col, row);
+                out_i_1 = i;
+            };
+            var this_2 = this, out_i_1;
+            for (var i = 0; i < monthNames.length; i++) {
+                _loop_2(i);
+                i = out_i_1;
+            }
+        };
+        MonthCalendar.prototype.updateYearGrid = function (reuseGrid) {
+            var _this = this;
+            if (reuseGrid && this.grid)
+                while (this.grid.firstChild !== undefined)
+                    this.grid.detach(this.grid.firstChild);
+            else {
+                this.remove(this.grid);
+                this.grid = new Ui.Grid({
+                    cols: '*,*,*,*',
+                    rows: '*,*,*',
+                    horizontalAlign: 'stretch'
+                });
+                this.append(this.grid);
+            }
+            var nbCols = 4;
+            var _loop_3 = function (i) {
+                var currentYear = this_3._date.getFullYear() - 6 + i;
+                var row = Math.trunc(i / nbCols);
+                var col = i % nbCols;
+                var current = new Date(currentYear, 0, 1);
+                var year = new MonthYearButton({
+                    onpressed: function () {
+                        _this._date = year.monthCalendarDate;
+                        _this.mode = 'DAY';
+                    },
+                });
+                year.monthCalendarDate = current;
+                var label = new Ui.Label({
+                    text: currentYear.toString(), fontWeight: 'bold',
+                    marginLeft: 10, marginRight: 25,
+                    marginBottom: 10, marginTop: 10,
+                    color: this_3._date && this_3._date.getFullYear() == current.getFullYear() ? '#ff0000' : undefined
+                });
+                year.append(label);
+                var disable = false;
+                if (this_3._dateFilter !== undefined) {
+                    var daystr = current.getFullYear() + '/';
+                    for (currentYear = 0; (currentYear < this_3._dateFilter.length) && !disable; currentYear++) {
+                        var re = new RegExp(this_3._dateFilter[currentYear]);
+                        if (re.test(daystr)) {
+                            disable = true;
+                        }
+                    }
+                }
+                if (disable) {
+                    year.disable();
+                    year.opacity = 0.2;
+                }
+                this_3.grid.attach(year, col, row);
+            };
+            var this_3 = this;
+            for (var i = 0; i < 12; i++) {
+                _loop_3(i);
+            }
         };
         MonthCalendar.prototype.onStyleChange = function () {
             var color = this.getStyleProperty('color');
             var dayColor = this.getStyleProperty('dayColor');
             var currentDayColor = this.getStyleProperty('currentDayColor');
-            this.title.color = color;
+            this.monthLabel.color = color;
+            this.yearLabel.color = color;
             this.leftarrow.fill = color;
             this.rightarrow.fill = color;
             for (var i = 0; i < this.grid.children.length; i++) {
@@ -21550,6 +21718,13 @@ var Ui;
             return _super !== null && _super.apply(this, arguments) || this;
         }
         return DayButton;
+    }(Ui.Pressable));
+    var MonthYearButton = (function (_super) {
+        __extends(MonthYearButton, _super);
+        function MonthYearButton() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        return MonthYearButton;
     }(Ui.Pressable));
 })(Ui || (Ui = {}));
 var Ui;
@@ -21772,7 +21947,7 @@ var Ui;
                 this.selectedDate = new Date(parseInt(splitDate[3]), parseInt(splitDate[2]) - 1, parseInt(splitDate[1]));
             this.popup = new Ui.Popup();
             if (this.selectedDate !== undefined)
-                this.calendar = new Ui.MonthCalendar({ horizontalAlign: 'center', margin: 10, selectedDate: this.selectedDate, date: this.selectedDate });
+                this.calendar = new Ui.MonthCalendar({ horizontalAlign: 'center', margin: 10, selectedDate: new Date(this.selectedDate.getTime()), date: new Date(this.selectedDate.getTime()) });
             else
                 this.calendar = new Ui.MonthCalendar({ horizontalAlign: 'center', margin: 10 });
             if (this._dayFilter !== undefined)
@@ -23386,16 +23561,16 @@ var Ui;
                 this._data = data;
                 if (this._field === undefined)
                     return;
-                var _loop_2 = function (i) {
+                var _loop_4 = function (i) {
                     var item = new ComboItem({
-                        text: data[i][this_2._field],
+                        text: data[i][this_4._field],
                         onpressed: function () { return _this.onItemPress(item); }
                     });
-                    this_2.list.append(item);
+                    this_4.list.append(item);
                 };
-                var this_2 = this;
+                var this_4 = this;
                 for (var i = 0; i < data.length; i++) {
-                    _loop_2(i);
+                    _loop_4(i);
                 }
             },
             enumerable: true,
@@ -23538,7 +23713,7 @@ var Ui;
                     new Ui.Label().assign({ text: 'Ordre de tri', fontWeight: 'bold', horizontalAlign: 'left' })
                 ]
             });
-            var _loop_3 = function (i) {
+            var _loop_5 = function (i) {
                 var sortBox = new Ui.HBox();
                 if (i > 0)
                     sortBox.disable();
@@ -23550,7 +23725,7 @@ var Ui;
                     content: [
                         sortField.assign({
                             field: 'title', allowNone: true,
-                            data: this_3.headers.filter(function (h) { return h.key != undefined; }),
+                            data: this_5.headers.filter(function (h) { return h.key != undefined; }),
                             onchanged: function () { return _this.onChanged(field); }
                         }),
                         sortDir.assign({
@@ -23563,12 +23738,12 @@ var Ui;
                         })
                     ]
                 });
-                this_3.vbox.append(sortBox);
-                this_3.fields.push(field);
+                this_5.vbox.append(sortBox);
+                this_5.fields.push(field);
             };
-            var this_3 = this;
+            var this_5 = this;
             for (var i = 0; i < 3; i++) {
-                _loop_3(i);
+                _loop_5(i);
             }
             return _this;
         }
@@ -23621,14 +23796,14 @@ var Ui;
             },
             set: function (value) {
                 this._changedLock = true;
-                var _loop_4 = function (i) {
-                    var field = this_4.fields[i];
+                var _loop_6 = function (i) {
+                    var field = this_6.fields[i];
                     field.field.position = field.field.data.findIndex(function (f) { return f.key == value[i].key; });
                     field.dir.position = value[i].invert ? 1 : 0;
                 };
-                var this_4 = this;
+                var this_6 = this;
                 for (var i = 0; i < value.length && i < this.fields.length; i++) {
-                    _loop_4(i);
+                    _loop_6(i);
                 }
                 this.updateFields();
                 this._changedLock = false;
@@ -23648,7 +23823,7 @@ var Ui;
             _this.sortchanged = new Core.Events();
             _this.headers = init.headers;
             _this.uis = [];
-            var _loop_5 = function (i) {
+            var _loop_7 = function (i) {
                 var headerDef = init.headers[i];
                 var headerUi = new ListViewHeader(headerDef).assign({
                     width: headerDef.width,
@@ -23658,12 +23833,12 @@ var Ui;
                         _this.sortchanged.fire({ target: _this, sortOrder: _this.sortOrder });
                     }
                 });
-                this_5.uis.push(headerUi);
-                this_5.appendChild(headerUi);
+                this_7.uis.push(headerUi);
+                this_7.appendChild(headerUi);
             };
-            var this_5 = this;
+            var this_7 = this;
             for (var i = 0; i < init.headers.length; i++) {
-                _loop_5(i);
+                _loop_7(i);
             }
             new Ui.ContextMenuWatcher({
                 element: _this,
@@ -23705,17 +23880,17 @@ var Ui;
             },
             set: function (value) {
                 this._sortOrder = value;
-                var _loop_6 = function (ui) {
-                    pos = this_6._sortOrder.findIndex(function (s) { return s.key == ui.headerDef.key; });
+                var _loop_8 = function (ui) {
+                    pos = this_8._sortOrder.findIndex(function (s) { return s.key == ui.headerDef.key; });
                     if (pos == -1)
-                        ui.sort = { order: undefined, invert: this_6.sortInvert };
+                        ui.sort = { order: undefined, invert: this_8.sortInvert };
                     else
-                        ui.sort = { order: pos + 1, invert: this_6._sortOrder[pos].invert };
+                        ui.sort = { order: pos + 1, invert: this_8._sortOrder[pos].invert };
                 };
-                var this_6 = this, pos;
+                var this_8 = this, pos;
                 for (var _i = 0, _a = this.uis; _i < _a.length; _i++) {
                     var ui = _a[_i];
-                    _loop_6(ui);
+                    _loop_8(ui);
                 }
             },
             enumerable: true,
@@ -26984,7 +27159,7 @@ var Ui;
                     fg_2.appendChild(home);
                     this.foregrounds.push(fg_2);
                     this.appendChild(fg_2);
-                    var _loop_7 = function (i) {
+                    var _loop_9 = function (i) {
                         currentPath += paths[i];
                         var fg_3 = new Ui.Pressable({
                             padding: padding,
@@ -26997,13 +27172,13 @@ var Ui;
                         fg_3.locatorPos = i + 1;
                         fg_3.locatorPath = currentPath;
                         fg_3.appendChild(new Ui.Label({ text: paths[i], verticalAlign: 'center' }));
-                        this_7.foregrounds.push(fg_3);
-                        this_7.appendChild(fg_3);
+                        this_9.foregrounds.push(fg_3);
+                        this_9.appendChild(fg_3);
                         currentPath += '/';
                     };
-                    var this_7 = this;
+                    var this_9 = this;
                     for (var i = 0; i < paths.length; i++) {
-                        _loop_7(i);
+                        _loop_9(i);
                     }
                 }
                 this.updateColors();
