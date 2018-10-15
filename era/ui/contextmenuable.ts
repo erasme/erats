@@ -28,7 +28,7 @@ namespace Ui {
         }
 
         private onContextMenu = (e) => {            
-            if (!this.lock) {
+            if (!this.lock && !this.element.isDisabled) {
                 this.onPress(e.clientX, e.clientY, e.altKey, e.shiftKey, e.ctrlKey);
                 e.stopImmediatePropagation();
                 e.preventDefault();
