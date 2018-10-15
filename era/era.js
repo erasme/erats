@@ -7538,8 +7538,9 @@ var Ui;
                 e.stopImmediatePropagation();
                 e.preventDefault();
             };
-            _this.draggable.drawing.addEventListener('contextmenu', onContextMenu, { capture: true });
             if (pointerEvent) {
+                if (pointerEvent.type == 'touch')
+                    _this.draggable.drawing.addEventListener('contextmenu', onContextMenu, { capture: true });
                 _this.pointer = new Ui.Pointer(pointerEvent.type, pointerEvent.pointerId);
                 _this.pointer.setInitialPosition(pointerEvent.clientX, pointerEvent.clientY);
                 _this.pointer.down(pointerEvent.clientX, pointerEvent.clientY, pointerEvent.buttons, pointerEvent.button);
@@ -7551,20 +7552,23 @@ var Ui;
                     window.removeEventListener('pointermove', onPointerMove_1, { capture: true });
                     window.removeEventListener('pointerup', onPointerUp_1, { capture: true });
                     window.removeEventListener('pointercancel', onPointerCancel_1, { capture: true });
-                    _this.draggable.drawing.removeEventListener('contextmenu', onContextMenu, { capture: true });
+                    if (pointerEvent.type == 'touch')
+                        _this.draggable.drawing.removeEventListener('contextmenu', onContextMenu, { capture: true });
                 };
                 var onPointerCancel_1 = function (e) {
                     _this.pointer.cancel();
                     window.removeEventListener('pointermove', onPointerMove_1, { capture: true });
                     window.removeEventListener('pointerup', onPointerUp_1, { capture: true });
                     window.removeEventListener('pointercancel', onPointerCancel_1, { capture: true });
-                    _this.draggable.drawing.removeEventListener('contextmenu', onContextMenu, { capture: true });
+                    if (pointerEvent.type == 'touch')
+                        _this.draggable.drawing.removeEventListener('contextmenu', onContextMenu, { capture: true });
                 };
                 window.addEventListener('pointermove', onPointerMove_1, { capture: true, passive: false });
                 window.addEventListener('pointerup', onPointerUp_1, { capture: true, passive: false });
                 window.addEventListener('pointercancel', onPointerCancel_1, { capture: true, passive: false });
             }
             else if (touchEvent) {
+                _this.draggable.drawing.addEventListener('contextmenu', onContextMenu, { capture: true });
                 var touch = touchEvent.targetTouches[0];
                 _this.pointer = new Ui.Pointer('touch', touch.identifier);
                 _this.pointer.setInitialPosition(touch.clientX, touch.clientY);
