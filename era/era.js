@@ -16792,6 +16792,23 @@ var Ui;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(Html.prototype, "wordBreak", {
+            get: function () {
+                if (this._wordBreak !== undefined)
+                    return this._wordBreak;
+                else
+                    return this.getStyleProperty('wordBreak');
+            },
+            set: function (wordBreak) {
+                if (this._wordBreak !== wordBreak) {
+                    this._wordBreak = wordBreak;
+                    this.drawing.style.wordBreak = this.wordBreak;
+                    this.invalidateMeasure();
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(Html.prototype, "whiteSpace", {
             get: function () {
                 if (this._whiteSpace !== undefined)
@@ -16899,6 +16916,7 @@ var Ui;
             fontWeight: 'normal',
             textAlign: 'left',
             wordWrap: 'normal',
+            wordBreak: 'normal',
             whiteSpace: 'normal',
             interLine: 1
         };

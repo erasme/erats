@@ -9,6 +9,7 @@ namespace Ui
         fontWeight?: FontWeight;
         interLine?: number;
         wordWrap?: string;
+        wordBreak?: string;
         whiteSpace?: string;
         color?: Color | string;
         onlink?: (event: {target: Html, ref: string }) => void;
@@ -26,6 +27,7 @@ namespace Ui
         private _textAlign?: TextAlign;
         private _interLine?: number;
         private _wordWrap?: string;
+        private _wordBreak?: string;
         private _whiteSpace?: string;
         readonly link = new Core.Events<{target: Html, ref: string }>();
         set onlink(value: (event: { target: Html, ref: string }) => void) { this.link.connect(value); }
@@ -236,6 +238,21 @@ namespace Ui
             }
         }
 
+        get wordBreak(): string {
+            if (this._wordBreak !== undefined)
+                return this._wordBreak;
+            else
+                return this.getStyleProperty('wordBreak');
+        }
+
+        set wordBreak(wordBreak: string) {
+            if (this._wordBreak !== wordBreak) {
+                this._wordBreak = wordBreak;
+                this.drawing.style.wordBreak = this.wordBreak;
+                this.invalidateMeasure();
+            }
+        }
+
         get whiteSpace(): string {
             if (this._whiteSpace !== undefined)
                 return this._whiteSpace;
@@ -364,6 +381,7 @@ namespace Ui
             fontWeight: 'normal',
             textAlign: 'left',
             wordWrap: 'normal',
+            wordBreak: 'normal',
             whiteSpace: 'normal',
             interLine: 1
         }

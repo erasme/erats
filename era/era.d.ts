@@ -3476,6 +3476,7 @@ declare namespace Ui {
         fontWeight?: FontWeight;
         interLine?: number;
         wordWrap?: string;
+        wordBreak?: string;
         whiteSpace?: string;
         color?: Color | string;
         onlink?: (event: {
@@ -3494,6 +3495,7 @@ declare namespace Ui {
         private _textAlign?;
         private _interLine?;
         private _wordWrap?;
+        private _wordBreak?;
         private _whiteSpace?;
         readonly link: Core.Events<{
             target: Html;
@@ -3516,6 +3518,7 @@ declare namespace Ui {
         fontWeight: FontWeight;
         interLine: number;
         wordWrap: string;
+        wordBreak: string;
         whiteSpace: string;
         protected getColor(): Color;
         color: Color | string;
