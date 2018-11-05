@@ -5093,6 +5093,7 @@ declare namespace Ui {
         static style: object;
     }
     class ListViewHeadersBar<T> extends Container {
+        allowMultiSort: boolean;
         private headers;
         private _sortOrder;
         uis: ListViewHeader[];
@@ -5186,6 +5187,7 @@ declare namespace Ui {
     interface ListViewInit<T> extends VBoxInit {
         headers?: HeaderDef[];
         scrolled?: boolean;
+        allowMultiSort?: boolean;
         scrollVertical?: boolean;
         scrollHorizontal?: boolean;
         selectionActions?: SelectionActions;
@@ -5224,6 +5226,10 @@ declare namespace Ui {
         headersVisible: boolean;
         scroll: VBoxScrollingArea;
         selectionActions: SelectionActions;
+        sortFunc?: (data: Array<T>, sortOrder: Array<{
+            key: keyof T;
+            invert: boolean;
+        }>) => void;
         private _scrolled;
         private _scrollVertical;
         private _scrollHorizontal;
@@ -5282,6 +5288,7 @@ declare namespace Ui {
         scrolled: boolean;
         scrollVertical: boolean;
         scrollHorizontal: boolean;
+        allowMultiSort: boolean;
         showHeaders(): void;
         hideHeaders(): void;
         getSelectionActions(): SelectionActions;

@@ -203,6 +203,7 @@ namespace Ui {
     }
 
     export class ListViewHeadersBar<T> extends Container {
+        allowMultiSort = true;
         private headers: HeaderDef[];
         private _sortOrder = new Array<{ key: keyof T, invert: boolean }>();
         uis: ListViewHeader[];
@@ -233,13 +234,16 @@ namespace Ui {
 
             new ContextMenuWatcher({
                 element: this,
-                press: (e) => new ListViewHeaderSortPopup<T>(this.headers).assign({
-                    sortOrder: this._sortOrder,
-                    onchanged: e => {
-                        this.sortOrder = e.sortOrder;
-                        this.sortchanged.fire({ target: this, sortOrder: this.sortOrder });
-                    }
-                }).openAt(e.x, e.y)
+                press: (e) => {
+                    if (this.allowMultiSort)
+                        new ListViewHeaderSortPopup<T>(this.headers).assign({
+                            sortOrder: this._sortOrder,
+                            onchanged: e => {
+                                this.sortOrder = e.sortOrder;
+                                this.sortchanged.fire({ target: this, sortOrder: this.sortOrder });
+                            }
+                        }).openAt(e.x, e.y);
+                }
             })
         }
 
@@ -498,6 +502,7 @@ namespace Ui {
     export interface ListViewInit<T> extends VBoxInit {
         headers?: HeaderDef[];
         scrolled?: boolean;
+        allowMultiSort?: boolean;
         scrollVertical?: boolean;
         scrollHorizontal?: boolean;
         selectionActions?: SelectionActions;
@@ -521,6 +526,7 @@ namespace Ui {
         headersVisible: boolean = true;
         scroll: VBoxScrollingArea;
         selectionActions: SelectionActions;
+        sortFunc?: (data: Array<T>, sortOrder: Array<{ key: keyof T, invert: boolean }>) => void;
         private _scrolled: boolean = true;
         private _scrollVertical: boolean = true;
         private _scrollHorizontal: boolean = true;
@@ -599,6 +605,8 @@ namespace Ui {
                     this.sortchanged.connect(init.onsortchanged);
                 if (init.onselectionchanged)
                     this.selectionchanged.connect(init.onselectionchanged);
+                if (init.allowMultiSort != undefined)
+                    this.allowMultiSort = init.allowMultiSort;
             }
         }
 
@@ -620,6 +628,14 @@ namespace Ui {
                 this._scrollHorizontal = value;
                 this.vboxScroll.scrollHorizontal = value;
             }
+        }
+
+        get allowMultiSort(): boolean {
+            return this.headersBar.allowMultiSort;
+        }
+
+        set allowMultiSort(value: boolean) {
+            this.headersBar.allowMultiSort = value;
         }
 
         showHeaders() {
@@ -713,6 +729,8 @@ namespace Ui {
 
         sortData() {
             let sortOrder = this.sortOrder;
+            if (this.sortFunc)
+                return this.sortFunc(this._data, sortOrder);
             let cmp = function (a, b) {
                 return (a < b) ? -1 : (a > b) ? 1 : 0;
             }

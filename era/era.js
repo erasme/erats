@@ -23839,6 +23839,7 @@ var Ui;
         __extends(ListViewHeadersBar, _super);
         function ListViewHeadersBar(init) {
             var _this = _super.call(this) || this;
+            _this.allowMultiSort = true;
             _this._sortOrder = new Array();
             _this.rowsHeight = 0;
             _this.headersHeight = 0;
@@ -23864,13 +23865,16 @@ var Ui;
             }
             new Ui.ContextMenuWatcher({
                 element: _this,
-                press: function (e) { return new ListViewHeaderSortPopup(_this.headers).assign({
-                    sortOrder: _this._sortOrder,
-                    onchanged: function (e) {
-                        _this.sortOrder = e.sortOrder;
-                        _this.sortchanged.fire({ target: _this, sortOrder: _this.sortOrder });
-                    }
-                }).openAt(e.x, e.y); }
+                press: function (e) {
+                    if (_this.allowMultiSort)
+                        new ListViewHeaderSortPopup(_this.headers).assign({
+                            sortOrder: _this._sortOrder,
+                            onchanged: function (e) {
+                                _this.sortOrder = e.sortOrder;
+                                _this.sortchanged.fire({ target: _this, sortOrder: _this.sortOrder });
+                            }
+                        }).openAt(e.x, e.y);
+                }
             });
             return _this;
         }
@@ -24186,6 +24190,8 @@ var Ui;
                     _this.sortchanged.connect(init.onsortchanged);
                 if (init.onselectionchanged)
                     _this.selectionchanged.connect(init.onselectionchanged);
+                if (init.allowMultiSort != undefined)
+                    _this.allowMultiSort = init.allowMultiSort;
             }
             return _this;
         }
@@ -24244,6 +24250,16 @@ var Ui;
                     this._scrollHorizontal = value;
                     this.vboxScroll.scrollHorizontal = value;
                 }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ListView.prototype, "allowMultiSort", {
+            get: function () {
+                return this.headersBar.allowMultiSort;
+            },
+            set: function (value) {
+                this.headersBar.allowMultiSort = value;
             },
             enumerable: true,
             configurable: true
@@ -24327,6 +24343,8 @@ var Ui;
         });
         ListView.prototype.sortData = function () {
             var sortOrder = this.sortOrder;
+            if (this.sortFunc)
+                return this.sortFunc(this._data, sortOrder);
             var cmp = function (a, b) {
                 return (a < b) ? -1 : (a > b) ? 1 : 0;
             };
