@@ -16,7 +16,9 @@ namespace Ui {
         altKey?: boolean;
         shiftKey?: boolean;
         ctrlKey?: boolean;
+        middleButton?: boolean;
         lock: boolean = false;
+        allowMiddleButton: boolean = false;
 
         constructor(init: {
             element: Ui.Element,
@@ -64,7 +66,7 @@ namespace Ui {
                 return;
             if (event.pointerType == 'touch')
                 return;
-            if (event.pointerType == 'mouse' && event.button != 0)
+            if (event.pointerType == 'mouse' && !(event.button == 0 || (this.allowMiddleButton && event.button == 1)))
                 return;
 
             this._pointerId = event.pointerId;
@@ -90,6 +92,11 @@ namespace Ui {
                 this._pointerId = undefined;
                 e.stopPropagation();
                 this.onUp();
+
+                // if the middle click is allow, generate press because the native "click"
+                // event don't handle middle mouse click.
+                if (e.pointerType == 'mouse' && event.button == 1 && this.allowMiddleButton)
+                    this.onPress(e.clientX, e.clientY, e.altKey, e.shiftKey, e.ctrlKey, true);
             }
             this.element.drawing.addEventListener('pointercancel', onPointerCancel);
             this.element.drawing.addEventListener('pointerup', onPointerUp);
@@ -130,9 +137,10 @@ namespace Ui {
                 this.up(this);
         }
 
-        protected onPress(x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean) {
+        protected onPress(x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean, middleButton?: boolean) {
             this.x = x; this.y = y;
             this.altKey = altKey; this.shiftKey = shiftKey; this.ctrlKey = ctrlKey;
+            this.middleButton = middleButton;
             if (this.press)
                 this.press(this);
 
@@ -147,7 +155,7 @@ namespace Ui {
             }
             else {
                 this.delayedTimer = new Core.DelayedTask(0.30, () => {
-                    this.onDelayedPress(x, y, altKey, shiftKey, ctrlKey);
+                    this.onDelayedPress(x, y, altKey, shiftKey, ctrlKey, middleButton);
                 });
             }
             this.lastTime = currentTime;
@@ -158,9 +166,10 @@ namespace Ui {
                 this.activate(this);
         }
 
-        protected onDelayedPress(x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean) {
+        protected onDelayedPress(x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean, middleButton?: boolean) {
             this.x = x; this.y = y;
             this.altKey = altKey; this.shiftKey = shiftKey; this.ctrlKey = ctrlKey;
+            this.middleButton = middleButton;
             if (this.delayedTimer) {
                 if (!this.delayedTimer.isDone)
                     this.delayedTimer.abort();
@@ -174,7 +183,8 @@ namespace Ui {
 
     export interface PressableInit extends OverableInit {
         lock?: boolean;
-        onpressed?: (event: { target: Pressable, x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean }) => void;
+        allowMiddleButton?: boolean;
+        onpressed?: (event: { target: Pressable, x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean, middleButton?: boolean }) => void;
         ondowned?: (event: { target: Pressable }) => void;
         onupped?: (event: { target: Pressable }) => void;
         onactivated?: (event: { target: Pressable, x?: number, y?: number }) => void;
@@ -188,12 +198,12 @@ namespace Ui {
         set ondowned(value: (event: { target: Pressable }) => void) { this.downed.connect(value); }
         readonly upped = new Core.Events<{ target: Pressable }>();
         set onupped(value: (event: { target: Pressable }) => void) { this.upped.connect(value); }
-        readonly pressed = new Core.Events<{ target: Pressable, x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean }>();
-        set onpressed(value: (event: { target: Pressable, x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean }) => void) { this.pressed.connect(value); }
+        readonly pressed = new Core.Events<{ target: Pressable, x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean, middleButton?: boolean }>();
+        set onpressed(value: (event: { target: Pressable, x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean, middleButton?: boolean }) => void) { this.pressed.connect(value); }
         readonly activated = new Core.Events<{ target: Pressable, x?: number, y?: number }>();
         set onactivated(value: (event: { target: Pressable, x?: number, y?: number }) => void) { this.activated.connect(value); }
-        readonly delayedpress = new Core.Events<{ target: Pressable, x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean }>();
-        set ondelayedpress(value: (event: { target: Pressable, x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean }) => void) { this.delayedpress.connect(value); }
+        readonly delayedpress = new Core.Events<{ target: Pressable, x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean, middleButton?: boolean }>();
+        set ondelayedpress(value: (event: { target: Pressable, x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean, middleButton?: boolean }) => void) { this.delayedpress.connect(value); }
 
         constructor(init?: PressableInit) {
             super(init);
@@ -204,11 +214,11 @@ namespace Ui {
 
             this.pressWatcher = new PressWatcher({
                 element: this,
-                onpressed: (watcher) => this.onPress(watcher.x, watcher.y, watcher.altKey, watcher.shiftKey, watcher.ctrlKey),
+                onpressed: (watcher) => this.onPress(watcher.x, watcher.y, watcher.altKey, watcher.shiftKey, watcher.ctrlKey, watcher.middleButton),
                 ondowned: (watcher) => this.onDown(),
                 onupped: (watcher) => this.onUp(),
                 onactivated: (watcher) => this.onActivate(watcher.x, watcher.y),
-                ondelayedpress: (watcher) => this.onDelayedPress(watcher.x, watcher.y, watcher.altKey, watcher.shiftKey, watcher.ctrlKey)
+                ondelayedpress: (watcher) => this.onDelayedPress(watcher.x, watcher.y, watcher.altKey, watcher.shiftKey, watcher.ctrlKey, watcher.middleButton)
             });
 
             if (init) {
@@ -224,6 +234,8 @@ namespace Ui {
                     this.activated.connect(init.onactivated);
                 if (init.ondelayedpress !== undefined)
                     this.delayedpress.connect(init.ondelayedpress);
+                if (init.allowMiddleButton !== undefined)
+                    this.allowMiddleButton = init.allowMiddleButton;
             }
         }
 
@@ -243,6 +255,14 @@ namespace Ui {
             return this.pressWatcher.lock;
         }
 
+        set allowMiddleButton(value: boolean) {
+            this.pressWatcher.allowMiddleButton = value;
+        }
+
+        get allowMiddleButton(): boolean {
+            return this.pressWatcher.allowMiddleButton;
+        }
+
         protected onDown() {
             this.downed.fire({ target: this });
         }
@@ -256,16 +276,16 @@ namespace Ui {
                 this.onPress();
         }
 
-        protected onPress(x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean) {
-            this.pressed.fire({ target: this, x: x, y: y, altKey: altKey, shiftKey: shiftKey, ctrlKey: ctrlKey });
+        protected onPress(x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean, middleButton?: boolean) {
+            this.pressed.fire({ target: this, x: x, y: y, altKey: altKey, shiftKey: shiftKey, ctrlKey: ctrlKey, middleButton: middleButton });
         }
 
         protected onActivate(x?: number, y?: number) {
             this.activated.fire({ target: this, x: x, y: y });
         }
 
-        protected onDelayedPress(x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean) {
-            this.delayedpress.fire({ target: this, x: x, y: y, altKey: altKey, shiftKey: shiftKey, ctrlKey: ctrlKey });
+        protected onDelayedPress(x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean, middleButton?: boolean) {
+            this.delayedpress.fire({ target: this, x: x, y: y, altKey: altKey, shiftKey: shiftKey, ctrlKey: ctrlKey, middleButton: middleButton });
         }
 
         protected onDisable() {

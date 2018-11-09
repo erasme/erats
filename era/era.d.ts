@@ -1801,7 +1801,9 @@ declare namespace Ui {
         altKey?: boolean;
         shiftKey?: boolean;
         ctrlKey?: boolean;
+        middleButton?: boolean;
         lock: boolean;
+        allowMiddleButton: boolean;
         constructor(init: {
             element: Ui.Element;
             onpressed?: (watcher: PressWatcher) => void;
@@ -1816,12 +1818,13 @@ declare namespace Ui {
         protected onKeyUp(event: KeyboardEvent): void;
         protected onDown(): void;
         protected onUp(): void;
-        protected onPress(x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean): void;
+        protected onPress(x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean, middleButton?: boolean): void;
         protected onActivate(x?: number, y?: number): void;
-        protected onDelayedPress(x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean): void;
+        protected onDelayedPress(x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean, middleButton?: boolean): void;
     }
     interface PressableInit extends OverableInit {
         lock?: boolean;
+        allowMiddleButton?: boolean;
         onpressed?: (event: {
             target: Pressable;
             x?: number;
@@ -1829,6 +1832,7 @@ declare namespace Ui {
             altKey?: boolean;
             shiftKey?: boolean;
             ctrlKey?: boolean;
+            middleButton?: boolean;
         }) => void;
         ondowned?: (event: {
             target: Pressable;
@@ -1871,6 +1875,7 @@ declare namespace Ui {
             altKey?: boolean;
             shiftKey?: boolean;
             ctrlKey?: boolean;
+            middleButton?: boolean;
         }>;
         onpressed: (event: {
             target: Pressable;
@@ -1879,6 +1884,7 @@ declare namespace Ui {
             altKey?: boolean;
             shiftKey?: boolean;
             ctrlKey?: boolean;
+            middleButton?: boolean;
         }) => void;
         readonly activated: Core.Events<{
             target: Pressable;
@@ -1897,6 +1903,7 @@ declare namespace Ui {
             altKey?: boolean;
             shiftKey?: boolean;
             ctrlKey?: boolean;
+            middleButton?: boolean;
         }>;
         ondelayedpress: (event: {
             target: Pressable;
@@ -1905,16 +1912,18 @@ declare namespace Ui {
             altKey?: boolean;
             shiftKey?: boolean;
             ctrlKey?: boolean;
+            middleButton?: boolean;
         }) => void;
         constructor(init?: PressableInit);
         readonly isDown: boolean;
         lock: boolean;
+        allowMiddleButton: boolean;
         protected onDown(): void;
         protected onUp(): void;
         press(): void;
-        protected onPress(x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean): void;
+        protected onPress(x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean, middleButton?: boolean): void;
         protected onActivate(x?: number, y?: number): void;
-        protected onDelayedPress(x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean): void;
+        protected onDelayedPress(x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean, middleButton?: boolean): void;
         protected onDisable(): void;
         protected onEnable(): void;
     }

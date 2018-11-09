@@ -8868,6 +8868,7 @@ var Ui;
             _this._isDown = false;
             _this.lastTime = undefined;
             _this.lock = false;
+            _this.allowMiddleButton = false;
             _this.element = init.element;
             if (init.onpressed)
                 _this.press = init.onpressed;
@@ -8904,7 +8905,7 @@ var Ui;
                 return;
             if (event.pointerType == 'touch')
                 return;
-            if (event.pointerType == 'mouse' && event.button != 0)
+            if (event.pointerType == 'mouse' && !(event.button == 0 || (this.allowMiddleButton && event.button == 1)))
                 return;
             this._pointerId = event.pointerId;
             this.element.drawing.setPointerCapture(event.pointerId);
@@ -8928,6 +8929,8 @@ var Ui;
                 _this._pointerId = undefined;
                 e.stopPropagation();
                 _this.onUp();
+                if (e.pointerType == 'mouse' && event.button == 1 && _this.allowMiddleButton)
+                    _this.onPress(e.clientX, e.clientY, e.altKey, e.shiftKey, e.ctrlKey, true);
             };
             this.element.drawing.addEventListener('pointercancel', onPointerCancel);
             this.element.drawing.addEventListener('pointerup', onPointerUp);
@@ -8961,13 +8964,14 @@ var Ui;
             if (this.up)
                 this.up(this);
         };
-        PressWatcher.prototype.onPress = function (x, y, altKey, shiftKey, ctrlKey) {
+        PressWatcher.prototype.onPress = function (x, y, altKey, shiftKey, ctrlKey, middleButton) {
             var _this = this;
             this.x = x;
             this.y = y;
             this.altKey = altKey;
             this.shiftKey = shiftKey;
             this.ctrlKey = ctrlKey;
+            this.middleButton = middleButton;
             if (this.press)
                 this.press(this);
             var currentTime = (new Date().getTime()) / 1000;
@@ -8980,7 +8984,7 @@ var Ui;
             }
             else {
                 this.delayedTimer = new Core.DelayedTask(0.30, function () {
-                    _this.onDelayedPress(x, y, altKey, shiftKey, ctrlKey);
+                    _this.onDelayedPress(x, y, altKey, shiftKey, ctrlKey, middleButton);
                 });
             }
             this.lastTime = currentTime;
@@ -8989,12 +8993,13 @@ var Ui;
             if (this.activate)
                 this.activate(this);
         };
-        PressWatcher.prototype.onDelayedPress = function (x, y, altKey, shiftKey, ctrlKey) {
+        PressWatcher.prototype.onDelayedPress = function (x, y, altKey, shiftKey, ctrlKey, middleButton) {
             this.x = x;
             this.y = y;
             this.altKey = altKey;
             this.shiftKey = shiftKey;
             this.ctrlKey = ctrlKey;
+            this.middleButton = middleButton;
             if (this.delayedTimer) {
                 if (!this.delayedTimer.isDone)
                     this.delayedTimer.abort();
@@ -9020,11 +9025,11 @@ var Ui;
             _this.role = 'button';
             _this.pressWatcher = new PressWatcher({
                 element: _this,
-                onpressed: function (watcher) { return _this.onPress(watcher.x, watcher.y, watcher.altKey, watcher.shiftKey, watcher.ctrlKey); },
+                onpressed: function (watcher) { return _this.onPress(watcher.x, watcher.y, watcher.altKey, watcher.shiftKey, watcher.ctrlKey, watcher.middleButton); },
                 ondowned: function (watcher) { return _this.onDown(); },
                 onupped: function (watcher) { return _this.onUp(); },
                 onactivated: function (watcher) { return _this.onActivate(watcher.x, watcher.y); },
-                ondelayedpress: function (watcher) { return _this.onDelayedPress(watcher.x, watcher.y, watcher.altKey, watcher.shiftKey, watcher.ctrlKey); }
+                ondelayedpress: function (watcher) { return _this.onDelayedPress(watcher.x, watcher.y, watcher.altKey, watcher.shiftKey, watcher.ctrlKey, watcher.middleButton); }
             });
             if (init) {
                 if (init.lock !== undefined)
@@ -9039,6 +9044,8 @@ var Ui;
                     _this.activated.connect(init.onactivated);
                 if (init.ondelayedpress !== undefined)
                     _this.delayedpress.connect(init.ondelayedpress);
+                if (init.allowMiddleButton !== undefined)
+                    _this.allowMiddleButton = init.allowMiddleButton;
             }
             return _this;
         }
@@ -9088,6 +9095,16 @@ var Ui;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(Pressable.prototype, "allowMiddleButton", {
+            get: function () {
+                return this.pressWatcher.allowMiddleButton;
+            },
+            set: function (value) {
+                this.pressWatcher.allowMiddleButton = value;
+            },
+            enumerable: true,
+            configurable: true
+        });
         Pressable.prototype.onDown = function () {
             this.downed.fire({ target: this });
         };
@@ -9098,14 +9115,14 @@ var Ui;
             if (!this.isDisabled && !this.lock)
                 this.onPress();
         };
-        Pressable.prototype.onPress = function (x, y, altKey, shiftKey, ctrlKey) {
-            this.pressed.fire({ target: this, x: x, y: y, altKey: altKey, shiftKey: shiftKey, ctrlKey: ctrlKey });
+        Pressable.prototype.onPress = function (x, y, altKey, shiftKey, ctrlKey, middleButton) {
+            this.pressed.fire({ target: this, x: x, y: y, altKey: altKey, shiftKey: shiftKey, ctrlKey: ctrlKey, middleButton: middleButton });
         };
         Pressable.prototype.onActivate = function (x, y) {
             this.activated.fire({ target: this, x: x, y: y });
         };
-        Pressable.prototype.onDelayedPress = function (x, y, altKey, shiftKey, ctrlKey) {
-            this.delayedpress.fire({ target: this, x: x, y: y, altKey: altKey, shiftKey: shiftKey, ctrlKey: ctrlKey });
+        Pressable.prototype.onDelayedPress = function (x, y, altKey, shiftKey, ctrlKey, middleButton) {
+            this.delayedpress.fire({ target: this, x: x, y: y, altKey: altKey, shiftKey: shiftKey, ctrlKey: ctrlKey, middleButton: middleButton });
         };
         Pressable.prototype.onDisable = function () {
             _super.prototype.onDisable.call(this);
