@@ -23013,6 +23013,13 @@ var Ui;
                 _this.drawing.addEventListener('pointerdown', function (e) { return _this.onPointerDown(e); }, { passive: false });
             else
                 _this.drawing.addEventListener('mousedown', function (e) { return _this.onMouseDown(e); });
+            _this.drawing.addEventListener('click', function (e) {
+                var selection = _this.getParentSelectionHandler();
+                if (selection.elements.length > 0) {
+                    selection.clear();
+                    e.stopImmediatePropagation();
+                }
+            });
             _this.drawing.addEventListener('keydown', function (e) { return _this.onKeyDown(e); });
             return _this;
         }

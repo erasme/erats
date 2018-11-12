@@ -17,6 +17,13 @@ namespace Ui {
                 this.drawing.addEventListener('pointerdown', (e) => this.onPointerDown(e), { passive: false });
             else
                 this.drawing.addEventListener('mousedown', (e) => this.onMouseDown(e));
+            this.drawing.addEventListener('click', (e) => {
+                var selection = this.getParentSelectionHandler();
+                if (selection.elements.length > 0) {
+                    selection.clear();
+                    e.stopImmediatePropagation();
+                }
+            });
 
             // handle keyboard
             this.drawing.addEventListener('keydown', (e) => this.onKeyDown(e));
