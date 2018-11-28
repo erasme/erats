@@ -14,7 +14,15 @@ class App extends Ui.App {
             text: 'begin',
             onpressed: () => clock.begin()
         }));
-        
+
+        toolbar.append(new Ui.Button().assign({
+            text: 'infinite',
+            onpressed: () => {
+                clock.stop();
+                progressbar.value = 'infinite'
+            }
+        }));
+
         let progressbar = new Ui.ProgressBar().assign({
             verticalAlign: 'center', horizontalAlign: 'center', width: 200
         });

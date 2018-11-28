@@ -35,6 +35,12 @@ namespace Ui {
         set value(value: number | 'infinite') {
             if (value != this._value) {
                 this._value = value;
+                if (value == 'infinite') {
+                    this.clock.begin();
+                } else {
+                    this.clock.stop();
+                    this.bar.transform = new Ui.Matrix().translate(0,0);
+                }
                 this.invalidateArrange();
             }
         }
@@ -68,11 +74,6 @@ namespace Ui {
             else {
                 this.bar.show();
                 this.bar.arrange(0, 0, barWidth, this.layoutHeight);
-            }
-            if (this.value == 'infinite') {
-                this.clock.begin();
-            } else {
-                this.clock.stop();
             }
         }
 
