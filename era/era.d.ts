@@ -4196,19 +4196,22 @@ declare namespace Ui {
 }
 declare namespace Ui {
     interface ProgressBarInit extends ContainerInit {
-        value?: number;
+        value?: number | 'infinite';
     }
     class ProgressBar extends Container implements ProgressBarInit {
         private _value;
-        private bar;
+        readonly bar: Rectangle;
         private background;
+        private clock;
         constructor(init?: ProgressBarInit);
-        value: number;
+        value: number | 'infinite';
         protected measureCore(width: number, height: number): {
             width: number;
             height: number;
         };
         protected arrangeCore(width: number, height: number): void;
+        protected onVisible(): void;
+        protected onHidden(): void;
         protected onStyleChange(): void;
         static style: object;
     }

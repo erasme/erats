@@ -1,12 +1,13 @@
 namespace Ui {
     export interface ProgressBarInit extends ContainerInit {
-        value?: number;
+        value?: number | 'infinite';
     }
 
     export class ProgressBar extends Container implements ProgressBarInit {
-        private _value: number= 0;
-        private bar: Rectangle;
+        private _value: number | 'infinite' = 0;
+        readonly bar: Rectangle;
         private background: Rectangle;
+        private clock: Anim.Clock;
 
         constructor(init?: ProgressBarInit) {
             super(init);
@@ -18,22 +19,27 @@ namespace Ui {
                 if (init.value !== undefined)
                     this.value = init.value;
             }
+
+            this.clock = new Anim.Clock({
+                repeat: 'forever', duration: 2,
+                ontimeupdate: e => {
+                    let p = e.progress;
+                    let p2 = (p > 0.5) ? 2 - 2 * p : 2 * p;
+                    let x = p2 * (this.layoutWidth - this.bar.layoutWidth);
+
+                    this.bar.transform = new Ui.Matrix().translate(x, 0);
+                }
+            });
         }
 
-        set value(value: number) {
+        set value(value: number | 'infinite') {
             if (value != this._value) {
                 this._value = value;
-                let barWidth = this.layoutWidth * this._value;
-                if (barWidth < 2)
-                    this.bar.hide();
-                else {
-                    this.bar.show();
-                    this.bar.arrange(0, 0, barWidth, this.layoutHeight);
-                }
+                this.invalidateArrange();
             }
         }
 
-        get value(): number {
+        get value(): number | 'infinite' {
             return this._value;
         }
 
@@ -56,13 +62,30 @@ namespace Ui {
         protected arrangeCore(width: number, height: number) {
             this.background.arrange(0, 0, width, height);
 
-            let barWidth = width * this._value;
+            let barWidth = width * (typeof this.value == 'number' ? this.value : 0.2);
             if (barWidth < 2)
                 this.bar.hide();
             else {
                 this.bar.show();
                 this.bar.arrange(0, 0, barWidth, this.layoutHeight);
             }
+            if (this.value == 'infinite') {
+                this.clock.begin();
+            } else {
+                this.clock.stop();
+            }
+        }
+
+        protected onVisible() {
+            super.onVisible();
+            if (this.value == 'infinite')
+                this.clock.begin();
+        }
+
+        protected onHidden() {
+            super.onHidden();
+            if (this.value == 'infinite')
+                this.clock.stop();
         }
 
         protected onStyleChange() {
@@ -80,5 +103,5 @@ namespace Ui {
             radius: 0
         }
     }
-}	
+}
 

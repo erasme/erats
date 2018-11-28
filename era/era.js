@@ -19738,6 +19738,15 @@ var Ui;
                 if (init.value !== undefined)
                     _this.value = init.value;
             }
+            _this.clock = new Anim.Clock({
+                repeat: 'forever', duration: 2,
+                ontimeupdate: function (e) {
+                    var p = e.progress;
+                    var p2 = (p > 0.5) ? 2 - 2 * p : 2 * p;
+                    var x = p2 * (_this.layoutWidth - _this.bar.layoutWidth);
+                    _this.bar.transform = new Ui.Matrix().translate(x, 0);
+                }
+            });
             return _this;
         }
         Object.defineProperty(ProgressBar.prototype, "value", {
@@ -19747,13 +19756,7 @@ var Ui;
             set: function (value) {
                 if (value != this._value) {
                     this._value = value;
-                    var barWidth = this.layoutWidth * this._value;
-                    if (barWidth < 2)
-                        this.bar.hide();
-                    else {
-                        this.bar.show();
-                        this.bar.arrange(0, 0, barWidth, this.layoutHeight);
-                    }
+                    this.invalidateArrange();
                 }
             },
             enumerable: true,
@@ -19773,13 +19776,29 @@ var Ui;
         };
         ProgressBar.prototype.arrangeCore = function (width, height) {
             this.background.arrange(0, 0, width, height);
-            var barWidth = width * this._value;
+            var barWidth = width * (typeof this.value == 'number' ? this.value : 0.2);
             if (barWidth < 2)
                 this.bar.hide();
             else {
                 this.bar.show();
                 this.bar.arrange(0, 0, barWidth, this.layoutHeight);
             }
+            if (this.value == 'infinite') {
+                this.clock.begin();
+            }
+            else {
+                this.clock.stop();
+            }
+        };
+        ProgressBar.prototype.onVisible = function () {
+            _super.prototype.onVisible.call(this);
+            if (this.value == 'infinite')
+                this.clock.begin();
+        };
+        ProgressBar.prototype.onHidden = function () {
+            _super.prototype.onHidden.call(this);
+            if (this.value == 'infinite')
+                this.clock.stop();
         };
         ProgressBar.prototype.onStyleChange = function () {
             var radius = this.getStyleProperty('radius');
