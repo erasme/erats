@@ -2194,6 +2194,7 @@ var Core;
             _this.binaryString = false;
             _this._method = 'POST';
             _this._isCompleted = false;
+            _this._isSent = false;
             _this.field = 'file';
             _this.progress = new Core.Events();
             _this.completed = new Core.Events();
@@ -2281,6 +2282,7 @@ var Core;
             var _this = this;
             var wrapper;
             var field;
+            this._isSent = true;
             if (this._file.fileApi !== undefined) {
                 if (Core.Navigator.supportFormData) {
                     var formData = new FormData();
@@ -2342,6 +2344,18 @@ var Core;
             return new Promise(function (resolve) {
                 _this.completed.connect(function () { return resolve(_this); });
                 _this.send();
+            });
+        };
+        FilePostUploader.prototype.waitAsync = function () {
+            var _this = this;
+            return new Promise(function (resolve) {
+                if (_this.isCompleted)
+                    resolve(_this);
+                else {
+                    _this.completed.connect(function () { return resolve(_this); });
+                    if (!_this._isSent)
+                        _this.send();
+                }
             });
         };
         FilePostUploader.prototype.abort = function () {
@@ -4091,8 +4105,6 @@ var Ui;
                 }
                 this.drawing.style.visibility = 'inherit';
                 this.arrangeCore(this._layoutWidth, this._layoutHeight);
-                if (!this.arrangeValid)
-                    console.log(this + ".arrange PROBLEM. Arrange invalidated during arrange");
             }
             this.arrangeValid = true;
         };

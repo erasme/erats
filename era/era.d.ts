@@ -368,6 +368,7 @@ declare namespace Core {
         protected _method: string;
         protected fields: object;
         protected _isCompleted: boolean;
+        protected _isSent: boolean;
         field: string;
         protected loadedOctets: number;
         protected totalOctets: number;
@@ -404,6 +405,7 @@ declare namespace Core {
         destination: string;
         send(): void;
         sendAsync(): Promise<FilePostUploader>;
+        waitAsync(): Promise<FilePostUploader>;
         abort(): void;
         readonly responseText: string;
         readonly responseJSON: any;

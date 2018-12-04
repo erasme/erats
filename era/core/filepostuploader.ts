@@ -44,6 +44,7 @@ namespace Core {
         protected _method: string = 'POST';
         protected fields: object;
         protected _isCompleted: boolean = false;
+        protected _isSent: boolean = false;
         field: string = 'file';
 
         protected loadedOctets: number;
@@ -53,7 +54,7 @@ namespace Core {
         set onprogress(value: (event: { target: FilePostUploader, loaded: number, total: number }) => void) { this.progress.connect(value); }
 
         readonly completed = new Core.Events<{ target: FilePostUploader }>();
-        set oncompleted(value: (event: { target: FilePostUploader}) => void) { this.completed.connect(value); }
+        set oncompleted(value: (event: { target: FilePostUploader }) => void) { this.completed.connect(value); }
 
         readonly error = new Core.Events<{ target: FilePostUploader, status: number }>();
         set onerror(value: (event: { target: FilePostUploader, status: number }) => void) { this.error.connect(value); }
@@ -122,6 +123,7 @@ namespace Core {
         //
         send() {
             let wrapper; let field;
+            this._isSent = true;
             if (this._file.fileApi !== undefined) {
                 if (Core.Navigator.supportFormData) {
                     let formData = new FormData();
@@ -191,6 +193,18 @@ namespace Core {
             });
         }
 
+        waitAsync() {
+            return new Promise<Core.FilePostUploader>(resolve => {
+                if (this.isCompleted)
+                    resolve(this);
+                else {
+                    this.completed.connect(() => resolve(this));
+                    if (!this._isSent)
+                        this.send();
+                }
+            });
+        }
+
         abort() {
             if (this.request !== undefined) {
                 this.request.abort();
@@ -255,7 +269,7 @@ namespace Core {
 
         protected onFileReaderLoad(event) {
             let body = '--' + this.boundary + '\r\n';
-            body += "Content-Disposition: form-data; name='"+this.field+"'; filename='" + this._file.fileApi.name + "'\r\n";
+            body += "Content-Disposition: form-data; name='" + this.field + "'; filename='" + this._file.fileApi.name + "'\r\n";
             body += 'Content-Type: ' + this._file.fileApi.type + '\r\n\r\n';
             body += event.target.result + '\r\n';
             body += '--' + this.boundary + '--';
