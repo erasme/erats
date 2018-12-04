@@ -580,8 +580,8 @@ namespace Ui {
 
                 this.drawing.style.visibility = 'inherit';
                 this.arrangeCore(this._layoutWidth, this._layoutHeight);
-                if (!this.arrangeValid)
-                    console.log(`${this}.arrange PROBLEM. Arrange invalidated during arrange`);
+//                if (!this.arrangeValid)
+//                    console.log(`${this}.arrange PROBLEM. Arrange invalidated during arrange`);
             }
             this.arrangeValid = true;
         }
