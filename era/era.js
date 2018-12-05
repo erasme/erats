@@ -17523,6 +17523,7 @@ var Ui;
         __extends(Loading, _super);
         function Loading(init) {
             var _this = _super.call(this, init) || this;
+            _this._value = 'infinite';
             _this.ease = new Anim.PowerEase({ mode: 'inout' });
             _this.clock = new Anim.Clock({ repeat: 'forever', duration: 2 });
             _this.clock.timeupdate.connect(function (e) { return _this.invalidateDraw(); });
@@ -17530,7 +17531,8 @@ var Ui;
         }
         Loading.prototype.onVisible = function () {
             _super.prototype.onVisible.call(this);
-            this.clock.begin();
+            if (this._value == 'infinite')
+                this.clock.begin();
         };
         Loading.prototype.onHidden = function () {
             _super.prototype.onHidden.call(this);
@@ -17551,7 +17553,11 @@ var Ui;
             if (p > 0.8)
                 startAngle = Math.PI * 2 * p - (Math.PI * 2 * 5 * this.ease.ease(p2) / 6);
             var endAngle = startAngle + (Math.PI / 4) + (Math.PI * 2 * 5 * this.ease.ease(p2) / 6);
-            ctx.strokeStyle = this.getStyleProperty('color').getCssRgba();
+            if (this._value != 'infinite') {
+                startAngle = 0;
+                endAngle = Math.PI * 2 * this._value;
+            }
+            ctx.strokeStyle = Ui.Color.create(this.getStyleProperty('color')).getCssRgba();
             ctx.beginPath();
             ctx.arc(x, y, radius, startAngle, endAngle, false);
             ctx.lineWidth = lineWidth;
@@ -17560,6 +17566,23 @@ var Ui;
         Loading.prototype.measureCore = function (width, height) {
             return { width: 30, height: 30 };
         };
+        Object.defineProperty(Loading.prototype, "value", {
+            get: function () {
+                return this._value;
+            },
+            set: function (value) {
+                if (value != this._value) {
+                    this._value = value;
+                    if (value == 'infinite' && this.isVisible)
+                        this.clock.begin();
+                    else
+                        this.clock.stop();
+                    this.invalidateDraw();
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
         Loading.style = {
             color: new Ui.Color(0.27, 0.52, 0.9)
         };
@@ -19768,9 +19791,8 @@ var Ui;
             set: function (value) {
                 if (value != this._value) {
                     this._value = value;
-                    if (value == 'infinite') {
+                    if (value == 'infinite' && this.isVisible)
                         this.clock.begin();
-                    }
                     else {
                         this.clock.stop();
                         this.bar.transform = new Ui.Matrix().translate(0, 0);

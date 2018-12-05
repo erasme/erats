@@ -3671,8 +3671,10 @@ declare namespace Ui {
 }
 declare namespace Ui {
     interface LoadingInit extends CanvasElementInit {
+        value?: number | 'infinite';
     }
     class Loading extends CanvasElement implements LoadingInit {
+        private _value;
         private clock;
         private ease;
         constructor(init?: LoadingInit);
@@ -3683,6 +3685,7 @@ declare namespace Ui {
             width: number;
             height: number;
         };
+        value: number | 'infinite';
         static style: object;
     }
 }

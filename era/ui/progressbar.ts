@@ -35,9 +35,9 @@ namespace Ui {
         set value(value: number | 'infinite') {
             if (value != this._value) {
                 this._value = value;
-                if (value == 'infinite') {
+                if (value == 'infinite' && this.isVisible)
                     this.clock.begin();
-                } else {
+                else {
                     this.clock.stop();
                     this.bar.transform = new Ui.Matrix().translate(0,0);
                 }
