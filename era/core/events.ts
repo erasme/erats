@@ -19,7 +19,7 @@ namespace Core {
         }
 
         fire(event: T) {
-            for (let handler of this.list)
+            for (let handler of this.list.slice())
                 handler.handler(event);
         }
     }

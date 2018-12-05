@@ -49,7 +49,7 @@ var Core;
             }
         };
         Events.prototype.fire = function (event) {
-            for (var _i = 0, _a = this.list; _i < _a.length; _i++) {
+            for (var _i = 0, _a = this.list.slice(); _i < _a.length; _i++) {
                 var handler = _a[_i];
                 handler.handler(event);
             }
