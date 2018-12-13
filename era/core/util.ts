@@ -578,13 +578,7 @@ Promise.prototype['finally'] = promiseFinally;
 
 // Use polyfill for setImmediate for performance gains
 (Promise as any)._immediateFn =
-  (typeof setImmediate === 'function' &&
-    function(fn) {
-      setImmediate(fn);
-    }) ||
-  function(fn) {
-    setTimeoutFunc(fn, 0);
-  };
+  (window as any).setImmediate && (typeof((window as any).setImmediate) === 'function') ? function(fn) { (window as any).setImmediate(fn); } : function(fn) { setTimeoutFunc(fn, 0); };
 
 (Promise as any)._unhandledRejectionFn = function _unhandledRejectionFn(err) {
   if (typeof console !== 'undefined' && console) {

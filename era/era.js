@@ -574,13 +574,7 @@ if (Object.assign == undefined) {
         });
     };
     Promise._immediateFn =
-        (typeof setImmediate === 'function' &&
-            function (fn) {
-                setImmediate(fn);
-            }) ||
-            function (fn) {
-                setTimeoutFunc(fn, 0);
-            };
+        window.setImmediate && (typeof (window.setImmediate) === 'function') ? function (fn) { window.setImmediate(fn); } : function (fn) { setTimeoutFunc(fn, 0); };
     Promise._unhandledRejectionFn = function _unhandledRejectionFn(err) {
         if (typeof console !== 'undefined' && console) {
             console.warn('Possible Unhandled Promise Rejection:', err);
@@ -711,7 +705,7 @@ var __extends = (this && this.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }

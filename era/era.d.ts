@@ -5594,7 +5594,7 @@ declare namespace Ui {
         }) => void;
         readonly positionchanged: Core.Events<{
             target: Fold;
-            position: "bottom" | "left" | "right" | "top";
+            position: "left" | "right" | "top" | "bottom";
         }>;
         onpositionchanged: (event: {
             target: Fold;
