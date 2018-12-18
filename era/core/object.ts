@@ -29,13 +29,6 @@ namespace Core {
                 return /function (.{1,})\(/.exec((this.constructor as any).toString())[1];
         }
 
-        /*protected assign(init?: object) {
-            if (!init)
-                return;
-            for (var prop in init)
-                this[prop] = init[prop];
-        }*/
-
         assign(props: Partial<this>): this {
             return assign(this, props);
         }
