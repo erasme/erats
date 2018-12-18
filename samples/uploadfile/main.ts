@@ -54,7 +54,7 @@ class App extends Ui.App {
         vbox.append(uploadButton);
     }
 
-    onUploadFile(element: Ui.DropBox, file: Core.File) {
+    onUploadFile(element: Ui.DropBox, file: File) {
         let uploader = new Core.FilePostUploader({
             file: file, service: 'upload.php',
             onprogress: e => this.progressbar.value = e.loaded / e.total,            
@@ -63,7 +63,7 @@ class App extends Ui.App {
                 this.droplabel.text = 'drop file here';
             }
         });
-        this.droplabel.text = file.getFileName();
+        this.droplabel.text = file.name;
         this.progressbar.show();
         uploader.send();
     }

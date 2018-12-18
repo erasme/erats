@@ -7,7 +7,7 @@
         ondragentered?: (event: { target: DropAtBox, data: any }) => void;
         ondragleaved?: (event: { target: DropAtBox }) => void;
         ondroppedat?: (event: { target: DropAtBox, data: any, effect: string, position: number, x: number, y: number }) => void;
-        ondroppedfileat?: (event: { target: DropAtBox, file: Core.File, effect: string, position: number, x: number, y: number }) => void;
+        ondroppedfileat?: (event: { target: DropAtBox, file: File, effect: string, position: number, x: number, y: number }) => void;
     }
 
     export class DropAtBox extends LBox implements DropAtBoxInit {
@@ -25,8 +25,8 @@
         set ondragleaved(value: (event: { target: DropAtBox }) => void) { this.dragleaved.connect(value); }
         readonly droppedat = new Core.Events<{ target: DropAtBox, data: any, effect: string, position: number, x: number, y: number }>();
         set ondroppedat(value: (event: { target: DropAtBox, data: any, effect: string, position: number, x: number, y: number }) => void) { this.droppedat.connect(value); }
-        readonly droppedfileat = new Core.Events<{ target: DropAtBox, file: Core.File, effect: string, position: number, x: number, y: number }>();
-        set ondroppedfileat(value: (event: { target: DropAtBox, file: Core.File, effect: string, position: number, x: number, y: number }) => void) { this.droppedfileat.connect(value); }
+        readonly droppedfileat = new Core.Events<{ target: DropAtBox, file: File, effect: string, position: number, x: number, y: number }>();
+        set ondroppedfileat(value: (event: { target: DropAtBox, file: File, effect: string, position: number, x: number, y: number }) => void) { this.droppedfileat.connect(value); }
 
         constructor(init?: DropAtBoxInit) {
             super(init);

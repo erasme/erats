@@ -117,26 +117,6 @@ declare namespace Core {
         isLast(node: DoubleLinkedListNode): boolean;
     }
 }
-declare namespace Core {
-    interface FileInit {
-        form?: HTMLFormElement;
-        iframe?: HTMLIFrameElement;
-        fileInput?: HTMLInputElement;
-        fileApi?: any;
-    }
-    class File extends Object {
-        iframe?: HTMLIFrameElement;
-        form?: HTMLFormElement;
-        fileInput?: HTMLInputElement;
-        fileApi?: any;
-        constructor(init: FileInit);
-        getFileName(): any;
-        getRelativePath(): any;
-        getMimetype(): any;
-        static types: any;
-        static getMimetypeFromName(fileName: any): any;
-    }
-}
 declare module Core {
     type MethodType = 'POST' | 'PUT' | 'GET' | 'DELETE';
     interface HttpRequestInit {
@@ -416,7 +396,6 @@ declare namespace Core {
         protected onUpdateProgress(event: any): void;
         protected onFileReaderError(event: any): void;
         protected onFileReaderLoad(event: any): void;
-        protected onIFrameLoad(event: any): void;
     }
 }
 declare namespace Anim {
@@ -1505,7 +1484,7 @@ declare namespace Ui {
         hasTypes(...args: any[]): boolean;
         hasType(type: any): boolean;
         hasFiles(): boolean;
-        getFiles(): any[];
+        getFiles(): any;
         getData(type: any): any;
     }
     class DragWatcher extends Core.Object {
@@ -2358,7 +2337,7 @@ declare namespace Ui {
             width: number;
             height: number;
         };
-        setContentTransform(translateX: any, translateY: any, scale: any, angle: any): void;
+        setContentTransform(translateX?: number, translateY?: number, scale?: number, angle?: number): void;
         inertia: boolean;
         protected onDown(): void;
         protected onUp(): void;
@@ -2475,7 +2454,7 @@ declare namespace Ui {
             width: number;
             height: number;
         };
-        setContentTransform(translateX: number, translateY: number, scale: number, angle: number): void;
+        setContentTransform(translateX?: number, translateY?: number, scale?: number, angle?: number): void;
         inertia: boolean;
         protected onContentTransform(testOnly?: boolean): void;
         protected onDown(): void;
@@ -2899,7 +2878,7 @@ declare namespace Ui {
         }) => void;
         ondroppedfile?: (event: {
             target: DropBox;
-            file: Core.File;
+            file: File;
             effect: string;
             x: number;
             y: number;
@@ -2945,14 +2924,14 @@ declare namespace Ui {
         }) => void;
         readonly droppedfile: Core.Events<{
             target: DropBox;
-            file: Core.File;
+            file: File;
             effect: string;
             x: number;
             y: number;
         }>;
         ondroppedfile: (event: {
             target: DropBox;
-            file: Core.File;
+            file: File;
             effect: string;
             x: number;
             y: number;
@@ -5382,15 +5361,15 @@ declare namespace Ui {
         protected input: UploadableFileWrapper;
         readonly file: Core.Events<{
             target: Uploadable;
-            file: Core.File;
+            file: File;
         }>;
         onfile: (event: {
             target: Uploadable;
-            file: Core.File;
+            file: File;
         }) => void;
         constructor(init?: UploadableInit);
         setDirectoryMode(active: any): void;
-        protected onFile(fileWrapper: any, file: Core.File): void;
+        protected onFile(fileWrapper: any, file: File): void;
         protected onPress(): void;
         content: Element;
     }
@@ -5401,7 +5380,7 @@ declare namespace Ui {
         directoryMode: false;
         readonly file: Core.Events<{
             target: UploadableFileWrapper;
-            file: Core.File;
+            file: File;
         }>;
         constructor();
         select(): void;
@@ -5418,7 +5397,7 @@ declare namespace Ui {
         directoryMode: boolean;
         readonly file: Core.Events<{
             target: UploadableWrapper;
-            file: Core.File;
+            file: File;
         }>;
         constructor();
         setDirectoryMode(active: any): void;
@@ -5433,23 +5412,23 @@ declare namespace Ui {
         directoryMode?: boolean;
         onfilechanged?: (event: {
             target: UploadButton;
-            file: Core.File;
+            file: File;
         }) => void;
     }
     class UploadButton extends Button implements UploadButtonInit {
         input: UploadableFileWrapper;
         readonly filechanged: Core.Events<{
             target: UploadButton;
-            file: Core.File;
+            file: File;
         }>;
         onfilechanged: (event: {
             target: UploadButton;
-            file: Core.File;
+            file: File;
         }) => void;
         constructor(init?: UploadButtonInit);
         directoryMode: boolean;
         protected onUploadButtonPress(): void;
-        protected onFile(wrapper: UploadableFileWrapper, file: Core.File): void;
+        protected onFile(wrapper: UploadableFileWrapper, file: File): void;
     }
 }
 declare namespace Ui {
@@ -5796,7 +5775,7 @@ declare namespace Ui {
         }) => void;
         ondroppedfileat?: (event: {
             target: DropAtBox;
-            file: Core.File;
+            file: File;
             effect: string;
             position: number;
             x: number;
@@ -5846,7 +5825,7 @@ declare namespace Ui {
         }) => void;
         readonly droppedfileat: Core.Events<{
             target: DropAtBox;
-            file: Core.File;
+            file: File;
             effect: string;
             position: number;
             x: number;
@@ -5854,7 +5833,7 @@ declare namespace Ui {
         }>;
         ondroppedfileat: (event: {
             target: DropAtBox;
-            file: Core.File;
+            file: File;
             effect: string;
             position: number;
             x: number;

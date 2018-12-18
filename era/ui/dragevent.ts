@@ -66,10 +66,7 @@ namespace Ui {
         }
 
         getFiles() {
-            let files = [];
-            for (let i = 0; i < this.dataTransfer.dataTransfer.files.length; i++)
-                files.push(new Core.File({ fileApi: this.dataTransfer.dataTransfer.files[i] }));
-            return files;
+            return this.dataTransfer.dataTransfer.files;
         }
 
         getData(type) {

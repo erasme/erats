@@ -122,15 +122,16 @@ namespace Core {
         // Send the file
         //
         send() {
-            let wrapper; let field;
+            //let wrapper; 
+            let field;
             this._isSent = true;
-            if (this._file.fileApi !== undefined) {
+            //if (this._file.fileApi !== undefined) {
                 if (Core.Navigator.supportFormData) {
                     let formData = new FormData();
                     for (field in this.fields) {
                         formData.append(field, this.fields[field]);
                     }
-                    formData.append(this.field, this._file.fileApi);
+                    formData.append(this.field, this._file);
 
                     this.request = new XMLHttpRequest();
                     if ('upload' in this.request)
@@ -153,14 +154,14 @@ namespace Core {
                     this.boundary += '----';
 
                     this.request.setRequestHeader("Content-Type", "multipart/form-data, boundary=" + this.boundary);
-                    this.request.setRequestHeader("Content-Length", this._file.fileApi.size);
+                    this.request.setRequestHeader("Content-Length", this._file.size.toString());
                     this.request.onreadystatechange = (event) => this.onStateChange(event);
                     this.fileReader.onload = (event) => this.onFileReaderLoad(event);
                     this.fileReader.onerror = (event) => this.onFileReaderError(event);
 
-                    this.fileReader.readAsBinaryString(this._file.fileApi);
+                    this.fileReader.readAsBinaryString(this._file);
                 }
-            }
+            /*}
             else {
                 this._file.form.action = this._service;
 
@@ -183,7 +184,7 @@ namespace Core {
                         errorCount++;
                     }
                 }
-            }
+            }*/
         }
 
         sendAsync() {
@@ -269,8 +270,8 @@ namespace Core {
 
         protected onFileReaderLoad(event) {
             let body = '--' + this.boundary + '\r\n';
-            body += "Content-Disposition: form-data; name='" + this.field + "'; filename='" + this._file.fileApi.name + "'\r\n";
-            body += 'Content-Type: ' + this._file.fileApi.type + '\r\n\r\n';
+            body += "Content-Disposition: form-data; name='" + this.field + "'; filename='" + this._file.name + "'\r\n";
+            body += 'Content-Type: ' + this._file.type + '\r\n\r\n';
             body += event.target.result + '\r\n';
             body += '--' + this.boundary + '--';
             (this.request as any).sendAsBinary(body);
@@ -278,11 +279,11 @@ namespace Core {
             this.fileReader = undefined;
         }
 
-        protected onIFrameLoad(event) {
+        /*protected onIFrameLoad(event) {
             this._responseText = event.target.contentWindow.document.body.innerText;
             document.body.removeChild(this._file.iframe);
             this.completed.fire({ target: this });
-        }
+        }*/
     }
 }
 

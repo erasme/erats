@@ -212,7 +212,7 @@ namespace Ui {
             return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
         }
 
-        setContentTransform(translateX, translateY, scale, angle) {
+        setContentTransform(translateX?: number, translateY?: number, scale?: number, angle?: number) {
             if (translateX === undefined)
                 translateX = this._translateX;
             if (translateY === undefined)
@@ -775,7 +775,7 @@ namespace Ui {
             return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
         }
 
-        setContentTransform(translateX: number, translateY: number, scale: number, angle: number) {
+        setContentTransform(translateX?: number, translateY?: number, scale?: number, angle?: number) {
             if (translateX === undefined)
                 translateX = this._translateX;
             if (translateY === undefined)

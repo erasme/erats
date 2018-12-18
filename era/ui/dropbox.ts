@@ -250,7 +250,7 @@ namespace Ui
         ondragentered?: (event: { target: DropBox, data: any }) => void;
         ondragleaved?: (event: { target: DropBox }) => void;
         ondropped?: (event: { target: DropBox, data: any, effect: string, x: number, y: number, dataTransfer: DragDataTransfer }) => void;
-        ondroppedfile?: (event: { target: DropBox, file: Core.File, effect: string, x: number, y: number }) => void;
+        ondroppedfile?: (event: { target: DropBox, file: File, effect: string, x: number, y: number }) => void;
     }
 
     export class DropBox extends LBox implements DropBoxInit {
@@ -265,8 +265,8 @@ namespace Ui
         set ondragleaved(value: (event: { target: DropBox }) => void) { this.dragleaved.connect(value); }
         readonly dropped = new Core.Events<{ target: DropBox, data: any, effect: string, x: number, y: number, dataTransfer: DragDataTransfer }>();
         set ondropped(value: (event: { target: DropBox, data: any, effect: string, x: number, y: number, dataTransfer: DragDataTransfer }) => void) { this.dropped.connect(value); }
-        readonly droppedfile = new Core.Events<{ target: DropBox, file: Core.File, effect: string, x: number, y: number }>();
-        set ondroppedfile(value: (event: { target: DropBox, file: Core.File, effect: string, x: number, y: number }) => void) { this.droppedfile.connect(value); }
+        readonly droppedfile = new Core.Events<{ target: DropBox, file: File, effect: string, x: number, y: number }>();
+        set ondroppedfile(value: (event: { target: DropBox, file: File, effect: string, x: number, y: number }) => void) { this.droppedfile.connect(value); }
 
         constructor(init?: DropBoxInit) {
             super(init);

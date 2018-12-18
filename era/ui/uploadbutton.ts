@@ -1,13 +1,13 @@
 namespace Ui {
     export interface UploadButtonInit extends ButtonInit {
         directoryMode?: boolean;
-        onfilechanged?: (event: { target: UploadButton, file: Core.File }) => void;
+        onfilechanged?: (event: { target: UploadButton, file: File }) => void;
     }	
 
     export class UploadButton extends Button implements UploadButtonInit {
         input: UploadableFileWrapper;
-        readonly filechanged = new Core.Events<{ target: UploadButton, file: Core.File }>();
-        set onfilechanged(value: (event: { target: UploadButton, file: Core.File }) => void) { this.filechanged.connect(value); }
+        readonly filechanged = new Core.Events<{ target: UploadButton, file: File }>();
+        set onfilechanged(value: (event: { target: UploadButton, file: File }) => void) { this.filechanged.connect(value); }
 
         constructor(init?: UploadButtonInit) {
             super(init);
@@ -39,7 +39,7 @@ namespace Ui {
             this.input.select();
         }
 
-        protected onFile(wrapper: UploadableFileWrapper, file: Core.File) {
+        protected onFile(wrapper: UploadableFileWrapper, file: File) {
             this.filechanged.fire({ target: this, file: file });
         }
     }

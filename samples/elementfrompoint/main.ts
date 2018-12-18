@@ -3,10 +3,10 @@
 class App extends Ui.App {
 	constructor() {
 		super();
-		this.ptrdowned.connect((event: Ui.PointerEvent) => {
-			console.log('ptrdown at: '+event.pointer.getX()+','+event.pointer.getY()+' found: '+
-				Ui.App.current.elementFromPoint(new Ui.Point(event.pointer.x, event.pointer.y)));
-			Ui.Toast.send(`${Ui.App.current.elementFromPoint(new Ui.Point(event.pointer.x, event.pointer.y))}`);
+		this.drawing.addEventListener('pointerdown', (event) => {
+			console.log('pointerdown at: '+event.clientX+','+event.clientY+' found: '+
+				Ui.App.current.elementFromPoint(new Ui.Point(event.clientX, event.clientY)));
+			Ui.Toast.send(`${Ui.App.current.elementFromPoint(new Ui.Point(event.clientX, event.clientY))}`);
 		}, true);
 
 		let vbox = new Ui.VBox({ spacing: 10, margin: 10 });

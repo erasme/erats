@@ -1,8 +1,11 @@
 "use strict";
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -27,28 +30,28 @@ var App = /** @class */ (function (_super) {
         scroll.content = vbox;
         var boldButton = new Ui.ToggleButton().assign({
             icon: 'format-bold', focusable: false,
-            ontoggled: function () { return document.execCommand('bold', false, null); },
-            onuntoggled: function () { return document.execCommand('bold', false, null); }
+            ontoggled: function () { return document.execCommand('bold', false, undefined); },
+            onuntoggled: function () { return document.execCommand('bold', false, undefined); }
         });
         var italicButton = new Ui.ToggleButton().assign({
             icon: 'format-italic', focusable: false,
-            ontoggled: function () { return document.execCommand('italic', false, null); },
-            onuntoggled: function () { return document.execCommand('italic', false, null); }
+            ontoggled: function () { return document.execCommand('italic', false, undefined); },
+            onuntoggled: function () { return document.execCommand('italic', false, undefined); }
         });
         var alignLeftButton = new Ui.ToggleButton().assign({
             icon: 'format-align-left', focusable: false,
-            ontoggled: function () { return document.execCommand('justifyLeft', false, null); },
-            onuntoggled: function () { return document.execCommand('justifyLeft', false, null); }
+            ontoggled: function () { return document.execCommand('justifyLeft', false, undefined); },
+            onuntoggled: function () { return document.execCommand('justifyLeft', false, undefined); }
         });
         var alignCenterButton = new Ui.ToggleButton().assign({
             icon: 'format-align-center', focusable: false,
-            ontoggled: function () { return document.execCommand('justifyCenter', false, null); },
-            onuntoggled: function () { return document.execCommand('justifyCenter', false, null); }
+            ontoggled: function () { return document.execCommand('justifyCenter', false, undefined); },
+            onuntoggled: function () { return document.execCommand('justifyCenter', false, undefined); }
         });
         var alignRightButton = new Ui.ToggleButton().assign({
             icon: 'format-align-right', focusable: false,
-            ontoggled: function () { return document.execCommand('justifyRight', false, null); },
-            onuntoggled: function () { return document.execCommand('justifyRight', false, null); }
+            ontoggled: function () { return document.execCommand('justifyRight', false, undefined); },
+            onuntoggled: function () { return document.execCommand('justifyRight', false, undefined); }
         });
         var listButton = new Ui.ToggleButton().assign({
             focusable: false,

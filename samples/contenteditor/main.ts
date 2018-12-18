@@ -17,28 +17,28 @@ class App extends Ui.App {
 
         let boldButton = new Ui.ToggleButton().assign({
             icon: 'format-bold', focusable: false,
-            ontoggled: () => document.execCommand('bold', false, null),
-            onuntoggled: () => document.execCommand('bold', false, null)
+            ontoggled: () => document.execCommand('bold', false, undefined),
+            onuntoggled: () => document.execCommand('bold', false, undefined)
         });
         let italicButton = new Ui.ToggleButton().assign({
             icon: 'format-italic', focusable: false,
-            ontoggled: () => document.execCommand('italic', false, null),
-            onuntoggled: () => document.execCommand('italic', false, null)
+            ontoggled: () => document.execCommand('italic', false, undefined),
+            onuntoggled: () => document.execCommand('italic', false, undefined)
         });
         let alignLeftButton = new Ui.ToggleButton().assign({
             icon: 'format-align-left', focusable: false,
-            ontoggled: () => document.execCommand('justifyLeft', false, null),
-            onuntoggled: () => document.execCommand('justifyLeft', false, null)
+            ontoggled: () => document.execCommand('justifyLeft', false, undefined),
+            onuntoggled: () => document.execCommand('justifyLeft', false, undefined)
         });
         let alignCenterButton = new Ui.ToggleButton().assign({
             icon: 'format-align-center', focusable: false,
-            ontoggled: () => document.execCommand('justifyCenter', false, null),
-            onuntoggled: () => document.execCommand('justifyCenter', false, null)
+            ontoggled: () => document.execCommand('justifyCenter', false, undefined),
+            onuntoggled: () => document.execCommand('justifyCenter', false, undefined)
         });
         let alignRightButton = new Ui.ToggleButton().assign({
             icon: 'format-align-right', focusable: false,
-            ontoggled: () => document.execCommand('justifyRight', false, null),
-            onuntoggled: () => document.execCommand('justifyRight', false, null)
+            ontoggled: () => document.execCommand('justifyRight', false, undefined),
+            onuntoggled: () => document.execCommand('justifyRight', false, undefined)
         });
         let listButton = new Ui.ToggleButton().assign({
             focusable: false,

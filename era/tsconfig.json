@@ -19,7 +19,6 @@
         "core/util.ts",
         "core/uri.ts",
         "core/doublelinkedlist.ts",
-        "core/file.ts",
         "core/httprequest.ts",
         "core/delayedtask.ts",
         "core/timer.ts",
