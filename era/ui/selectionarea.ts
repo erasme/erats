@@ -7,6 +7,7 @@ namespace Ui {
         private rectangle?: Ui.Rectangle;
         private startPos: Ui.Point;
         private shiftStart: Ui.SelectionableWatcher;
+        private lastSelection = new Date('1970-01-01');
         lock: boolean = false;
 
         constructor(init?: SelectionAreaInit) {
@@ -18,6 +19,11 @@ namespace Ui {
             else
                 this.drawing.addEventListener('mousedown', (e) => this.onMouseDown(e));
             this.drawing.addEventListener('click', (e) => {
+                // protect against "click" event generated after "pointerup"
+                // depending on the selection direction Chrome generate the "click" event
+                if (Math.abs(Date.now() - this.lastSelection.getTime()) < 60)
+                    return;
+
                 var selection = this.getParentSelectionHandler();
                 if (selection.elements.length > 0) {
                     selection.clear();
@@ -247,6 +253,7 @@ namespace Ui {
                     let current = this.pointFromWindow(new Point(e.clientX, e.clientY));
                     let res = this.findAreaElements(this.startPos, current);
                     let selection = this.getParentSelectionHandler();
+                    this.lastSelection = new Date();
 
                     // Shift = selection append
                     if (e.shiftKey)
@@ -317,6 +324,7 @@ namespace Ui {
                     let current = this.pointFromWindow(new Point(e.clientX, e.clientY));
                     let res = this.findAreaElements(this.startPos, current);
                     let selection = this.getParentSelectionHandler();
+                    this.lastSelection = new Date();
 
                     // Shift = selection append
                     if (e.shiftKey)

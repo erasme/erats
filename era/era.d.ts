@@ -4961,6 +4961,7 @@ declare namespace Ui {
         private rectangle?;
         private startPos;
         private shiftStart;
+        private lastSelection;
         lock: boolean;
         constructor(init?: SelectionAreaInit);
         getParentSelectionHandler(): Ui.Selection | undefined;

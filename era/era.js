@@ -22483,12 +22483,15 @@ var Ui;
         __extends(SelectionArea, _super);
         function SelectionArea(init) {
             var _this = _super.call(this, init) || this;
+            _this.lastSelection = new Date('1970-01-01');
             _this.lock = false;
             if ('PointerEvent' in window)
                 _this.drawing.addEventListener('pointerdown', function (e) { return _this.onPointerDown(e); }, { passive: false });
             else
                 _this.drawing.addEventListener('mousedown', function (e) { return _this.onMouseDown(e); });
             _this.drawing.addEventListener('click', function (e) {
+                if (Math.abs(Date.now() - _this.lastSelection.getTime()) < 60)
+                    return;
                 var selection = _this.getParentSelectionHandler();
                 if (selection.elements.length > 0) {
                     selection.clear();
@@ -22681,6 +22684,7 @@ var Ui;
                     var current = _this.pointFromWindow(new Ui.Point(e.clientX, e.clientY));
                     var res_1 = _this.findAreaElements(_this.startPos, current);
                     var selection = _this.getParentSelectionHandler();
+                    _this.lastSelection = new Date();
                     if (e.shiftKey)
                         selection.append(res_1);
                     else if (e.ctrlKey) {
@@ -22738,6 +22742,7 @@ var Ui;
                     var current = _this.pointFromWindow(new Ui.Point(e.clientX, e.clientY));
                     var res_2 = _this.findAreaElements(_this.startPos, current);
                     var selection = _this.getParentSelectionHandler();
+                    _this.lastSelection = new Date();
                     if (e.shiftKey)
                         selection.append(res_2);
                     else if (e.ctrlKey) {
