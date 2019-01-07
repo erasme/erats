@@ -24014,6 +24014,20 @@ var Ui;
         return ListViewCellString;
     }(ListViewCell));
     Ui.ListViewCellString = ListViewCellString;
+    var ListViewCellNumber = (function (_super) {
+        __extends(ListViewCellNumber, _super);
+        function ListViewCellNumber() {
+            return _super.call(this) || this;
+        }
+        ListViewCellNumber.prototype.generateUi = function () {
+            return new Ui.Label({ margin: 8, horizontalAlign: 'right' });
+        };
+        ListViewCellNumber.prototype.onValueChange = function (value) {
+            this.ui.text = value.toString();
+        };
+        return ListViewCellNumber;
+    }(ListViewCell));
+    Ui.ListViewCellNumber = ListViewCellNumber;
     var ListViewColBar = (function (_super) {
         __extends(ListViewColBar, _super);
         function ListViewColBar(header, headerDef) {

@@ -5336,6 +5336,12 @@ declare namespace Ui {
         protected generateUi(): Element;
         protected onValueChange(value: any): void;
     }
+    class ListViewCellNumber extends ListViewCell {
+        ui: Label;
+        constructor();
+        protected generateUi(): Element;
+        protected onValueChange(value: number): void;
+    }
     class ListViewColBar extends Container {
         protected header: ListViewHeader;
         protected headerDef: HeaderDef;

@@ -901,6 +901,23 @@ namespace Ui {
         }
     }
 
+    export class ListViewCellNumber extends ListViewCell {
+        ui: Label;
+
+        constructor() {
+            super();
+
+        }
+
+        protected generateUi(): Element {
+            return new Label({ margin: 8, horizontalAlign: 'right' });
+        }
+
+        protected onValueChange(value: number) {
+            this.ui.text = value.toString();
+        }
+    }
+
     export class ListViewColBar extends Container {
         protected header: ListViewHeader;
         protected headerDef: HeaderDef;

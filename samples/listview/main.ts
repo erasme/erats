@@ -131,8 +131,8 @@ class App extends Ui.App {
 				{ type: 'string', title: 'Data 0', key: 'data0', width: 40, ui: ListViewBoolCell },
 				{ type: 'string', title: 'Data 1', key: 'data1', width: 200 },
 				{ type: 'string', title: 'Data 2', key: 'data2', width: 200 },
-				{ type: 'string', title: 'Numbers', key: 'data3' },
-				{ type: 'string', title: 'Pos', key: 'data4' }
+				{ type: 'string', title: 'Numbers', key: 'data3', ui: Ui.ListViewCellNumber },
+				{ type: 'string', title: 'Pos', key: 'data4', ui: Ui.ListViewCellNumber }
 			],
 			onactivated: e => logs.log('activate row: '+e.value)
 		});
