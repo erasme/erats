@@ -897,7 +897,7 @@ namespace Ui {
         }
 
         protected onValueChange(value: any) {
-            this.ui.text = value;
+            this.ui.text = value.toString();
         }
     }
 
