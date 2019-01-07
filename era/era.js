@@ -24031,7 +24031,7 @@ var Ui;
             return new Ui.Label({ margin: 8, horizontalAlign: 'left' });
         };
         ListViewCellString.prototype.onValueChange = function (value) {
-            this.ui.text = value.toString();
+            this.ui.text = value === undefined ? '' : (value === null ? 'null' : value.toString());
         };
         return ListViewCellString;
     }(ListViewCell));
