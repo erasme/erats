@@ -17,27 +17,31 @@ var App = /** @class */ (function (_super) {
     __extends(App, _super);
     function App() {
         var _this = _super.call(this) || this;
-        var el;
-        var hbox = new Ui.HBox();
-        _this.content = hbox;
-        var button = new Ui.Button({
-            text: 'click for scroll',
-            verticalAlign: 'center',
-            horizontalAlign: 'center',
-            onpressed: function () { return el.scrollIntoView(); }
+        var el = new Ui.Rectangle();
+        _this.content = new Ui.HBox().assign({
+            content: [
+                new Ui.Button().assign({
+                    text: 'click for scroll',
+                    verticalAlign: 'center',
+                    horizontalAlign: 'center',
+                    resizable: true,
+                    onpressed: function () { return el.scrollIntoView(); }
+                }),
+                new Ui.ScrollingArea().assign({
+                    resizable: true,
+                    content: new Ui.VBox().assign({
+                        content: [
+                            new Ui.Rectangle().assign({ fill: 'orange', height: 400 }),
+                            new Ui.Rectangle().assign({ fill: 'lightgreen', height: 400 }),
+                            new Ui.Rectangle().assign({ fill: 'purple', height: 400 }),
+                            el.assign({ fill: 'red', width: 50, height: 50, margin: 50 }),
+                            new Ui.Rectangle().assign({ fill: 'lightblue', height: 400 }),
+                            new Ui.Rectangle().assign({ fill: 'pink', height: 400 })
+                        ]
+                    })
+                })
+            ]
         });
-        hbox.append(button, true);
-        var scroll = new Ui.ScrollingArea();
-        hbox.append(scroll, true);
-        var vbox = new Ui.VBox();
-        scroll.content = vbox;
-        vbox.append(new Ui.Rectangle({ fill: 'orange', height: 400 }));
-        vbox.append(new Ui.Rectangle({ fill: 'lightgreen', height: 400 }));
-        vbox.append(new Ui.Rectangle({ fill: 'purple', height: 400 }));
-        el = new Ui.Rectangle({ fill: 'red', width: 50, height: 50, margin: 50 });
-        vbox.append(el);
-        vbox.append(new Ui.Rectangle({ fill: 'lightblue', height: 400 }));
-        vbox.append(new Ui.Rectangle({ fill: 'pink', height: 400 }));
         return _this;
     }
     return App;

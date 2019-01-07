@@ -2670,6 +2670,7 @@ declare namespace Ui {
             height: number;
         };
         protected arrangeCore(width: number, height: number): void;
+        protected onScrollIntoView(el: Element): void;
     }
     interface NativeScrollingAreaInit extends NativeScrollableInit {
     }

@@ -12105,6 +12105,28 @@ var Ui;
             this.contentHeight = this.contentBox.contentHeight;
             this.updateOffset();
         };
+        NativeScrollable.prototype.onScrollIntoView = function (el) {
+            var matrix = Ui.Matrix.createTranslate(this.offsetX, this.offsetY).multiply(el.transformToElement(this));
+            var p0 = (new Ui.Point(0, 0)).multiply(matrix);
+            var p1 = (new Ui.Point(el.layoutWidth, el.layoutHeight)).multiply(matrix);
+            if ((p0.y < this.offsetY) || (p0.y > this.offsetY + this.viewHeight) ||
+                (p1.y > this.offsetY + this.viewHeight)) {
+                if (Math.abs(this.offsetY + this.viewHeight - p1.y) < Math.abs(this.offsetY - p0.y))
+                    this.setOffset(this.offsetX, p1.y - this.viewHeight, true);
+                else
+                    this.setOffset(this.offsetX, p0.y, true);
+                this.contentBox.stopInertia();
+            }
+            if ((p0.x < this.offsetX) || (p0.x > this.offsetX + this.viewWidth) ||
+                (p1.x > this.offsetX + this.viewWidth)) {
+                if (Math.abs(this.offsetX + this.viewWidth - p1.x) < Math.abs(this.offsetX - p0.x))
+                    this.setOffset(p1.x - this.viewWidth, this.offsetY, true);
+                else
+                    this.setOffset(p0.x, this.offsetY, true);
+                this.contentBox.stopInertia();
+            }
+            _super.prototype.onScrollIntoView.call(this, el);
+        };
         return NativeScrollable;
     }(Ui.Container));
     Ui.NativeScrollable = NativeScrollable;

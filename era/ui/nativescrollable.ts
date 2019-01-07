@@ -505,6 +505,33 @@ namespace Ui {
             this.contentHeight = this.contentBox.contentHeight;
             this.updateOffset();
         }
+
+        protected onScrollIntoView(el: Element) {
+            let matrix = Ui.Matrix.createTranslate(this.offsetX, this.offsetY).multiply(el.transformToElement(this));
+            let p0 = (new Ui.Point(0, 0)).multiply(matrix);
+            let p1 = (new Ui.Point(el.layoutWidth, el.layoutHeight)).multiply(matrix);
+
+            // test if scroll vertical is needed
+            if ((p0.y < this.offsetY) || (p0.y > this.offsetY + this.viewHeight) ||
+                (p1.y > this.offsetY + this.viewHeight)) {
+                if (Math.abs(this.offsetY + this.viewHeight - p1.y) < Math.abs(this.offsetY - p0.y))
+                    this.setOffset(this.offsetX, p1.y - this.viewHeight, true);
+                else
+                    this.setOffset(this.offsetX, p0.y, true);
+                this.contentBox.stopInertia();
+            }
+            // test if scroll horizontal is needed
+            if ((p0.x < this.offsetX) || (p0.x > this.offsetX + this.viewWidth) ||
+                (p1.x > this.offsetX + this.viewWidth)) {
+                if (Math.abs(this.offsetX + this.viewWidth - p1.x) < Math.abs(this.offsetX - p0.x))
+                    this.setOffset(p1.x - this.viewWidth, this.offsetY, true);
+                else
+                    this.setOffset(p0.x, this.offsetY, true);
+                this.contentBox.stopInertia();
+            }
+            super.onScrollIntoView(el);
+        }
+
     }
 
     export interface NativeScrollingAreaInit extends NativeScrollableInit {
