@@ -96,16 +96,28 @@ namespace Ui
             return this.htmlDrawing.innerHTML;
         }
 
-        set html(html) {
-            // update HTML content
-            this.htmlDrawing.innerHTML = html;
+        private bindChildEvents() {
             // watch for load events
             let tab = this.getElements('IMG');
             for (let i = 0; i < tab.length; i++)
                 tab[i].onload = this.bindedOnImageLoad;
+        }
+
+        set html(html) {
+            // update HTML content
+            this.htmlDrawing.innerHTML = html;
+            this.bindChildEvents();
             this.invalidateMeasure();
         }
     
+        set htmlElement(htmlElement: HTMLElement) {
+            while(this.htmlDrawing.firstChild)
+                this.htmlDrawing.removeChild(this.htmlDrawing.firstChild);
+            this.htmlDrawing.appendChild(htmlElement);
+            this.bindChildEvents();
+            this.invalidateMeasure();
+        }
+
         get text(): string {
             if ('innerText' in (this.htmlDrawing as any))
                 return this.htmlDrawing.innerText;

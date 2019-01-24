@@ -16112,9 +16112,23 @@ var Ui;
             },
             set: function (html) {
                 this.htmlDrawing.innerHTML = html;
-                var tab = this.getElements('IMG');
-                for (var i = 0; i < tab.length; i++)
-                    tab[i].onload = this.bindedOnImageLoad;
+                this.bindChildEvents();
+                this.invalidateMeasure();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Html.prototype.bindChildEvents = function () {
+            var tab = this.getElements('IMG');
+            for (var i = 0; i < tab.length; i++)
+                tab[i].onload = this.bindedOnImageLoad;
+        };
+        Object.defineProperty(Html.prototype, "htmlElement", {
+            set: function (htmlElement) {
+                while (this.htmlDrawing.firstChild)
+                    this.htmlDrawing.removeChild(this.htmlDrawing.firstChild);
+                this.htmlDrawing.appendChild(htmlElement);
+                this.bindChildEvents();
                 this.invalidateMeasure();
             },
             enumerable: true,

@@ -3501,6 +3501,8 @@ declare namespace Ui {
         searchElements(tagName: any, element: any, res: any): void;
         getParentElement(tagName: any, element: any): any;
         html: string;
+        private bindChildEvents;
+        htmlElement: HTMLElement;
         text: string;
         private getTextContent;
         textAlign: TextAlign;
