@@ -5190,7 +5190,7 @@ declare namespace Ui {
         allowMultiSort?: boolean;
         scrollVertical?: boolean;
         scrollHorizontal?: boolean;
-        selectionActions?: SelectionActions;
+        selectionActions?: ((v: T) => SelectionActions) | SelectionActions;
         onselectionchanged?: (event: {
             target: ListView<T>;
         }) => void;
@@ -5225,7 +5225,7 @@ declare namespace Ui {
         headersHeight: number;
         headersVisible: boolean;
         scroll: VBoxScrollingArea;
-        selectionActions: SelectionActions;
+        selectionActions: ((v: T) => SelectionActions) | SelectionActions;
         sortFunc?: (data: Array<T>, sortOrder: Array<{
             key: keyof T;
             invert: boolean;
@@ -5291,7 +5291,7 @@ declare namespace Ui {
         allowMultiSort: boolean;
         showHeaders(): void;
         hideHeaders(): void;
-        getSelectionActions(): SelectionActions;
+        getSelectionActions(): SelectionActions | ((v: T) => SelectionActions);
         setSelectionActions(value: SelectionActions): void;
         getElementAt(position: number): ListViewRow<T>;
         appendData(data: T): void;

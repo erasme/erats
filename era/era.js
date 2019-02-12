@@ -23507,7 +23507,10 @@ var Ui;
             _this.listView = init.listView;
             _this.headers = _this.listView.headers;
             _this._data = init.data;
-            _this.selectionActions = _this.listView.selectionActions;
+            if (typeof (_this.listView.selectionActions) == 'function')
+                _this.selectionActions = _this.listView.selectionActions(_this._data);
+            else
+                _this.selectionActions = _this.listView.selectionActions;
             if (init.height)
                 _this.height = init.height;
             _this.cells = [];

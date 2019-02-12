@@ -334,7 +334,10 @@ namespace Ui {
             this.listView = init.listView;
             this.headers = this.listView.headers;
             this._data = init.data;
-            this.selectionActions = this.listView.selectionActions;
+            if (typeof(this.listView.selectionActions) == 'function')
+                this.selectionActions = this.listView.selectionActions(this._data);
+            else
+                this.selectionActions = this.listView.selectionActions;
             if (init.height)
                 this.height = init.height;
             this.cells = [];
@@ -505,7 +508,7 @@ namespace Ui {
         allowMultiSort?: boolean;
         scrollVertical?: boolean;
         scrollHorizontal?: boolean;
-        selectionActions?: SelectionActions;
+        selectionActions?: ((v: T) => SelectionActions) | SelectionActions;
         onselectionchanged?: (event: { target: ListView<T> }) => void;
         onselected?: (event: { target: ListView<T> }) => void;
         onunselected?: (event: { target: ListView<T> }) => void;
@@ -525,7 +528,7 @@ namespace Ui {
         headersHeight: number = 0;
         headersVisible: boolean = true;
         scroll: VBoxScrollingArea;
-        selectionActions: SelectionActions;
+        selectionActions: ((v: T) => SelectionActions) | SelectionActions;
         sortFunc?: (data: Array<T>, sortOrder: Array<{ key: keyof T, invert: boolean }>) => void;
         private _scrolled: boolean = true;
         private _scrollVertical: boolean = true;
