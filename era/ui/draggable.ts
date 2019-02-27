@@ -124,7 +124,6 @@ namespace Ui {
         draggableWatcher: DraggableWatcher;
         // the data that we drag & drop
         private _dragDelta: Point;
-//        private dataTransfer: DragDataTransfer;
         readonly dragstarted = new Core.Events<{ target: Draggable, dataTransfer: DragEmuDataTransfer }>();
         set ondragstarted(value: (event: { target: Draggable, dataTransfer: DragEmuDataTransfer }) => void) { this.dragstarted.connect(value); }
         readonly dragended = new Core.Events<{ target: Draggable, effect: string }>();
@@ -170,12 +169,6 @@ namespace Ui {
         }
 
         protected onDragStart(dataTransfer: DragEmuDataTransfer): void {
-            let selection = Selectionable.getParentSelectionHandler(this);
-            if (selection && (selection.elements.indexOf(this as any) != -1))
-                dataTransfer.setData(selection);
-            else
-                dataTransfer.setData(this.draggableData);
-            dataTransfer.effectAllowed = this.allowedMode;
             this.dragstarted.fire({ target: this, dataTransfer: dataTransfer });
         }
 
@@ -184,89 +177,5 @@ namespace Ui {
             this.dragended.fire({ target: this, effect: dataTransfer.dropEffect });
         }
     }
-/*
-    export class Draggable extends Pressable implements DraggableInit
-    {
-        //
-        // Fires when object start to be dragged
-        // @name Ui.Draggable#dragstart
-        // @event
-        // @param {Ui.Draggable} draggable The draggable itself
-        //
-
-        //
-        // Fires when object stop to be dragged
-        // @name Ui.Draggable#dragend
-        // @event
-        // @param {Ui.Draggable} draggable The draggable itself
-        // @param {string} dropEffect Give the operation done: [none|copy|link|move]
-        //
-
-        allowedMode: any = 'all';
-        // the data that we drag & drop
-        draggableData: any;
-        private _dragDelta: Point;
-        private dataTransfer: DragDataTransfer;
-        readonly dragstarted = new Core.Events<{ target: Draggable, dataTransfer: DragEmuDataTransfer }>();
-        set ondragstarted(value: (event: { target: Draggable, dataTransfer: DragEmuDataTransfer }) => void) { this.dragstarted.connect(value); }
-        readonly dragended = new Core.Events<{ target: Draggable, effect: string }>();
-        set ondragended(value: (event: { target: Draggable, effect: string }) => void) { this.dragended.connect(value); }
-
-        constructor(init?: DraggableInit) {
-            super(init);
-            this.drawing.oncontextmenu = (e) => e.preventDefault();
-            this.ptrdowned.connect((e) => this.onDraggablePointerDown(e));
-            if (init) {
-                if (init.ondragstarted)
-                    this.dragstarted.connect(init.ondragstarted);	
-                if (init.ondragended)
-                    this.dragended.connect(init.ondragended);	
-            }
-        }
-
-        //
-        // Set the allowed operation. Possible values are:
-        // [copy|copyLink|copyMove|link|linkMove|move|all]
-        //
-        setAllowedMode(allowedMode): void {
-            this.allowedMode = allowedMode;
-        }
-
-        get dragDelta(): Point {
-            return this._dragDelta;
-        }
-
-        private onDraggablePointerDown(event: EmuPointerEvent): void {
-            // left and middle mouse button only
-            if (event.pointerType == 'mouse' && event.pointer.button != 0 && event.pointer.button != 1)
-                return;	
-            if (this.lock || this.isDisabled || (this.draggableData === undefined))
-                return;
-
-            let delayed = !(event.pointerType == 'mouse' && event.pointer.button == 0);
-            
-            let dataTransfer = new DragEmuDataTransfer(
-                this, event.clientX, event.clientY, delayed, undefined);//event.pointer);
-            this.dataTransfer = dataTransfer;
-            this._dragDelta = this.pointFromWindow(new Point(event.clientX, event.clientY));
-            dataTransfer.started.connect(e => this.onDragStart(dataTransfer));
-            dataTransfer.ended.connect(e => this.onDragEnd(dataTransfer));
-        }
-
-        protected onDragStart(dataTransfer: DragEmuDataTransfer): void {
-            let selection = Selectionable.getParentSelectionHandler(this);
-            if (selection && (selection.elements.indexOf(this as any) != -1))
-                dataTransfer.setData(selection);
-            else
-                dataTransfer.setData(this.draggableData);
-            dataTransfer.effectAllowed = this.allowedMode;
-            this.dragstarted.fire({ target: this, dataTransfer: dataTransfer });
-        }
-
-        protected onDragEnd(dataTransfer: DragEmuDataTransfer): void {
-            // dropEffect give the operation done: [none|copy|link|move]
-            this.dragended.fire({ target: this, effect: dataTransfer.dropEffect });
-        }
-    }*/
 }	
 

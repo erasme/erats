@@ -184,14 +184,23 @@ namespace Ui {
             if (pointerEvent) {
                 if (pointerEvent.type == 'touch')
                     this.draggable.drawing.addEventListener('contextmenu', onContextMenu, { capture: true });
-                this.pointer = new Pointer(pointerEvent.type, pointerEvent.pointerId);
+                this.pointer = new Pointer(pointerEvent.pointerType, pointerEvent.pointerId);
                 this.pointer.setInitialPosition(pointerEvent.clientX, pointerEvent.clientY);
                 this.pointer.down(pointerEvent.clientX, pointerEvent.clientY, pointerEvent.buttons, pointerEvent.button);
+                this.pointer.ctrlKey = pointerEvent.ctrlKey;
+                this.pointer.altKey = pointerEvent.altKey;
+                this.pointer.shiftKey = pointerEvent.shiftKey;
 
                 let onPointerMove = (e: PointerEvent) => {
+                    this.pointer.ctrlKey = e.ctrlKey;
+                    this.pointer.altKey = e.altKey;
+                    this.pointer.shiftKey = e.shiftKey;
                     this.pointer.move(e.clientX, e.clientY);
                 };
                 let onPointerUp = (e: PointerEvent) => {
+                    this.pointer.ctrlKey = e.ctrlKey;
+                    this.pointer.altKey = e.altKey;
+                    this.pointer.shiftKey = e.shiftKey;
                     this.pointer.up();
                     window.removeEventListener('pointermove', onPointerMove, { capture: true });
                     window.removeEventListener('pointerup', onPointerUp, { capture: true });
@@ -201,6 +210,9 @@ namespace Ui {
 
                 };
                 let onPointerCancel = (e: PointerEvent) => {
+                    this.pointer.ctrlKey = e.ctrlKey;
+                    this.pointer.altKey = e.altKey;
+                    this.pointer.shiftKey = e.shiftKey;
                     this.pointer.cancel();
                     window.removeEventListener('pointermove', onPointerMove, { capture: true });
                     window.removeEventListener('pointerup', onPointerUp, { capture: true });
@@ -217,6 +229,9 @@ namespace Ui {
                 let touch = touchEvent.targetTouches[0];
                 this.pointer = new Pointer('touch', touch.identifier);
                 this.pointer.setInitialPosition(touch.clientX, touch.clientY);
+                this.pointer.ctrlKey = touchEvent.ctrlKey;
+                this.pointer.altKey = touchEvent.altKey;
+                this.pointer.shiftKey = touchEvent.shiftKey;
                 this.pointer.down(touch.clientX, touch.clientY, 1, 1);
 
                 let onTouchMove = (e: TouchEvent) => {
@@ -227,12 +242,18 @@ namespace Ui {
                     if (!touch)
                         return;
 
+                    this.pointer.ctrlKey = e.ctrlKey;
+                    this.pointer.altKey = e.altKey;
+                    this.pointer.shiftKey = e.shiftKey;
                     this.pointer.move(touch.clientX, touch.clientY);
                     e.stopImmediatePropagation();
                     if (this.pointer.getIsCaptured())
                         e.preventDefault();
                 };
                 let onTouchEnd = (e: TouchEvent) => {
+                    this.pointer.ctrlKey = e.ctrlKey;
+                    this.pointer.altKey = e.altKey;
+                    this.pointer.shiftKey = e.shiftKey;
                     this.pointer.up();
                     window.removeEventListener('touchmove', onTouchMove, { capture: true });
                     window.removeEventListener('touchend', onTouchEnd, { capture: true });
@@ -243,6 +264,9 @@ namespace Ui {
                         e.preventDefault();
                 };
                 let onTouchCancel = (e: TouchEvent) => {
+                    this.pointer.ctrlKey = e.ctrlKey;
+                    this.pointer.altKey = e.altKey;
+                    this.pointer.shiftKey = e.shiftKey;
                     this.pointer.cancel();
                     window.removeEventListener('touchmove', onTouchMove, { capture: true });
                     window.removeEventListener('touchend', onTouchEnd, { capture: true });
@@ -256,13 +280,22 @@ namespace Ui {
             else if (mouseEvent) {
                 this.pointer = new Pointer(mouseEvent.type, 0);
                 this.pointer.setInitialPosition(mouseEvent.clientX, mouseEvent.clientY);
+                this.pointer.ctrlKey = mouseEvent.ctrlKey;
+                this.pointer.altKey = mouseEvent.altKey;
+                this.pointer.shiftKey = mouseEvent.shiftKey;
                 this.pointer.down(mouseEvent.clientX, mouseEvent.clientY, mouseEvent.buttons, mouseEvent.button);
 
                 let onMouseMove = (e: MouseEvent) => {
+                    this.pointer.ctrlKey = e.ctrlKey;
+                    this.pointer.altKey = e.altKey;
+                    this.pointer.shiftKey = e.shiftKey;
                     if (e.button == 0)
                         this.pointer.move(e.clientX, e.clientY);
                 };
                 let onMouseUp = (e: MouseEvent) => {
+                    this.pointer.ctrlKey = e.ctrlKey;
+                    this.pointer.altKey = e.altKey;
+                    this.pointer.shiftKey = e.shiftKey;
                     if (e.button == 0) {
                         this.pointer.up();
                         window.removeEventListener('mousemove', onMouseMove, true);
@@ -277,6 +310,9 @@ namespace Ui {
             this.watcher.moved.connect(this.onPointerMove);
             this.watcher.upped.connect(this.onPointerUp);
             this.watcher.cancelled.connect(this.onPointerCancel);
+
+            window.addEventListener('keydown', this.onKeyUpDown, true);
+            window.addEventListener('keyup', this.onKeyUpDown, true);
 
             if (this.delayed)
                 this.timer = new Core.DelayedTask(0.5, () => this.onTimer());
@@ -459,6 +495,14 @@ namespace Ui {
             }
         }
 
+        protected onKeyUpDown = (e: KeyboardEvent) => {
+            // to handle Ctrl or Alt or Shift changes
+            this.pointer.ctrlKey = e.ctrlKey;
+            this.pointer.altKey = e.altKey;
+            this.pointer.shiftKey = e.shiftKey;
+            this.pointer.move(this.pointer.x, this.pointer.y);
+        }
+
         protected onPointerMove = (e: { target: PointerWatcher }) => {
             let deltaX; let deltaY; let delta; let dragEvent; let ofs;
             let watcher = e.target;
@@ -573,6 +617,8 @@ namespace Ui {
             this.watcher.moved.disconnect(this.onPointerMove);
             this.watcher.upped.disconnect(this.onPointerUp);
             this.watcher.cancelled.disconnect(this.onPointerCancel);
+            window.removeEventListener('keydown', this.onKeyUpDown, true);
+            window.removeEventListener('keyup', this.onKeyUpDown, true);
 
             if (!watcher.getIsCaptured())
                 watcher.cancel();
@@ -581,16 +627,19 @@ namespace Ui {
                 if (this.dragWatcher !== undefined) {
                     this.removeImage();
                     this.dragWatcher.leave();
-                    // TODO handle the choice if needed
-                    if (this.dropEffect.length === 1)
+                    
+                    if (this.dropEffect.length === 1) {
                         this.dragWatcher.drop(this.dropEffect[0].action);
+                        this.ended.fire({ target: this });
+                    }
+                    // handle the choice if needed
                     else if (this.dropEffect.length > 1) {
-                        // TODO
                         let popup = new Popup();
+                        popup.onclosed = () => this.ended.fire({ target: this });
                         let vbox = new VBox();
                         popup.content = vbox;
                         for (let i = 0; i < this.dropEffect.length; i++) {
-                            let button = new Button();
+                            let button = new FlatButton();
                             button.text = this.dropEffect[i].text;
                             button['Ui.DragEvent.dropEffect'] = this.dropEffect[i];
                             button.pressed.connect((e) => {
@@ -599,11 +648,8 @@ namespace Ui {
                             });
                             vbox.append(button);
                         }
-
                         popup.openAt(this.x, this.y);
-                        //this.dragWatcher.drop(this.dropEffect);
                     }
-                    //this.dragWatcher = undefined;
                 }
                 else {
                     // start an animation to return the dragged element to its origin
@@ -614,13 +660,12 @@ namespace Ui {
                         ontimeupdate: e => this.onDropFailsTimerUpdate(e.target, e.progress)
                     });
                     this.dropFailsTimer.begin();
+                    this.ended.fire({ target: this });
                 }
-                this.ended.fire({ target: this });
             }
         }
 
         protected onPointerCancel = (e: { target: PointerWatcher }) => {
-            //console.log('onPointerCancel');
             if (this.timer !== undefined) {
                 this.timer.abort();
                 this.timer = undefined;
@@ -669,6 +714,8 @@ namespace Ui {
             let dropEffect = effectAllowed;
 
             if (effectAllowed.length > 1) {
+                console.log(`getMatchingDropEffect > 1, pointerType: ${pointerType}, alt? : ${altKey}, ctrl? ${ctrlKey}`);
+                console.log(dropEffect);
                 // if the mouse is used let the choice using de keyboard controls
                 if (pointerType === 'mouse') {
                     if (!altKey) {

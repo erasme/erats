@@ -1564,6 +1564,7 @@ declare namespace Ui {
         protected onTimer(): void;
         capture(element: Element, effect: any): DragWatcher;
         releaseDragWatcher(dragWatcher: DragWatcher): void;
+        protected onKeyUpDown: (e: KeyboardEvent) => void;
         protected onPointerMove: (e: {
             target: PointerWatcher;
         }) => void;
@@ -3023,6 +3024,9 @@ declare namespace Ui {
         static style: object;
     }
     class DefaultButton extends Button {
+        static style: object;
+    }
+    class FlatButton extends Button {
         static style: object;
     }
 }

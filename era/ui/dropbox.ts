@@ -76,7 +76,7 @@ namespace Ui
         }
 
         set types(types: Array<{ type: string | Function, effects: string | string[] | DropEffect[] | DropEffectFunc }>) {
-            this.allowedTypes = [];
+            this.allowedTypes = [];            
             types.forEach(type => this.addType(type.type, type.effects));
         }
 

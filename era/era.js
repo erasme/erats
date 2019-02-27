@@ -6832,6 +6832,12 @@ var Ui;
             _this.delayed = false;
             _this.started = new Core.Events();
             _this.ended = new Core.Events();
+            _this.onKeyUpDown = function (e) {
+                _this.pointer.ctrlKey = e.ctrlKey;
+                _this.pointer.altKey = e.altKey;
+                _this.pointer.shiftKey = e.shiftKey;
+                _this.pointer.move(_this.pointer.x, _this.pointer.y);
+            };
             _this.onPointerMove = function (e) {
                 var deltaX;
                 var deltaY;
@@ -6917,20 +6923,25 @@ var Ui;
                 _this.watcher.moved.disconnect(_this.onPointerMove);
                 _this.watcher.upped.disconnect(_this.onPointerUp);
                 _this.watcher.cancelled.disconnect(_this.onPointerCancel);
+                window.removeEventListener('keydown', _this.onKeyUpDown, true);
+                window.removeEventListener('keyup', _this.onKeyUpDown, true);
                 if (!watcher.getIsCaptured())
                     watcher.cancel();
                 else {
                     if (_this.dragWatcher !== undefined) {
                         _this.removeImage();
                         _this.dragWatcher.leave();
-                        if (_this.dropEffect.length === 1)
+                        if (_this.dropEffect.length === 1) {
                             _this.dragWatcher.drop(_this.dropEffect[0].action);
+                            _this.ended.fire({ target: _this });
+                        }
                         else if (_this.dropEffect.length > 1) {
                             var popup_1 = new Ui.Popup();
+                            popup_1.onclosed = function () { return _this.ended.fire({ target: _this }); };
                             var vbox = new Ui.VBox();
                             popup_1.content = vbox;
                             for (var i = 0; i < _this.dropEffect.length; i++) {
-                                var button = new Ui.Button();
+                                var button = new Ui.FlatButton();
                                 button.text = _this.dropEffect[i].text;
                                 button['Ui.DragEvent.dropEffect'] = _this.dropEffect[i];
                                 button.pressed.connect(function (e) {
@@ -6950,8 +6961,8 @@ var Ui;
                             ontimeupdate: function (e) { return _this.onDropFailsTimerUpdate(e.target, e.progress); }
                         });
                         _this.dropFailsTimer.begin();
+                        _this.ended.fire({ target: _this });
                     }
-                    _this.ended.fire({ target: _this });
                 }
             };
             _this.onPointerCancel = function (e) {
@@ -6974,13 +6985,22 @@ var Ui;
             if (pointerEvent) {
                 if (pointerEvent.type == 'touch')
                     _this.draggable.drawing.addEventListener('contextmenu', onContextMenu, { capture: true });
-                _this.pointer = new Ui.Pointer(pointerEvent.type, pointerEvent.pointerId);
+                _this.pointer = new Ui.Pointer(pointerEvent.pointerType, pointerEvent.pointerId);
                 _this.pointer.setInitialPosition(pointerEvent.clientX, pointerEvent.clientY);
                 _this.pointer.down(pointerEvent.clientX, pointerEvent.clientY, pointerEvent.buttons, pointerEvent.button);
+                _this.pointer.ctrlKey = pointerEvent.ctrlKey;
+                _this.pointer.altKey = pointerEvent.altKey;
+                _this.pointer.shiftKey = pointerEvent.shiftKey;
                 var onPointerMove_1 = function (e) {
+                    _this.pointer.ctrlKey = e.ctrlKey;
+                    _this.pointer.altKey = e.altKey;
+                    _this.pointer.shiftKey = e.shiftKey;
                     _this.pointer.move(e.clientX, e.clientY);
                 };
                 var onPointerUp_1 = function (e) {
+                    _this.pointer.ctrlKey = e.ctrlKey;
+                    _this.pointer.altKey = e.altKey;
+                    _this.pointer.shiftKey = e.shiftKey;
                     _this.pointer.up();
                     window.removeEventListener('pointermove', onPointerMove_1, { capture: true });
                     window.removeEventListener('pointerup', onPointerUp_1, { capture: true });
@@ -6989,6 +7009,9 @@ var Ui;
                         _this.draggable.drawing.removeEventListener('contextmenu', onContextMenu, { capture: true });
                 };
                 var onPointerCancel_1 = function (e) {
+                    _this.pointer.ctrlKey = e.ctrlKey;
+                    _this.pointer.altKey = e.altKey;
+                    _this.pointer.shiftKey = e.shiftKey;
                     _this.pointer.cancel();
                     window.removeEventListener('pointermove', onPointerMove_1, { capture: true });
                     window.removeEventListener('pointerup', onPointerUp_1, { capture: true });
@@ -7005,6 +7028,9 @@ var Ui;
                 var touch = touchEvent.targetTouches[0];
                 _this.pointer = new Ui.Pointer('touch', touch.identifier);
                 _this.pointer.setInitialPosition(touch.clientX, touch.clientY);
+                _this.pointer.ctrlKey = touchEvent.ctrlKey;
+                _this.pointer.altKey = touchEvent.altKey;
+                _this.pointer.shiftKey = touchEvent.shiftKey;
                 _this.pointer.down(touch.clientX, touch.clientY, 1, 1);
                 var onTouchMove_1 = function (e) {
                     var touch;
@@ -7013,12 +7039,18 @@ var Ui;
                             touch = e.touches[i];
                     if (!touch)
                         return;
+                    _this.pointer.ctrlKey = e.ctrlKey;
+                    _this.pointer.altKey = e.altKey;
+                    _this.pointer.shiftKey = e.shiftKey;
                     _this.pointer.move(touch.clientX, touch.clientY);
                     e.stopImmediatePropagation();
                     if (_this.pointer.getIsCaptured())
                         e.preventDefault();
                 };
                 var onTouchEnd_1 = function (e) {
+                    _this.pointer.ctrlKey = e.ctrlKey;
+                    _this.pointer.altKey = e.altKey;
+                    _this.pointer.shiftKey = e.shiftKey;
                     _this.pointer.up();
                     window.removeEventListener('touchmove', onTouchMove_1, { capture: true });
                     window.removeEventListener('touchend', onTouchEnd_1, { capture: true });
@@ -7029,6 +7061,9 @@ var Ui;
                         e.preventDefault();
                 };
                 var onTouchCancel_1 = function (e) {
+                    _this.pointer.ctrlKey = e.ctrlKey;
+                    _this.pointer.altKey = e.altKey;
+                    _this.pointer.shiftKey = e.shiftKey;
                     _this.pointer.cancel();
                     window.removeEventListener('touchmove', onTouchMove_1, { capture: true });
                     window.removeEventListener('touchend', onTouchEnd_1, { capture: true });
@@ -7042,12 +7077,21 @@ var Ui;
             else if (mouseEvent) {
                 _this.pointer = new Ui.Pointer(mouseEvent.type, 0);
                 _this.pointer.setInitialPosition(mouseEvent.clientX, mouseEvent.clientY);
+                _this.pointer.ctrlKey = mouseEvent.ctrlKey;
+                _this.pointer.altKey = mouseEvent.altKey;
+                _this.pointer.shiftKey = mouseEvent.shiftKey;
                 _this.pointer.down(mouseEvent.clientX, mouseEvent.clientY, mouseEvent.buttons, mouseEvent.button);
                 var onMouseMove_1 = function (e) {
+                    _this.pointer.ctrlKey = e.ctrlKey;
+                    _this.pointer.altKey = e.altKey;
+                    _this.pointer.shiftKey = e.shiftKey;
                     if (e.button == 0)
                         _this.pointer.move(e.clientX, e.clientY);
                 };
                 var onMouseUp_1 = function (e) {
+                    _this.pointer.ctrlKey = e.ctrlKey;
+                    _this.pointer.altKey = e.altKey;
+                    _this.pointer.shiftKey = e.shiftKey;
                     if (e.button == 0) {
                         _this.pointer.up();
                         window.removeEventListener('mousemove', onMouseMove_1, true);
@@ -7061,6 +7105,8 @@ var Ui;
             _this.watcher.moved.connect(_this.onPointerMove);
             _this.watcher.upped.connect(_this.onPointerUp);
             _this.watcher.cancelled.connect(_this.onPointerCancel);
+            window.addEventListener('keydown', _this.onKeyUpDown, true);
+            window.addEventListener('keyup', _this.onKeyUpDown, true);
             if (_this.delayed)
                 _this.timer = new Core.DelayedTask(0.5, function () { return _this.onTimer(); });
             return _this;
@@ -7236,6 +7282,8 @@ var Ui;
             var effectAllowed = DragEmuDataTransfer.getMergedEffectAllowed(srcEffectAllowed, dstEffectAllowed);
             var dropEffect = effectAllowed;
             if (effectAllowed.length > 1) {
+                console.log("getMatchingDropEffect > 1, pointerType: " + pointerType + ", alt? : " + altKey + ", ctrl? " + ctrlKey);
+                console.log(dropEffect);
                 if (pointerType === 'mouse') {
                     if (!altKey) {
                         if (ctrlKey) {
@@ -8713,12 +8761,6 @@ var Ui;
             configurable: true
         });
         Draggable.prototype.onDragStart = function (dataTransfer) {
-            var selection = Ui.Selectionable.getParentSelectionHandler(this);
-            if (selection && (selection.elements.indexOf(this) != -1))
-                dataTransfer.setData(selection);
-            else
-                dataTransfer.setData(this.draggableData);
-            dataTransfer.effectAllowed = this.allowedMode;
             this.dragstarted.fire({ target: this, dataTransfer: dataTransfer });
         };
         Draggable.prototype.onDragEnd = function (dataTransfer) {
@@ -13818,6 +13860,19 @@ var Ui;
         return DefaultButton;
     }(Button));
     Ui.DefaultButton = DefaultButton;
+    var FlatButton = (function (_super) {
+        __extends(FlatButton, _super);
+        function FlatButton() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        FlatButton.style = {
+            borderWidth: 1,
+            background: 'rgba(250,250,250,0)',
+            backgroundBorder: 'rgba(140,140,140,0)'
+        };
+        return FlatButton;
+    }(Button));
+    Ui.FlatButton = FlatButton;
 })(Ui || (Ui = {}));
 var Ui;
 (function (Ui) {
