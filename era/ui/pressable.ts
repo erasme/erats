@@ -72,6 +72,7 @@ namespace Ui {
             this._pointerId = event.pointerId;
             this.element.drawing.setPointerCapture(event.pointerId);
             this._isDown = true;
+            this.x = event.clientX; this.y = event.clientY;
 
             let onPointerCancel = (e: PointerEvent) => {
                 if (e.pointerId != this._pointerId)
@@ -90,6 +91,7 @@ namespace Ui {
                 this.element.drawing.removeEventListener('pointerup', onPointerUp);
                 this.element.drawing.releasePointerCapture(event.pointerId);
                 this._pointerId = undefined;
+                this.x = event.clientX; this.y = event.clientY;
                 e.stopPropagation();
                 this.onUp();
 

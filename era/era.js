@@ -8391,6 +8391,8 @@ var Ui;
             this._pointerId = event.pointerId;
             this.element.drawing.setPointerCapture(event.pointerId);
             this._isDown = true;
+            this.x = event.clientX;
+            this.y = event.clientY;
             var onPointerCancel = function (e) {
                 if (e.pointerId != _this._pointerId)
                     return;
@@ -8408,6 +8410,8 @@ var Ui;
                 _this.element.drawing.removeEventListener('pointerup', onPointerUp);
                 _this.element.drawing.releasePointerCapture(event.pointerId);
                 _this._pointerId = undefined;
+                _this.x = event.clientX;
+                _this.y = event.clientY;
                 e.stopPropagation();
                 _this.onUp();
                 if (e.pointerType == 'mouse' && event.button == 1 && _this.allowMiddleButton)
