@@ -196,10 +196,10 @@ namespace Ui {
     export class Pressable extends Overable implements PressableInit {
         private pressWatcher: PressWatcher;
 
-        readonly downed = new Core.Events<{ target: Pressable }>();
-        set ondowned(value: (event: { target: Pressable }) => void) { this.downed.connect(value); }
-        readonly upped = new Core.Events<{ target: Pressable }>();
-        set onupped(value: (event: { target: Pressable }) => void) { this.upped.connect(value); }
+        readonly downed = new Core.Events<{ target: Pressable, x?: number, y?: number }>();
+        set ondowned(value: (event: { target: Pressable, x?: number, y?: number }) => void) { this.downed.connect(value); }
+        readonly upped = new Core.Events<{ target: Pressable, x?: number, y?: number }>();
+        set onupped(value: (event: { target: Pressable, x?: number, y?: number }) => void) { this.upped.connect(value); }
         readonly pressed = new Core.Events<{ target: Pressable, x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean, middleButton?: boolean }>();
         set onpressed(value: (event: { target: Pressable, x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean, middleButton?: boolean }) => void) { this.pressed.connect(value); }
         readonly activated = new Core.Events<{ target: Pressable, x?: number, y?: number }>();
@@ -217,8 +217,8 @@ namespace Ui {
             this.pressWatcher = new PressWatcher({
                 element: this,
                 onpressed: (watcher) => this.onPress(watcher.x, watcher.y, watcher.altKey, watcher.shiftKey, watcher.ctrlKey, watcher.middleButton),
-                ondowned: (watcher) => this.onDown(),
-                onupped: (watcher) => this.onUp(),
+                ondowned: (watcher) => this.onDown(watcher.x, watcher.y),
+                onupped: (watcher) => this.onUp(watcher.x, watcher.y),
                 onactivated: (watcher) => this.onActivate(watcher.x, watcher.y),
                 ondelayedpress: (watcher) => this.onDelayedPress(watcher.x, watcher.y, watcher.altKey, watcher.shiftKey, watcher.ctrlKey, watcher.middleButton)
             });
@@ -265,12 +265,12 @@ namespace Ui {
             return this.pressWatcher.allowMiddleButton;
         }
 
-        protected onDown() {
-            this.downed.fire({ target: this });
+        protected onDown(x?: number, y?: number) {
+            this.downed.fire({ target: this, x: x, y: y });
         }
 
-        protected onUp() {
-            this.upped.fire({ target: this });
+        protected onUp(x?: number, y?: number) {
+            this.upped.fire({ target: this, x: x, y: y });
         }
 
         press() {

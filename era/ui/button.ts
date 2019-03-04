@@ -2,7 +2,7 @@ namespace Ui {
 
     export class ButtonText extends CompactLabel { }
 
-    export class ButtonBackground extends Element {
+    export class SimpleButtonBackground extends Element {
 
         constructor() {
             super();
@@ -29,6 +29,74 @@ namespace Ui {
         }
     }
 
+    export class ButtonBackground extends Element {
+        private ripple: HTMLDivElement;
+
+        constructor() {
+            super();
+            this.drawing.style.boxSizing = 'border-box';
+            this.drawing.style.borderStyle = 'solid';
+            this.drawing.style.overflow = 'hidden';
+            
+            this.ripple = document.createElement('div');
+            this.ripple.style.transformOrigin = 'center center';
+            this.ripple.style.transform = 'scale(0) translate3d(0,0,0)';
+            this.ripple.style.position = 'absolute';
+            this.ripple.style.display = 'block';
+            this.ripple.style.margin = '0';
+            this.ripple.style.padding = '0';
+            this.ripple.style.borderRadius = '100%';
+            this.ripple.style.width = '10px';
+            this.ripple.style.height = '10px';
+            this.ripple.style.background = 'rgba(255,255,255,0.3)';
+            this.ripple.style.transition = 'transform 0.5s ease-out, opacity 0.2s';
+            this.drawing.appendChild(this.ripple);
+        }
+
+        down(x?: number, y?: number) {
+            if (x == undefined)
+                x = this.layoutWidth / 2;
+            if (y == undefined)
+                y = this.layoutHeight / 2;
+            let scale = 2 * Math.ceil(Math.max(this.layoutWidth, this.layoutHeight) / 10);
+            this.ripple.style.left = `${Math.round(x - 5)}px`;
+            this.ripple.style.top = `${Math.round(y - 5)}px`;
+            this.ripple.style.transition = 'transform 0.5s ease-out, opacity 0.1s';
+            this.ripple.style.transform = `scale(${scale}) translate3d(0,0,0)`;
+        }
+
+        async up() {
+            let wait = (ms: number) => new Promise((resolve) => setTimeout(() => resolve(), ms));
+            await wait(200);
+            this.ripple.style.opacity = '0';
+            await wait(100);
+            this.ripple.style.transition = '';
+            this.ripple.style.opacity = '1';
+            this.ripple.style.transform = 'scale(0) translate3d(0,0,0)';
+        }
+
+        set borderWidth(borderWidth: number) {
+            this.drawing.style.borderWidth = `${borderWidth}px`;
+        }
+
+        set border(border: Color | string) {
+            this.drawing.style.borderColor = Color.create(border).getCssRgba();
+        }
+
+        set radius(radius: number) {
+            this.drawing.style.borderRadius = `${radius}px`;
+        }
+
+        set background(background: Color | string) {
+            let color = Color.create(background);
+            this.drawing.style.backgroundColor = color.getCssRgba();
+            if (color.getHsl().l > 0.7)
+                this.ripple.style.background = 'rgba(0,0,0,0.1)';
+            else
+                this.ripple.style.background = 'rgba(255,255,255,0.3)';
+        }
+    }
+    
     export class ButtonBadge extends LBox
     {
         private _bg = new Rectangle();
@@ -117,8 +185,25 @@ namespace Ui {
 
             this._iconBox = new LBox();
 
-            this.downed.connect(() => this.updateColors());
-            this.upped.connect(() => this.updateColors());
+            //this.downed.connect(() => this.updateColors());
+            //this.upped.connect(() => this.updateColors());
+
+            this.downed.connect((e) => {
+                if (this.background instanceof ButtonBackground) {
+                    if (e.x != undefined && e.y != undefined) {
+                        let p = this.pointFromWindow(new Ui.Point(e.x, e.y));
+                        this.background.down(p.x, p.y);
+                    }
+                    else
+                        this.background.down();
+                }
+            });
+            this.upped.connect((e) => {
+                //let p = this.pointFromWindow(new Ui.Point(e.x, e.y));
+                if (this.background instanceof ButtonBackground)
+                    this.background.up();
+            });
+
             this.focused.connect(() => this.updateColors());
             this.blurred.connect(() => this.updateColors());
             this.entered.connect(() => this.updateColors());
@@ -318,9 +403,9 @@ namespace Ui {
             }
             let yuv = color.getYuva();
             let deltaY = 0;
-            if (this.isDown)
-                deltaY = -0.20;
-            else if (this.isOver) {
+//            if (this.isDown)
+//                deltaY = -0.20;
+/*            else*/ if (this.isOver) {
                 deltaY = 0.10;
                 yuv.a = Math.max(0.2, yuv.a);
             }
@@ -343,9 +428,9 @@ namespace Ui {
             }
             let yuv = color.getYuva();
             let deltaY = 0;
-            if (this.isDown)
+            /*if (this.isDown)
                 deltaY = -0.20;
-            else if (this.isOver)
+            else*/ if (this.isOver)
                 deltaY = 0.20;
             return Color.createFromYuv(yuv.y + deltaY, yuv.u, yuv.v, yuv.a);
         }
@@ -365,9 +450,9 @@ namespace Ui {
                     color = Color.create(this.getStyleProperty('foreground'));
             }
             let deltaY = 0;
-            if (this.isDown)
+            /*if (this.isDown)
                 deltaY = -0.20;
-            else if (this.isOver)
+            else*/ if (this.isOver)
                 deltaY = 0.20;
             let yuv = color.getYuva();
             return Color.createFromYuv(yuv.y + deltaY, yuv.u, yuv.v, yuv.a);

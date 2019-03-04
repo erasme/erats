@@ -1840,15 +1840,23 @@ declare namespace Ui {
         private pressWatcher;
         readonly downed: Core.Events<{
             target: Pressable;
+            x?: number;
+            y?: number;
         }>;
         ondowned: (event: {
             target: Pressable;
+            x?: number;
+            y?: number;
         }) => void;
         readonly upped: Core.Events<{
             target: Pressable;
+            x?: number;
+            y?: number;
         }>;
         onupped: (event: {
             target: Pressable;
+            x?: number;
+            y?: number;
         }) => void;
         readonly pressed: Core.Events<{
             target: Pressable;
@@ -1900,8 +1908,8 @@ declare namespace Ui {
         readonly isDown: boolean;
         lock: boolean;
         allowMiddleButton: boolean;
-        protected onDown(): void;
-        protected onUp(): void;
+        protected onDown(x?: number, y?: number): void;
+        protected onUp(x?: number, y?: number): void;
         press(): void;
         protected onPress(x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean, middleButton?: boolean): void;
         protected onActivate(x?: number, y?: number): void;
@@ -2957,7 +2965,10 @@ declare namespace Ui {
     class ButtonText extends CompactLabel {
     }
     class ButtonBackground extends Element {
+        private ripple;
         constructor();
+        down(x?: number, y?: number): void;
+        up(): Promise<void>;
         borderWidth: number;
         border: Color | string;
         radius: number;

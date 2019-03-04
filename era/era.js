@@ -8511,8 +8511,8 @@ var Ui;
             _this.pressWatcher = new PressWatcher({
                 element: _this,
                 onpressed: function (watcher) { return _this.onPress(watcher.x, watcher.y, watcher.altKey, watcher.shiftKey, watcher.ctrlKey, watcher.middleButton); },
-                ondowned: function (watcher) { return _this.onDown(); },
-                onupped: function (watcher) { return _this.onUp(); },
+                ondowned: function (watcher) { return _this.onDown(watcher.x, watcher.y); },
+                onupped: function (watcher) { return _this.onUp(watcher.x, watcher.y); },
                 onactivated: function (watcher) { return _this.onActivate(watcher.x, watcher.y); },
                 ondelayedpress: function (watcher) { return _this.onDelayedPress(watcher.x, watcher.y, watcher.altKey, watcher.shiftKey, watcher.ctrlKey, watcher.middleButton); }
             });
@@ -8590,11 +8590,11 @@ var Ui;
             enumerable: true,
             configurable: true
         });
-        Pressable.prototype.onDown = function () {
-            this.downed.fire({ target: this });
+        Pressable.prototype.onDown = function (x, y) {
+            this.downed.fire({ target: this, x: x, y: y });
         };
-        Pressable.prototype.onUp = function () {
-            this.upped.fire({ target: this });
+        Pressable.prototype.onUp = function (x, y) {
+            this.upped.fire({ target: this, x: x, y: y });
         };
         Pressable.prototype.press = function () {
             if (!this.isDisabled && !this.lock)
@@ -13329,10 +13329,56 @@ var Ui;
             var _this = _super.call(this) || this;
             _this.drawing.style.boxSizing = 'border-box';
             _this.drawing.style.borderStyle = 'solid';
-            _this.border = 'black';
-            _this.background = 'white';
+            _this.drawing.style.overflow = 'hidden';
+            _this.ripple = document.createElement('div');
+            _this.ripple.style.transformOrigin = 'center center';
+            _this.ripple.style.transform = 'scale(0) translate3d(0,0,0)';
+            _this.ripple.style.position = 'absolute';
+            _this.ripple.style.display = 'block';
+            _this.ripple.style.margin = '0';
+            _this.ripple.style.padding = '0';
+            _this.ripple.style.borderRadius = '100%';
+            _this.ripple.style.width = '10px';
+            _this.ripple.style.height = '10px';
+            _this.ripple.style.background = 'rgba(255,255,255,0.3)';
+            _this.ripple.style.transition = 'transform 0.5s ease-out, opacity 0.2s';
+            _this.drawing.appendChild(_this.ripple);
             return _this;
         }
+        ButtonBackground.prototype.down = function (x, y) {
+            if (x == undefined)
+                x = this.layoutWidth / 2;
+            if (y == undefined)
+                y = this.layoutHeight / 2;
+            var scale = 2 * Math.ceil(Math.max(this.layoutWidth, this.layoutHeight) / 10);
+            console.log("down(" + x + ", " + y + ") scale: " + scale);
+            this.ripple.style.left = Math.round(x - 5) + "px";
+            this.ripple.style.top = Math.round(y - 5) + "px";
+            this.ripple.style.transition = 'transform 0.5s ease-out, opacity 0.1s';
+            this.ripple.style.transform = "scale(" + scale + ") translate3d(0,0,0)";
+        };
+        ButtonBackground.prototype.up = function () {
+            return __awaiter(this, void 0, void 0, function () {
+                var wait;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            wait = function (ms) { return new Promise(function (resolve) { return setTimeout(function () { return resolve(); }, ms); }); };
+                            return [4, wait(200)];
+                        case 1:
+                            _a.sent();
+                            this.ripple.style.opacity = '0';
+                            return [4, wait(100)];
+                        case 2:
+                            _a.sent();
+                            this.ripple.style.transition = '';
+                            this.ripple.style.opacity = '1';
+                            this.ripple.style.transform = 'scale(0) translate3d(0,0,0)';
+                            return [2];
+                    }
+                });
+            });
+        };
         Object.defineProperty(ButtonBackground.prototype, "borderWidth", {
             set: function (borderWidth) {
                 this.drawing.style.borderWidth = borderWidth + "px";
@@ -13356,7 +13402,12 @@ var Ui;
         });
         Object.defineProperty(ButtonBackground.prototype, "background", {
             set: function (background) {
-                this.drawing.style.backgroundColor = Ui.Color.create(background).getCssRgba();
+                var color = Ui.Color.create(background);
+                this.drawing.style.backgroundColor = color.getCssRgba();
+                if (color.getHsl().l > 0.7)
+                    this.ripple.style.background = 'rgba(0,0,0,0.1)';
+                else
+                    this.ripple.style.background = 'rgba(255,255,255,0.3)';
             },
             enumerable: true,
             configurable: true
@@ -13443,8 +13494,20 @@ var Ui;
             _this.mainBox.append(_this.buttonPartsBox, true);
             _this._textBox = new Ui.LBox();
             _this._iconBox = new Ui.LBox();
-            _this.downed.connect(function () { return _this.updateColors(); });
-            _this.upped.connect(function () { return _this.updateColors(); });
+            _this.downed.connect(function (e) {
+                if (_this.background instanceof ButtonBackground) {
+                    if (e.x != undefined && e.y != undefined) {
+                        var p = _this.pointFromWindow(new Ui.Point(e.x, e.y));
+                        _this.background.down(p.x, p.y);
+                    }
+                    else
+                        _this.background.down();
+                }
+            });
+            _this.upped.connect(function (e) {
+                if (_this.background instanceof ButtonBackground)
+                    _this.background.up();
+            });
             _this.focused.connect(function () { return _this.updateColors(); });
             _this.blurred.connect(function () { return _this.updateColors(); });
             _this.entered.connect(function () { return _this.updateColors(); });
@@ -13661,9 +13724,7 @@ var Ui;
             }
             var yuv = color.getYuva();
             var deltaY = 0;
-            if (this.isDown)
-                deltaY = -0.20;
-            else if (this.isOver) {
+            if (this.isOver) {
                 deltaY = 0.10;
                 yuv.a = Math.max(0.2, yuv.a);
             }
@@ -13685,9 +13746,7 @@ var Ui;
             }
             var yuv = color.getYuva();
             var deltaY = 0;
-            if (this.isDown)
-                deltaY = -0.20;
-            else if (this.isOver)
+            if (this.isOver)
                 deltaY = 0.20;
             return Ui.Color.createFromYuv(yuv.y + deltaY, yuv.u, yuv.v, yuv.a);
         };
@@ -13706,9 +13765,7 @@ var Ui;
                     color = Ui.Color.create(this.getStyleProperty('foreground'));
             }
             var deltaY = 0;
-            if (this.isDown)
-                deltaY = -0.20;
-            else if (this.isOver)
+            if (this.isOver)
                 deltaY = 0.20;
             var yuv = color.getYuva();
             return Ui.Color.createFromYuv(yuv.y + deltaY, yuv.u, yuv.v, yuv.a);
