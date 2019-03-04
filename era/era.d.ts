@@ -2964,6 +2964,13 @@ declare namespace Ui {
 declare namespace Ui {
     class ButtonText extends CompactLabel {
     }
+    class SimpleButtonBackground extends Element {
+        constructor();
+        borderWidth: number;
+        border: Color | string;
+        radius: number;
+        background: Color | string;
+    }
     class ButtonBackground extends Element {
         private ripple;
         constructor();

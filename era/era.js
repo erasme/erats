@@ -13323,6 +13323,47 @@ var Ui;
         return ButtonText;
     }(Ui.CompactLabel));
     Ui.ButtonText = ButtonText;
+    var SimpleButtonBackground = (function (_super) {
+        __extends(SimpleButtonBackground, _super);
+        function SimpleButtonBackground() {
+            var _this = _super.call(this) || this;
+            _this.drawing.style.boxSizing = 'border-box';
+            _this.drawing.style.borderStyle = 'solid';
+            _this.border = 'black';
+            _this.background = 'white';
+            return _this;
+        }
+        Object.defineProperty(SimpleButtonBackground.prototype, "borderWidth", {
+            set: function (borderWidth) {
+                this.drawing.style.borderWidth = borderWidth + "px";
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(SimpleButtonBackground.prototype, "border", {
+            set: function (border) {
+                this.drawing.style.borderColor = Ui.Color.create(border).getCssRgba();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(SimpleButtonBackground.prototype, "radius", {
+            set: function (radius) {
+                this.drawing.style.borderRadius = radius + "px";
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(SimpleButtonBackground.prototype, "background", {
+            set: function (background) {
+                this.drawing.style.backgroundColor = Ui.Color.create(background).getCssRgba();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return SimpleButtonBackground;
+    }(Ui.Element));
+    Ui.SimpleButtonBackground = SimpleButtonBackground;
     var ButtonBackground = (function (_super) {
         __extends(ButtonBackground, _super);
         function ButtonBackground() {
@@ -13351,7 +13392,6 @@ var Ui;
             if (y == undefined)
                 y = this.layoutHeight / 2;
             var scale = 2 * Math.ceil(Math.max(this.layoutWidth, this.layoutHeight) / 10);
-            console.log("down(" + x + ", " + y + ") scale: " + scale);
             this.ripple.style.left = Math.round(x - 5) + "px";
             this.ripple.style.top = Math.round(y - 5) + "px";
             this.ripple.style.transition = 'transform 0.5s ease-out, opacity 0.1s';
