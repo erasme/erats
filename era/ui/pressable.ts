@@ -64,8 +64,6 @@ namespace Ui {
         protected onPointerDown(event: PointerEvent) {
             if (this.lock || this.element.isDisabled || this._isDown)
                 return;
-            if (event.pointerType == 'touch')
-                return;
             if (event.pointerType == 'mouse' && !(event.button == 0 || (this.allowMiddleButton && event.button == 1)))
                 return;
 

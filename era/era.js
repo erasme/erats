@@ -8384,8 +8384,6 @@ var Ui;
             var _this = this;
             if (this.lock || this.element.isDisabled || this._isDown)
                 return;
-            if (event.pointerType == 'touch')
-                return;
             if (event.pointerType == 'mouse' && !(event.button == 0 || (this.allowMiddleButton && event.button == 1)))
                 return;
             this._pointerId = event.pointerId;
@@ -13391,7 +13389,7 @@ var Ui;
                 x = this.layoutWidth / 2;
             if (y == undefined)
                 y = this.layoutHeight / 2;
-            var scale = 2 * Math.ceil(Math.max(this.layoutWidth, this.layoutHeight) / 10);
+            var scale = 2.5 * Math.ceil(Math.max(this.layoutWidth, this.layoutHeight) / 10);
             this.ripple.style.left = Math.round(x - 5) + "px";
             this.ripple.style.top = Math.round(y - 5) + "px";
             this.ripple.style.transition = 'transform 0.5s ease-out, opacity 0.1s';

@@ -58,7 +58,7 @@ namespace Ui {
                 x = this.layoutWidth / 2;
             if (y == undefined)
                 y = this.layoutHeight / 2;
-            let scale = 2 * Math.ceil(Math.max(this.layoutWidth, this.layoutHeight) / 10);
+            let scale = 2.5 * Math.ceil(Math.max(this.layoutWidth, this.layoutHeight) / 10);
             this.ripple.style.left = `${Math.round(x - 5)}px`;
             this.ripple.style.top = `${Math.round(y - 5)}px`;
             this.ripple.style.transition = 'transform 0.5s ease-out, opacity 0.1s';
