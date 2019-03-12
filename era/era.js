@@ -1768,6 +1768,13 @@ var Core;
                 this.fileReader.readAsBinaryString(this._file);
             }
         };
+        Object.defineProperty(FilePostUploader.prototype, "status", {
+            get: function () {
+                return this.request.status;
+            },
+            enumerable: true,
+            configurable: true
+        });
         FilePostUploader.prototype.sendAsync = function () {
             var _this = this;
             return new Promise(function (resolve) {

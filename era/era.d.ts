@@ -384,6 +384,7 @@ declare namespace Core {
         arguments: object;
         destination: string;
         send(): void;
+        readonly status: number;
         sendAsync(): Promise<FilePostUploader>;
         waitAsync(): Promise<FilePostUploader>;
         abort(): void;

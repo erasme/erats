@@ -125,66 +125,45 @@ namespace Core {
             //let wrapper; 
             let field;
             this._isSent = true;
-            //if (this._file.fileApi !== undefined) {
-                if (Core.Navigator.supportFormData) {
-                    let formData = new FormData();
-                    for (field in this.fields) {
-                        formData.append(field, this.fields[field]);
-                    }
-                    formData.append(this.field, this._file);
-
-                    this.request = new XMLHttpRequest();
-                    if ('upload' in this.request)
-                        this.request.upload.addEventListener('progress', e => this.onUpdateProgress(e));
-                    this.request.open(this._method, this._service);
-                    this.request.send(formData);
-                    this.request.onreadystatechange = (event) => this.onStateChange(event);
-                }
-                else {
-                    this.fileReader = new FileReader();
-                    this.request = new XMLHttpRequest();
-                    if ('upload' in this.request)
-                        this.request.upload.addEventListener('progress', e => this.onUpdateProgress(e));
-                    this.request.open(this._method, this._service);
-
-                    this.boundary = '----';
-                    let characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-                    for (let i = 0; i < 16; i++)
-                        this.boundary += characters[Math.floor(Math.random() * characters.length)];
-                    this.boundary += '----';
-
-                    this.request.setRequestHeader("Content-Type", "multipart/form-data, boundary=" + this.boundary);
-                    this.request.setRequestHeader("Content-Length", this._file.size.toString());
-                    this.request.onreadystatechange = (event) => this.onStateChange(event);
-                    this.fileReader.onload = (event) => this.onFileReaderLoad(event);
-                    this.fileReader.onerror = (event) => this.onFileReaderError(event);
-
-                    this.fileReader.readAsBinaryString(this._file);
-                }
-            /*}
-            else {
-                this._file.form.action = this._service;
-
+            if (Core.Navigator.supportFormData) {
+                let formData = new FormData();
                 for (field in this.fields) {
-                    let fieldDrawing = document.createElement('input');
-                    fieldDrawing.type = 'hidden';
-                    fieldDrawing.setAttribute('name', field);
-                    fieldDrawing.setAttribute('value', this.fields[field]);
-                    this._file.form.insertBefore(fieldDrawing, this._file.form.firstChild);
+                    formData.append(field, this.fields[field]);
                 }
-                this._file.iframe.addEventListener('load', e => this.onIFrameLoad(e));
-                let errorCount = 0;
-                let done = false;
-                while (!done && (errorCount < 5)) {
-                    try {
-                        this._file.form.submit();
-                        done = true;
-                    }
-                    catch (e) {
-                        errorCount++;
-                    }
-                }
-            }*/
+                formData.append(this.field, this._file);
+
+                this.request = new XMLHttpRequest();
+                if ('upload' in this.request)
+                    this.request.upload.addEventListener('progress', e => this.onUpdateProgress(e));
+                this.request.open(this._method, this._service);
+                this.request.send(formData);
+                this.request.onreadystatechange = (event) => this.onStateChange(event);
+            }
+            else {
+                this.fileReader = new FileReader();
+                this.request = new XMLHttpRequest();
+                if ('upload' in this.request)
+                    this.request.upload.addEventListener('progress', e => this.onUpdateProgress(e));
+                this.request.open(this._method, this._service);
+
+                this.boundary = '----';
+                let characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                for (let i = 0; i < 16; i++)
+                    this.boundary += characters[Math.floor(Math.random() * characters.length)];
+                this.boundary += '----';
+
+                this.request.setRequestHeader("Content-Type", "multipart/form-data, boundary=" + this.boundary);
+                this.request.setRequestHeader("Content-Length", this._file.size.toString());
+                this.request.onreadystatechange = (event) => this.onStateChange(event);
+                this.fileReader.onload = (event) => this.onFileReaderLoad(event);
+                this.fileReader.onerror = (event) => this.onFileReaderError(event);
+
+                this.fileReader.readAsBinaryString(this._file);
+            }
+        }
+
+        get status(): number {
+            return this.request.status;
         }
 
         sendAsync() {
