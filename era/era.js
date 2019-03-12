@@ -1772,6 +1772,7 @@ var Core;
             var _this = this;
             return new Promise(function (resolve) {
                 _this.completed.connect(function () { return resolve(_this); });
+                _this.error.connect(function () { return resolve(_this); });
                 _this.send();
             });
         };
@@ -8367,6 +8368,8 @@ var Ui;
                 if (_this.lock || _this.element.isDisabled)
                     return;
                 e.stopImmediatePropagation();
+                _this.x = e.clientX;
+                _this.y = e.clientY;
                 _this.onPress(e.clientX, e.clientY, e.altKey, e.shiftKey, e.ctrlKey);
             });
             _this.element.drawing.addEventListener('keydown', function (e) { return _this.onKeyDown(e); });
@@ -8383,6 +8386,8 @@ var Ui;
         PressWatcher.prototype.onPointerDown = function (event) {
             var _this = this;
             if (this.lock || this.element.isDisabled || this._isDown)
+                return;
+            if (event.pointerType == 'touch')
                 return;
             if (event.pointerType == 'mouse' && !(event.button == 0 || (this.allowMiddleButton && event.button == 1)))
                 return;
@@ -8408,8 +8413,8 @@ var Ui;
                 _this.element.drawing.removeEventListener('pointerup', onPointerUp);
                 _this.element.drawing.releasePointerCapture(event.pointerId);
                 _this._pointerId = undefined;
-                _this.x = event.clientX;
-                _this.y = event.clientY;
+                _this.x = e.clientX;
+                _this.y = e.clientY;
                 e.stopPropagation();
                 _this.onUp();
                 if (e.pointerType == 'mouse' && event.button == 1 && _this.allowMiddleButton)
@@ -13366,6 +13371,7 @@ var Ui;
         __extends(ButtonBackground, _super);
         function ButtonBackground() {
             var _this = _super.call(this) || this;
+            _this.isAnimated = false;
             _this.drawing.style.boxSizing = 'border-box';
             _this.drawing.style.borderStyle = 'solid';
             _this.drawing.style.overflow = 'hidden';
@@ -13385,6 +13391,7 @@ var Ui;
             return _this;
         }
         ButtonBackground.prototype.down = function (x, y) {
+            this.isAnimated = true;
             if (x == undefined)
                 x = this.layoutWidth / 2;
             if (y == undefined)
@@ -13412,7 +13419,27 @@ var Ui;
                             this.ripple.style.transition = '';
                             this.ripple.style.opacity = '1';
                             this.ripple.style.transform = 'scale(0) translate3d(0,0,0)';
+                            this.isAnimated = false;
                             return [2];
+                    }
+                });
+            });
+        };
+        ButtonBackground.prototype.press = function (x, y) {
+            return __awaiter(this, void 0, void 0, function () {
+                var wait;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            if (!!this.isAnimated) return [3, 2];
+                            wait = function (ms) { return new Promise(function (resolve) { return setTimeout(function () { return resolve(); }, ms); }); };
+                            this.down(x, y);
+                            return [4, wait(300)];
+                        case 1:
+                            _a.sent();
+                            this.up();
+                            _a.label = 2;
+                        case 2: return [2];
                     }
                 });
             });
@@ -13545,6 +13572,16 @@ var Ui;
             _this.upped.connect(function (e) {
                 if (_this.background instanceof ButtonBackground)
                     _this.background.up();
+            });
+            _this.pressed.connect(function (e) {
+                if (_this.background instanceof ButtonBackground) {
+                    if (e.x != undefined && e.y != undefined) {
+                        var p = _this.pointFromWindow(new Ui.Point(e.x, e.y));
+                        _this.background.press(p.x, p.y);
+                    }
+                    else
+                        _this.background.press();
+                }
             });
             _this.focused.connect(function () { return _this.updateColors(); });
             _this.blurred.connect(function () { return _this.updateColors(); });

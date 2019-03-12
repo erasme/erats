@@ -2973,9 +2973,11 @@ declare namespace Ui {
     }
     class ButtonBackground extends Element {
         private ripple;
+        private isAnimated;
         constructor();
         down(x?: number, y?: number): void;
         up(): Promise<void>;
+        press(x?: number, y?: number): Promise<void>;
         borderWidth: number;
         border: Color | string;
         radius: number;

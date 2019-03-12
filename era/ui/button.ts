@@ -31,6 +31,7 @@ namespace Ui {
 
     export class ButtonBackground extends Element {
         private ripple: HTMLDivElement;
+        private isAnimated = false;
 
         constructor() {
             super();
@@ -54,6 +55,7 @@ namespace Ui {
         }
 
         down(x?: number, y?: number) {
+            this.isAnimated = true;
             if (x == undefined)
                 x = this.layoutWidth / 2;
             if (y == undefined)
@@ -73,6 +75,16 @@ namespace Ui {
             this.ripple.style.transition = '';
             this.ripple.style.opacity = '1';
             this.ripple.style.transform = 'scale(0) translate3d(0,0,0)';
+            this.isAnimated = false;
+        }
+
+        async press(x?: number, y?: number) {
+            if (!this.isAnimated) {
+                let wait = (ms: number) => new Promise((resolve) => setTimeout(() => resolve(), ms));
+                this.down(x, y);
+                await wait(300);
+                this.up();
+            }
         }
 
         set borderWidth(borderWidth: number) {
@@ -199,9 +211,18 @@ namespace Ui {
                 }
             });
             this.upped.connect((e) => {
-                //let p = this.pointFromWindow(new Ui.Point(e.x, e.y));
                 if (this.background instanceof ButtonBackground)
                     this.background.up();
+            });
+            this.pressed.connect((e) => {
+                if (this.background instanceof ButtonBackground) {
+                    if (e.x != undefined && e.y != undefined) {
+                        let p = this.pointFromWindow(new Ui.Point(e.x, e.y));
+                        this.background.press(p.x, p.y);
+                    }
+                    else
+                        this.background.press();
+                }
             });
 
             this.focused.connect(() => this.updateColors());

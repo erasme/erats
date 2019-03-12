@@ -49,6 +49,8 @@ namespace Ui {
                 if (this.lock || this.element.isDisabled)
                     return;
                 e.stopImmediatePropagation();
+                this.x = e.clientX;
+                this.y = e.clientY;
                 this.onPress(e.clientX, e.clientY, e.altKey, e.shiftKey, e.ctrlKey);
             });
 
@@ -63,6 +65,8 @@ namespace Ui {
 
         protected onPointerDown(event: PointerEvent) {
             if (this.lock || this.element.isDisabled || this._isDown)
+                return;
+            if (event.pointerType == 'touch')
                 return;
             if (event.pointerType == 'mouse' && !(event.button == 0 || (this.allowMiddleButton && event.button == 1)))
                 return;
@@ -89,7 +93,7 @@ namespace Ui {
                 this.element.drawing.removeEventListener('pointerup', onPointerUp);
                 this.element.drawing.releasePointerCapture(event.pointerId);
                 this._pointerId = undefined;
-                this.x = event.clientX; this.y = event.clientY;
+                this.x = e.clientX; this.y = e.clientY;
                 e.stopPropagation();
                 this.onUp();
 
