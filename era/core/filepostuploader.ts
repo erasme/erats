@@ -190,6 +190,7 @@ namespace Core {
         sendAsync() {
             return new Promise<Core.FilePostUploader>(resolve => {
                 this.completed.connect(() => resolve(this));
+                this.error.connect(() => resolve(this));
                 this.send();
             });
         }
