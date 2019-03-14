@@ -318,8 +318,8 @@ namespace Ui {
                 }
             }
             let onMouseUp = (e: MouseEvent) => {
-                this.drawing.removeEventListener('mousemove', onMouseMove);
-                this.drawing.removeEventListener('mouseup', onMouseUp);
+                window.removeEventListener('mousemove', onMouseMove, true);
+                window.removeEventListener('mouseup', onMouseUp, true);
                 if (this.rectangle != undefined) {
                     let current = this.pointFromWindow(new Point(e.clientX, e.clientY));
                     let res = this.findAreaElements(this.startPos, current);
@@ -353,8 +353,8 @@ namespace Ui {
                 e.stopImmediatePropagation();
             }
 
-            this.drawing.addEventListener('mousemove', onMouseMove);
-            this.drawing.addEventListener('mouseup', onMouseUp);
+            window.addEventListener('mousemove', onMouseMove, true);
+            window.addEventListener('mouseup', onMouseUp, true);
             event.stopImmediatePropagation();
         }
 
