@@ -90,9 +90,17 @@ app.content = vbox;
 let hbox = new Ui.HBox({ horizontalAlign: 'center', spacing: 20 });
 vbox.append(hbox);
 
-let item1 = new Item1({ width: 64, height: 64 });
+let item1Box = new Ui.LBox().assign({
+	content: [
+		new Ui.Rectangle().assign({ fill: 'orange' })
+	]	
+})
+
+let item1 = new Item1({ width: 64, height: 64, margin: 10 });
+item1.drawing.style.cursor = 'pointer';
 let dragWatch = new Ui.DraggableWatcher({
 	element: item1,
+	image: item1Box,
 	data: item1
 });
 dragWatch.allowedMode = [ 'copy', 'link', 'move', 'warn' ];
@@ -102,7 +110,10 @@ new Ui.PressWatcher({
 });
 item1.append(new Ui.Rectangle({ fill: 'lightblue' }));
 item1.append(new Ui.Label({ text: 'drag me', horizontalAlign: 'center', verticalAlign: 'center', margin: 10 }));
-hbox.append(item1);
+//hbox.append(item1);
+item1Box.append(item1);
+
+hbox.append(item1Box)
 
 let item2 = new Item2({ width: 64, height: 64 });
 item2.draggableData = item2;
