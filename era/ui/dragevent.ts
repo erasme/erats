@@ -198,6 +198,10 @@ namespace Ui {
                     this.pointer.move(e.clientX, e.clientY);
                 };
                 let onPointerUp = (e: PointerEvent) => {
+                    if (this.pointer.getIsCaptured()) {
+                        e.preventDefault();
+                        e.stopImmediatePropagation();
+                    }
                     this.pointer.ctrlKey = e.ctrlKey;
                     this.pointer.altKey = e.altKey;
                     this.pointer.shiftKey = e.shiftKey;
@@ -207,7 +211,6 @@ namespace Ui {
                     window.removeEventListener('pointercancel', onPointerCancel, { capture: true });
                     if (pointerEvent.type == 'touch')
                         this.draggable.drawing.removeEventListener('contextmenu', onContextMenu, { capture: true });
-
                 };
                 let onPointerCancel = (e: PointerEvent) => {
                     this.pointer.ctrlKey = e.ctrlKey;
@@ -506,8 +509,6 @@ namespace Ui {
         protected onPointerMove = (e: { target: PointerWatcher }) => {
             let deltaX; let deltaY; let delta; let dragEvent; let ofs;
             let watcher = e.target;
-
-            //console.log('onPointerMove isMove: ' + watcher.pointer.getIsMove());
 
             if (watcher.getIsCaptured()) {
                 let clientX = watcher.pointer.getX();
