@@ -138,9 +138,10 @@ namespace Ui {
 
     export class DragEmuDataTransfer extends Core.Object implements DragDataTransfer {
         draggable: Element;
+        imageElement: Element;
         image: HTMLElement;
         imageEffect: DragEffectIcon;
-        //        catcher: HTMLElement;
+        // catcher: HTMLElement;
         startX: number = 0;
         startY: number = 0;
         dropX: number = 0;
@@ -166,11 +167,12 @@ namespace Ui {
         readonly started = new Core.Events<{ target: DragEmuDataTransfer }>();
         readonly ended = new Core.Events<{ target: DragEmuDataTransfer }>();
 
-        constructor(draggable: Element, x: number, y: number, delayed: boolean, pointerEvent?: PointerEvent, touchEvent?: TouchEvent, mouseEvent?: MouseEvent) {
+        constructor(draggable: Element, imageElement: Element, x: number, y: number, delayed: boolean, pointerEvent?: PointerEvent, touchEvent?: TouchEvent, mouseEvent?: MouseEvent) {
             super();
             this.dropEffect = [];
             this.effectAllowed = [];
             this.draggable = draggable;
+            this.imageElement = imageElement;
             this.startX = x;
             this.startY = y;
             this.delayed = delayed;
@@ -447,7 +449,7 @@ namespace Ui {
                     }
                 }
                 else {
-                    let image = generateImage(this.draggable);
+                    let image = generateImage(this.imageElement);
                     this.image.appendChild(image);
                 }
 
@@ -456,7 +458,7 @@ namespace Ui {
 
                 let ofs = this.delayed ? -10 : 0;
 
-                this.startImagePoint = this.draggable.pointToWindow(new Point());
+                this.startImagePoint = this.imageElement.pointToWindow(new Point());
 
                 this.image.style.left = (this.startImagePoint.x + ofs) + 'px';
                 this.image.style.top = (this.startImagePoint.y + ofs) + 'px';
@@ -719,8 +721,6 @@ namespace Ui {
             let dropEffect = effectAllowed;
 
             if (effectAllowed.length > 1) {
-                console.log(`getMatchingDropEffect > 1, pointerType: ${pointerType}, alt? : ${altKey}, ctrl? ${ctrlKey}`);
-                console.log(dropEffect);
                 // if the mouse is used let the choice using de keyboard controls
                 if (pointerType === 'mouse') {
                     if (!altKey) {

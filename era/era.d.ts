@@ -1527,6 +1527,7 @@ declare namespace Ui {
     }
     class DragEmuDataTransfer extends Core.Object implements DragDataTransfer {
         draggable: Element;
+        imageElement: Element;
         image: HTMLElement;
         imageEffect: DragEffectIcon;
         startX: number;
@@ -1555,7 +1556,7 @@ declare namespace Ui {
         readonly ended: Core.Events<{
             target: DragEmuDataTransfer;
         }>;
-        constructor(draggable: Element, x: number, y: number, delayed: boolean, pointerEvent?: PointerEvent, touchEvent?: TouchEvent, mouseEvent?: MouseEvent);
+        constructor(draggable: Element, imageElement: Element, x: number, y: number, delayed: boolean, pointerEvent?: PointerEvent, touchEvent?: TouchEvent, mouseEvent?: MouseEvent);
         setData(data: any): void;
         getData(): any;
         hasData(): boolean;
@@ -1923,6 +1924,7 @@ declare namespace Ui {
     class DraggableWatcher extends Core.Object {
         allowedMode: string | 'copy' | 'copyLink' | 'copyMove' | 'link' | 'linkMove' | 'move' | 'all' | Array<string>;
         data: any;
+        private image?;
         private _dragDelta;
         dataTransfer?: DragEmuDataTransfer;
         private element;
@@ -1931,6 +1933,7 @@ declare namespace Ui {
         constructor(init: {
             element: Element;
             data: any;
+            image?: Element;
             start?: (watcher: DraggableWatcher) => void;
             end?: (watcher: DraggableWatcher, effect: 'none' | 'copy' | 'link' | 'move' | string) => void;
         });

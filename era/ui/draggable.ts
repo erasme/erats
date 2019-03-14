@@ -4,6 +4,8 @@ namespace Ui {
         allowedMode: string | 'copy' | 'copyLink' | 'copyMove' | 'link' | 'linkMove' | 'move' | 'all' | Array<string> = 'all';
         // the data that we drag & drop
         data: any;
+        // the element to take as the moving image if not element
+        private image?: Element;
         private _dragDelta: Point;
         dataTransfer?: DragEmuDataTransfer;
         private element: Element;
@@ -13,16 +15,20 @@ namespace Ui {
         constructor(init: {
             element: Element,
             data: any,
+            image?: Element,
             start?: (watcher: DraggableWatcher) => void,
             end?: (watcher: DraggableWatcher, effect: 'none' | 'copy' | 'link' | 'move' | string) => void
         }) {
             super();
             this.element = init.element;
             this.data = init.data;
+            if (init.image)
+                this.image = init.image;
             if (init.start !== undefined)
                 this.start = init.start;
             if (init.end !== undefined)
                 this.end = init.end;
+
             //this.element.ptrdowned.connect(e => this.onDraggablePointerDown(e));
 
             if ('PointerEvent' in window)
@@ -58,7 +64,7 @@ namespace Ui {
             event.stopImmediatePropagation();
             let delayed = false;            
             let dataTransfer = new DragEmuDataTransfer(
-                this.element, event.clientX, event.clientY, delayed, event);
+                this.element, this.image ? this.image : this.element, event.clientX, event.clientY, delayed, event);
             this.dataTransfer = dataTransfer;
             this._dragDelta = this.element.pointFromWindow(new Point(event.clientX, event.clientY));
             dataTransfer.started.connect(e => this.onDragStart(dataTransfer));
@@ -72,7 +78,7 @@ namespace Ui {
             event.stopImmediatePropagation();
             let delayed = false;
             let dataTransfer = new DragEmuDataTransfer(
-                this.element, event.clientX, event.clientY, delayed, undefined, undefined, event);
+                this.element, this.image ? this.image : this.element, event.clientX, event.clientY, delayed, undefined, undefined, event);
             this.dataTransfer = dataTransfer;
             this._dragDelta = this.element.pointFromWindow(new Point(event.clientX, event.clientY));
             dataTransfer.started.connect(e => this.onDragStart(dataTransfer));
@@ -85,7 +91,7 @@ namespace Ui {
 
             let delayed = true;            
             let dataTransfer = new DragEmuDataTransfer(
-                this.element, event.targetTouches[0].clientX, event.targetTouches[0].clientY, delayed, undefined, event);
+                this.element, this.image ? this.image : this.element, event.targetTouches[0].clientX, event.targetTouches[0].clientY, delayed, undefined, event);
             this.dataTransfer = dataTransfer;
             this._dragDelta = this.element.pointFromWindow(new Point(event.targetTouches[0].clientX, event.targetTouches[0].clientY));
             dataTransfer.started.connect(e => this.onDragStart(dataTransfer));

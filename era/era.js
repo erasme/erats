@@ -6828,7 +6828,7 @@ var Ui;
     Ui.DragWatcher = DragWatcher;
     var DragEmuDataTransfer = (function (_super) {
         __extends(DragEmuDataTransfer, _super);
-        function DragEmuDataTransfer(draggable, x, y, delayed, pointerEvent, touchEvent, mouseEvent) {
+        function DragEmuDataTransfer(draggable, imageElement, x, y, delayed, pointerEvent, touchEvent, mouseEvent) {
             var _this = _super.call(this) || this;
             _this.startX = 0;
             _this.startY = 0;
@@ -6982,6 +6982,7 @@ var Ui;
             _this.dropEffect = [];
             _this.effectAllowed = [];
             _this.draggable = draggable;
+            _this.imageElement = imageElement;
             _this.startX = x;
             _this.startY = y;
             _this.delayed = delayed;
@@ -7236,13 +7237,13 @@ var Ui;
                     }
                 }
                 else {
-                    var image = generateImage(this.draggable);
+                    var image = generateImage(this.imageElement);
                     this.image.appendChild(image);
                 }
                 if (Core.Navigator.supportOpacity)
                     this.image.style.opacity = '0.8';
                 var ofs = this.delayed ? -10 : 0;
-                this.startImagePoint = this.draggable.pointToWindow(new Ui.Point());
+                this.startImagePoint = this.imageElement.pointToWindow(new Ui.Point());
                 this.image.style.left = (this.startImagePoint.x + ofs) + 'px';
                 this.image.style.top = (this.startImagePoint.y + ofs) + 'px';
                 document.body.appendChild(this.image);
@@ -7298,8 +7299,6 @@ var Ui;
             var effectAllowed = DragEmuDataTransfer.getMergedEffectAllowed(srcEffectAllowed, dstEffectAllowed);
             var dropEffect = effectAllowed;
             if (effectAllowed.length > 1) {
-                console.log("getMatchingDropEffect > 1, pointerType: " + pointerType + ", alt? : " + altKey + ", ctrl? " + ctrlKey);
-                console.log(dropEffect);
                 if (pointerType === 'mouse') {
                     if (!altKey) {
                         if (ctrlKey) {
@@ -8653,7 +8652,7 @@ var Ui;
                     return;
                 event.stopImmediatePropagation();
                 var delayed = false;
-                var dataTransfer = new Ui.DragEmuDataTransfer(_this.element, event.clientX, event.clientY, delayed, event);
+                var dataTransfer = new Ui.DragEmuDataTransfer(_this.element, _this.image ? _this.image : _this.element, event.clientX, event.clientY, delayed, event);
                 _this.dataTransfer = dataTransfer;
                 _this._dragDelta = _this.element.pointFromWindow(new Ui.Point(event.clientX, event.clientY));
                 dataTransfer.started.connect(function (e) { return _this.onDragStart(dataTransfer); });
@@ -8664,7 +8663,7 @@ var Ui;
                     return;
                 event.stopImmediatePropagation();
                 var delayed = false;
-                var dataTransfer = new Ui.DragEmuDataTransfer(_this.element, event.clientX, event.clientY, delayed, undefined, undefined, event);
+                var dataTransfer = new Ui.DragEmuDataTransfer(_this.element, _this.image ? _this.image : _this.element, event.clientX, event.clientY, delayed, undefined, undefined, event);
                 _this.dataTransfer = dataTransfer;
                 _this._dragDelta = _this.element.pointFromWindow(new Ui.Point(event.clientX, event.clientY));
                 dataTransfer.started.connect(function (e) { return _this.onDragStart(dataTransfer); });
@@ -8674,7 +8673,7 @@ var Ui;
                 if (_this.element.isDisabled || (_this.data === undefined) || (event.targetTouches.length != 1))
                     return;
                 var delayed = true;
-                var dataTransfer = new Ui.DragEmuDataTransfer(_this.element, event.targetTouches[0].clientX, event.targetTouches[0].clientY, delayed, undefined, event);
+                var dataTransfer = new Ui.DragEmuDataTransfer(_this.element, _this.image ? _this.image : _this.element, event.targetTouches[0].clientX, event.targetTouches[0].clientY, delayed, undefined, event);
                 _this.dataTransfer = dataTransfer;
                 _this._dragDelta = _this.element.pointFromWindow(new Ui.Point(event.targetTouches[0].clientX, event.targetTouches[0].clientY));
                 dataTransfer.started.connect(function (e) { return _this.onDragStart(dataTransfer); });
@@ -8682,6 +8681,8 @@ var Ui;
             };
             _this.element = init.element;
             _this.data = init.data;
+            if (init.image)
+                _this.image = init.image;
             if (init.start !== undefined)
                 _this.start = init.start;
             if (init.end !== undefined)
