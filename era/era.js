@@ -8712,7 +8712,9 @@ var Ui;
         };
         DraggableWatcher.prototype.onDragStart = function (dataTransfer) {
             var selection = Ui.Selectionable.getParentSelectionHandler(this.element);
-            if (selection && (selection.elements.indexOf(this.element) != -1))
+            if (selection && (selection.elements.indexOf(this.image) != -1))
+                dataTransfer.setData(selection);
+            else if (selection && (selection.elements.indexOf(this.element) != -1))
                 dataTransfer.setData(selection);
             else
                 dataTransfer.setData(this.data);
@@ -8804,12 +8806,14 @@ var Ui;
             if (init.selectionActions)
                 _this.selectionActions = init.selectionActions;
             _this.element['Ui.SelectionableWatcher.watcher'] = _this;
+            if (init.draggableElement)
+                _this.draggableElement = init.draggableElement;
             if (init.onselected)
                 _this.select = init.onselected;
             if (init.onunselected)
                 _this.unselect = init.onunselected;
             new Ui.PressWatcher({
-                element: _this.element,
+                element: init.pressElement ? init.pressElement : _this.element,
                 ondelayedpress: function (w) { return _this.onDelayedPress(w); },
                 onactivated: function (w) { return _this.onSelectionableActivate(w); }
             });
@@ -8823,6 +8827,27 @@ var Ui;
         SelectionableWatcher.getIsSelectionableItem = function (element) {
             return (element instanceof Selectionable) || (SelectionableWatcher.getSelectionableWatcher(element) != undefined);
         };
+        Object.defineProperty(SelectionableWatcher.prototype, "draggableElement", {
+            get: function () {
+                return this._draggableElement;
+            },
+            set: function (element) {
+                var _this = this;
+                this._draggableElement = element;
+                if (this.draggableWatcher) {
+                    this.draggableWatcher.dispose();
+                    this.draggableWatcher = new Ui.DraggableWatcher({
+                        element: this._draggableElement,
+                        data: this.element,
+                        image: this.element,
+                        start: function (w) { return _this.onSelectionableDragStart(w); },
+                        end: function (w) { return _this.onSelectionableDragEnd(w); }
+                    });
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(SelectionableWatcher.prototype, "draggable", {
             get: function () {
                 return this.draggableWatcher !== undefined;
@@ -8832,8 +8857,9 @@ var Ui;
                 if (value !== this.draggable) {
                     if (value)
                         this.draggableWatcher = new Ui.DraggableWatcher({
-                            element: this.element,
+                            element: this._draggableElement ? this._draggableElement : this.element,
                             data: this.element,
+                            image: this.element,
                             start: function (w) { return _this.onSelectionableDragStart(w); },
                             end: function (w) { return _this.onSelectionableDragEnd(w); }
                         });

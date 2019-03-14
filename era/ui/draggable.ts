@@ -101,7 +101,9 @@ namespace Ui {
 
         private onDragStart(dataTransfer: DragEmuDataTransfer): void {
             let selection = Selectionable.getParentSelectionHandler(this.element);
-            if (selection && (selection.elements.indexOf(this.element as any) != -1))
+            if (selection && (selection.elements.indexOf(this.image as any) != -1))
+                dataTransfer.setData(selection);
+            else if (selection && (selection.elements.indexOf(this.element as any) != -1))
                 dataTransfer.setData(selection);
             else
                 dataTransfer.setData(this.data);

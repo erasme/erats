@@ -2004,6 +2004,7 @@ declare namespace Ui {
         private select?;
         private unselect?;
         private draggableWatcher?;
+        private _draggableElement?;
         constructor(init: {
             element: Element;
             selectionActions?: SelectionActions;
@@ -2012,9 +2013,12 @@ declare namespace Ui {
             onselected?: (selection: Selection) => void;
             onunselected?: (selection: Selection) => void;
             draggable?: boolean;
+            draggableElement?: Element;
+            pressElement?: Element;
         });
         static getSelectionableWatcher(element: Element): SelectionableWatcher | undefined;
         static getIsSelectionableItem(element: Element): boolean;
+        draggableElement: Element | undefined;
         draggable: boolean;
         isSelected: boolean;
         onSelect(selection: Selection): void;

@@ -22,6 +22,7 @@ namespace Ui {
         private select?: (selection: Selection) => void;
         private unselect?: (selection: Selection) => void;
         private draggableWatcher?: DraggableWatcher;
+        private _draggableElement?: Element;
 
         constructor(init: {
             element: Element,
@@ -30,7 +31,9 @@ namespace Ui {
             pressSelect?: boolean,
             onselected?: (selection: Selection) => void,
             onunselected?: (selection: Selection) => void,
-            draggable?: boolean
+            draggable?: boolean,
+            draggableElement?: Element,
+            pressElement?: Element,
         }) {
             super();
             this.element = init.element;
@@ -38,12 +41,14 @@ namespace Ui {
             if (init.selectionActions)
                 this.selectionActions = init.selectionActions;
             this.element['Ui.SelectionableWatcher.watcher'] = this;
+            if (init.draggableElement)
+                this.draggableElement = init.draggableElement;
             if (init.onselected)
                 this.select = init.onselected;
             if (init.onunselected)
                 this.unselect = init.onunselected;
             new PressWatcher({
-                element: this.element,
+                element: init.pressElement ? init.pressElement : this.element,
                 ondelayedpress: (w) => this.onDelayedPress(w),
                 onactivated: (w) => this.onSelectionableActivate(w)
             });
@@ -60,6 +65,24 @@ namespace Ui {
             return (element instanceof Selectionable) || (SelectionableWatcher.getSelectionableWatcher(element) != undefined);
         }
 
+        get draggableElement(): Element | undefined {
+            return this._draggableElement;
+        }
+
+        set draggableElement(element: Element | undefined) {
+            this._draggableElement = element;
+            if (this.draggableWatcher) {
+                this.draggableWatcher.dispose();
+                this.draggableWatcher = new DraggableWatcher({
+                    element: this._draggableElement,
+                    data: this.element,
+                    image: this.element,
+                    start: (w) => this.onSelectionableDragStart(w),
+                    end: (w) => this.onSelectionableDragEnd(w)
+                });
+            }
+        }
+
         get draggable(): boolean {
             return this.draggableWatcher !== undefined;
         }
@@ -68,8 +91,10 @@ namespace Ui {
             if (value !== this.draggable) {
                 if (value)
                     this.draggableWatcher = new DraggableWatcher({
-                        element: this.element,
+                        element: this._draggableElement ? this._draggableElement : this.element,
+                        //element: this.element,
                         data: this.element,
+                        image: this.element,
                         start: (w) => this.onSelectionableDragStart(w),
                         end: (w) => this.onSelectionableDragEnd(w)
                     });
