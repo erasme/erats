@@ -1,7 +1,7 @@
 namespace Ui {
 
     export class DraggableWatcher extends Core.Object {
-        allowedMode: string | 'copy' | 'copyLink' | 'copyMove' | 'link' | 'linkMove' | 'move' | 'all' = 'all';
+        allowedMode: string | 'copy' | 'copyLink' | 'copyMove' | 'link' | 'linkMove' | 'move' | 'all' | Array<string> = 'all';
         // the data that we drag & drop
         data: any;
         private _dragDelta: Point;
@@ -55,7 +55,7 @@ namespace Ui {
             // PointerEvent dont allow to handle long hold interaction. Let TouchEvent do the job
             if (event.pointerType == 'touch')
                 return;
-
+            event.stopImmediatePropagation();
             let delayed = false;            
             let dataTransfer = new DragEmuDataTransfer(
                 this.element, event.clientX, event.clientY, delayed, event);
