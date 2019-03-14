@@ -19,7 +19,7 @@ var Item1 = /** @class */ (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     return Item1;
-}(Ui.Draggable));
+}(Ui.LBox));
 var Item2 = /** @class */ (function (_super) {
     __extends(Item2, _super);
     function Item2() {
@@ -97,8 +97,15 @@ app.content = vbox;
 var hbox = new Ui.HBox({ horizontalAlign: 'center', spacing: 20 });
 vbox.append(hbox);
 var item1 = new Item1({ width: 64, height: 64 });
-item1.setAllowedMode(['copy', 'link', 'move', 'warn']);
-item1.draggableData = item1;
+var dragWatch = new Ui.DraggableWatcher({
+    element: item1,
+    data: item1
+});
+dragWatch.allowedMode = ['copy', 'link', 'move', 'warn'];
+new Ui.PressWatcher({
+    element: item1,
+    onpressed: function () { return Ui.Toast.send('PRESSED'); }
+});
 item1.append(new Ui.Rectangle({ fill: 'lightblue' }));
 item1.append(new Ui.Label({ text: 'drag me', horizontalAlign: 'center', verticalAlign: 'center', margin: 10 }));
 hbox.append(item1);

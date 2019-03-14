@@ -1,6 +1,6 @@
 /// <reference path="../../era/era.d.ts" />
 
-class Item1 extends Ui.Draggable { }
+class Item1 extends Ui.LBox {}
 
 class Item2 extends Ui.Draggable { }
 
@@ -91,8 +91,15 @@ let hbox = new Ui.HBox({ horizontalAlign: 'center', spacing: 20 });
 vbox.append(hbox);
 
 let item1 = new Item1({ width: 64, height: 64 });
-item1.setAllowedMode([ 'copy', 'link', 'move', 'warn' ]);
-item1.draggableData = item1;
+let dragWatch = new Ui.DraggableWatcher({
+	element: item1,
+	data: item1
+});
+dragWatch.allowedMode = [ 'copy', 'link', 'move', 'warn' ];
+new Ui.PressWatcher({
+	element: item1,
+	onpressed: () =>  Ui.Toast.send('PRESSED')
+});
 item1.append(new Ui.Rectangle({ fill: 'lightblue' }));
 item1.append(new Ui.Label({ text: 'drag me', horizontalAlign: 'center', verticalAlign: 'center', margin: 10 }));
 hbox.append(item1);
