@@ -6995,10 +6995,10 @@ var Ui;
                     _this.draggable.drawing.addEventListener('contextmenu', onContextMenu, { capture: true });
                 _this.pointer = new Ui.Pointer(pointerEvent.pointerType, pointerEvent.pointerId);
                 _this.pointer.setInitialPosition(pointerEvent.clientX, pointerEvent.clientY);
-                _this.pointer.down(pointerEvent.clientX, pointerEvent.clientY, pointerEvent.buttons, pointerEvent.button);
                 _this.pointer.ctrlKey = pointerEvent.ctrlKey;
                 _this.pointer.altKey = pointerEvent.altKey;
                 _this.pointer.shiftKey = pointerEvent.shiftKey;
+                _this.pointer.down(pointerEvent.clientX, pointerEvent.clientY, pointerEvent.buttons, pointerEvent.button);
                 var onPointerMove_1 = function (e) {
                     _this.pointer.ctrlKey = e.ctrlKey;
                     _this.pointer.altKey = e.altKey;
@@ -7006,6 +7006,10 @@ var Ui;
                     _this.pointer.move(e.clientX, e.clientY);
                 };
                 var onPointerUp_1 = function (e) {
+                    if (_this.pointer.getIsCaptured()) {
+                        e.preventDefault();
+                        e.stopImmediatePropagation();
+                    }
                     _this.pointer.ctrlKey = e.ctrlKey;
                     _this.pointer.altKey = e.altKey;
                     _this.pointer.shiftKey = e.shiftKey;
@@ -7101,6 +7105,10 @@ var Ui;
                     _this.pointer.altKey = e.altKey;
                     _this.pointer.shiftKey = e.shiftKey;
                     if (e.button == 0) {
+                        if (_this.pointer.getIsCaptured()) {
+                            e.preventDefault();
+                            e.stopImmediatePropagation();
+                        }
                         _this.pointer.up();
                         window.removeEventListener('mousemove', onMouseMove_1, true);
                         window.removeEventListener('mouseup', onMouseUp_1, true);
@@ -8399,16 +8407,14 @@ var Ui;
             if (event.pointerType == 'mouse' && !(event.button == 0 || (this.allowMiddleButton && event.button == 1)))
                 return;
             this._pointerId = event.pointerId;
-            this.element.drawing.setPointerCapture(event.pointerId);
             this._isDown = true;
             this.x = event.clientX;
             this.y = event.clientY;
             var onPointerCancel = function (e) {
                 if (e.pointerId != _this._pointerId)
                     return;
-                _this.element.drawing.removeEventListener('pointercancel', onPointerCancel);
-                _this.element.drawing.removeEventListener('pointerup', onPointerUp);
-                _this.element.drawing.releasePointerCapture(event.pointerId);
+                window.removeEventListener('pointercancel', onPointerCancel, true);
+                window.removeEventListener('pointerup', onPointerUp, true);
                 _this._pointerId = undefined;
                 e.stopPropagation();
                 _this.onUp();
@@ -8416,9 +8422,8 @@ var Ui;
             var onPointerUp = function (e) {
                 if (e.pointerId != _this._pointerId)
                     return;
-                _this.element.drawing.removeEventListener('pointercancel', onPointerCancel);
-                _this.element.drawing.removeEventListener('pointerup', onPointerUp);
-                _this.element.drawing.releasePointerCapture(event.pointerId);
+                window.removeEventListener('pointercancel', onPointerCancel, true);
+                window.removeEventListener('pointerup', onPointerUp, true);
                 _this._pointerId = undefined;
                 _this.x = e.clientX;
                 _this.y = e.clientY;
@@ -8427,8 +8432,8 @@ var Ui;
                 if (e.pointerType == 'mouse' && event.button == 1 && _this.allowMiddleButton)
                     _this.onPress(e.clientX, e.clientY, e.altKey, e.shiftKey, e.ctrlKey, true);
             };
-            this.element.drawing.addEventListener('pointercancel', onPointerCancel);
-            this.element.drawing.addEventListener('pointerup', onPointerUp);
+            window.addEventListener('pointercancel', onPointerCancel, true);
+            window.addEventListener('pointerup', onPointerUp, true);
             event.stopPropagation();
             this.onDown();
         };
@@ -8646,6 +8651,7 @@ var Ui;
                     return;
                 if (event.pointerType == 'touch')
                     return;
+                event.stopImmediatePropagation();
                 var delayed = false;
                 var dataTransfer = new Ui.DragEmuDataTransfer(_this.element, event.clientX, event.clientY, delayed, event);
                 _this.dataTransfer = dataTransfer;
@@ -8656,6 +8662,7 @@ var Ui;
             _this.onDraggableMouseDown = function (event) {
                 if (_this.element.isDisabled || (_this.data === undefined) || event.button != 0)
                     return;
+                event.stopImmediatePropagation();
                 var delayed = false;
                 var dataTransfer = new Ui.DragEmuDataTransfer(_this.element, event.clientX, event.clientY, delayed, undefined, undefined, event);
                 _this.dataTransfer = dataTransfer;
@@ -22970,8 +22977,8 @@ var Ui;
                 }
             };
             var onMouseUp = function (e) {
-                _this.drawing.removeEventListener('mousemove', onMouseMove);
-                _this.drawing.removeEventListener('mouseup', onMouseUp);
+                window.removeEventListener('mousemove', onMouseMove, true);
+                window.removeEventListener('mouseup', onMouseUp, true);
                 if (_this.rectangle != undefined) {
                     var current = _this.pointFromWindow(new Ui.Point(e.clientX, e.clientY));
                     var res_2 = _this.findAreaElements(_this.startPos, current);
@@ -22999,8 +23006,8 @@ var Ui;
                 }
                 e.stopImmediatePropagation();
             };
-            this.drawing.addEventListener('mousemove', onMouseMove);
-            this.drawing.addEventListener('mouseup', onMouseUp);
+            window.addEventListener('mousemove', onMouseMove, true);
+            window.addEventListener('mouseup', onMouseUp, true);
             event.stopImmediatePropagation();
         };
         SelectionArea.prototype.onKeyDown = function (event) {

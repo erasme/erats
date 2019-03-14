@@ -186,10 +186,10 @@ namespace Ui {
                     this.draggable.drawing.addEventListener('contextmenu', onContextMenu, { capture: true });
                 this.pointer = new Pointer(pointerEvent.pointerType, pointerEvent.pointerId);
                 this.pointer.setInitialPosition(pointerEvent.clientX, pointerEvent.clientY);
-                this.pointer.down(pointerEvent.clientX, pointerEvent.clientY, pointerEvent.buttons, pointerEvent.button);
                 this.pointer.ctrlKey = pointerEvent.ctrlKey;
                 this.pointer.altKey = pointerEvent.altKey;
                 this.pointer.shiftKey = pointerEvent.shiftKey;
+                this.pointer.down(pointerEvent.clientX, pointerEvent.clientY, pointerEvent.buttons, pointerEvent.button);
 
                 let onPointerMove = (e: PointerEvent) => {
                     this.pointer.ctrlKey = e.ctrlKey;
@@ -300,6 +300,10 @@ namespace Ui {
                     this.pointer.altKey = e.altKey;
                     this.pointer.shiftKey = e.shiftKey;
                     if (e.button == 0) {
+                        if (this.pointer.getIsCaptured()) {
+                            e.preventDefault();
+                            e.stopImmediatePropagation();
+                        }    
                         this.pointer.up();
                         window.removeEventListener('mousemove', onMouseMove, true);
                         window.removeEventListener('mouseup', onMouseUp, true);

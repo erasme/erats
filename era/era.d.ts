@@ -1921,7 +1921,7 @@ declare namespace Ui {
 }
 declare namespace Ui {
     class DraggableWatcher extends Core.Object {
-        allowedMode: string | 'copy' | 'copyLink' | 'copyMove' | 'link' | 'linkMove' | 'move' | 'all';
+        allowedMode: string | 'copy' | 'copyLink' | 'copyMove' | 'link' | 'linkMove' | 'move' | 'all' | Array<string>;
         data: any;
         private _dragDelta;
         dataTransfer?: DragEmuDataTransfer;

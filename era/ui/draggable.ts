@@ -69,6 +69,7 @@ namespace Ui {
             // left mouse button only
             if (this.element.isDisabled || (this.data === undefined) || event.button != 0)
                 return;
+            event.stopImmediatePropagation();
             let delayed = false;
             let dataTransfer = new DragEmuDataTransfer(
                 this.element, event.clientX, event.clientY, delayed, undefined, undefined, event);
