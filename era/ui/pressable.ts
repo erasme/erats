@@ -72,16 +72,14 @@ namespace Ui {
                 return;
 
             this._pointerId = event.pointerId;
-            this.element.drawing.setPointerCapture(event.pointerId);
             this._isDown = true;
             this.x = event.clientX; this.y = event.clientY;
 
             let onPointerCancel = (e: PointerEvent) => {
                 if (e.pointerId != this._pointerId)
                     return;
-                this.element.drawing.removeEventListener('pointercancel', onPointerCancel);
-                this.element.drawing.removeEventListener('pointerup', onPointerUp);
-                this.element.drawing.releasePointerCapture(event.pointerId);
+                window.removeEventListener('pointercancel', onPointerCancel, true);
+                window.removeEventListener('pointerup', onPointerUp, true);
                 this._pointerId = undefined;
                 e.stopPropagation();
                 this.onUp();
@@ -89,9 +87,8 @@ namespace Ui {
             let onPointerUp = (e: PointerEvent) => {
                 if (e.pointerId != this._pointerId)
                     return;
-                this.element.drawing.removeEventListener('pointercancel', onPointerCancel);
-                this.element.drawing.removeEventListener('pointerup', onPointerUp);
-                this.element.drawing.releasePointerCapture(event.pointerId);
+                window.removeEventListener('pointercancel', onPointerCancel, true);
+                window.removeEventListener('pointerup', onPointerUp, true);
                 this._pointerId = undefined;
                 this.x = e.clientX; this.y = e.clientY;
                 e.stopPropagation();
@@ -102,8 +99,9 @@ namespace Ui {
                 if (e.pointerType == 'mouse' && event.button == 1 && this.allowMiddleButton)
                     this.onPress(e.clientX, e.clientY, e.altKey, e.shiftKey, e.ctrlKey, true);
             }
-            this.element.drawing.addEventListener('pointercancel', onPointerCancel);
-            this.element.drawing.addEventListener('pointerup', onPointerUp);
+            window.addEventListener('pointercancel', onPointerCancel, true);
+            window.addEventListener('pointerup', onPointerUp, true);
+
             event.stopPropagation();
             this.onDown();
         }
