@@ -1769,6 +1769,21 @@ declare namespace Ui {
     }
 }
 declare namespace Ui {
+    class RippleEffect extends Core.Object {
+        readonly element: Ui.Element;
+        private ripple;
+        private isAnimated;
+        private upResolve?;
+        constructor(element: Ui.Element);
+        protected anim(x?: number, y?: number): Promise<void>;
+        down(x?: number, y?: number): void;
+        up(): void;
+        press(x?: number, y?: number): void;
+        fill: Ui.Color | string;
+        pressable: Pressable;
+    }
+}
+declare namespace Ui {
     class PressWatcher extends Core.Object {
         private element;
         private press;
@@ -2981,11 +2996,10 @@ declare namespace Ui {
     }
     class ButtonBackground extends Element {
         private ripple;
-        private isAnimated;
         constructor();
         down(x?: number, y?: number): void;
-        up(): Promise<void>;
-        press(x?: number, y?: number): Promise<void>;
+        up(): void;
+        press(x?: number, y?: number): void;
         borderWidth: number;
         border: Color | string;
         radius: number;

@@ -112,6 +112,8 @@ namespace Ui {
             if (!this.lock && !this.element.isDisabled && (key == 13 || key == 32)) {
                 event.preventDefault();
                 event.stopImmediatePropagation();
+                this.x = undefined;
+                this.y = undefined;
                 this.onDown();
             }
         }
@@ -122,6 +124,8 @@ namespace Ui {
             if (!this.lock && !this.element.isDisabled && this._isDown && (key == 13 || key == 32)) {
                 event.preventDefault();
                 event.stopImmediatePropagation();
+                this.x = undefined;
+                this.y = undefined;
                 this.onUp();
                 this.onPress(undefined, undefined, event.altKey, event.shiftKey, event.ctrlKey);
             }
@@ -181,7 +185,6 @@ namespace Ui {
                 this.delayedpress(this);
         }
     }
-
 
     export interface PressableInit extends OverableInit {
         lock?: boolean;

@@ -30,61 +30,25 @@ namespace Ui {
     }
 
     export class ButtonBackground extends Element {
-        private ripple: HTMLDivElement;
-        private isAnimated = false;
+        private ripple = new Ui.RippleEffect(this);
 
         constructor() {
             super();
             this.drawing.style.boxSizing = 'border-box';
             this.drawing.style.borderStyle = 'solid';
-            this.drawing.style.overflow = 'hidden';
-            
-            this.ripple = document.createElement('div');
-            this.ripple.style.transformOrigin = 'center center';
-            this.ripple.style.transform = 'scale(0) translate3d(0,0,0)';
-            this.ripple.style.position = 'absolute';
-            this.ripple.style.display = 'block';
-            this.ripple.style.margin = '0';
-            this.ripple.style.padding = '0';
-            this.ripple.style.borderRadius = '100%';
-            this.ripple.style.width = '10px';
-            this.ripple.style.height = '10px';
-            this.ripple.style.background = 'rgba(255,255,255,0.3)';
-            this.ripple.style.transition = 'transform 0.5s ease-out, opacity 0.2s';
-            this.drawing.appendChild(this.ripple);
+            this.drawing.style.overflow = 'hidden';            
         }
 
         down(x?: number, y?: number) {
-            this.isAnimated = true;
-            if (x == undefined)
-                x = this.layoutWidth / 2;
-            if (y == undefined)
-                y = this.layoutHeight / 2;
-            let scale = 2.5 * Math.ceil(Math.max(this.layoutWidth, this.layoutHeight) / 10);
-            this.ripple.style.left = `${Math.round(x - 5)}px`;
-            this.ripple.style.top = `${Math.round(y - 5)}px`;
-            this.ripple.style.transition = 'transform 0.5s ease-out, opacity 0.1s';
-            this.ripple.style.transform = `scale(${scale}) translate3d(0,0,0)`;
+            this.ripple.down(x, y);
         }
 
-        async up() {
-            let wait = (ms: number) => new Promise((resolve) => setTimeout(() => resolve(), ms));
-            await wait(200);
-            this.ripple.style.opacity = '0';
-            await wait(100);
-            this.ripple.style.transition = '';
-            this.ripple.style.opacity = '1';
-            this.ripple.style.transform = 'scale(0) translate3d(0,0,0)';
-            this.isAnimated = false;
+        up() {
+            this.ripple.up();
         }
 
-        async press(x?: number, y?: number) {
-            if (!this.isAnimated) {
-                let wait = (ms: number) => new Promise((resolve) => setTimeout(() => resolve(), ms));
-                this.down(x, y);
-                await wait(300);
-                this.up();
-            }
+        press(x?: number, y?: number) {
+            this.ripple.press(x, y);
         }
 
         set borderWidth(borderWidth: number) {
@@ -103,9 +67,9 @@ namespace Ui {
             let color = Color.create(background);
             this.drawing.style.backgroundColor = color.getCssRgba();
             if (color.getHsl().l > 0.7)
-                this.ripple.style.background = 'rgba(0,0,0,0.1)';
+                this.ripple.fill = 'rgba(0,0,0,0.1)';
             else
-                this.ripple.style.background = 'rgba(255,255,255,0.3)';
+                this.ripple.fill = 'rgba(255,255,255,0.3)';
         }
     }
     

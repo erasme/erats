@@ -8357,6 +8357,121 @@ var Ui;
 })(Ui || (Ui = {}));
 var Ui;
 (function (Ui) {
+    var RippleEffect = (function (_super) {
+        __extends(RippleEffect, _super);
+        function RippleEffect(element) {
+            var _this = _super.call(this) || this;
+            _this.element = element;
+            _this.isAnimated = false;
+            _this.element.drawing.style.overflow = 'hidden';
+            _this.ripple = document.createElement('div');
+            _this.ripple.style.transformOrigin = 'center center';
+            _this.ripple.style.transform = 'scale(0) translate3d(0,0,0)';
+            _this.ripple.style.position = 'absolute';
+            _this.ripple.style.display = 'block';
+            _this.ripple.style.margin = '0';
+            _this.ripple.style.padding = '0';
+            _this.ripple.style.borderRadius = '100%';
+            _this.ripple.style.width = '10px';
+            _this.ripple.style.height = '10px';
+            _this.fill = Ui.Color.create('rgba(0,0,0,0.1)');
+            return _this;
+        }
+        RippleEffect.prototype.anim = function (x, y) {
+            return __awaiter(this, void 0, void 0, function () {
+                var upPromise, scale;
+                var _this = this;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            if (this.isAnimated)
+                                return [2];
+                            this.isAnimated = true;
+                            if (x == undefined)
+                                x = this.element.layoutWidth / 2;
+                            if (y == undefined)
+                                y = this.element.layoutHeight / 2;
+                            upPromise = new Promise(function (resolve) { return _this.upResolve = resolve; });
+                            this.element.drawing.appendChild(this.ripple);
+                            this.ripple.style.transform = 'scale(0) translate3d(0,0,0)';
+                            return [4, new Promise(function (resolve) { return setTimeout(function () { return resolve(); }, 0); })];
+                        case 1:
+                            _a.sent();
+                            scale = 2.5 * Math.ceil(Math.max(this.element.layoutWidth, this.element.layoutHeight) / 10);
+                            this.ripple.style.left = Math.round(x - 5) + "px";
+                            this.ripple.style.top = Math.round(y - 5) + "px";
+                            this.ripple.style.transition = 'transform 0.5s ease-out, opacity 0.1s';
+                            this.ripple.style.transform = "scale(" + scale + ") translate3d(0,0,0)";
+                            return [4, new Promise(function (resolve) { return setTimeout(function () { return resolve(); }, 500); })];
+                        case 2:
+                            _a.sent();
+                            return [4, upPromise];
+                        case 3:
+                            _a.sent();
+                            this.ripple.style.opacity = '0';
+                            return [4, new Promise(function (resolve) { return setTimeout(function () { return resolve(); }, 100); })];
+                        case 4:
+                            _a.sent();
+                            this.ripple.style.transition = '';
+                            this.ripple.style.opacity = '1';
+                            this.ripple.style.transform = 'scale(0) translate3d(0,0,0)';
+                            this.element.drawing.removeChild(this.ripple);
+                            this.isAnimated = false;
+                            return [2];
+                    }
+                });
+            });
+        };
+        RippleEffect.prototype.down = function (x, y) {
+            this.anim(x, y);
+        };
+        RippleEffect.prototype.up = function () {
+            if (this.upResolve)
+                this.upResolve();
+        };
+        RippleEffect.prototype.press = function (x, y) {
+            if (!this.isAnimated) {
+                this.down(x, y);
+                this.up();
+            }
+        };
+        Object.defineProperty(RippleEffect.prototype, "fill", {
+            set: function (fill) {
+                this.ripple.style.background = Ui.Color.create(fill).getCssRgba();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(RippleEffect.prototype, "pressable", {
+            set: function (pressable) {
+                var _this = this;
+                pressable.pressed.connect(function (e) {
+                    if (e.x && e.y) {
+                        var p = _this.element.pointFromWindow(new Ui.Point(e.x, e.y));
+                        _this.press(p.x, p.y);
+                    }
+                    else
+                        _this.press();
+                });
+                pressable.downed.connect(function (e) {
+                    if (e.x && e.y) {
+                        var p = _this.element.pointFromWindow(new Ui.Point(e.x, e.y));
+                        _this.down(p.x, p.y);
+                    }
+                    else
+                        _this.down();
+                });
+                pressable.upped.connect(function () { return _this.up(); });
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return RippleEffect;
+    }(Core.Object));
+    Ui.RippleEffect = RippleEffect;
+})(Ui || (Ui = {}));
+var Ui;
+(function (Ui) {
     var PressWatcher = (function (_super) {
         __extends(PressWatcher, _super);
         function PressWatcher(init) {
@@ -8441,6 +8556,8 @@ var Ui;
             if (!this.lock && !this.element.isDisabled && (key == 13 || key == 32)) {
                 event.preventDefault();
                 event.stopImmediatePropagation();
+                this.x = undefined;
+                this.y = undefined;
                 this.onDown();
             }
         };
@@ -8449,6 +8566,8 @@ var Ui;
             if (!this.lock && !this.element.isDisabled && this._isDown && (key == 13 || key == 32)) {
                 event.preventDefault();
                 event.stopImmediatePropagation();
+                this.x = undefined;
+                this.y = undefined;
                 this.onUp();
                 this.onPress(undefined, undefined, event.altKey, event.shiftKey, event.ctrlKey);
             }
@@ -13412,78 +13531,20 @@ var Ui;
         __extends(ButtonBackground, _super);
         function ButtonBackground() {
             var _this = _super.call(this) || this;
-            _this.isAnimated = false;
+            _this.ripple = new Ui.RippleEffect(_this);
             _this.drawing.style.boxSizing = 'border-box';
             _this.drawing.style.borderStyle = 'solid';
             _this.drawing.style.overflow = 'hidden';
-            _this.ripple = document.createElement('div');
-            _this.ripple.style.transformOrigin = 'center center';
-            _this.ripple.style.transform = 'scale(0) translate3d(0,0,0)';
-            _this.ripple.style.position = 'absolute';
-            _this.ripple.style.display = 'block';
-            _this.ripple.style.margin = '0';
-            _this.ripple.style.padding = '0';
-            _this.ripple.style.borderRadius = '100%';
-            _this.ripple.style.width = '10px';
-            _this.ripple.style.height = '10px';
-            _this.ripple.style.background = 'rgba(255,255,255,0.3)';
-            _this.ripple.style.transition = 'transform 0.5s ease-out, opacity 0.2s';
-            _this.drawing.appendChild(_this.ripple);
             return _this;
         }
         ButtonBackground.prototype.down = function (x, y) {
-            this.isAnimated = true;
-            if (x == undefined)
-                x = this.layoutWidth / 2;
-            if (y == undefined)
-                y = this.layoutHeight / 2;
-            var scale = 2.5 * Math.ceil(Math.max(this.layoutWidth, this.layoutHeight) / 10);
-            this.ripple.style.left = Math.round(x - 5) + "px";
-            this.ripple.style.top = Math.round(y - 5) + "px";
-            this.ripple.style.transition = 'transform 0.5s ease-out, opacity 0.1s';
-            this.ripple.style.transform = "scale(" + scale + ") translate3d(0,0,0)";
+            this.ripple.down(x, y);
         };
         ButtonBackground.prototype.up = function () {
-            return __awaiter(this, void 0, void 0, function () {
-                var wait;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            wait = function (ms) { return new Promise(function (resolve) { return setTimeout(function () { return resolve(); }, ms); }); };
-                            return [4, wait(200)];
-                        case 1:
-                            _a.sent();
-                            this.ripple.style.opacity = '0';
-                            return [4, wait(100)];
-                        case 2:
-                            _a.sent();
-                            this.ripple.style.transition = '';
-                            this.ripple.style.opacity = '1';
-                            this.ripple.style.transform = 'scale(0) translate3d(0,0,0)';
-                            this.isAnimated = false;
-                            return [2];
-                    }
-                });
-            });
+            this.ripple.up();
         };
         ButtonBackground.prototype.press = function (x, y) {
-            return __awaiter(this, void 0, void 0, function () {
-                var wait;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (!!this.isAnimated) return [3, 2];
-                            wait = function (ms) { return new Promise(function (resolve) { return setTimeout(function () { return resolve(); }, ms); }); };
-                            this.down(x, y);
-                            return [4, wait(300)];
-                        case 1:
-                            _a.sent();
-                            this.up();
-                            _a.label = 2;
-                        case 2: return [2];
-                    }
-                });
-            });
+            this.ripple.press(x, y);
         };
         Object.defineProperty(ButtonBackground.prototype, "borderWidth", {
             set: function (borderWidth) {
@@ -13511,9 +13572,9 @@ var Ui;
                 var color = Ui.Color.create(background);
                 this.drawing.style.backgroundColor = color.getCssRgba();
                 if (color.getHsl().l > 0.7)
-                    this.ripple.style.background = 'rgba(0,0,0,0.1)';
+                    this.ripple.fill = 'rgba(0,0,0,0.1)';
                 else
-                    this.ripple.style.background = 'rgba(255,255,255,0.3)';
+                    this.ripple.fill = 'rgba(255,255,255,0.3)';
             },
             enumerable: true,
             configurable: true
