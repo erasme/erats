@@ -5043,6 +5043,7 @@ declare namespace Ui {
     }
     class Combo<T = any> extends Button implements ComboInit<T> {
         private _field;
+        private _iconField?;
         private _data;
         private _position;
         private _current;
@@ -5064,6 +5065,7 @@ declare namespace Ui {
         constructor(init?: ComboInit<T>);
         placeHolder: string;
         field: keyof T;
+        iconField: keyof T;
         data: T[];
         position: number;
         current: T;
@@ -5079,6 +5081,7 @@ declare namespace Ui {
         search?: boolean;
         allowNone?: boolean;
         field?: keyof T;
+        iconField?: keyof T;
         data?: T[];
         position?: number;
     }
@@ -5087,6 +5090,7 @@ declare namespace Ui {
         private _allowNone;
         private _data;
         private _field;
+        private _iconField?;
         private searchField;
         private emptyField;
         readonly item: Core.Events<{
@@ -5099,6 +5103,7 @@ declare namespace Ui {
         search: boolean;
         allowNone: boolean;
         field: keyof T;
+        iconField: keyof T;
         data: T[];
         position: number;
         protected onItemPress(item: ComboItem): void;

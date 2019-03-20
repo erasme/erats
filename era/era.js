@@ -23208,6 +23208,15 @@ var Ui;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(Combo.prototype, "iconField", {
+            set: function (field) {
+                this._iconField = field;
+                if (this._data !== undefined)
+                    this.data = this._data;
+            },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(Combo.prototype, "data", {
             get: function () {
                 return this._data;
@@ -23234,12 +23243,15 @@ var Ui;
                     this._position = -1;
                     this._current = undefined;
                     this.text = this._placeHolder;
+                    this.icon = undefined;
                     this.changed.fire({ target: this, value: this._current, position: this._position });
                 }
                 else if ((position >= 0) && (position < this._data.length)) {
                     this._current = this._data[position];
                     this._position = position;
                     this.text = this._current[this._field];
+                    if (this._iconField)
+                        this.icon = this._current[this._iconField];
                     this.changed.fire({ target: this, value: this._current, position: this._position });
                 }
             },
@@ -23280,6 +23292,7 @@ var Ui;
             var _this = this;
             var popup = new Ui.ComboPopup({
                 field: this._field,
+                iconField: this._iconField
             }).assign({
                 data: this._data,
                 search: this.search, allowNone: this.allowNone
@@ -23343,6 +23356,8 @@ var Ui;
                     _this.allowNone = init.allowNone;
                 if (init.field !== undefined)
                     _this.field = init.field;
+                if (init.iconField !== undefined)
+                    _this.iconField = init.iconField;
                 if (init.data !== undefined)
                     _this.data = init.data;
                 if (init.position !== undefined)
@@ -23402,8 +23417,23 @@ var Ui;
             configurable: true
         });
         Object.defineProperty(ComboPopup.prototype, "field", {
+            get: function () {
+                return this._field;
+            },
             set: function (field) {
                 this._field = field;
+                if (this._data !== undefined)
+                    this.data = this._data;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ComboPopup.prototype, "iconField", {
+            get: function () {
+                return this._iconField;
+            },
+            set: function (field) {
+                this._iconField = field;
                 if (this._data !== undefined)
                     this.data = this._data;
             },
@@ -23421,6 +23451,8 @@ var Ui;
                         text: data[i][this_4._field],
                         onpressed: function () { return _this.onItemPress(item); }
                     });
+                    if (this_4._iconField)
+                        item.icon = data[i][this_4._iconField];
                     this_4.list.append(item);
                 };
                 var this_4 = this;

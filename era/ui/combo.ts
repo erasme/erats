@@ -12,6 +12,7 @@ namespace Ui {
 
     export class Combo<T = any> extends Button implements ComboInit<T> {
         private _field: keyof T;
+        private _iconField?: keyof T;
         private _data: T[];
         private _position: number = -1;
         private _current: T;
@@ -75,6 +76,12 @@ namespace Ui {
                 this.data = this._data;
         }
 
+        set iconField(field: keyof T) {
+            this._iconField = field;
+            if (this._data !== undefined)
+                this.data = this._data;
+        }
+
         set data(data: T[]) {
             let oldPosition = this.position;
             this._data = data;
@@ -99,12 +106,15 @@ namespace Ui {
                 this._position = -1;
                 this._current = undefined;
                 this.text = this._placeHolder;
+                this.icon = undefined;
                 this.changed.fire({ target: this, value: this._current, position: this._position });
             }
             else if ((position >= 0) && (position < this._data.length)) {
                 this._current = this._data[position];
                 this._position = position;
                 this.text = this._current[this._field as string];
+                if (this._iconField)
+                    this.icon = this._current[this._iconField] as any as string;
                 this.changed.fire({ target: this, value: this._current, position: this._position });
             }
         }
@@ -138,6 +148,7 @@ namespace Ui {
         protected onPress() {
             let popup = new Ui.ComboPopup({
                 field: this._field,
+                iconField: this._iconField
             }).assign({
                 data: this._data,
                 search: this.search, allowNone: this.allowNone
@@ -173,6 +184,7 @@ namespace Ui {
         search?: boolean;
         allowNone?: boolean;
         field?: keyof T;
+        iconField?: keyof T;
         data?: T[];
         position?: number;
     }
@@ -182,6 +194,7 @@ namespace Ui {
         private _allowNone = false;
         private _data: T[];
         private _field: keyof T;
+        private _iconField?: keyof T;
         private searchField = new TextField();
         private emptyField = new ComboItem();
         readonly item = new Core.Events<{ target: ComboPopup<T>, item: ComboItem, position: number }>();
@@ -217,6 +230,8 @@ namespace Ui {
                     this.allowNone = init.allowNone;
                 if (init.field !== undefined)
                     this.field = init.field;
+                if (init.iconField !== undefined)
+                    this.iconField = init.iconField;
                 if (init.data !== undefined)
                     this.data = init.data;
                 if (init.position !== undefined)
@@ -271,8 +286,22 @@ namespace Ui {
                 this.emptyField.hide(true);
         }
 
+        get field(): keyof T {
+            return this._field;
+        }
+
         set field(field: keyof T) {
             this._field = field;
+            if (this._data !== undefined)
+                this.data = this._data;
+        }
+
+        get iconField(): keyof T {
+            return this._iconField;
+        }
+
+        set iconField(field: keyof T) {
+            this._iconField = field;
             if (this._data !== undefined)
                 this.data = this._data;
         }
@@ -286,6 +315,8 @@ namespace Ui {
                     text: data[i][this._field as string],
                     onpressed: () => this.onItemPress(item)
                 });
+                if (this._iconField)
+                    item.icon = data[i][this._iconField];
                 this.list.append(item);
             }
         }
