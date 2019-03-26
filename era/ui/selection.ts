@@ -174,7 +174,8 @@ namespace Ui {
                     let allActions = this.getElementActions(this._watchers[0]);
                     for (let actionName in allActions) {
                         let action = allActions[actionName];
-                        if (!action.testRight || action.testRight(this._watchers[0]))
+                        if ((!action.testRight || action.testRight(this._watchers[0])) &&
+                            (!action.testMultipleRight || action.testMultipleRight(this._watchers)))
                             actions[actionName] = allActions[actionName];
                     }
                     return actions;
@@ -206,6 +207,10 @@ namespace Ui {
                                     for (let i = 0; allowed && (i < this._watchers.length); i++) {
                                         allowed = allowed && action.testRight(this._watchers[i]);
                                     }
+                                }
+                                // test rights for the elements all together
+                                if (allowed && action.testMultipleRight) {
+                                    allowed = action.testMultipleRight(this._watchers);
                                 }
                                 if (allowed)
                                     actions[actionName] = allActions[actionName];

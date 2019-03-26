@@ -9301,7 +9301,8 @@ var Ui;
                     var allActions = this.getElementActions(this._watchers[0]);
                     for (var actionName in allActions) {
                         var action = allActions[actionName];
-                        if (!action.testRight || action.testRight(this._watchers[0]))
+                        if ((!action.testRight || action.testRight(this._watchers[0])) &&
+                            (!action.testMultipleRight || action.testMultipleRight(this._watchers)))
                             actions[actionName] = allActions[actionName];
                     }
                     return actions;
@@ -9331,6 +9332,9 @@ var Ui;
                                     for (var i = 0; allowed && (i < this._watchers.length); i++) {
                                         allowed = allowed && action.testRight(this._watchers[i]);
                                     }
+                                }
+                                if (allowed && action.testMultipleRight) {
+                                    allowed = action.testMultipleRight(this._watchers);
                                 }
                                 if (allowed)
                                     actions[actionName] = allActions[actionName];

@@ -8,6 +8,7 @@ namespace Ui {
         multiple?: boolean;
         hidden?: boolean;
         testRight?: (watcher: SelectionableWatcher) => boolean;
+        testMultipleRight?: (watchers: SelectionableWatcher[]) => boolean;
     }
 
     export interface SelectionActions {

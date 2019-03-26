@@ -2007,6 +2007,7 @@ declare namespace Ui {
         multiple?: boolean;
         hidden?: boolean;
         testRight?: (watcher: SelectionableWatcher) => boolean;
+        testMultipleRight?: (watchers: SelectionableWatcher[]) => boolean;
     }
     interface SelectionActions {
         [key: string]: SelectionAction;
