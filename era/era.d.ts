@@ -1485,7 +1485,7 @@ declare namespace Ui {
         hasTypes(...args: any[]): boolean;
         hasType(type: any): boolean;
         hasFiles(): boolean;
-        getFiles(): any;
+        getFiles(): FileList;
         getData(type: any): any;
     }
     class DragWatcher extends Core.Object {

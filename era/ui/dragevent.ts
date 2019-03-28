@@ -65,8 +65,8 @@ namespace Ui {
             return this.hasType('files');
         }
 
-        getFiles() {
-            return this.dataTransfer.dataTransfer.files;
+        getFiles(): FileList {
+            return (this.dataTransfer.dataTransfer as DataTransfer).files;
         }
 
         getData(type) {
