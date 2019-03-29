@@ -89,8 +89,6 @@ namespace Ui
             if (!found) {
                 // get allowed effect for the given dataTransfer
                 let effect = this.onDragEffect(event.dataTransfer);
-                console.log('onDragOver ' + effect);
-                
                 if ((effect !== undefined) && (effect.length > 0)) {
                     // capture the dataTransfer
                     let watcher = event.dataTransfer.capture(this.element, effect);
