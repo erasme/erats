@@ -13137,7 +13137,6 @@ var Ui;
                 found = (this.watchers[i].getDataTransfer() === event.dataTransfer);
             if (!found) {
                 var effect = this.onDragEffect(event.dataTransfer);
-                console.log('onDragOver ' + effect);
                 if ((effect !== undefined) && (effect.length > 0)) {
                     var watcher = event.dataTransfer.capture(this.element, effect);
                     this.watchers.push(watcher);
