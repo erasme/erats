@@ -3441,7 +3441,8 @@ var Ui;
                 this.layoutValid = false;
                 this.measureValid = false;
                 this.arrangeValid = false;
-                Ui.App.current.enqueueLayout(this);
+                if (Ui.App.current)
+                    Ui.App.current.enqueueLayout(this);
             }
         };
         Element.prototype.onChildInvalidateMeasure = function (child, event) {
