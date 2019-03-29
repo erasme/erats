@@ -3369,8 +3369,8 @@ declare namespace Ui {
         protected onMessage(event: any): void;
         sendMessageToParent(msg: any): void;
         findFocusableDiv(current: any): any;
-        enqueueDraw(element: any): void;
-        enqueueLayout(element: any): void;
+        enqueueDraw(element: Element): void;
+        enqueueLayout(element: Element): void;
         handleScrolling(drawing: any): void;
         getElementsByClass(className: Function): Element[];
         getElementByDrawing(drawing: any): any;

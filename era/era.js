@@ -15636,6 +15636,7 @@ var Ui;
             return this.focusElement;
         };
         App.prototype.appendDialog = function (dialog) {
+            dialog.invalidateLayout();
             if (this.dialogs === undefined) {
                 this.dialogs = new Ui.LBox();
                 this.dialogs.eventsHidden = true;
@@ -15654,6 +15655,7 @@ var Ui;
             if (this.dialogs !== undefined) {
                 var dialogFocus = this.dialogsFocus.pop();
                 this.dialogs.remove(dialog);
+                dialog.layoutValid = true;
                 if (this.dialogs.children.length === 0) {
                     this.removeChild(this.dialogs);
                     this.dialogs = undefined;
@@ -16167,6 +16169,7 @@ var Ui;
                     });
                     this.openClock.timeupdate.connect(function (e) { return _this.onOpenTick(e.target, e.progress, e.deltaTick); });
                     this.onOpenTick(this.openClock, 0, 0);
+                    this.invalidateArrange();
                 }
             }
         };
