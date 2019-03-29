@@ -337,6 +337,7 @@ namespace Ui
         }
 
         appendDialog(dialog) {
+            dialog.invalidateLayout();
             if (this.dialogs === undefined) {
                 this.dialogs = new Ui.LBox();
                 this.dialogs.eventsHidden = true;
@@ -356,6 +357,7 @@ namespace Ui
             if (this.dialogs !== undefined) {
                 let dialogFocus = this.dialogsFocus.pop();
                 this.dialogs.remove(dialog);
+                dialog.layoutValid = true;
                 if (this.dialogs.children.length === 0) {
                     this.removeChild(this.dialogs);
                     this.dialogs = undefined;
@@ -502,7 +504,7 @@ namespace Ui
             return undefined;
         }
 
-        enqueueDraw(element) {
+        enqueueDraw(element: Element) {
             element.drawNext = this.drawList;
             this.drawList = element;
             if ((this.updateTask === false) && this._ready) {
@@ -511,7 +513,7 @@ namespace Ui
             }
         }
 
-        enqueueLayout(element) {
+        enqueueLayout(element: Element) {
             element.layoutNext = this.layoutList;
             this.layoutList = element;
             if ((this.updateTask === false) && this._ready) {
