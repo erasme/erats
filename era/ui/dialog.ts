@@ -275,6 +275,7 @@ namespace Ui {
                     // set the initial state
                     this.onOpenTick(this.openClock, 0, 0);
                     // the start of the animation is delayed to the next arrange
+                    this.invalidateArrange();
                 }
             }
         }
@@ -300,7 +301,6 @@ namespace Ui {
 
         onOpenTick(clock, progress, delta) {
             let end = (progress >= 1);
-
             if (this.isClosed)
                 progress = 1 - progress;
             this.shadowGraphic.opacity = progress;

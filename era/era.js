@@ -16167,6 +16167,7 @@ var Ui;
                     });
                     this.openClock.timeupdate.connect(function (e) { return _this.onOpenTick(e.target, e.progress, e.deltaTick); });
                     this.onOpenTick(this.openClock, 0, 0);
+                    this.invalidateArrange();
                 }
             }
         };
