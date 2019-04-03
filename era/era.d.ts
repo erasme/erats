@@ -6298,3 +6298,106 @@ declare namespace Ui {
         color: Color | string;
     }
 }
+declare namespace Ui {
+    class RadioBoxGraphic extends CanvasElement {
+        private _isDown;
+        private _isChecked;
+        private _color;
+        private _activeColor;
+        private _borderWidth;
+        constructor();
+        isDown: boolean;
+        isChecked: boolean;
+        color: Color;
+        borderWidth: number;
+        activeColor: any;
+        updateCanvas(ctx: CanvasRenderingContext2D): void;
+        measureCore(width: number, height: number): {
+            width: number;
+            height: number;
+        };
+        onDisable(): void;
+        onEnable(): void;
+    }
+}
+declare namespace Ui {
+    interface RadioBoxInit extends PressableInit {
+        value?: boolean;
+        text?: string;
+        content?: Element;
+        group?: RadioGroup;
+        onchanged?: (event: {
+            target: RadioBox;
+            value: boolean;
+        }) => void;
+        ontoggled?: (event: {
+            target: RadioBox;
+        }) => void;
+        onuntoggled?: (event: {
+            target: RadioBox;
+        }) => void;
+    }
+    class RadioBox extends Pressable implements RadioBoxInit {
+        private graphic;
+        private contentBox;
+        private hbox;
+        private _content;
+        private _text;
+        private _group;
+        private _isToggled;
+        readonly changed: Core.Events<{
+            target: RadioBox;
+            value: boolean;
+        }>;
+        onchanged: (event: {
+            target: RadioBox;
+            value: boolean;
+        }) => void;
+        readonly toggled: Core.Events<{
+            target: RadioBox;
+        }>;
+        ontoggled: (event: {
+            target: RadioBox;
+        }) => void;
+        readonly untoggled: Core.Events<{
+            target: RadioBox;
+        }>;
+        onuntoggled: (event: {
+            target: RadioBox;
+        }) => void;
+        constructor(init?: RadioBoxInit);
+        readonly isToggled: boolean;
+        value: boolean;
+        text: string;
+        content: Element;
+        group: RadioGroup;
+        toggle(): void;
+        untoggle(): void;
+        private onRadioPress;
+        protected onToggle(): void;
+        protected onUntoggle(): void;
+        protected onRadioFocus(): void;
+        protected onRadioBlur(): void;
+        protected onRadioDown(): void;
+        protected onRadioUp(): void;
+        protected onStyleChange(): void;
+        static style: object;
+    }
+    class RadioGroup extends Core.Object {
+        readonly content: Core.HashTable<RadioBox>;
+        private _current?;
+        readonly changed: Core.Events<{
+            target: RadioGroup;
+        }>;
+        onchanged: (event: {
+            target: RadioGroup;
+        }) => void;
+        current: RadioBox | undefined;
+        readonly children: Array<RadioBox>;
+        add(radio: RadioBox): void;
+        remove(radio: RadioBox): void;
+        onRadioSelected(event: {
+            target: RadioBox;
+        }): void;
+    }
+}

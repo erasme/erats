@@ -28386,4 +28386,413 @@ Ui.Icon.register('format-insert-unordered-list', "M8 21c-1.66 0-3 1.34-3 3s1.34 
 Ui.Icon.register('format-insert-image', "M42 38v-28c0-2.21-1.79-4-4-4h-28c-2.21 0-4 1.79-4 4v28c0 2.21 1.79 4 4 4h28c2.21 0 4-1.79 4-4zm-25-11l5 6.01 7-9.01 9 12h-28l7-9z");
 Ui.Icon.register('format-insert-url', "M7.8 24c0-3.42 2.78-6.2 6.2-6.2h8v-3.8h-8c-5.52 0-10 4.48-10 10s4.48 10 10 10h8v-3.8h-8c-3.42 0-6.2-2.78-6.2-6.2zm8.2 2h16v-4h-16v4zm18-12h-8v3.8h8c3.42 0 6.2 2.78 6.2 6.2s-2.78 6.2-6.2 6.2h-8v3.8h8c5.52 0 10-4.48 10-10s-4.48-10-10-10z");
 Ui.Icon.register('format-quote', "M12 34h6l4-8v-12h-12v12h6zm16 0h6l4-8v-12h-12v12h6z");
+var Ui;
+(function (Ui) {
+    var RadioBoxGraphic = (function (_super) {
+        __extends(RadioBoxGraphic, _super);
+        function RadioBoxGraphic() {
+            var _this = _super.call(this) || this;
+            _this._isDown = false;
+            _this._isChecked = false;
+            _this._borderWidth = 2;
+            _this.color = new Ui.Color(1, 1, 1);
+            _this.activeColor = new Ui.Color(0.31, 0.66, 0.31);
+            return _this;
+        }
+        Object.defineProperty(RadioBoxGraphic.prototype, "isDown", {
+            get: function () {
+                return this._isDown;
+            },
+            set: function (isDown) {
+                if (this.isDown != isDown) {
+                    this._isDown = isDown;
+                    this.invalidateDraw();
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(RadioBoxGraphic.prototype, "isChecked", {
+            get: function () {
+                return this._isChecked;
+            },
+            set: function (isChecked) {
+                if (this.isChecked != isChecked) {
+                    this._isChecked = isChecked;
+                    this.invalidateDraw();
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(RadioBoxGraphic.prototype, "color", {
+            get: function () {
+                return this._color;
+            },
+            set: function (color) {
+                if (this.color !== color) {
+                    this._color = Ui.Color.create(color);
+                    this.invalidateDraw();
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(RadioBoxGraphic.prototype, "borderWidth", {
+            get: function () { return this._borderWidth; },
+            set: function (borderWidth) {
+                if (this._borderWidth !== borderWidth) {
+                    this._borderWidth = borderWidth;
+                    this.invalidateDraw();
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(RadioBoxGraphic.prototype, "activeColor", {
+            get: function () {
+                if (!this._activeColor)
+                    return;
+                var deltaY = 0;
+                if (this.isDown)
+                    deltaY = 0.20;
+                var yuv = this._activeColor.getYuv();
+                return Ui.Color.createFromYuv(yuv.y + deltaY, yuv.u, yuv.v);
+            },
+            set: function (color) {
+                if (this.activeColor !== color) {
+                    this._activeColor = Ui.Color.create(color);
+                    this.invalidateDraw();
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        RadioBoxGraphic.prototype.updateCanvas = function (ctx) {
+            var w = this.layoutWidth;
+            var h = this.layoutHeight;
+            var cx = w / 2;
+            var cy = h / 2;
+            var radius = Math.min(cx - 5, cy - 5);
+            radius = Math.min(radius, 10);
+            if (this.isDown)
+                ctx.globalAlpha = 0.8;
+            if (this.isDisabled)
+                ctx.globalAlpha = 0.4;
+            ctx.strokeStyle = this.color.getCssRgba();
+            ctx.lineWidth = this.borderWidth;
+            ctx.beginPath();
+            ctx.arc(cx + this.borderWidth / 2, cy + this.borderWidth / 2, radius, 0, 2 * Math.PI, false);
+            ctx.closePath();
+            ctx.stroke();
+            if (this.isChecked) {
+                ctx.fillStyle = this.color.getCssRgba();
+                ctx.beginPath();
+                ctx.arc(cx + this.borderWidth / 2, cy + this.borderWidth / 2, radius / 2, 0, 2 * Math.PI, false);
+                ctx.closePath();
+                ctx.fill();
+                ctx.restore();
+            }
+        };
+        RadioBoxGraphic.prototype.measureCore = function (width, height) {
+            return { width: 30, height: 30 };
+        };
+        RadioBoxGraphic.prototype.onDisable = function () {
+            this.invalidateDraw();
+        };
+        RadioBoxGraphic.prototype.onEnable = function () {
+            this.invalidateDraw();
+        };
+        return RadioBoxGraphic;
+    }(Ui.CanvasElement));
+    Ui.RadioBoxGraphic = RadioBoxGraphic;
+})(Ui || (Ui = {}));
+var Ui;
+(function (Ui) {
+    var RadioBox = (function (_super) {
+        __extends(RadioBox, _super);
+        function RadioBox(init) {
+            var _this = _super.call(this, init) || this;
+            _this._isToggled = false;
+            _this.changed = new Core.Events();
+            _this.toggled = new Core.Events();
+            _this.untoggled = new Core.Events();
+            _this.role = 'radio';
+            _this.drawing.setAttribute('aria-checked', 'false');
+            _this.padding = 2;
+            _this.hbox = new Ui.HBox();
+            _this.append(_this.hbox);
+            _this.graphic = new Ui.RadioBoxGraphic();
+            _this.hbox.append(_this.graphic);
+            _this.downed.connect(function () { return _this.onRadioDown(); });
+            _this.upped.connect(function () { return _this.onRadioUp(); });
+            _this.focused.connect(function () { return _this.onRadioFocus(); });
+            _this.blurred.connect(function () { return _this.onRadioBlur(); });
+            _this.pressed.connect(function () { return _this.onRadioPress(); });
+            if (init) {
+                if (init.value !== undefined)
+                    _this.value = init.value;
+                if (init.text !== undefined)
+                    _this.text = init.text;
+                if (init.content !== undefined)
+                    _this.content = init.content;
+                if (init.onchanged)
+                    _this.changed.connect(init.onchanged);
+                if (init.ontoggled)
+                    _this.toggled.connect(init.ontoggled);
+                if (init.onuntoggled)
+                    _this.untoggled.connect(init.onuntoggled);
+                if (init.group)
+                    _this.group = init.group;
+            }
+            return _this;
+        }
+        Object.defineProperty(RadioBox.prototype, "onchanged", {
+            set: function (value) { this.changed.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(RadioBox.prototype, "ontoggled", {
+            set: function (value) { this.toggled.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(RadioBox.prototype, "onuntoggled", {
+            set: function (value) { this.untoggled.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(RadioBox.prototype, "isToggled", {
+            get: function () {
+                return this._isToggled;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(RadioBox.prototype, "value", {
+            get: function () {
+                return this.isToggled;
+            },
+            set: function (value) {
+                if (value)
+                    this.toggle();
+                else
+                    this.untoggle();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(RadioBox.prototype, "text", {
+            get: function () {
+                return this._text;
+            },
+            set: function (text) {
+                if (text === undefined) {
+                    if (this.contentBox !== undefined) {
+                        this.hbox.remove(this.contentBox);
+                        this.contentBox = undefined;
+                    }
+                    this._text = undefined;
+                    this._content = undefined;
+                }
+                else {
+                    if (this._text !== undefined) {
+                        this._text = text;
+                        this.contentBox.text = this._text;
+                    }
+                    else {
+                        if (this._content !== undefined) {
+                            this.hbox.remove(this.contentBox);
+                            this._content = undefined;
+                        }
+                        this._text = text;
+                        this.contentBox = new Ui.Text({ margin: 8, text: this._text, verticalAlign: 'center' });
+                        this.hbox.append(this.contentBox, true);
+                    }
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(RadioBox.prototype, "content", {
+            get: function () {
+                return this._content;
+            },
+            set: function (content) {
+                if (content === undefined) {
+                    if (this.contentBox !== undefined) {
+                        this.hbox.remove(this.contentBox);
+                        this.contentBox = undefined;
+                    }
+                    this._text = undefined;
+                    this._content = undefined;
+                }
+                else {
+                    if (this._text !== undefined) {
+                        this.hbox.remove(this.contentBox);
+                        this._text = undefined;
+                    }
+                    if (this._content !== undefined)
+                        this.contentBox.remove(this._content);
+                    else {
+                        this.contentBox = new Ui.LBox({ padding: 8, verticalAlign: 'center' });
+                        this.hbox.append(this.contentBox);
+                    }
+                    this._content = content;
+                    this.contentBox.append(this._content);
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(RadioBox.prototype, "group", {
+            get: function () {
+                return this._group;
+            },
+            set: function (group) {
+                if (this.group != group) {
+                    if (this.group)
+                        this.group.remove(this);
+                    this._group = group;
+                    group.add(this);
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        RadioBox.prototype.toggle = function () {
+            this.onToggle();
+        };
+        RadioBox.prototype.untoggle = function () {
+            this.onUntoggle();
+        };
+        RadioBox.prototype.onRadioPress = function () {
+            if (!this._isToggled)
+                this.onToggle();
+        };
+        RadioBox.prototype.onToggle = function () {
+            if (!this._isToggled) {
+                this._isToggled = true;
+                this.drawing.setAttribute('aria-checked', 'true');
+                this.toggled.fire({ target: this });
+                this.graphic.isChecked = true;
+                this.graphic.color = this.getStyleProperty('activeColor');
+                this.changed.fire({ target: this, value: true });
+            }
+        };
+        RadioBox.prototype.onUntoggle = function () {
+            if (this._isToggled) {
+                this._isToggled = false;
+                this.drawing.setAttribute('aria-checked', 'false');
+                this.untoggled.fire({ target: this });
+                this.graphic.isChecked = false;
+                this.graphic.color = this.getStyleProperty('color');
+                this.changed.fire({ target: this, value: false });
+            }
+        };
+        RadioBox.prototype.onRadioFocus = function () {
+            if (!this.getIsMouseFocus())
+                this.graphic.color = this.getStyleProperty('focusColor');
+        };
+        RadioBox.prototype.onRadioBlur = function () {
+            if (this._isToggled)
+                this.graphic.color = this.getStyleProperty('activeColor');
+            else
+                this.graphic.color = this.getStyleProperty('color');
+        };
+        RadioBox.prototype.onRadioDown = function () {
+            this.graphic.isDown = true;
+        };
+        RadioBox.prototype.onRadioUp = function () {
+            this.graphic.isDown = false;
+        };
+        RadioBox.prototype.onStyleChange = function () {
+            if (this.hasFocus)
+                this.graphic.color = this.getStyleProperty('focusColor');
+            else {
+                if (this._isToggled)
+                    this.graphic.color = this.getStyleProperty('activeColor');
+                else
+                    this.graphic.color = this.getStyleProperty('color');
+            }
+            this.graphic.activeColor = this.getStyleProperty('activeColor');
+            this.graphic.borderWidth = this.getStyleProperty('borderWidth');
+        };
+        RadioBox.style = {
+            borderWidth: 2,
+            color: '#444444',
+            activeColor: '#07a0e5',
+            focusColor: '#21d3ff',
+            checkColor: '#ffffff',
+        };
+        return RadioBox;
+    }(Ui.Pressable));
+    Ui.RadioBox = RadioBox;
+    var RadioGroup = (function (_super) {
+        __extends(RadioGroup, _super);
+        function RadioGroup() {
+            var _this = _super !== null && _super.apply(this, arguments) || this;
+            _this.content = {};
+            _this.changed = new Core.Events();
+            return _this;
+        }
+        Object.defineProperty(RadioGroup.prototype, "onchanged", {
+            set: function (value) { this.changed.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(RadioGroup.prototype, "current", {
+            get: function () {
+                return this._current;
+            },
+            set: function (radio) {
+                if (this.current == radio)
+                    return;
+                if (radio && !radio.isToggled)
+                    radio.toggle();
+                if (radio == undefined && this.current.isToggled)
+                    this.current.untoggle();
+                this._current = radio;
+                this.changed.fire({ target: this });
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(RadioGroup.prototype, "children", {
+            get: function () {
+                var _this = this;
+                return Object.keys(this.content).map(function (prop) { return _this.content[prop]; });
+            },
+            enumerable: true,
+            configurable: true
+        });
+        RadioGroup.prototype.add = function (radio) {
+            var _this = this;
+            if (Object.keys(this.content).map(function (prop) { return _this.content[prop]; }).indexOf(radio) !== -1)
+                return;
+            var handler = radio.toggled.connect(function (e) { return _this.onRadioSelected(e); });
+            this.content[handler] = radio;
+        };
+        RadioGroup.prototype.remove = function (radio) {
+            var _this = this;
+            if (radio == undefined)
+                return;
+            var index = Object.keys(this.content).map(function (prop) { return _this.content[prop]; }).indexOf(radio);
+            if (index === -1)
+                return;
+            var realIndex = Number(Object.keys(this.content)[index]);
+            radio.toggled.disconnect(realIndex);
+            if (this.content[realIndex].isToggled)
+                this.current = undefined;
+            delete (this.content[realIndex]);
+        };
+        RadioGroup.prototype.onRadioSelected = function (event) {
+            if (this.current && this.current.isToggled)
+                this.current.untoggle();
+            this.current = event.target;
+        };
+        return RadioGroup;
+    }(Core.Object));
+    Ui.RadioGroup = RadioGroup;
+})(Ui || (Ui = {}));
 //# sourceMappingURL=era.js.map

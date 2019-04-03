@@ -1,15 +1,16 @@
 {
     "compilerOptions": {
-        "target":"es5",
+        "target": "es5",
         "module": "none",
-	    "strict": false,
+        "strict": false,
         "noImplicitAny": false,
         "removeComments": true,
         "preserveConstEnums": true,
         "sourceMap": true,
         "declaration": true,
         "lib": [
-            "dom", "es2015"
+            "dom",
+            "es2015"
         ],
         "outFile": "era.js"
     },
@@ -133,6 +134,8 @@
         "ui/locator.ts",
         "ui/carouselable.ts",
         "ui/carousel.ts",
-        "ui/richtexteditor.ts"
+        "ui/richtexteditor.ts",
+        "ui/radioboxgraphic.ts",
+        "ui/radiobox.ts",
     ]
 }
