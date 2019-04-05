@@ -24740,6 +24740,13 @@ var Ui;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(UploadButton.prototype, "multiple", {
+            set: function (active) {
+                this.input.multiple = active;
+            },
+            enumerable: true,
+            configurable: true
+        });
         UploadButton.prototype.onUploadButtonPress = function () {
             this.input.select();
         };

@@ -5494,6 +5494,7 @@ declare namespace Ui {
         }) => void;
         constructor(init?: UploadButtonInit);
         directoryMode: boolean;
+        multiple: boolean;
         protected onUploadButtonPress(): void;
         protected onFile(wrapper: UploadableFileWrapper, file: File): void;
     }

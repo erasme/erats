@@ -35,6 +35,10 @@ namespace Ui {
             this.input.setDirectoryMode(active);
         }
 
+        set multiple(active: boolean) {
+            this.input.multiple = active;
+        }
+
         protected onUploadButtonPress() {
             this.input.select();
         }
