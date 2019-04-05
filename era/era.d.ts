@@ -5430,7 +5430,9 @@ declare namespace Ui {
             file: File;
         }) => void;
         constructor(init?: UploadableInit);
-        setDirectoryMode(active: any): void;
+        setDirectoryMode(active: boolean): void;
+        directoryMode: boolean;
+        multiple: boolean;
         protected onFile(fileWrapper: any, file: File): void;
         protected onPress(): void;
         content: Element;
@@ -5439,14 +5441,17 @@ declare namespace Ui {
         formDrawing: HTMLFormElement;
         inputDrawing: HTMLInputElement;
         iframeDrawing: HTMLIFrameElement;
-        directoryMode: false;
+        private _directoryMode;
+        private _multiple;
         readonly file: Core.Events<{
             target: UploadableFileWrapper;
             file: File;
         }>;
         constructor();
         select(): void;
+        multiple: boolean;
         setDirectoryMode(active: any): void;
+        directoryMode: boolean;
         protected createInput(): void;
         protected onChange: (event: any) => void;
         protected onLoad(): void;

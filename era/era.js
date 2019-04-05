@@ -24482,6 +24482,20 @@ var Ui;
         Uploadable.prototype.setDirectoryMode = function (active) {
             this.input.setDirectoryMode(active);
         };
+        Object.defineProperty(Uploadable.prototype, "directoryMode", {
+            set: function (active) {
+                this.input.directoryMode = active;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Uploadable.prototype, "multiple", {
+            set: function (active) {
+                this.input.multiple = active;
+            },
+            enumerable: true,
+            configurable: true
+        });
         Uploadable.prototype.onFile = function (fileWrapper, file) {
             this.file.fire({ target: this, file: file });
         };
@@ -24513,6 +24527,8 @@ var Ui;
         __extends(UploadableFileWrapper, _super);
         function UploadableFileWrapper() {
             var _this = _super.call(this) || this;
+            _this._directoryMode = false;
+            _this._multiple = false;
             _this.file = new Core.Events();
             _this.onChange = function (event) {
                 event.preventDefault();
@@ -24527,15 +24543,35 @@ var Ui;
         UploadableFileWrapper.prototype.select = function () {
             this.inputDrawing.click();
         };
+        Object.defineProperty(UploadableFileWrapper.prototype, "multiple", {
+            set: function (active) {
+                this._multiple = active;
+                if (this.inputDrawing !== undefined) {
+                    if (active)
+                        this.inputDrawing.setAttribute('multiple', '');
+                    else
+                        this.inputDrawing.removeAttribute('multiple');
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
         UploadableFileWrapper.prototype.setDirectoryMode = function (active) {
             this.directoryMode = active;
-            if (this.inputDrawing !== undefined) {
-                if (this.directoryMode)
-                    this.inputDrawing.setAttribute('webkitdirectory', '');
-                else
-                    this.inputDrawing.removeAttribute('webkitdirectory');
-            }
         };
+        Object.defineProperty(UploadableFileWrapper.prototype, "directoryMode", {
+            set: function (active) {
+                this._directoryMode = active;
+                if (this.inputDrawing !== undefined) {
+                    if (this._directoryMode)
+                        this.inputDrawing.setAttribute('webkitdirectory', '');
+                    else
+                        this.inputDrawing.removeAttribute('webkitdirectory');
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
         UploadableFileWrapper.prototype.createInput = function () {
             this.formDrawing = document.createElement('form');
             this.formDrawing.addEventListener('click', function (e) { return e.stopPropagation(); });
@@ -24547,8 +24583,10 @@ var Ui;
             this.inputDrawing = document.createElement('input');
             this.inputDrawing.type = 'file';
             this.inputDrawing.setAttribute('name', 'file');
-            if (this.directoryMode)
+            if (this._directoryMode)
                 this.inputDrawing.setAttribute('webkitdirectory', '');
+            if (this._multiple)
+                this.inputDrawing.setAttribute('multiple', '');
             this.inputDrawing.style.position = 'absolute';
             this.inputDrawing.tabIndex = -1;
             this.inputDrawing.addEventListener('change', this.onChange);
