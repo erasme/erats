@@ -20,8 +20,16 @@ namespace Ui {
             this.input.file.connect((e) => this.onFile(e.target, e.file));
         }
 
-        setDirectoryMode(active) {
+        setDirectoryMode(active: boolean) {
             this.input.setDirectoryMode(active);
+        }
+
+        set directoryMode(active: boolean) {
+            this.input.directoryMode = active;
+        }
+
+        set multiple(active: boolean) {
+            this.input.multiple = active;
         }
 
         protected onFile(fileWrapper, file: File) {
@@ -52,7 +60,8 @@ namespace Ui {
         formDrawing: HTMLFormElement;
         inputDrawing: HTMLInputElement;
         iframeDrawing: HTMLIFrameElement;
-        directoryMode: false;
+        private _directoryMode = false;
+        private _multiple = false;
         readonly file = new Core.Events<{ target: UploadableFileWrapper, file: File }>();
 
         constructor() {
@@ -65,10 +74,24 @@ namespace Ui {
             this.inputDrawing.click();
         }
 
+        set multiple(active: boolean) {
+            this._multiple = active;
+            if (this.inputDrawing !== undefined) {
+                if (active)
+                    this.inputDrawing.setAttribute('multiple', '');
+                else
+                    this.inputDrawing.removeAttribute('multiple');
+            }
+        }
+
         setDirectoryMode(active) {
             this.directoryMode = active;
+        }
+
+        set directoryMode(active: boolean) {
+            this._directoryMode = active;
             if (this.inputDrawing !== undefined) {
-                if (this.directoryMode)
+                if (this._directoryMode)
                     this.inputDrawing.setAttribute('webkitdirectory', '');
                 else
                     this.inputDrawing.removeAttribute('webkitdirectory');
@@ -88,8 +111,10 @@ namespace Ui {
             this.inputDrawing = document.createElement('input');
             this.inputDrawing.type = 'file';
             this.inputDrawing.setAttribute('name', 'file');
-            if (this.directoryMode)
+            if (this._directoryMode)
                 this.inputDrawing.setAttribute('webkitdirectory', '');
+            if (this._multiple)
+                this.inputDrawing.setAttribute('multiple', '');
             this.inputDrawing.style.position = 'absolute';
             this.inputDrawing.tabIndex = -1;
 
