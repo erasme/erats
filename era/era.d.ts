@@ -5402,6 +5402,8 @@ declare namespace Ui {
         protected headerDef: HeaderDef;
         protected grip: Movable;
         protected separator: Rectangle;
+        private gripR1;
+        private gripR2;
         constructor(header: ListViewHeader, headerDef: HeaderDef);
         setHeader(header: ListViewHeader): void;
         protected onMove(): void;
@@ -5413,6 +5415,10 @@ declare namespace Ui {
         protected arrangeCore(width: any, height: any): void;
         protected onDisable(): void;
         protected onEnable(): void;
+        onStyleChange(): void;
+        static style: {
+            color: 'black';
+        };
     }
 }
 declare namespace Ui {

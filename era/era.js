@@ -24403,14 +24403,16 @@ var Ui;
         __extends(ListViewColBar, _super);
         function ListViewColBar(header, headerDef) {
             var _this = _super.call(this) || this;
+            _this.gripR1 = new Ui.Rectangle();
+            _this.gripR2 = new Ui.Rectangle();
             _this.header = header;
             _this.headerDef = headerDef;
             _this.grip = new Ui.Movable().assign({
                 moveVertical: false,
                 content: new Ui.LBox().assign({
                     content: [
-                        new Ui.Rectangle().assign({ width: 1, opacity: 0.2, fill: 'black', marginLeft: 7, marginRight: 8 + 2, marginTop: 6, marginBottom: 6 }),
-                        new Ui.Rectangle().assign({ width: 1, opacity: 0.2, fill: 'black', marginLeft: 12, marginRight: 3 + 2, marginTop: 6, marginBottom: 6 })
+                        _this.gripR1.assign({ width: 1, opacity: 0.2, fill: 'black', marginLeft: 7, marginRight: 8 + 2, marginTop: 6, marginBottom: 6 }),
+                        _this.gripR2.assign({ width: 1, opacity: 0.2, fill: 'black', marginLeft: 12, marginRight: 3 + 2, marginTop: 6, marginBottom: 6 })
                     ]
                 }),
                 onmoved: function () { return _this.onMove(); },
@@ -24454,6 +24456,13 @@ var Ui;
             _super.prototype.onEnable.call(this);
             if (this.headerDef.resizable !== false)
                 this.grip.show();
+        };
+        ListViewColBar.prototype.onStyleChange = function () {
+            _super.prototype.onStyleChange.call(this);
+            var color = this.getStyleProperty('color');
+            this.gripR1.fill = color;
+            this.gripR2.fill = color;
+            this.separator.fill = color;
         };
         return ListViewColBar;
     }(Ui.Container));
