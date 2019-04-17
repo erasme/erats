@@ -26112,7 +26112,7 @@ var Ui;
 (function (Ui) {
     var DropAtBox = (function (_super) {
         __extends(DropAtBox, _super);
-        function DropAtBox(init) {
+        function DropAtBox(container, init) {
             var _this = _super.call(this, init) || this;
             _this.watchers = [];
             _this.allowedTypes = undefined;
@@ -26123,6 +26123,8 @@ var Ui;
             _this.droppedfileat = new Core.Events();
             _this.fixed = new Ui.Fixed();
             _super.prototype.append.call(_this, _this.fixed);
+            _this.container = container;
+            _super.prototype.append.call(_this, _this.container);
             _this.dragover.connect(function (e) { return _this.onDragOver(e); });
             if (init) {
                 if (init.ondroppedat)
@@ -26187,13 +26189,6 @@ var Ui;
             }
             else
                 this.allowedTypes.push({ type: type, effect: effects });
-        };
-        DropAtBox.prototype.setContainer = function (container) {
-            this.container = container;
-            _super.prototype.append.call(this, this.container);
-        };
-        DropAtBox.prototype.getContainer = function () {
-            return this.container;
         };
         DropAtBox.prototype.setMarkerOrientation = function (orientation) {
             this.markerOrientation = orientation;
@@ -26305,12 +26300,10 @@ var Ui;
             return insertPos;
         };
         DropAtBox.prototype.insertAt = function (element, pos) {
-            if ('insertAt' in this.container)
-                this.container.insertAt(element, pos);
+            this.container.insertAt(element, pos);
         };
         DropAtBox.prototype.moveAt = function (element, pos) {
-            if ('moveAt' in this.container)
-                this.container.moveAt(element, pos);
+            this.container.moveAt(element, pos);
         };
         Object.defineProperty(DropAtBox.prototype, "logicalChildren", {
             get: function () {
@@ -26321,8 +26314,7 @@ var Ui;
         });
         Object.defineProperty(DropAtBox.prototype, "content", {
             set: function (content) {
-                if ('content' in this.container)
-                    this.container.content = content;
+                this.container.content = content;
             },
             enumerable: true,
             configurable: true
@@ -26331,12 +26323,10 @@ var Ui;
             this.container.clear();
         };
         DropAtBox.prototype.append = function (item) {
-            if ('append' in this.container)
-                this.container.append(item);
+            this.container.append(item);
         };
         DropAtBox.prototype.remove = function (item) {
-            if ('remove' in this.container)
-                this.container.remove(item);
+            this.container.remove(item);
         };
         DropAtBox.prototype.onStyleChange = function () {
             var color = this.getStyleProperty('markerColor');
@@ -26511,9 +26501,7 @@ var Ui;
     var FlowDropBox = (function (_super) {
         __extends(FlowDropBox, _super);
         function FlowDropBox(init) {
-            var _this = _super.call(this, init) || this;
-            _this._flow = new Ui.Flow();
-            _this.setContainer(_this._flow);
+            var _this = _super.call(this, new Ui.Flow().assign({ spacing: 10 }), init) || this;
             _this.setMarkerOrientation('horizontal');
             if (init) {
                 if (init.uniform !== undefined)
@@ -26525,14 +26513,14 @@ var Ui;
         }
         Object.defineProperty(FlowDropBox.prototype, "uniform", {
             set: function (uniform) {
-                this._flow.uniform = uniform;
+                this.container.uniform = uniform;
             },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(FlowDropBox.prototype, "spacing", {
             set: function (spacing) {
-                this._flow.spacing = spacing;
+                this.container.spacing = spacing;
             },
             enumerable: true,
             configurable: true
@@ -26543,9 +26531,7 @@ var Ui;
     var SFlowDropBox = (function (_super) {
         __extends(SFlowDropBox, _super);
         function SFlowDropBox(init) {
-            var _this = _super.call(this, init) || this;
-            _this._sflow = new Ui.SFlow();
-            _this.setContainer(_this._sflow);
+            var _this = _super.call(this, new Ui.SFlow(), init) || this;
             _this.setMarkerOrientation('horizontal');
             if (init) {
                 if (init.stretchMaxRatio !== undefined)
@@ -26563,35 +26549,35 @@ var Ui;
         }
         Object.defineProperty(SFlowDropBox.prototype, "stretchMaxRatio", {
             set: function (ratio) {
-                this._sflow.stretchMaxRatio = ratio;
+                this.container.stretchMaxRatio = ratio;
             },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(SFlowDropBox.prototype, "uniform", {
             set: function (uniform) {
-                this._sflow.uniform = uniform;
+                this.container.uniform = uniform;
             },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(SFlowDropBox.prototype, "uniformRatio", {
             set: function (uniformRatio) {
-                this._sflow.uniformRatio = uniformRatio;
+                this.container.uniformRatio = uniformRatio;
             },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(SFlowDropBox.prototype, "itemAlign", {
             set: function (align) {
-                this._sflow.itemAlign = align;
+                this.container.itemAlign = align;
             },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(SFlowDropBox.prototype, "spacing", {
             set: function (spacing) {
-                this._sflow.spacing = spacing;
+                this.container.spacing = spacing;
             },
             enumerable: true,
             configurable: true
@@ -26602,22 +26588,20 @@ var Ui;
     var VDropBox = (function (_super) {
         __extends(VDropBox, _super);
         function VDropBox(init) {
-            var _this = _super.call(this, init) || this;
-            _this._vbox = new Ui.VBox();
-            _this.setContainer(_this._vbox);
+            var _this = _super.call(this, new Ui.VBox().assign({ spacing: init && init.spacing ? init.spacing : undefined }), init) || this;
             _this.setMarkerOrientation('vertical');
             return _this;
         }
         Object.defineProperty(VDropBox.prototype, "uniform", {
             set: function (uniform) {
-                this._vbox.uniform = uniform;
+                this.container.uniform = uniform;
             },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(VDropBox.prototype, "spacing", {
             set: function (spacing) {
-                this._vbox.spacing = spacing;
+                this.container.spacing = spacing;
             },
             enumerable: true,
             configurable: true
@@ -26628,22 +26612,20 @@ var Ui;
     var HDropBox = (function (_super) {
         __extends(HDropBox, _super);
         function HDropBox(init) {
-            var _this = _super.call(this, init) || this;
-            _this._hbox = new Ui.HBox();
-            _this.setContainer(_this._hbox);
+            var _this = _super.call(this, new Ui.HBox(), init) || this;
             _this.setMarkerOrientation('horizontal');
             return _this;
         }
         Object.defineProperty(HDropBox.prototype, "uniform", {
             set: function (uniform) {
-                this._hbox.uniform = uniform;
+                this.container.uniform = uniform;
             },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(HDropBox.prototype, "spacing", {
             set: function (spacing) {
-                this._hbox.spacing = spacing;
+                this.container.spacing = spacing;
             },
             enumerable: true,
             configurable: true

@@ -15,7 +15,7 @@ namespace Ui
         content?: Element | Element[];
     }
 
-    export class Box extends Container implements BoxInit
+    export class Box extends Container implements BoxInit, IContainer
     {
         private _paddingTop: number = 0;
         private _paddingBottom: number = 0;

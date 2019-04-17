@@ -1687,7 +1687,7 @@ declare namespace Ui {
         spacing?: number;
         content?: Element | Element[];
     }
-    class Box extends Container implements BoxInit {
+    class Box extends Container implements BoxInit, IContainer {
         private _paddingTop;
         private _paddingBottom;
         private _paddingLeft;
@@ -4165,7 +4165,7 @@ declare namespace Ui {
         uniform?: boolean;
         content?: Element[] | undefined;
     }
-    class Flow extends Container implements FlowInit {
+    class Flow extends Container implements FlowInit, IContainer {
         protected lines: {
             pos: number;
             y: number;
@@ -4472,7 +4472,7 @@ declare namespace Ui {
         uniformRatio?: number;
         stretchMaxRatio?: number;
     }
-    class SFlow extends Container implements SFlowInit {
+    class SFlow extends Container implements SFlowInit, IContainer {
         private _uniform;
         private _uniformRatio;
         private _uniformWidth;
@@ -5830,17 +5830,17 @@ declare namespace Ui {
 }
 declare namespace Ui {
     type DropAtEffectFunc = (data: any, position: number) => DropEffect[];
-    interface DropAtBoxInit extends LBoxInit {
+    interface DropAtBoxInit<T extends Ui.Container & IContainer> extends LBoxInit {
         ondrageffect?: (event: Ui.DragEvent) => void;
         ondragentered?: (event: {
-            target: DropAtBox;
+            target: DropAtBox<T>;
             data: any;
         }) => void;
         ondragleaved?: (event: {
-            target: DropAtBox;
+            target: DropAtBox<T>;
         }) => void;
         ondroppedat?: (event: {
-            target: DropAtBox;
+            target: DropAtBox<T>;
             data: any;
             effect: string;
             position: number;
@@ -5848,7 +5848,7 @@ declare namespace Ui {
             y: number;
         }) => void;
         ondroppedfileat?: (event: {
-            target: DropAtBox;
+            target: DropAtBox<T>;
             file: File;
             effect: string;
             position: number;
@@ -5856,33 +5856,40 @@ declare namespace Ui {
             y: number;
         }) => void;
     }
-    class DropAtBox extends LBox implements DropAtBoxInit {
+    interface IContainer {
+        insertAt(child: Element, position: number): void;
+        moveAt(element: Element, pos: number): void;
+        content: Element | Element[] | undefined;
+        append(item: Element): void;
+        remove(item: Element): void;
+    }
+    class DropAtBox<T extends Ui.Container & IContainer> extends LBox implements DropAtBoxInit<T> {
         watchers: DragWatcher[];
         allowedTypes: {
             type: string | Function;
             effect: DropEffect[] | DropAtEffectFunc;
         }[];
-        private container;
+        readonly container: T;
         private fixed;
         private markerOrientation;
         readonly drageffect: Core.Events<DragEvent>;
         ondrageffect: (event: DragEvent) => void;
         readonly dragentered: Core.Events<{
-            target: DropAtBox;
+            target: DropAtBox<T>;
             data: any;
         }>;
         ondragentered: (event: {
-            target: DropAtBox;
+            target: DropAtBox<T>;
             data: any;
         }) => void;
         readonly dragleaved: Core.Events<{
-            target: DropAtBox;
+            target: DropAtBox<T>;
         }>;
         ondragleaved: (event: {
-            target: DropAtBox;
+            target: DropAtBox<T>;
         }) => void;
         readonly droppedat: Core.Events<{
-            target: DropAtBox;
+            target: DropAtBox<T>;
             data: any;
             effect: string;
             position: number;
@@ -5890,7 +5897,7 @@ declare namespace Ui {
             y: number;
         }>;
         ondroppedat: (event: {
-            target: DropAtBox;
+            target: DropAtBox<T>;
             data: any;
             effect: string;
             position: number;
@@ -5898,7 +5905,7 @@ declare namespace Ui {
             y: number;
         }) => void;
         readonly droppedfileat: Core.Events<{
-            target: DropAtBox;
+            target: DropAtBox<T>;
             file: File;
             effect: string;
             position: number;
@@ -5906,17 +5913,15 @@ declare namespace Ui {
             y: number;
         }>;
         ondroppedfileat: (event: {
-            target: DropAtBox;
+            target: DropAtBox<T>;
             file: File;
             effect: string;
             position: number;
             x: number;
             y: number;
         }) => void;
-        constructor(init?: DropAtBoxInit);
+        constructor(container: T, init?: DropAtBoxInit<T>);
         addType(type: string | Function, effects: string | string[] | DropEffect[] | DropAtEffectFunc): void;
-        setContainer(container: any): void;
-        getContainer(): Container;
         setMarkerOrientation(orientation: any): void;
         setMarkerPos(marker: Element, pos: number): void;
         findPosition(point: Point): number;
@@ -5943,25 +5948,23 @@ declare namespace Ui {
         protected onDrop(dataTransfer: DragDataTransfer, dropEffect: any, x: number, y: number): void;
         static style: object;
     }
-    interface FlowDropBoxInit extends DropAtBoxInit {
+    interface FlowDropBoxInit extends DropAtBoxInit<Flow> {
         uniform?: boolean;
         spacing?: number;
     }
-    class FlowDropBox extends DropAtBox {
-        private _flow;
+    class FlowDropBox extends DropAtBox<Flow> {
         constructor(init?: FlowDropBoxInit);
         uniform: boolean;
         spacing: number;
     }
-    interface SFlowDropBoxInit extends DropAtBoxInit {
+    interface SFlowDropBoxInit extends DropAtBoxInit<SFlow> {
         stretchMaxRatio?: number;
         uniform?: boolean;
         uniformRatio?: number;
         itemAlign?: SFlowAlign;
         spacing?: number;
     }
-    class SFlowDropBox extends DropAtBox {
-        private _sflow;
+    class SFlowDropBox extends DropAtBox<SFlow> {
         constructor(init?: SFlowDropBoxInit);
         stretchMaxRatio: number;
         uniform: boolean;
@@ -5969,18 +5972,17 @@ declare namespace Ui {
         itemAlign: SFlowAlign;
         spacing: number;
     }
-    interface VDropBoxInit extends DropAtBoxInit {
+    interface VDropBoxInit extends DropAtBoxInit<VBox> {
+        spacing?: number;
     }
-    class VDropBox extends DropAtBox {
-        private _vbox;
+    class VDropBox extends DropAtBox<VBox> {
         constructor(init?: VDropBoxInit);
         uniform: boolean;
         spacing: number;
     }
-    interface HDropBoxInit extends DropAtBoxInit {
+    interface HDropBoxInit extends DropAtBoxInit<HBox> {
     }
-    class HDropBox extends DropAtBox {
-        private _hbox;
+    class HDropBox extends DropAtBox<HBox> {
         constructor(init?: HDropBoxInit);
         uniform: boolean;
         spacing: number;
