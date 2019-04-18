@@ -233,6 +233,13 @@ namespace Ui
         }
 
         //
+        // Insert a child element in the current box before the given child
+        //
+        insertBefore(child: Element, beforeChild: Element) {
+            this.insertChildBefore(child, beforeChild);
+        }
+
+        //
         // Move a child element in the current box at the given position
         //
         moveAt(child: Element, position: number) {

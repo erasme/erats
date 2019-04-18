@@ -12,6 +12,7 @@
 
     export interface IContainer {
         insertAt(child: Element, position: number): void;
+        insertBefore(child: Element, before: Element): void;
         moveAt(element: Element, pos: number): void;
         content: Element | Element[] | undefined;
         append(item: Element): void;
@@ -208,6 +209,10 @@
            this.container.insertAt(element, pos);
         }
 
+        insertBefore(element: Element, child: Element) {
+            this.container.insertBefore(element, child);
+        }
+
         moveAt(element: Element, pos: number) {
            this.container.moveAt(element, pos);
         }
@@ -230,6 +235,13 @@
 
         remove(item: Element) {
             this.container.remove(item);
+        }
+
+        getChildPosition(child: Element): number {
+            return this.container.getChildPosition(child);
+        }
+        hasChild(child: Element): boolean {
+            return this.container.hasChild(child);
         }
 
         protected onStyleChange() {

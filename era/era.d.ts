@@ -1710,6 +1710,7 @@ declare namespace Ui {
         append(child: Element, resizable?: boolean): void;
         prepend(child: Element, resizable?: boolean): void;
         insertAt(child: Element, position: number, resizable?: boolean): void;
+        insertBefore(child: Element, beforeChild: Element): void;
         moveAt(child: Element, position: number): void;
         remove(child: Element): void;
         private measureUniform;
@@ -4185,6 +4186,7 @@ declare namespace Ui {
         append(child: Element): void;
         prepend(child: Element): void;
         insertAt(child: Element, position: number): void;
+        insertBefore(child: Element, beforeChild: Element): void;
         moveAt(child: Element, position: number): void;
         remove(child: Element): void;
         private measureChildrenNonUniform;
@@ -4490,6 +4492,7 @@ declare namespace Ui {
         append(child: Element, floatVal?: SFlowFloat, flushVal?: SFlowFlush): void;
         prepend(child: Element, floatVal?: SFlowFloat, flushVal?: SFlowFlush): void;
         insertAt(child: Element, position: number, floatVal?: SFlowFloat, flushVal?: SFlowFlush): void;
+        insertBefore(child: Element, beforeChild: Element, floatVal?: SFlowFloat, flushVal?: SFlowFlush): void;
         moveAt(child: Element, position: number): void;
         remove(child: Element): void;
         protected measureCore(width: number, height: number): {
@@ -5858,6 +5861,7 @@ declare namespace Ui {
     }
     interface IContainer {
         insertAt(child: Element, position: number): void;
+        insertBefore(child: Element, before: Element): void;
         moveAt(element: Element, pos: number): void;
         content: Element | Element[] | undefined;
         append(item: Element): void;
@@ -5928,12 +5932,15 @@ declare namespace Ui {
         findPositionHorizontal(point: Point): number;
         findPositionVertical(point: Point): number;
         insertAt(element: Element, pos: number): void;
+        insertBefore(element: Element, child: Element): void;
         moveAt(element: Element, pos: number): void;
         readonly logicalChildren: Element[];
         content: Element;
         clear(): void;
         append(item: Element): void;
         remove(item: Element): void;
+        getChildPosition(child: Element): number;
+        hasChild(child: Element): boolean;
         protected onStyleChange(): void;
         protected getAllowedTypesEffect(dataTransfer: DragDataTransfer): DropEffect[];
         protected onDragEffect(dataTransfer: DragDataTransfer): string | DropEffect[];

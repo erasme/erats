@@ -508,6 +508,17 @@ namespace Ui {
         }
 
         //
+        // Insert a child element in the current box before the given child
+        //
+        insertBefore(child: Element, beforeChild: Element, floatVal?: SFlowFloat, flushVal?: SFlowFlush) {
+            this.insertChildBefore(child, beforeChild);
+            if (floatVal !== undefined)
+                SFlow.setFloat(child, floatVal);
+            if (flushVal !== undefined)
+                SFlow.setFlush(child, flushVal);
+        }
+
+        //
         // Move a given item from its current position to
         // the given one
         //

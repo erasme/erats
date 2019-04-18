@@ -7926,6 +7926,9 @@ var Ui;
                 child.resizable = resizable === true;
             this.insertChildAt(child, position);
         };
+        Box.prototype.insertBefore = function (child, beforeChild) {
+            this.insertChildBefore(child, beforeChild);
+        };
         Box.prototype.moveAt = function (child, position) {
             this.moveChildAt(child, position);
         };
@@ -19301,6 +19304,9 @@ var Ui;
         Flow.prototype.insertAt = function (child, position) {
             this.insertChildAt(child, position);
         };
+        Flow.prototype.insertBefore = function (child, beforeChild) {
+            this.insertChildBefore(child, beforeChild);
+        };
         Flow.prototype.moveAt = function (child, position) {
             this.moveChildAt(child, position);
         };
@@ -20777,6 +20783,13 @@ var Ui;
         };
         SFlow.prototype.insertAt = function (child, position, floatVal, flushVal) {
             this.insertChildAt(child, position);
+            if (floatVal !== undefined)
+                SFlow.setFloat(child, floatVal);
+            if (flushVal !== undefined)
+                SFlow.setFlush(child, flushVal);
+        };
+        SFlow.prototype.insertBefore = function (child, beforeChild, floatVal, flushVal) {
+            this.insertChildBefore(child, beforeChild);
             if (floatVal !== undefined)
                 SFlow.setFloat(child, floatVal);
             if (flushVal !== undefined)
@@ -26302,6 +26315,9 @@ var Ui;
         DropAtBox.prototype.insertAt = function (element, pos) {
             this.container.insertAt(element, pos);
         };
+        DropAtBox.prototype.insertBefore = function (element, child) {
+            this.container.insertBefore(element, child);
+        };
         DropAtBox.prototype.moveAt = function (element, pos) {
             this.container.moveAt(element, pos);
         };
@@ -26327,6 +26343,12 @@ var Ui;
         };
         DropAtBox.prototype.remove = function (item) {
             this.container.remove(item);
+        };
+        DropAtBox.prototype.getChildPosition = function (child) {
+            return this.container.getChildPosition(child);
+        };
+        DropAtBox.prototype.hasChild = function (child) {
+            return this.container.hasChild(child);
         };
         DropAtBox.prototype.onStyleChange = function () {
             var color = this.getStyleProperty('markerColor');
