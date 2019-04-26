@@ -2,7 +2,7 @@ namespace Ui {
     export interface UploadButtonInit extends ButtonInit {
         directoryMode?: boolean;
         onfilechanged?: (event: { target: UploadButton, file: File }) => void;
-    }	
+    }
 
     export class UploadButton extends Button implements UploadButtonInit {
         input: UploadableFileWrapper;
@@ -21,13 +21,13 @@ namespace Ui {
             new DropableWatcher({
                 element: this,
                 ondroppedfile: (w, f) => { this.onFile(undefined, f); return true; },
-                types: [ { type: 'files', effects: 'copy' } ]
+                types: [{ type: 'files', effects: 'copy' }]
             });
             if (init) {
                 if (init.directoryMode !== undefined)
                     this.directoryMode = init.directoryMode;
                 if (init.onfilechanged)
-                    this.filechanged.connect(init.onfilechanged);	
+                    this.filechanged.connect(init.onfilechanged);
             }
         }
 
@@ -39,6 +39,10 @@ namespace Ui {
             this.input.multiple = active;
         }
 
+        set accept(value: string | undefined) {
+            this.input.accept = value;
+        }
+
         protected onUploadButtonPress() {
             this.input.select();
         }
@@ -47,4 +51,4 @@ namespace Ui {
             this.filechanged.fire({ target: this, file: file });
         }
     }
-}	
+}

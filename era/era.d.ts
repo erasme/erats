@@ -5452,6 +5452,7 @@ declare namespace Ui {
         iframeDrawing: HTMLIFrameElement;
         private _directoryMode;
         private _multiple;
+        private _accept?;
         readonly file: Core.Events<{
             target: UploadableFileWrapper;
             file: File;
@@ -5461,6 +5462,7 @@ declare namespace Ui {
         multiple: boolean;
         setDirectoryMode(active: any): void;
         directoryMode: boolean;
+        accept: string | undefined;
         protected createInput(): void;
         protected onChange: (event: any) => void;
         protected onLoad(): void;
@@ -5504,6 +5506,7 @@ declare namespace Ui {
         constructor(init?: UploadButtonInit);
         directoryMode: boolean;
         multiple: boolean;
+        accept: string | undefined;
         protected onUploadButtonPress(): void;
         protected onFile(wrapper: UploadableFileWrapper, file: File): void;
     }

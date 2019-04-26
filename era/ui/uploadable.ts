@@ -62,6 +62,7 @@ namespace Ui {
         iframeDrawing: HTMLIFrameElement;
         private _directoryMode = false;
         private _multiple = false;
+        private _accept?: string;
         readonly file = new Core.Events<{ target: UploadableFileWrapper, file: File }>();
 
         constructor() {
@@ -98,6 +99,16 @@ namespace Ui {
             }
         }
 
+        set accept(value: string | undefined) {
+            this._accept = value;
+            if (this.inputDrawing !== undefined) {
+                if (this._accept)
+                    this.inputDrawing.setAttribute('accept', value);
+                else
+                    this.inputDrawing.removeAttribute('accept');
+            }
+        }
+
         protected createInput() {
             this.formDrawing = document.createElement('form');
             this.formDrawing.addEventListener('click', (e) => e.stopPropagation());
@@ -115,6 +126,8 @@ namespace Ui {
                 this.inputDrawing.setAttribute('webkitdirectory', '');
             if (this._multiple)
                 this.inputDrawing.setAttribute('multiple', '');
+            if (this._accept)
+                this.inputDrawing.setAttribute('accept', this._accept);
             this.inputDrawing.style.position = 'absolute';
             this.inputDrawing.tabIndex = -1;
 

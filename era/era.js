@@ -24594,6 +24594,19 @@ var Ui;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(UploadableFileWrapper.prototype, "accept", {
+            set: function (value) {
+                this._accept = value;
+                if (this.inputDrawing !== undefined) {
+                    if (this._accept)
+                        this.inputDrawing.setAttribute('accept', value);
+                    else
+                        this.inputDrawing.removeAttribute('accept');
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
         UploadableFileWrapper.prototype.createInput = function () {
             this.formDrawing = document.createElement('form');
             this.formDrawing.addEventListener('click', function (e) { return e.stopPropagation(); });
@@ -24609,6 +24622,8 @@ var Ui;
                 this.inputDrawing.setAttribute('webkitdirectory', '');
             if (this._multiple)
                 this.inputDrawing.setAttribute('multiple', '');
+            if (this._accept)
+                this.inputDrawing.setAttribute('accept', this._accept);
             this.inputDrawing.style.position = 'absolute';
             this.inputDrawing.tabIndex = -1;
             this.inputDrawing.addEventListener('change', this.onChange);
@@ -24765,6 +24780,13 @@ var Ui;
         Object.defineProperty(UploadButton.prototype, "multiple", {
             set: function (active) {
                 this.input.multiple = active;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(UploadButton.prototype, "accept", {
+            set: function (value) {
+                this.input.accept = value;
             },
             enumerable: true,
             configurable: true
