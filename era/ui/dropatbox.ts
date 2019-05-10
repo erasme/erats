@@ -1,85 +1,87 @@
 ﻿namespace Ui {
 
     export type DropAtEffectFunc = (data: any, position: number) => DropEffect[];
-    
-    export interface DropAtBoxInit extends LBoxInit {
+
+    export interface DropAtBoxInit<T extends Ui.Container & IContainer> extends LBoxInit {
         ondrageffect?: (event: Ui.DragEvent) => void;
-        ondragentered?: (event: { target: DropAtBox, data: any }) => void;
-        ondragleaved?: (event: { target: DropAtBox }) => void;
-        ondroppedat?: (event: { target: DropAtBox, data: any, effect: string, position: number, x: number, y: number }) => void;
-        ondroppedfileat?: (event: { target: DropAtBox, file: File, effect: string, position: number, x: number, y: number }) => void;
+        ondragentered?: (event: { target: DropAtBox<T>, data: any }) => void;
+        ondragleaved?: (event: { target: DropAtBox<T> }) => void;
+        ondroppedat?: (event: { target: DropAtBox<T>, data: any, effect: string, position: number, x: number, y: number }) => void;
+        ondroppedfileat?: (event: { target: DropAtBox<T>, file: File, effect: string, position: number, x: number, y: number }) => void;
     }
 
-    export class DropAtBox extends LBox implements DropAtBoxInit {
+    export interface IContainer {
+        insertAt(child: Element, position: number): void;
+        insertBefore(child: Element, before: Element): void;
+        moveAt(element: Element, pos: number): void;
+        content: Element | Element[] | undefined;
+        append(item: Element): void;
+        remove(item: Element): void;
+    }
+
+    export class DropAtBox<T extends Ui.Container & IContainer > extends LBox implements DropAtBoxInit<T> {
         watchers: DragWatcher[] = [];
         allowedTypes: { type: string | Function, effect: DropEffect[] | DropAtEffectFunc }[] = undefined;
-        private container: Container;
+        readonly container: T;
         private fixed: Fixed;
         private markerOrientation: 'horizontal';
-        
+
         readonly drageffect = new Core.Events<DragEvent>();
         set ondrageffect(value: (event: DragEvent) => void) { this.drageffect.connect(value); }
-        readonly dragentered = new Core.Events<{ target: DropAtBox, data: any }>();
-        set ondragentered(value: (event: { target: DropAtBox, data: any }) => void) { this.dragentered.connect(value); }
-        readonly dragleaved = new Core.Events<{ target: DropAtBox }>();
-        set ondragleaved(value: (event: { target: DropAtBox }) => void) { this.dragleaved.connect(value); }
-        readonly droppedat = new Core.Events<{ target: DropAtBox, data: any, effect: string, position: number, x: number, y: number }>();
-        set ondroppedat(value: (event: { target: DropAtBox, data: any, effect: string, position: number, x: number, y: number }) => void) { this.droppedat.connect(value); }
-        readonly droppedfileat = new Core.Events<{ target: DropAtBox, file: File, effect: string, position: number, x: number, y: number }>();
-        set ondroppedfileat(value: (event: { target: DropAtBox, file: File, effect: string, position: number, x: number, y: number }) => void) { this.droppedfileat.connect(value); }
+        readonly dragentered = new Core.Events<{ target: DropAtBox<T>, data: any }>();
+        set ondragentered(value: (event: { target: DropAtBox<T>, data: any }) => void) { this.dragentered.connect(value); }
+        readonly dragleaved = new Core.Events<{ target: DropAtBox<T> }>();
+        set ondragleaved(value: (event: { target: DropAtBox<T> }) => void) { this.dragleaved.connect(value); }
+        readonly droppedat = new Core.Events<{ target: DropAtBox<T>, data: any, effect: string, position: number, x: number, y: number }>();
+        set ondroppedat(value: (event: { target: DropAtBox<T>, data: any, effect: string, position: number, x: number, y: number }) => void) { this.droppedat.connect(value); }
+        readonly droppedfileat = new Core.Events<{ target: DropAtBox<T>, file: File, effect: string, position: number, x: number, y: number }>();
+        set ondroppedfileat(value: (event: { target: DropAtBox<T>, file: File, effect: string, position: number, x: number, y: number }) => void) { this.droppedfileat.connect(value); }
 
-        constructor(init?: DropAtBoxInit) {
+        constructor(container: T, init?: DropAtBoxInit<T>) {
             super(init);
             this.fixed = new Fixed();
             super.append(this.fixed);
+            this.container = container;
+            super.append(this.container);
             this.dragover.connect((e) => this.onDragOver(e));
             if (init) {
                 if (init.ondroppedat)
                     this.droppedat.connect(init.ondroppedat);
                 if (init.ondroppedfileat)
-                    this.droppedfileat.connect(init.ondroppedfileat);	
+                    this.droppedfileat.connect(init.ondroppedfileat);
             }
         }
 
         addType(type: string | Function, effects: string | string[] | DropEffect[] | DropAtEffectFunc) {
             if (typeof (type) === 'string')
-            type = type.toLowerCase();
-        if (this.allowedTypes == undefined)
-            this.allowedTypes = [];
-        if (typeof (effects) === 'string')
-            effects = [effects];
-        if (typeof (effects) !== 'function') {
-            for (let i = 0; i < effects.length; i++) {
-                let effect = effects[i];
-                if (typeof (effect) === 'string')
-                    effect = { action: effect };
-                if (!('text' in effect)) {
-                    if (effect.action === 'copy')
-                        effect.text = 'Copier';
-                    else if (effect.action === 'move')
-                        effect.text = 'Déplacer';
-                    else if (effect.action === 'link')
-                        effect.text = 'Lier';
-                    else
-                        effect.text = effect.action;
+                type = type.toLowerCase();
+            if (this.allowedTypes == undefined)
+                this.allowedTypes = [];
+            if (typeof (effects) === 'string')
+                effects = [effects];
+            if (typeof (effects) !== 'function') {
+                for (let i = 0; i < effects.length; i++) {
+                    let effect = effects[i];
+                    if (typeof (effect) === 'string')
+                        effect = { action: effect };
+                    if (!('text' in effect)) {
+                        if (effect.action === 'copy')
+                            effect.text = 'Copier';
+                        else if (effect.action === 'move')
+                            effect.text = 'Déplacer';
+                        else if (effect.action === 'link')
+                            effect.text = 'Lier';
+                        else
+                            effect.text = effect.action;
+                    }
+                    if (!('dragicon' in effect))
+                        effect.dragicon = 'drag' + effect.action;
+                    effects[i] = effect;
                 }
-                if (!('dragicon' in effect))
-                    effect.dragicon = 'drag' + effect.action;
-                effects[i] = effect;
+                this.allowedTypes.push({ type: type, effect: effects as DropEffect[] });
             }
-            this.allowedTypes.push({ type: type, effect: effects as DropEffect[] });
-        }
-        else
-            this.allowedTypes.push({ type: type, effect: effects as DropAtEffectFunc });
-        }
-
-        setContainer(container) {
-            this.container = container;
-            super.append(this.container);
-        }
-
-        getContainer() {
-            return this.container;
+            else
+                this.allowedTypes.push({ type: type, effect: effects as DropAtEffectFunc });
         }
 
         setMarkerOrientation(orientation) {
@@ -173,7 +175,7 @@
 
         findPositionVertical(point: Point) {
             let childs = this.container.children;
-        
+
             let element = undefined;
             let dist = Number.MAX_VALUE;
             for (let i = 0; i < childs.length; i++) {
@@ -204,22 +206,23 @@
         }
 
         insertAt(element: Element, pos: number) {
-            if ('insertAt' in this.container)
-                (this.container as any).insertAt(element, pos);
+           this.container.insertAt(element, pos);
         }
-    
+
+        insertBefore(element: Element, child: Element) {
+            this.container.insertBefore(element, child);
+        }
+
         moveAt(element: Element, pos: number) {
-            if ('moveAt' in this.container)
-                (this.container as any).moveAt(element, pos);
+           this.container.moveAt(element, pos);
         }
-    
+
         get logicalChildren(): Element[] {
             return this.container.children;
         }
 
         set content(content: Element) {
-            if ('content' in this.container)
-                (this.container as any).content = content;
+            this.container.content = content;
         }
 
         clear() {
@@ -227,13 +230,18 @@
         }
 
         append(item: Element) {
-            if ('append' in this.container)
-                (this.container as any).append(item);
+            this.container.append(item);
         }
 
         remove(item: Element) {
-            if ('remove' in this.container)
-                (this.container as any).remove(item);
+            this.container.remove(item);
+        }
+
+        getChildPosition(child: Element): number {
+            return this.container.getChildPosition(child);
+        }
+        hasChild(child: Element): boolean {
+            return this.container.hasChild(child);
         }
 
         protected onStyleChange() {
@@ -355,7 +363,7 @@
         }
 
         protected onDragEffectFunction(dataTransfer: DragDataTransfer, func: DropAtEffectFunc): DropEffect[] {
-            let position = this.findPosition(this.pointFromWindow(dataTransfer.getPosition()));			
+            let position = this.findPosition(this.pointFromWindow(dataTransfer.getPosition()));
             return func(dataTransfer.getData(), position);
         }
 
@@ -370,7 +378,7 @@
         }
 
         protected onWatcherMove(watcher: DragWatcher) {
-            this.onDragEnter(watcher.getDataTransfer());			
+            this.onDragEnter(watcher.getDataTransfer());
 
             let marker = watcher["Ui.DropAtBox.marker"] as Rectangle;
             let position = this.findPosition(this.pointFromWindow(watcher.getPosition()));
@@ -401,7 +409,7 @@
         //
         // Override to do something when the first allowed drag enter the element.
         // The default action is to raise the 'dragenter' event
-        //	
+        //
         protected onDragEnter(dataTransfer: DragDataTransfer): void {
             this.dragentered.fire({ target: this, data: dataTransfer.getData() });
         }
@@ -409,7 +417,7 @@
         //
         // Override to do something when the last allowed drag leave the element.
         // The default action is to raise the 'dragleave' event
-        //	
+        //
         protected onDragLeave(): void {
             this.dragleaved.fire({ target: this });
         }
@@ -443,37 +451,34 @@
         }
     }
 
-    export interface FlowDropBoxInit extends DropAtBoxInit {
+    export interface FlowDropBoxInit extends DropAtBoxInit<Flow> {
         uniform?: boolean;
         spacing?: number;
-     }
-    
-    export class FlowDropBox extends DropAtBox {
-        private _flow: Flow;
+    }
+
+    export class FlowDropBox extends DropAtBox<Flow> {
 
         constructor(init?: FlowDropBoxInit) {
-            super(init);
-            this._flow = new Flow();
-            this.setContainer(this._flow);
+            super(new Flow().assign({ spacing: 10 }), init);
             this.setMarkerOrientation('horizontal');
             if (init) {
                 if (init.uniform !== undefined)
                     this.uniform = init.uniform;
                 if (init.spacing !== undefined)
-                    this.spacing = init.spacing;	
+                    this.spacing = init.spacing;
             }
         }
 
         set uniform(uniform: boolean) {
-            this._flow.uniform = uniform;
+            this.container.uniform = uniform;
         }
 
         set spacing(spacing: number) {
-            this._flow.spacing = spacing;
+            this.container.spacing = spacing;
         }
     }
 
-    export interface SFlowDropBoxInit extends DropAtBoxInit {
+    export interface SFlowDropBoxInit extends DropAtBoxInit<SFlow> {
         stretchMaxRatio?: number;
         uniform?: boolean;
         uniformRatio?: number;
@@ -481,13 +486,10 @@
         spacing?: number;
     }
 
-    export class SFlowDropBox extends DropAtBox {
-        private _sflow: SFlow;
+    export class SFlowDropBox extends DropAtBox<SFlow> {
 
         constructor(init?: SFlowDropBoxInit) {
-            super(init);
-            this._sflow = new Ui.SFlow();
-            this.setContainer(this._sflow);
+            super(new SFlow(),init);
             this.setMarkerOrientation('horizontal');
             if (init) {
                 if (init.stretchMaxRatio !== undefined)
@@ -504,65 +506,64 @@
         }
 
         set stretchMaxRatio(ratio: number) {
-            this._sflow.stretchMaxRatio = ratio;
+            this.container.stretchMaxRatio = ratio;
         }
 
         set uniform(uniform: boolean) {
-            this._sflow.uniform = uniform;
+            this.container.uniform = uniform;
         }
 
         set uniformRatio(uniformRatio: number) {
-            this._sflow.uniformRatio = uniformRatio;
+            this.container.uniformRatio = uniformRatio;
         }
 
         set itemAlign(align: SFlowAlign) {
-            this._sflow.itemAlign = align;
+            this.container.itemAlign = align;
         }
 
         set spacing(spacing: number) {
-            this._sflow.spacing = spacing;
+            this.container.spacing = spacing;
         }
     }
 
-    export interface VDropBoxInit extends DropAtBoxInit { }
+    export interface VDropBoxInit extends DropAtBoxInit<VBox> {
+        spacing?: number
+    }
 
-    export class VDropBox extends DropAtBox {
-        private _vbox: VBox;
+    export class VDropBox extends DropAtBox<VBox> {
 
         constructor(init?: VDropBoxInit) {
-            super(init);
-            this._vbox = new VBox();
-            this.setContainer(this._vbox);
+            super(
+                new VBox().assign({ spacing: init && init.spacing ? init.spacing : undefined }),
+                init
+            );
             this.setMarkerOrientation('vertical');
         }
 
         set uniform(uniform: boolean) {
-            this._vbox.uniform = uniform;
+            this.container.uniform = uniform;
         }
 
         set spacing(spacing: number) {
-            this._vbox.spacing = spacing;
+            this.container.spacing = spacing;
         }
     }
 
-    export interface HDropBoxInit extends DropAtBoxInit { }
+    export interface HDropBoxInit extends DropAtBoxInit<HBox> { }
 
-    export class HDropBox extends DropAtBox {
-        private _hbox: HBox;
+    export class HDropBox extends DropAtBox<HBox> {
 
         constructor(init?: HDropBoxInit) {
-            super(init);
-            this._hbox = new HBox();
-            this.setContainer(this._hbox);
+            super(new HBox(),init);
             this.setMarkerOrientation('horizontal');
         }
 
         set uniform(uniform: boolean) {
-            this._hbox.uniform = uniform;
+            this.container.uniform = uniform;
         }
 
         set spacing(spacing: number) {
-            this._hbox.spacing = spacing;
+            this.container.spacing = spacing;
         }
     }
 }

@@ -1687,7 +1687,7 @@ declare namespace Ui {
         spacing?: number;
         content?: Element | Element[];
     }
-    class Box extends Container implements BoxInit {
+    class Box extends Container implements BoxInit, IContainer {
         private _paddingTop;
         private _paddingBottom;
         private _paddingLeft;
@@ -1710,6 +1710,7 @@ declare namespace Ui {
         append(child: Element, resizable?: boolean): void;
         prepend(child: Element, resizable?: boolean): void;
         insertAt(child: Element, position: number, resizable?: boolean): void;
+        insertBefore(child: Element, beforeChild: Element): void;
         moveAt(child: Element, position: number): void;
         remove(child: Element): void;
         private measureUniform;
@@ -4165,7 +4166,7 @@ declare namespace Ui {
         uniform?: boolean;
         content?: Element[] | undefined;
     }
-    class Flow extends Container implements FlowInit {
+    class Flow extends Container implements FlowInit, IContainer {
         protected lines: {
             pos: number;
             y: number;
@@ -4185,6 +4186,7 @@ declare namespace Ui {
         append(child: Element): void;
         prepend(child: Element): void;
         insertAt(child: Element, position: number): void;
+        insertBefore(child: Element, beforeChild: Element): void;
         moveAt(child: Element, position: number): void;
         remove(child: Element): void;
         private measureChildrenNonUniform;
@@ -4472,7 +4474,7 @@ declare namespace Ui {
         uniformRatio?: number;
         stretchMaxRatio?: number;
     }
-    class SFlow extends Container implements SFlowInit {
+    class SFlow extends Container implements SFlowInit, IContainer {
         private _uniform;
         private _uniformRatio;
         private _uniformWidth;
@@ -4490,6 +4492,7 @@ declare namespace Ui {
         append(child: Element, floatVal?: SFlowFloat, flushVal?: SFlowFlush): void;
         prepend(child: Element, floatVal?: SFlowFloat, flushVal?: SFlowFlush): void;
         insertAt(child: Element, position: number, floatVal?: SFlowFloat, flushVal?: SFlowFlush): void;
+        insertBefore(child: Element, beforeChild: Element, floatVal?: SFlowFloat, flushVal?: SFlowFlush): void;
         moveAt(child: Element, position: number): void;
         remove(child: Element): void;
         protected measureCore(width: number, height: number): {
@@ -5402,6 +5405,8 @@ declare namespace Ui {
         protected headerDef: HeaderDef;
         protected grip: Movable;
         protected separator: Rectangle;
+        private gripR1;
+        private gripR2;
         constructor(header: ListViewHeader, headerDef: HeaderDef);
         setHeader(header: ListViewHeader): void;
         protected onMove(): void;
@@ -5413,6 +5418,10 @@ declare namespace Ui {
         protected arrangeCore(width: any, height: any): void;
         protected onDisable(): void;
         protected onEnable(): void;
+        onStyleChange(): void;
+        static style: {
+            color: 'black';
+        };
     }
 }
 declare namespace Ui {
@@ -5443,6 +5452,7 @@ declare namespace Ui {
         iframeDrawing: HTMLIFrameElement;
         private _directoryMode;
         private _multiple;
+        private _accept?;
         readonly file: Core.Events<{
             target: UploadableFileWrapper;
             file: File;
@@ -5452,6 +5462,7 @@ declare namespace Ui {
         multiple: boolean;
         setDirectoryMode(active: any): void;
         directoryMode: boolean;
+        accept: string | undefined;
         protected createInput(): void;
         protected onChange: (event: any) => void;
         protected onLoad(): void;
@@ -5495,6 +5506,7 @@ declare namespace Ui {
         constructor(init?: UploadButtonInit);
         directoryMode: boolean;
         multiple: boolean;
+        accept: string | undefined;
         protected onUploadButtonPress(): void;
         protected onFile(wrapper: UploadableFileWrapper, file: File): void;
     }
@@ -5824,17 +5836,17 @@ declare namespace Ui {
 }
 declare namespace Ui {
     type DropAtEffectFunc = (data: any, position: number) => DropEffect[];
-    interface DropAtBoxInit extends LBoxInit {
+    interface DropAtBoxInit<T extends Ui.Container & IContainer> extends LBoxInit {
         ondrageffect?: (event: Ui.DragEvent) => void;
         ondragentered?: (event: {
-            target: DropAtBox;
+            target: DropAtBox<T>;
             data: any;
         }) => void;
         ondragleaved?: (event: {
-            target: DropAtBox;
+            target: DropAtBox<T>;
         }) => void;
         ondroppedat?: (event: {
-            target: DropAtBox;
+            target: DropAtBox<T>;
             data: any;
             effect: string;
             position: number;
@@ -5842,7 +5854,7 @@ declare namespace Ui {
             y: number;
         }) => void;
         ondroppedfileat?: (event: {
-            target: DropAtBox;
+            target: DropAtBox<T>;
             file: File;
             effect: string;
             position: number;
@@ -5850,33 +5862,41 @@ declare namespace Ui {
             y: number;
         }) => void;
     }
-    class DropAtBox extends LBox implements DropAtBoxInit {
+    interface IContainer {
+        insertAt(child: Element, position: number): void;
+        insertBefore(child: Element, before: Element): void;
+        moveAt(element: Element, pos: number): void;
+        content: Element | Element[] | undefined;
+        append(item: Element): void;
+        remove(item: Element): void;
+    }
+    class DropAtBox<T extends Ui.Container & IContainer> extends LBox implements DropAtBoxInit<T> {
         watchers: DragWatcher[];
         allowedTypes: {
             type: string | Function;
             effect: DropEffect[] | DropAtEffectFunc;
         }[];
-        private container;
+        readonly container: T;
         private fixed;
         private markerOrientation;
         readonly drageffect: Core.Events<DragEvent>;
         ondrageffect: (event: DragEvent) => void;
         readonly dragentered: Core.Events<{
-            target: DropAtBox;
+            target: DropAtBox<T>;
             data: any;
         }>;
         ondragentered: (event: {
-            target: DropAtBox;
+            target: DropAtBox<T>;
             data: any;
         }) => void;
         readonly dragleaved: Core.Events<{
-            target: DropAtBox;
+            target: DropAtBox<T>;
         }>;
         ondragleaved: (event: {
-            target: DropAtBox;
+            target: DropAtBox<T>;
         }) => void;
         readonly droppedat: Core.Events<{
-            target: DropAtBox;
+            target: DropAtBox<T>;
             data: any;
             effect: string;
             position: number;
@@ -5884,7 +5904,7 @@ declare namespace Ui {
             y: number;
         }>;
         ondroppedat: (event: {
-            target: DropAtBox;
+            target: DropAtBox<T>;
             data: any;
             effect: string;
             position: number;
@@ -5892,7 +5912,7 @@ declare namespace Ui {
             y: number;
         }) => void;
         readonly droppedfileat: Core.Events<{
-            target: DropAtBox;
+            target: DropAtBox<T>;
             file: File;
             effect: string;
             position: number;
@@ -5900,29 +5920,30 @@ declare namespace Ui {
             y: number;
         }>;
         ondroppedfileat: (event: {
-            target: DropAtBox;
+            target: DropAtBox<T>;
             file: File;
             effect: string;
             position: number;
             x: number;
             y: number;
         }) => void;
-        constructor(init?: DropAtBoxInit);
+        constructor(container: T, init?: DropAtBoxInit<T>);
         addType(type: string | Function, effects: string | string[] | DropEffect[] | DropAtEffectFunc): void;
-        setContainer(container: any): void;
-        getContainer(): Container;
         setMarkerOrientation(orientation: any): void;
         setMarkerPos(marker: Element, pos: number): void;
         findPosition(point: Point): number;
         findPositionHorizontal(point: Point): number;
         findPositionVertical(point: Point): number;
         insertAt(element: Element, pos: number): void;
+        insertBefore(element: Element, child: Element): void;
         moveAt(element: Element, pos: number): void;
         readonly logicalChildren: Element[];
         content: Element;
         clear(): void;
         append(item: Element): void;
         remove(item: Element): void;
+        getChildPosition(child: Element): number;
+        hasChild(child: Element): boolean;
         protected onStyleChange(): void;
         protected getAllowedTypesEffect(dataTransfer: DragDataTransfer): DropEffect[];
         protected onDragEffect(dataTransfer: DragDataTransfer): string | DropEffect[];
@@ -5937,25 +5958,23 @@ declare namespace Ui {
         protected onDrop(dataTransfer: DragDataTransfer, dropEffect: any, x: number, y: number): void;
         static style: object;
     }
-    interface FlowDropBoxInit extends DropAtBoxInit {
+    interface FlowDropBoxInit extends DropAtBoxInit<Flow> {
         uniform?: boolean;
         spacing?: number;
     }
-    class FlowDropBox extends DropAtBox {
-        private _flow;
+    class FlowDropBox extends DropAtBox<Flow> {
         constructor(init?: FlowDropBoxInit);
         uniform: boolean;
         spacing: number;
     }
-    interface SFlowDropBoxInit extends DropAtBoxInit {
+    interface SFlowDropBoxInit extends DropAtBoxInit<SFlow> {
         stretchMaxRatio?: number;
         uniform?: boolean;
         uniformRatio?: number;
         itemAlign?: SFlowAlign;
         spacing?: number;
     }
-    class SFlowDropBox extends DropAtBox {
-        private _sflow;
+    class SFlowDropBox extends DropAtBox<SFlow> {
         constructor(init?: SFlowDropBoxInit);
         stretchMaxRatio: number;
         uniform: boolean;
@@ -5963,18 +5982,17 @@ declare namespace Ui {
         itemAlign: SFlowAlign;
         spacing: number;
     }
-    interface VDropBoxInit extends DropAtBoxInit {
+    interface VDropBoxInit extends DropAtBoxInit<VBox> {
+        spacing?: number;
     }
-    class VDropBox extends DropAtBox {
-        private _vbox;
+    class VDropBox extends DropAtBox<VBox> {
         constructor(init?: VDropBoxInit);
         uniform: boolean;
         spacing: number;
     }
-    interface HDropBoxInit extends DropAtBoxInit {
+    interface HDropBoxInit extends DropAtBoxInit<HBox> {
     }
-    class HDropBox extends DropAtBox {
-        private _hbox;
+    class HDropBox extends DropAtBox<HBox> {
         constructor(init?: HDropBoxInit);
         uniform: boolean;
         spacing: number;
@@ -6290,5 +6308,108 @@ declare namespace Ui {
         wordWrap: string;
         whiteSpace: string;
         color: Color | string;
+    }
+}
+declare namespace Ui {
+    class RadioBoxGraphic extends CanvasElement {
+        private _isDown;
+        private _isChecked;
+        private _color;
+        private _activeColor;
+        private _borderWidth;
+        constructor();
+        isDown: boolean;
+        isChecked: boolean;
+        color: Color;
+        borderWidth: number;
+        activeColor: any;
+        updateCanvas(ctx: CanvasRenderingContext2D): void;
+        measureCore(width: number, height: number): {
+            width: number;
+            height: number;
+        };
+        onDisable(): void;
+        onEnable(): void;
+    }
+}
+declare namespace Ui {
+    interface RadioBoxInit extends PressableInit {
+        value?: boolean;
+        text?: string;
+        content?: Element;
+        group?: RadioGroup;
+        onchanged?: (event: {
+            target: RadioBox;
+            value: boolean;
+        }) => void;
+        ontoggled?: (event: {
+            target: RadioBox;
+        }) => void;
+        onuntoggled?: (event: {
+            target: RadioBox;
+        }) => void;
+    }
+    class RadioBox extends Pressable implements RadioBoxInit {
+        private graphic;
+        private contentBox;
+        private hbox;
+        private _content;
+        private _text;
+        private _group;
+        private _isToggled;
+        readonly changed: Core.Events<{
+            target: RadioBox;
+            value: boolean;
+        }>;
+        onchanged: (event: {
+            target: RadioBox;
+            value: boolean;
+        }) => void;
+        readonly toggled: Core.Events<{
+            target: RadioBox;
+        }>;
+        ontoggled: (event: {
+            target: RadioBox;
+        }) => void;
+        readonly untoggled: Core.Events<{
+            target: RadioBox;
+        }>;
+        onuntoggled: (event: {
+            target: RadioBox;
+        }) => void;
+        constructor(init?: RadioBoxInit);
+        readonly isToggled: boolean;
+        value: boolean;
+        text: string;
+        content: Element;
+        group: RadioGroup;
+        toggle(): void;
+        untoggle(): void;
+        private onRadioPress;
+        protected onToggle(): void;
+        protected onUntoggle(): void;
+        protected onRadioFocus(): void;
+        protected onRadioBlur(): void;
+        protected onRadioDown(): void;
+        protected onRadioUp(): void;
+        protected onStyleChange(): void;
+        static style: object;
+    }
+    class RadioGroup extends Core.Object {
+        readonly content: Core.HashTable<RadioBox>;
+        private _current?;
+        readonly changed: Core.Events<{
+            target: RadioGroup;
+        }>;
+        onchanged: (event: {
+            target: RadioGroup;
+        }) => void;
+        current: RadioBox | undefined;
+        readonly children: Array<RadioBox>;
+        add(radio: RadioBox): void;
+        remove(radio: RadioBox): void;
+        onRadioSelected(event: {
+            target: RadioBox;
+        }): void;
     }
 }

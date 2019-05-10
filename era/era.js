@@ -7926,6 +7926,9 @@ var Ui;
                 child.resizable = resizable === true;
             this.insertChildAt(child, position);
         };
+        Box.prototype.insertBefore = function (child, beforeChild) {
+            this.insertChildBefore(child, beforeChild);
+        };
         Box.prototype.moveAt = function (child, position) {
             this.moveChildAt(child, position);
         };
@@ -19301,6 +19304,9 @@ var Ui;
         Flow.prototype.insertAt = function (child, position) {
             this.insertChildAt(child, position);
         };
+        Flow.prototype.insertBefore = function (child, beforeChild) {
+            this.insertChildBefore(child, beforeChild);
+        };
         Flow.prototype.moveAt = function (child, position) {
             this.moveChildAt(child, position);
         };
@@ -20777,6 +20783,13 @@ var Ui;
         };
         SFlow.prototype.insertAt = function (child, position, floatVal, flushVal) {
             this.insertChildAt(child, position);
+            if (floatVal !== undefined)
+                SFlow.setFloat(child, floatVal);
+            if (flushVal !== undefined)
+                SFlow.setFlush(child, flushVal);
+        };
+        SFlow.prototype.insertBefore = function (child, beforeChild, floatVal, flushVal) {
+            this.insertChildBefore(child, beforeChild);
             if (floatVal !== undefined)
                 SFlow.setFloat(child, floatVal);
             if (flushVal !== undefined)
@@ -24403,14 +24416,16 @@ var Ui;
         __extends(ListViewColBar, _super);
         function ListViewColBar(header, headerDef) {
             var _this = _super.call(this) || this;
+            _this.gripR1 = new Ui.Rectangle();
+            _this.gripR2 = new Ui.Rectangle();
             _this.header = header;
             _this.headerDef = headerDef;
             _this.grip = new Ui.Movable().assign({
                 moveVertical: false,
                 content: new Ui.LBox().assign({
                     content: [
-                        new Ui.Rectangle().assign({ width: 1, opacity: 0.2, fill: 'black', marginLeft: 7, marginRight: 8 + 2, marginTop: 6, marginBottom: 6 }),
-                        new Ui.Rectangle().assign({ width: 1, opacity: 0.2, fill: 'black', marginLeft: 12, marginRight: 3 + 2, marginTop: 6, marginBottom: 6 })
+                        _this.gripR1.assign({ width: 1, opacity: 0.2, fill: 'black', marginLeft: 7, marginRight: 8 + 2, marginTop: 6, marginBottom: 6 }),
+                        _this.gripR2.assign({ width: 1, opacity: 0.2, fill: 'black', marginLeft: 12, marginRight: 3 + 2, marginTop: 6, marginBottom: 6 })
                     ]
                 }),
                 onmoved: function () { return _this.onMove(); },
@@ -24454,6 +24469,13 @@ var Ui;
             _super.prototype.onEnable.call(this);
             if (this.headerDef.resizable !== false)
                 this.grip.show();
+        };
+        ListViewColBar.prototype.onStyleChange = function () {
+            _super.prototype.onStyleChange.call(this);
+            var color = this.getStyleProperty('color');
+            this.gripR1.fill = color;
+            this.gripR2.fill = color;
+            this.separator.fill = color;
         };
         return ListViewColBar;
     }(Ui.Container));
@@ -24572,6 +24594,19 @@ var Ui;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(UploadableFileWrapper.prototype, "accept", {
+            set: function (value) {
+                this._accept = value;
+                if (this.inputDrawing !== undefined) {
+                    if (this._accept)
+                        this.inputDrawing.setAttribute('accept', value);
+                    else
+                        this.inputDrawing.removeAttribute('accept');
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
         UploadableFileWrapper.prototype.createInput = function () {
             this.formDrawing = document.createElement('form');
             this.formDrawing.addEventListener('click', function (e) { return e.stopPropagation(); });
@@ -24587,6 +24622,8 @@ var Ui;
                 this.inputDrawing.setAttribute('webkitdirectory', '');
             if (this._multiple)
                 this.inputDrawing.setAttribute('multiple', '');
+            if (this._accept)
+                this.inputDrawing.setAttribute('accept', this._accept);
             this.inputDrawing.style.position = 'absolute';
             this.inputDrawing.tabIndex = -1;
             this.inputDrawing.addEventListener('change', this.onChange);
@@ -24743,6 +24780,13 @@ var Ui;
         Object.defineProperty(UploadButton.prototype, "multiple", {
             set: function (active) {
                 this.input.multiple = active;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(UploadButton.prototype, "accept", {
+            set: function (value) {
+                this.input.accept = value;
             },
             enumerable: true,
             configurable: true
@@ -26103,7 +26147,7 @@ var Ui;
 (function (Ui) {
     var DropAtBox = (function (_super) {
         __extends(DropAtBox, _super);
-        function DropAtBox(init) {
+        function DropAtBox(container, init) {
             var _this = _super.call(this, init) || this;
             _this.watchers = [];
             _this.allowedTypes = undefined;
@@ -26114,6 +26158,8 @@ var Ui;
             _this.droppedfileat = new Core.Events();
             _this.fixed = new Ui.Fixed();
             _super.prototype.append.call(_this, _this.fixed);
+            _this.container = container;
+            _super.prototype.append.call(_this, _this.container);
             _this.dragover.connect(function (e) { return _this.onDragOver(e); });
             if (init) {
                 if (init.ondroppedat)
@@ -26178,13 +26224,6 @@ var Ui;
             }
             else
                 this.allowedTypes.push({ type: type, effect: effects });
-        };
-        DropAtBox.prototype.setContainer = function (container) {
-            this.container = container;
-            _super.prototype.append.call(this, this.container);
-        };
-        DropAtBox.prototype.getContainer = function () {
-            return this.container;
         };
         DropAtBox.prototype.setMarkerOrientation = function (orientation) {
             this.markerOrientation = orientation;
@@ -26296,12 +26335,13 @@ var Ui;
             return insertPos;
         };
         DropAtBox.prototype.insertAt = function (element, pos) {
-            if ('insertAt' in this.container)
-                this.container.insertAt(element, pos);
+            this.container.insertAt(element, pos);
+        };
+        DropAtBox.prototype.insertBefore = function (element, child) {
+            this.container.insertBefore(element, child);
         };
         DropAtBox.prototype.moveAt = function (element, pos) {
-            if ('moveAt' in this.container)
-                this.container.moveAt(element, pos);
+            this.container.moveAt(element, pos);
         };
         Object.defineProperty(DropAtBox.prototype, "logicalChildren", {
             get: function () {
@@ -26312,8 +26352,7 @@ var Ui;
         });
         Object.defineProperty(DropAtBox.prototype, "content", {
             set: function (content) {
-                if ('content' in this.container)
-                    this.container.content = content;
+                this.container.content = content;
             },
             enumerable: true,
             configurable: true
@@ -26322,12 +26361,16 @@ var Ui;
             this.container.clear();
         };
         DropAtBox.prototype.append = function (item) {
-            if ('append' in this.container)
-                this.container.append(item);
+            this.container.append(item);
         };
         DropAtBox.prototype.remove = function (item) {
-            if ('remove' in this.container)
-                this.container.remove(item);
+            this.container.remove(item);
+        };
+        DropAtBox.prototype.getChildPosition = function (child) {
+            return this.container.getChildPosition(child);
+        };
+        DropAtBox.prototype.hasChild = function (child) {
+            return this.container.hasChild(child);
         };
         DropAtBox.prototype.onStyleChange = function () {
             var color = this.getStyleProperty('markerColor');
@@ -26502,9 +26545,7 @@ var Ui;
     var FlowDropBox = (function (_super) {
         __extends(FlowDropBox, _super);
         function FlowDropBox(init) {
-            var _this = _super.call(this, init) || this;
-            _this._flow = new Ui.Flow();
-            _this.setContainer(_this._flow);
+            var _this = _super.call(this, new Ui.Flow().assign({ spacing: 10 }), init) || this;
             _this.setMarkerOrientation('horizontal');
             if (init) {
                 if (init.uniform !== undefined)
@@ -26516,14 +26557,14 @@ var Ui;
         }
         Object.defineProperty(FlowDropBox.prototype, "uniform", {
             set: function (uniform) {
-                this._flow.uniform = uniform;
+                this.container.uniform = uniform;
             },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(FlowDropBox.prototype, "spacing", {
             set: function (spacing) {
-                this._flow.spacing = spacing;
+                this.container.spacing = spacing;
             },
             enumerable: true,
             configurable: true
@@ -26534,9 +26575,7 @@ var Ui;
     var SFlowDropBox = (function (_super) {
         __extends(SFlowDropBox, _super);
         function SFlowDropBox(init) {
-            var _this = _super.call(this, init) || this;
-            _this._sflow = new Ui.SFlow();
-            _this.setContainer(_this._sflow);
+            var _this = _super.call(this, new Ui.SFlow(), init) || this;
             _this.setMarkerOrientation('horizontal');
             if (init) {
                 if (init.stretchMaxRatio !== undefined)
@@ -26554,35 +26593,35 @@ var Ui;
         }
         Object.defineProperty(SFlowDropBox.prototype, "stretchMaxRatio", {
             set: function (ratio) {
-                this._sflow.stretchMaxRatio = ratio;
+                this.container.stretchMaxRatio = ratio;
             },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(SFlowDropBox.prototype, "uniform", {
             set: function (uniform) {
-                this._sflow.uniform = uniform;
+                this.container.uniform = uniform;
             },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(SFlowDropBox.prototype, "uniformRatio", {
             set: function (uniformRatio) {
-                this._sflow.uniformRatio = uniformRatio;
+                this.container.uniformRatio = uniformRatio;
             },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(SFlowDropBox.prototype, "itemAlign", {
             set: function (align) {
-                this._sflow.itemAlign = align;
+                this.container.itemAlign = align;
             },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(SFlowDropBox.prototype, "spacing", {
             set: function (spacing) {
-                this._sflow.spacing = spacing;
+                this.container.spacing = spacing;
             },
             enumerable: true,
             configurable: true
@@ -26593,22 +26632,20 @@ var Ui;
     var VDropBox = (function (_super) {
         __extends(VDropBox, _super);
         function VDropBox(init) {
-            var _this = _super.call(this, init) || this;
-            _this._vbox = new Ui.VBox();
-            _this.setContainer(_this._vbox);
+            var _this = _super.call(this, new Ui.VBox().assign({ spacing: init && init.spacing ? init.spacing : undefined }), init) || this;
             _this.setMarkerOrientation('vertical');
             return _this;
         }
         Object.defineProperty(VDropBox.prototype, "uniform", {
             set: function (uniform) {
-                this._vbox.uniform = uniform;
+                this.container.uniform = uniform;
             },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(VDropBox.prototype, "spacing", {
             set: function (spacing) {
-                this._vbox.spacing = spacing;
+                this.container.spacing = spacing;
             },
             enumerable: true,
             configurable: true
@@ -26619,22 +26656,20 @@ var Ui;
     var HDropBox = (function (_super) {
         __extends(HDropBox, _super);
         function HDropBox(init) {
-            var _this = _super.call(this, init) || this;
-            _this._hbox = new Ui.HBox();
-            _this.setContainer(_this._hbox);
+            var _this = _super.call(this, new Ui.HBox(), init) || this;
             _this.setMarkerOrientation('horizontal');
             return _this;
         }
         Object.defineProperty(HDropBox.prototype, "uniform", {
             set: function (uniform) {
-                this._hbox.uniform = uniform;
+                this.container.uniform = uniform;
             },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(HDropBox.prototype, "spacing", {
             set: function (spacing) {
-                this._hbox.spacing = spacing;
+                this.container.spacing = spacing;
             },
             enumerable: true,
             configurable: true
@@ -28377,4 +28412,413 @@ Ui.Icon.register('format-insert-unordered-list', "M8 21c-1.66 0-3 1.34-3 3s1.34 
 Ui.Icon.register('format-insert-image', "M42 38v-28c0-2.21-1.79-4-4-4h-28c-2.21 0-4 1.79-4 4v28c0 2.21 1.79 4 4 4h28c2.21 0 4-1.79 4-4zm-25-11l5 6.01 7-9.01 9 12h-28l7-9z");
 Ui.Icon.register('format-insert-url', "M7.8 24c0-3.42 2.78-6.2 6.2-6.2h8v-3.8h-8c-5.52 0-10 4.48-10 10s4.48 10 10 10h8v-3.8h-8c-3.42 0-6.2-2.78-6.2-6.2zm8.2 2h16v-4h-16v4zm18-12h-8v3.8h8c3.42 0 6.2 2.78 6.2 6.2s-2.78 6.2-6.2 6.2h-8v3.8h8c5.52 0 10-4.48 10-10s-4.48-10-10-10z");
 Ui.Icon.register('format-quote', "M12 34h6l4-8v-12h-12v12h6zm16 0h6l4-8v-12h-12v12h6z");
+var Ui;
+(function (Ui) {
+    var RadioBoxGraphic = (function (_super) {
+        __extends(RadioBoxGraphic, _super);
+        function RadioBoxGraphic() {
+            var _this = _super.call(this) || this;
+            _this._isDown = false;
+            _this._isChecked = false;
+            _this._borderWidth = 2;
+            _this.color = new Ui.Color(1, 1, 1);
+            _this.activeColor = new Ui.Color(0.31, 0.66, 0.31);
+            return _this;
+        }
+        Object.defineProperty(RadioBoxGraphic.prototype, "isDown", {
+            get: function () {
+                return this._isDown;
+            },
+            set: function (isDown) {
+                if (this.isDown != isDown) {
+                    this._isDown = isDown;
+                    this.invalidateDraw();
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(RadioBoxGraphic.prototype, "isChecked", {
+            get: function () {
+                return this._isChecked;
+            },
+            set: function (isChecked) {
+                if (this.isChecked != isChecked) {
+                    this._isChecked = isChecked;
+                    this.invalidateDraw();
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(RadioBoxGraphic.prototype, "color", {
+            get: function () {
+                return this._color;
+            },
+            set: function (color) {
+                if (this.color !== color) {
+                    this._color = Ui.Color.create(color);
+                    this.invalidateDraw();
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(RadioBoxGraphic.prototype, "borderWidth", {
+            get: function () { return this._borderWidth; },
+            set: function (borderWidth) {
+                if (this._borderWidth !== borderWidth) {
+                    this._borderWidth = borderWidth;
+                    this.invalidateDraw();
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(RadioBoxGraphic.prototype, "activeColor", {
+            get: function () {
+                if (!this._activeColor)
+                    return;
+                var deltaY = 0;
+                if (this.isDown)
+                    deltaY = 0.20;
+                var yuv = this._activeColor.getYuv();
+                return Ui.Color.createFromYuv(yuv.y + deltaY, yuv.u, yuv.v);
+            },
+            set: function (color) {
+                if (this.activeColor !== color) {
+                    this._activeColor = Ui.Color.create(color);
+                    this.invalidateDraw();
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        RadioBoxGraphic.prototype.updateCanvas = function (ctx) {
+            var w = this.layoutWidth;
+            var h = this.layoutHeight;
+            var cx = w / 2;
+            var cy = h / 2;
+            var radius = Math.min(cx - 5, cy - 5);
+            radius = Math.min(radius, 10);
+            if (this.isDown)
+                ctx.globalAlpha = 0.8;
+            if (this.isDisabled)
+                ctx.globalAlpha = 0.4;
+            ctx.strokeStyle = this.color.getCssRgba();
+            ctx.lineWidth = this.borderWidth;
+            ctx.beginPath();
+            ctx.arc(cx + this.borderWidth / 2, cy + this.borderWidth / 2, radius, 0, 2 * Math.PI, false);
+            ctx.closePath();
+            ctx.stroke();
+            if (this.isChecked) {
+                ctx.fillStyle = this.color.getCssRgba();
+                ctx.beginPath();
+                ctx.arc(cx + this.borderWidth / 2, cy + this.borderWidth / 2, radius / 2, 0, 2 * Math.PI, false);
+                ctx.closePath();
+                ctx.fill();
+                ctx.restore();
+            }
+        };
+        RadioBoxGraphic.prototype.measureCore = function (width, height) {
+            return { width: 30, height: 30 };
+        };
+        RadioBoxGraphic.prototype.onDisable = function () {
+            this.invalidateDraw();
+        };
+        RadioBoxGraphic.prototype.onEnable = function () {
+            this.invalidateDraw();
+        };
+        return RadioBoxGraphic;
+    }(Ui.CanvasElement));
+    Ui.RadioBoxGraphic = RadioBoxGraphic;
+})(Ui || (Ui = {}));
+var Ui;
+(function (Ui) {
+    var RadioBox = (function (_super) {
+        __extends(RadioBox, _super);
+        function RadioBox(init) {
+            var _this = _super.call(this, init) || this;
+            _this._isToggled = false;
+            _this.changed = new Core.Events();
+            _this.toggled = new Core.Events();
+            _this.untoggled = new Core.Events();
+            _this.role = 'radio';
+            _this.drawing.setAttribute('aria-checked', 'false');
+            _this.padding = 2;
+            _this.hbox = new Ui.HBox();
+            _this.append(_this.hbox);
+            _this.graphic = new Ui.RadioBoxGraphic();
+            _this.hbox.append(_this.graphic);
+            _this.downed.connect(function () { return _this.onRadioDown(); });
+            _this.upped.connect(function () { return _this.onRadioUp(); });
+            _this.focused.connect(function () { return _this.onRadioFocus(); });
+            _this.blurred.connect(function () { return _this.onRadioBlur(); });
+            _this.pressed.connect(function () { return _this.onRadioPress(); });
+            if (init) {
+                if (init.value !== undefined)
+                    _this.value = init.value;
+                if (init.text !== undefined)
+                    _this.text = init.text;
+                if (init.content !== undefined)
+                    _this.content = init.content;
+                if (init.onchanged)
+                    _this.changed.connect(init.onchanged);
+                if (init.ontoggled)
+                    _this.toggled.connect(init.ontoggled);
+                if (init.onuntoggled)
+                    _this.untoggled.connect(init.onuntoggled);
+                if (init.group)
+                    _this.group = init.group;
+            }
+            return _this;
+        }
+        Object.defineProperty(RadioBox.prototype, "onchanged", {
+            set: function (value) { this.changed.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(RadioBox.prototype, "ontoggled", {
+            set: function (value) { this.toggled.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(RadioBox.prototype, "onuntoggled", {
+            set: function (value) { this.untoggled.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(RadioBox.prototype, "isToggled", {
+            get: function () {
+                return this._isToggled;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(RadioBox.prototype, "value", {
+            get: function () {
+                return this.isToggled;
+            },
+            set: function (value) {
+                if (value)
+                    this.toggle();
+                else
+                    this.untoggle();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(RadioBox.prototype, "text", {
+            get: function () {
+                return this._text;
+            },
+            set: function (text) {
+                if (text === undefined) {
+                    if (this.contentBox !== undefined) {
+                        this.hbox.remove(this.contentBox);
+                        this.contentBox = undefined;
+                    }
+                    this._text = undefined;
+                    this._content = undefined;
+                }
+                else {
+                    if (this._text !== undefined) {
+                        this._text = text;
+                        this.contentBox.text = this._text;
+                    }
+                    else {
+                        if (this._content !== undefined) {
+                            this.hbox.remove(this.contentBox);
+                            this._content = undefined;
+                        }
+                        this._text = text;
+                        this.contentBox = new Ui.Text({ margin: 8, text: this._text, verticalAlign: 'center' });
+                        this.hbox.append(this.contentBox, true);
+                    }
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(RadioBox.prototype, "content", {
+            get: function () {
+                return this._content;
+            },
+            set: function (content) {
+                if (content === undefined) {
+                    if (this.contentBox !== undefined) {
+                        this.hbox.remove(this.contentBox);
+                        this.contentBox = undefined;
+                    }
+                    this._text = undefined;
+                    this._content = undefined;
+                }
+                else {
+                    if (this._text !== undefined) {
+                        this.hbox.remove(this.contentBox);
+                        this._text = undefined;
+                    }
+                    if (this._content !== undefined)
+                        this.contentBox.remove(this._content);
+                    else {
+                        this.contentBox = new Ui.LBox({ padding: 8, verticalAlign: 'center' });
+                        this.hbox.append(this.contentBox);
+                    }
+                    this._content = content;
+                    this.contentBox.append(this._content);
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(RadioBox.prototype, "group", {
+            get: function () {
+                return this._group;
+            },
+            set: function (group) {
+                if (this.group != group) {
+                    if (this.group)
+                        this.group.remove(this);
+                    this._group = group;
+                    group.add(this);
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        RadioBox.prototype.toggle = function () {
+            this.onToggle();
+        };
+        RadioBox.prototype.untoggle = function () {
+            this.onUntoggle();
+        };
+        RadioBox.prototype.onRadioPress = function () {
+            if (!this._isToggled)
+                this.onToggle();
+        };
+        RadioBox.prototype.onToggle = function () {
+            if (!this._isToggled) {
+                this._isToggled = true;
+                this.drawing.setAttribute('aria-checked', 'true');
+                this.toggled.fire({ target: this });
+                this.graphic.isChecked = true;
+                this.graphic.color = this.getStyleProperty('activeColor');
+                this.changed.fire({ target: this, value: true });
+            }
+        };
+        RadioBox.prototype.onUntoggle = function () {
+            if (this._isToggled) {
+                this._isToggled = false;
+                this.drawing.setAttribute('aria-checked', 'false');
+                this.untoggled.fire({ target: this });
+                this.graphic.isChecked = false;
+                this.graphic.color = this.getStyleProperty('color');
+                this.changed.fire({ target: this, value: false });
+            }
+        };
+        RadioBox.prototype.onRadioFocus = function () {
+            if (!this.getIsMouseFocus())
+                this.graphic.color = this.getStyleProperty('focusColor');
+        };
+        RadioBox.prototype.onRadioBlur = function () {
+            if (this._isToggled)
+                this.graphic.color = this.getStyleProperty('activeColor');
+            else
+                this.graphic.color = this.getStyleProperty('color');
+        };
+        RadioBox.prototype.onRadioDown = function () {
+            this.graphic.isDown = true;
+        };
+        RadioBox.prototype.onRadioUp = function () {
+            this.graphic.isDown = false;
+        };
+        RadioBox.prototype.onStyleChange = function () {
+            if (this.hasFocus)
+                this.graphic.color = this.getStyleProperty('focusColor');
+            else {
+                if (this._isToggled)
+                    this.graphic.color = this.getStyleProperty('activeColor');
+                else
+                    this.graphic.color = this.getStyleProperty('color');
+            }
+            this.graphic.activeColor = this.getStyleProperty('activeColor');
+            this.graphic.borderWidth = this.getStyleProperty('borderWidth');
+        };
+        RadioBox.style = {
+            borderWidth: 2,
+            color: '#444444',
+            activeColor: '#07a0e5',
+            focusColor: '#21d3ff',
+            checkColor: '#ffffff',
+        };
+        return RadioBox;
+    }(Ui.Pressable));
+    Ui.RadioBox = RadioBox;
+    var RadioGroup = (function (_super) {
+        __extends(RadioGroup, _super);
+        function RadioGroup() {
+            var _this = _super !== null && _super.apply(this, arguments) || this;
+            _this.content = {};
+            _this.changed = new Core.Events();
+            return _this;
+        }
+        Object.defineProperty(RadioGroup.prototype, "onchanged", {
+            set: function (value) { this.changed.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(RadioGroup.prototype, "current", {
+            get: function () {
+                return this._current;
+            },
+            set: function (radio) {
+                if (this.current == radio)
+                    return;
+                if (radio && !radio.isToggled)
+                    radio.toggle();
+                if (radio == undefined && this.current.isToggled)
+                    this.current.untoggle();
+                this._current = radio;
+                this.changed.fire({ target: this });
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(RadioGroup.prototype, "children", {
+            get: function () {
+                var _this = this;
+                return Object.keys(this.content).map(function (prop) { return _this.content[prop]; });
+            },
+            enumerable: true,
+            configurable: true
+        });
+        RadioGroup.prototype.add = function (radio) {
+            var _this = this;
+            if (Object.keys(this.content).map(function (prop) { return _this.content[prop]; }).indexOf(radio) !== -1)
+                return;
+            var handler = radio.toggled.connect(function (e) { return _this.onRadioSelected(e); });
+            this.content[handler] = radio;
+        };
+        RadioGroup.prototype.remove = function (radio) {
+            var _this = this;
+            if (radio == undefined)
+                return;
+            var index = Object.keys(this.content).map(function (prop) { return _this.content[prop]; }).indexOf(radio);
+            if (index === -1)
+                return;
+            var realIndex = Number(Object.keys(this.content)[index]);
+            radio.toggled.disconnect(realIndex);
+            if (this.content[realIndex].isToggled)
+                this.current = undefined;
+            delete (this.content[realIndex]);
+        };
+        RadioGroup.prototype.onRadioSelected = function (event) {
+            if (this.current && this.current.isToggled)
+                this.current.untoggle();
+            this.current = event.target;
+        };
+        return RadioGroup;
+    }(Core.Object));
+    Ui.RadioGroup = RadioGroup;
+})(Ui || (Ui = {}));
 //# sourceMappingURL=era.js.map

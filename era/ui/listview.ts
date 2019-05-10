@@ -926,6 +926,8 @@ namespace Ui {
         protected headerDef: HeaderDef;
         protected grip: Movable;
         protected separator: Rectangle;
+        private gripR1 = new Rectangle();
+        private gripR2 = new Rectangle();
 
         constructor(header: ListViewHeader, headerDef: HeaderDef) {
             super();
@@ -935,8 +937,8 @@ namespace Ui {
                 moveVertical: false,
                 content: new LBox().assign({
                     content: [
-                        new Rectangle().assign({ width: 1, opacity: 0.2, fill: 'black', marginLeft: 7, marginRight: 8 + 2, marginTop: 6, marginBottom: 6 }),
-                        new Rectangle().assign({ width: 1, opacity: 0.2, fill: 'black', marginLeft: 12, marginRight: 3 + 2, marginTop: 6, marginBottom: 6 })
+                        this.gripR1.assign({ width: 1, opacity: 0.2, fill: 'black', marginLeft: 7, marginRight: 8 + 2, marginTop: 6, marginBottom: 6 }),
+                        this.gripR2.assign({ width: 1, opacity: 0.2, fill: 'black', marginLeft: 12, marginRight: 3 + 2, marginTop: 6, marginBottom: 6 })
                     ]
                 }),
                 onmoved: () => this.onMove(),
@@ -987,6 +989,18 @@ namespace Ui {
             super.onEnable();
             if (this.headerDef.resizable !== false)
                 this.grip.show();
+        }
+
+        onStyleChange() {
+            super.onStyleChange();
+            let color = this.getStyleProperty('color');
+            this.gripR1.fill = color;
+            this.gripR2.fill = color;
+            this.separator.fill = color;
+        }
+
+        static style: {
+            color: 'black'
         }
     }
 }

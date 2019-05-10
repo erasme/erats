@@ -15,7 +15,7 @@ namespace Ui
         content?: Element | Element[];
     }
 
-    export class Box extends Container implements BoxInit
+    export class Box extends Container implements BoxInit, IContainer
     {
         private _paddingTop: number = 0;
         private _paddingBottom: number = 0;
@@ -230,6 +230,13 @@ namespace Ui
             if (resizable !== undefined)
                 child.resizable = resizable === true;
             this.insertChildAt(child, position);
+        }
+
+        //
+        // Insert a child element in the current box before the given child
+        //
+        insertBefore(child: Element, beforeChild: Element) {
+            this.insertChildBefore(child, beforeChild);
         }
 
         //

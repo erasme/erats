@@ -7,7 +7,7 @@ namespace Ui {
         content?: Element[] | undefined;
     }
 
-    export class Flow extends Container implements FlowInit {
+    export class Flow extends Container implements FlowInit,IContainer {
         protected lines = new Array<{ pos: number, y: number, width: number, height: number }>();
         private _uniform: boolean = false;
         protected uniformWidth: number = 0;
@@ -23,9 +23,9 @@ namespace Ui {
                 if (init.itemAlign !== undefined)
                     this.itemAlign = init.itemAlign;
                 if (init.uniform !== undefined)
-                    this.uniform = init.uniform;	
+                    this.uniform = init.uniform;
                 if (init.content !== undefined)
-                    this.content = init.content;	
+                    this.content = init.content;
             }
         }
 
@@ -41,14 +41,14 @@ namespace Ui {
                     this.appendChild(content[i]);
             }
         }
-    
+
         //
         // Return the space between each item and each line
         //
         get spacing(): number {
             return this._spacing;
         }
-    
+
         //
         // Set the space between each item and each line
         //
@@ -59,14 +59,14 @@ namespace Ui {
                 this.invalidateArrange();
             }
         }
-    
+
         //
         // Return item horizontal alignment [left|right]
         //
         get itemAlign(): 'left' | 'right' {
             return this._itemAlign;
         }
-    
+
         //
         // Choose howto horizontaly align items [left|right]
         //
@@ -116,6 +116,13 @@ namespace Ui {
         //
         insertAt(child: Element, position: number) {
             this.insertChildAt(child, position);
+        }
+
+        //
+        // Insert a child element in the current box before the given child
+        //
+        insertBefore(child: Element, beforeChild: Element) {
+            this.insertChildBefore(child, beforeChild);
         }
 
         //
@@ -182,7 +189,7 @@ namespace Ui {
                 if (size.height > maxHeight)
                     maxHeight = size.height;
             }
-            let countPerLine = Math.max(Math.floor((width + this._spacing) / (maxWidth + this._spacing)), 1);        
+            let countPerLine = Math.max(Math.floor((width + this._spacing) / (maxWidth + this._spacing)), 1);
             let nbLine = Math.ceil(this.children.length / countPerLine);
 
             for (i = 0; i < this.children.length; i++)
@@ -222,7 +229,7 @@ namespace Ui {
                 else if (this._itemAlign === 'right') {
                     let nbItemPerLine = Math.max(Math.floor((width + this._spacing) / (this.uniformWidth + this._spacing)), 1);
                     let lineWidth = nbItemPerLine * this.uniformWidth + (nbItemPerLine - 1) * this._spacing;
-                
+
                     let x = 0;
                     if (this.children.length < nbItemPerLine)
                         x = width - ((this.children.length * (this.uniformWidth + this._spacing)) - this._spacing);
@@ -256,5 +263,5 @@ namespace Ui {
             }
         }
     }
-}	
+}
 

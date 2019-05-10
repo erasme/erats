@@ -159,14 +159,14 @@ namespace Ui {
                 var xpos = zone.xstart;
                 var widthBonus = 0;
                 var itemWidth = 0;
-            
+
                 if (this.align === 'right')
                     xpos += (zone.xend - zone.xstart) - (this.drawWidth + this.drawSpaceWidth);
                 else if (this.align === 'center')
                     xpos += Math.floor(((zone.xend - zone.xstart) - (this.drawWidth + this.drawSpaceWidth)) / 2);
                 else if (this.align === 'stretch')
                     widthBonus = Math.floor(((zone.xend - zone.xstart) - (this.drawWidth + this.drawSpaceWidth)) / this.drawCmd.length);
-            
+
                 for (var i = 0; i < this.drawCmd.length; i++) {
                     var cmd = this.drawCmd[i];
 
@@ -323,7 +323,7 @@ namespace Ui {
             this.xpos = this.zones[0].xstart;
             this.firstLine = false;
         }
-        
+
         nextZone() {
             this.flushDraw();
             // last zone, go next line
@@ -347,7 +347,7 @@ namespace Ui {
         stretchMaxRatio?: number;
     }
 
-    export class SFlow extends Container implements SFlowInit {
+    export class SFlow extends Container implements SFlowInit, IContainer {
         private _uniform: boolean = false;
         private _uniformRatio: number;
         private _uniformWidth: number;
@@ -360,17 +360,17 @@ namespace Ui {
             super(init);
             if (init) {
                 if (init.content !== undefined)
-                    this.content = init.content;	
+                    this.content = init.content;
                 if (init.spacing !== undefined)
-                    this.spacing = init.spacing;	
+                    this.spacing = init.spacing;
                 if (init.itemAlign !== undefined)
-                    this.itemAlign = init.itemAlign;	
+                    this.itemAlign = init.itemAlign;
                 if (init.uniform !== undefined)
-                    this.uniform = init.uniform;	
+                    this.uniform = init.uniform;
                 if (init.uniformRatio !== undefined)
-                    this.uniformRatio = init.uniformRatio;	
+                    this.uniformRatio = init.uniformRatio;
                 if (init.stretchMaxRatio !== undefined)
-                    this.stretchMaxRatio = init.stretchMaxRatio;	
+                    this.stretchMaxRatio = init.stretchMaxRatio;
             }
         }
 
@@ -386,14 +386,14 @@ namespace Ui {
                     this.appendChild(content[i]);
             }
         }
-    
+
         //
         // Return the space between each item and each line
         //
         get spacing(): number {
             return this._spacing;
         }
-    
+
         //
         // Set the space between each item and each line
         //
@@ -404,14 +404,14 @@ namespace Ui {
                 this.invalidateArrange();
             }
         }
-    
+
         //
         // Return item horizontal alignment [left|right|center|stretch]
         //
         get itemAlign(): SFlowAlign {
             return this._itemAlign;
         }
-    
+
         //
         // Choose howto horizontaly align items [left|right|center|stretch]
         //
@@ -508,6 +508,17 @@ namespace Ui {
         }
 
         //
+        // Insert a child element in the current box before the given child
+        //
+        insertBefore(child: Element, beforeChild: Element, floatVal?: SFlowFloat, flushVal?: SFlowFlush) {
+            this.insertChildBefore(child, beforeChild);
+            if (floatVal !== undefined)
+                SFlow.setFloat(child, floatVal);
+            if (flushVal !== undefined)
+                SFlow.setFlush(child, flushVal);
+        }
+
+        //
         // Move a given item from its current position to
         // the given one
         //
@@ -526,7 +537,7 @@ namespace Ui {
 
             if (this.children.length === 0)
                 return { width: 0, height: 0 };
-        
+
             // a first pass for uniform measure
             if (this._uniform) {
                 this._uniformWidth = 0;
@@ -607,5 +618,5 @@ namespace Ui {
             }
         }
     }
-}	
+}
 
