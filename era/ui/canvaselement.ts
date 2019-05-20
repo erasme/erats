@@ -145,10 +145,14 @@ namespace Ui {
             let drawing; let resourceDrawing;
             if (this.canvasEngine === 'canvas') {
                 drawing = this.canvasDrawing = document.createElement('canvas');
-                if (this.layoutWidth)
+                if (this.layoutWidth) {
                     drawing.setAttribute('width', Math.ceil(this.layoutWidth * this.dpiRatio).toString());
-                if (this.layoutHeight)
+                    drawing.style.width = Math.ceil(this.layoutWidth) + 'px';
+                }
+                if (this.layoutHeight) {
                     drawing.setAttribute('height', Math.ceil(this.layoutHeight * this.dpiRatio).toString());
+                    drawing.style.height = Math.ceil(this.layoutHeight) + 'px';
+                }
                 this._context = drawing.getContext('2d');
             }
             else {
@@ -193,6 +197,8 @@ namespace Ui {
             if (this.canvasDrawing) {
                 this.canvasDrawing.setAttribute('width', Math.ceil(width * this.dpiRatio).toString());
                 this.canvasDrawing.setAttribute('height', Math.ceil(height * this.dpiRatio).toString());
+                this.canvasDrawing.style.width = Math.ceil(width) + 'px';
+                this.canvasDrawing.style.height = Math.ceil(height) + 'px';
             }
 
             if (this.isVisible && this.isLoaded)
