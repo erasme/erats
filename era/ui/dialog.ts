@@ -141,8 +141,8 @@ namespace Ui {
 
     export class Dialog extends Container implements DialogInit {
         dialogSelection: Selection;
-        private shadowGraphic: Rectangle;
-        private graphic: DialogGraphic;
+        protected shadowGraphic: Rectangle;
+        protected graphic: DialogGraphic;
         private lbox: Form;
         private vbox: VBox;
         private contentBox: LBox;
