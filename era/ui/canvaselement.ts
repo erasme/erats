@@ -52,22 +52,44 @@ namespace Ui {
     export interface CanvasElementInit extends ContainerInit {
     }
 
-    export class CanvasElement extends Container implements CanvasElementInit
-    {
-        protected canvasEngine: string | 'canvas' | 'svg';
+    export class CanvasElement extends Container implements CanvasElementInit {
+        protected _canvasEngine: 'canvas' | 'svg';
         private _context: CanvasRenderingContext2D;
         private svgDrawing: any;
+        private canvasDrawing: HTMLCanvasElement;
         private dpiRatio: number = 1;
+        private generateNeeded = true;
 
         constructor(init?: ContainerInit) {
             super(init);
             this.selectable = false;
+            this.canvasEngine = 'svg';
+        }
+
+        get canvasEngine(): 'canvas' | 'svg' {
+            return this._canvasEngine;
+        }
+
+        set canvasEngine(value: 'canvas' | 'svg') {
+            if (this._canvasEngine != value) {
+                this._canvasEngine = value;
+                this.generateNeeded = true;
+                while (this.drawing.firstChild)
+                    this.drawing.removeChild(this.drawing.firstChild);
+                this._context = undefined;
+                this.svgDrawing = undefined;
+                this.canvasDrawing = undefined;
+                this.invalidateDraw();
+            }
         }
 
         //
         // Call this method when the canvas need to be redraw
         //
         update() {
+            if (this.generateNeeded)
+                this.renderCanvasDrawing();
+
             if (this.canvasEngine === 'canvas') {
                 this._context.clearRect(0, 0, Math.ceil(this.layoutWidth * this.dpiRatio), Math.ceil(this.layoutHeight * this.dpiRatio));
                 this._context.save();
@@ -79,7 +101,7 @@ namespace Ui {
             else {
                 if (this.svgDrawing !== undefined)
                     this.drawing.removeChild(this.svgDrawing);
-                let svgDrawing:any = document.createElementNS(svgNS, 'svg');
+                let svgDrawing: any = document.createElementNS(svgNS, 'svg');
                 svgDrawing.style.position = 'absolute';
                 svgDrawing.style.top = '0px';
                 svgDrawing.style.left = '0px';
@@ -113,8 +135,7 @@ namespace Ui {
         protected updateCanvas(context: Ui.CanvasRenderingContext2D) {
         }
 
-        protected renderDrawing() {
-            this.canvasEngine = 'svg';
+        protected renderCanvasDrawing() {
             // verify compatibility with the browser
             if ((this.canvasEngine == 'canvas') && !Core.Navigator.supportCanvas)
                 this.canvasEngine = 'svg';
@@ -123,7 +144,11 @@ namespace Ui {
 
             let drawing; let resourceDrawing;
             if (this.canvasEngine === 'canvas') {
-                drawing = document.createElement('canvas');
+                drawing = this.canvasDrawing = document.createElement('canvas');
+                if (this.layoutWidth)
+                    drawing.setAttribute('width', Math.ceil(this.layoutWidth * this.dpiRatio).toString());
+                if (this.layoutHeight)
+                    drawing.setAttribute('height', Math.ceil(this.layoutHeight * this.dpiRatio).toString());
                 this._context = drawing.getContext('2d');
             }
             else {
@@ -138,7 +163,8 @@ namespace Ui {
                 if (Core.Navigator.supportCanvas)
                     drawing.toDataURL = this.svgToDataURL.bind(this);
             }
-            return drawing;
+            this.generateNeeded = false;
+            this.drawing.appendChild(drawing);
         }
 
         svgToDataURL() {
@@ -163,8 +189,11 @@ namespace Ui {
                     context.backingStorePixelRatio || 1;
             }
             this.dpiRatio = devicePixelRatio / backingStoreRatio;
-            this.drawing.setAttribute('width', Math.ceil(width * this.dpiRatio).toString());
-            this.drawing.setAttribute('height', Math.ceil(height * this.dpiRatio).toString());
+
+            if (this.canvasDrawing) {
+                this.canvasDrawing.setAttribute('width', Math.ceil(width * this.dpiRatio).toString());
+                this.canvasDrawing.setAttribute('height', Math.ceil(height * this.dpiRatio).toString());
+            }
 
             if (this.isVisible && this.isLoaded)
                 this.update();
@@ -343,7 +372,7 @@ namespace Core {
         }
 
         addColorStop(offset, color) {
-            let svgStop:any = document.createElementNS(svgNS, 'stop');
+            let svgStop: any = document.createElementNS(svgNS, 'stop');
             svgStop.setAttributeNS(null, 'offset', offset);
             svgStop.style.stopColor = color;
             color = Ui.Color.create(color);
@@ -538,7 +567,7 @@ namespace Core {
                 pattern.appendChild(img);
                 this.defs.appendChild(pattern);
 
-                let path:any = document.createElementNS(svgNS, 'path');
+                let path: any = document.createElementNS(svgNS, 'path');
                 path.setAttributeNS(null, 'pointer-events', 'none');
                 path.setAttributeNS(null, 'd', 'M ' + dx + ' ' + dy + ' L ' + (dx + dw) + ' ' + dy + ' L ' + (dx + dw) + ' ' + (dy + dh) + ' L ' + dx + ' ' + (dy + dh) + ' Z');
                 path.style.fill = 'url(#' + id + ')';
@@ -551,7 +580,7 @@ namespace Core {
         }
 
         fillText(text: string, x: number, y: number, maxWidth: number) {
-            let t:any = document.createElementNS(svgNS, 'text');
+            let t: any = document.createElementNS(svgNS, 'text');
             let textNode = document.createTextNode(text);
             t.appendChild(textNode);
 
@@ -895,7 +924,7 @@ namespace Core {
     }
 }
 
-if(Core.Navigator.supportCanvas) {
+if (Core.Navigator.supportCanvas) {
     CanvasRenderingContext2D.prototype['roundRect'] = Core.SVG2DPath.prototype.roundRect;
     CanvasRenderingContext2D.prototype['svgPath'] = Core.SVG2DContext.prototype.svgPath;
     CanvasRenderingContext2D.prototype['roundRectFilledShadow'] = Core.SVG2DContext.prototype.roundRectFilledShadow;
