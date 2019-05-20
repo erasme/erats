@@ -1082,15 +1082,18 @@ declare namespace Ui {
     interface CanvasElementInit extends ContainerInit {
     }
     class CanvasElement extends Container implements CanvasElementInit {
-        protected canvasEngine: string | 'canvas' | 'svg';
+        protected _canvasEngine: 'canvas' | 'svg';
         private _context;
         private svgDrawing;
+        private canvasDrawing;
         private dpiRatio;
+        private generateNeeded;
         constructor(init?: ContainerInit);
+        canvasEngine: 'canvas' | 'svg';
         update(): void;
         readonly context: CanvasRenderingContext2D;
         protected updateCanvas(context: Ui.CanvasRenderingContext2D): void;
-        protected renderDrawing(): any;
+        protected renderCanvasDrawing(): void;
         svgToDataURL(): any;
         protected arrangeCore(width: number, height: number): void;
         protected drawCore(): void;

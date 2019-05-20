@@ -4664,10 +4664,33 @@ var Ui;
         function CanvasElement(init) {
             var _this = _super.call(this, init) || this;
             _this.dpiRatio = 1;
+            _this.generateNeeded = true;
             _this.selectable = false;
+            _this.canvasEngine = 'svg';
             return _this;
         }
+        Object.defineProperty(CanvasElement.prototype, "canvasEngine", {
+            get: function () {
+                return this._canvasEngine;
+            },
+            set: function (value) {
+                if (this._canvasEngine != value) {
+                    this._canvasEngine = value;
+                    this.generateNeeded = true;
+                    while (this.drawing.firstChild)
+                        this.drawing.removeChild(this.drawing.firstChild);
+                    this._context = undefined;
+                    this.svgDrawing = undefined;
+                    this.canvasDrawing = undefined;
+                    this.invalidateDraw();
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
         CanvasElement.prototype.update = function () {
+            if (this.generateNeeded)
+                this.renderCanvasDrawing();
             if (this.canvasEngine === 'canvas') {
                 this._context.clearRect(0, 0, Math.ceil(this.layoutWidth * this.dpiRatio), Math.ceil(this.layoutHeight * this.dpiRatio));
                 this._context.save();
@@ -4704,8 +4727,8 @@ var Ui;
         });
         CanvasElement.prototype.updateCanvas = function (context) {
         };
-        CanvasElement.prototype.renderDrawing = function () {
-            this.canvasEngine = 'svg';
+        CanvasElement.prototype.renderCanvasDrawing = function () {
+            console.log(this + ".renderCanvasDrawing " + this._canvasEngine);
             if ((this.canvasEngine == 'canvas') && !Core.Navigator.supportCanvas)
                 this.canvasEngine = 'svg';
             if ((this.canvasEngine == 'svg') && !Core.Navigator.supportSVG)
@@ -4713,7 +4736,11 @@ var Ui;
             var drawing;
             var resourceDrawing;
             if (this.canvasEngine === 'canvas') {
-                drawing = document.createElement('canvas');
+                drawing = this.canvasDrawing = document.createElement('canvas');
+                if (this.layoutWidth)
+                    drawing.setAttribute('width', Math.ceil(this.layoutWidth * this.dpiRatio).toString());
+                if (this.layoutHeight)
+                    drawing.setAttribute('height', Math.ceil(this.layoutHeight * this.dpiRatio).toString());
                 this._context = drawing.getContext('2d');
             }
             else {
@@ -4727,7 +4754,8 @@ var Ui;
                 if (Core.Navigator.supportCanvas)
                     drawing.toDataURL = this.svgToDataURL.bind(this);
             }
-            return drawing;
+            this.generateNeeded = false;
+            this.drawing.appendChild(drawing);
         };
         CanvasElement.prototype.svgToDataURL = function () {
             var drawing = document.createElement('canvas');
@@ -4749,8 +4777,10 @@ var Ui;
                     context.backingStorePixelRatio || 1;
             }
             this.dpiRatio = devicePixelRatio / backingStoreRatio;
-            this.drawing.setAttribute('width', Math.ceil(width * this.dpiRatio).toString());
-            this.drawing.setAttribute('height', Math.ceil(height * this.dpiRatio).toString());
+            if (this.canvasDrawing) {
+                this.canvasDrawing.setAttribute('width', Math.ceil(width * this.dpiRatio).toString());
+                this.canvasDrawing.setAttribute('height', Math.ceil(height * this.dpiRatio).toString());
+            }
             if (this.isVisible && this.isLoaded)
                 this.update();
         };
