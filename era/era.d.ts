@@ -3455,8 +3455,8 @@ declare namespace Ui {
     }
     class Dialog extends Container implements DialogInit {
         dialogSelection: Selection;
-        private shadowGraphic;
-        private graphic;
+        protected shadowGraphic: Rectangle;
+        protected graphic: DialogGraphic;
         private lbox;
         private vbox;
         private contentBox;
