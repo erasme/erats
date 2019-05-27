@@ -133,7 +133,7 @@ namespace Ui {
         preferredHeight?: number;
         title?: string;
         cancelButton?: Pressable;
-        actionButtons?: Pressable[];
+        actionButtons?: Element[];
         autoClose?: boolean;
         content?: Element;
         onclosed?: (event: { target: Dialog }) => void;
@@ -147,7 +147,7 @@ namespace Ui {
         private vbox: VBox;
         private contentBox: LBox;
         private contentVBox: VBox;
-        private _actionButtons?: Pressable[];
+        private _actionButtons?: Element[];
         private _cancelButton?: Pressable;
         private buttonsBox: LBox;
         buttonsVisible: boolean = false;
@@ -359,7 +359,7 @@ namespace Ui {
             this.updateButtonsBoxVisible();
         }
 
-        set actionButtons(buttons: Pressable[]) {
+        set actionButtons(buttons: Element[]) {
             this._actionButtons = buttons;
             this.actionBox.setActionButtons(buttons);
             this.updateButtonsBoxVisible();

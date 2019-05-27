@@ -4410,7 +4410,7 @@ var Ui;
             if (child == undefined)
                 return;
             child.parent = undefined;
-            if (child.drawing != undefined)
+            if (child.drawing != undefined && child.drawing.parentNode == this._containerDrawing)
                 this._containerDrawing.removeChild(child.drawing);
             var i = 0;
             while ((i < this._children.length) && (this._children[i] !== child)) {
