@@ -3446,7 +3446,7 @@ declare namespace Ui {
         preferredHeight?: number;
         title?: string;
         cancelButton?: Pressable;
-        actionButtons?: Pressable[];
+        actionButtons?: Element[];
         autoClose?: boolean;
         content?: Element;
         onclosed?: (event: {
@@ -3492,7 +3492,7 @@ declare namespace Ui {
         title: string;
         updateButtonsBoxVisible(): void;
         cancelButton: Pressable | undefined;
-        actionButtons: Pressable[];
+        actionButtons: Element[];
         content: Element | undefined;
         autoClose: boolean;
         protected onCancelPress(): void;
