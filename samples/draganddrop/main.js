@@ -99,3 +99,4 @@ dropbox.dropped.connect(function (e) {
     droplabel.text = "message: " + data;
     new Core.DelayedTask(1, function () { return droplabel.text = 'drop here'; });
 });
+//# sourceMappingURL=main.js.map

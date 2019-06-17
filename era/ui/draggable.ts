@@ -53,11 +53,11 @@ namespace Ui {
         }
 
         private onDraggablePointerDown = (event: PointerEvent) => {
-            // left and middle mouse button only
-            //if (event.pointerType == 'mouse' && event.pointer.button != 0 && event.pointer.button != 1)
-            //    return;	
             if (this.element.isDisabled || (this.data === undefined))
                 return;
+            // left mouse button only
+            if (event.pointerType == 'mouse' && event.button != 0)
+                return;	
             // PointerEvent dont allow to handle long hold interaction. Let TouchEvent do the job
             if (event.pointerType == 'touch')
                 return;

@@ -8806,6 +8806,8 @@ var Ui;
             _this.onDraggablePointerDown = function (event) {
                 if (_this.element.isDisabled || (_this.data === undefined))
                     return;
+                if (event.pointerType == 'mouse' && event.button != 0)
+                    return;
                 if (event.pointerType == 'touch')
                     return;
                 event.stopImmediatePropagation();
