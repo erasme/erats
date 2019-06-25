@@ -4,6 +4,7 @@ namespace Ui {
         private rect: Rectangle;
         private over: Overable;
         private clock?: Anim.Clock;
+        private scale = 0;
 
         constructor(private orientation: Orientation) {
             super();
@@ -12,13 +13,15 @@ namespace Ui {
             this.over = new Overable();
             this.content = this.over;
             this.rect = new Rectangle();
+            this.rect.transformOriginX = 1;
+            this.rect.transformOriginY = 1;
             if (orientation == 'horizontal') {
-                this.rect.width = 30; this.rect.height = 5;
+                this.rect.width = 30; this.rect.height = 15;
                 this.over.height = 15;
                 this.rect.verticalAlign = 'bottom';
             }
             else {
-                this.rect.width = 5; this.rect.height = 30;
+                this.rect.width = 15; this.rect.height = 30;
                 this.over.width = 15;
                 this.rect.horizontalAlign = 'right';
             }
@@ -27,6 +30,7 @@ namespace Ui {
             this.over.leaved.connect(() => this.startAnim());
             this.downed.connect(() => this.startAnim());
             this.upped.connect(() => this.startAnim());
+            this.updateScale();
         }
 
         set radius(radius: number) {
@@ -54,17 +58,24 @@ namespace Ui {
             if (!view)
                 d = -d;
 
-            let s = Math.max(5 , Math.min(15,
-                ((this.orientation == 'vertical') ? this.rect.width : this.rect.height) + d));
-            if (this.orientation == 'vertical')
-                this.rect.width = s;
-            else
-                this.rect.height = s;
-            if ((!view && s == 5) || (view && s == 15)) {
+            this.scale = Math.max(0 , Math.min(1,
+                this.scale + (d / 10)));
+
+            this.updateScale();
+
+            if ((!view && this.scale == 0) || (view && this.scale == 1)) {
                 if (this.clock)
                     this.clock.stop();
                 this.clock = undefined;
             }
+        }
+
+        private updateScale() {
+            let rs = (5 + this.scale * 10) / 15;
+            if (this.orientation == 'vertical')
+                this.rect.transform = Ui.Matrix.createScale(rs, 1);
+            else
+                this.rect.transform = Ui.Matrix.createScale(1, rs);
         }
     }
 
