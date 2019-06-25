@@ -2725,11 +2725,13 @@ declare namespace Ui {
         private rect;
         private over;
         private clock?;
+        private scale;
         constructor(orientation: Orientation);
         radius: number;
         fill: Color;
         private startAnim;
         protected onTick(clock: Anim.Clock, progress: number, deltaTick: number): void;
+        private updateScale;
     }
     interface ScrollingAreaInit extends NativeScrollingAreaInit {
         maxScale?: number;
@@ -3501,8 +3503,6 @@ declare namespace Ui {
         protected onKeyUp(event: any): void;
         protected onShadowPress(): void;
         protected onStyleChange(): void;
-        protected onChildInvalidateMeasure(child: Element, type: any): void;
-        protected onChildInvalidateArrange(child: Element): void;
         protected measureCore(width: number, height: number): Size;
         protected arrangeCore(width: number, height: number): void;
         static style: object;

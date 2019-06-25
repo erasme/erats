@@ -378,8 +378,6 @@ namespace Ui {
         // the minimum required size
         //
         measure(width: number, height: number): Size {
-            //console.log(this.getClassName()+'.measure ('+width+','+height+'), loaded: '+this._isLoaded+', valid: '+this.measureValid+', constraint: ('+this.measureConstraintWidth+' x '+this.measureConstraintHeight+')');
-
             // no need to measure if the element is not loaded
             if (!this._isLoaded)
                 return { width: 0, height: 0 };
@@ -419,6 +417,7 @@ namespace Ui {
             if (this._height !== undefined)
                 constraintHeight = Math.max(this._height, constraintHeight);
 
+            this.measureValid = true;
             let size = this.measureCore(constraintWidth, constraintHeight);
 
             // if width and height are set they are taken as a minimum
@@ -430,10 +429,6 @@ namespace Ui {
                 this._measureHeight = this._height + marginTop + marginBottom;
             else
                 this._measureHeight = Math.ceil(size.height) + marginTop + marginBottom;
-
-            this.measureValid = true;
-
-            //console.log(this+'.measure ('+width+','+height+') => '+this.measureWidth+'x'+this.measureHeight);
 
             return { width: this._measureWidth, height: this._measureHeight };
         }
@@ -460,11 +455,10 @@ namespace Ui {
         }
 
         invalidateLayout() {
+            this.measureValid = false;
+            this.arrangeValid = false;
             if (this.layoutValid) {
-                // console.log('invalidateLayout enqueue ('+(new Date()).getTime()+')');
                 this.layoutValid = false;
-                this.measureValid = false;
-                this.arrangeValid = false;
                 if (Ui.App.current)
                     Ui.App.current.enqueueLayout(this);
             }
@@ -475,11 +469,13 @@ namespace Ui {
         }
 
         updateLayout(width: number, height: number) {
-            //console.log(this+'.updateLayout '+this.layoutWidth+'x'+this.layoutHeight);
             this._layoutWidth = width;
             this._layoutHeight = height;
-            this.layoutCore();
             this.layoutValid = true;
+            this.layoutCore();
+            this.layoutValid = this.arrangeValid && this.measureValid;
+            if (!this.layoutValid)
+                this.invalidateLayout();
         }
 
         layoutCore() {
@@ -581,10 +577,9 @@ namespace Ui {
 
                 this.drawing.style.visibility = 'inherit';
                 this.arrangeCore(this._layoutWidth, this._layoutHeight);
-//                if (!this.arrangeValid)
-//                    console.log(`${this}.arrange PROBLEM. Arrange invalidated during arrange`);
+                if (!this.arrangeValid)
+                    console.log(`${this}.arrange PROBLEM. Arrange invalidated during arrange`);
             }
-            this.arrangeValid = true;
         }
 
         //

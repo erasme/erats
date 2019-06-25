@@ -3413,6 +3413,7 @@ var Ui;
                 constraintWidth = Math.max(this._width, constraintWidth);
             if (this._height !== undefined)
                 constraintHeight = Math.max(this._height, constraintHeight);
+            this.measureValid = true;
             var size = this.measureCore(constraintWidth, constraintHeight);
             if ((this._width !== undefined) && (size.width < this._width))
                 this._measureWidth = this._width + marginLeft + marginRight;
@@ -3422,7 +3423,6 @@ var Ui;
                 this._measureHeight = this._height + marginTop + marginBottom;
             else
                 this._measureHeight = Math.ceil(size.height) + marginTop + marginBottom;
-            this.measureValid = true;
             return { width: this._measureWidth, height: this._measureHeight };
         };
         Element.prototype.measureCore = function (width, height) {
@@ -3437,10 +3437,10 @@ var Ui;
             this.invalidateArrange();
         };
         Element.prototype.invalidateLayout = function () {
+            this.measureValid = false;
+            this.arrangeValid = false;
             if (this.layoutValid) {
                 this.layoutValid = false;
-                this.measureValid = false;
-                this.arrangeValid = false;
                 if (Ui.App.current)
                     Ui.App.current.enqueueLayout(this);
             }
@@ -3451,8 +3451,11 @@ var Ui;
         Element.prototype.updateLayout = function (width, height) {
             this._layoutWidth = width;
             this._layoutHeight = height;
-            this.layoutCore();
             this.layoutValid = true;
+            this.layoutCore();
+            this.layoutValid = this.arrangeValid && this.measureValid;
+            if (!this.layoutValid)
+                this.invalidateLayout();
         };
         Element.prototype.layoutCore = function () {
             this.measure(this._layoutWidth, this._layoutHeight);
@@ -3538,8 +3541,9 @@ var Ui;
                 }
                 this.drawing.style.visibility = 'inherit';
                 this.arrangeCore(this._layoutWidth, this._layoutHeight);
+                if (!this.arrangeValid)
+                    console.log(this + ".arrange PROBLEM. Arrange invalidated during arrange");
             }
-            this.arrangeValid = true;
         };
         Element.prototype.arrangeCore = function (width, height) {
         };
@@ -12417,19 +12421,22 @@ var Ui;
         function Scrollbar(orientation) {
             var _this = _super.call(this) || this;
             _this.orientation = orientation;
+            _this.scale = 0;
             _this.cursor = 'inherit';
             _this.focusable = false;
             _this.over = new Ui.Overable();
             _this.content = _this.over;
             _this.rect = new Ui.Rectangle();
+            _this.rect.transformOriginX = 1;
+            _this.rect.transformOriginY = 1;
             if (orientation == 'horizontal') {
                 _this.rect.width = 30;
-                _this.rect.height = 5;
+                _this.rect.height = 15;
                 _this.over.height = 15;
                 _this.rect.verticalAlign = 'bottom';
             }
             else {
-                _this.rect.width = 5;
+                _this.rect.width = 15;
                 _this.rect.height = 30;
                 _this.over.width = 15;
                 _this.rect.horizontalAlign = 'right';
@@ -12439,6 +12446,7 @@ var Ui;
             _this.over.leaved.connect(function () { return _this.startAnim(); });
             _this.downed.connect(function () { return _this.startAnim(); });
             _this.upped.connect(function () { return _this.startAnim(); });
+            _this.updateScale();
             return _this;
         }
         Object.defineProperty(Scrollbar.prototype, "radius", {
@@ -12469,16 +12477,20 @@ var Ui;
             var view = this.over.isOver || this.isDown;
             if (!view)
                 d = -d;
-            var s = Math.max(5, Math.min(15, ((this.orientation == 'vertical') ? this.rect.width : this.rect.height) + d));
-            if (this.orientation == 'vertical')
-                this.rect.width = s;
-            else
-                this.rect.height = s;
-            if ((!view && s == 5) || (view && s == 15)) {
+            this.scale = Math.max(0, Math.min(1, this.scale + (d / 10)));
+            this.updateScale();
+            if ((!view && this.scale == 0) || (view && this.scale == 1)) {
                 if (this.clock)
                     this.clock.stop();
                 this.clock = undefined;
             }
+        };
+        Scrollbar.prototype.updateScale = function () {
+            var rs = (5 + this.scale * 10) / 15;
+            if (this.orientation == 'vertical')
+                this.rect.transform = Ui.Matrix.createScale(rs, 1);
+            else
+                this.rect.transform = Ui.Matrix.createScale(1, rs);
         };
         return Scrollbar;
     }(Ui.Movable));
@@ -15420,26 +15432,30 @@ var Ui;
             _this.update = function () {
                 var innerWidth = document.body.clientWidth;
                 var innerHeight = document.body.clientHeight;
+                _this.updateTask = false;
                 if ((_this.windowWidth !== innerWidth) || (_this.windowHeight !== innerHeight)) {
                     _this.windowWidth = innerWidth;
                     _this.windowHeight = innerHeight;
                     _this.resized.fire({ target: _this, width: _this.windowWidth, height: _this.windowHeight });
                     _this.invalidateLayout();
                 }
-                while (_this.layoutList != undefined) {
-                    var next = _this.layoutList.layoutNext;
-                    _this.layoutList.layoutValid = true;
-                    _this.layoutList.layoutNext = undefined;
-                    _this.layoutList.updateLayout(_this.windowWidth, _this.windowHeight);
-                    _this.layoutList = next;
+                var layoutList = _this.layoutList;
+                _this.layoutList = undefined;
+                while (layoutList != undefined) {
+                    var current = layoutList;
+                    layoutList = layoutList.layoutNext;
+                    current.layoutValid = true;
+                    current.layoutNext = undefined;
+                    current.updateLayout(_this.windowWidth, _this.windowHeight);
                 }
-                while (_this.drawList != undefined) {
-                    var next = _this.drawList.drawNext;
-                    _this.drawList.drawNext = undefined;
-                    _this.drawList.draw();
-                    _this.drawList = next;
+                var drawList = _this.drawList;
+                _this.drawList = undefined;
+                while (drawList != undefined) {
+                    var next = drawList.drawNext;
+                    drawList.drawNext = undefined;
+                    drawList.draw();
+                    drawList = next;
                 }
-                _this.updateTask = false;
             };
             var args;
             _this.clipToBounds = true;
@@ -16347,12 +16363,6 @@ var Ui;
         Dialog.prototype.onStyleChange = function () {
             this.shadowGraphic.fill = this.getStyleProperty('shadow');
             this.graphic.background = this.getStyleProperty('background');
-        };
-        Dialog.prototype.onChildInvalidateMeasure = function (child, type) {
-            this.invalidateLayout();
-        };
-        Dialog.prototype.onChildInvalidateArrange = function (child) {
-            this.invalidateLayout();
         };
         Dialog.prototype.measureCore = function (width, height) {
             this.shadowGraphic.measure(width, height);

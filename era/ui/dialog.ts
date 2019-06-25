@@ -420,16 +420,6 @@ namespace Ui {
             this.graphic.background = this.getStyleProperty('background');
         }
 
-        protected onChildInvalidateMeasure(child: Element, type) {
-            // Ui.Dialog is a layout root and can handle layout (measure/arrange) for its children
-            this.invalidateLayout();
-        }
-
-        protected onChildInvalidateArrange(child: Element) {
-            // Ui.Dialog is a layout root and can handle layout (measure/arrange) for its children
-            this.invalidateLayout();
-        }
-
         protected measureCore(width: number, height: number): Size {
             this.shadowGraphic.measure(width, height);
             let preferredWidth = this._preferredWidth ? this._preferredWidth : width;
