@@ -283,6 +283,7 @@ namespace Ui
             // update measure
             let innerWidth = document.body.clientWidth;
             let innerHeight = document.body.clientHeight;
+            this.updateTask = false;
 
             // to work like Windows 8 and iOS. Take outer size for not
             // taking care of the virtual keyboard size
@@ -299,23 +300,25 @@ namespace Ui
             }
 
             // update measure/arrange
-            while (this.layoutList != undefined) {
-                let next = this.layoutList.layoutNext;
-                this.layoutList.layoutValid = true;
-                this.layoutList.layoutNext = undefined;
-                this.layoutList.updateLayout(this.windowWidth, this.windowHeight);
-                this.layoutList = next;
+            let layoutList = this.layoutList;
+            this.layoutList = undefined;
+            while (layoutList != undefined) {
+                let current = layoutList;
+                layoutList = layoutList.layoutNext;
+                current.layoutValid = true;
+                current.layoutNext = undefined;
+                current.updateLayout(this.windowWidth, this.windowHeight);
             }
 
             // update draw
-            while (this.drawList != undefined) {
-                let next = this.drawList.drawNext;
-                this.drawList.drawNext = undefined;
-                this.drawList.draw();
-                this.drawList = next;
+            let drawList = this.drawList;
+            this.drawList = undefined;
+            while (drawList != undefined) {
+                let next = drawList.drawNext;
+                drawList.drawNext = undefined;
+                drawList.draw();
+                drawList = next;
             }
-
-            this.updateTask = false;
         }
 
         get content(): Element | undefined {
