@@ -20126,14 +20126,14 @@ var Ui;
             var _this = _super.call(this) || this;
             _this.canplaythrough = false;
             _this._state = 'initial';
+            _this.audioMeasureValid = false;
+            _this.audioSize = { width: 0, height: 0 };
             _this.ready = new Core.Events();
             _this.ended = new Core.Events();
             _this.timeupdate = new Core.Events();
             _this.bufferingupdate = new Core.Events();
             _this.statechange = new Core.Events();
             _this.error = new Core.Events();
-            _this.verticalAlign = 'top';
-            _this.horizontalAlign = 'left';
             if (init) {
                 if (init.oggSrc || init.mp3Src || init.aacSrc) {
                     if (init.oggSrc && Ui.Audio.supportOgg)
@@ -20149,6 +20149,8 @@ var Ui;
                     _this.volume = init.volume;
                 if (init.currentTime !== undefined)
                     _this.currentTime = init.currentTime;
+                if (init.controls !== undefined)
+                    _this.controls = init.controls;
             }
             return _this;
         }
@@ -20216,6 +20218,45 @@ var Ui;
             this.audioDrawing.pause();
             this.onEnded();
         };
+        Object.defineProperty(Audio.prototype, "controls", {
+            get: function () {
+                return this.audioDrawing.controls;
+            },
+            set: function (value) {
+                if (value)
+                    this.audioDrawing.controls = true;
+                else
+                    delete (this.audioDrawing.controls);
+                this.audioMeasureValid = false;
+                this.invalidateMeasure();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Audio.prototype, "controlsList", {
+            get: function () {
+                if (this.audioDrawing['controlsList'] === undefined)
+                    return [];
+                var controlsList = [];
+                this.audioDrawing['controlsList'].forEach(function (token) { return controlsList.push(token); });
+                return controlsList;
+            },
+            set: function (value) {
+                if ('controlsList' in this.audioDrawing) {
+                    var tokenList = this.audioDrawing['controlsList'];
+                    for (var _i = 0, value_2 = value; _i < value_2.length; _i++) {
+                        var element = value_2[_i];
+                        if (!tokenList.supports(element))
+                            continue;
+                        tokenList.add(element);
+                    }
+                    this.audioMeasureValid = false;
+                    this.invalidateMeasure();
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(Audio.prototype, "volume", {
             get: function () {
                 return this.audioDrawing.volume;
@@ -20345,7 +20386,6 @@ var Ui;
             var drawing;
             if (Ui.Audio.htmlAudio) {
                 this.audioDrawing = document.createElement('audio');
-                this.audioDrawing.style.display = 'none';
                 this.audioDrawing.addEventListener('canplaythrough', function () { return _this.onReady(); });
                 this.audioDrawing.addEventListener('ended', function () { return _this.onEnded(); });
                 this.audioDrawing.addEventListener('timeupdate', function () { return _this.onTimeUpdate(); });
@@ -20354,12 +20394,52 @@ var Ui;
                 this.audioDrawing.addEventListener('waiting', function () { return _this.onWaiting(); });
                 this.audioDrawing.setAttribute('preload', 'auto');
                 this.audioDrawing.load();
+                this.audioDrawing.style.position = 'absolute';
+                this.audioDrawing.style.left = '0px';
+                this.audioDrawing.style.top = '0px';
                 drawing = this.audioDrawing;
             }
             else {
                 drawing = _super.prototype.renderDrawing.call(this);
             }
             return drawing;
+        };
+        Audio.prototype.measureCore = function (width, height) {
+            if (!this.audioMeasureValid) {
+                this.audioMeasureValid = true;
+                var size = Ui.Audio.measure(this.controls);
+                this.audioSize = size;
+            }
+            return this.audioSize;
+        };
+        Audio.measure = function (isPlayerVisible) {
+            if (!isPlayerVisible)
+                return { width: 0, height: 0 };
+            return Ui.Audio.measureTextHtml();
+        };
+        Audio.measureTextHtml = function () {
+            if (Ui.Audio.measureBox === undefined)
+                this.createMeasureHtml();
+            return { width: Ui.Audio.measureBox.offsetWidth, height: Ui.Audio.measureBox.offsetHeight };
+        };
+        Audio.createMeasureHtml = function () {
+            var measureWindow = window;
+            if (Core.Navigator.isIE || Core.Navigator.isGecko)
+                measureWindow = Ui.App.getRootWindow();
+            if (measureWindow.document.body === undefined) {
+                var body = measureWindow.document.createElement('body');
+                measureWindow.document.body = body;
+            }
+            Ui.Audio.measureBox = measureWindow.document.createElement('audio');
+            Ui.Audio.measureBox.controls = true;
+            Ui.Audio.measureBox.style.whiteSpace = 'nowrap';
+            Ui.Audio.measureBox.style.position = 'absolute';
+            Ui.Audio.measureBox.style.left = '0px';
+            Ui.Audio.measureBox.style.top = '0px';
+            Ui.Audio.measureBox.style.position = 'absolute';
+            Ui.Audio.measureBox.style.display = 'inline';
+            Ui.Audio.measureBox.style.visibility = 'hidden';
+            measureWindow.document.body.appendChild(Ui.Audio.measureBox);
         };
         Audio.initialize = function () {
             var audioTest = document.createElement('audio');
@@ -20371,6 +20451,7 @@ var Ui;
                 this.supportAac = !!audioTest.canPlayType && '' !== audioTest.canPlayType('audio/mp4; codecs="mp4a.40.2"');
             }
         };
+        Audio.measureBox = undefined;
         Audio.htmlAudio = false;
         Audio.supportOgg = false;
         Audio.supportMp3 = false;
@@ -27661,8 +27742,8 @@ var Ui;
             set: function (value) {
                 while (this.logicalChildren.length > 0)
                     this.remove(this.logicalChildren[0]);
-                for (var _i = 0, value_2 = value; _i < value_2.length; _i++) {
-                    var el = value_2[_i];
+                for (var _i = 0, value_3 = value; _i < value_3.length; _i++) {
+                    var el = value_3[_i];
                     this.append(el);
                 }
             },
