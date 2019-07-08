@@ -4365,6 +4365,8 @@ declare namespace Ui {
         mp3Src?: string;
         aacSrc?: string;
         volume?: number;
+        controls?: boolean;
+        controlsList?: Array<string>;
         currentTime?: number;
     }
     class Audio extends Element {
@@ -4372,6 +4374,9 @@ declare namespace Ui {
         protected audioDrawing: HTMLAudioElement;
         private canplaythrough;
         private _state;
+        private audioMeasureValid;
+        private audioSize;
+        static measureBox: HTMLAudioElement;
         readonly ready: Core.Events<{
             target: Audio;
         }>;
@@ -4426,6 +4431,8 @@ declare namespace Ui {
         play(): void;
         pause(): void;
         stop(): void;
+        controls: boolean;
+        controlsList: Array<string>;
         volume: number;
         readonly duration: number | undefined;
         currentTime: number;
@@ -4441,6 +4448,16 @@ declare namespace Ui {
         protected onWaiting(): void;
         protected onUnload(): void;
         protected renderDrawing(): any;
+        measureCore(width: number, height: number): {
+            width: number;
+            height: number;
+        };
+        static measure(isPlayerVisible: boolean): {
+            width: number;
+            height: number;
+        };
+        private static measureTextHtml;
+        private static createMeasureHtml;
         static initialize(): void;
     }
 }

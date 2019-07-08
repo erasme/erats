@@ -8,6 +8,8 @@ namespace Ui {
         mp3Src?: string;
         aacSrc?: string;
         volume?: number;
+        controls?: boolean;
+        controlsList?: Array<string>;
         currentTime?: number;
     }
 
@@ -16,6 +18,9 @@ namespace Ui {
         protected audioDrawing!: HTMLAudioElement;
         private canplaythrough: boolean = false;
         private _state: MediaState = 'initial';
+        private audioMeasureValid: boolean = false;
+        private audioSize = { width: 0, height: 0 }
+        static measureBox: HTMLAudioElement = undefined;
 
         readonly ready = new Core.Events<{ target: Audio }>();
         set onready(value: (event: { target: Audio }) => void) { this.ready.connect(value); }
@@ -29,7 +34,7 @@ namespace Ui {
         readonly bufferingupdate = new Core.Events<{ target: Audio, buffer: number }>();
         set onbufferingupdate(value: (event: { target: Audio, buffer: number }) => void) { this.bufferingupdate.connect(value); }
 
-        readonly statechange = new Core.Events<{target: Audio, state: MediaState }>();
+        readonly statechange = new Core.Events<{ target: Audio, state: MediaState }>();
         set onstatechange(value: (event: { target: Audio, state: MediaState }) => void) { this.statechange.connect(value); }
 
         readonly error = new Core.Events<{ target: Audio, code: number }>();
@@ -44,8 +49,8 @@ namespace Ui {
 
         constructor(init?: AudioInit) {
             super();
-            this.verticalAlign = 'top';
-            this.horizontalAlign = 'left';
+            // this.verticalAlign = 'top';
+            // this.horizontalAlign = 'left';
             if (init) {
                 if (init.oggSrc || init.mp3Src || init.aacSrc) {
                     if (init.oggSrc && Ui.Audio.supportOgg)
@@ -61,6 +66,8 @@ namespace Ui {
                     this.volume = init.volume;
                 if (init.currentTime !== undefined)
                     this.currentTime = init.currentTime;
+                if (init.controls !== undefined)
+                    this.controls = init.controls;
             }
         }
 
@@ -109,6 +116,46 @@ namespace Ui {
         stop() {
             this.audioDrawing.pause();
             this.onEnded();
+        }
+
+        //
+        // Show or hide audio controls
+        //
+        set controls(value: boolean) {
+            if (value)
+                this.audioDrawing.controls = true;
+            else
+                delete (this.audioDrawing.controls);
+            this.audioMeasureValid = false;
+            this.invalidateMeasure();
+        }
+
+        //
+        // Get the audio controls value
+        //
+        get controls(): boolean {
+            return this.audioDrawing.controls;
+        }
+
+        set controlsList(value: Array<string>) {
+            if ('controlsList' in this.audioDrawing) {
+                let tokenList = this.audioDrawing['controlsList'] as DOMTokenList;
+                for (const element of value) {
+                    if (!tokenList.supports(element)) continue;
+                    tokenList.add(element);
+                }
+
+                this.audioMeasureValid = false;
+                this.invalidateMeasure();
+            }
+        }
+
+        get controlsList(): Array<string> {
+            if (this.audioDrawing['controlsList'] === undefined)
+                return [];
+            let controlsList = [];
+            (this.audioDrawing['controlsList'] as DOMTokenList).forEach(token => controlsList.push(token));
+            return controlsList;
         }
 
         //
@@ -274,10 +321,10 @@ namespace Ui {
         }
 
         protected renderDrawing() {
-            var drawing;
+            let drawing;
             if (Ui.Audio.htmlAudio) {
                 this.audioDrawing = document.createElement('audio');
-                this.audioDrawing.style.display = 'none';
+                // this.audioDrawing.style.display = 'none';
                 this.audioDrawing.addEventListener('canplaythrough', () => this.onReady());
                 this.audioDrawing.addEventListener('ended', () => this.onEnded());
                 this.audioDrawing.addEventListener('timeupdate', () => this.onTimeUpdate());
@@ -286,12 +333,57 @@ namespace Ui {
                 this.audioDrawing.addEventListener('waiting', () => this.onWaiting());
                 this.audioDrawing.setAttribute('preload', 'auto');
                 this.audioDrawing.load();
+                this.audioDrawing.style.position = 'absolute';
+                this.audioDrawing.style.left = '0px';
+                this.audioDrawing.style.top = '0px';
                 drawing = this.audioDrawing;
             }
             else {
                 drawing = super.renderDrawing();
             }
             return drawing;
+        }
+
+        measureCore(width: number, height: number): { width: number, height: number } {
+            if (!this.audioMeasureValid) {
+                this.audioMeasureValid = true;
+                let size = Ui.Audio.measure(this.controls);
+                this.audioSize = size
+            }
+            return this.audioSize;
+        }
+
+        static measure(isPlayerVisible: boolean): { width: number, height: number } {
+            if (!isPlayerVisible)
+                return { width: 0, height: 0 };
+            return Ui.Audio.measureTextHtml();
+        }
+
+        private static measureTextHtml() {
+            if (Ui.Audio.measureBox === undefined)
+                this.createMeasureHtml();
+            return { width: Ui.Audio.measureBox.offsetWidth, height: Ui.Audio.measureBox.offsetHeight };
+        }
+
+        private static createMeasureHtml() {
+            let measureWindow = window;
+            if (Core.Navigator.isIE || Core.Navigator.isGecko)
+                measureWindow = Ui.App.getRootWindow();
+
+            if (measureWindow.document.body === undefined) {
+                let body = measureWindow.document.createElement('body');
+                measureWindow.document.body = body;
+            }
+            Ui.Audio.measureBox = measureWindow.document.createElement('audio');
+            Ui.Audio.measureBox.controls = true;
+            Ui.Audio.measureBox.style.whiteSpace = 'nowrap';
+            Ui.Audio.measureBox.style.position = 'absolute';
+            Ui.Audio.measureBox.style.left = '0px';
+            Ui.Audio.measureBox.style.top = '0px';
+            Ui.Audio.measureBox.style.position = 'absolute';
+            Ui.Audio.measureBox.style.display = 'inline';
+            Ui.Audio.measureBox.style.visibility = 'hidden';
+            measureWindow.document.body.appendChild(Ui.Audio.measureBox);
         }
 
         static initialize() {
