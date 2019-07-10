@@ -64,11 +64,11 @@ namespace Ui {
         }
 
         get contentWidth(): number {
-            return this._content ? this._content.layoutWidth : 0;
+            return this._content ? this._content.layoutWidth + this._content.marginLeft + this._content.marginRight : 0;
         }
 
         get contentHeight(): number {
-            return this._content ? this._content.layoutHeight : 0;
+            return this._content ? this._content.layoutHeight + this._content.marginTop + this._content.marginBottom : 0;
         }
 
         protected measureCore(width: number, height: number) {
