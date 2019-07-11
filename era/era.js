@@ -20151,6 +20151,12 @@ var Ui;
                     _this.currentTime = init.currentTime;
                 if (init.controls !== undefined)
                     _this.controls = init.controls;
+                if (init.controlsList !== undefined)
+                    _this.controlsList = init.controlsList;
+                if (init.onerror !== undefined)
+                    _this.onerror = init.onerror;
+                if (init.onready !== undefined)
+                    _this.onready = init.onready;
             }
             return _this;
         }
@@ -20189,7 +20195,10 @@ var Ui;
                 this.canplaythrough = false;
                 this._state = 'initial';
                 this._src = src;
-                this.audioDrawing.setAttribute('src', src);
+                if (src === undefined)
+                    this.audioDrawing.removeAttribute('src');
+                else
+                    this.audioDrawing.setAttribute('src', src);
                 try {
                     this.audioDrawing.load();
                 }
@@ -21043,6 +21052,8 @@ var Ui;
                     _this.currentTime = init.currentTime;
                 if (init.controls !== undefined)
                     _this.controls = init.controls;
+                if (init.controlsList !== undefined)
+                    _this.controlsList = init.controlsList;
                 if (init.onstatechanged)
                     _this.statechanged.connect(init.onstatechanged);
                 if (init.onready)
@@ -21094,8 +21105,10 @@ var Ui;
                 this._state = 'initial';
                 if (typeof (src) === 'object')
                     this.videoDrawing.src = URL.createObjectURL(src);
-                else
+                else if (src !== undefined)
                     this.videoDrawing.setAttribute('src', src);
+                else
+                    this.videoDrawing.removeAttribute('src');
                 try {
                     this.videoDrawing.load();
                 }
@@ -21147,6 +21160,28 @@ var Ui;
                     this.videoDrawing.controls = true;
                 else
                     delete (this.videoDrawing.controls);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Video.prototype, "controlsList", {
+            get: function () {
+                if (this.videoDrawing['controlsList'] === undefined)
+                    return [];
+                var controlsList = [];
+                this.videoDrawing['controlsList'].forEach(function (token) { return controlsList.push(token); });
+                return controlsList;
+            },
+            set: function (value) {
+                if ('controlsList' in this.videoDrawing) {
+                    var tokenList = this.videoDrawing['controlsList'];
+                    for (var _i = 0, value_3 = value; _i < value_3.length; _i++) {
+                        var element = value_3[_i];
+                        if (!tokenList.supports(element))
+                            continue;
+                        tokenList.add(element);
+                    }
+                }
             },
             enumerable: true,
             configurable: true
@@ -27742,8 +27777,8 @@ var Ui;
             set: function (value) {
                 while (this.logicalChildren.length > 0)
                     this.remove(this.logicalChildren[0]);
-                for (var _i = 0, value_3 = value; _i < value_3.length; _i++) {
-                    var el = value_3[_i];
+                for (var _i = 0, value_4 = value; _i < value_4.length; _i++) {
+                    var el = value_4[_i];
                     this.append(el);
                 }
             },

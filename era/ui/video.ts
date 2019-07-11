@@ -9,6 +9,7 @@ namespace Ui {
         volume?: number;
         currentTime?: number;
         controls?: boolean;
+        controlsList?: Array<string>;
         onstatechanged?: (event: { target: Video, state: MediaState }) => void;
         onready?: (event: { target: Video }) => void;
         onended?: (event: { target: Video }) => void;
@@ -38,16 +39,16 @@ namespace Ui {
 
         // detect what video system is supported
         static htmlVideo: boolean = false;
-        static flashVideo:boolean = false;
-        static supportOgg:boolean = false;
-        static supportMp4:boolean = false;
-        static supportWebm:boolean = false;
+        static flashVideo: boolean = false;
+        static supportOgg: boolean = false;
+        static supportMp4: boolean = false;
+        static supportWebm: boolean = false;
 
         constructor(init?: VideoInit) {
             super(init);
             if (init) {
                 if (init.src !== undefined)
-                    this.src = init.src;	
+                    this.src = init.src;
                 if (init.oggSrc || init.mp4Src || init.webmSrc) {
                     if (init.mp4Src && Ui.Video.supportMp4)
                         this.src = init.mp4Src;
@@ -57,19 +58,21 @@ namespace Ui {
                         this.src = init.oggSrc;
                 }
                 if (init.poster !== undefined)
-                    this.poster = init.poster;	
+                    this.poster = init.poster;
                 if (init.autoplay !== undefined)
                     this.autoplay = init.autoplay;
                 if (init.volume !== undefined)
-                    this.volume = init.volume;	
+                    this.volume = init.volume;
                 if (init.currentTime !== undefined)
                     this.currentTime = init.currentTime;
                 if (init.controls !== undefined)
                     this.controls = init.controls;
+                if (init.controlsList !== undefined)
+                    this.controlsList = init.controlsList;
                 if (init.onstatechanged)
                     this.statechanged.connect(init.onstatechanged);
                 if (init.onready)
-                    this.ready.connect(init.onready);	
+                    this.ready.connect(init.onready);
                 if (init.onended)
                     this.ended.connect(init.onended);
                 if (init.onerror)
@@ -77,25 +80,27 @@ namespace Ui {
                 if (init.ontimeupdated)
                     this.timeupdated.connect(init.ontimeupdated);
                 if (init.onbufferingupdated)
-                    this.bufferingupdated.connect(init.onbufferingupdated);				
+                    this.bufferingupdated.connect(init.onbufferingupdated);
             }
         }
 
         //
         // Set the file URL for the current video element
         //
-        set src(src: string) {
+        set src(src: string | undefined) {
             this.canplaythrough = false;
             this._state = 'initial';
             if (typeof (src) === 'object')
                 this.videoDrawing.src = URL.createObjectURL(src);
-            else
+            else if (src !== undefined)
                 this.videoDrawing.setAttribute('src', src);
+            else
+                this.videoDrawing.removeAttribute('src');
             try {
                 this.videoDrawing.load();
             } catch (e) { }
         }
-    
+
         //
         // Set the file URL for the current video poster (preview)
         //
@@ -151,7 +156,7 @@ namespace Ui {
             if (value)
                 this.videoDrawing.controls = true;
             else
-                delete(this.videoDrawing.controls);	
+                delete (this.videoDrawing.controls);
         }
 
         //
@@ -160,6 +165,25 @@ namespace Ui {
         get controls(): boolean {
             return this.videoDrawing.controls;
         }
+
+        set controlsList(value: Array<string>) {
+            if ('controlsList' in this.videoDrawing) {
+                let tokenList = this.videoDrawing['controlsList'] as DOMTokenList;
+                for (const element of value) {
+                    if (!tokenList.supports(element)) continue;
+                    tokenList.add(element);
+                }
+            }
+        }
+
+        get controlsList(): Array<string> {
+            if (this.videoDrawing['controlsList'] === undefined)
+                return [];
+            let controlsList = [];
+            (this.videoDrawing['controlsList'] as DOMTokenList).forEach(token => controlsList.push(token));
+            return controlsList;
+        }
+
 
         //
         // Set the video volume between 0 and 1
@@ -367,7 +391,7 @@ namespace Ui {
         static initialize() {
             // check for HTMLVideoElement
             let videoTest = document.createElement('video');
-            if(videoTest.play !== undefined) {
+            if (videoTest.play !== undefined) {
                 this.htmlVideo = true;
                 this.supportMp4 = !!videoTest.canPlayType && '' !== videoTest.canPlayType('video/mp4; codecs="avc1.42E01E, mp4a.40.2"');
                 this.supportOgg = !!videoTest.canPlayType && '' !== videoTest.canPlayType('video/ogg; codecs="theora, vorbis"');

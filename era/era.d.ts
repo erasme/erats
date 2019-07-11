@@ -4368,6 +4368,14 @@ declare namespace Ui {
         controls?: boolean;
         controlsList?: Array<string>;
         currentTime?: number;
+        onready?: (event: {
+            target: Audio;
+            code: number;
+        }) => void;
+        onerror?: (event: {
+            target: Audio;
+            code: number;
+        }) => void;
     }
     class Audio extends Element {
         private _src;
@@ -4427,7 +4435,7 @@ declare namespace Ui {
         static supportWav: boolean;
         static supportAac: boolean;
         constructor(init?: AudioInit);
-        src: string;
+        src: string | undefined;
         play(): void;
         pause(): void;
         stop(): void;
@@ -4537,6 +4545,7 @@ declare namespace Ui {
         volume?: number;
         currentTime?: number;
         controls?: boolean;
+        controlsList?: Array<string>;
         onstatechanged?: (event: {
             target: Video;
             state: MediaState;
@@ -4615,13 +4624,14 @@ declare namespace Ui {
         static supportMp4: boolean;
         static supportWebm: boolean;
         constructor(init?: VideoInit);
-        src: string;
+        src: string | undefined;
         poster: string;
         autoplay: boolean;
         play(): void;
         pause(): void;
         stop(): void;
         controls: boolean;
+        controlsList: Array<string>;
         volume: number;
         readonly duration: number;
         currentTime: number;
