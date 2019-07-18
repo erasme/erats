@@ -23353,6 +23353,8 @@ var Ui;
                     _this.placeHolder = init.placeHolder;
                 if (init.field !== undefined)
                     _this.field = init.field;
+                if (init.iconField !== undefined)
+                    _this.iconField = init.iconField;
                 if (init.data !== undefined)
                     _this.data = init.data;
                 if (init.position !== undefined)

@@ -5064,6 +5064,7 @@ declare namespace Ui {
     interface ComboInit<T> extends ButtonInit {
         placeHolder?: string;
         field?: keyof T;
+        iconField?: keyof T;
         data?: T[];
         position?: number;
         current?: T;
