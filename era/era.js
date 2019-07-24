@@ -17542,6 +17542,16 @@ var Ui;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(Entry.prototype, "inputMode", {
+            get: function () {
+                return this.drawing.inputMode;
+            },
+            set: function (value) {
+                this.drawing.inputMode = value;
+            },
+            enumerable: true,
+            configurable: true
+        });
         Entry.prototype.onPaste = function (event) {
             var _this = this;
             event.stopPropagation();
@@ -17948,6 +17958,16 @@ var Ui;
             },
             set: function (value) {
                 this.entry.captureValidated = value;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(TextField.prototype, "inputMode", {
+            get: function () {
+                return this.entry.inputMode;
+            },
+            set: function (value) {
+                this.entry.inputMode = value;
             },
             enumerable: true,
             configurable: true

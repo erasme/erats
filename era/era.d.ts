@@ -3773,6 +3773,7 @@ declare namespace Ui {
         private getColor;
         color: Color | string;
         value: string;
+        inputMode: string;
         private onPaste;
         private onAfterPaste;
         private onChange;
@@ -3892,6 +3893,7 @@ declare namespace Ui {
         passwordMode: boolean;
         value: string;
         captureValidated: boolean;
+        inputMode: string;
         private onEntryFocus;
         private onEntryBlur;
         private onEntryChange;

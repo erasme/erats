@@ -1,5 +1,4 @@
-namespace Ui
-{
+namespace Ui {
     export interface EntryInit extends ElementInit {
         passwordMode?: boolean;
         fontSize?: number;
@@ -12,8 +11,7 @@ namespace Ui
         onvalidated?: (event: { target: Entry, value: string }) => void;
     }
 
-    export class Entry extends Element implements EntryInit
-    {
+    export class Entry extends Element implements EntryInit {
         readonly drawing: HTMLInputElement;
         private _fontSize?: number;
         private _fontFamily?: string;
@@ -41,18 +39,18 @@ namespace Ui
             // handle keyboard
             this.drawing.addEventListener('keyup', (e) => this.onKeyUp(e));
             this.drawing.addEventListener('keydown', (e) => this.onKeyDown(e));
-            
+
             if (init) {
                 if (init.passwordMode !== undefined)
                     this.passwordMode = init.passwordMode;
                 if (init.fontSize !== undefined)
-                    this.fontSize = init.fontSize;	
+                    this.fontSize = init.fontSize;
                 if (init.fontFamily !== undefined)
                     this.fontFamily = init.fontFamily;
                 if (init.fontWeight !== undefined)
-                    this.fontWeight = init.fontWeight;	
+                    this.fontWeight = init.fontWeight;
                 if (init.color !== undefined)
-                    this.color = init.color;	
+                    this.color = init.color;
                 if (init.value !== undefined)
                     this.value = init.value;
                 if (init.captureValidated !== undefined)
@@ -80,7 +78,7 @@ namespace Ui
             else
                 return this.getStyleProperty('fontSize');
         }
-        
+
         set fontSize(fontSize: number) {
             if (this._fontSize != fontSize) {
                 this._fontSize = fontSize;
@@ -95,7 +93,7 @@ namespace Ui
             else
                 return this.getStyleProperty('fontFamily');
         }
-        
+
         set fontFamily(fontFamily: string) {
             if (this._fontFamily != fontFamily) {
                 this._fontFamily = fontFamily;
@@ -110,7 +108,7 @@ namespace Ui
             else
                 return this.getStyleProperty('fontWeight');
         }
-        
+
         set fontWeight(fontWeight: string) {
             if (this._fontWeight != fontWeight) {
                 this._fontWeight = fontWeight;
@@ -145,6 +143,18 @@ namespace Ui
                 value = '';
             this._value = value;
             this.drawing.value = this._value;
+        }
+
+        get inputMode() {
+            return this.drawing.inputMode;
+        }
+
+        /**
+         * Possible values supported according to mozilla
+         * "none", "text", "decimal", "numeric", "tel", "search", "email", "url"
+         */
+        set inputMode(value: string) {
+            this.drawing.inputMode = value;
         }
 
         private onPaste(event) {
@@ -258,4 +268,4 @@ namespace Ui
             fontWeight: 'normal'
         }
     }
-}	
+}
