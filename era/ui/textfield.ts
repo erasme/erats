@@ -19,7 +19,7 @@ namespace Ui {
 
         constructor(init?: TextFieldInit) {
             super(init);
-        
+
             this.graphic = new TextBgGraphic();
             this.append(this.graphic);
 
@@ -88,6 +88,18 @@ namespace Ui {
             this.entry.captureValidated = value;
         }
 
+        get inputMode() {
+            return this.entry.inputMode;
+        }
+
+        /**
+         * Possible values supported according to mozilla
+         * "none", "text", "decimal", "numeric", "tel", "search", "email", "url"
+         */
+        set inputMode(value: string) {
+            this.entry.inputMode = value;
+        }
+
         private onEntryFocus() {
             this.textholder.hide();
             this.graphic.hasFocus = true;
@@ -103,5 +115,5 @@ namespace Ui {
             this.changed.fire({ target: this, value: value });
         }
     }
-}	
+}
 

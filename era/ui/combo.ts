@@ -2,6 +2,7 @@ namespace Ui {
     export interface ComboInit<T> extends ButtonInit {
         placeHolder?: string;
         field?: keyof T;
+        iconField?: keyof T;
         data?: T[];
         position?: number;
         current?: T;
@@ -49,6 +50,8 @@ namespace Ui {
                     this.placeHolder = init.placeHolder;
                 if (init.field !== undefined)
                     this.field = init.field;
+                if (init.iconField !== undefined)
+                    this.iconField = init.iconField;
                 if (init.data !== undefined)
                     this.data = init.data;
                 if (init.position !== undefined)

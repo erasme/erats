@@ -11,6 +11,8 @@ namespace Ui {
         controls?: boolean;
         controlsList?: Array<string>;
         currentTime?: number;
+        onready?: (event: { target: Audio, code: number }) => void;
+        onerror?: (event: { target: Audio, code: number }) => void;
     }
 
     export class Audio extends Element {
@@ -68,17 +70,26 @@ namespace Ui {
                     this.currentTime = init.currentTime;
                 if (init.controls !== undefined)
                     this.controls = init.controls;
+                if (init.controlsList !== undefined)
+                    this.controlsList = init.controlsList;
+                if (init.onerror !== undefined)
+                    this.onerror = init.onerror
+                if (init.onready !== undefined)
+                    this.onready = init.onready
             }
         }
 
         //
         // Set the file URL for the current audio element
         //
-        set src(src: string) {
+        set src(src: string | undefined) {
             this.canplaythrough = false;
             this._state = 'initial';
             this._src = src;
-            this.audioDrawing.setAttribute('src', src);
+            if (src === undefined)
+                this.audioDrawing.removeAttribute('src');
+            else
+                this.audioDrawing.setAttribute('src', src);
             try {
                 this.audioDrawing.load();
             } catch (e) { }
