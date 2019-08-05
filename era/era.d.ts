@@ -3038,7 +3038,7 @@ declare namespace Ui {
     class Button extends Pressable implements ButtonInit {
         private _isActive;
         private mainBox;
-        private buttonPartsBox;
+        protected buttonPartsBox: Box;
         private _icon;
         private _iconBox;
         private _text;
