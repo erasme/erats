@@ -1209,10 +1209,10 @@ namespace Ui {
             if (src['types'] == undefined || !(src['types'] instanceof Array))
                 return;
 
-            if (dst['types'] == undefined)
-                dst['types'] = [];
-
-            let mergeTypes = [];
+            let mergeTypes: Array<any> = dst['types'] == undefined ? [] : dst['types'].slice();
+            let pos = mergeTypes.findIndex((t) => t.types);
+            if (pos != -1)
+                mergeTypes.splice(pos, 1);
             for (let i = 0; i < src['types'].length; i++) {
                 let srcStyle = src['types'][i];
                 let dstStyle = this.getClassStyle(dst, srcStyle['type']);
@@ -1223,6 +1223,9 @@ namespace Ui {
                         mergeStyle[prop] = dstStyle[prop];
                     for (let prop in srcStyle)
                         mergeStyle[prop] = srcStyle[prop];
+                    let pos = mergeTypes.indexOf(dstStyle);
+                    if (pos != -1)
+                        mergeTypes.splice(pos, 1);
                     mergeTypes.push(mergeStyle);
                 }
                 else

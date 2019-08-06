@@ -36,7 +36,7 @@ namespace Ui {
             super();
             this.drawing.style.boxSizing = 'border-box';
             this.drawing.style.borderStyle = 'solid';
-            this.drawing.style.overflow = 'hidden';            
+            this.drawing.style.overflow = 'hidden';
         }
 
         down(x?: number, y?: number) {
@@ -72,9 +72,8 @@ namespace Ui {
                 this.ripple.fill = 'rgba(255,255,255,0.3)';
         }
     }
-    
-    export class ButtonBadge extends LBox
-    {
+
+    export class ButtonBadge extends LBox {
         private _bg = new Rectangle();
         private _label = new Label();
         private _badge: string = undefined;
@@ -116,11 +115,11 @@ namespace Ui {
         }
     }
 
-    export class ButtonIcon extends Icon {}
+    export class ButtonIcon extends Icon { }
 
 
     export interface ButtonInit extends PressableInit {
-        text?: string | undefined;
+        text?: string | undefined;
         icon?: string | undefined;
         background?: Element;
         marker?: Element;
@@ -129,10 +128,10 @@ namespace Ui {
         orientation?: Orientation;
     }
 
-    export class Button extends Pressable implements ButtonInit	{
+    export class Button extends Pressable implements ButtonInit {
         private _isActive: boolean = false;
         private mainBox: HBox;
-        private buttonPartsBox: Box;
+        protected buttonPartsBox: Box;
         private _icon: Element;
         private _iconBox: LBox;
         private _text: Element;
@@ -580,8 +579,7 @@ namespace Ui {
         }
     }
 
-    export class DefaultButton extends Button
-    {
+    export class DefaultButton extends Button {
         static style: object = {
             borderWidth: 1,
             background: '#444444',
@@ -590,8 +588,7 @@ namespace Ui {
         }
     }
 
-    export class FlatButton extends Button
-    {
+    export class FlatButton extends Button {
         static style: object = {
             borderWidth: 1,
             background: 'rgba(250,250,250,0)',
