@@ -4044,9 +4044,10 @@ var Ui;
         Element.prototype.fusionStyle = function (dst, src) {
             if (src['types'] == undefined || !(src['types'] instanceof Array))
                 return;
-            if (dst['types'] == undefined)
-                dst['types'] = [];
-            var mergeTypes = [];
+            var mergeTypes = dst['types'] == undefined ? [] : dst['types'].slice();
+            var pos = mergeTypes.findIndex(function (t) { return t.types; });
+            if (pos != -1)
+                mergeTypes.splice(pos, 1);
             for (var i = 0; i < src['types'].length; i++) {
                 var srcStyle = src['types'][i];
                 var dstStyle = this.getClassStyle(dst, srcStyle['type']);
@@ -4056,6 +4057,9 @@ var Ui;
                         mergeStyle[prop] = dstStyle[prop];
                     for (var prop in srcStyle)
                         mergeStyle[prop] = srcStyle[prop];
+                    var pos_1 = mergeTypes.indexOf(dstStyle);
+                    if (pos_1 != -1)
+                        mergeTypes.splice(pos_1, 1);
                     mergeTypes.push(mergeStyle);
                 }
                 else
