@@ -3572,7 +3572,9 @@ var Ui;
             }
         };
         Element.prototype.renderDrawing = function () {
-            return document.createElement('div');
+            var div = document.createElement('div');
+            div.style.boxSizing = 'border-box';
+            return div;
         };
         Object.defineProperty(Element.prototype, "width", {
             get: function () {
@@ -18124,6 +18126,8 @@ var Ui;
             _this.role = 'checkbox';
             _this.drawing.setAttribute('aria-checked', 'false');
             _this.padding = 2;
+            _this.drawing.style.borderWidth = '1px';
+            _this.drawing.style.borderStyle = 'solid';
             _this.hbox = new Ui.HBox();
             _this.append(_this.hbox);
             _this.graphic = new Ui.CheckBoxGraphic();
@@ -18280,14 +18284,17 @@ var Ui;
             }
         };
         CheckBox.prototype.onCheckFocus = function () {
-            if (!this.getIsMouseFocus())
+            if (!this.getIsMouseFocus()) {
                 this.graphic.setColor(this.getStyleProperty('focusColor'));
+                this.drawing.style.borderColor = Ui.Color.create(this.getStyleProperty('focusBackgroundBorder')).getCssRgba();
+            }
         };
         CheckBox.prototype.onCheckBlur = function () {
             if (this._isToggled)
                 this.graphic.setColor(this.getStyleProperty('activeColor'));
             else
                 this.graphic.setColor(this.getStyleProperty('color'));
+            this.drawing.style.borderColor = Ui.Color.create(this.getStyleProperty('backgroundBorder')).getCssRgba();
         };
         CheckBox.prototype.onCheckBoxDown = function () {
             this.graphic.setIsDown(true);
@@ -18296,24 +18303,31 @@ var Ui;
             this.graphic.setIsDown(false);
         };
         CheckBox.prototype.onStyleChange = function () {
-            if (this.hasFocus)
+            if (this.hasFocus) {
                 this.graphic.setColor(this.getStyleProperty('focusColor'));
+                this.drawing.style.borderColor = Ui.Color.create(this.getStyleProperty('focusBackgroundBorder')).getCssRgba();
+            }
             else {
+                this.drawing.style.borderColor = Ui.Color.create(this.getStyleProperty('backgroundBorder')).getCssRgba();
                 if (this._isToggled)
                     this.graphic.setColor(this.getStyleProperty('activeColor'));
                 else
                     this.graphic.setColor(this.getStyleProperty('color'));
             }
             this.graphic.setCheckColor(this.getStyleProperty('checkColor'));
-            this.graphic.setBorderWidth(this.getStyleProperty('borderWidth'));
+            this.graphic.setBorderWidth(this.getStyleProperty('checkWidth'));
             this.graphic.setRadius(this.getStyleProperty('radius'));
+            this.drawing.style.borderWidth = parseInt(this.getStyleProperty('borderWidth')) + "px";
         };
         CheckBox.style = {
-            borderWidth: 2,
+            borderWidth: 0,
+            checkWidth: 2,
             color: '#444444',
             activeColor: '#07a0e5',
             focusColor: '#21d3ff',
             checkColor: '#ffffff',
+            backgroundBorder: 'rgba(250,250,250,0)',
+            focusBackgroundBorder: '#21d3ff',
             radius: 3
         };
         return CheckBox;

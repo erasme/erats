@@ -30,6 +30,8 @@ namespace Ui {
             this.drawing.setAttribute('aria-checked', 'false');
 
             this.padding = 2;
+            this.drawing.style.borderWidth = '1px';
+            this.drawing.style.borderStyle = 'solid';
 
             this.hbox = new Ui.HBox();
             this.append(this.hbox);
@@ -171,8 +173,10 @@ namespace Ui {
         }
 
         protected onCheckFocus() {
-            if (!this.getIsMouseFocus())
+            if (!this.getIsMouseFocus()) {
                 this.graphic.setColor(this.getStyleProperty('focusColor'));
+                this.drawing.style.borderColor = Ui.Color.create(this.getStyleProperty('focusBackgroundBorder')).getCssRgba();
+            }
         }
 
         protected onCheckBlur() {
@@ -180,6 +184,7 @@ namespace Ui {
                 this.graphic.setColor(this.getStyleProperty('activeColor'));
             else
                 this.graphic.setColor(this.getStyleProperty('color'));
+            this.drawing.style.borderColor = Ui.Color.create(this.getStyleProperty('backgroundBorder')).getCssRgba();
         }
 
         protected onCheckBoxDown() {
@@ -191,25 +196,32 @@ namespace Ui {
         }
 
         protected onStyleChange() {
-            if (this.hasFocus)
+            if (this.hasFocus) {
                 this.graphic.setColor(this.getStyleProperty('focusColor'));
+                this.drawing.style.borderColor = Ui.Color.create(this.getStyleProperty('focusBackgroundBorder')).getCssRgba();
+            }
             else {
+                this.drawing.style.borderColor = Ui.Color.create(this.getStyleProperty('backgroundBorder')).getCssRgba();
                 if (this._isToggled)
                     this.graphic.setColor(this.getStyleProperty('activeColor'));
                 else
                     this.graphic.setColor(this.getStyleProperty('color'));
             }
             this.graphic.setCheckColor(this.getStyleProperty('checkColor'));
-            this.graphic.setBorderWidth(this.getStyleProperty('borderWidth'));
+            this.graphic.setBorderWidth(this.getStyleProperty('checkWidth'));
             this.graphic.setRadius(this.getStyleProperty('radius'));
+            this.drawing.style.borderWidth = `${parseInt(this.getStyleProperty('borderWidth'))}px`;
         }
 
         static style: object = {
-            borderWidth: 2,
+            borderWidth: 0,
+            checkWidth: 2,
             color: '#444444',
             activeColor: '#07a0e5',
             focusColor: '#21d3ff',
             checkColor: '#ffffff',
+            backgroundBorder: 'rgba(250,250,250,0)',
+            focusBackgroundBorder: '#21d3ff',
             radius: 3
         }
     }
