@@ -2,12 +2,15 @@
 
 class App extends Ui.App {
 
-	private group = new Ui.RadioGroup().assign({onchanged: (e) => console.log(e.target) });
+	private group = new Ui.RadioGroup().assign({ onchanged: (e) => console.log(e.target) });
 
     constructor() {
         super();
 		let vbox = new Ui.VBox();
-		let radiovbox = new Ui.VBox();
+		let radiovbox = new Ui.VBox().assign({
+			verticalAlign: 'center', horizontalAlign: 'center',
+			width: 200, resizable: true
+		});
 		this.content = vbox;
 
 		let toolbar = new Ui.ToolBar();
@@ -15,14 +18,12 @@ class App extends Ui.App {
 		vbox.append(radiovbox);
 
 		let radio = new Ui.RadioBox({
-			verticalAlign: 'center', horizontalAlign: 'center',
-			width: 200, text: 'this is a radio button'
+			text: 'this is a radio button'
 		});
 		radiovbox.append(radio);
 
 		let radio2 = new Ui.RadioBox({
-			verticalAlign: 'center', horizontalAlign: 'center',
-			width: 200, text: 'this is another radio button'
+			text: 'this is another radio button'
 		});
 		radiovbox.append(radio2);
 

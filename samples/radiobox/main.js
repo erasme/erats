@@ -19,19 +19,20 @@ var App = /** @class */ (function (_super) {
         var _this = _super.call(this) || this;
         _this.group = new Ui.RadioGroup().assign({ onchanged: function (e) { return console.log(e.target); } });
         var vbox = new Ui.VBox();
-        var radiovbox = new Ui.VBox();
+        var radiovbox = new Ui.VBox().assign({
+            verticalAlign: 'center', horizontalAlign: 'center',
+            width: 200, resizable: true
+        });
         _this.content = vbox;
         var toolbar = new Ui.ToolBar();
         vbox.append(toolbar);
         vbox.append(radiovbox);
         var radio = new Ui.RadioBox({
-            verticalAlign: 'center', horizontalAlign: 'center',
-            width: 200, text: 'this is a radio button'
+            text: 'this is a radio button'
         });
         radiovbox.append(radio);
         var radio2 = new Ui.RadioBox({
-            verticalAlign: 'center', horizontalAlign: 'center',
-            width: 200, text: 'this is another radio button'
+            text: 'this is another radio button'
         });
         radiovbox.append(radio2);
         _this.group.add(radio);
@@ -57,7 +58,7 @@ var App = /** @class */ (function (_super) {
         });
         toolbar.append(button);
         button = new Ui.Button({
-            text: 'add radiobox',
+            text: 'add radio',
             onpressed: function () { return radiovbox.append(new Ui.RadioBox({ verticalAlign: 'center', horizontalAlign: 'center', width: 200, text: 'created button', group: _this.group })); }
         });
         toolbar.append(button);
