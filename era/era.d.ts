@@ -1775,6 +1775,24 @@ declare namespace Ui {
     }
 }
 declare namespace Ui {
+    class FocusInWatcher extends Core.Object {
+        private element;
+        private focusin?;
+        private focusout?;
+        private _isDelayFocusIn;
+        private _isFocusIn;
+        private delayTask?;
+        constructor(init: {
+            element: Ui.Element;
+            onfocusin?: (watcher: FocusInWatcher) => void;
+            onfocusout?: (watcher: FocusInWatcher) => void;
+        });
+        private delayFocusOut;
+        private onDelayFocusOut;
+        readonly isFocusIn: boolean;
+    }
+}
+declare namespace Ui {
     class RippleEffect extends Core.Object {
         readonly element: Ui.Element;
         private ripple;
@@ -3947,6 +3965,7 @@ declare namespace Ui {
         }) => void;
     }
     class CheckBox extends Pressable implements CheckBoxInit {
+        private bg;
         private graphic;
         private contentBox;
         private hbox;
@@ -6385,6 +6404,7 @@ declare namespace Ui {
         }) => void;
     }
     class RadioBox extends Pressable implements RadioBoxInit {
+        private bg;
         private graphic;
         private contentBox;
         private hbox;
