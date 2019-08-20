@@ -24,12 +24,10 @@ var App = /** @class */ (function (_super) {
             onfocusin: function () {
                 console.log('main focusin');
                 frame.frameWidth = 1;
-                Ui.Toast.send('main focusout');
             },
             onfocusout: function () {
                 console.log('main focusout');
                 frame.frameWidth = 0;
-                Ui.Toast.send('main focusin');
             }
         });
         var textField = new Ui.TextField();
