@@ -29,6 +29,8 @@ namespace Ui {
 
             this.role = 'radio';
             this.drawing.setAttribute('aria-checked', 'false');
+            this.drawing.style.borderWidth = '1px';
+            this.drawing.style.borderStyle = 'solid';
 
             this.padding = 2;
 
@@ -186,8 +188,10 @@ namespace Ui {
         }
 
         protected onRadioFocus() {
-            if (!this.getIsMouseFocus())
+            if (!this.getIsMouseFocus()) {
                 this.graphic.color = this.getStyleProperty('focusColor');
+                this.drawing.style.borderColor = Ui.Color.create(this.getStyleProperty('focusBackgroundBorder')).getCssRgba();
+            }
         }
 
         protected onRadioBlur() {
@@ -195,6 +199,7 @@ namespace Ui {
                 this.graphic.color = this.getStyleProperty('activeColor');
             else
                 this.graphic.color = this.getStyleProperty('color');
+            this.drawing.style.borderColor = Ui.Color.create(this.getStyleProperty('backgroundBorder')).getCssRgba();
         }
 
         protected onRadioDown() {
@@ -206,24 +211,31 @@ namespace Ui {
         }
 
         protected onStyleChange() {
-            if (this.hasFocus)
+            if (this.hasFocus) {
                 this.graphic.color = this.getStyleProperty('focusColor');
+                this.drawing.style.borderColor = Ui.Color.create(this.getStyleProperty('focusBackgroundBorder')).getCssRgba();
+            }
             else {
+                this.drawing.style.borderColor = Ui.Color.create(this.getStyleProperty('backgroundBorder')).getCssRgba();
                 if (this._isToggled)
                     this.graphic.color = this.getStyleProperty('activeColor');
                 else
                     this.graphic.color = this.getStyleProperty('color');
             }
             this.graphic.activeColor = this.getStyleProperty('activeColor');
-            this.graphic.borderWidth = this.getStyleProperty('borderWidth');
+            this.graphic.borderWidth = this.getStyleProperty('radioWidth');
+            this.drawing.style.borderWidth = `${parseInt(this.getStyleProperty('borderWidth'))}px`;
         }
 
         static style: object = {
-            borderWidth: 2,
+            borderWidth: 0,
+            radioWidth: 2,
             color: '#444444',
             activeColor: '#07a0e5',
             focusColor: '#21d3ff',
             checkColor: '#ffffff',
+            backgroundBorder: 'rgba(250,250,250,0)',
+            focusBackgroundBorder: '#21d3ff'
         }
     }
 

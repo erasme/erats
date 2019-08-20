@@ -28748,6 +28748,8 @@ var Ui;
             _this.untoggled = new Core.Events();
             _this.role = 'radio';
             _this.drawing.setAttribute('aria-checked', 'false');
+            _this.drawing.style.borderWidth = '1px';
+            _this.drawing.style.borderStyle = 'solid';
             _this.padding = 2;
             _this.hbox = new Ui.HBox();
             _this.append(_this.hbox);
@@ -28920,14 +28922,17 @@ var Ui;
             }
         };
         RadioBox.prototype.onRadioFocus = function () {
-            if (!this.getIsMouseFocus())
+            if (!this.getIsMouseFocus()) {
                 this.graphic.color = this.getStyleProperty('focusColor');
+                this.drawing.style.borderColor = Ui.Color.create(this.getStyleProperty('focusBackgroundBorder')).getCssRgba();
+            }
         };
         RadioBox.prototype.onRadioBlur = function () {
             if (this._isToggled)
                 this.graphic.color = this.getStyleProperty('activeColor');
             else
                 this.graphic.color = this.getStyleProperty('color');
+            this.drawing.style.borderColor = Ui.Color.create(this.getStyleProperty('backgroundBorder')).getCssRgba();
         };
         RadioBox.prototype.onRadioDown = function () {
             this.graphic.isDown = true;
@@ -28936,23 +28941,30 @@ var Ui;
             this.graphic.isDown = false;
         };
         RadioBox.prototype.onStyleChange = function () {
-            if (this.hasFocus)
+            if (this.hasFocus) {
                 this.graphic.color = this.getStyleProperty('focusColor');
+                this.drawing.style.borderColor = Ui.Color.create(this.getStyleProperty('focusBackgroundBorder')).getCssRgba();
+            }
             else {
+                this.drawing.style.borderColor = Ui.Color.create(this.getStyleProperty('backgroundBorder')).getCssRgba();
                 if (this._isToggled)
                     this.graphic.color = this.getStyleProperty('activeColor');
                 else
                     this.graphic.color = this.getStyleProperty('color');
             }
             this.graphic.activeColor = this.getStyleProperty('activeColor');
-            this.graphic.borderWidth = this.getStyleProperty('borderWidth');
+            this.graphic.borderWidth = this.getStyleProperty('radioWidth');
+            this.drawing.style.borderWidth = parseInt(this.getStyleProperty('borderWidth')) + "px";
         };
         RadioBox.style = {
-            borderWidth: 2,
+            borderWidth: 0,
+            radioWidth: 2,
             color: '#444444',
             activeColor: '#07a0e5',
             focusColor: '#21d3ff',
             checkColor: '#ffffff',
+            backgroundBorder: 'rgba(250,250,250,0)',
+            focusBackgroundBorder: '#21d3ff'
         };
         return RadioBox;
     }(Ui.Pressable));
