@@ -7294,6 +7294,17 @@ var Ui;
                 this.image.style.top = (this.startImagePoint.y + ofs) + 'px';
                 document.body.appendChild(this.image);
                 this.watcher.capture();
+                this.scrollControlTimer = new Anim.Clock({
+                    duration: 'forever',
+                    ontimeupdate: function (e) { return _this.onScrollClockTick(e.target, e.deltaTick); }
+                });
+                this.scrollControlTimer.begin();
+                this.watcher.upped.connect(function () {
+                    if (_this.scrollControlTimer) {
+                        _this.scrollControlTimer.stop();
+                        _this.scrollControlTimer = undefined;
+                    }
+                });
             }
             else {
                 this.watcher.cancel();
@@ -7312,6 +7323,43 @@ var Ui;
             if (this.dragWatcher === dragWatcher) {
                 this.dragWatcher.leave();
                 this.dragWatcher = undefined;
+            }
+        };
+        DragEmuDataTransfer.prototype.onScrollClockTick = function (clock, delta) {
+            var speed = this.watcher.getSpeed();
+            var speedVal = Math.sqrt(speed.x * speed.x + speed.y * speed.y);
+            if (speedVal < 2 && this.overElement) {
+                var div = this.overElement.drawing;
+                while (div) {
+                    var horizontalAllowed = div.style.overflowX == 'auto' || div.style.overflowX == 'scroll';
+                    var verticalAllowed = div.style.overflowY == 'auto' || div.style.overflowY == 'scroll';
+                    if (horizontalAllowed || verticalAllowed) {
+                        var rect = div.getBoundingClientRect();
+                        var x = this.watcher.pointer.getX();
+                        var y = this.watcher.pointer.getY();
+                        var activeWidth = 20;
+                        var leftAllowed = horizontalAllowed && (x - rect.left < activeWidth) && (x - rect.left > 0);
+                        var rightAllowed = horizontalAllowed && (x - rect.right > -(activeWidth + Ui.NativeScrollableContent.nativeScrollBarWidth)) && (x - rect.right < 0);
+                        var topAllowed = verticalAllowed && (y - rect.top < activeWidth) && (y - rect.top > 0);
+                        var bottomAllowed = verticalAllowed && (y - rect.bottom > -(activeWidth + Ui.NativeScrollableContent.nativeScrollBarHeight)) && (y - rect.bottom < 0);
+                        leftAllowed = leftAllowed && div.scrollLeft > 0;
+                        topAllowed = topAllowed && div.scrollTop > 0;
+                        bottomAllowed = bottomAllowed && (div.scrollHeight - (div.clientHeight + div.scrollTop) > 0);
+                        rightAllowed = rightAllowed && (div.scrollWidth - (div.clientWidth + div.scrollLeft) > 0);
+                        delta = delta * 200;
+                        if (leftAllowed)
+                            div.scrollLeft -= delta;
+                        else if (rightAllowed)
+                            div.scrollLeft += delta;
+                        if (topAllowed)
+                            div.scrollTop -= delta;
+                        else if (bottomAllowed)
+                            div.scrollTop += delta;
+                        if (leftAllowed || topAllowed || bottomAllowed || rightAllowed)
+                            break;
+                    }
+                    div = div.parentElement;
+                }
             }
         };
         DragEmuDataTransfer.prototype.removeImage = function () {

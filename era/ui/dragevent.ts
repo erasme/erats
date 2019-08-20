@@ -162,6 +162,7 @@ namespace Ui {
         timer?: Core.DelayedTask;
         dropFailsTimer: Anim.Clock;
         delayed: boolean = false;
+        scrollControlTimer?: Anim.Clock;
 
         dragWatcher: DragWatcher;
         readonly started = new Core.Events<{ target: DragEmuDataTransfer }>();
@@ -478,6 +479,17 @@ namespace Ui {
                 document.body.appendChild(this.image);
 
                 this.watcher.capture();
+                this.scrollControlTimer = new Anim.Clock({
+                    duration: 'forever',
+                    ontimeupdate: (e) => this.onScrollClockTick(e.target, e.deltaTick)
+                });
+                this.scrollControlTimer.begin();
+                this.watcher.upped.connect(() => {
+                    if (this.scrollControlTimer) {
+                        this.scrollControlTimer.stop();
+                        this.scrollControlTimer = undefined;
+                    }
+                })
             }
             else {
                 this.watcher.cancel();
@@ -501,6 +513,45 @@ namespace Ui {
             if (this.dragWatcher === dragWatcher) {
                 this.dragWatcher.leave();
                 this.dragWatcher = undefined;
+            }
+        }
+
+        protected onScrollClockTick(clock: Anim.Clock, delta: number) {
+            let speed = this.watcher.getSpeed();
+            let speedVal = Math.sqrt(speed.x * speed.x + speed.y * speed.y);
+            if (speedVal < 2 && this.overElement) {
+                let div = this.overElement.drawing;
+                while (div) {
+                    let horizontalAllowed = div.style.overflowX == 'auto' || div.style.overflowX == 'scroll';
+                    let verticalAllowed = div.style.overflowY == 'auto' || div.style.overflowY == 'scroll';
+                    if (horizontalAllowed || verticalAllowed) {
+                        let rect = div.getBoundingClientRect();
+                        let x = this.watcher.pointer.getX();
+                        let y = this.watcher.pointer.getY();
+                        let activeWidth = 20;
+                        let leftAllowed = horizontalAllowed && (x - rect.left < activeWidth) && (x - rect.left > 0);
+                        let rightAllowed = horizontalAllowed && (x - rect.right > -(activeWidth+NativeScrollableContent.nativeScrollBarWidth)) && (x - rect.right < 0);
+                        let topAllowed = verticalAllowed && (y - rect.top < activeWidth) && (y - rect.top > 0);
+                        let bottomAllowed = verticalAllowed && (y - rect.bottom > -(activeWidth+NativeScrollableContent.nativeScrollBarHeight)) && (y - rect.bottom < 0);
+                        leftAllowed = leftAllowed && div.scrollLeft > 0;
+                        topAllowed = topAllowed && div.scrollTop > 0;
+                        bottomAllowed = bottomAllowed && (div.scrollHeight - (div.clientHeight + div.scrollTop) > 0);
+                        rightAllowed = rightAllowed && (div.scrollWidth - (div.clientWidth + div.scrollLeft) > 0);
+                        delta = delta * 200;
+                        if (leftAllowed)
+                            div.scrollLeft -= delta;
+                        else if (rightAllowed)
+                            div.scrollLeft += delta;
+                        if (topAllowed)
+                            div.scrollTop -= delta;
+                        else if (bottomAllowed)
+                            div.scrollTop += delta;
+
+                        if (leftAllowed || topAllowed || bottomAllowed || rightAllowed)
+                            break;
+                    }
+                    div = div.parentElement;
+                }
             }
         }
 

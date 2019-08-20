@@ -1552,6 +1552,7 @@ declare namespace Ui {
         timer?: Core.DelayedTask;
         dropFailsTimer: Anim.Clock;
         delayed: boolean;
+        scrollControlTimer?: Anim.Clock;
         dragWatcher: DragWatcher;
         readonly started: Core.Events<{
             target: DragEmuDataTransfer;
@@ -1569,6 +1570,7 @@ declare namespace Ui {
         protected onTimer(): void;
         capture(element: Element, effect: any): DragWatcher;
         releaseDragWatcher(dragWatcher: DragWatcher): void;
+        protected onScrollClockTick(clock: Anim.Clock, delta: number): void;
         protected onKeyUpDown: (e: KeyboardEvent) => void;
         protected onPointerMove: (e: {
             target: PointerWatcher;
