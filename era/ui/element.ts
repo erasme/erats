@@ -639,9 +639,7 @@ namespace Ui {
         // Return the HTML element of the rendering
         //
         protected renderDrawing(): any {
-            let div = document.createElement('div');
-            div.style.boxSizing = 'border-box';
-            return div;
+            return document.createElement('div');
         }
 
         //

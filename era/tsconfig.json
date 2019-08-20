@@ -55,6 +55,7 @@
         "ui/lbox.ts",
         "ui/box.ts",
         "ui/overable.ts",
+        "ui/focusinwatcher.ts",
         "ui/rippleeffect.ts",
         "ui/pressable.ts",
         "ui/draggable.ts",

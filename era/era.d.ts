@@ -1552,6 +1552,7 @@ declare namespace Ui {
         timer?: Core.DelayedTask;
         dropFailsTimer: Anim.Clock;
         delayed: boolean;
+        scrollControlTimer?: Anim.Clock;
         dragWatcher: DragWatcher;
         readonly started: Core.Events<{
             target: DragEmuDataTransfer;
@@ -1569,6 +1570,7 @@ declare namespace Ui {
         protected onTimer(): void;
         capture(element: Element, effect: any): DragWatcher;
         releaseDragWatcher(dragWatcher: DragWatcher): void;
+        protected onScrollClockTick(clock: Anim.Clock, delta: number): void;
         protected onKeyUpDown: (e: KeyboardEvent) => void;
         protected onPointerMove: (e: {
             target: PointerWatcher;
@@ -1770,6 +1772,24 @@ declare namespace Ui {
         }) => void;
         constructor(init?: OverableInit);
         readonly isOver: boolean;
+    }
+}
+declare namespace Ui {
+    class FocusInWatcher extends Core.Object {
+        private element;
+        private focusin?;
+        private focusout?;
+        private _isDelayFocusIn;
+        private _isFocusIn;
+        private delayTask?;
+        constructor(init: {
+            element: Ui.Element;
+            onfocusin?: (watcher: FocusInWatcher) => void;
+            onfocusout?: (watcher: FocusInWatcher) => void;
+        });
+        private delayFocusOut;
+        private onDelayFocusOut;
+        readonly isFocusIn: boolean;
     }
 }
 declare namespace Ui {
@@ -3945,6 +3965,7 @@ declare namespace Ui {
         }) => void;
     }
     class CheckBox extends Pressable implements CheckBoxInit {
+        private bg;
         private graphic;
         private contentBox;
         private hbox;
@@ -6383,6 +6404,7 @@ declare namespace Ui {
         }) => void;
     }
     class RadioBox extends Pressable implements RadioBoxInit {
+        private bg;
         private graphic;
         private contentBox;
         private hbox;

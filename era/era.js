@@ -3572,9 +3572,7 @@ var Ui;
             }
         };
         Element.prototype.renderDrawing = function () {
-            var div = document.createElement('div');
-            div.style.boxSizing = 'border-box';
-            return div;
+            return document.createElement('div');
         };
         Object.defineProperty(Element.prototype, "width", {
             get: function () {
@@ -7294,6 +7292,17 @@ var Ui;
                 this.image.style.top = (this.startImagePoint.y + ofs) + 'px';
                 document.body.appendChild(this.image);
                 this.watcher.capture();
+                this.scrollControlTimer = new Anim.Clock({
+                    duration: 'forever',
+                    ontimeupdate: function (e) { return _this.onScrollClockTick(e.target, e.deltaTick); }
+                });
+                this.scrollControlTimer.begin();
+                this.watcher.upped.connect(function () {
+                    if (_this.scrollControlTimer) {
+                        _this.scrollControlTimer.stop();
+                        _this.scrollControlTimer = undefined;
+                    }
+                });
             }
             else {
                 this.watcher.cancel();
@@ -7312,6 +7321,43 @@ var Ui;
             if (this.dragWatcher === dragWatcher) {
                 this.dragWatcher.leave();
                 this.dragWatcher = undefined;
+            }
+        };
+        DragEmuDataTransfer.prototype.onScrollClockTick = function (clock, delta) {
+            var speed = this.watcher.getSpeed();
+            var speedVal = Math.sqrt(speed.x * speed.x + speed.y * speed.y);
+            if (speedVal < 2 && this.overElement) {
+                var div = this.overElement.drawing;
+                while (div) {
+                    var horizontalAllowed = div.style.overflowX == 'auto' || div.style.overflowX == 'scroll';
+                    var verticalAllowed = div.style.overflowY == 'auto' || div.style.overflowY == 'scroll';
+                    if (horizontalAllowed || verticalAllowed) {
+                        var rect = div.getBoundingClientRect();
+                        var x = this.watcher.pointer.getX();
+                        var y = this.watcher.pointer.getY();
+                        var activeWidth = 20;
+                        var leftAllowed = horizontalAllowed && (x - rect.left < activeWidth) && (x - rect.left > 0);
+                        var rightAllowed = horizontalAllowed && (x - rect.right > -(activeWidth + Ui.NativeScrollableContent.nativeScrollBarWidth)) && (x - rect.right < 0);
+                        var topAllowed = verticalAllowed && (y - rect.top < activeWidth) && (y - rect.top > 0);
+                        var bottomAllowed = verticalAllowed && (y - rect.bottom > -(activeWidth + Ui.NativeScrollableContent.nativeScrollBarHeight)) && (y - rect.bottom < 0);
+                        leftAllowed = leftAllowed && div.scrollLeft > 0;
+                        topAllowed = topAllowed && div.scrollTop > 0;
+                        bottomAllowed = bottomAllowed && (div.scrollHeight - (div.clientHeight + div.scrollTop) > 0);
+                        rightAllowed = rightAllowed && (div.scrollWidth - (div.clientWidth + div.scrollLeft) > 0);
+                        delta = delta * 200;
+                        if (leftAllowed)
+                            div.scrollLeft -= delta;
+                        else if (rightAllowed)
+                            div.scrollLeft += delta;
+                        if (topAllowed)
+                            div.scrollTop -= delta;
+                        else if (bottomAllowed)
+                            div.scrollTop += delta;
+                        if (leftAllowed || topAllowed || bottomAllowed || rightAllowed)
+                            break;
+                    }
+                    div = div.parentElement;
+                }
             }
         };
         DragEmuDataTransfer.prototype.removeImage = function () {
@@ -8403,6 +8449,57 @@ var Ui;
         return Overable;
     }(Ui.LBox));
     Ui.Overable = Overable;
+})(Ui || (Ui = {}));
+var Ui;
+(function (Ui) {
+    var FocusInWatcher = (function (_super) {
+        __extends(FocusInWatcher, _super);
+        function FocusInWatcher(init) {
+            var _this = _super.call(this) || this;
+            _this._isDelayFocusIn = false;
+            _this._isFocusIn = false;
+            if (init.onfocusin)
+                _this.focusin = init.onfocusin;
+            if (init.onfocusout)
+                _this.focusout = init.onfocusout;
+            _this.element = init.element;
+            _this.element.drawing.addEventListener('focusin', function (e) {
+                _this._isFocusIn = true;
+                if (_this._isDelayFocusIn)
+                    return;
+                _this._isDelayFocusIn = true;
+                if (_this.focusin)
+                    _this.focusin(_this);
+            });
+            _this.element.drawing.addEventListener('focusout', function () {
+                _this._isFocusIn = false;
+                _this.delayFocusOut();
+            });
+            return _this;
+        }
+        FocusInWatcher.prototype.delayFocusOut = function () {
+            var _this = this;
+            if (!this.delayTask)
+                this.delayTask = new Core.DelayedTask(0, function () { return _this.onDelayFocusOut(); });
+        };
+        FocusInWatcher.prototype.onDelayFocusOut = function () {
+            this.delayTask = undefined;
+            this._isDelayFocusIn = this._isFocusIn;
+            if (!this._isDelayFocusIn) {
+                if (this.focusout)
+                    this.focusout(this);
+            }
+        };
+        Object.defineProperty(FocusInWatcher.prototype, "isFocusIn", {
+            get: function () {
+                return this._isDelayFocusIn;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return FocusInWatcher;
+    }(Core.Object));
+    Ui.FocusInWatcher = FocusInWatcher;
 })(Ui || (Ui = {}));
 var Ui;
 (function (Ui) {
@@ -18119,16 +18216,17 @@ var Ui;
         __extends(CheckBox, _super);
         function CheckBox(init) {
             var _this = _super.call(this, init) || this;
+            _this.bg = new Ui.SimpleButtonBackground();
             _this._isToggled = false;
             _this.changed = new Core.Events();
             _this.toggled = new Core.Events();
             _this.untoggled = new Core.Events();
             _this.role = 'checkbox';
             _this.drawing.setAttribute('aria-checked', 'false');
-            _this.padding = 2;
-            _this.drawing.style.borderWidth = '1px';
-            _this.drawing.style.borderStyle = 'solid';
-            _this.hbox = new Ui.HBox();
+            _this.append(_this.bg.assign({
+                radius: 0
+            }));
+            _this.hbox = new Ui.HBox().assign({ margin: 2 });
             _this.append(_this.hbox);
             _this.graphic = new Ui.CheckBoxGraphic();
             _this.hbox.append(_this.graphic);
@@ -18286,7 +18384,7 @@ var Ui;
         CheckBox.prototype.onCheckFocus = function () {
             if (!this.getIsMouseFocus()) {
                 this.graphic.setColor(this.getStyleProperty('focusColor'));
-                this.drawing.style.borderColor = Ui.Color.create(this.getStyleProperty('focusBackgroundBorder')).getCssRgba();
+                this.bg.border = this.getStyleProperty('focusBackgroundBorder');
             }
         };
         CheckBox.prototype.onCheckBlur = function () {
@@ -18294,7 +18392,7 @@ var Ui;
                 this.graphic.setColor(this.getStyleProperty('activeColor'));
             else
                 this.graphic.setColor(this.getStyleProperty('color'));
-            this.drawing.style.borderColor = Ui.Color.create(this.getStyleProperty('backgroundBorder')).getCssRgba();
+            this.bg.border = this.getStyleProperty('backgroundBorder');
         };
         CheckBox.prototype.onCheckBoxDown = function () {
             this.graphic.setIsDown(true);
@@ -18305,10 +18403,10 @@ var Ui;
         CheckBox.prototype.onStyleChange = function () {
             if (this.hasFocus) {
                 this.graphic.setColor(this.getStyleProperty('focusColor'));
-                this.drawing.style.borderColor = Ui.Color.create(this.getStyleProperty('focusBackgroundBorder')).getCssRgba();
+                this.bg.border = this.getStyleProperty('focusBackgroundBorder');
             }
             else {
-                this.drawing.style.borderColor = Ui.Color.create(this.getStyleProperty('backgroundBorder')).getCssRgba();
+                this.bg.border = this.getStyleProperty('backgroundBorder');
                 if (this._isToggled)
                     this.graphic.setColor(this.getStyleProperty('activeColor'));
                 else
@@ -18317,7 +18415,8 @@ var Ui;
             this.graphic.setCheckColor(this.getStyleProperty('checkColor'));
             this.graphic.setBorderWidth(this.getStyleProperty('checkWidth'));
             this.graphic.setRadius(this.getStyleProperty('radius'));
-            this.drawing.style.borderWidth = parseInt(this.getStyleProperty('borderWidth')) + "px";
+            this.bg.borderWidth = parseInt(this.getStyleProperty('borderWidth'));
+            this.bg.background = this.getStyleProperty('background');
         };
         CheckBox.style = {
             borderWidth: 0,
@@ -18326,6 +18425,7 @@ var Ui;
             activeColor: '#07a0e5',
             focusColor: '#21d3ff',
             checkColor: '#ffffff',
+            background: 'rgba(250,250,250,0)',
             backgroundBorder: 'rgba(250,250,250,0)',
             focusBackgroundBorder: '#21d3ff',
             radius: 3
@@ -28742,16 +28842,17 @@ var Ui;
         __extends(RadioBox, _super);
         function RadioBox(init) {
             var _this = _super.call(this, init) || this;
+            _this.bg = new Ui.SimpleButtonBackground();
             _this._isToggled = false;
             _this.changed = new Core.Events();
             _this.toggled = new Core.Events();
             _this.untoggled = new Core.Events();
             _this.role = 'radio';
             _this.drawing.setAttribute('aria-checked', 'false');
-            _this.drawing.style.borderWidth = '1px';
-            _this.drawing.style.borderStyle = 'solid';
-            _this.padding = 2;
-            _this.hbox = new Ui.HBox();
+            _this.append(_this.bg.assign({
+                radius: 0
+            }));
+            _this.hbox = new Ui.HBox().assign({ margin: 2 });
             _this.append(_this.hbox);
             _this.graphic = new Ui.RadioBoxGraphic();
             _this.hbox.append(_this.graphic);
@@ -28924,7 +29025,7 @@ var Ui;
         RadioBox.prototype.onRadioFocus = function () {
             if (!this.getIsMouseFocus()) {
                 this.graphic.color = this.getStyleProperty('focusColor');
-                this.drawing.style.borderColor = Ui.Color.create(this.getStyleProperty('focusBackgroundBorder')).getCssRgba();
+                this.bg.border = this.getStyleProperty('focusBackgroundBorder');
             }
         };
         RadioBox.prototype.onRadioBlur = function () {
@@ -28932,7 +29033,7 @@ var Ui;
                 this.graphic.color = this.getStyleProperty('activeColor');
             else
                 this.graphic.color = this.getStyleProperty('color');
-            this.drawing.style.borderColor = Ui.Color.create(this.getStyleProperty('backgroundBorder')).getCssRgba();
+            this.bg.border = this.getStyleProperty('backgroundBorder');
         };
         RadioBox.prototype.onRadioDown = function () {
             this.graphic.isDown = true;
@@ -28943,10 +29044,10 @@ var Ui;
         RadioBox.prototype.onStyleChange = function () {
             if (this.hasFocus) {
                 this.graphic.color = this.getStyleProperty('focusColor');
-                this.drawing.style.borderColor = Ui.Color.create(this.getStyleProperty('focusBackgroundBorder')).getCssRgba();
+                this.bg.border = this.getStyleProperty('focusBackgroundBorder');
             }
             else {
-                this.drawing.style.borderColor = Ui.Color.create(this.getStyleProperty('backgroundBorder')).getCssRgba();
+                this.bg.border = this.getStyleProperty('backgroundBorder');
                 if (this._isToggled)
                     this.graphic.color = this.getStyleProperty('activeColor');
                 else
@@ -28954,7 +29055,8 @@ var Ui;
             }
             this.graphic.activeColor = this.getStyleProperty('activeColor');
             this.graphic.borderWidth = this.getStyleProperty('radioWidth');
-            this.drawing.style.borderWidth = parseInt(this.getStyleProperty('borderWidth')) + "px";
+            this.bg.borderWidth = parseInt(this.getStyleProperty('borderWidth'));
+            this.bg.background = this.getStyleProperty('background');
         };
         RadioBox.style = {
             borderWidth: 0,
@@ -28963,6 +29065,7 @@ var Ui;
             activeColor: '#07a0e5',
             focusColor: '#21d3ff',
             checkColor: '#ffffff',
+            background: 'rgba(250,250,250,0)',
             backgroundBorder: 'rgba(250,250,250,0)',
             focusBackgroundBorder: '#21d3ff'
         };

@@ -10,6 +10,7 @@ namespace Ui {
     }
 
     export class RadioBox extends Pressable implements RadioBoxInit {
+        private bg = new SimpleButtonBackground();
         private graphic: RadioBoxGraphic;
         private contentBox: Element;
         private hbox: HBox;
@@ -29,12 +30,12 @@ namespace Ui {
 
             this.role = 'radio';
             this.drawing.setAttribute('aria-checked', 'false');
-            this.drawing.style.borderWidth = '1px';
-            this.drawing.style.borderStyle = 'solid';
 
-            this.padding = 2;
+            this.append(this.bg.assign({
+                radius: 0
+            }));
 
-            this.hbox = new Ui.HBox();
+            this.hbox = new Ui.HBox().assign({ margin: 2 });
             this.append(this.hbox);
 
             this.graphic = new RadioBoxGraphic();
@@ -190,7 +191,7 @@ namespace Ui {
         protected onRadioFocus() {
             if (!this.getIsMouseFocus()) {
                 this.graphic.color = this.getStyleProperty('focusColor');
-                this.drawing.style.borderColor = Ui.Color.create(this.getStyleProperty('focusBackgroundBorder')).getCssRgba();
+                this.bg.border = this.getStyleProperty('focusBackgroundBorder');
             }
         }
 
@@ -199,7 +200,7 @@ namespace Ui {
                 this.graphic.color = this.getStyleProperty('activeColor');
             else
                 this.graphic.color = this.getStyleProperty('color');
-            this.drawing.style.borderColor = Ui.Color.create(this.getStyleProperty('backgroundBorder')).getCssRgba();
+            this.bg.border = this.getStyleProperty('backgroundBorder');
         }
 
         protected onRadioDown() {
@@ -213,10 +214,10 @@ namespace Ui {
         protected onStyleChange() {
             if (this.hasFocus) {
                 this.graphic.color = this.getStyleProperty('focusColor');
-                this.drawing.style.borderColor = Ui.Color.create(this.getStyleProperty('focusBackgroundBorder')).getCssRgba();
+                this.bg.border = this.getStyleProperty('focusBackgroundBorder');
             }
             else {
-                this.drawing.style.borderColor = Ui.Color.create(this.getStyleProperty('backgroundBorder')).getCssRgba();
+                this.bg.border = this.getStyleProperty('backgroundBorder');
                 if (this._isToggled)
                     this.graphic.color = this.getStyleProperty('activeColor');
                 else
@@ -224,7 +225,8 @@ namespace Ui {
             }
             this.graphic.activeColor = this.getStyleProperty('activeColor');
             this.graphic.borderWidth = this.getStyleProperty('radioWidth');
-            this.drawing.style.borderWidth = `${parseInt(this.getStyleProperty('borderWidth'))}px`;
+            this.bg.borderWidth = parseInt(this.getStyleProperty('borderWidth'));
+            this.bg.background = this.getStyleProperty('background');
         }
 
         static style: object = {
@@ -234,6 +236,7 @@ namespace Ui {
             activeColor: '#07a0e5',
             focusColor: '#21d3ff',
             checkColor: '#ffffff',
+            background: 'rgba(250,250,250,0)',
             backgroundBorder: 'rgba(250,250,250,0)',
             focusBackgroundBorder: '#21d3ff'
         }
