@@ -18416,6 +18416,7 @@ var Ui;
             this.graphic.setBorderWidth(this.getStyleProperty('checkWidth'));
             this.graphic.setRadius(this.getStyleProperty('radius'));
             this.bg.borderWidth = parseInt(this.getStyleProperty('borderWidth'));
+            this.bg.background = this.getStyleProperty('background');
         };
         CheckBox.style = {
             borderWidth: 0,
@@ -18424,6 +18425,7 @@ var Ui;
             activeColor: '#07a0e5',
             focusColor: '#21d3ff',
             checkColor: '#ffffff',
+            background: 'rgba(250,250,250,0)',
             backgroundBorder: 'rgba(250,250,250,0)',
             focusBackgroundBorder: '#21d3ff',
             radius: 3
@@ -29054,6 +29056,7 @@ var Ui;
             this.graphic.activeColor = this.getStyleProperty('activeColor');
             this.graphic.borderWidth = this.getStyleProperty('radioWidth');
             this.bg.borderWidth = parseInt(this.getStyleProperty('borderWidth'));
+            this.bg.background = this.getStyleProperty('background');
         };
         RadioBox.style = {
             borderWidth: 0,
@@ -29062,6 +29065,7 @@ var Ui;
             activeColor: '#07a0e5',
             focusColor: '#21d3ff',
             checkColor: '#ffffff',
+            background: 'rgba(250,250,250,0)',
             backgroundBorder: 'rgba(250,250,250,0)',
             focusBackgroundBorder: '#21d3ff'
         };
