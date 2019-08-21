@@ -21520,33 +21520,29 @@ var Ui;
             _this._date = new Date();
             var hbox = new Ui.HBox();
             _this.append(hbox);
-            var button = new Ui.Pressable({
+            var button = new Ui.FlatButton({
+                icon: 'arrowleft',
                 verticalAlign: 'center',
                 onpressed: function () { return _this.onLeftButtonPress(); },
             });
-            _this.leftarrow = new Ui.Icon({ icon: 'arrowleft', width: 24, height: 24 });
-            button.append(_this.leftarrow);
+            button.setStyleProperty('iconSize', 16);
             hbox.append(button);
             var datehbox = new Ui.HBox({ spacing: 5, horizontalAlign: 'center' });
-            button = new Ui.Pressable({
+            _this.monthButton = new MonthYearButton({
                 onpressed: function () { return _this.mode = _this.mode == 'MONTH' ? 'DAY' : 'MONTH'; }
             });
-            _this.monthLabel = new Ui.Label({ fontWeight: 'bold', fontSize: 18, margin: 5 });
-            button.append(_this.monthLabel);
-            datehbox.append(button);
-            button = new Ui.Pressable({
+            datehbox.append(_this.monthButton);
+            _this.yearButton = new MonthYearButton({
                 onpressed: function () { return _this.mode = _this.mode == 'YEAR' ? 'DAY' : 'YEAR'; }
             });
-            _this.yearLabel = new Ui.Label({ fontWeight: 'bold', fontSize: 18, margin: 5 });
-            button.append(_this.yearLabel);
-            datehbox.append(button);
+            datehbox.append(_this.yearButton);
             hbox.append(datehbox, true);
-            button = new Ui.Pressable({
+            button = new Ui.FlatButton({
+                icon: 'arrowright',
                 verticalAlign: 'center',
                 onpressed: function () { return _this.onRightButtonPress(); }
             });
-            _this.rightarrow = new Ui.Icon({ icon: 'arrowright', width: 24, height: 24 });
-            button.append(_this.rightarrow);
+            button.setStyleProperty('iconSize', 16);
             hbox.append(button);
             _this.updateDate();
             if (init) {
@@ -21642,8 +21638,8 @@ var Ui;
         MonthCalendar.prototype.updateDate = function (reuseGrid) {
             if (reuseGrid === void 0) { reuseGrid = true; }
             var monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
-            this.monthLabel.text = monthNames[this._date.getMonth()];
-            this.yearLabel.text = this._date.getFullYear().toString();
+            this.monthButton.text = monthNames[this._date.getMonth()];
+            this.yearButton.text = this._date.getFullYear().toString();
             if (this.mode == 'DAY')
                 this.updateDayGrid(reuseGrid);
             else if (this.mode == 'MONTH')
@@ -21752,44 +21748,19 @@ var Ui;
                 var current = new Date(this_2._date.getTime());
                 current.setDate(1);
                 current.setMonth(i);
-                var month = new MonthYearButton({
+                var month = new MonthYearButton().assign({
+                    text: monthNames[i],
                     onpressed: function () {
                         _this._date = month.monthCalendarDate;
                         _this.mode = 'DAY';
-                    },
+                    }
                 });
                 month.monthCalendarDate = current;
-                var label = new Ui.Label({
-                    text: monthNames[i], fontWeight: 'bold',
-                    marginLeft: 10, marginRight: 25,
-                    marginBottom: 10, marginTop: 10,
-                    color: this_2._date && this_2._date.getMonth() == current.getMonth() ? '#ff0000' : undefined
-                });
-                month.append(label);
-                var disable = false;
-                if (this_2._dateFilter !== undefined) {
-                    var daystr = current.getFullYear() + '/';
-                    if (current.getMonth() + 1 < 10)
-                        daystr += '0';
-                    daystr += (current.getMonth() + 1) + '/';
-                    for (i = 0; (i < this_2._dateFilter.length) && !disable; i++) {
-                        var re = new RegExp(this_2._dateFilter[i]);
-                        if (re.test(daystr)) {
-                            disable = true;
-                        }
-                    }
-                }
-                if (disable) {
-                    month.disable();
-                    month.opacity = 0.2;
-                }
                 this_2.grid.attach(month, col, row);
-                out_i_1 = i;
             };
-            var this_2 = this, out_i_1;
+            var this_2 = this;
             for (var i = 0; i < monthNames.length; i++) {
                 _loop_2(i);
-                i = out_i_1;
             }
         };
         MonthCalendar.prototype.updateYearGrid = function (reuseGrid) {
@@ -21812,34 +21783,14 @@ var Ui;
                 var row = Math.trunc(i / nbCols);
                 var col = i % nbCols;
                 var current = new Date(currentYear, 0, 1);
-                var year = new MonthYearButton({
+                var year = new MonthYearButton().assign({
+                    text: currentYear.toString(),
                     onpressed: function () {
                         _this._date = year.monthCalendarDate;
                         _this.mode = 'DAY';
-                    },
+                    }
                 });
                 year.monthCalendarDate = current;
-                var label = new Ui.Label({
-                    text: currentYear.toString(), fontWeight: 'bold',
-                    marginLeft: 10, marginRight: 25,
-                    marginBottom: 10, marginTop: 10,
-                    color: this_3._date && this_3._date.getFullYear() == current.getFullYear() ? '#ff0000' : undefined
-                });
-                year.append(label);
-                var disable = false;
-                if (this_3._dateFilter !== undefined) {
-                    var daystr = current.getFullYear() + '/';
-                    for (currentYear = 0; (currentYear < this_3._dateFilter.length) && !disable; currentYear++) {
-                        var re = new RegExp(this_3._dateFilter[currentYear]);
-                        if (re.test(daystr)) {
-                            disable = true;
-                        }
-                    }
-                }
-                if (disable) {
-                    year.disable();
-                    year.opacity = 0.2;
-                }
                 this_3.grid.attach(year, col, row);
             };
             var this_3 = this;
@@ -21851,10 +21802,6 @@ var Ui;
             var color = this.getStyleProperty('color');
             var dayColor = this.getStyleProperty('dayColor');
             var currentDayColor = this.getStyleProperty('currentDayColor');
-            this.monthLabel.color = color;
-            this.yearLabel.color = color;
-            this.leftarrow.fill = color;
-            this.rightarrow.fill = color;
             for (var i = 0; i < this.grid.children.length; i++) {
                 var child = this.grid.children[i];
                 if (child instanceof Ui.Label)
@@ -21891,11 +21838,15 @@ var Ui;
     }(Ui.Pressable));
     var MonthYearButton = (function (_super) {
         __extends(MonthYearButton, _super);
-        function MonthYearButton() {
-            return _super !== null && _super.apply(this, arguments) || this;
+        function MonthYearButton(init) {
+            var _this = _super.call(this, init) || this;
+            _this.setStyleProperty('textWidth', 10);
+            _this.setStyleProperty('textTransform', 'none');
+            _this.setStyleProperty('fontWeight', 'bold');
+            return _this;
         }
         return MonthYearButton;
-    }(Ui.Pressable));
+    }(Ui.FlatButton));
 })(Ui || (Ui = {}));
 var Ui;
 (function (Ui) {

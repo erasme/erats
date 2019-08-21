@@ -4690,10 +4690,8 @@ declare namespace Ui {
     class MonthCalendar extends VBox {
         private _selectedDate;
         private _date;
-        private monthLabel;
-        private yearLabel;
-        private leftarrow;
-        private rightarrow;
+        private monthButton;
+        private yearButton;
         private grid;
         private _dayFilter;
         private _mode;
