@@ -16774,11 +16774,17 @@ var Ui;
         Object.defineProperty(Html.prototype, "color", {
             set: function (color) {
                 if (this._color !== color) {
-                    this._color = Ui.Color.create(color);
-                    if (Core.Navigator.supportRgba)
-                        this.drawing.style.color = this._color.getCssRgba();
-                    else
-                        this.drawing.style.color = this._color.getCssHtml();
+                    if (color == undefined) {
+                        this._color = undefined;
+                        this.drawing.style.color = this.getColor().getCssRgba();
+                    }
+                    else {
+                        this._color = Ui.Color.create(color);
+                        if (Core.Navigator.supportRgba)
+                            this.drawing.style.color = this._color.getCssRgba();
+                        else
+                            this.drawing.style.color = this._color.getCssHtml();
+                    }
                 }
             },
             enumerable: true,

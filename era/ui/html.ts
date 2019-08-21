@@ -1,5 +1,4 @@
-namespace Ui
-{
+namespace Ui {
     export interface HtmlInit extends ElementInit {
         html?: string;
         text?: string;
@@ -12,11 +11,10 @@ namespace Ui
         wordBreak?: string;
         whiteSpace?: string;
         color?: Color | string;
-        onlink?: (event: {target: Html, ref: string }) => void;
+        onlink?: (event: { target: Html, ref: string }) => void;
     }
 
-    export class Html extends Element implements HtmlInit
-    {
+    export class Html extends Element implements HtmlInit {
         captureLink = true;
         protected htmlDrawing: HTMLElement;
         private bindedOnImageLoad: any = undefined;
@@ -29,7 +27,7 @@ namespace Ui
         private _wordWrap?: string;
         private _wordBreak?: string;
         private _whiteSpace?: string;
-        readonly link = new Core.Events<{target: Html, ref: string }>();
+        readonly link = new Core.Events<{ target: Html, ref: string }>();
         set onlink(value: (event: { target: Html, ref: string }) => void) { this.link.connect(value); }
 
         constructor(init?: HtmlInit) {
@@ -41,9 +39,9 @@ namespace Ui
             this.drawing.addEventListener('keypress', (e) => this.onKeyPress(e));
             if (init) {
                 if (init.text !== undefined)
-                    this.text = init.text;	
+                    this.text = init.text;
                 if (init.html !== undefined)
-                    this.html = init.html;	
+                    this.html = init.html;
                 if (init.textAlign !== undefined)
                     this.textAlign = init.textAlign;
                 if (init.fontSize !== undefined)
@@ -53,24 +51,24 @@ namespace Ui
                 if (init.fontWeight !== undefined)
                     this.fontWeight = init.fontWeight;
                 if (init.interLine !== undefined)
-                    this.interLine = init.interLine;	
+                    this.interLine = init.interLine;
                 if (init.wordWrap !== undefined)
-                    this.wordWrap = init.wordWrap;	
+                    this.wordWrap = init.wordWrap;
                 if (init.whiteSpace !== undefined)
-                    this.whiteSpace = init.whiteSpace;	
+                    this.whiteSpace = init.whiteSpace;
                 if (init.color !== undefined)
                     this.color = init.color;
                 if (init.onlink !== undefined)
                     this.link.connect(init.onlink);
             }
         }
-    
+
         getElements(tagName) {
             let res = [];
             this.searchElements(tagName.toUpperCase(), this.htmlDrawing, res);
             return res;
         }
-    
+
         searchElements(tagName, element, res) {
             for (let i = 0; i < element.childNodes.length; i++) {
                 let child = element.childNodes[i];
@@ -79,7 +77,7 @@ namespace Ui
                 this.searchElements(tagName, child, res);
             }
         }
-    
+
         getParentElement(tagName, element) {
             do {
                 if (('tagName' in element) && (element.tagName.toUpperCase() == tagName))
@@ -91,7 +89,7 @@ namespace Ui
                 element = element.parentNode;
             } while (true);
         }
-        
+
         get html(): string {
             return this.htmlDrawing.innerHTML;
         }
@@ -109,9 +107,9 @@ namespace Ui
             this.bindChildEvents();
             this.invalidateMeasure();
         }
-    
+
         set htmlElement(htmlElement: HTMLElement) {
-            while(this.htmlDrawing.firstChild)
+            while (this.htmlDrawing.firstChild)
                 this.htmlDrawing.removeChild(this.htmlDrawing.firstChild);
             this.htmlDrawing.appendChild(htmlElement);
             this.bindChildEvents();
@@ -160,7 +158,7 @@ namespace Ui
             }
             return text;
         }
-    
+
         get textAlign(): TextAlign {
             if (this._textAlign !== undefined)
                 return this._textAlign;
@@ -181,7 +179,7 @@ namespace Ui
             else
                 return this.getStyleProperty('fontSize');
         }
-    
+
         set fontSize(fontSize: number) {
             if (this._fontSize !== fontSize) {
                 this._fontSize = fontSize;
@@ -189,14 +187,14 @@ namespace Ui
                 this.invalidateMeasure();
             }
         }
-    
+
         get fontFamily(): string {
             if (this._fontFamily !== undefined)
                 return this._fontFamily;
             else
                 return this.getStyleProperty('fontFamily');
         }
-    
+
         set fontFamily(fontFamily: string) {
             if (this._fontFamily !== fontFamily) {
                 this._fontFamily = fontFamily;
@@ -204,14 +202,14 @@ namespace Ui
                 this.invalidateMeasure();
             }
         }
-    
+
         get fontWeight(): FontWeight {
             if (this._fontWeight !== undefined)
                 return this._fontWeight;
             else
                 return this.getStyleProperty('fontWeight');
         }
-    
+
         set fontWeight(fontWeight: FontWeight) {
             if (this._fontWeight !== fontWeight) {
                 this._fontWeight = fontWeight;
@@ -219,7 +217,7 @@ namespace Ui
                 this.invalidateMeasure();
             }
         }
-    
+
         get interLine(): number {
             if (this._interLine !== undefined)
                 return this._interLine;
@@ -279,7 +277,7 @@ namespace Ui
                 this.invalidateMeasure();
             }
         }
-    
+
         protected getColor(): Color {
             if (this._color !== undefined)
                 return this._color;
@@ -287,13 +285,19 @@ namespace Ui
                 return Color.create(this.getStyleProperty('color'));
         }
 
-        set color(color: Color | string) {
+        set color(color: Color | string | undefined) {
             if (this._color !== color) {
-                this._color = Color.create(color);
-                if (Core.Navigator.supportRgba)
-                    this.drawing.style.color = this._color.getCssRgba();
-                else
-                    this.drawing.style.color = this._color.getCssHtml();
+                if (color == undefined) {
+                    this._color = undefined;
+                    this.drawing.style.color = this.getColor().getCssRgba();
+                }
+                else {
+                    this._color = Color.create(color);
+                    if (Core.Navigator.supportRgba)
+                        this.drawing.style.color = this._color.getCssRgba();
+                    else
+                        this.drawing.style.color = this._color.getCssHtml();
+                }
             }
         }
 
@@ -362,7 +366,7 @@ namespace Ui
             let measureWidth: number;
             if (this.htmlDrawing.clientWidth == width)
                 measureWidth = width;
-            
+
             //if (this.htmlDrawing.clientWidth >= width) {
             //	this.htmlDrawing.style.width = width + 'px';
             //	measureWidth = width;
@@ -398,5 +402,4 @@ namespace Ui
             interLine: 1
         }
     }
-}	
-    
+}

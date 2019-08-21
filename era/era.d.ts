@@ -3585,7 +3585,7 @@ declare namespace Ui {
         wordBreak: string;
         whiteSpace: string;
         protected getColor(): Color;
-        color: Color | string;
+        color: Color | string | undefined;
         protected onSubtreeModified(event: any): void;
         protected onKeyPress(event: KeyboardEvent): void;
         protected onImageLoad(event: any): void;
