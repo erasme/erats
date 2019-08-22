@@ -19,31 +19,29 @@ namespace Ui {
                 this.focusout = init.onfocusout;
 
             this.element = init.element;
-            this.element.drawing.addEventListener('focusin', (e) => {
+            this.element.drawing.addEventListener('focusin', () => {
                 this._isFocusIn = true;
-                if (this._isDelayFocusIn)
-                    return;
-                this._isDelayFocusIn = true;
-                if (this.focusin)
-                    this.focusin(this);
+                this.delayFocus();
             });
             this.element.drawing.addEventListener('focusout', () => {
                 this._isFocusIn = false;
-                this.delayFocusOut();
+                this.delayFocus();
             });
         }
 
-        private delayFocusOut() {
+        private delayFocus() {
             if (!this.delayTask)
-                this.delayTask = new Core.DelayedTask(0, () => this.onDelayFocusOut());
+                this.delayTask = new Core.DelayedTask(0, () => this.onDelayFocus());
         }
 
-        private onDelayFocusOut() {
+        private onDelayFocus() {
             this.delayTask = undefined;
-            this._isDelayFocusIn = this._isFocusIn;
-            if (!this._isDelayFocusIn) {
-                if (this.focusout)
+            if (this._isDelayFocusIn != this._isFocusIn) {
+                this._isDelayFocusIn = this._isFocusIn;
+                if (this.focusout && !this._isDelayFocusIn)
                     this.focusout(this);
+                if (this.focusin && this._isDelayFocusIn)
+                    this.focusin(this);
             }
         }
 

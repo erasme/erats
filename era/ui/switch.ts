@@ -67,6 +67,7 @@ namespace Ui {
                 }
                 else
                     this.pos = this._value ? 1 : 0;
+                this.changed.fire({ target: this, value: this._value });
             }
         }
     
@@ -87,10 +88,9 @@ namespace Ui {
         }
 
         private updatePos() {
-            let max;
             let width = this.layoutWidth;
             let height = this.layoutHeight;
-            max = width - this.button.layoutWidth;
+            let max = width - this.button.layoutWidth;
             this.button.setPosition(max * this.pos, 0);
             this.bar.arrange(
                 this.button.layoutWidth / 2,

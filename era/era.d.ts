@@ -1787,8 +1787,8 @@ declare namespace Ui {
             onfocusin?: (watcher: FocusInWatcher) => void;
             onfocusout?: (watcher: FocusInWatcher) => void;
         });
-        private delayFocusOut;
-        private onDelayFocusOut;
+        private delayFocus;
+        private onDelayFocus;
         readonly isFocusIn: boolean;
     }
 }
