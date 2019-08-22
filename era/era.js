@@ -8463,31 +8463,29 @@ var Ui;
             if (init.onfocusout)
                 _this.focusout = init.onfocusout;
             _this.element = init.element;
-            _this.element.drawing.addEventListener('focusin', function (e) {
+            _this.element.drawing.addEventListener('focusin', function () {
                 _this._isFocusIn = true;
-                if (_this._isDelayFocusIn)
-                    return;
-                _this._isDelayFocusIn = true;
-                if (_this.focusin)
-                    _this.focusin(_this);
+                _this.delayFocus();
             });
             _this.element.drawing.addEventListener('focusout', function () {
                 _this._isFocusIn = false;
-                _this.delayFocusOut();
+                _this.delayFocus();
             });
             return _this;
         }
-        FocusInWatcher.prototype.delayFocusOut = function () {
+        FocusInWatcher.prototype.delayFocus = function () {
             var _this = this;
             if (!this.delayTask)
-                this.delayTask = new Core.DelayedTask(0, function () { return _this.onDelayFocusOut(); });
+                this.delayTask = new Core.DelayedTask(0, function () { return _this.onDelayFocus(); });
         };
-        FocusInWatcher.prototype.onDelayFocusOut = function () {
+        FocusInWatcher.prototype.onDelayFocus = function () {
             this.delayTask = undefined;
-            this._isDelayFocusIn = this._isFocusIn;
-            if (!this._isDelayFocusIn) {
-                if (this.focusout)
+            if (this._isDelayFocusIn != this._isFocusIn) {
+                this._isDelayFocusIn = this._isFocusIn;
+                if (this.focusout && !this._isDelayFocusIn)
                     this.focusout(this);
+                if (this.focusin && this._isDelayFocusIn)
+                    this.focusin(this);
             }
         };
         Object.defineProperty(FocusInWatcher.prototype, "isFocusIn", {
@@ -25863,16 +25861,16 @@ var Ui;
                     }
                     else
                         this.pos = this._value ? 1 : 0;
+                    this.changed.fire({ target: this, value: this._value });
                 }
             },
             enumerable: true,
             configurable: true
         });
         Switch.prototype.updatePos = function () {
-            var max;
             var width = this.layoutWidth;
             var height = this.layoutHeight;
-            max = width - this.button.layoutWidth;
+            var max = width - this.button.layoutWidth;
             this.button.setPosition(max * this.pos, 0);
             this.bar.arrange(this.button.layoutWidth / 2, (height - this.bar.measureHeight) / 2, max * this.pos, this.bar.measureHeight);
         };
