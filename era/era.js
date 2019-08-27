@@ -1027,7 +1027,6 @@ var Core;
             this.request.open(this.method, url, true);
             if (this.binary)
                 this.request.overrideMimeType('text/plain; charset=x-user-defined');
-            this.request.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
             if (HttpRequest.requestHeaders !== undefined) {
                 for (header in HttpRequest.requestHeaders)
                     this.request.setRequestHeader(header, HttpRequest.requestHeaders[header]);
