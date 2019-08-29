@@ -5772,7 +5772,6 @@ declare namespace Ui {
         value: boolean;
         private onButtonMove;
         private updatePos;
-        private getColor;
         private getForeground;
         private getBackground;
         private getButtonColor;
