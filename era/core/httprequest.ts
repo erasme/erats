@@ -1,5 +1,4 @@
-module Core
-{
+module Core {
     export type MethodType = 'POST' | 'PUT' | 'GET' | 'DELETE';
 
     export interface HttpRequestInit {
@@ -34,9 +33,8 @@ module Core
             this.request = new XMLHttpRequest();
 
             let wrapper = () => {
-                if(this.request.readyState == 4)
-                {
-                    if((this.request.status >= 200) && (this.request.status < 300))
+                if (this.request.readyState == 4) {
+                    if ((this.request.status >= 200) && (this.request.status < 300))
                         this.done.fire({ target: this });
                     else
                         this.error.fire({ target: this, code: this.request.status });
@@ -64,13 +62,13 @@ module Core
         }
 
         setRequestHeader(header, value) {
-            if(this.headers === undefined)
+            if (this.headers === undefined)
                 this.headers = {};
             this.headers[header] = value;
         }
 
         addArgument(argName, argValue) {
-            if(this.arguments === undefined)
+            if (this.arguments === undefined)
                 this.arguments = {};
             this.arguments[argName] = argValue;
         }
@@ -80,8 +78,8 @@ module Core
         }
 
         send() {
-            if(this.url === undefined)
-                throw('url MUST be given for an HttpRequest');
+            if (this.url === undefined)
+                throw ('url MUST be given for an HttpRequest');
             let header;
             // encode arguments
             let args = '';
@@ -89,41 +87,35 @@ module Core
                 args = Util.encodeURIQuery(this.arguments);
             let url = this.url;
 
-            if(((this.method === 'GET') || (this.method === 'DELETE') || (this.content !== undefined)) && (args !== ''))
-            {
-                if(this.url.indexOf('?') === -1)
-                    url += '?'+args;
+            if (((this.method === 'GET') || (this.method === 'DELETE') || (this.content !== undefined)) && (args !== '')) {
+                if (this.url.indexOf('?') === -1)
+                    url += '?' + args;
                 else
-                    url += '&'+args;
+                    url += '&' + args;
             }
             this.request.open(this.method, url, true);
-            if(this.binary)
+            if (this.binary)
                 this.request.overrideMimeType('text/plain; charset=x-user-defined');
-                this.request.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-                if (HttpRequest.requestHeaders !== undefined)
-                {
-                    for(header in HttpRequest.requestHeaders)
-                        this.request.setRequestHeader(header, HttpRequest.requestHeaders[header]);
-                }
-                if (this.headers !== undefined)
-                {
-                    for(header in this.headers)
-                        this.request.setRequestHeader(header, this.headers[header]);
-                }
-                if(this.content !== undefined)
-                {
-                    if((this.headers === undefined) || (this.headers["Content-Type"] === undefined))
-                        this.request.setRequestHeader('Content-Type', 'text/plain; charset=utf-8');
-                    this.request.send(this.content);
-                }
-                else if((args !== '') && ((this.method === 'POST') || (this.method === 'PUT')))
-                {
-                    if((this.headers === undefined) || (this.headers["Content-Type"] === undefined))
-                        this.request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-                    this.request.send(args);
-                }
-                else
-                    this.request.send();
+            if (HttpRequest.requestHeaders !== undefined) {
+                for (header in HttpRequest.requestHeaders)
+                    this.request.setRequestHeader(header, HttpRequest.requestHeaders[header]);
+            }
+            if (this.headers !== undefined) {
+                for (header in this.headers)
+                    this.request.setRequestHeader(header, this.headers[header]);
+            }
+            if (this.content !== undefined) {
+                if ((this.headers === undefined) || (this.headers["Content-Type"] === undefined))
+                    this.request.setRequestHeader('Content-Type', 'text/plain; charset=utf-8');
+                this.request.send(this.content);
+            }
+            else if ((args !== '') && ((this.method === 'POST') || (this.method === 'PUT'))) {
+                if ((this.headers === undefined) || (this.headers["Content-Type"] === undefined))
+                    this.request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                this.request.send(args);
+            }
+            else
+                this.request.send();
         }
 
         sendAsync() {
@@ -158,7 +150,7 @@ module Core
             try {
                 res = JSON.parse(this.responseText);
             }
-            catch(err) {
+            catch (err) {
                 res = undefined;
             }
             return res;
@@ -169,7 +161,7 @@ module Core
             try {
                 let xmlDoc = parser.parseFromString(this.responseText, 'text/xml');
                 return xmlDoc;
-            } catch(e) {}
+            } catch (e) { }
             return undefined;
         }
 
@@ -178,8 +170,8 @@ module Core
         }
 
         static setRequestHeader(header, value) {
-            if(HttpRequest.requestHeaders === undefined)
-                HttpRequest.requestHeaders =  {};
+            if (HttpRequest.requestHeaders === undefined)
+                HttpRequest.requestHeaders = {};
             HttpRequest.requestHeaders[header] = value;
         }
     }

@@ -38,6 +38,7 @@ namespace Ui {
             this.button.upped.connect((e) => this.onUp(e.speedX, e.cumulMove, e.abort));
 
             this.buttonContent = new Rectangle({ radius: 10, width: 20, height: 20, margin: 10 });
+            this.buttonContent.drawing.style.boxShadow = '0px 0px 2px rgba(0,0,0,0.5)';
             this.button.content = this.buttonContent;
 
             this.ease = new Anim.PowerEase({ mode: 'out' });
@@ -59,6 +60,7 @@ namespace Ui {
         set value(value: boolean) {
             if (this._value !== value) {
                 this._value = value;
+                this.buttonContent.fill = this.getForeground();
                 if (this.isLoaded) {
                     if (this._value)
                         this.startAnimation(4);
@@ -97,13 +99,9 @@ namespace Ui {
                 (height - this.bar.measureHeight) / 2,
                 max * this.pos, this.bar.measureHeight);
         }
-    
-        private getColor() {
-            return Color.create(this.getStyleProperty('background')).getYuv();
-        }
-    
+        
         private getForeground() {
-            return Color.create(this.getStyleProperty('foreground'));
+            return Ui.Color.create(this.value ? this.getStyleProperty('activeForeground') : this.getStyleProperty('foreground'));
         }
 
         private getBackground() {
@@ -173,6 +171,7 @@ namespace Ui {
             else {
                 if (this._value !== (this.animNext === 1)) {
                     this._value = (this.animNext === 1);
+                    this.buttonContent.fill = this.getForeground();
                     this.changed.fire({ target: this, value: this._value });
                 }
             }
@@ -196,6 +195,7 @@ namespace Ui {
                 this.alignClock = undefined;
                 relprogress = 1;
                 this._value = (this.animNext === 1);
+                this.buttonContent.fill = this.getForeground();
                 this.changed.fire({ target: this, value: this._value });
             }
             relprogress = this.ease.ease(relprogress);
@@ -233,7 +233,6 @@ namespace Ui {
         }
 
         protected onStyleChange() {
-            let borderWidth = this.getStyleProperty('borderWidth');
             this.updateColors();
         }
 
@@ -252,7 +251,8 @@ namespace Ui {
             borderWidth: 1,
             background: '#e1e1e1',
             backgroundBorder: '#919191',
-            foreground: '#07a0e5'
+            foreground: '#757575',
+            activeForeground: '#07a0e5'
         }
     }
 }
