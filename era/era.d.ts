@@ -4174,15 +4174,15 @@ declare namespace Ui {
             width: number;
             height: number;
         };
-        protected arrangeCore(width: any, height: any): void;
-        static getCol(child: any): any;
-        static setCol(child: any, col: any): void;
-        static getRow(child: any): any;
-        static setRow(child: any, row: any): void;
-        static getColSpan(child: any): any;
-        static setColSpan(child: any, colSpan: any): void;
-        static getRowSpan(child: any): any;
-        static setRowSpan(child: any, rowSpan: any): void;
+        protected arrangeCore(width: number, height: number): void;
+        static getCol(child: Element): number;
+        static setCol(child: Element, col: number): void;
+        static getRow(child: Element): number;
+        static setRow(child: Element, row: number): void;
+        static getColSpan(child: Element): number;
+        static setColSpan(child: Element, colSpan: number): void;
+        static getRowSpan(child: Element): number;
+        static setRowSpan(child: Element, rowSpan: number): void;
     }
 }
 declare namespace Ui {
@@ -4689,6 +4689,7 @@ declare namespace Ui {
     }
     class MonthCalendar extends VBox {
         private _selectedDate;
+        private _selectMode;
         private _date;
         private monthButton;
         private yearButton;
@@ -4709,6 +4710,7 @@ declare namespace Ui {
         dateFilter: string[];
         date: Date;
         selectedDate: Date;
+        selectMode: 'DAY' | 'WEEK';
         mode: 'DAY' | 'MONTH' | 'YEAR';
         protected onLeftButtonPress(): void;
         protected onRightButtonPress(): void;

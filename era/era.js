@@ -19115,7 +19115,6 @@ var Ui;
             var i;
             var i2;
             var currentColumn;
-            var col = this._cols[colPos];
             var min = 0;
             for (i = 0; i < this.children.length; i++) {
                 var child = this.children[i];
@@ -19162,7 +19161,6 @@ var Ui;
             var i;
             var i2;
             var currentRow;
-            var row = this._rows[rowPos];
             var min = 0;
             for (i = 0; i < this.children.length; i++) {
                 var child = this.children[i];
@@ -19206,29 +19204,17 @@ var Ui;
             return min;
         };
         Grid.prototype.measureCore = function (width, height) {
-            var i;
-            var child;
-            var col;
-            var colSpan;
-            var colPos;
-            var childX;
-            var childWidth;
-            var x;
-            var row;
-            var rowPos;
-            for (i = 0; i < this.children.length; i++) {
-                child = this.children[i];
+            for (var i = 0; i < this.children.length; i++) {
+                var child = this.children[i];
                 var constraintWidth = (width * Ui.Grid.getColSpan(child)) / this._cols.length;
                 var constraintHeight = (height * Ui.Grid.getRowSpan(child)) / this._rows.length;
                 child.measure(constraintWidth, constraintHeight);
             }
             var colStarCount = 0.0;
-            var colStarSize = 0.0;
             var rowStarCount = 0.0;
-            var rowStarSize = 0.0;
             var offsetX = 0;
-            for (colPos = 0; colPos < this._cols.length; colPos++) {
-                col = this._cols[colPos];
+            for (var colPos = 0; colPos < this._cols.length; colPos++) {
+                var col = this._cols[colPos];
                 col.offset = offsetX;
                 if (col.absolute)
                     col.actualWidth += col.width;
@@ -19245,52 +19231,46 @@ var Ui;
             if (colStarCount > 0.0)
                 starWidth = (width - offsetX) / colStarCount;
             offsetX = 0;
-            for (i = 0; i < this._cols.length; i++) {
-                col = this._cols[i];
+            for (var i = 0; i < this._cols.length; i++) {
+                var col = this._cols[i];
                 col.offset = offsetX;
                 if (col.star)
                     col.actualWidth = starWidth * col.width;
                 offsetX += col.actualWidth;
             }
-            for (i = 0; i < this.children.length; i++) {
-                child = this.children[i];
-                col = Ui.Grid.getCol(child);
-                colSpan = Ui.Grid.getColSpan(child);
-                childX = this._cols[col].offset;
-                childWidth = 0.0;
-                for (x = col; x < col + colSpan; x++)
+            for (var i = 0; i < this.children.length; i++) {
+                var child = this.children[i];
+                var col = Ui.Grid.getCol(child);
+                var colSpan = Ui.Grid.getColSpan(child);
+                var childWidth = 0.0;
+                for (var x = col; x < col + colSpan; x++)
                     childWidth += this._cols[x].actualWidth;
                 child.measure(childWidth, height);
             }
             offsetX = 0;
-            for (colPos = 0; colPos < this._cols.length; colPos++) {
-                col = this._cols[colPos];
+            for (var colPos = 0; colPos < this._cols.length; colPos++) {
+                var col = this._cols[colPos];
                 col.offset = offsetX;
-                if (col.absolute) {
+                if (col.absolute)
                     col.actualWidth = col.width;
-                }
-                else if (col.star) {
+                else if (col.star)
                     col.actualWidth = Math.max(this.getColMin(colPos), starWidth * col.width);
-                    colStarSize += col.actualWidth;
-                }
-                else if (col.auto) {
+                else if (col.auto)
                     col.actualWidth = this.getColMin(colPos);
-                }
                 offsetX += col.actualWidth;
             }
-            for (i = 0; i < this.children.length; i++) {
-                child = this.children[i];
-                col = Ui.Grid.getCol(child);
-                colSpan = Ui.Grid.getColSpan(child);
-                childX = this._cols[col].offset;
-                childWidth = 0.0;
-                for (x = col; x < col + colSpan; x++)
+            for (var i = 0; i < this.children.length; i++) {
+                var child = this.children[i];
+                var col = Ui.Grid.getCol(child);
+                var colSpan = Ui.Grid.getColSpan(child);
+                var childWidth = 0.0;
+                for (var x = col; x < col + colSpan; x++)
                     childWidth += this._cols[x].actualWidth;
                 child.measure(childWidth, height);
             }
             var offsetY = 0;
-            for (rowPos = 0; rowPos < this._rows.length; rowPos++) {
-                row = this._rows[rowPos];
+            for (var rowPos = 0; rowPos < this._rows.length; rowPos++) {
+                var row = this._rows[rowPos];
                 row.offset = offsetY;
                 if (row.absolute)
                     row.actualHeight = row.height;
@@ -19306,44 +19286,39 @@ var Ui;
             if (rowStarCount > 0.0)
                 starHeight = (height - offsetY) / rowStarCount;
             offsetY = 0;
-            for (i = 0; i < this._rows.length; i++) {
-                row = this._rows[i];
+            for (var i = 0; i < this._rows.length; i++) {
+                var row = this._rows[i];
                 row.offset = offsetY;
                 if (row.star)
                     row.actualHeight = starHeight * row.height;
                 offsetY += row.actualHeight;
             }
-            for (i = 0; i < this.children.length; i++) {
-                child = this.children[i];
-                col = Ui.Grid.getCol(child);
-                colSpan = Ui.Grid.getColSpan(child);
-                childX = this._cols[col].offset;
-                childWidth = 0.0;
-                for (x = col; x < col + colSpan; x++)
+            for (var i = 0; i < this.children.length; i++) {
+                var child = this.children[i];
+                var col = Ui.Grid.getCol(child);
+                var colSpan = Ui.Grid.getColSpan(child);
+                var childWidth = 0.0;
+                for (var x = col; x < col + colSpan; x++)
                     childWidth += this._cols[x].actualWidth;
-                row = Ui.Grid.getRow(child);
+                var row = Ui.Grid.getRow(child);
                 var rowSpan = Ui.Grid.getRowSpan(child);
-                var childY = this._rows[row].offset;
                 var childHeight = 0.0;
                 for (var y = row; y < row + rowSpan; y++)
                     childHeight += this._rows[y].actualHeight;
                 child.measure(childWidth, childHeight);
             }
             offsetY = 0;
-            for (rowPos = 0; rowPos < this._rows.length; rowPos++) {
-                row = this._rows[rowPos];
+            for (var rowPos = 0; rowPos < this._rows.length; rowPos++) {
+                var row = this._rows[rowPos];
                 row.offset = offsetY;
-                if (row.absolute) {
+                if (row.absolute)
                     row.actualHeight = row.height;
-                }
                 else if (row.star) {
                     var rowMin = this.getRowMin(rowPos);
                     row.actualHeight = Math.max(rowMin, starHeight * row.height);
-                    rowStarSize += row.actualHeight;
                 }
-                else if (row.auto) {
+                else if (row.auto)
                     row.actualHeight = this.getRowMin(rowPos);
-                }
                 offsetY += row.actualHeight;
             }
             return { width: offsetX, height: offsetY };
@@ -19355,15 +19330,11 @@ var Ui;
                 var colSpan = Ui.Grid.getColSpan(child);
                 var row = Ui.Grid.getRow(child);
                 var rowSpan = Ui.Grid.getRowSpan(child);
-                var childX = this._cols[col].offset;
-                var childY = this._rows[row].offset;
-                var childWidth = 0.0;
-                var childHeight = 0.0;
-                for (var x = col; x < col + colSpan; x++)
-                    childWidth += this._cols[x].actualWidth;
-                for (var y = row; y < row + rowSpan; y++)
-                    childHeight += this._rows[y].actualHeight;
-                child.arrange(childX, childY, childWidth, childHeight);
+                var childX = Math.floor(this._cols[col].offset);
+                var childWidth = ((col + colSpan >= this._cols.length) ? width : Math.floor(this._cols[col + colSpan].offset)) - childX;
+                var childY = Math.floor(this._rows[row].offset);
+                var childHeight = ((row + rowSpan >= this._rows.length) ? height : Math.floor(this._rows[row + rowSpan].offset)) - childY;
+                child.arrange(childX, childY, Math.round(childWidth), Math.round(childHeight));
             }
         };
         Grid.getCol = function (child) {
@@ -21512,6 +21483,7 @@ var Ui;
         __extends(MonthCalendar, _super);
         function MonthCalendar(init) {
             var _this = _super.call(this, init) || this;
+            _this._selectMode = 'DAY';
             _this._mode = 'DAY';
             _this.dayselected = new Core.Events();
             _this._date = new Date();
@@ -21591,7 +21563,21 @@ var Ui;
             },
             set: function (selectedDate) {
                 this._selectedDate = selectedDate;
+                this._date = selectedDate;
                 this.updateDate();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(MonthCalendar.prototype, "selectMode", {
+            get: function () {
+                return this._selectMode;
+            },
+            set: function (value) {
+                if (value != this._selectMode) {
+                    this._selectMode = value;
+                    this.updateDate(false);
+                }
             },
             enumerable: true,
             configurable: true
@@ -21647,9 +21633,12 @@ var Ui;
         };
         MonthCalendar.prototype.updateDayGrid = function (reuseGrid) {
             var _this = this;
-            var i;
+            var i = 0;
             var dayPivot = [6, 0, 1, 2, 3, 4, 5];
             var dayNames = ['Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa', 'Di'];
+            var color = this.getStyleProperty('color');
+            var dayColor = this.getStyleProperty('dayColor');
+            var selectColor = this.getStyleProperty('selectColor');
             if (reuseGrid && this.grid)
                 while (this.grid.firstChild !== undefined)
                     this.grid.detach(this.grid.firstChild);
@@ -21663,64 +21652,73 @@ var Ui;
                 this.append(this.grid);
             }
             for (i = 0; i < 7; i++)
-                this.grid.attach(new Ui.Label({ text: dayNames[i], fontWeight: 'bold', margin: 5 }), i, 0);
+                this.grid.attach(new Ui.Label({ text: dayNames[i], fontWeight: 'bold', color: color, margin: 5 }), i, 0);
             var month = this._date.getMonth();
             var current = new Date(this._date.getTime());
             current.setDate(1);
+            var day = (current.getDay() + 6) % 7;
+            var weekStart = new Date(current.getTime() - day * 24 * 3600 * 1000);
+            current = weekStart;
+            var selectedWeekStart = undefined;
+            if (this._selectedDate) {
+                var day_1 = (this._selectedDate.getDay() + 6) % 7;
+                selectedWeekStart = new Date(this._selectedDate.getTime() - day_1 * 24 * 3600 * 1000);
+            }
             var row = 1;
             var now = new Date();
-            var _loop_1 = function () {
-                var day = new DayButton({
-                    onpressed: function () { return _this.onDaySelect(day); }
-                });
-                day.monthCalendarDate = current;
-                var bg = void 0;
-                if ((current.getFullYear() == now.getFullYear()) && (current.getMonth() == now.getMonth()) && (current.getDate() == now.getDate())) {
-                    day.monthCalendarCurrent = true;
-                    bg = new Ui.Rectangle({ fill: new Ui.Color(0.2, 0.4, 1, 0.4), margin: 1 });
-                    day.append(bg);
-                }
-                else {
-                    bg = new Ui.Rectangle({ fill: new Ui.Color(0.8, 0.8, 0.8, 0.4), margin: 1 });
-                    day.append(bg);
-                }
-                if ((this_1._selectedDate !== undefined) && (current.getFullYear() === this_1._selectedDate.getFullYear()) && (current.getMonth() === this_1._selectedDate.getMonth()) && (current.getDate() === this_1._selectedDate.getDate()))
-                    day.append(new Ui.Frame({ frameWidth: 3, fill: 'red', radius: 0 }));
-                var disable = false;
-                if (this_1._dayFilter !== undefined) {
-                    var weekday = current.getDay();
-                    for (i = 0; (i < this_1._dayFilter.length) && !disable; i++)
-                        if (weekday == this_1._dayFilter[i])
-                            disable = true;
-                }
-                if (this_1._dateFilter !== undefined) {
-                    var daystr = current.getFullYear() + '/';
-                    if (current.getMonth() + 1 < 10)
-                        daystr += '0';
-                    daystr += (current.getMonth() + 1) + '/';
-                    if (current.getDate() < 10)
-                        daystr += '0';
-                    daystr += current.getDate();
-                    for (i = 0; (i < this_1._dateFilter.length) && !disable; i++) {
-                        var re = new RegExp(this_1._dateFilter[i]);
-                        if (re.test(daystr)) {
-                            disable = true;
+            do {
+                var day_2 = (current.getDay() + 6) % 7;
+                var weekStart_1 = new Date(current.getTime() - day_2 * 24 * 3600 * 1000);
+                var _loop_1 = function (col) {
+                    var day_3 = new DayButton({
+                        onpressed: function () { return _this.onDaySelect(day_3); }
+                    });
+                    var isSelected = false;
+                    if (this_1._selectMode == 'DAY')
+                        isSelected = (this_1._selectedDate !== undefined) && (current.getFullYear() === this_1._selectedDate.getFullYear()) && (current.getMonth() === this_1._selectedDate.getMonth()) && (current.getDate() === this_1._selectedDate.getDate());
+                    else if (this_1._selectMode == 'WEEK')
+                        isSelected = selectedWeekStart && (weekStart_1.getFullYear() === selectedWeekStart.getFullYear()) && (weekStart_1.getMonth() === selectedWeekStart.getMonth()) && (weekStart_1.getDate() === selectedWeekStart.getDate());
+                    var currentMonth = current.getMonth() == month;
+                    day_3.monthCalendarDate = current;
+                    day_3.monthCalendarCurrent = (current.getFullYear() == now.getFullYear()) && (current.getMonth() == now.getMonth()) && (current.getDate() == now.getDate());
+                    day_3.isSelected = isSelected;
+                    day_3.append(new Ui.Rectangle().assign({ fill: day_3.isSelected ? selectColor : dayColor, opacity: currentMonth ? 1 : 0.5 }));
+                    var disable = false;
+                    if (this_1._dayFilter !== undefined) {
+                        var weekday = current.getDay();
+                        for (i = 0; (i < this_1._dayFilter.length) && !disable; i++)
+                            if (weekday == this_1._dayFilter[i])
+                                disable = true;
+                    }
+                    if (this_1._dateFilter !== undefined) {
+                        var daystr = current.getFullYear() + '/';
+                        if (current.getMonth() + 1 < 10)
+                            daystr += '0';
+                        daystr += (current.getMonth() + 1) + '/';
+                        if (current.getDate() < 10)
+                            daystr += '0';
+                        daystr += current.getDate();
+                        for (i = 0; (i < this_1._dateFilter.length) && !disable; i++) {
+                            var re = new RegExp(this_1._dateFilter[i]);
+                            if (re.test(daystr)) {
+                                disable = true;
+                            }
                         }
                     }
+                    if (disable) {
+                        day_3.disable();
+                        day_3.opacity = 0.2;
+                    }
+                    day_3.append(new Ui.Label({ text: current.getDate().toString(), fontWeight: day_3.monthCalendarCurrent ? 'bold' : 'normal', margin: 5 }));
+                    this_1.grid.attach(day_3, col, row);
+                    current = new Date(current.getTime() + 1000 * 60 * 60 * 24);
+                    if (dayPivot[current.getDay()] === 0)
+                        row++;
+                };
+                var this_1 = this;
+                for (var col = 0; col < 7; col++) {
+                    _loop_1(col);
                 }
-                if (disable) {
-                    day.disable();
-                    day.opacity = 0.2;
-                }
-                day.append(new Ui.Label({ text: current.getDate().toString(), margin: 5 }));
-                this_1.grid.attach(day, dayPivot[current.getDay()], row);
-                current = new Date(current.getTime() + 1000 * 60 * 60 * 24);
-                if (dayPivot[current.getDay()] === 0)
-                    row++;
-            };
-            var this_1 = this;
-            do {
-                _loop_1();
             } while (month == current.getMonth());
         };
         MonthCalendar.prototype.updateMonthGrid = function (reuseGrid) {
@@ -21798,7 +21796,7 @@ var Ui;
         MonthCalendar.prototype.onStyleChange = function () {
             var color = this.getStyleProperty('color');
             var dayColor = this.getStyleProperty('dayColor');
-            var currentDayColor = this.getStyleProperty('currentDayColor');
+            var selectColor = this.getStyleProperty('selectColor');
             for (var i = 0; i < this.grid.children.length; i++) {
                 var child = this.grid.children[i];
                 if (child instanceof Ui.Label)
@@ -21808,12 +21806,8 @@ var Ui;
                         var child2 = child.children[i2];
                         if (child2 instanceof Ui.Label)
                             child2.color = color;
-                        else if (child2 instanceof Ui.Rectangle) {
-                            if (child.monthCalendarCurrent)
-                                child2.fill = currentDayColor;
-                            else
-                                child2.fill = dayColor;
-                        }
+                        else if (child2 instanceof Ui.Rectangle)
+                            child2.fill = child.isSelected ? selectColor : dayColor;
                     }
                 }
             }
@@ -21821,7 +21815,7 @@ var Ui;
         MonthCalendar.style = {
             color: 'black',
             dayColor: new Ui.Color(0.81, 0.81, 0.81, 0.5),
-            currentDayColor: new Ui.Color(1, 0.31, 0.66, 0.5)
+            selectColor: 'rgba(96,181,255,0.5)'
         };
         return MonthCalendar;
     }(Ui.VBox));
@@ -21829,7 +21823,9 @@ var Ui;
     var DayButton = (function (_super) {
         __extends(DayButton, _super);
         function DayButton() {
-            return _super !== null && _super.apply(this, arguments) || this;
+            var _this = _super !== null && _super.apply(this, arguments) || this;
+            _this.isSelected = false;
+            return _this;
         }
         return DayButton;
     }(Ui.Pressable));
