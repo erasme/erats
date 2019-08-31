@@ -103,9 +103,8 @@ namespace Ui {
             }
         }
 
-        private getColMin(colPos) {
-            let i; let i2; let currentColumn;
-            let col = this._cols[colPos];
+        private getColMin(colPos: number) {
+            let i: number; let i2: number; let currentColumn: GridCol;
             let min = 0;
             for (i = 0; i < this.children.length; i++) {
                 let child = this.children[i];
@@ -152,9 +151,8 @@ namespace Ui {
             return min;
         }
 
-        private getRowMin(rowPos) {
-            let i; let i2; let currentRow;
-            let row = this._rows[rowPos];
+        private getRowMin(rowPos: number) {
+            let i: number; let i2: number; let currentRow: GridRow;
             let min = 0;
 
             for (i = 0; i < this.children.length; i++) {
@@ -203,24 +201,20 @@ namespace Ui {
         }
 
         protected measureCore(width: number, height: number) {
-            let i; let child; let col; let colSpan; let colPos;
-            let childX; let childWidth; let x; let row; let rowPos;
 
-            for (i = 0; i < this.children.length; i++) {
-                child = this.children[i];
+            for (let i = 0; i < this.children.length; i++) {
+                let child = this.children[i];
                 let constraintWidth = (width * Ui.Grid.getColSpan(child)) / this._cols.length;
                 let constraintHeight = (height * Ui.Grid.getRowSpan(child)) / this._rows.length;
                 child.measure(constraintWidth, constraintHeight);
             }
 
             let colStarCount = 0.0;
-            let colStarSize = 0.0;
             let rowStarCount = 0.0;
-            let rowStarSize = 0.0;
             
             let offsetX = 0;
-            for (colPos = 0; colPos < this._cols.length; colPos++) {
-                col = this._cols[colPos];
+            for (let colPos = 0; colPos < this._cols.length; colPos++) {
+                let col = this._cols[colPos];
                 col.offset = offsetX;
                 if (col.absolute)
                     col.actualWidth += col.width;
@@ -241,8 +235,8 @@ namespace Ui {
 
             // update to column auto with the proposed star width
             offsetX = 0;
-            for (i = 0; i < this._cols.length; i++) {
-                col = this._cols[i];
+            for (let i = 0; i < this._cols.length; i++) {
+                let col = this._cols[i];
                 col.offset = offsetX;
                 if (col.star)
                     col.actualWidth = starWidth * col.width;
@@ -250,15 +244,12 @@ namespace Ui {
             }
 
             // redo the element measure with the correct width constraint
-            for (i = 0; i < this.children.length; i++) {
-                child = this.children[i];
-                col = Ui.Grid.getCol(child);
-                colSpan = Ui.Grid.getColSpan(child);
-                
-                childX = this._cols[col].offset;
-                childWidth = 0.0;
-                
-                for (x = col; x < col + colSpan; x++)
+            for (let i = 0; i < this.children.length; i++) {
+                let child = this.children[i];
+                let col = Ui.Grid.getCol(child);
+                let colSpan = Ui.Grid.getColSpan(child);
+                let childWidth = 0.0;
+                for (let x = col; x < col + colSpan; x++)
                     childWidth += this._cols[x].actualWidth;
 
                 child.measure(childWidth, height);
@@ -266,32 +257,25 @@ namespace Ui {
             
             // redo the width measure with the new element measure
             offsetX = 0;
-            for (colPos = 0; colPos < this._cols.length; colPos++) {
-                col = this._cols[colPos];
+            for (let colPos = 0; colPos < this._cols.length; colPos++) {
+                let col = this._cols[colPos];
                 col.offset = offsetX;
-                if (col.absolute) {
+                if (col.absolute)
                     col.actualWidth = col.width;
-                }
-                else if (col.star) {
+                else if (col.star)
                     col.actualWidth = Math.max(this.getColMin(colPos), starWidth * col.width);
-                    colStarSize += col.actualWidth;
-                }
-                else if (col.auto) {
+                else if (col.auto)
                     col.actualWidth = this.getColMin(colPos);
-                }
                 offsetX += col.actualWidth;
             }
                         
             // redo the element measure with the correct width constraint
-            for (i = 0; i < this.children.length; i++) {
-                child = this.children[i];
-                col = Ui.Grid.getCol(child);
-                colSpan = Ui.Grid.getColSpan(child);
-                
-                childX = this._cols[col].offset;
-                childWidth = 0.0;
-                
-                for (x = col; x < col + colSpan; x++)
+            for (let i = 0; i < this.children.length; i++) {
+                let child = this.children[i];
+                let col = Ui.Grid.getCol(child);
+                let colSpan = Ui.Grid.getColSpan(child);
+                let childWidth = 0.0;
+                for (let x = col; x < col + colSpan; x++)
                     childWidth += this._cols[x].actualWidth;
 
                 child.measure(childWidth, height);
@@ -299,8 +283,8 @@ namespace Ui {
         
             // do the height measure
             let offsetY = 0;
-            for (rowPos = 0; rowPos < this._rows.length; rowPos++) {
-                row = this._rows[rowPos];
+            for (let rowPos = 0; rowPos < this._rows.length; rowPos++) {
+                let row = this._rows[rowPos];
                 row.offset = offsetY;
                 if (row.absolute)
                     row.actualHeight = row.height;
@@ -320,8 +304,8 @@ namespace Ui {
             
             // update to column with the proposed star width
             offsetY = 0;
-            for (i = 0; i < this._rows.length; i++) {
-                row = this._rows[i];
+            for (let i = 0; i < this._rows.length; i++) {
+                let row = this._rows[i];
                 row.offset = offsetY;
                 if (row.star)
                     row.actualHeight = starHeight * row.height;
@@ -329,23 +313,18 @@ namespace Ui {
             }
             
             // redo the element measure height the correct height constraint
-            for (i = 0; i < this.children.length; i++) {
-                child = this.children[i];
-                col = Ui.Grid.getCol(child);
-                colSpan = Ui.Grid.getColSpan(child);
-                
-                childX = this._cols[col].offset;
-                childWidth = 0.0;
-                
-                for (x = col; x < col + colSpan; x++)
+            for (let i = 0; i < this.children.length; i++) {
+                let child = this.children[i];
+                let col = Ui.Grid.getCol(child);
+                let colSpan = Ui.Grid.getColSpan(child);
+                let childWidth = 0.0;
+                for (let x = col; x < col + colSpan; x++)
                     childWidth += this._cols[x].actualWidth;
                 
-                row = Ui.Grid.getRow(child);
+                let row = Ui.Grid.getRow(child);
                 let rowSpan = Ui.Grid.getRowSpan(child);
             
-                let childY = this._rows[row].offset;
-                let childHeight = 0.0;
-                
+                let childHeight = 0.0;    
                 for (let y = row; y < row + rowSpan; y++)
                     childHeight += this._rows[y].actualHeight;
 
@@ -354,26 +333,23 @@ namespace Ui {
                 
             // redo the height measure with the new element measure
             offsetY = 0;
-            for (rowPos = 0; rowPos < this._rows.length; rowPos++) {
-                row = this._rows[rowPos];
+            for (let rowPos = 0; rowPos < this._rows.length; rowPos++) {
+                let row = this._rows[rowPos];
                 row.offset = offsetY;
-                if (row.absolute) {
+                if (row.absolute)
                     row.actualHeight = row.height;
-                }
                 else if (row.star) {
                     let rowMin = this.getRowMin(rowPos);
                     row.actualHeight = Math.max(rowMin, starHeight * row.height);
-                    rowStarSize += row.actualHeight;
                 }
-                else if (row.auto) {
+                else if (row.auto)
                     row.actualHeight = this.getRowMin(rowPos);
-                }
                 offsetY += row.actualHeight;
             }
             return { width: offsetX, height: offsetY };
         }
 
-        protected arrangeCore(width, height) {
+        protected arrangeCore(width: number, height: number) {
             for (let i = 0; i < this.children.length; i++) {
                 let child = this.children[i];
                 let col = Ui.Grid.getCol(child);
@@ -381,58 +357,54 @@ namespace Ui {
                 let row = Ui.Grid.getRow(child);
                 let rowSpan = Ui.Grid.getRowSpan(child);
                 
-                let childX = this._cols[col].offset;
-                let childY = this._rows[row].offset;
-                let childWidth = 0.0;
-                let childHeight = 0.0;
-                
-                for (let x = col; x < col + colSpan; x++)
-                    childWidth += this._cols[x].actualWidth;
-                for (let y = row; y < row + rowSpan; y++)
-                    childHeight += this._rows[y].actualHeight;
+                let childX = Math.floor(this._cols[col].offset);
+                let childWidth = ((col + colSpan >= this._cols.length) ? width : Math.floor(this._cols[col + colSpan].offset)) - childX;
+
+                let childY = Math.floor(this._rows[row].offset);
+                let childHeight = ((row + rowSpan >= this._rows.length) ? height : Math.floor(this._rows[row + rowSpan].offset)) - childY;
             
-                child.arrange(childX, childY, childWidth, childHeight);
+                child.arrange(childX, childY, Math.round(childWidth), Math.round(childHeight));
             }
         }
 
-        static getCol(child) {
+        static getCol(child: Element): number {
             return (child['Ui.Grid.col'] !== undefined) ? child['Ui.Grid.col'] : 0;
         }
 
-        static setCol(child, col) {
+        static setCol(child: Element, col: number) {
             if (Ui.Grid.getCol(child) != col) {
                 child['Ui.Grid.col'] = col;
                 child.invalidateMeasure();
             }
         }
 
-        static getRow(child) {
+        static getRow(child: Element): number {
             return (child['Ui.Grid.row'] !== undefined) ? child['Ui.Grid.row'] : 0;
         }
 
-        static setRow(child, row) {
+        static setRow(child: Element, row: number) {
             if (Ui.Grid.getRow(child) !== row) {
                 child['Ui.Grid.row'] = row;
                 child.invalidateMeasure();
             }
         }
 
-        static getColSpan(child) {
+        static getColSpan(child: Element): number {
             return (child['Ui.Grid.colSpan'] !== undefined) ? child['Ui.Grid.colSpan'] : 1;
         }
 
-        static setColSpan(child, colSpan) {
+        static setColSpan(child: Element, colSpan: number) {
             if (Ui.Grid.getColSpan(child) !== colSpan) {
                 child['Ui.Grid.colSpan'] = colSpan;
                 child.invalidateMeasure();
             }
         }
 
-        static getRowSpan(child) {
+        static getRowSpan(child: Element): number {
             return (child['Ui.Grid.rowSpan'] !== undefined) ? child['Ui.Grid.rowSpan'] : 1;
         }
 
-        static setRowSpan(child, rowSpan) {
+        static setRowSpan(child: Element, rowSpan: number) {
             if (Ui.Grid.getRowSpan(child) !== rowSpan) {
                 child['Ui.Grid.rowSpan'] = rowSpan;
                 child.invalidateMeasure();

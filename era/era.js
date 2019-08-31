@@ -19115,7 +19115,6 @@ var Ui;
             var i;
             var i2;
             var currentColumn;
-            var col = this._cols[colPos];
             var min = 0;
             for (i = 0; i < this.children.length; i++) {
                 var child = this.children[i];
@@ -19162,7 +19161,6 @@ var Ui;
             var i;
             var i2;
             var currentRow;
-            var row = this._rows[rowPos];
             var min = 0;
             for (i = 0; i < this.children.length; i++) {
                 var child = this.children[i];
@@ -19206,29 +19204,17 @@ var Ui;
             return min;
         };
         Grid.prototype.measureCore = function (width, height) {
-            var i;
-            var child;
-            var col;
-            var colSpan;
-            var colPos;
-            var childX;
-            var childWidth;
-            var x;
-            var row;
-            var rowPos;
-            for (i = 0; i < this.children.length; i++) {
-                child = this.children[i];
+            for (var i = 0; i < this.children.length; i++) {
+                var child = this.children[i];
                 var constraintWidth = (width * Ui.Grid.getColSpan(child)) / this._cols.length;
                 var constraintHeight = (height * Ui.Grid.getRowSpan(child)) / this._rows.length;
                 child.measure(constraintWidth, constraintHeight);
             }
             var colStarCount = 0.0;
-            var colStarSize = 0.0;
             var rowStarCount = 0.0;
-            var rowStarSize = 0.0;
             var offsetX = 0;
-            for (colPos = 0; colPos < this._cols.length; colPos++) {
-                col = this._cols[colPos];
+            for (var colPos = 0; colPos < this._cols.length; colPos++) {
+                var col = this._cols[colPos];
                 col.offset = offsetX;
                 if (col.absolute)
                     col.actualWidth += col.width;
@@ -19245,52 +19231,46 @@ var Ui;
             if (colStarCount > 0.0)
                 starWidth = (width - offsetX) / colStarCount;
             offsetX = 0;
-            for (i = 0; i < this._cols.length; i++) {
-                col = this._cols[i];
+            for (var i = 0; i < this._cols.length; i++) {
+                var col = this._cols[i];
                 col.offset = offsetX;
                 if (col.star)
                     col.actualWidth = starWidth * col.width;
                 offsetX += col.actualWidth;
             }
-            for (i = 0; i < this.children.length; i++) {
-                child = this.children[i];
-                col = Ui.Grid.getCol(child);
-                colSpan = Ui.Grid.getColSpan(child);
-                childX = this._cols[col].offset;
-                childWidth = 0.0;
-                for (x = col; x < col + colSpan; x++)
+            for (var i = 0; i < this.children.length; i++) {
+                var child = this.children[i];
+                var col = Ui.Grid.getCol(child);
+                var colSpan = Ui.Grid.getColSpan(child);
+                var childWidth = 0.0;
+                for (var x = col; x < col + colSpan; x++)
                     childWidth += this._cols[x].actualWidth;
                 child.measure(childWidth, height);
             }
             offsetX = 0;
-            for (colPos = 0; colPos < this._cols.length; colPos++) {
-                col = this._cols[colPos];
+            for (var colPos = 0; colPos < this._cols.length; colPos++) {
+                var col = this._cols[colPos];
                 col.offset = offsetX;
-                if (col.absolute) {
+                if (col.absolute)
                     col.actualWidth = col.width;
-                }
-                else if (col.star) {
+                else if (col.star)
                     col.actualWidth = Math.max(this.getColMin(colPos), starWidth * col.width);
-                    colStarSize += col.actualWidth;
-                }
-                else if (col.auto) {
+                else if (col.auto)
                     col.actualWidth = this.getColMin(colPos);
-                }
                 offsetX += col.actualWidth;
             }
-            for (i = 0; i < this.children.length; i++) {
-                child = this.children[i];
-                col = Ui.Grid.getCol(child);
-                colSpan = Ui.Grid.getColSpan(child);
-                childX = this._cols[col].offset;
-                childWidth = 0.0;
-                for (x = col; x < col + colSpan; x++)
+            for (var i = 0; i < this.children.length; i++) {
+                var child = this.children[i];
+                var col = Ui.Grid.getCol(child);
+                var colSpan = Ui.Grid.getColSpan(child);
+                var childWidth = 0.0;
+                for (var x = col; x < col + colSpan; x++)
                     childWidth += this._cols[x].actualWidth;
                 child.measure(childWidth, height);
             }
             var offsetY = 0;
-            for (rowPos = 0; rowPos < this._rows.length; rowPos++) {
-                row = this._rows[rowPos];
+            for (var rowPos = 0; rowPos < this._rows.length; rowPos++) {
+                var row = this._rows[rowPos];
                 row.offset = offsetY;
                 if (row.absolute)
                     row.actualHeight = row.height;
@@ -19306,44 +19286,39 @@ var Ui;
             if (rowStarCount > 0.0)
                 starHeight = (height - offsetY) / rowStarCount;
             offsetY = 0;
-            for (i = 0; i < this._rows.length; i++) {
-                row = this._rows[i];
+            for (var i = 0; i < this._rows.length; i++) {
+                var row = this._rows[i];
                 row.offset = offsetY;
                 if (row.star)
                     row.actualHeight = starHeight * row.height;
                 offsetY += row.actualHeight;
             }
-            for (i = 0; i < this.children.length; i++) {
-                child = this.children[i];
-                col = Ui.Grid.getCol(child);
-                colSpan = Ui.Grid.getColSpan(child);
-                childX = this._cols[col].offset;
-                childWidth = 0.0;
-                for (x = col; x < col + colSpan; x++)
+            for (var i = 0; i < this.children.length; i++) {
+                var child = this.children[i];
+                var col = Ui.Grid.getCol(child);
+                var colSpan = Ui.Grid.getColSpan(child);
+                var childWidth = 0.0;
+                for (var x = col; x < col + colSpan; x++)
                     childWidth += this._cols[x].actualWidth;
-                row = Ui.Grid.getRow(child);
+                var row = Ui.Grid.getRow(child);
                 var rowSpan = Ui.Grid.getRowSpan(child);
-                var childY = this._rows[row].offset;
                 var childHeight = 0.0;
                 for (var y = row; y < row + rowSpan; y++)
                     childHeight += this._rows[y].actualHeight;
                 child.measure(childWidth, childHeight);
             }
             offsetY = 0;
-            for (rowPos = 0; rowPos < this._rows.length; rowPos++) {
-                row = this._rows[rowPos];
+            for (var rowPos = 0; rowPos < this._rows.length; rowPos++) {
+                var row = this._rows[rowPos];
                 row.offset = offsetY;
-                if (row.absolute) {
+                if (row.absolute)
                     row.actualHeight = row.height;
-                }
                 else if (row.star) {
                     var rowMin = this.getRowMin(rowPos);
                     row.actualHeight = Math.max(rowMin, starHeight * row.height);
-                    rowStarSize += row.actualHeight;
                 }
-                else if (row.auto) {
+                else if (row.auto)
                     row.actualHeight = this.getRowMin(rowPos);
-                }
                 offsetY += row.actualHeight;
             }
             return { width: offsetX, height: offsetY };
@@ -19355,15 +19330,11 @@ var Ui;
                 var colSpan = Ui.Grid.getColSpan(child);
                 var row = Ui.Grid.getRow(child);
                 var rowSpan = Ui.Grid.getRowSpan(child);
-                var childX = this._cols[col].offset;
-                var childY = this._rows[row].offset;
-                var childWidth = 0.0;
-                var childHeight = 0.0;
-                for (var x = col; x < col + colSpan; x++)
-                    childWidth += this._cols[x].actualWidth;
-                for (var y = row; y < row + rowSpan; y++)
-                    childHeight += this._rows[y].actualHeight;
-                child.arrange(childX, childY, childWidth, childHeight);
+                var childX = Math.floor(this._cols[col].offset);
+                var childWidth = ((col + colSpan >= this._cols.length) ? width : Math.floor(this._cols[col + colSpan].offset)) - childX;
+                var childY = Math.floor(this._rows[row].offset);
+                var childHeight = ((row + rowSpan >= this._rows.length) ? height : Math.floor(this._rows[row + rowSpan].offset)) - childY;
+                child.arrange(childX, childY, Math.round(childWidth), Math.round(childHeight));
             }
         };
         Grid.getCol = function (child) {
