@@ -4689,6 +4689,7 @@ declare namespace Ui {
     }
     class MonthCalendar extends VBox {
         private _selectedDate;
+        private _selectMode;
         private _date;
         private monthButton;
         private yearButton;
@@ -4709,6 +4710,7 @@ declare namespace Ui {
         dateFilter: string[];
         date: Date;
         selectedDate: Date;
+        selectMode: 'DAY' | 'WEEK';
         mode: 'DAY' | 'MONTH' | 'YEAR';
         protected onLeftButtonPress(): void;
         protected onRightButtonPress(): void;

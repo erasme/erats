@@ -9,6 +9,7 @@ namespace Ui {
 
     export class MonthCalendar extends VBox {
         private _selectedDate: Date;
+        private _selectMode: 'DAY' | 'WEEK' = 'DAY';
         private _date: Date;
         private monthButton: FlatButton;
         private yearButton: FlatButton;
@@ -39,7 +40,7 @@ namespace Ui {
             hbox.append(button);
 
             let datehbox = new HBox({ spacing: 5, horizontalAlign: 'center' });
-            this.monthButton = new MonthYearButton ({ //new Pressable({
+            this.monthButton = new MonthYearButton ({
                 onpressed: () => this.mode = this.mode == 'MONTH' ? 'DAY' : 'MONTH'
             });
 
@@ -107,7 +108,23 @@ namespace Ui {
 
         set selectedDate(selectedDate: Date) {
             this._selectedDate = selectedDate;
+            this._date = selectedDate;
             this.updateDate();
+        }
+
+        get selectMode(): 'DAY' | 'WEEK' {
+            return this._selectMode;
+        }
+
+        set selectMode(value: 'DAY' | 'WEEK') {
+            if (value != this._selectMode) {
+                this._selectMode = value;
+                this.updateDate(false);
+            }
+        }
+
+        get mode(): 'DAY' | 'MONTH' | 'YEAR' {
+            return this._mode;
         }
 
         set mode(value: 'DAY' | 'MONTH' | 'YEAR') {
@@ -115,10 +132,6 @@ namespace Ui {
                 this._mode = value;
                 this.updateDate(false);
             }
-        }
-
-        get mode(): 'DAY' | 'MONTH' | 'YEAR' {
-            return this._mode;
         }
 
         protected onLeftButtonPress() {
@@ -164,9 +177,12 @@ namespace Ui {
         }
 
         private updateDayGrid(reuseGrid: boolean) {
-            let i;
+            let i = 0;
             let dayPivot = [6, 0, 1, 2, 3, 4, 5];
             let dayNames = ['Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa', 'Di'];
+            let color = this.getStyleProperty('color');
+            let dayColor = this.getStyleProperty('dayColor');
+            let selectColor = this.getStyleProperty('selectColor');
 
             if (reuseGrid && this.grid)
                 while (this.grid.firstChild !== undefined)
@@ -181,61 +197,76 @@ namespace Ui {
                 this.append(this.grid);
             }
             for (i = 0; i < 7; i++)
-                this.grid.attach(new Label({ text: dayNames[i], fontWeight: 'bold', margin: 5 }), i, 0);
+                this.grid.attach(new Label({ text: dayNames[i], fontWeight: 'bold', color: color, margin: 5 }), i, 0);
             let month = this._date.getMonth();
             let current = new Date(this._date.getTime());
             current.setDate(1);
+
+            let day = (current.getDay() + 6) % 7;
+            let weekStart = new Date(current.getTime() - day * 24 * 3600 * 1000);
+            current = weekStart;
+
+            let selectedWeekStart: Date | undefined = undefined;
+            if (this._selectedDate) {
+                let day = (this._selectedDate.getDay() + 6) % 7;
+                selectedWeekStart = new Date(this._selectedDate.getTime() - day * 24 * 3600 * 1000);
+            }
+
             let row = 1;
             let now = new Date();
             do {
-                let day = new DayButton({
-                    onpressed: () => this.onDaySelect(day)
-                });
-                day.monthCalendarDate = current;
-                let bg;
-                if ((current.getFullYear() == now.getFullYear()) && (current.getMonth() == now.getMonth()) && (current.getDate() == now.getDate())) {
-                    day.monthCalendarCurrent = true;
-                    bg = new Rectangle({ fill: new Color(0.2, 0.4, 1, 0.4), margin: 1 });
-                    day.append(bg);
-                }
-                else {
-                    bg = new Rectangle({ fill: new Color(0.8, 0.8, 0.8, 0.4), margin: 1 });
-                    day.append(bg);
-                }
-                if ((this._selectedDate !== undefined) && (current.getFullYear() === this._selectedDate.getFullYear()) && (current.getMonth() === this._selectedDate.getMonth()) && (current.getDate() === this._selectedDate.getDate()))
-                    day.append(new Frame({ frameWidth: 3, fill: 'red', radius: 0 }));
-                let disable = false;
-                if (this._dayFilter !== undefined) {
-                    let weekday = current.getDay();
-                    for (i = 0; (i < this._dayFilter.length) && !disable; i++)
-                        if (weekday == this._dayFilter[i])
-                            disable = true;
-                }
-                if (this._dateFilter !== undefined) {
-                    let daystr = current.getFullYear() + '/';
-                    if (current.getMonth() + 1 < 10)
-                        daystr += '0';
-                    daystr += (current.getMonth() + 1) + '/';
-                    if (current.getDate() < 10)
-                        daystr += '0';
-                    daystr += current.getDate();
-                    for (i = 0; (i < this._dateFilter.length) && !disable; i++) {
-                        let re = new RegExp(this._dateFilter[i]);
-                        if (re.test(daystr)) {
-                            disable = true;
+                let day = (current.getDay() + 6) % 7;
+                let weekStart = new Date(current.getTime() - day * 24 * 3600 * 1000);
+
+                for (let col = 0; col < 7; col++) {
+                    let day = new DayButton({
+                        onpressed: () => this.onDaySelect(day)
+                    });
+                    let isSelected = false;
+                    if (this._selectMode == 'DAY')
+                        isSelected = (this._selectedDate !== undefined) && (current.getFullYear() === this._selectedDate.getFullYear()) && (current.getMonth() === this._selectedDate.getMonth()) && (current.getDate() === this._selectedDate.getDate());
+                    else if (this._selectMode == 'WEEK')
+                        isSelected = selectedWeekStart && (weekStart.getFullYear() === selectedWeekStart.getFullYear()) && (weekStart.getMonth() === selectedWeekStart.getMonth()) && (weekStart.getDate() === selectedWeekStart.getDate());
+
+                    let currentMonth = current.getMonth() == month;
+                    day.monthCalendarDate = current;
+                    day.monthCalendarCurrent = (current.getFullYear() == now.getFullYear()) && (current.getMonth() == now.getMonth()) && (current.getDate() == now.getDate());
+                    day.isSelected = isSelected;
+                    day.append(new Rectangle().assign({ fill: day.isSelected ? selectColor : dayColor, opacity: currentMonth ? 1 : 0.5 }));
+                    let disable = false;
+                    if (this._dayFilter !== undefined) {
+                        let weekday = current.getDay();
+                        for (i = 0; (i < this._dayFilter.length) && !disable; i++)
+                            if (weekday == this._dayFilter[i])
+                                disable = true;
+                    }
+                    if (this._dateFilter !== undefined) {
+                        let daystr = current.getFullYear() + '/';
+                        if (current.getMonth() + 1 < 10)
+                            daystr += '0';
+                        daystr += (current.getMonth() + 1) + '/';
+                        if (current.getDate() < 10)
+                            daystr += '0';
+                        daystr += current.getDate();
+                        for (i = 0; (i < this._dateFilter.length) && !disable; i++) {
+                            let re = new RegExp(this._dateFilter[i]);
+                            if (re.test(daystr)) {
+                                disable = true;
+                            }
                         }
                     }
+                    if (disable) {
+                        day.disable();
+                        day.opacity = 0.2;
+                    }
+                    day.append(new Label({ text: current.getDate().toString(), fontWeight: day.monthCalendarCurrent ? 'bold' : 'normal', margin: 5 }));
+                    this.grid.attach(day, col, row);
+                    current = new Date(current.getTime() + 1000 * 60 * 60 * 24);
+                    if (dayPivot[current.getDay()] === 0)
+                        row++;                    
                 }
-                if (disable) {
-                    day.disable();
-                    day.opacity = 0.2;
-                }
-                day.append(new Label({ text: current.getDate().toString(), margin: 5 }));
-                this.grid.attach(day, dayPivot[current.getDay()], row);
-                current = new Date(current.getTime() + 1000 * 60 * 60 * 24);
-                if (dayPivot[current.getDay()] === 0)
-                    row++;
-            } while (month == current.getMonth());
+            }
+            while (month == current.getMonth());
         }
 
         private updateMonthGrid(reuseGrid: boolean) {
@@ -311,7 +342,7 @@ namespace Ui {
         protected onStyleChange(): void {
             let color = this.getStyleProperty('color');
             let dayColor = this.getStyleProperty('dayColor');
-            let currentDayColor = this.getStyleProperty('currentDayColor');
+            let selectColor = this.getStyleProperty('selectColor');
 
             for (let i = 0; i < this.grid.children.length; i++) {
                 let child = this.grid.children[i];
@@ -322,12 +353,8 @@ namespace Ui {
                         let child2 = child.children[i2];
                         if (child2 instanceof Label)
                             child2.color = color;
-                        else if (child2 instanceof Rectangle) {
-                            if (child.monthCalendarCurrent)
-                                child2.fill = currentDayColor;
-                            else
-                                child2.fill = dayColor;
-                        }
+                        else if (child2 instanceof Rectangle)
+                            child2.fill = child.isSelected ? selectColor : dayColor;
                     }
                 }
             }
@@ -336,13 +363,14 @@ namespace Ui {
         static style: object = {
             color: 'black',
             dayColor: new Color(0.81, 0.81, 0.81, 0.5),
-            currentDayColor: new Color(1, 0.31, 0.66, 0.5)
+            selectColor: 'rgba(96,181,255,0.5)'
         }
     }
 
     class DayButton extends Pressable {
         monthCalendarDate: Date;
         monthCalendarCurrent: boolean;
+        isSelected: boolean = false;
     }
 
     class MonthYearButton extends FlatButton {
