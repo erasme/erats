@@ -21551,7 +21551,7 @@ var Ui;
         });
         Object.defineProperty(MonthCalendar.prototype, "date", {
             set: function (date) {
-                this._date = date;
+                this._date = new Date(date.getTime());
                 this.updateDate();
             },
             enumerable: true,
@@ -21559,11 +21559,11 @@ var Ui;
         });
         Object.defineProperty(MonthCalendar.prototype, "selectedDate", {
             get: function () {
-                return this._selectedDate;
+                return new Date(this._selectedDate.getTime());
             },
             set: function (selectedDate) {
-                this._selectedDate = selectedDate;
-                this._date = selectedDate;
+                this._selectedDate = new Date(selectedDate.getTime());
+                this._date = new Date(selectedDate.getTime());
                 this.updateDate();
             },
             enumerable: true,

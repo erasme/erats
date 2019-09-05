@@ -98,17 +98,17 @@ namespace Ui {
         }
 
         set date(date: Date) {
-            this._date = date;
+            this._date = new Date(date.getTime());
             this.updateDate();
         }
 
         get selectedDate(): Date {
-            return this._selectedDate;
+            return new Date(this._selectedDate.getTime());
         }
 
         set selectedDate(selectedDate: Date) {
-            this._selectedDate = selectedDate;
-            this._date = selectedDate;
+            this._selectedDate = new Date(selectedDate.getTime());
+            this._date = new Date(selectedDate.getTime());
             this.updateDate();
         }
 
