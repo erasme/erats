@@ -2326,6 +2326,17 @@ declare namespace Ui {
     }
 }
 declare namespace Ui {
+    class ElementPointerManager extends Core.Object {
+        readonly element: Element;
+        private onptrdowned;
+        constructor(init: {
+            element: Element;
+            onptrdowned: (event: EmuPointerEvent) => void;
+        });
+        onPointerDown(pointerEvent: PointerEvent): void;
+        onTouchStart(touchEvent: TouchEvent): void;
+        onMouseDown(mouseEvent: MouseEvent): void;
+    }
     class TransformableWatcher extends Core.Object {
         element: Ui.Element;
         transform?: (watcher: TransformableWatcher, testOnly: boolean) => void;
