@@ -10434,6 +10434,172 @@ var Ui;
 })(Ui || (Ui = {}));
 var Ui;
 (function (Ui) {
+    var ElementPointerManager = (function (_super) {
+        __extends(ElementPointerManager, _super);
+        function ElementPointerManager(init) {
+            var _this = _super.call(this) || this;
+            _this.element = init.element;
+            _this.onptrdowned = init.onptrdowned;
+            if ('PointerEvent' in window)
+                _this.element.drawing.addEventListener('pointerdown', function (e) { return _this.onPointerDown(e); }, { passive: false });
+            else if ('TouchEvent' in window)
+                _this.element.drawing.addEventListener('touchstart', function (e) { return _this.onTouchStart(e); });
+            else
+                _this.element.drawing.addEventListener('mousedown', function (e) { return _this.onMouseDown(e); });
+            return _this;
+        }
+        ElementPointerManager.prototype.onPointerDown = function (pointerEvent) {
+            var _this = this;
+            var onContextMenu = function (e) {
+                e.stopImmediatePropagation();
+                e.preventDefault();
+            };
+            if (pointerEvent.type == 'touch')
+                this.element.drawing.addEventListener('contextmenu', onContextMenu, { capture: true });
+            var pointer = new Ui.Pointer(pointerEvent.pointerType, pointerEvent.pointerId);
+            pointer.setInitialPosition(pointerEvent.clientX, pointerEvent.clientY);
+            pointer.ctrlKey = pointerEvent.ctrlKey;
+            pointer.altKey = pointerEvent.altKey;
+            pointer.shiftKey = pointerEvent.shiftKey;
+            pointer.down(pointerEvent.clientX, pointerEvent.clientY, pointerEvent.buttons, pointerEvent.button);
+            var onPointerMove = function (e) {
+                pointer.ctrlKey = e.ctrlKey;
+                pointer.altKey = e.altKey;
+                pointer.shiftKey = e.shiftKey;
+                pointer.move(e.clientX, e.clientY);
+            };
+            var onPointerUp = function (e) {
+                if (pointer.getIsCaptured()) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                }
+                pointer.ctrlKey = e.ctrlKey;
+                pointer.altKey = e.altKey;
+                pointer.shiftKey = e.shiftKey;
+                pointer.up();
+                window.removeEventListener('pointermove', onPointerMove, { capture: true });
+                window.removeEventListener('pointerup', onPointerUp, { capture: true });
+                window.removeEventListener('pointercancel', onPointerCancel, { capture: true });
+                if (pointerEvent.type == 'touch')
+                    _this.element.drawing.removeEventListener('contextmenu', onContextMenu, { capture: true });
+            };
+            var onPointerCancel = function (e) {
+                pointer.ctrlKey = e.ctrlKey;
+                pointer.altKey = e.altKey;
+                pointer.shiftKey = e.shiftKey;
+                pointer.cancel();
+                window.removeEventListener('pointermove', onPointerMove, { capture: true });
+                window.removeEventListener('pointerup', onPointerUp, { capture: true });
+                window.removeEventListener('pointercancel', onPointerCancel, { capture: true });
+                if (pointerEvent.type == 'touch')
+                    _this.element.drawing.removeEventListener('contextmenu', onContextMenu, { capture: true });
+            };
+            window.addEventListener('pointermove', onPointerMove, { capture: true, passive: false });
+            window.addEventListener('pointerup', onPointerUp, { capture: true, passive: false });
+            window.addEventListener('pointercancel', onPointerCancel, { capture: true, passive: false });
+            var event = new Ui.EmuPointerEvent('ptrdowned', pointer);
+            this.onptrdowned(event);
+            if (event.getIsPropagationStopped())
+                pointerEvent.stopPropagation();
+        };
+        ElementPointerManager.prototype.onTouchStart = function (touchEvent) {
+            var _this = this;
+            var onContextMenu = function (e) {
+                e.stopImmediatePropagation();
+                e.preventDefault();
+            };
+            this.element.drawing.addEventListener('contextmenu', onContextMenu, { capture: true });
+            var touch = touchEvent.targetTouches[0];
+            var pointer = new Ui.Pointer('touch', touch.identifier);
+            pointer.setInitialPosition(touch.clientX, touch.clientY);
+            pointer.ctrlKey = touchEvent.ctrlKey;
+            pointer.altKey = touchEvent.altKey;
+            pointer.shiftKey = touchEvent.shiftKey;
+            pointer.down(touch.clientX, touch.clientY, 1, 1);
+            var onTouchMove = function (e) {
+                var touch;
+                for (var i = 0; touch == undefined && i < e.touches.length; i++)
+                    if (e.touches[i].identifier == pointer.id)
+                        touch = e.touches[i];
+                if (!touch)
+                    return;
+                pointer.ctrlKey = e.ctrlKey;
+                pointer.altKey = e.altKey;
+                pointer.shiftKey = e.shiftKey;
+                pointer.move(touch.clientX, touch.clientY);
+                e.stopImmediatePropagation();
+                if (pointer.getIsCaptured())
+                    e.preventDefault();
+            };
+            var onTouchEnd = function (e) {
+                pointer.ctrlKey = e.ctrlKey;
+                pointer.altKey = e.altKey;
+                pointer.shiftKey = e.shiftKey;
+                pointer.up();
+                window.removeEventListener('touchmove', onTouchMove, { capture: true });
+                window.removeEventListener('touchend', onTouchEnd, { capture: true });
+                window.removeEventListener('touchcancel', onTouchCancel, { capture: true });
+                _this.element.drawing.removeEventListener('contextmenu', onContextMenu, { capture: true });
+                e.stopImmediatePropagation();
+                if (pointer.getIsCaptured())
+                    e.preventDefault();
+            };
+            var onTouchCancel = function (e) {
+                pointer.ctrlKey = e.ctrlKey;
+                pointer.altKey = e.altKey;
+                pointer.shiftKey = e.shiftKey;
+                pointer.cancel();
+                window.removeEventListener('touchmove', onTouchMove, { capture: true });
+                window.removeEventListener('touchend', onTouchEnd, { capture: true });
+                window.removeEventListener('touchcancel', onTouchCancel, { capture: true });
+                _this.element.drawing.removeEventListener('contextmenu', onContextMenu, { capture: true });
+            };
+            window.addEventListener('touchmove', onTouchMove, { capture: true, passive: false });
+            window.addEventListener('touchend', onTouchEnd, { capture: true, passive: false });
+            window.addEventListener('touchcancel', onTouchCancel, { capture: true, passive: false });
+            var event = new Ui.EmuPointerEvent('ptrdowned', pointer);
+            this.onptrdowned(event);
+            if (event.getIsPropagationStopped())
+                touchEvent.stopPropagation();
+        };
+        ElementPointerManager.prototype.onMouseDown = function (mouseEvent) {
+            var pointer = new Ui.Pointer(mouseEvent.type, 0);
+            pointer.setInitialPosition(mouseEvent.clientX, mouseEvent.clientY);
+            pointer.ctrlKey = mouseEvent.ctrlKey;
+            pointer.altKey = mouseEvent.altKey;
+            pointer.shiftKey = mouseEvent.shiftKey;
+            pointer.down(mouseEvent.clientX, mouseEvent.clientY, mouseEvent.buttons, mouseEvent.button);
+            var onMouseMove = function (e) {
+                pointer.ctrlKey = e.ctrlKey;
+                pointer.altKey = e.altKey;
+                pointer.shiftKey = e.shiftKey;
+                if (e.button == 0)
+                    pointer.move(e.clientX, e.clientY);
+            };
+            var onMouseUp = function (e) {
+                pointer.ctrlKey = e.ctrlKey;
+                pointer.altKey = e.altKey;
+                pointer.shiftKey = e.shiftKey;
+                if (e.button == 0) {
+                    if (pointer.getIsCaptured()) {
+                        e.preventDefault();
+                        e.stopImmediatePropagation();
+                    }
+                    pointer.up();
+                    window.removeEventListener('mousemove', onMouseMove, true);
+                    window.removeEventListener('mouseup', onMouseUp, true);
+                }
+            };
+            window.addEventListener('mousemove', onMouseMove, true);
+            window.addEventListener('mouseup', onMouseUp, true);
+            var event = new Ui.EmuPointerEvent('ptrdowned', pointer);
+            this.onptrdowned(event);
+            if (event.getIsPropagationStopped())
+                mouseEvent.stopPropagation();
+        };
+        return ElementPointerManager;
+    }(Core.Object));
+    Ui.ElementPointerManager = ElementPointerManager;
     var TransformableWatcher = (function (_super) {
         __extends(TransformableWatcher, _super);
         function TransformableWatcher(init) {
@@ -10492,8 +10658,11 @@ var Ui;
             if (init.inertia != undefined)
                 _this.inertia = init.inertia;
             _this.element.setTransformOrigin(0, 0, true);
-            _this.element.ptrdowned.connect(function (e) { return _this.onPointerDown(e); });
             _this.element.wheelchanged.connect(function (e) { return _this.onWheel(e); });
+            new ElementPointerManager({
+                element: _this.element,
+                onptrdowned: function (e) { return _this.onPointerDown(e); }
+            });
             return _this;
         }
         Object.defineProperty(TransformableWatcher.prototype, "allowLeftMouse", {
@@ -10945,7 +11114,10 @@ var Ui;
             _this.contentBox = new Ui.LBox();
             _this.contentBox.setTransformOrigin(0, 0, true);
             _this.appendChild(_this.contentBox);
-            _this.ptrdowned.connect(function (e) { return _this.onPointerDown(e); });
+            new ElementPointerManager({
+                element: _this,
+                onptrdowned: function (e) { return _this.onPointerDown(e); }
+            });
             _this.wheelchanged.connect(function (e) { return _this.onWheel(e); });
             if (init) {
                 if (init.inertia !== undefined)

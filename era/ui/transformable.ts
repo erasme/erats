@@ -1,5 +1,178 @@
 namespace Ui {
 
+    export class ElementPointerManager extends Core.Object {
+        readonly element: Element;
+        private onptrdowned: (event: EmuPointerEvent) => void;
+
+        constructor(init: { element: Element, onptrdowned: (event: EmuPointerEvent) => void }) {
+            super();
+            this.element = init.element;
+            this.onptrdowned = init.onptrdowned;
+
+            if ('PointerEvent' in window)
+                this.element.drawing.addEventListener('pointerdown', (e) => this.onPointerDown(e), { passive: false });
+            else if ('TouchEvent' in window)
+                this.element.drawing.addEventListener('touchstart', (e) => this.onTouchStart(e));
+            else
+                this.element.drawing.addEventListener('mousedown', (e) => this.onMouseDown(e));
+        }
+
+        onPointerDown(pointerEvent: PointerEvent) {
+            let onContextMenu = (e) => {
+                e.stopImmediatePropagation();
+                e.preventDefault();
+            }
+            if (pointerEvent.type == 'touch')
+                this.element.drawing.addEventListener('contextmenu', onContextMenu, { capture: true });
+            let pointer = new Pointer(pointerEvent.pointerType, pointerEvent.pointerId);
+            pointer.setInitialPosition(pointerEvent.clientX, pointerEvent.clientY);
+            pointer.ctrlKey = pointerEvent.ctrlKey;
+            pointer.altKey = pointerEvent.altKey;
+            pointer.shiftKey = pointerEvent.shiftKey;
+            pointer.down(pointerEvent.clientX, pointerEvent.clientY, pointerEvent.buttons, pointerEvent.button);
+
+            let onPointerMove = (e: PointerEvent) => {
+                pointer.ctrlKey = e.ctrlKey;
+                pointer.altKey = e.altKey;
+                pointer.shiftKey = e.shiftKey;
+                pointer.move(e.clientX, e.clientY);
+            };
+            let onPointerUp = (e: PointerEvent) => {
+                if (pointer.getIsCaptured()) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                }
+                pointer.ctrlKey = e.ctrlKey;
+                pointer.altKey = e.altKey;
+                pointer.shiftKey = e.shiftKey;
+                pointer.up();
+                window.removeEventListener('pointermove', onPointerMove, { capture: true });
+                window.removeEventListener('pointerup', onPointerUp, { capture: true });
+                window.removeEventListener('pointercancel', onPointerCancel, { capture: true });
+                if (pointerEvent.type == 'touch')
+                    this.element.drawing.removeEventListener('contextmenu', onContextMenu, { capture: true });
+            };
+            let onPointerCancel = (e: PointerEvent) => {
+                pointer.ctrlKey = e.ctrlKey;
+                pointer.altKey = e.altKey;
+                pointer.shiftKey = e.shiftKey;
+                pointer.cancel();
+                window.removeEventListener('pointermove', onPointerMove, { capture: true });
+                window.removeEventListener('pointerup', onPointerUp, { capture: true });
+                window.removeEventListener('pointercancel', onPointerCancel, { capture: true });
+                if (pointerEvent.type == 'touch')
+                    this.element.drawing.removeEventListener('contextmenu', onContextMenu, { capture: true });
+            };
+            window.addEventListener('pointermove', onPointerMove, { capture: true, passive: false });
+            window.addEventListener('pointerup', onPointerUp, { capture: true, passive: false });
+            window.addEventListener('pointercancel', onPointerCancel, { capture: true, passive: false });
+
+            let event = new EmuPointerEvent('ptrdowned', pointer);
+            this.onptrdowned(event);
+            if (event.getIsPropagationStopped())
+                pointerEvent.stopPropagation();
+        }
+
+        onTouchStart(touchEvent: TouchEvent) {
+            let onContextMenu = (e) => {
+                e.stopImmediatePropagation();
+                e.preventDefault();
+            }
+            this.element.drawing.addEventListener('contextmenu', onContextMenu, { capture: true });
+            let touch = touchEvent.targetTouches[0];
+            let pointer = new Pointer('touch', touch.identifier);
+            pointer.setInitialPosition(touch.clientX, touch.clientY);
+            pointer.ctrlKey = touchEvent.ctrlKey;
+            pointer.altKey = touchEvent.altKey;
+            pointer.shiftKey = touchEvent.shiftKey;
+            pointer.down(touch.clientX, touch.clientY, 1, 1);
+
+            let onTouchMove = (e: TouchEvent) => {
+                let touch: Touch | undefined;
+                for (let i = 0; touch == undefined && i < e.touches.length; i++)
+                    if (e.touches[i].identifier == pointer.id)
+                        touch = e.touches[i];
+                if (!touch)
+                    return;
+
+                pointer.ctrlKey = e.ctrlKey;
+                pointer.altKey = e.altKey;
+                pointer.shiftKey = e.shiftKey;
+                pointer.move(touch.clientX, touch.clientY);
+                e.stopImmediatePropagation();
+                if (pointer.getIsCaptured())
+                    e.preventDefault();
+            };
+            let onTouchEnd = (e: TouchEvent) => {
+                pointer.ctrlKey = e.ctrlKey;
+                pointer.altKey = e.altKey;
+                pointer.shiftKey = e.shiftKey;
+                pointer.up();
+                window.removeEventListener('touchmove', onTouchMove, { capture: true });
+                window.removeEventListener('touchend', onTouchEnd, { capture: true });
+                window.removeEventListener('touchcancel', onTouchCancel, { capture: true });
+                this.element.drawing.removeEventListener('contextmenu', onContextMenu, { capture: true });
+                e.stopImmediatePropagation();
+                if (pointer.getIsCaptured())
+                    e.preventDefault();
+            };
+            let onTouchCancel = (e: TouchEvent) => {
+                pointer.ctrlKey = e.ctrlKey;
+                pointer.altKey = e.altKey;
+                pointer.shiftKey = e.shiftKey;
+                pointer.cancel();
+                window.removeEventListener('touchmove', onTouchMove, { capture: true });
+                window.removeEventListener('touchend', onTouchEnd, { capture: true });
+                window.removeEventListener('touchcancel', onTouchCancel, { capture: true });
+                this.element.drawing.removeEventListener('contextmenu', onContextMenu, { capture: true });
+            };
+            window.addEventListener('touchmove', onTouchMove, { capture: true, passive: false });
+            window.addEventListener('touchend', onTouchEnd, { capture: true, passive: false });
+            window.addEventListener('touchcancel', onTouchCancel, { capture: true, passive: false });
+            let event = new EmuPointerEvent('ptrdowned', pointer);
+            this.onptrdowned(event);
+            if (event.getIsPropagationStopped())
+                touchEvent.stopPropagation();
+        }
+
+        onMouseDown(mouseEvent: MouseEvent) {
+            let pointer = new Pointer(mouseEvent.type, 0);
+            pointer.setInitialPosition(mouseEvent.clientX, mouseEvent.clientY);
+            pointer.ctrlKey = mouseEvent.ctrlKey;
+            pointer.altKey = mouseEvent.altKey;
+            pointer.shiftKey = mouseEvent.shiftKey;
+            pointer.down(mouseEvent.clientX, mouseEvent.clientY, mouseEvent.buttons, mouseEvent.button);
+
+            let onMouseMove = (e: MouseEvent) => {
+                pointer.ctrlKey = e.ctrlKey;
+                pointer.altKey = e.altKey;
+                pointer.shiftKey = e.shiftKey;
+                if (e.button == 0)
+                    pointer.move(e.clientX, e.clientY);
+            };
+            let onMouseUp = (e: MouseEvent) => {
+                pointer.ctrlKey = e.ctrlKey;
+                pointer.altKey = e.altKey;
+                pointer.shiftKey = e.shiftKey;
+                if (e.button == 0) {
+                    if (pointer.getIsCaptured()) {
+                        e.preventDefault();
+                        e.stopImmediatePropagation();
+                    }    
+                    pointer.up();
+                    window.removeEventListener('mousemove', onMouseMove, true);
+                    window.removeEventListener('mouseup', onMouseUp, true);
+                }
+            };
+            window.addEventListener('mousemove', onMouseMove, true);
+            window.addEventListener('mouseup', onMouseUp, true);
+            let event = new EmuPointerEvent('ptrdowned', pointer);
+            this.onptrdowned(event);
+            if (event.getIsPropagationStopped())
+                mouseEvent.stopPropagation();
+        }
+    }
+
     export class TransformableWatcher extends Core.Object {
         element: Ui.Element;
         transform?: (watcher: TransformableWatcher, testOnly: boolean) => void;
@@ -18,7 +191,7 @@ namespace Ui {
         private watcher2: PointerWatcher;
 
         private _angle: number = 0;
-        private _scale: number= 1;
+        private _scale: number = 1;
         private _translateX: number = 0;
         private _translateY: number = 0;
 
@@ -96,8 +269,13 @@ namespace Ui {
 
             this.element.setTransformOrigin(0, 0, true);
 
-            this.element.ptrdowned.connect(e => this.onPointerDown(e));
+            
             this.element.wheelchanged.connect(e => this.onWheel(e));
+
+            new ElementPointerManager({
+                element: this.element,
+                onptrdowned: (e) => this.onPointerDown(e)
+            });
         }
 
         set allowLeftMouse(value: boolean) {
@@ -182,17 +360,17 @@ namespace Ui {
         }
 
         get matrix(): Matrix {
-/*			return Matrix.createTranslate(this.element.layoutWidth * this.element.transformOriginX, this.element.layoutHeight * this.element.transformOriginX).
-                translate(this._translateX, this._translateY).
-                scale(this._scale, this._scale).
-                rotate(this._angle).
-                translate(-this.element.layoutWidth * this.element.transformOriginX, -this.element.layoutHeight * this.element.transformOriginX);
-*/			
+            /*			return Matrix.createTranslate(this.element.layoutWidth * this.element.transformOriginX, this.element.layoutHeight * this.element.transformOriginX).
+                            translate(this._translateX, this._translateY).
+                            scale(this._scale, this._scale).
+                            rotate(this._angle).
+                            translate(-this.element.layoutWidth * this.element.transformOriginX, -this.element.layoutHeight * this.element.transformOriginX);
+            */
             return (
                 (new Matrix()).
-                translate(this._translateX, this._translateY).
-                scale(this._scale, this._scale).
-                rotate(this._angle)
+                    translate(this._translateX, this._translateY).
+                    scale(this._scale, this._scale).
+                    rotate(this._angle)
             );
         }
 
@@ -231,7 +409,7 @@ namespace Ui {
 
                 let testOnly = !(((this.watcher1 === undefined) || this.watcher1.getIsCaptured()) &&
                     ((this.watcher2 === undefined) || this.watcher2.getIsCaptured()));
-                
+
                 if (this.transform)
                     this.transform(this, testOnly);
 
@@ -258,17 +436,17 @@ namespace Ui {
             if (this.up)
                 this.up(this);
         }
-    
+
         protected onPointerDown(event: EmuPointerEvent) {
             if (!this._allowLeftMouse && event.pointerType == 'mouse' && event.pointer.button == 0)
-                return;	
+                return;
 
             this.stopInertia();
 
             if (this.watcher1 === undefined) {
                 if (this._allowTranslate)
                     this.onDown();
-            
+
                 let watcher = event.pointer.watch(this);
                 this.watcher1 = watcher;
                 watcher.moved.connect((e) => this.onPointerMove(e.target));
@@ -283,7 +461,7 @@ namespace Ui {
             else if (this.watcher2 === undefined) {
                 if (!this._allowTranslate)
                     this.onDown();
-            
+
                 this.watcher1.pointer.setInitialPosition(this.watcher1.pointer.getX(), this.watcher1.pointer.getY());
 
                 let watcher = event.pointer.watch(this);
@@ -301,7 +479,7 @@ namespace Ui {
 
         protected onPointerMove(watcher) {
             let pos1; let pos2; let start1; let start2;
-                            
+
             // 2 fingers
             if ((this.watcher1 !== undefined) && (this.watcher2 !== undefined)) {
 
@@ -309,15 +487,15 @@ namespace Ui {
                     this.watcher1.capture();
                 if (!this.watcher2.getIsCaptured() && this.watcher2.pointer.getIsMove())
                     this.watcher2.capture();
-            
+
                 pos1 = this.element.parent.pointFromWindow(new Point(this.watcher1.pointer.getX(), this.watcher1.pointer.getY()));
                 pos2 = this.element.parent.pointFromWindow(new Point(this.watcher2.pointer.getX(), this.watcher2.pointer.getY()));
 
                 start1 = this.element.parent.pointFromWindow(new Point(this.watcher1.pointer.getInitialX(), this.watcher1.pointer.getInitialY()));
                 start2 = this.element.parent.pointFromWindow(new Point(this.watcher2.pointer.getInitialX(), this.watcher2.pointer.getInitialY()));
 
-                let startVector:any = { x: start2.x - start1.x, y: start2.y - start1.y };
-                let endVector:any = { x: pos2.x - pos1.x, y: pos2.y - pos1.y };
+                let startVector: any = { x: start2.x - start1.x, y: start2.y - start1.y };
+                let endVector: any = { x: pos2.x - pos1.x, y: pos2.y - pos1.y };
                 startVector.norm = Math.sqrt((startVector.x * startVector.x) + (startVector.y * startVector.y));
                 endVector.norm = Math.sqrt((endVector.x * endVector.x) + (endVector.y * endVector.y));
 
@@ -361,7 +539,7 @@ namespace Ui {
                     scale(this.startScale, this.startScale).
                     rotate(this.startAngle).
                     translate(-origin.x, -origin.y);
-            
+
                 origin = origin.multiply(deltaMatrix);
 
                 this.setContentTransform(origin.x - this.element.layoutWidth * this.element.transformOriginX,
@@ -380,7 +558,7 @@ namespace Ui {
 
                 this.setContentTransform(this.startTranslateX + (pos1.x - start1.x), this.startTranslateY + (pos1.y - start1.y),
                     this.startScale, this.startAngle);
-            
+
                 let takenDeltaX = (this._translateX - this.startTranslateX);
                 let takenDeltaY = (this._translateY - this.startTranslateY);
                 let takenDelta = Math.sqrt(takenDeltaX * takenDeltaX + takenDeltaY * takenDeltaY);
@@ -391,7 +569,7 @@ namespace Ui {
 
                 if (!this.watcher1.getIsCaptured() && this.watcher1.pointer.getIsMove() && (test > 0.7))
                     this.watcher1.capture();
-            
+
             }
         }
 
@@ -411,7 +589,7 @@ namespace Ui {
                 if (this.watcher2 !== undefined) {
                     this.watcher1.unwatch();
                     this.watcher1 = this.watcher2;
-                    delete(this.watcher2);
+                    delete (this.watcher2);
                     this.watcher1.pointer.setInitialPosition(this.watcher1.pointer.getX(), this.watcher1.pointer.getY());
                     this.startAngle = this._angle;
                     this.startScale = this._scale;
@@ -423,18 +601,18 @@ namespace Ui {
                 else {
                     if (this._allowTranslate)
                         this.onUp();
-                
+
                     let speed = this.watcher1.getSpeed();
                     this.speedX = speed.x;
                     this.speedY = speed.y;
                     this.watcher1.unwatch();
-                    delete(this.watcher1);
+                    delete (this.watcher1);
                     this.startInertia();
                 }
             }
             if ((this.watcher2 !== undefined) && (this.watcher2 === watcher)) {
                 this.watcher2.unwatch();
-                delete(this.watcher2);
+                delete (this.watcher2);
                 this.watcher1.pointer.setInitialPosition(this.watcher1.pointer.getX(), this.watcher1.pointer.getY());
                 this.startAngle = this._angle;
                 this.startScale = this._scale;
@@ -457,7 +635,7 @@ namespace Ui {
                     let origin = new Ui.Point(
                         this.element.layoutX + this.element.layoutWidth * this.element.transformOriginX,
                         this.element.layoutY + this.element.layoutHeight * this.element.transformOriginY);
-                    
+
                     let deltaMatrix = Ui.Matrix.createTranslate(pos.x, pos.y).
                         rotate(angle).
                         translate(origin.x, origin.y).
@@ -494,7 +672,7 @@ namespace Ui {
                         scale(this._scale, this._scale).
                         rotate(this._angle).
                         translate(-origin.x, -origin.y);
-                
+
                     let newOrigin = origin.multiply(deltaMatrix);
                     this.setContentTransform(newOrigin.x - origin.x, newOrigin.y - origin.y,
                         scale, this._angle);
@@ -519,7 +697,7 @@ namespace Ui {
         protected onTimeupdate(clock, progress, delta) {
             if (delta === 0)
                 return;
-        
+
             let oldTranslateX = this._translateX;
             let oldTranslateY = this._translateY;
 
@@ -542,11 +720,11 @@ namespace Ui {
             if ((this.speedX === 0) && (this.speedY === 0))
                 this.stopInertia();
         }
-    
+
         stopInertia() {
             if (this.inertiaClock !== undefined) {
                 this.inertiaClock.stop();
-                delete(this.inertiaClock);
+                delete (this.inertiaClock);
                 // align to the nearest translate integer position
                 // to avoid fuzzy graphics. Might be a bad idea when scale is used
                 this.setContentTransform(Math.round(this._translateX), Math.round(this._translateY), undefined, undefined);
@@ -589,7 +767,7 @@ namespace Ui {
         private watcher2: PointerWatcher;
 
         private _angle: number = 0;
-        private _scale: number= 1;
+        private _scale: number = 1;
         private _translateX: number = 0;
         private _translateY: number = 0;
 
@@ -609,44 +787,47 @@ namespace Ui {
         private speedY: number = 0;
 
         readonly downed = new Core.Events<{ target: Transformable }>();
-        set ondowned(value: (event: { target: Transformable}) => void) { this.downed.connect(value); }
+        set ondowned(value: (event: { target: Transformable }) => void) { this.downed.connect(value); }
         readonly upped = new Core.Events<{ target: Transformable }>();
-        set onupped(value: (event: { target: Transformable}) => void) { this.upped.connect(value); }
+        set onupped(value: (event: { target: Transformable }) => void) { this.upped.connect(value); }
         readonly transformed = new Core.Events<{ target: Transformable }>();
-        set ontransformed(value: (event: { target: Transformable}) => void) { this.transformed.connect(value); }
+        set ontransformed(value: (event: { target: Transformable }) => void) { this.transformed.connect(value); }
         readonly inertiastarted = new Core.Events<{ target: Transformable }>();
-        set oninertiastarted(value: (event: { target: Transformable}) => void) { this.inertiastarted.connect(value); }
+        set oninertiastarted(value: (event: { target: Transformable }) => void) { this.inertiastarted.connect(value); }
         readonly inertiaended = new Core.Events<{ target: Transformable }>();
-        set oninertiaended(value: (event: { target: Transformable}) => void) { this.inertiaended.connect(value); }
+        set oninertiaended(value: (event: { target: Transformable }) => void) { this.inertiaended.connect(value); }
 
         constructor(init?: TransformableInit) {
             super();
             this.focusable = true;
             this.drawing.style.touchAction = 'none';
-            
+
             this.contentBox = new Ui.LBox();
             this.contentBox.setTransformOrigin(0, 0, true);
             this.appendChild(this.contentBox);
 
-            this.ptrdowned.connect((e) => this.onPointerDown(e));
+            new ElementPointerManager({
+                element: this,
+                onptrdowned: (e) => this.onPointerDown(e)
+            });
 
             this.wheelchanged.connect(e => this.onWheel(e));
 
             if (init) {
                 if (init.inertia !== undefined)
-                    this.inertia = init.inertia;	
+                    this.inertia = init.inertia;
                 if (init.allowLeftMouse !== undefined)
-                    this.allowLeftMouse = init.allowLeftMouse;	
+                    this.allowLeftMouse = init.allowLeftMouse;
                 if (init.allowScale !== undefined)
                     this.allowScale = init.allowScale;
                 if (init.minScale !== undefined)
-                    this.minScale = init.minScale;	
+                    this.minScale = init.minScale;
                 if (init.maxScale !== undefined)
-                    this.maxScale = init.maxScale;	
+                    this.maxScale = init.maxScale;
                 if (init.allowRotate !== undefined)
                     this.allowRotate = init.allowRotate;
                 if (init.allowTranslate !== init.allowTranslate)
-                    this.allowTranslate = init.allowTranslate;	
+                    this.allowTranslate = init.allowTranslate;
                 if (init.angle !== undefined)
                     this.angle = init.angle;
                 if (init.scale !== undefined)
@@ -658,13 +839,13 @@ namespace Ui {
                 if (init.content !== undefined)
                     this.content = init.content;
                 if (init.ondowned)
-                    this.downed.connect(init.ondowned);	
+                    this.downed.connect(init.ondowned);
                 if (init.onupped)
-                    this.upped.connect(init.onupped);	
+                    this.upped.connect(init.onupped);
                 if (init.ontransformed)
-                    this.transformed.connect(init.ontransformed);	
+                    this.transformed.connect(init.ontransformed);
                 if (init.oninertiastarted)
-                    this.inertiastarted.connect(init.oninertiastarted);	
+                    this.inertiastarted.connect(init.oninertiastarted);
                 if (init.oninertiaended)
                     this.inertiaended.connect(init.oninertiaended);
             }
@@ -823,17 +1004,17 @@ namespace Ui {
             this._isDown = false;
             this.upped.fire({ target: this });
         }
-    
+
         protected onPointerDown(event: EmuPointerEvent) {
             if (!this._allowLeftMouse && event.pointerType == 'mouse' && event.pointer.button == 0)
-                return;	
-            
+                return;
+
             this.stopInertia();
 
             if (this.watcher1 === undefined) {
                 if (this._allowTranslate)
                     this.onDown();
-            
+
                 let watcher = event.pointer.watch(this);
                 this.watcher1 = watcher;
                 watcher.moved.connect(e => this.onPointerMove(e.target));
@@ -848,7 +1029,7 @@ namespace Ui {
             else if (this.watcher2 === undefined) {
                 if (!this._allowTranslate)
                     this.onDown();
-            
+
                 this.watcher1.pointer.setInitialPosition(this.watcher1.pointer.getX(), this.watcher1.pointer.getY());
 
                 let watcher = event.pointer.watch(this);
@@ -866,7 +1047,7 @@ namespace Ui {
 
         protected onPointerMove(watcher) {
             let pos1; let pos2; let start1; let start2;
-            
+
             // 2 fingers
             if ((this.watcher1 !== undefined) && (this.watcher2 !== undefined)) {
 
@@ -874,15 +1055,15 @@ namespace Ui {
                     this.watcher1.capture();
                 if (!this.watcher2.getIsCaptured() && this.watcher2.pointer.getIsMove())
                     this.watcher2.capture();
-            
+
                 pos1 = this.pointFromWindow(new Point(this.watcher1.pointer.getX(), this.watcher1.pointer.getY()));
                 pos2 = this.pointFromWindow(new Point(this.watcher2.pointer.getX(), this.watcher2.pointer.getY()));
 
                 start1 = this.pointFromWindow(new Point(this.watcher1.pointer.getInitialX(), this.watcher1.pointer.getInitialY()));
                 start2 = this.pointFromWindow(new Point(this.watcher2.pointer.getInitialX(), this.watcher2.pointer.getInitialY()));
 
-                let startVector:any = { x: start2.x - start1.x, y: start2.y - start1.y };
-                let endVector:any = { x: pos2.x - pos1.x, y: pos2.y - pos1.y };
+                let startVector: any = { x: start2.x - start1.x, y: start2.y - start1.y };
+                let endVector: any = { x: pos2.x - pos1.x, y: pos2.y - pos1.y };
                 startVector.norm = Math.sqrt((startVector.x * startVector.x) + (startVector.y * startVector.y));
                 endVector.norm = Math.sqrt((endVector.x * endVector.x) + (endVector.y * endVector.y));
 
@@ -926,7 +1107,7 @@ namespace Ui {
                     scale(this.startScale, this.startScale).
                     rotate(this.startAngle).
                     translate(-origin.x, -origin.y);
-            
+
                 origin = origin.multiply(deltaMatrix);
 
                 this.setContentTransform(origin.x - this.layoutWidth * this.transformOriginX,
@@ -945,7 +1126,7 @@ namespace Ui {
 
                 this.setContentTransform(this.startTranslateX + (pos1.x - start1.x), this.startTranslateY + (pos1.y - start1.y),
                     this.startScale, this.startAngle);
-            
+
                 let takenDeltaX = (this._translateX - this.startTranslateX);
                 let takenDeltaY = (this._translateY - this.startTranslateY);
                 let takenDelta = Math.sqrt(takenDeltaX * takenDeltaX + takenDeltaY * takenDeltaY);
@@ -956,7 +1137,7 @@ namespace Ui {
 
                 if (!this.watcher1.getIsCaptured() && this.watcher1.pointer.getIsMove() && (test > 0.7))
                     this.watcher1.capture();
-            
+
             }
         }
 
@@ -976,7 +1157,7 @@ namespace Ui {
                 if (this.watcher2 !== undefined) {
                     this.watcher1.unwatch();
                     this.watcher1 = this.watcher2;
-                    delete(this.watcher2);
+                    delete (this.watcher2);
                     this.watcher1.pointer.setInitialPosition(this.watcher1.pointer.getX(), this.watcher1.pointer.getY());
                     this.startAngle = this._angle;
                     this.startScale = this._scale;
@@ -988,18 +1169,18 @@ namespace Ui {
                 else {
                     if (this._allowTranslate)
                         this.onUp();
-                
+
                     let speed = this.watcher1.getSpeed();
                     this.speedX = speed.x;
                     this.speedY = speed.y;
                     this.watcher1.unwatch();
-                    delete(this.watcher1);
+                    delete (this.watcher1);
                     this.startInertia();
                 }
             }
             if ((this.watcher2 !== undefined) && (this.watcher2 === watcher)) {
                 this.watcher2.unwatch();
-                delete(this.watcher2);
+                delete (this.watcher2);
                 this.watcher1.pointer.setInitialPosition(this.watcher1.pointer.getX(), this.watcher1.pointer.getY());
                 this.startAngle = this._angle;
                 this.startScale = this._scale;
@@ -1045,7 +1226,7 @@ namespace Ui {
                         scale = this._minScale;
                     if ((this._maxScale !== undefined) && (scale > this._maxScale))
                         scale = this._maxScale;
-                
+
                     let deltaScale = scale / this._scale;
 
                     let pos = this.pointFromWindow(new Point(event.clientX, event.clientY));
@@ -1059,7 +1240,7 @@ namespace Ui {
                         scale(this._scale, this._scale).
                         rotate(this._angle).
                         translate(-origin.x, -origin.y);
-                
+
                     origin = origin.multiply(deltaMatrix);
 
                     this.setContentTransform(origin.x - this.layoutWidth * this.transformOriginX,
@@ -1085,7 +1266,7 @@ namespace Ui {
         protected onTimeupdate(clock, progress, delta) {
             if (delta === 0)
                 return;
-        
+
             let oldTranslateX = this._translateX;
             let oldTranslateY = this._translateY;
 
@@ -1108,11 +1289,11 @@ namespace Ui {
             if ((this.speedX === 0) && (this.speedY === 0))
                 this.stopInertia();
         }
-    
+
         stopInertia() {
             if (this.inertiaClock !== undefined) {
                 this.inertiaClock.stop();
-                delete(this.inertiaClock);
+                delete (this.inertiaClock);
                 // align to the nearest translate integer position
                 // to avoid fuzzy graphics. Might be a bad idea when scale is used
                 this.setContentTransform(Math.round(this._translateX), Math.round(this._translateY), undefined, undefined);
