@@ -10741,6 +10741,27 @@ var Ui;
             enumerable: true,
             configurable: true
         });
+        TransformableWatcher.prototype.scaleAt = function (scale, x, y) {
+            if (this._allowScale) {
+                if ((this._minScale !== undefined) && (scale < this._minScale))
+                    scale = this._minScale;
+                if ((this._maxScale !== undefined) && (scale > this._maxScale))
+                    scale = this._maxScale;
+                var deltaScale = scale / this._scale;
+                var pos = new Ui.Point(x, y);
+                var origin_1 = new Ui.Point(this.element.layoutX + this.element.layoutWidth * this.element.transformOriginX, this.element.layoutY + this.element.layoutHeight * this.element.transformOriginY);
+                var deltaMatrix = Ui.Matrix.createTranslate(pos.x, pos.y).
+                    scale(deltaScale, deltaScale).
+                    translate(-pos.x, -pos.y).
+                    translate(origin_1.x, origin_1.y).
+                    translate(this._translateX, this._translateY).
+                    scale(this._scale, this._scale).
+                    rotate(this._angle).
+                    translate(-origin_1.x, -origin_1.y);
+                var newOrigin = origin_1.multiply(deltaMatrix);
+                this.setContentTransform(newOrigin.x - origin_1.x, newOrigin.y - origin_1.y, scale, this._angle);
+            }
+        };
         Object.defineProperty(TransformableWatcher.prototype, "translateX", {
             get: function () {
                 return this._translateX;
@@ -10921,14 +10942,14 @@ var Ui;
                 else
                     angle = 0;
                 deltaMatrix = deltaMatrix.translate(-start1.x, -start1.y);
-                var origin_1 = new Ui.Point(this.element.layoutWidth * this.element.transformOriginX, this.element.layoutHeight * this.element.transformOriginX);
-                deltaMatrix = deltaMatrix.translate(origin_1.x, origin_1.y).
+                var origin_2 = new Ui.Point(this.element.layoutWidth * this.element.transformOriginX, this.element.layoutHeight * this.element.transformOriginX);
+                deltaMatrix = deltaMatrix.translate(origin_2.x, origin_2.y).
                     translate(this.startTranslateX, this.startTranslateY).
                     scale(this.startScale, this.startScale).
                     rotate(this.startAngle).
-                    translate(-origin_1.x, -origin_1.y);
-                origin_1 = origin_1.multiply(deltaMatrix);
-                this.setContentTransform(origin_1.x - this.element.layoutWidth * this.element.transformOriginX, origin_1.y - this.element.layoutHeight * this.element.transformOriginY, this.startScale * scale, this.startAngle + angle);
+                    translate(-origin_2.x, -origin_2.y);
+                origin_2 = origin_2.multiply(deltaMatrix);
+                this.setContentTransform(origin_2.x - this.element.layoutWidth * this.element.transformOriginX, origin_2.y - this.element.layoutHeight * this.element.transformOriginY, this.startScale * scale, this.startAngle + angle);
             }
             else if ((this.watcher1 !== undefined) && this._allowTranslate) {
                 pos1 = this.element.parent.pointFromWindow(new Ui.Point(this.watcher1.pointer.getX(), this.watcher1.pointer.getY()));
@@ -10999,17 +11020,17 @@ var Ui;
                 if (this._allowRotate) {
                     var angle = delta / 5;
                     var pos = this.element.parent.pointFromWindow(new Ui.Point(event.clientX, event.clientY));
-                    var origin_2 = new Ui.Point(this.element.layoutX + this.element.layoutWidth * this.element.transformOriginX, this.element.layoutY + this.element.layoutHeight * this.element.transformOriginY);
+                    var origin_3 = new Ui.Point(this.element.layoutX + this.element.layoutWidth * this.element.transformOriginX, this.element.layoutY + this.element.layoutHeight * this.element.transformOriginY);
                     var deltaMatrix = Ui.Matrix.createTranslate(pos.x, pos.y).
                         rotate(angle).
-                        translate(origin_2.x, origin_2.y).
+                        translate(origin_3.x, origin_3.y).
                         translate(-pos.x, -pos.y).
                         translate(this._translateX, this._translateY).
                         scale(this._scale, this._scale).
                         rotate(this._angle).
-                        translate(-origin_2.x, -origin_2.y);
-                    var newOrigin = origin_2.multiply(deltaMatrix);
-                    this.setContentTransform(newOrigin.x - origin_2.x, newOrigin.y - origin_2.y, this._scale, this._angle + angle);
+                        translate(-origin_3.x, -origin_3.y);
+                    var newOrigin = origin_3.multiply(deltaMatrix);
+                    this.setContentTransform(newOrigin.x - origin_3.x, newOrigin.y - origin_3.y, this._scale, this._angle + angle);
                 }
             }
             else if (event.ctrlKey) {
@@ -11021,17 +11042,17 @@ var Ui;
                         scale = this._maxScale;
                     var deltaScale = scale / this._scale;
                     var pos = this.element.parent.pointFromWindow(new Ui.Point(event.clientX, event.clientY));
-                    var origin_3 = new Ui.Point(this.element.layoutX + this.element.layoutWidth * this.element.transformOriginX, this.element.layoutY + this.element.layoutHeight * this.element.transformOriginY);
+                    var origin_4 = new Ui.Point(this.element.layoutX + this.element.layoutWidth * this.element.transformOriginX, this.element.layoutY + this.element.layoutHeight * this.element.transformOriginY);
                     var deltaMatrix = Ui.Matrix.createTranslate(pos.x, pos.y).
                         scale(deltaScale, deltaScale).
                         translate(-pos.x, -pos.y).
-                        translate(origin_3.x, origin_3.y).
+                        translate(origin_4.x, origin_4.y).
                         translate(this._translateX, this._translateY).
                         scale(this._scale, this._scale).
                         rotate(this._angle).
-                        translate(-origin_3.x, -origin_3.y);
-                    var newOrigin = origin_3.multiply(deltaMatrix);
-                    this.setContentTransform(newOrigin.x - origin_3.x, newOrigin.y - origin_3.y, scale, this._angle);
+                        translate(-origin_4.x, -origin_4.y);
+                    var newOrigin = origin_4.multiply(deltaMatrix);
+                    this.setContentTransform(newOrigin.x - origin_4.x, newOrigin.y - origin_4.y, scale, this._angle);
                 }
             }
             else
@@ -11442,14 +11463,14 @@ var Ui;
                 else
                     angle = 0;
                 deltaMatrix = deltaMatrix.translate(-start1.x, -start1.y);
-                var origin_4 = new Ui.Point(this.layoutWidth * this.transformOriginX, this.layoutHeight * this.transformOriginX);
-                deltaMatrix = deltaMatrix.translate(origin_4.x, origin_4.y).
+                var origin_5 = new Ui.Point(this.layoutWidth * this.transformOriginX, this.layoutHeight * this.transformOriginX);
+                deltaMatrix = deltaMatrix.translate(origin_5.x, origin_5.y).
                     translate(this.startTranslateX, this.startTranslateY).
                     scale(this.startScale, this.startScale).
                     rotate(this.startAngle).
-                    translate(-origin_4.x, -origin_4.y);
-                origin_4 = origin_4.multiply(deltaMatrix);
-                this.setContentTransform(origin_4.x - this.layoutWidth * this.transformOriginX, origin_4.y - this.layoutHeight * this.transformOriginY, this.startScale * scale, this.startAngle + angle);
+                    translate(-origin_5.x, -origin_5.y);
+                origin_5 = origin_5.multiply(deltaMatrix);
+                this.setContentTransform(origin_5.x - this.layoutWidth * this.transformOriginX, origin_5.y - this.layoutHeight * this.transformOriginY, this.startScale * scale, this.startAngle + angle);
             }
             else if ((this.watcher1 !== undefined) && this._allowTranslate) {
                 pos1 = this.pointFromWindow(new Ui.Point(this.watcher1.pointer.getX(), this.watcher1.pointer.getY()));
@@ -11520,17 +11541,17 @@ var Ui;
                 if (this._allowRotate) {
                     var angle = delta / 5;
                     var pos = this.pointFromWindow(new Ui.Point(event.clientX, event.clientY));
-                    var origin_5 = new Ui.Point(this.layoutWidth * this.transformOriginX, this.layoutHeight * this.transformOriginX);
+                    var origin_6 = new Ui.Point(this.layoutWidth * this.transformOriginX, this.layoutHeight * this.transformOriginX);
                     var deltaMatrix = Ui.Matrix.createTranslate(pos.x, pos.y).
                         rotate(angle).
                         translate(-pos.x, -pos.y).
-                        translate(origin_5.x, origin_5.y).
+                        translate(origin_6.x, origin_6.y).
                         translate(this._translateX, this._translateY).
                         scale(this._scale, this._scale).
                         rotate(this._angle).
-                        translate(-origin_5.x, -origin_5.y);
-                    origin_5 = origin_5.multiply(deltaMatrix);
-                    this.setContentTransform(origin_5.x - this.layoutWidth * this.transformOriginX, origin_5.y - this.layoutHeight * this.transformOriginY, this._scale, this._angle + angle);
+                        translate(-origin_6.x, -origin_6.y);
+                    origin_6 = origin_6.multiply(deltaMatrix);
+                    this.setContentTransform(origin_6.x - this.layoutWidth * this.transformOriginX, origin_6.y - this.layoutHeight * this.transformOriginY, this._scale, this._angle + angle);
                 }
             }
             else if (event.ctrlKey) {
@@ -11542,17 +11563,17 @@ var Ui;
                         scale = this._maxScale;
                     var deltaScale = scale / this._scale;
                     var pos = this.pointFromWindow(new Ui.Point(event.clientX, event.clientY));
-                    var origin_6 = new Ui.Point(this.layoutWidth * this.transformOriginX, this.layoutHeight * this.transformOriginX);
+                    var origin_7 = new Ui.Point(this.layoutWidth * this.transformOriginX, this.layoutHeight * this.transformOriginX);
                     var deltaMatrix = Ui.Matrix.createTranslate(pos.x, pos.y).
                         scale(deltaScale, deltaScale).
                         translate(-pos.x, -pos.y).
-                        translate(origin_6.x, origin_6.y).
+                        translate(origin_7.x, origin_7.y).
                         translate(this._translateX, this._translateY).
                         scale(this._scale, this._scale).
                         rotate(this._angle).
-                        translate(-origin_6.x, -origin_6.y);
-                    origin_6 = origin_6.multiply(deltaMatrix);
-                    this.setContentTransform(origin_6.x - this.layoutWidth * this.transformOriginX, origin_6.y - this.layoutHeight * this.transformOriginY, scale, this._angle);
+                        translate(-origin_7.x, -origin_7.y);
+                    origin_7 = origin_7.multiply(deltaMatrix);
+                    this.setContentTransform(origin_7.x - this.layoutWidth * this.transformOriginX, origin_7.y - this.layoutHeight * this.transformOriginY, scale, this._angle);
                 }
             }
             else

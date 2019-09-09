@@ -2395,6 +2395,7 @@ declare namespace Ui {
         readonly isInertia: boolean;
         angle: number;
         scale: number;
+        scaleAt(scale: number, x: number, y: number): void;
         translateX: number;
         translateY: number;
         private buildMatrix;
