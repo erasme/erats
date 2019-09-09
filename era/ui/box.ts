@@ -256,9 +256,13 @@ namespace Ui
         private measureUniform(width: number, height: number) {
             let constraintSize = this.vertical ? height : width;
             let constraintOpSize = this.vertical ? width : height;
+            let countVisible = 0;
+            for (let i = 0; i < this.children.length; i++)
+                if (!this.children[i].isCollapsed)
+                    countVisible++;
 
-            constraintSize -= this._spacing * (this.children.length - 1);
-            let childConstraintSize = constraintSize / this.children.length;
+            constraintSize -= this._spacing * Math.max(0, countVisible - 1);
+            let childConstraintSize = constraintSize / Math.max(1, countVisible);
             let countResizable = 0;
             let uniformSize = 0;
             let minOpSize = 0;
@@ -267,6 +271,10 @@ namespace Ui
             while (loop) {
                 for (let i = 0; i < this.children.length; i++) {
                     let child = this.children[i];
+                    if (child.isCollapsed) {
+                        child.measure(0, 0);
+                        continue;
+                    }
                     if (child.resizable)
                         countResizable++;
                     let size;
@@ -292,8 +300,8 @@ namespace Ui
             }
 
             this.uniformSize = uniformSize;
-            let minSize = this.uniformSize * this.children.length;
-            minSize += this._spacing * (this.children.length - 1);
+            let minSize = this.uniformSize * countVisible;
+            minSize += this._spacing * (Math.max(0, countVisible - 1));
 
             if (this.vertical)
                 return { width: minOpSize, height: minSize };
@@ -305,7 +313,11 @@ namespace Ui
             let i; let child; let size;
             let constraintWidth = width;
             let constraintHeight = height;
-            constraintHeight -= this._spacing * (this.children.length - 1);
+            let countVisible = 0;
+            for (i = 0; i < this.children.length; i++)
+                if (!this.children[i].isCollapsed)
+                    countVisible++;
+            constraintHeight -= this._spacing * Math.max(0, countVisible - 1);
 
             let countResizable;
             let minWidth;
@@ -322,6 +334,10 @@ namespace Ui
                 // handle not resizable
                 for (i = 0; i < this.children.length; i++) {
                     child = this.children[i];
+                    if (child.isCollapsed) {
+                        child.measure(0, 0);
+                        continue;
+                    }
                     if (!child.resizable) {
                         size = child.measure(constraintWidth, 0);
                         if (size.width > minWidth)
@@ -370,7 +386,7 @@ namespace Ui
                     loop = false;
             }
 
-            minHeight += this._spacing * (this.children.length - 1);
+            minHeight += this._spacing * Math.max(0, countVisible - 1);
             if (countResizable > 0) {
                 minHeight += resizableMinHeight;
                 this.star = star;
@@ -384,7 +400,11 @@ namespace Ui
             let i; let child; let size;
             let constraintWidth = width;
             let constraintHeight = height;
-            constraintWidth -= this._spacing * (this.children.length - 1);
+            let countVisible = 0;
+            for (i = 0; i < this.children.length; i++)
+                if (!this.children[i].isCollapsed)
+                    countVisible++;
+            constraintWidth -= this._spacing * Math.max(0, countVisible - 1);
 
             let countResizable;
             let minWidth;
@@ -401,6 +421,10 @@ namespace Ui
                 // handle not resizable
                 for (i = 0; i < this.children.length; i++) {
                     child = this.children[i];
+                    if (child.isCollapsed) {
+                        child.measure(0, 0);
+                        continue;
+                    }
                     if (!child.resizable) {
                         size = child.measure(0, constraintHeight);
                         if (size.height > minHeight)
@@ -449,7 +473,7 @@ namespace Ui
                     loop = false;
             }
 
-            minWidth += this._spacing * (this.children.length - 1);
+            minWidth += this._spacing * Math.max(0, countVisible - 1);
             if (countResizable > 0) {
                 minWidth += resizableMinWidth;
                 this.star = star;
@@ -467,7 +491,6 @@ namespace Ui
             let constraintWidth = Math.max(0, width - (left + right));
             let constraintHeight = Math.max(0, height - (top + bottom));
             let size;
-
             if (this._uniform)
                 size = this.measureUniform(constraintWidth, constraintHeight);
             else {
@@ -500,16 +523,14 @@ namespace Ui
             for (let i = 0; i < count; i++) {
                 let child = this.children[i];
                 let size = this.vertical ? child.measureHeight : child.measureWidth;
-                if (child.resizable) {
+                if (!child.isCollapsed)
                     countVisible++;
+                if (child.resizable) {
                     countResizable++;
                     child['Ui.Box.StarDone'] = false;
                 }
-                else {
-                    if (size > 0)
-                        countVisible++;
+                else
                     minSize += size;
-                }
                 if (size > maxSize)
                     maxSize = size;
             }
@@ -554,6 +575,8 @@ namespace Ui
             let isFirst = true;
             for (let i = 0; i < count; i++) {
                 let child = this.children[i];
+                if (child.isCollapsed)
+                    continue;
                 let size = this.vertical ? child.measureHeight : child.measureWidth;
 
                 if (this._uniform) {
