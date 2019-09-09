@@ -1046,11 +1046,12 @@ namespace Ui {
                 let old = this.isVisible;
                 this._visible = false;
                 this.drawing.style.display = 'none';
-                this.collapse = collapse;
                 if (old)
                     this.onInternalHidden();
-                if (this.collapse)
-                    this.invalidateMeasure();
+            }
+            if (this.collapse != collapse) {
+                this.collapse = collapse;
+                this.invalidateMeasure();
             }
         }
 
@@ -1061,10 +1062,10 @@ namespace Ui {
                 this.drawing.style.display = 'block';
                 if (this.isVisible && !old)
                     this.onInternalVisible();
-                if (this.collapse) {
-                    this.collapse = false;
-                    this.invalidateMeasure();
-                }
+            }
+            if (this.collapse) {
+                this.collapse = false;
+                this.invalidateMeasure();
             }
         }
 
