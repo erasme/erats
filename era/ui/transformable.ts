@@ -158,7 +158,7 @@ namespace Ui {
                     if (pointer.getIsCaptured()) {
                         e.preventDefault();
                         e.stopImmediatePropagation();
-                    }    
+                    }
                     pointer.up();
                     window.removeEventListener('mousemove', onMouseMove, true);
                     window.removeEventListener('mouseup', onMouseUp, true);
@@ -269,7 +269,7 @@ namespace Ui {
 
             this.element.setTransformOrigin(0, 0, true);
 
-            
+
             this.element.wheelchanged.connect(e => this.onWheel(e));
 
             new ElementPointerManager({
@@ -324,6 +324,34 @@ namespace Ui {
 
         set scale(scale: number) {
             this.setContentTransform(undefined, undefined, scale, undefined);
+        }
+
+        scaleAt(scale: number, x: number, y: number) {
+            if (this._allowScale) {
+                if ((this._minScale !== undefined) && (scale < this._minScale))
+                    scale = this._minScale;
+                if ((this._maxScale !== undefined) && (scale > this._maxScale))
+                    scale = this._maxScale;
+                let deltaScale = scale / this._scale;
+
+                let pos = new Point(x, y);
+                let origin = new Ui.Point(
+                    this.element.layoutX + this.element.layoutWidth * this.element.transformOriginX,
+                    this.element.layoutY + this.element.layoutHeight * this.element.transformOriginY);
+
+                let deltaMatrix = Ui.Matrix.createTranslate(pos.x, pos.y).
+                    scale(deltaScale, deltaScale).
+                    translate(-pos.x, -pos.y).
+                    translate(origin.x, origin.y).
+                    translate(this._translateX, this._translateY).
+                    scale(this._scale, this._scale).
+                    rotate(this._angle).
+                    translate(-origin.x, -origin.y);
+
+                let newOrigin = origin.multiply(deltaMatrix);
+                this.setContentTransform(newOrigin.x - origin.x, newOrigin.y - origin.y,
+                    scale, this._angle);
+            }
         }
 
         get translateX(): number {
