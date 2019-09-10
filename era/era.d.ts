@@ -6067,6 +6067,7 @@ declare namespace Ui {
     interface SegmentBarInit extends LBoxInit {
         orientation?: 'horizontal' | 'vertical';
         field?: string;
+        iconField?: string;
         data?: Array<any>;
         currentPosition?: number;
         onchanged?: (event: {
@@ -6077,8 +6078,9 @@ declare namespace Ui {
     class SegmentBar extends LBox {
         private border;
         private box;
-        private current;
+        private _current;
         private _field;
+        private _iconField;
         private _data;
         private _orientation;
         readonly changed: Core.Events<{
@@ -6092,11 +6094,16 @@ declare namespace Ui {
         constructor(init?: SegmentBarInit);
         orientation: 'horizontal' | 'vertical';
         field: string;
+        iconField: string;
         data: Array<any>;
         currentPosition: number;
+        readonly logicalChildren: Array<SegmentButton>;
+        readonly current: SegmentButton | undefined;
         next(): void;
         previous(): void;
-        private onSegmentSelect;
+        protected onSegmentSelect: (e: {
+            target: SegmentButton;
+        }) => void;
         private onKeyDown;
         protected onStyleChange(): void;
         static style: any;
@@ -6106,15 +6113,17 @@ declare namespace Ui {
         foreground?: Color | string;
         data?: any;
         text?: string;
-        textHeight?: number;
+        iconText?: string;
+        boxHeight?: number;
         mode?: 'left' | 'right' | 'top' | 'bottom';
         radius?: number;
         spacing?: number;
         background?: Color | string;
     }
     class SegmentButton extends Pressable implements SegmentButtonInit {
-        private textBox;
+        private box;
         private label;
+        private icon;
         private bg;
         private _mode;
         private _data;
@@ -6124,7 +6133,8 @@ declare namespace Ui {
         foreground: Color | string;
         data: any;
         text: string;
-        textHeight: number;
+        iconText: string;
+        boxHeight: number;
         mode: 'left' | 'right' | 'top' | 'bottom';
         radius: number;
         spacing: number;

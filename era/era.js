@@ -27157,10 +27157,11 @@ var Ui;
         function SegmentBar(init) {
             var _this = _super.call(this, init) || this;
             _this._field = 'text';
+            _this._iconField = 'icon';
             _this._orientation = 'horizontal';
             _this.changed = new Core.Events();
             _this.onSegmentSelect = function (e) {
-                _this.current = e.target;
+                _this._current = e.target;
                 _this.onStyleChange();
                 _this.changed.fire({ target: _this, value: e.target.data });
             };
@@ -27177,6 +27178,8 @@ var Ui;
                     _this.orientation = init.orientation;
                 if (init.field !== undefined)
                     _this.field = init.field;
+                if (init.iconField !== undefined)
+                    _this.iconField = init.iconField;
                 if (init.data !== undefined)
                     _this.data = init.data;
                 if (init.currentPosition !== undefined)
@@ -27206,6 +27209,13 @@ var Ui;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(SegmentBar.prototype, "iconField", {
+            set: function (iconField) {
+                this._iconField = iconField;
+            },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(SegmentBar.prototype, "data", {
             set: function (data) {
                 var pos = this.currentPosition;
@@ -27220,7 +27230,7 @@ var Ui;
                         mode = (i === 0) ? 'left' : (i === data.length - 1) ? 'right' : 'middle';
                     else
                         mode = (i === 0) ? 'top' : (i === data.length - 1) ? 'bottom' : 'middle';
-                    var segment = new Ui.SegmentButton({ data: data[i], text: data[i][this._field], mode: mode });
+                    var segment = new Ui.SegmentButton({ data: data[i], text: data[i][this._field], iconText: data[i][this._iconField], mode: mode });
                     this.box.append(segment, true);
                     segment.pressed.connect(this.onSegmentSelect);
                 }
@@ -27232,22 +27242,36 @@ var Ui;
         Object.defineProperty(SegmentBar.prototype, "currentPosition", {
             get: function () {
                 for (var i = 0; i < this.box.children.length; i++) {
-                    if (this.box.children[i] === this.current)
+                    if (this.box.children[i] === this._current)
                         return i;
                 }
             },
             set: function (position) {
                 if ((position >= 0) && (position < this.box.children.length)) {
-                    this.current = this.box.children[position];
-                    this.onSegmentSelect({ target: this.current });
+                    this._current = this.box.children[position];
+                    this.onSegmentSelect({ target: this._current });
                 }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(SegmentBar.prototype, "logicalChildren", {
+            get: function () {
+                return this.box.children;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(SegmentBar.prototype, "current", {
+            get: function () {
+                return this._current;
             },
             enumerable: true,
             configurable: true
         });
         SegmentBar.prototype.next = function () {
             for (var i = 0; i < this.box.children.length; i++) {
-                if (this.box.children[i] === this.current) {
+                if (this.box.children[i] === this._current) {
                     this.currentPosition = i + 1;
                     break;
                 }
@@ -27255,7 +27279,7 @@ var Ui;
         };
         SegmentBar.prototype.previous = function () {
             for (var i = 0; i < this.box.children.length; i++) {
-                if (this.box.children[i] === this.current) {
+                if (this.box.children[i] === this._current) {
                     this.currentPosition = i - 1;
                     break;
                 }
@@ -27301,9 +27325,9 @@ var Ui;
                 var child = this.box.children[i];
                 child.radius = Math.max(0, radius - borderWidth);
                 child.spacing = padding - borderWidth;
-                child.textHeight = textHeight;
+                child.boxHeight = textHeight;
                 child.textTransform = textTransform;
-                if (this.current === child) {
+                if (this._current === child) {
                     child.background = activeBackground;
                     child.foreground = activeForeground;
                 }
@@ -27350,10 +27374,14 @@ var Ui;
             _this.focusable = false;
             _this.bg = new Ui.Rectangle();
             _this.append(_this.bg);
-            _this.textBox = new Ui.LBox();
-            _this.append(_this.textBox);
-            _this.label = new Ui.CompactLabel({ verticalAlign: 'center', whiteSpace: 'nowrap', textAlign: 'center' });
-            _this.textBox.content = _this.label;
+            _this.box = new Ui.HBox({ spacing: 8, horizontalAlign: 'center' });
+            _this.append(_this.box);
+            _this.icon = new Ui.Icon({ width: 24, height: 24, verticalAlign: 'center', horizontalAlign: 'center' });
+            _this.icon.hide(true);
+            _this.label = new Ui.CompactLabel({ whiteSpace: 'nowrap', verticalAlign: 'center' });
+            _this.label.hide(true);
+            _this.box.append(_this.icon);
+            _this.box.append(_this.label);
             if (init) {
                 if (init.textTransform !== undefined)
                     _this.textTransform = init.textTransform;
@@ -27363,8 +27391,10 @@ var Ui;
                     _this.data = init.data;
                 if (init.text !== undefined)
                     _this.text = init.text;
-                if (init.textHeight !== undefined)
-                    _this.textHeight = init.textHeight;
+                if (init.iconText !== undefined)
+                    _this.iconText = init.iconText;
+                if (init.boxHeight !== undefined)
+                    _this.boxHeight = init.boxHeight;
                 if (init.mode !== undefined)
                     _this.mode = init.mode;
                 if (init.radius !== undefined)
@@ -27386,6 +27416,7 @@ var Ui;
         Object.defineProperty(SegmentButton.prototype, "foreground", {
             set: function (color) {
                 this.label.color = Ui.Color.create(color);
+                this.icon.fill = Ui.Color.create(color);
             },
             enumerable: true,
             configurable: true
@@ -27403,13 +27434,22 @@ var Ui;
         Object.defineProperty(SegmentButton.prototype, "text", {
             set: function (text) {
                 this.label.text = text;
+                this.label.show();
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(SegmentButton.prototype, "textHeight", {
+        Object.defineProperty(SegmentButton.prototype, "iconText", {
+            set: function (icon) {
+                this.icon.icon = icon;
+                this.icon.show();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(SegmentButton.prototype, "boxHeight", {
             set: function (height) {
-                this.textBox.height = height;
+                this.box.height = height;
             },
             enumerable: true,
             configurable: true
@@ -27461,7 +27501,7 @@ var Ui;
         });
         Object.defineProperty(SegmentButton.prototype, "spacing", {
             set: function (spacing) {
-                this.textBox.margin = spacing;
+                this.box.margin = spacing;
             },
             enumerable: true,
             configurable: true
