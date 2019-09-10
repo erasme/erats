@@ -2,6 +2,7 @@ namespace Ui {
     export interface SegmentBarInit extends LBoxInit {
         orientation?: 'horizontal' | 'vertical';
         field?: string;
+        iconField?: string;
         data?: Array<any>;
         currentPosition?: number;
         onchanged?: (event: { target: SegmentBar, value: any }) => void;
@@ -10,8 +11,9 @@ namespace Ui {
     export class SegmentBar extends LBox {
         private border: Frame;
         private box: Box;
-        private current: SegmentButton;
+        private _current: SegmentButton;
         private _field: string = 'text';
+        private _iconField: string = 'icon';
         private _data: Array<any>;
         private _orientation: 'horizontal' | 'vertical' = 'horizontal';
         readonly changed = new Core.Events<{ target: SegmentBar, value: any }>();
@@ -30,16 +32,18 @@ namespace Ui {
             this.focused.connect(() => this.onStyleChange());
             this.blurred.connect(() => this.onStyleChange());
             this.drawing.addEventListener('keydown', (e) => this.onKeyDown(e));
-            
+
             if (init) {
                 if (init.orientation !== undefined)
                     this.orientation = init.orientation;
                 if (init.field !== undefined)
                     this.field = init.field;
+                if (init.iconField !== undefined)
+                    this.iconField = init.iconField;
                 if (init.data !== undefined)
-                    this.data = init.data;	
+                    this.data = init.data;
                 if (init.currentPosition !== undefined)
-                    this.currentPosition = init.currentPosition;	
+                    this.currentPosition = init.currentPosition;
                 if (init.onchanged)
                     this.changed.connect(init.onchanged);
             }
@@ -52,6 +56,10 @@ namespace Ui {
 
         set field(field: string) {
             this._field = field;
+        }
+
+        set iconField(iconField: string) {
+            this._iconField = iconField;
         }
 
         set data(data: Array<any>) {
@@ -67,31 +75,39 @@ namespace Ui {
                     mode = (i === 0) ? 'left' : (i === data.length - 1) ? 'right' : 'middle';
                 else
                     mode = (i === 0) ? 'top' : (i === data.length - 1) ? 'bottom' : 'middle';
-                let segment = new Ui.SegmentButton({ data: data[i], text: data[i][this._field], mode: mode });
+                let segment = new Ui.SegmentButton({ data: data[i], text: data[i][this._field], iconText: data[i][this._iconField], mode: mode });
                 this.box.append(segment, true);
                 segment.pressed.connect(this.onSegmentSelect);
             }
-            this.currentPosition = Math.max(0, Math.min(pos, this.box.children.length -1));
+            this.currentPosition = Math.max(0, Math.min(pos, this.box.children.length - 1));
         }
 
         set currentPosition(position: number) {
             if ((position >= 0) && (position < this.box.children.length)) {
-                this.current = this.box.children[position] as SegmentButton;
-                this.onSegmentSelect({ target: this.current });
+                this._current = this.box.children[position] as SegmentButton;
+                this.onSegmentSelect({ target: this._current });
             }
         }
 
         get currentPosition(): number {
             for (let i = 0; i < this.box.children.length; i++) {
-                if (this.box.children[i] === this.current)
+                if (this.box.children[i] === this._current)
                     return i;
             }
         }
 
-        // Move the current choice to the next choice		
+        get logicalChildren(): Array<SegmentButton> {
+            return this.box.children as Array<SegmentButton>;
+        }
+
+        get current(): SegmentButton | undefined {
+            return this._current;
+        }
+
+        // Move the current choice to the next choice
         next() {
             for (let i = 0; i < this.box.children.length; i++) {
-                if (this.box.children[i] === this.current) {
+                if (this.box.children[i] === this._current) {
                     this.currentPosition = i + 1;
                     break;
                 }
@@ -101,7 +117,7 @@ namespace Ui {
         // Move the current choice to the previous choice
         previous() {
             for (let i = 0; i < this.box.children.length; i++) {
-                if (this.box.children[i] === this.current) {
+                if (this.box.children[i] === this._current) {
                     this.currentPosition = i - 1;
                     break;
                 }
@@ -109,7 +125,7 @@ namespace Ui {
         }
 
         private onSegmentSelect = (e: { target: SegmentButton }) => {
-            this.current = e.target;
+            this._current = e.target;
             this.onStyleChange();
             this.changed.fire({ target: this, value: e.target.data });
         }
@@ -157,9 +173,9 @@ namespace Ui {
                 let child = this.box.children[i] as SegmentButton;
                 child.radius = Math.max(0, radius - borderWidth);
                 child.spacing = padding - borderWidth;
-                child.textHeight = textHeight;
+                child.boxHeight = textHeight;
                 child.textTransform = textTransform;
-                if (this.current === child) {
+                if (this._current === child) {
                     child.background = activeBackground;
                     child.foreground = activeForeground;
                 }
@@ -168,15 +184,15 @@ namespace Ui {
                     child.foreground = foreground;
                 }
                 child.backgroundMode = backgroundMode;
-                if(backgroundSize != undefined) { 
-                    if(backgroundMode == 'top' || backgroundMode == 'bottom')
+                if (backgroundSize != undefined) {
+                    if (backgroundMode == 'top' || backgroundMode == 'bottom')
                         child.backgroundHeight = backgroundSize;
-                    if(backgroundMode == 'left' || backgroundMode == 'right') 
+                    if (backgroundMode == 'left' || backgroundMode == 'right')
                         child.backgroundWidth = backgroundSize;
-                }		
+                }
             }
         }
-        
+
         static style: any = {
             borderWidth: 1,
             background: 'rgba(240,240,240,1)',
@@ -202,16 +218,18 @@ namespace Ui {
         foreground?: Color | string;
         data?: any;
         text?: string;
-        textHeight?: number;
-        mode?: 'left' | 'right' | 'top' | 'bottom';	
+        iconText?: string;
+        boxHeight?: number;
+        mode?: 'left' | 'right' | 'top' | 'bottom';
         radius?: number;
         spacing?: number;
         background?: Color | string;
     }
-    
+
     export class SegmentButton extends Pressable implements SegmentButtonInit {
-        private textBox: LBox;
+        private box: HBox;
         private label: CompactLabel;
+        private icon: Icon;
         private bg: Rectangle;
         private _mode: 'left' | 'right' | 'top' | 'bottom' = undefined;
         private _data: undefined;
@@ -222,30 +240,36 @@ namespace Ui {
             this.focusable = false;
             this.bg = new Rectangle();
             this.append(this.bg);
-            this.textBox = new LBox();
-            this.append(this.textBox);
-            this.label = new CompactLabel({ verticalAlign: 'center', whiteSpace: 'nowrap', textAlign: 'center' });
-            this.textBox.content = this.label;
-            
+            this.box = new HBox({ spacing: 8, horizontalAlign: 'center' });
+            this.append(this.box);
+            this.icon = new Icon({ width: 24, height: 24, verticalAlign: 'center', horizontalAlign: 'center' });
+            this.icon.hide(true);
+            this.label = new CompactLabel({ whiteSpace: 'nowrap', verticalAlign: 'center' });
+            this.label.hide(true);
+            this.box.append(this.icon);
+            this.box.append(this.label);
+
             if (init) {
                 if (init.textTransform !== undefined)
-                    this.textTransform = init.textTransform;	
+                    this.textTransform = init.textTransform;
                 if (init.foreground !== undefined)
                     this.foreground = init.foreground;
                 if (init.data !== undefined)
                     this.data = init.data;
                 if (init.text !== undefined)
                     this.text = init.text;
-                if (init.textHeight !== undefined)
-                    this.textHeight = init.textHeight;
+                if (init.iconText !== undefined)
+                    this.iconText = init.iconText;
+                if (init.boxHeight !== undefined)
+                    this.boxHeight = init.boxHeight;
                 if (init.mode !== undefined)
-                    this.mode = init.mode;	
+                    this.mode = init.mode;
                 if (init.radius !== undefined)
-                    this.radius = init.radius;	
+                    this.radius = init.radius;
                 if (init.spacing !== undefined)
-                    this.spacing = init.spacing;	
+                    this.spacing = init.spacing;
                 if (init.background !== undefined)
-                    this.background = init.background;	
+                    this.background = init.background;
             }
         }
 
@@ -255,6 +279,7 @@ namespace Ui {
 
         set foreground(color: Color | string) {
             this.label.color = Color.create(color);
+            this.icon.fill = Color.create(color);
         }
 
         get data(): any {
@@ -267,10 +292,16 @@ namespace Ui {
 
         set text(text: string) {
             this.label.text = text;
+            this.label.show();
         }
 
-        set textHeight(height: number) {
-            this.textBox.height = height;
+        set iconText(icon: string) {
+            this.icon.icon = icon;
+            this.icon.show();
+        }
+
+        set boxHeight(height: number) {
+            this.box.height = height;
         }
 
         set mode(mode: 'left' | 'right' | 'top' | 'bottom') {
@@ -306,25 +337,25 @@ namespace Ui {
                 this.bg.radiusBottomRight = 0;
             }
         }
-    
+
         set radius(radius: number) {
             this._radius = radius;
             this.mode = this._mode;
         }
 
         set spacing(spacing: number) {
-            this.textBox.margin = spacing;
+            this.box.margin = spacing;
         }
 
         set background(color: Color | string) {
             this.bg.fill = color;
         }
 
-        set backgroundMode(mode: 'top'|'bottom'|'left'|'right'|'stretch') {
-            if( mode == 'top' || mode == 'bottom') {
+        set backgroundMode(mode: 'top' | 'bottom' | 'left' | 'right' | 'stretch') {
+            if (mode == 'top' || mode == 'bottom') {
                 this.bg.horizontalAlign = 'stretch';
                 this.bg.verticalAlign = mode;
-            } else if( mode == 'left' || mode == 'right') {
+            } else if (mode == 'left' || mode == 'right') {
                 this.bg.horizontalAlign = mode;
                 this.bg.verticalAlign = 'stretch';
             } else {
