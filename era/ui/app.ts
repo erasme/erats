@@ -643,8 +643,8 @@ namespace Ui
             return iframe;
         }
 
-        static getRootWindow() {
-            let rootWindow = window;
+        static getRootWindow(): Window {
+            let rootWindow = window as Window;
             while (rootWindow.parent != rootWindow)
                 rootWindow = rootWindow.parent;
             return rootWindow;

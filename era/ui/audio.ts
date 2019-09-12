@@ -377,7 +377,7 @@ namespace Ui {
         }
 
         private static createMeasureHtml() {
-            let measureWindow = window;
+            let measureWindow = window as Window;
             if (Core.Navigator.isIE || Core.Navigator.isGecko)
                 measureWindow = Ui.App.getRootWindow();
 
