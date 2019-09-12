@@ -9,9 +9,13 @@ namespace Ui {
 
     export class RichTextEditor extends LBox {
         private _contentEditable: ContentEditable;
+        private _autoHideControls = false;
+        private controlsBox = new Ui.LBox();
+        private focusInWatcher: FocusInWatcher;
 
         constructor() {
             super();
+            this.focusable = true;
             let boldButton = new RichTextButton().assign({
                 icon: 'format-bold', focusable: false,
                 ontoggled: () => document.execCommand('bold', false, null),
@@ -124,9 +128,26 @@ namespace Ui {
                     alignCenterButton.isActive = document.queryCommandState('justifyCenter');
                     alignRightButton.isActive = document.queryCommandState('justifyRight');
                 },
-                onselectionentered: () => controls.enable(),
-                onselectionleaved: () => controls.disable(),
+                onselectionentered: () => {
+                    controls.enable();
+                    this.controlsBox.show();
+                },
+                onselectionleaved: () => {
+                },
                 selectable: true
+            });
+
+            this.focusInWatcher = new FocusInWatcher({
+                element: this,
+                onfocusin: () => {
+                    controls.enable();
+                    this.controlsBox.show();
+                },
+                onfocusout: () => {
+                    controls.disable();
+                    if (this.autoHideControls)
+                        this.controlsBox.hide(true);
+                }
             });
 
             this.content = [
@@ -134,7 +155,7 @@ namespace Ui {
                 new Ui.VBox().assign({
                     margin: 1,
                     content: [
-                        new Ui.LBox().assign({
+                        this.controlsBox.assign({
                             content: [
                                 new Ui.Rectangle().assign({ fill: 'white', opacity: 0.6 }),
                                 controls
@@ -224,6 +245,20 @@ namespace Ui {
 
         set color(color: Color | string) {
             this._contentEditable.color = color;
+        }
+
+        get autoHideControls(): boolean {
+            return this._autoHideControls;
+        }
+
+        set autoHideControls(value: boolean) {
+            if (this._autoHideControls != value) {
+                this._autoHideControls = value;
+                if (!this.focusInWatcher.isFocusIn && value)
+                    this.controlsBox.hide(true);
+                else if (!value)
+                    this.controlsBox.show();
+            }
         }
     }
 }
