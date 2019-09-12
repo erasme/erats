@@ -12,6 +12,7 @@ namespace Core {
     // @class Object class from which every Era classes derives.
     // It handles inheritance, serialization, dump function, manages events connections.
     //
+    // @ts-ignore
     export class Object {
         //
         // Serialize a javascript object into a string
