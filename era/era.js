@@ -28679,6 +28679,9 @@ var Ui;
         __extends(RichTextEditor, _super);
         function RichTextEditor() {
             var _this = _super.call(this) || this;
+            _this._autoHideControls = false;
+            _this.controlsBox = new Ui.LBox();
+            _this.focusable = true;
             var boldButton = new RichTextButton().assign({
                 icon: 'format-bold', focusable: false,
                 ontoggled: function () { return document.execCommand('bold', false, null); },
@@ -28788,16 +28791,32 @@ var Ui;
                     alignCenterButton.isActive = document.queryCommandState('justifyCenter');
                     alignRightButton.isActive = document.queryCommandState('justifyRight');
                 },
-                onselectionentered: function () { return controls.enable(); },
-                onselectionleaved: function () { return controls.disable(); },
+                onselectionentered: function () {
+                    controls.enable();
+                    _this.controlsBox.show();
+                },
+                onselectionleaved: function () {
+                },
                 selectable: true
+            });
+            _this.focusInWatcher = new Ui.FocusInWatcher({
+                element: _this,
+                onfocusin: function () {
+                    controls.enable();
+                    _this.controlsBox.show();
+                },
+                onfocusout: function () {
+                    controls.disable();
+                    if (_this.autoHideControls)
+                        _this.controlsBox.hide(true);
+                }
             });
             _this.content = [
                 bg,
                 new Ui.VBox().assign({
                     margin: 1,
                     content: [
-                        new Ui.LBox().assign({
+                        _this.controlsBox.assign({
                             content: [
                                 new Ui.Rectangle().assign({ fill: 'white', opacity: 0.6 }),
                                 controls
@@ -28905,6 +28924,22 @@ var Ui;
             },
             set: function (color) {
                 this._contentEditable.color = color;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(RichTextEditor.prototype, "autoHideControls", {
+            get: function () {
+                return this._autoHideControls;
+            },
+            set: function (value) {
+                if (this._autoHideControls != value) {
+                    this._autoHideControls = value;
+                    if (!this.focusInWatcher.isFocusIn && value)
+                        this.controlsBox.hide(true);
+                    else if (!value)
+                        this.controlsBox.show();
+                }
             },
             enumerable: true,
             configurable: true

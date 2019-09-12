@@ -6101,9 +6101,7 @@ declare namespace Ui {
         readonly current: SegmentButton | undefined;
         next(): void;
         previous(): void;
-        protected onSegmentSelect: (e: {
-            target: SegmentButton;
-        }) => void;
+        private onSegmentSelect;
         private onKeyDown;
         protected onStyleChange(): void;
         static style: any;
@@ -6372,6 +6370,9 @@ declare namespace Ui {
     }
     class RichTextEditor extends LBox {
         private _contentEditable;
+        private _autoHideControls;
+        private controlsBox;
+        private focusInWatcher;
         constructor();
         html: string;
         text: string;
@@ -6383,6 +6384,7 @@ declare namespace Ui {
         wordWrap: string;
         whiteSpace: string;
         color: Color | string;
+        autoHideControls: boolean;
     }
 }
 declare namespace Ui {
