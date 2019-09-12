@@ -29049,6 +29049,7 @@ var Ui;
             var cy = h / 2;
             var radius = Math.min(cx - 5, cy - 5);
             radius = Math.min(radius, 10);
+            radius -= 1;
             if (this.isDown)
                 ctx.globalAlpha = 0.8;
             if (this.isDisabled)
@@ -29056,13 +29057,13 @@ var Ui;
             ctx.strokeStyle = this.color.getCssRgba();
             ctx.lineWidth = this.borderWidth;
             ctx.beginPath();
-            ctx.arc(cx - this.borderWidth / 2, cy - this.borderWidth / 2, radius, 0, 2 * Math.PI, false);
+            ctx.arc(cx, cy, radius, 0, 2 * Math.PI, false);
             ctx.closePath();
             ctx.stroke();
             if (this.isChecked) {
                 ctx.fillStyle = this.color.getCssRgba();
                 ctx.beginPath();
-                ctx.arc(cx - this.borderWidth / 2, cy - this.borderWidth / 2, radius / 2, 0, 2 * Math.PI, false);
+                ctx.arc(cx, cy, radius / 2, 0, 2 * Math.PI, false);
                 ctx.closePath();
                 ctx.fill();
                 ctx.restore();
