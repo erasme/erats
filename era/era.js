@@ -15821,8 +15821,8 @@ var Ui;
             window.addEventListener('load', function () { return _this.onWindowLoad(); });
             window.addEventListener('resize', function (e) { return _this.onWindowResize(e); });
             window.addEventListener('keyup', function (e) { return _this.onWindowKeyUp(e); });
-            window.addEventListener('beforeprint', function () { console.log('beforeprint'); Ui.App.isPrint = true; _this.invalidateMeasure(); });
-            window.addEventListener('afterprint', function () { console.log('afterprint'); Ui.App.isPrint = false; _this.invalidateMeasure(); });
+            window.addEventListener('beforeprint', function () { Ui.App.isPrint = true; _this.invalidateMeasure(); _this.update(); });
+            window.addEventListener('afterprint', function () { Ui.App.isPrint = false; _this.invalidateMeasure(); });
             window.addEventListener('focus', function (event) {
                 if (event.target == undefined)
                     return;

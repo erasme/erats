@@ -99,8 +99,8 @@ namespace Ui
             window.addEventListener('load', () => this.onWindowLoad());
             window.addEventListener('resize', e => this.onWindowResize(e));
             window.addEventListener('keyup', e => this.onWindowKeyUp(e));
-            window.addEventListener('beforeprint', () => { console.log('beforeprint'); Ui.App.isPrint = true; this.invalidateMeasure(); });
-            window.addEventListener('afterprint', () => { console.log('afterprint'); Ui.App.isPrint = false; this.invalidateMeasure(); });
+            window.addEventListener('beforeprint', () => { Ui.App.isPrint = true; this.invalidateMeasure(); this.update(); });
+            window.addEventListener('afterprint', () => { Ui.App.isPrint = false; this.invalidateMeasure(); });
 
             window.addEventListener('focus', (event: FocusEvent) => {
                 if (event.target == undefined)
