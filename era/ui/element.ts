@@ -517,6 +517,7 @@ namespace Ui {
                 this.arrangeWidth = width;
                 this.arrangeHeight = height;
                 this.arrangePixelRatio = (window.devicePixelRatio || 1);
+                this.arrangeIsPrint = Ui.App.isPrint;
 
                 // handle alignment
                 if (this._verticalAlign == 'top') {

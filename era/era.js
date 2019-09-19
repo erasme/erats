@@ -3489,6 +3489,7 @@ var Ui;
                 this.arrangeWidth = width;
                 this.arrangeHeight = height;
                 this.arrangePixelRatio = (window.devicePixelRatio || 1);
+                this.arrangeIsPrint = Ui.App.isPrint;
                 if (this._verticalAlign == 'top') {
                     height = this._measureHeight;
                 }
