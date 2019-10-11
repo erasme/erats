@@ -64,6 +64,7 @@ namespace Ui {
         private measureConstraintPixelRatio: number = 1;
         private measureConstraintWidth: number = 0;
         private measureConstraintHeight: number = 0;
+        private measureConstraintIsPrint: boolean = false;
         private _measureWidth: number = 0;
         private _measureHeight: number = 0;
 
@@ -73,6 +74,7 @@ namespace Ui {
         private arrangeY: number = 0;
         private arrangeWidth: number = 0;
         private arrangeHeight: number = 0;
+        private arrangeIsPrint: boolean = false;
         private arrangePixelRatio: number = 1;
 
         // render
@@ -388,12 +390,14 @@ namespace Ui {
             }
 
             if (this.measureValid && (this.measureConstraintWidth === width) && (this.measureConstraintHeight === height) &&
+                (this.measureConstraintIsPrint == Ui.App.isPrint) &&
                 (this.measureConstraintPixelRatio == (window.devicePixelRatio || 1)))
                 return { width: this._measureWidth, height: this._measureHeight };
 
             this.measureConstraintPixelRatio = (window.devicePixelRatio || 1);
             this.measureConstraintWidth = width;
             this.measureConstraintHeight = height;
+            this.measureConstraintIsPrint = Ui.App.isPrint;
 
             let marginLeft = this.marginLeft;
             let marginRight = this.marginRight;
@@ -505,6 +509,7 @@ namespace Ui {
 
             if (!this.arrangeValid || (this.arrangeX != x) || (this.arrangeY != y) ||
                 (this.arrangeWidth != width) || (this.arrangeHeight != height) ||
+                (this.arrangeIsPrint != Ui.App.isPrint) ||
                 (this.arrangePixelRatio != (window.devicePixelRatio || 1))) {
                 this.arrangeValid = true;
                 this.arrangeX = x;
@@ -512,6 +517,7 @@ namespace Ui {
                 this.arrangeWidth = width;
                 this.arrangeHeight = height;
                 this.arrangePixelRatio = (window.devicePixelRatio || 1);
+                this.arrangeIsPrint = Ui.App.isPrint;
 
                 // handle alignment
                 if (this._verticalAlign == 'top') {

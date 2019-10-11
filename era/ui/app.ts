@@ -52,7 +52,6 @@ namespace Ui
         constructor(init?: AppInit) {
             super(init);
             let args;
-            this.clipToBounds = true;
 
             Ui.App.current = this;
             this.drawing.style.cursor = 'default';
@@ -100,6 +99,8 @@ namespace Ui
             window.addEventListener('load', () => this.onWindowLoad());
             window.addEventListener('resize', e => this.onWindowResize(e));
             window.addEventListener('keyup', e => this.onWindowKeyUp(e));
+            window.addEventListener('beforeprint', () => { Ui.App.isPrint = true; this.invalidateMeasure(); this.update(); });
+            window.addEventListener('afterprint', () => { Ui.App.isPrint = false; this.invalidateMeasure(); });
 
             window.addEventListener('focus', (event: FocusEvent) => {
                 if (event.target == undefined)
@@ -624,6 +625,8 @@ namespace Ui
 
         // {Ui.App} Reference to the current application instance
         static current: App = undefined;
+
+        static isPrint = false;
 
         static getWindowIFrame(currentWindow) {
             if (currentWindow === undefined)

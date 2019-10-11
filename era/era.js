@@ -3080,6 +3080,7 @@ var Ui;
             _this.measureConstraintPixelRatio = 1;
             _this.measureConstraintWidth = 0;
             _this.measureConstraintHeight = 0;
+            _this.measureConstraintIsPrint = false;
             _this._measureWidth = 0;
             _this._measureHeight = 0;
             _this.arrangeValid = false;
@@ -3087,6 +3088,7 @@ var Ui;
             _this.arrangeY = 0;
             _this.arrangeWidth = 0;
             _this.arrangeHeight = 0;
+            _this.arrangeIsPrint = false;
             _this.arrangePixelRatio = 1;
             _this.drawValid = true;
             _this.layoutValid = true;
@@ -3389,11 +3391,13 @@ var Ui;
                 return { width: 0, height: 0 };
             }
             if (this.measureValid && (this.measureConstraintWidth === width) && (this.measureConstraintHeight === height) &&
+                (this.measureConstraintIsPrint == Ui.App.isPrint) &&
                 (this.measureConstraintPixelRatio == (window.devicePixelRatio || 1)))
                 return { width: this._measureWidth, height: this._measureHeight };
             this.measureConstraintPixelRatio = (window.devicePixelRatio || 1);
             this.measureConstraintWidth = width;
             this.measureConstraintHeight = height;
+            this.measureConstraintIsPrint = Ui.App.isPrint;
             var marginLeft = this.marginLeft;
             var marginRight = this.marginRight;
             var marginTop = this.marginTop;
@@ -3477,6 +3481,7 @@ var Ui;
             height = Math.ceil(height);
             if (!this.arrangeValid || (this.arrangeX != x) || (this.arrangeY != y) ||
                 (this.arrangeWidth != width) || (this.arrangeHeight != height) ||
+                (this.arrangeIsPrint != Ui.App.isPrint) ||
                 (this.arrangePixelRatio != (window.devicePixelRatio || 1))) {
                 this.arrangeValid = true;
                 this.arrangeX = x;
@@ -3484,6 +3489,7 @@ var Ui;
                 this.arrangeWidth = width;
                 this.arrangeHeight = height;
                 this.arrangePixelRatio = (window.devicePixelRatio || 1);
+                this.arrangeIsPrint = Ui.App.isPrint;
                 if (this._verticalAlign == 'top') {
                     height = this._measureHeight;
                 }
@@ -12668,7 +12674,7 @@ var Ui;
                 size.height = contentSize.height;
             else
                 size.height = height;
-            if (!this.scrollVertical)
+            if (!this.scrollVertical || Ui.App.isPrint)
                 size.height = contentSize.height;
             if (!this.scrollHorizontal)
                 size.width = contentSize.width;
@@ -15777,7 +15783,6 @@ var Ui;
                 }
             };
             var args;
-            _this.clipToBounds = true;
             Ui.App.current = _this;
             _this.drawing.style.cursor = 'default';
             _this.selection = new Ui.Selection();
@@ -15817,6 +15822,8 @@ var Ui;
             window.addEventListener('load', function () { return _this.onWindowLoad(); });
             window.addEventListener('resize', function (e) { return _this.onWindowResize(e); });
             window.addEventListener('keyup', function (e) { return _this.onWindowKeyUp(e); });
+            window.addEventListener('beforeprint', function () { Ui.App.isPrint = true; _this.invalidateMeasure(); _this.update(); });
+            window.addEventListener('afterprint', function () { Ui.App.isPrint = false; _this.invalidateMeasure(); });
             window.addEventListener('focus', function (event) {
                 if (event.target == undefined)
                     return;
@@ -16275,6 +16282,7 @@ var Ui;
             return rootWindow;
         };
         App.current = undefined;
+        App.isPrint = false;
         return App;
     }(Ui.Container));
     Ui.App = App;

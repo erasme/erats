@@ -475,7 +475,6 @@ namespace Ui {
 
         protected measureCore(width: number, height: number) {
             let size = { width: 0, height: 0 };
-
             if (this.scrollbarHorizontalBox)
                 this.scrollbarHorizontalBox.measure(width, height);
             if (this.scrollbarVerticalBox)
@@ -490,7 +489,7 @@ namespace Ui {
                 size.height = contentSize.height;
             else
                 size.height = height;
-            if (!this.scrollVertical)
+            if (!this.scrollVertical || Ui.App.isPrint)
                 size.height = contentSize.height;
             if (!this.scrollHorizontal)
                 size.width = contentSize.width;

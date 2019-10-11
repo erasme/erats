@@ -768,6 +768,7 @@ declare namespace Ui {
         private measureConstraintPixelRatio;
         private measureConstraintWidth;
         private measureConstraintHeight;
+        private measureConstraintIsPrint;
         private _measureWidth;
         private _measureHeight;
         private arrangeValid;
@@ -775,6 +776,7 @@ declare namespace Ui {
         private arrangeY;
         private arrangeWidth;
         private arrangeHeight;
+        private arrangeIsPrint;
         private arrangePixelRatio;
         drawValid: boolean;
         drawNext?: Element;
@@ -3418,6 +3420,7 @@ declare namespace Ui {
         invalidateArrange(): void;
         protected arrangeCore(w: number, h: number): void;
         static current: App;
+        static isPrint: boolean;
         static getWindowIFrame(currentWindow: any): any;
         static getRootWindow(): Window;
     }
