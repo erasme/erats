@@ -18277,7 +18277,7 @@ var Ui;
             },
             set: function (value) {
                 this.entry.value = value;
-                if ((value === undefined) || (value === ''))
+                if (((value === undefined) || (value === '')) && !this.entry.hasFocus)
                     this.textholder.show();
                 else
                     this.textholder.hide();
