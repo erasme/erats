@@ -62,6 +62,10 @@ namespace Ui {
             }
         }
 
+        get passwordMode(): boolean {
+            return this._passwordMode;
+        }
+
         set passwordMode(passwordMode: boolean) {
             if (this._passwordMode != passwordMode) {
                 this._passwordMode = passwordMode;
@@ -155,6 +159,14 @@ namespace Ui {
          */
         set inputMode(value: string) {
             this.drawing.inputMode = value;
+        }
+
+        get autocomplete(): string {
+            return this.drawing.autocomplete;
+        }
+
+        set autocomplete(value: string) {
+            this.drawing.autocomplete = value;
         }
 
         private onPaste(event) {
