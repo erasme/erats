@@ -3907,7 +3907,7 @@ declare namespace Ui {
         }) => void;
     }
     class TextField extends LBox {
-        private entry;
+        readonly entry: Entry;
         private graphic;
         private textholder;
         readonly changed: Core.Events<{
@@ -3930,6 +3930,7 @@ declare namespace Ui {
         value: string;
         captureValidated: boolean;
         inputMode: string;
+        autocomplete: string;
         private onEntryFocus;
         private onEntryBlur;
         private onEntryChange;
@@ -4145,7 +4146,7 @@ declare namespace Ui {
         }) => void;
     }
     class TextAreaField extends LBox {
-        textarea: TextArea;
+        readonly textarea: TextArea;
         graphic: TextBgGraphic;
         textholder: Label;
         readonly changed: Core.Events<{
@@ -4161,7 +4162,7 @@ declare namespace Ui {
         value: string;
         protected onTextAreaFocus(): void;
         protected onTextAreaBlur(): void;
-        protected onTextAreaChange(entry: any, value: string): void;
+        protected onTextAreaChange(entry: TextArea, value: string): void;
     }
 }
 declare namespace Ui {

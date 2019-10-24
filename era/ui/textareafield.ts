@@ -6,7 +6,7 @@ namespace Ui {
     }
 
     export class TextAreaField extends LBox {
-        textarea: TextArea;
+        readonly textarea: TextArea;
         graphic: TextBgGraphic;
         textholder: Label;
         readonly changed = new Core.Events<{ target: TextAreaField, value: string }>();
@@ -41,12 +41,12 @@ namespace Ui {
 
             if (init) {
                 if (init.textHolder !== undefined)
-                    this.textHolder = init.textHolder;	
+                    this.textHolder = init.textHolder;
                 if (init.value !== undefined)
                     this.value = init.value;
                 if (init.onchanged)
                     this.changed.connect(init.onchanged);
-            }	
+            }
         }
 
         set textHolder(text: string) {
@@ -76,9 +76,9 @@ namespace Ui {
             this.graphic.hasFocus = false;
         }
 
-        protected onTextAreaChange(entry, value: string) {
+        protected onTextAreaChange(entry: TextArea, value: string) {
             this.changed.fire({ target: this, value: value });
         }
     }
-}	
+}
 
