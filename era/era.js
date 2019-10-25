@@ -17780,6 +17780,9 @@ var Ui;
             configurable: true
         });
         Object.defineProperty(Entry.prototype, "passwordMode", {
+            get: function () {
+                return this._passwordMode;
+            },
             set: function (passwordMode) {
                 if (this._passwordMode != passwordMode) {
                     this._passwordMode = passwordMode;
@@ -17881,6 +17884,16 @@ var Ui;
             },
             set: function (value) {
                 this.drawing.inputMode = value;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Entry.prototype, "autocomplete", {
+            get: function () {
+                return this.drawing.autocomplete;
+            },
+            set: function (value) {
+                this.drawing.autocomplete = value;
             },
             enumerable: true,
             configurable: true
@@ -22194,6 +22207,26 @@ var Ui;
             },
             set: function (value) {
                 this.textValue = value;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(TextButtonField.prototype, "autocomplete", {
+            get: function () {
+                return this.entry.autocomplete;
+            },
+            set: function (value) {
+                this.entry.autocomplete = value;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(TextButtonField.prototype, "passwordMode", {
+            get: function () {
+                return this.entry.passwordMode;
+            },
+            set: function (value) {
+                this.entry.passwordMode = value;
             },
             enumerable: true,
             configurable: true

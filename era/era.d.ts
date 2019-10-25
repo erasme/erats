@@ -3809,6 +3809,7 @@ declare namespace Ui {
         color: Color | string;
         value: string;
         inputMode: string;
+        autocomplete: string;
         private onPaste;
         private onAfterPaste;
         private onChange;
@@ -4794,6 +4795,8 @@ declare namespace Ui {
         buttonText: string;
         textValue: string;
         value: string;
+        autocomplete: string;
+        passwordMode: boolean;
         protected onButtonPress(): void;
         protected onEntryChange(entry: Entry, value: string): void;
         protected onFormSubmit(): void;

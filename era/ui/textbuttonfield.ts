@@ -35,7 +35,7 @@ namespace Ui {
         constructor(init?: TextButtonFieldInit) {
             super(init);
             this.padding = 0;
-        
+
             this.graphic = new TextBgGraphic();
             this.append(this.graphic);
 
@@ -56,15 +56,15 @@ namespace Ui {
             hbox.append(this.entry, true);
 
             this.entry.changed.connect((e) => this.onEntryChange(e.target, e.value));
-        
+
             this.button = new TextFieldButton({ orientation: 'horizontal', margin: 0 });
             hbox.append(this.button);
-        
+
             this.submited.connect(() => this.onFormSubmit());
             this.button.pressed.connect(() => this.onButtonPress());
             if (init) {
                 if (init.textHolder !== undefined)
-                    this.textHolder = init.textHolder;	
+                    this.textHolder = init.textHolder;
                 if (init.widthText !== undefined)
                     this.widthText = init.widthText;
                 if (init.buttonIcon !== undefined)
@@ -102,7 +102,7 @@ namespace Ui {
             return this.entry.value;
         }
 
-        set textValue(value: string) {	
+        set textValue(value: string) {
             this.entry.value = value;
             if (value && value != '')
                 this._textholder.hide();
@@ -115,7 +115,23 @@ namespace Ui {
         set value(value: string) {
             this.textValue = value;
         }
-    
+
+        get autocomplete(): string {
+            return this.entry.autocomplete;
+        }
+
+        set autocomplete(value: string) {
+            this.entry.autocomplete = value;
+        }
+
+        get passwordMode(): boolean {
+            return this.entry.passwordMode;
+        }
+
+        set passwordMode(value: boolean) {
+            this.entry.passwordMode = value;
+        }
+
         protected onButtonPress() {
             this.buttonpressed.fire({ target: this });
             this.validated.fire({ target: this, value: this.value });
@@ -140,4 +156,4 @@ namespace Ui {
             this.graphic.hasFocus = false;
         }
     }
-}	
+}
