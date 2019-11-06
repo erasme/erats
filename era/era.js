@@ -18318,6 +18318,16 @@ var Ui;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(TextField.prototype, "autocomplete", {
+            get: function () {
+                return this.entry.autocomplete;
+            },
+            set: function (value) {
+                this.entry.autocomplete = value;
+            },
+            enumerable: true,
+            configurable: true
+        });
         TextField.prototype.onEntryFocus = function () {
             this.textholder.hide();
             this.graphic.hasFocus = true;

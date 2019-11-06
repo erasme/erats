@@ -9,7 +9,7 @@ namespace Ui {
     }
 
     export class TextField extends LBox {
-        private entry: Entry;
+        readonly entry: Entry;
         private graphic: TextBgGraphic;
         private textholder: Label;
         readonly changed = new Core.Events<{ target: TextField, value: string }>();
@@ -98,6 +98,14 @@ namespace Ui {
          */
         set inputMode(value: string) {
             this.entry.inputMode = value;
+        }
+
+        get autocomplete(): string {
+            return this.entry.autocomplete;
+        }
+
+        set autocomplete(value: string) {
+            this.entry.autocomplete = value;
         }
 
         private onEntryFocus() {
