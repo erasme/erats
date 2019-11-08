@@ -128,7 +128,7 @@ namespace Ui {
                 if (this._content !== undefined)
                     (this.contentBox as LBox).remove(this._content);
                 else {
-                    this.contentBox = new Ui.LBox({ padding: 8, verticalAlign: 'center' });
+                    this.contentBox = new Ui.LBox().assign({ padding: 8, verticalAlign: 'center', resizable: true });
                     this.hbox.append(this.contentBox);
                 }
                 this._content = content;

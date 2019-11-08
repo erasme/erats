@@ -147,16 +147,16 @@ declare module Core {
             target: HttpRequest;
             code: number;
         }>;
-        onerror: (event: {
+        set onerror(value: (event: {
             target: HttpRequest;
             code: number;
-        }) => void;
+        }) => void);
         readonly done: Events<{
             target: HttpRequest;
         }>;
-        ondone: (event: {
+        set ondone(value: (event: {
             target: HttpRequest;
-        }) => void;
+        }) => void);
         constructor(init?: HttpRequestInit);
         setRequestHeader(header: any, value: any): void;
         addArgument(argName: any, argValue: any): void;
@@ -165,11 +165,11 @@ declare module Core {
         sendAsync(): Promise<HttpRequest>;
         waitAsync(): Promise<HttpRequest>;
         getResponseHeader(header: string): string;
-        readonly responseText: string;
-        readonly responseBase64: string;
-        readonly responseJSON: any;
-        readonly responseXML: Document;
-        readonly status: number;
+        get responseText(): string;
+        get responseBase64(): string;
+        get responseJSON(): any;
+        get responseXML(): Document;
+        get status(): number;
         static setRequestHeader(header: any, value: any): void;
     }
 }
@@ -196,10 +196,10 @@ declare namespace Core {
             target: Timer;
             arguments: any[];
         }>;
-        ontimeupdated: (event: {
+        set ontimeupdated(value: (event: {
             target: Timer;
             arguments: Array<any>;
-        }) => void;
+        }) => void);
         constructor(init?: TimerInit);
         abort(): void;
     }
@@ -238,29 +238,29 @@ declare namespace Core {
         readonly error: Events<{
             target: Socket;
         }>;
-        onerror: (event: {
+        set onerror(value: (event: {
             target: Socket;
-        }) => void;
+        }) => void);
         readonly message: Events<{
             target: Socket;
             message: any;
         }>;
-        onmessage: (event: {
+        set onmessage(value: (event: {
             target: Socket;
             message: any;
-        }) => void;
+        }) => void);
         readonly closed: Events<{
             target: Socket;
         }>;
-        onclosed: (event: {
+        set onclosed(value: (event: {
             target: Socket;
-        }) => void;
+        }) => void);
         readonly opened: Events<{
             target: Socket;
         }>;
-        onopened: (event: {
+        set onopened(value: (event: {
             target: Socket;
-        }) => void;
+        }) => void);
         static supportWebSocket: boolean;
         constructor(init: SocketInit);
         send(msg: any): void;
@@ -357,42 +357,43 @@ declare namespace Core {
             loaded: number;
             total: number;
         }>;
-        onprogress: (event: {
+        set onprogress(value: (event: {
             target: FilePostUploader;
             loaded: number;
             total: number;
-        }) => void;
+        }) => void);
         readonly completed: Events<{
             target: FilePostUploader;
         }>;
-        oncompleted: (event: {
+        set oncompleted(value: (event: {
             target: FilePostUploader;
-        }) => void;
+        }) => void);
         readonly error: Events<{
             target: FilePostUploader;
             status: number;
         }>;
-        onerror: (event: {
+        set onerror(value: (event: {
             target: FilePostUploader;
             status: number;
-        }) => void;
+        }) => void);
         constructor(init?: FilePostUploaderInit);
-        method: string;
-        file: File;
-        service: string;
+        set method(method: string);
+        get file(): File;
+        set file(file: File);
+        set service(service: string);
         setField(name: any, value: any): void;
-        arguments: object;
-        destination: string;
+        set arguments(args: object);
+        set destination(destination: string);
         send(): void;
-        readonly status: number;
+        get status(): number;
         sendAsync(): Promise<FilePostUploader>;
         waitAsync(): Promise<FilePostUploader>;
         abort(): void;
-        readonly responseText: string;
-        readonly responseJSON: any;
-        readonly isCompleted: boolean;
-        readonly total: number;
-        readonly loaded: number;
+        get responseText(): string;
+        get responseJSON(): any;
+        get isCompleted(): boolean;
+        get total(): number;
+        get loaded(): number;
         protected onStateChange(event: any): void;
         protected onUpdateProgress(event: any): void;
         protected onFileReaderError(event: any): void;
@@ -536,20 +537,21 @@ declare namespace Anim {
             target: Clock;
         }>;
         constructor(init?: ClockInit);
-        animation: boolean;
-        repeat: 'forever' | number;
-        speed: number;
-        autoReverse: boolean;
-        beginTime: number;
-        ease: EasingFunction | string;
-        target: Target;
-        duration: number | 'forever' | 'automatic';
-        parent: Clock;
-        readonly globalTime: number;
-        readonly isActive: boolean;
-        readonly time: number;
-        readonly iteration: number;
-        readonly progress: number;
+        set animation(animation: boolean);
+        set repeat(repeat: 'forever' | number);
+        set speed(speed: number);
+        set autoReverse(autoReverse: boolean);
+        set beginTime(beginTime: number);
+        set ease(ease: EasingFunction | string);
+        set target(target: Target);
+        set duration(duration: number | 'forever' | 'automatic');
+        set parent(parent: Clock);
+        get parent(): Clock;
+        get globalTime(): number;
+        get isActive(): boolean;
+        get time(): number;
+        get iteration(): number;
+        get progress(): number;
         begin(): void;
         pause(): void;
         resume(): void;
@@ -563,7 +565,7 @@ declare namespace Anim {
     class ClockGroup extends Clock {
         children: Clock[];
         appendChild(child: Clock): void;
-        content: Clock[];
+        set content(content: Clock[]);
         begin(): void;
         pause(): void;
         resume(): void;
@@ -817,76 +819,80 @@ declare namespace Ui {
         readonly focused: Core.Events<{
             target: Element;
         }>;
-        onfocused: (event: {
+        set onfocused(value: (event: {
             target: Element;
-        }) => void;
+        }) => void);
         readonly blurred: Core.Events<{
             target: Element;
         }>;
-        onblurred: (event: {
+        set onblurred(value: (event: {
             target: Element;
-        }) => void;
+        }) => void);
         readonly loaded: Core.Events<{
             target: Element;
         }>;
-        onloaded: (event: {
+        set onloaded(value: (event: {
             target: Element;
-        }) => void;
+        }) => void);
         readonly unloaded: Core.Events<{
             target: Element;
         }>;
-        onunloaded: (event: {
+        set onunloaded(value: (event: {
             target: Element;
-        }) => void;
+        }) => void);
         readonly enabled: Core.Events<{
             target: Element;
         }>;
-        onenabled: (event: {
+        set onenabled(value: (event: {
             target: Element;
-        }) => void;
+        }) => void);
         readonly disabled: Core.Events<{
             target: Element;
         }>;
-        ondisabled: (event: {
+        set ondisabled(value: (event: {
             target: Element;
-        }) => void;
+        }) => void);
         readonly visible: Core.Events<{
             target: Element;
         }>;
-        onvisible: (event: {
+        set onvisible(value: (event: {
             target: Element;
-        }) => void;
+        }) => void);
         readonly hidden: Core.Events<{
             target: Element;
         }>;
-        onhidden: (event: {
+        set onhidden(value: (event: {
             target: Element;
-        }) => void;
+        }) => void);
         readonly ptrdowned: Core.Events<EmuPointerEvent>;
-        onptrdowned: (event: EmuPointerEvent) => void;
+        set onptrdowned(value: (event: EmuPointerEvent) => void);
         readonly ptrmoved: Core.Events<EmuPointerEvent>;
-        onptrmoved: (event: EmuPointerEvent) => void;
+        set onptrmoved(value: (event: EmuPointerEvent) => void);
         readonly ptrupped: Core.Events<EmuPointerEvent>;
-        onptrupped: (event: EmuPointerEvent) => void;
+        set onptrupped(value: (event: EmuPointerEvent) => void);
         readonly ptrcanceled: Core.Events<EmuPointerEvent>;
-        onptrcanceled: (event: EmuPointerEvent) => void;
+        set onptrcanceled(value: (event: EmuPointerEvent) => void);
         readonly wheelchanged: Core.Events<WheelEvent>;
-        onwheelchanged: (event: WheelEvent) => void;
+        set onwheelchanged(value: (event: WheelEvent) => void);
         readonly dragover: Core.Events<DragEvent>;
-        ondragover: (event: DragEvent) => void;
+        set ondragover(value: (event: DragEvent) => void);
         constructor(init?: ElementInit);
-        selectable: boolean;
-        resizable: boolean;
-        readonly layoutX: number;
-        readonly layoutY: number;
-        readonly layoutWidth: number;
-        readonly layoutHeight: number;
-        id: string;
-        focusable: boolean;
+        get selectable(): boolean;
+        set selectable(selectable: boolean);
+        get resizable(): boolean;
+        set resizable(value: boolean);
+        get layoutX(): number;
+        get layoutY(): number;
+        get layoutWidth(): number;
+        get layoutHeight(): number;
+        set id(id: string);
+        get id(): string;
+        get focusable(): boolean;
+        set focusable(focusable: boolean);
         private onMouseDownFocus;
         private onMouseUpFocus;
         getIsMouseFocus(): boolean;
-        role: string;
+        set role(role: string);
         measure(width: number, height: number): Size;
         protected measureCore(width: number, height: number): Size;
         invalidateMeasure(): void;
@@ -902,24 +908,36 @@ declare namespace Ui {
         protected drawCore(): void;
         invalidateDraw(): void;
         protected renderDrawing(): any;
-        width: number | undefined;
-        height: number | undefined;
-        maxWidth: number | undefined;
-        maxHeight: number | undefined;
-        verticalAlign: VerticalAlign;
-        horizontalAlign: HorizontalAlign;
-        clipToBounds: boolean;
+        get width(): number | undefined;
+        set width(width: number | undefined);
+        get height(): number | undefined;
+        set height(height: number | undefined);
+        get maxWidth(): number | undefined;
+        set maxWidth(width: number | undefined);
+        get maxHeight(): number | undefined;
+        set maxHeight(height: number | undefined);
+        get verticalAlign(): VerticalAlign;
+        set verticalAlign(align: VerticalAlign);
+        get horizontalAlign(): HorizontalAlign;
+        set horizontalAlign(align: HorizontalAlign);
+        get clipToBounds(): boolean;
+        set clipToBounds(clip: boolean);
         setClipRectangle(x: number, y: number, width: number, height: number): void;
         updateClipRectangle(): void;
-        margin: number;
-        marginTop: number;
-        marginBottom: number;
-        marginLeft: number;
-        marginRight: number;
-        opacity: number;
+        set margin(margin: number);
+        get marginTop(): number;
+        set marginTop(marginTop: number);
+        get marginBottom(): number;
+        set marginBottom(marginBottom: number);
+        get marginLeft(): number;
+        set marginLeft(marginLeft: number);
+        get marginRight(): number;
+        set marginRight(marginRight: number);
+        get opacity(): number;
+        set opacity(opacity: number);
         focus(): void;
         blur(): void;
-        transform: Matrix | undefined;
+        set transform(transform: Matrix | undefined);
         setTransformOrigin(x: number, y: number, absolute?: boolean): void;
         getInverseLayoutTransform(): Matrix;
         getLayoutTransform(): Matrix;
@@ -930,15 +948,17 @@ declare namespace Ui {
         pointFromWindow(point: Point): Point;
         pointFromElement(element: Element, point: Point): Point;
         getIsInside(point: Point): boolean;
-        eventsHidden: boolean;
+        set eventsHidden(eventsHidden: boolean);
+        get eventsHidden(): boolean;
         elementFromPoint(point: Point): Element | undefined;
-        readonly measureWidth: number;
-        readonly measureHeight: number;
-        readonly isCollapsed: boolean;
+        get measureWidth(): number;
+        get measureHeight(): number;
+        get isCollapsed(): boolean;
         hide(collapse?: boolean): void;
         show(): void;
-        isVisible: boolean;
-        parentVisible: boolean;
+        get isVisible(): boolean;
+        set isVisible(value: boolean);
+        set parentVisible(visible: boolean);
         protected onInternalHidden(): void;
         protected onHidden(): void;
         protected onInternalVisible(): void;
@@ -947,7 +967,8 @@ declare namespace Ui {
         disable(): void;
         enable(): void;
         setEnable(enable: boolean): void;
-        isDisabled: boolean;
+        get isDisabled(): boolean;
+        set isDisabled(disabled: boolean);
         setParentDisabled(disabled: boolean): void;
         protected onInternalDisable(): void;
         protected onDisable(): void;
@@ -958,19 +979,21 @@ declare namespace Ui {
         private getClassStyle;
         private mergeStyles;
         getIsChildOf(parent: Element): boolean;
-        parent: Element | undefined;
+        get parent(): Element | undefined;
+        set parent(parent: Element | undefined);
         getParentByClass<T extends Ui.Element>(classFunc: new (...args: any[]) => T): T | undefined;
         setParentStyle(parentStyle: object | undefined): void;
-        style: object | undefined;
+        set style(style: object | undefined);
         setStyleProperty(property: string, value: any): void;
         getStyleProperty(property: string): any;
         protected onInternalStyleChange(): void;
         protected onStyleChange(): void;
-        readonly hasFocus: boolean;
+        get hasFocus(): boolean;
         scrollIntoView(): void;
         protected onScrollIntoView(el: Element): void;
         get(name: string): Element | undefined;
-        isLoaded: boolean;
+        get isLoaded(): boolean;
+        set isLoaded(isLoaded: boolean);
         protected onFocus(event?: any): void;
         protected onBlur(event?: any): void;
         private updateTransform;
@@ -992,16 +1015,17 @@ declare namespace Ui {
         private _children;
         private _containerDrawing;
         constructor(init?: ContainerInit);
-        containerDrawing: any;
+        get containerDrawing(): any;
+        set containerDrawing(containerDrawing: any);
         appendChild(child: Element): void;
         prependChild(child: Element): void;
         removeChild(child: Element): void;
         insertChildAt(child: Element, position: number): void;
         insertChildBefore(child: Element, beforeChild: Element): void;
         moveChildAt(child: Element, position: number): void;
-        readonly children: Element[];
-        readonly firstChild: Element | undefined;
-        readonly lastChild: Element | undefined;
+        get children(): Element[];
+        get firstChild(): Element | undefined;
+        get lastChild(): Element | undefined;
         getChildPosition(child: Element): number;
         hasChild(child: Element): boolean;
         clear(): void;
@@ -1091,9 +1115,10 @@ declare namespace Ui {
         private dpiRatio;
         private generateNeeded;
         constructor(init?: ContainerInit);
-        canvasEngine: 'canvas' | 'svg';
+        get canvasEngine(): 'canvas' | 'svg';
+        set canvasEngine(value: 'canvas' | 'svg');
         update(): void;
-        readonly context: CanvasRenderingContext2D;
+        get context(): CanvasRenderingContext2D;
         protected updateCanvas(context: Ui.CanvasRenderingContext2D): void;
         protected renderCanvasDrawing(): void;
         svgToDataURL(): any;
@@ -1211,12 +1236,16 @@ declare namespace Ui {
         private _radiusBottomLeft;
         private _radiusBottomRight;
         constructor(init?: RectangleInit);
-        fill: Color | LinearGradient | string;
-        radius: number;
-        radiusTopLeft: number;
-        radiusTopRight: number;
-        radiusBottomLeft: number;
-        radiusBottomRight: number;
+        set fill(fill: Color | LinearGradient | string);
+        set radius(radius: number);
+        get radiusTopLeft(): number;
+        set radiusTopLeft(radiusTopLeft: number);
+        get radiusTopRight(): number;
+        set radiusTopRight(radiusTopRight: number);
+        get radiusBottomLeft(): number;
+        set radiusBottomLeft(radiusBottomLeft: number);
+        get radiusBottomRight(): number;
+        set radiusBottomRight(radiusBottomRight: number);
     }
 }
 declare namespace Ui {
@@ -1240,9 +1269,10 @@ declare namespace Ui {
         private _path?;
         private _scale;
         constructor(init?: ShapeInit);
-        scale: number;
-        fill: Color | LinearGradient | string | undefined;
-        path: string;
+        set scale(scale: number);
+        get fill(): Color | LinearGradient | string | undefined;
+        set fill(fill: string | undefined | Color | LinearGradient);
+        set path(path: string);
         onStyleChange(): void;
         updateCanvas(ctx: any): void;
         static style: ShapeStyle;
@@ -1264,13 +1294,14 @@ declare namespace Ui {
         readonly loadingfailed: Core.Events<{
             target: Icon;
         }>;
-        onloadingfailed: ({ target: Icon }: {
+        set onloadingfailed(value: ({ target: Icon }: {
             target: any;
-        }) => void;
+        }) => void);
         constructor(init?: IconInit);
-        fill: Color | string;
-        path: string;
-        icon: string;
+        get fill(): Color | string;
+        set fill(value: Color | string);
+        set path(value: string);
+        set icon(value: string);
         protected onStyleChange(): void;
         protected onLoadingFailed(): void;
         private loadIcon;
@@ -1300,10 +1331,13 @@ declare namespace Ui {
         private _stroke?;
         private _strokeWidth?;
         constructor(init?: DualIconInit);
-        icon: string;
-        fill: Color;
-        stroke: Color;
-        strokeWidth: number;
+        set icon(icon: string);
+        get fill(): Color;
+        set fill(fill: Color);
+        get stroke(): Color;
+        set stroke(stroke: Color);
+        get strokeWidth(): number;
+        set strokeWidth(strokeWidth: number);
         updateCanvas(ctx: any): void;
         static style: any;
     }
@@ -1657,12 +1691,16 @@ declare namespace Ui {
         private _paddingRight;
         constructor(init?: LBoxInit);
         protected setContent(content: Element | Element[] | undefined): void;
-        content: Element | Element[] | undefined;
-        padding: number;
-        paddingTop: number;
-        paddingBottom: number;
-        paddingLeft: number;
-        paddingRight: number;
+        set content(content: Element | Element[] | undefined);
+        set padding(padding: number);
+        get paddingTop(): number;
+        set paddingTop(paddingTop: number);
+        get paddingBottom(): number;
+        set paddingBottom(paddingBottom: number);
+        get paddingLeft(): number;
+        set paddingLeft(paddingLeft: number);
+        get paddingRight(): number;
+        set paddingRight(paddingRight: number);
         append(child: Element): void;
         prepend(child: Element): void;
         insertBefore(child: Element, beforeChild: Element): void;
@@ -1705,15 +1743,22 @@ declare namespace Ui {
         private vertical;
         private uniformSize;
         constructor(init?: BoxInit);
-        content: Element | Element[];
-        orientation: Orientation;
-        padding: number;
-        paddingTop: number;
-        paddingBottom: number;
-        paddingLeft: number;
-        paddingRight: number;
-        uniform: boolean;
-        spacing: number;
+        set content(content: Element | Element[]);
+        get orientation(): Orientation;
+        set orientation(orientation: Orientation);
+        set padding(padding: number);
+        get paddingTop(): number;
+        set paddingTop(paddingTop: number);
+        get paddingBottom(): number;
+        set paddingBottom(paddingBottom: number);
+        get paddingLeft(): number;
+        set paddingLeft(paddingLeft: number);
+        get paddingRight(): number;
+        set paddingRight(paddingRight: number);
+        get uniform(): boolean;
+        set uniform(uniform: boolean);
+        get spacing(): number;
+        set spacing(spacing: number);
         append(child: Element, resizable?: boolean): void;
         prepend(child: Element, resizable?: boolean): void;
         insertAt(child: Element, position: number, resizable?: boolean): void;
@@ -1748,7 +1793,7 @@ declare namespace Ui {
             onentered?: (watcher: OverWatcher) => void;
             onleaved?: (watcher: OverWatcher) => void;
         });
-        readonly isOver: boolean;
+        get isOver(): boolean;
     }
     interface OverableInit extends LBoxInit {
         onentered?: (event: {
@@ -1763,17 +1808,17 @@ declare namespace Ui {
         readonly entered: Core.Events<{
             target: Overable;
         }>;
-        onentered: (event: {
+        set onentered(value: (event: {
             target: Overable;
-        }) => void;
+        }) => void);
         readonly leaved: Core.Events<{
             target: Overable;
         }>;
-        onleaved: (event: {
+        set onleaved(value: (event: {
             target: Overable;
-        }) => void;
+        }) => void);
         constructor(init?: OverableInit);
-        readonly isOver: boolean;
+        get isOver(): boolean;
     }
 }
 declare namespace Ui {
@@ -1791,7 +1836,7 @@ declare namespace Ui {
         });
         private delayFocus;
         private onDelayFocus;
-        readonly isFocusIn: boolean;
+        get isFocusIn(): boolean;
     }
 }
 declare namespace Ui {
@@ -1805,8 +1850,8 @@ declare namespace Ui {
         down(x?: number, y?: number): void;
         up(): void;
         press(x?: number, y?: number): void;
-        fill: Ui.Color | string;
-        pressable: Pressable;
+        set fill(fill: Ui.Color | string);
+        set pressable(pressable: Pressable);
     }
 }
 declare namespace Ui {
@@ -1837,7 +1882,7 @@ declare namespace Ui {
             onactivated?: (watcher: PressWatcher) => void;
             ondelayedpress?: (watcher: PressWatcher) => void;
         });
-        readonly isDown: boolean;
+        get isDown(): boolean;
         protected onPointerDown(event: PointerEvent): void;
         protected onKeyDown(event: KeyboardEvent): void;
         protected onKeyUp(event: KeyboardEvent): void;
@@ -1886,21 +1931,21 @@ declare namespace Ui {
             x?: number;
             y?: number;
         }>;
-        ondowned: (event: {
+        set ondowned(value: (event: {
             target: Pressable;
             x?: number;
             y?: number;
-        }) => void;
+        }) => void);
         readonly upped: Core.Events<{
             target: Pressable;
             x?: number;
             y?: number;
         }>;
-        onupped: (event: {
+        set onupped(value: (event: {
             target: Pressable;
             x?: number;
             y?: number;
-        }) => void;
+        }) => void);
         readonly pressed: Core.Events<{
             target: Pressable;
             x?: number;
@@ -1910,7 +1955,7 @@ declare namespace Ui {
             ctrlKey?: boolean;
             middleButton?: boolean;
         }>;
-        onpressed: (event: {
+        set onpressed(value: (event: {
             target: Pressable;
             x?: number;
             y?: number;
@@ -1918,17 +1963,17 @@ declare namespace Ui {
             shiftKey?: boolean;
             ctrlKey?: boolean;
             middleButton?: boolean;
-        }) => void;
+        }) => void);
         readonly activated: Core.Events<{
             target: Pressable;
             x?: number;
             y?: number;
         }>;
-        onactivated: (event: {
+        set onactivated(value: (event: {
             target: Pressable;
             x?: number;
             y?: number;
-        }) => void;
+        }) => void);
         readonly delayedpress: Core.Events<{
             target: Pressable;
             x?: number;
@@ -1938,7 +1983,7 @@ declare namespace Ui {
             ctrlKey?: boolean;
             middleButton?: boolean;
         }>;
-        ondelayedpress: (event: {
+        set ondelayedpress(value: (event: {
             target: Pressable;
             x?: number;
             y?: number;
@@ -1946,11 +1991,13 @@ declare namespace Ui {
             shiftKey?: boolean;
             ctrlKey?: boolean;
             middleButton?: boolean;
-        }) => void;
+        }) => void);
         constructor(init?: PressableInit);
-        readonly isDown: boolean;
-        lock: boolean;
-        allowMiddleButton: boolean;
+        get isDown(): boolean;
+        set lock(lock: boolean);
+        get lock(): boolean;
+        set allowMiddleButton(value: boolean);
+        get allowMiddleButton(): boolean;
         protected onDown(x?: number, y?: number): void;
         protected onUp(x?: number, y?: number): void;
         press(): void;
@@ -1978,7 +2025,7 @@ declare namespace Ui {
             start?: (watcher: DraggableWatcher) => void;
             end?: (watcher: DraggableWatcher, effect: 'none' | 'copy' | 'link' | 'move' | string) => void;
         });
-        readonly dragDelta: Point;
+        get dragDelta(): Point;
         dispose(): void;
         private onDraggablePointerDown;
         private onDraggableMouseDown;
@@ -2004,22 +2051,23 @@ declare namespace Ui {
             target: Draggable;
             dataTransfer: DragEmuDataTransfer;
         }>;
-        ondragstarted: (event: {
+        set ondragstarted(value: (event: {
             target: Draggable;
             dataTransfer: DragEmuDataTransfer;
-        }) => void;
+        }) => void);
         readonly dragended: Core.Events<{
             target: Draggable;
             effect: string;
         }>;
-        ondragended: (event: {
+        set ondragended(value: (event: {
             target: Draggable;
             effect: string;
-        }) => void;
+        }) => void);
         constructor(init?: DraggableInit);
-        draggableData: any;
+        get draggableData(): any;
+        set draggableData(data: any);
         setAllowedMode(allowedMode: any): void;
-        readonly dragDelta: Point;
+        get dragDelta(): Point;
         protected onDragStart(dataTransfer: DragEmuDataTransfer): void;
         protected onDragEnd(dataTransfer: DragEmuDataTransfer): void;
     }
@@ -2060,9 +2108,12 @@ declare namespace Ui {
         });
         static getSelectionableWatcher(element: Element): SelectionableWatcher | undefined;
         static getIsSelectionableItem(element: Element): boolean;
-        draggableElement: Element | undefined;
-        draggable: boolean;
-        isSelected: boolean;
+        get draggableElement(): Element | undefined;
+        set draggableElement(element: Element | undefined);
+        get draggable(): boolean;
+        set draggable(value: boolean);
+        get isSelected(): boolean;
+        set isSelected(value: boolean);
         onSelect(selection: Selection): void;
         onUnselect(selection: Selection): void;
         protected onDelayedPress(watcher: PressWatcher): void;
@@ -2078,17 +2129,18 @@ declare namespace Ui {
         readonly selected: Core.Events<{
             target: Selectionable;
         }>;
-        onselected: (event: {
+        set onselected(value: (event: {
             target: Selectionable;
-        }) => void;
+        }) => void);
         readonly unselected: Core.Events<{
             target: Selectionable;
         }>;
-        onunselected: (event: {
+        set onunselected(value: (event: {
             target: Selectionable;
-        }) => void;
+        }) => void);
         constructor(init?: SelectionableInit);
-        isSelected: boolean;
+        get isSelected(): boolean;
+        set isSelected(isSelected: boolean);
         protected onSelect(selection: Selection): void;
         protected onUnselect(selection: Selection): void;
         getSelectionActions(): SelectionActions;
@@ -2102,9 +2154,9 @@ declare namespace Ui {
         readonly changed: Core.Events<{
             target: Selection;
         }>;
-        onchanged: (event: {
+        set onchanged(value: (event: {
             target: Selection;
-        }) => void;
+        }) => void);
         constructor();
         clear(): void;
         appendRange(start: SelectionableWatcher, end: SelectionableWatcher): void;
@@ -2114,8 +2166,10 @@ declare namespace Ui {
         private internalAppend;
         remove(watcher: Array<SelectionableWatcher> | SelectionableWatcher): void;
         private internalRemove;
-        watchers: Array<SelectionableWatcher>;
-        elements: Element[];
+        get watchers(): Array<SelectionableWatcher>;
+        set watchers(watchers: Array<SelectionableWatcher>);
+        get elements(): Element[];
+        set elements(elements: Element[]);
         getElementActions(watcher: SelectionableWatcher): SelectionActions;
         getActions(): SelectionActions;
         getDefaultAction(): SelectionAction;
@@ -2182,15 +2236,22 @@ declare namespace Ui {
         private _textTransform?;
         private _textAlign?;
         constructor(init?: LabelInit);
-        text: string;
-        fontSize: number;
-        fontFamily: string;
-        fontWeight: FontWeight;
-        textTransform: TextTransform;
-        textAlign: TextAlign;
-        color: Color | string;
+        get text(): string;
+        set text(text: string);
+        set fontSize(fontSize: number);
+        get fontSize(): number;
+        set fontFamily(fontFamily: string);
+        get fontFamily(): string;
+        set fontWeight(fontWeight: FontWeight);
+        get fontWeight(): FontWeight;
+        set textTransform(textTransform: TextTransform);
+        get textTransform(): TextTransform;
+        get textAlign(): TextAlign;
+        set textAlign(textAlign: TextAlign);
+        set color(color: Color | string);
         private getColor;
-        orientation: Orientation;
+        get orientation(): Orientation;
+        set orientation(orientation: Orientation);
         onStyleChange(): void;
         renderDrawing(): HTMLElement;
         invalidateTextMeasure(): void;
@@ -2266,7 +2327,7 @@ declare namespace Ui {
             cumulMove: number;
             abort: boolean;
         }>;
-        onupped: (event: {
+        set onupped(value: (event: {
             target: MovableBase;
             speedX: number;
             speedY: number;
@@ -2274,30 +2335,34 @@ declare namespace Ui {
             deltaY: number;
             cumulMove: number;
             abort: boolean;
-        }) => void;
+        }) => void);
         readonly downed: Core.Events<{
             target: MovableBase;
         }>;
-        ondowned: (event: {
+        set ondowned(value: (event: {
             target: MovableBase;
-        }) => void;
+        }) => void);
         readonly moved: Core.Events<{
             target: MovableBase;
         }>;
-        onmoved: (event: {
+        set onmoved(value: (event: {
             target: MovableBase;
-        }) => void;
+        }) => void);
         constructor(init?: MovableBaseInit);
-        lock: boolean;
-        readonly isDown: boolean;
-        inertia: boolean;
-        moveHorizontal: boolean;
-        moveVertical: boolean;
+        set lock(lock: boolean);
+        get lock(): boolean;
+        get isDown(): boolean;
+        get inertia(): boolean;
+        set inertia(inertiaActive: boolean);
+        get moveHorizontal(): boolean;
+        set moveHorizontal(moveHorizontal: boolean);
+        get moveVertical(): boolean;
+        set moveVertical(moveVertical: boolean);
         private updateTouchAction;
         private getSpeed;
         setPosition(x?: number, y?: number, dontSignal?: boolean): void;
-        readonly positionX: number;
-        readonly positionY: number;
+        get positionX(): number;
+        get positionY(): number;
         protected onMove(x: number, y: number): void;
         private onDown;
         private onUp;
@@ -2317,12 +2382,13 @@ declare namespace Ui {
         private _content?;
         private _cursor;
         constructor(init?: MovableInit);
-        cursor: string;
+        set cursor(cursor: string);
         protected onKeyDown(event: any): void;
         protected onMove(x: number, y: number): void;
         protected measureCore(width: number, height: number): Size;
         protected arrangeCore(width: number, height: number): void;
-        content: Element | undefined;
+        get content(): Element | undefined;
+        set content(content: Element | undefined);
         protected onDisable(): void;
         protected onEnable(): void;
     }
@@ -2387,21 +2453,25 @@ declare namespace Ui {
             translateY?: number;
             inertia?: boolean;
         });
-        allowLeftMouse: boolean;
-        allowScale: boolean;
-        minScale: number;
-        maxScale: number;
-        allowRotate: boolean;
-        allowTranslate: boolean;
-        readonly isDown: boolean;
-        readonly isInertia: boolean;
-        angle: number;
-        scale: number;
+        set allowLeftMouse(value: boolean);
+        set allowScale(allow: boolean);
+        set minScale(minScale: number);
+        set maxScale(maxScale: number);
+        set allowRotate(allow: boolean);
+        set allowTranslate(allow: boolean);
+        get isDown(): boolean;
+        get isInertia(): boolean;
+        get angle(): number;
+        set angle(angle: number);
+        get scale(): number;
+        set scale(scale: number);
         scaleAt(scale: number, x: number, y: number): void;
-        translateX: number;
-        translateY: number;
+        get translateX(): number;
+        set translateX(translateX: number);
+        get translateY(): number;
+        set translateY(translateY: number);
         private buildMatrix;
-        readonly matrix: Matrix;
+        get matrix(): Matrix;
         getBoundaryBox(matrix: any): {
             x: number;
             y: number;
@@ -2409,7 +2479,8 @@ declare namespace Ui {
             height: number;
         };
         setContentTransform(translateX?: number, translateY?: number, scale?: number, angle?: number): void;
-        inertia: boolean;
+        get inertia(): boolean;
+        set inertia(inertiaActive: boolean);
         protected onDown(): void;
         protected onUp(): void;
         protected onPointerDown(event: EmuPointerEvent): void;
@@ -2477,48 +2548,52 @@ declare namespace Ui {
         readonly downed: Core.Events<{
             target: Transformable;
         }>;
-        ondowned: (event: {
+        set ondowned(value: (event: {
             target: Transformable;
-        }) => void;
+        }) => void);
         readonly upped: Core.Events<{
             target: Transformable;
         }>;
-        onupped: (event: {
+        set onupped(value: (event: {
             target: Transformable;
-        }) => void;
+        }) => void);
         readonly transformed: Core.Events<{
             target: Transformable;
         }>;
-        ontransformed: (event: {
+        set ontransformed(value: (event: {
             target: Transformable;
-        }) => void;
+        }) => void);
         readonly inertiastarted: Core.Events<{
             target: Transformable;
         }>;
-        oninertiastarted: (event: {
+        set oninertiastarted(value: (event: {
             target: Transformable;
-        }) => void;
+        }) => void);
         readonly inertiaended: Core.Events<{
             target: Transformable;
         }>;
-        oninertiaended: (event: {
+        set oninertiaended(value: (event: {
             target: Transformable;
-        }) => void;
+        }) => void);
         constructor(init?: TransformableInit);
-        allowLeftMouse: boolean;
-        allowScale: boolean;
-        minScale: number;
-        maxScale: number;
-        allowRotate: boolean;
-        allowTranslate: boolean;
-        readonly isDown: boolean;
-        readonly isInertia: boolean;
-        angle: number;
-        scale: number;
-        translateX: number;
-        translateY: number;
+        set allowLeftMouse(value: boolean);
+        set allowScale(allow: boolean);
+        set minScale(minScale: number);
+        set maxScale(maxScale: number);
+        set allowRotate(allow: boolean);
+        set allowTranslate(allow: boolean);
+        get isDown(): boolean;
+        get isInertia(): boolean;
+        get angle(): number;
+        set angle(angle: number);
+        get scale(): number;
+        set scale(scale: number);
+        get translateX(): number;
+        set translateX(translateX: number);
+        get translateY(): number;
+        set translateY(translateY: number);
         private buildMatrix;
-        readonly matrix: Matrix;
+        get matrix(): Matrix;
         getBoundaryBox(matrix: any): {
             x: number;
             y: number;
@@ -2526,7 +2601,8 @@ declare namespace Ui {
             height: number;
         };
         setContentTransform(translateX?: number, translateY?: number, scale?: number, angle?: number): void;
-        inertia: boolean;
+        get inertia(): boolean;
+        set inertia(inertiaActive: boolean);
         protected onContentTransform(testOnly?: boolean): void;
         protected onDown(): void;
         protected onUp(): void;
@@ -2538,7 +2614,8 @@ declare namespace Ui {
         startInertia(): void;
         protected onTimeupdate(clock: any, progress: any, delta: any): void;
         stopInertia(): void;
-        content: Element;
+        get content(): Element;
+        set content(content: Element);
         protected arrangeCore(width: any, height: any): void;
     }
 }
@@ -2584,18 +2661,22 @@ declare namespace Ui {
             offsetX: number;
             offsetY: number;
         }>;
-        onscrolled: (event: {
+        set onscrolled(value: (event: {
             target: Scrollable;
             offsetX: number;
             offsetY: number;
-        }) => void;
+        }) => void);
         constructor(init?: ScrollableInit);
-        maxScale: number;
-        content: Element;
+        set maxScale(maxScale: number);
+        set content(content: Element);
+        get content(): Element;
         protected setContent(content: Element): void;
-        inertia: boolean;
-        scrollHorizontal: boolean;
-        scrollVertical: boolean;
+        get inertia(): boolean;
+        set inertia(inertiaActive: boolean);
+        get scrollHorizontal(): boolean;
+        set scrollHorizontal(scroll: boolean);
+        get scrollVertical(): boolean;
+        set scrollVertical(scroll: boolean);
         setScrollbarVertical(scrollbarVertical: Movable): void;
         setScrollbarHorizontal(scrollbarHorizontal: Movable): void;
         setOffset(offsetX?: number, offsetY?: number, absolute?: boolean, align?: boolean): boolean;
@@ -2603,9 +2684,10 @@ declare namespace Ui {
         getRelativeOffsetX(): number;
         getOffsetY(): number;
         getRelativeOffsetY(): number;
-        scale: number;
-        readonly isDown: boolean;
-        readonly isInertia: boolean;
+        get scale(): number;
+        set scale(scale: number);
+        get isDown(): boolean;
+        get isInertia(): boolean;
         protected onWheel(event: WheelEvent): void;
         protected onKeyDown(event: any): void;
         autoShowScrollbars: () => void;
@@ -2630,17 +2712,17 @@ declare namespace Ui {
             offsetX: number;
             offsetY: number;
         }>;
-        onscrolled: (event: {
+        set onscrolled(value: (event: {
             target: ScrollableContent;
             offsetX: number;
             offsetY: number;
-        }) => void;
+        }) => void);
         constructor();
-        readonly offsetX: number;
-        readonly offsetY: number;
+        get offsetX(): number;
+        get offsetY(): number;
         setOffset(x: number, y: number): void;
-        readonly contentWidth: number;
-        readonly contentHeight: number;
+        get contentWidth(): number;
+        get contentHeight(): number;
         protected arrangeCore(width: number, height: number): void;
         protected onContentTransform(testOnly?: boolean): void;
     }
@@ -2654,20 +2736,21 @@ declare namespace Ui {
             offsetX: number;
             offsetY: number;
         }>;
-        onscrolled: (event: {
+        set onscrolled(value: (event: {
             target: NativeScrollableContent;
             offsetX: number;
             offsetY: number;
-        }) => void;
+        }) => void);
         constructor();
         renderDrawing(): HTMLDivElement;
-        content: Ui.Element | undefined;
-        readonly offsetX: number;
-        readonly offsetY: number;
+        get content(): Ui.Element | undefined;
+        set content(value: Ui.Element | undefined);
+        get offsetX(): number;
+        get offsetY(): number;
         stopInertia(): void;
         setOffset(x: number, y: number): void;
-        readonly contentWidth: number;
-        readonly contentHeight: number;
+        get contentWidth(): number;
+        get contentHeight(): number;
         protected measureCore(width: number, height: number): {
             width: number;
             height: number;
@@ -2713,15 +2796,18 @@ declare namespace Ui {
             offsetX: number;
             offsetY: number;
         }>;
-        onscrolled: (event: {
+        set onscrolled(value: (event: {
             target: NativeScrollable;
             offsetX: number;
             offsetY: number;
-        }) => void;
+        }) => void);
         constructor(init?: NativeScrollableInit);
-        content: Ui.Element | undefined;
-        scrollHorizontal: boolean;
-        scrollVertical: boolean;
+        set content(content: Ui.Element | undefined);
+        get content(): Ui.Element | undefined;
+        get scrollHorizontal(): boolean;
+        set scrollHorizontal(scroll: boolean);
+        get scrollVertical(): boolean;
+        set scrollVertical(scroll: boolean);
         setScrollbarVertical(scrollbarVertical: Ui.Movable): void;
         setScrollbarHorizontal(scrollbarHorizontal: Ui.Movable): void;
         setOffset(offsetX?: number, offsetY?: number, absolute?: boolean, align?: boolean): boolean;
@@ -2761,8 +2847,8 @@ declare namespace Ui {
         private clock?;
         private scale;
         constructor(orientation: Orientation);
-        radius: number;
-        fill: Color;
+        set radius(radius: number);
+        set fill(color: Color);
         private startAnim;
         protected onTick(clock: Anim.Clock, progress: number, deltaTick: number): void;
         private updateScale;
@@ -2867,17 +2953,28 @@ declare namespace Ui {
         private _wordWrap;
         private _textTransform;
         constructor(init?: CompactLabelInit);
-        maxLine: number;
-        text: string;
-        textAlign: string;
-        interLine: number;
-        fontSize: number;
-        fontFamily: string;
-        fontWeight: any;
-        whiteSpace: string;
-        wordWrap: string;
-        textTransform: string;
-        color: Color;
+        get maxLine(): number;
+        set maxLine(maxLine: number);
+        get text(): string;
+        set text(text: string);
+        get textAlign(): string;
+        set textAlign(textAlign: string);
+        get interLine(): number;
+        set interLine(interLine: number);
+        get fontSize(): number;
+        set fontSize(fontSize: number);
+        get fontFamily(): string;
+        set fontFamily(fontFamily: string);
+        get fontWeight(): any;
+        set fontWeight(fontWeight: any);
+        get whiteSpace(): string;
+        set whiteSpace(whiteSpace: string);
+        get wordWrap(): string;
+        set wordWrap(wordWrap: string);
+        get textTransform(): string;
+        set textTransform(textTransform: string);
+        set color(color: Color);
+        get color(): Color;
         protected renderDrawing(): any;
         protected onStyleChange(): void;
         invalidateTextMeasure(): void;
@@ -2918,10 +3015,10 @@ declare namespace Ui {
             }>;
         });
         addType(type: string | Function, effects: string | string[] | DropEffect[] | DropEffectFunc): void;
-        types: Array<{
+        set types(types: Array<{
             type: string | Function;
             effects: string | string[] | DropEffect[] | DropEffectFunc;
-        }>;
+        }>);
         protected onDragOver(event: DragEvent): void;
         protected onWatcherEnter(watcher: DragWatcher): void;
         protected onWatcherDrop(watcher: DragWatcher, effect: any, x: number, y: number): void;
@@ -2965,21 +3062,21 @@ declare namespace Ui {
             effect: DropEffect[] | DropEffectFunc;
         }[];
         readonly drageffect: Core.Events<DragEvent>;
-        ondrageffect: (event: DragEvent) => void;
+        set ondrageffect(value: (event: DragEvent) => void);
         readonly dragentered: Core.Events<{
             target: DropBox;
             data: any;
         }>;
-        ondragentered: (event: {
+        set ondragentered(value: (event: {
             target: DropBox;
             data: any;
-        }) => void;
+        }) => void);
         readonly dragleaved: Core.Events<{
             target: DropBox;
         }>;
-        ondragleaved: (event: {
+        set ondragleaved(value: (event: {
             target: DropBox;
-        }) => void;
+        }) => void);
         readonly dropped: Core.Events<{
             target: DropBox;
             data: any;
@@ -2988,14 +3085,14 @@ declare namespace Ui {
             y: number;
             dataTransfer: DragDataTransfer;
         }>;
-        ondropped: (event: {
+        set ondropped(value: (event: {
             target: DropBox;
             data: any;
             effect: string;
             x: number;
             y: number;
             dataTransfer: DragDataTransfer;
-        }) => void;
+        }) => void);
         readonly droppedfile: Core.Events<{
             target: DropBox;
             file: File;
@@ -3003,13 +3100,13 @@ declare namespace Ui {
             x: number;
             y: number;
         }>;
-        ondroppedfile: (event: {
+        set ondroppedfile(value: (event: {
             target: DropBox;
             file: File;
             effect: string;
             x: number;
             y: number;
-        }) => void;
+        }) => void);
         constructor(init?: DropBoxInit);
         addType(type: string | Function, effects: string | string[] | DropEffect[] | DropEffectFunc): void;
         protected onDragOver(event: DragEvent): void;
@@ -3030,10 +3127,10 @@ declare namespace Ui {
     }
     class SimpleButtonBackground extends Element {
         constructor();
-        borderWidth: number;
-        border: Color | string;
-        radius: number;
-        background: Color | string;
+        set borderWidth(borderWidth: number);
+        set border(border: Color | string);
+        set radius(radius: number);
+        set background(background: Color | string);
     }
     class ButtonBackground extends Element {
         private ripple;
@@ -3041,10 +3138,10 @@ declare namespace Ui {
         down(x?: number, y?: number): void;
         up(): void;
         press(x?: number, y?: number): void;
-        borderWidth: number;
-        border: Color | string;
-        radius: number;
-        background: Color | string;
+        set borderWidth(borderWidth: number);
+        set border(border: Color | string);
+        set radius(radius: number);
+        set background(background: Color | string);
     }
     class ButtonBadge extends LBox {
         private _bg;
@@ -3053,10 +3150,10 @@ declare namespace Ui {
         private _badgeColor;
         private _badgeTextColor;
         constructor();
-        fontSize: number;
-        badge: string;
-        badgeColor: Color | string;
-        badgeTextColor: Color | string;
+        set fontSize(value: number);
+        set badge(badge: string);
+        set badgeColor(badgeColor: Color | string);
+        set badgeTextColor(badgeTextColor: Color | string);
     }
     class ButtonIcon extends Icon {
     }
@@ -3083,22 +3180,29 @@ declare namespace Ui {
         private bg;
         private _orientation;
         constructor(init?: ButtonInit);
-        background: Element;
-        readonly textBox: Element;
-        text: string | undefined;
+        get background(): Element;
+        set background(bg: Element);
+        get textBox(): Element;
+        get text(): string | undefined;
+        set text(text: string | undefined);
         setTextOrElement(text: string | Element | undefined): void;
-        readonly iconBox: LBox;
-        icon: string | undefined;
+        get iconBox(): LBox;
+        get icon(): string | undefined;
+        set icon(icon: string | undefined);
         setIconOrElement(icon: Element | string | undefined): void;
-        marker: Element;
-        isActive: boolean;
-        badge: string;
-        orientation: Orientation;
+        get marker(): Element;
+        set marker(marker: Element);
+        get isActive(): boolean;
+        set isActive(isActive: boolean);
+        get badge(): string;
+        set badge(text: string);
+        get orientation(): Orientation;
+        set orientation(orientation: Orientation);
         protected getBackgroundColor(): Color;
         protected getBackgroundBorderColor(): Color;
         protected getForegroundColor(): Color;
-        readonly isTextVisible: boolean;
-        readonly isIconVisible: boolean;
+        get isTextVisible(): boolean;
+        get isIconVisible(): boolean;
         protected updateVisibles(): void;
         protected updateColors(): void;
         protected onDisable(): void;
@@ -3119,17 +3223,18 @@ declare namespace Ui {
         readonly toggled: Core.Events<{
             target: ToggleButton;
         }>;
-        ontoggled: (event: {
+        set ontoggled(value: (event: {
             target: ToggleButton;
-        }) => void;
+        }) => void);
         readonly untoggled: Core.Events<{
             target: ToggleButton;
         }>;
-        onuntoggled: (event: {
+        set onuntoggled(value: (event: {
             target: ToggleButton;
-        }) => void;
+        }) => void);
         constructor();
-        isToggled: boolean;
+        get isToggled(): boolean;
+        set isToggled(value: boolean);
         protected onToggleButtonPress(): void;
         protected onToggle(): void;
         protected onUntoggle(): void;
@@ -3147,8 +3252,8 @@ declare namespace Ui {
         private _selection;
         private _dropWatcher;
         constructor(init?: ActionButtonInit);
-        action: any;
-        selection: Selection;
+        set action(action: any);
+        set selection(selection: Selection);
         protected onActionButtonEffect(data: any, dataTransfer: any): DropEffect[];
         protected onActionButtonDrop(): boolean;
         static style: object;
@@ -3168,7 +3273,8 @@ declare namespace Ui {
         actionsBox: Box;
         closeButton: ContextBarCloseButton;
         constructor(init?: ContextBarInit);
-        selection: Selection;
+        get selection(): Selection;
+        set selection(selection: Selection);
         onClosePress(): void;
         onSelectionChange: () => void;
         onStyleChange(): void;
@@ -3205,15 +3311,16 @@ declare namespace Ui {
         readonly closed: Core.Events<{
             target: Popup;
         }>;
-        onclosed: (event: {
+        set onclosed(value: (event: {
             target: Popup;
-        }) => void;
+        }) => void);
         constructor(init?: PopupInit);
-        preferredWidth: number;
-        preferredHeight: number;
+        set preferredWidth(width: number);
+        set preferredHeight(height: number);
         getSelectionHandler(): Selection;
-        autoClose: boolean;
-        content: Element;
+        set autoClose(autoClose: boolean);
+        get content(): Element;
+        set content(content: Element);
         protected onShadowPress(): void;
         protected onOpenTick(clock: Anim.Clock, progress: number, delta: number): void;
         protected onPopupSelectionChange(selection: Selection): void;
@@ -3244,10 +3351,12 @@ declare namespace Ui {
         private _arrowOffset;
         private readonly arrowSize;
         constructor();
-        arrowBorder: 'left' | 'right' | 'top' | 'bottom' | 'none';
-        arrowOffset: number;
-        radius: number;
-        fill: Color | string;
+        get arrowBorder(): 'left' | 'right' | 'top' | 'bottom' | 'none';
+        set arrowBorder(arrowBorder: 'left' | 'right' | 'top' | 'bottom' | 'none');
+        get arrowOffset(): number;
+        set arrowOffset(offset: number);
+        set radius(radius: number);
+        set fill(fill: Color | string);
         private genPath;
         updateCanvas(ctx: any): void;
     }
@@ -3296,16 +3405,24 @@ declare namespace Ui {
         private menuNeeded;
         private bg;
         constructor(init?: MenuToolBarInit);
-        uniform: boolean;
-        menuPosition: 'left' | 'right';
-        itemsAlign: 'left' | 'right';
-        readonly logicalChildren: Element[];
-        padding: number;
-        paddingTop: number;
-        paddingBottom: number;
-        paddingLeft: number;
-        paddingRight: number;
-        spacing: number;
+        get uniform(): boolean;
+        set uniform(uniform: boolean);
+        get menuPosition(): 'left' | 'right';
+        set menuPosition(menuPosition: 'left' | 'right');
+        get itemsAlign(): 'left' | 'right';
+        set itemsAlign(align: 'left' | 'right');
+        get logicalChildren(): Element[];
+        set padding(padding: number);
+        get paddingTop(): number;
+        set paddingTop(paddingTop: number);
+        get paddingBottom(): number;
+        set paddingBottom(paddingBottom: number);
+        get paddingLeft(): number;
+        set paddingLeft(paddingLeft: number);
+        get paddingRight(): number;
+        set paddingRight(paddingRight: number);
+        get spacing(): number;
+        set spacing(spacing: number);
         append(child: Element, resizable?: boolean): void;
         prepend(child: Element, resizable?: boolean): void;
         remove(child: Element): void;
@@ -3351,33 +3468,33 @@ declare namespace Ui {
             width: number;
             height: number;
         }>;
-        onresized: (event: {
+        set onresized(value: (event: {
             target: App;
             width: number;
             height: number;
-        }) => void;
+        }) => void);
         readonly ready: Core.Events<{
             target: App;
         }>;
-        onready: (event: {
+        set onready(value: (event: {
             target: App;
-        }) => void;
+        }) => void);
         readonly parentmessage: Core.Events<{
             target: App;
             message: any;
         }>;
-        onparentmessage: (event: {
+        set onparentmessage(value: (event: {
             target: App;
             message: any;
-        }) => void;
+        }) => void);
         readonly orientationchanged: Core.Events<{
             target: App;
             orientation: number;
         }>;
-        onorientationchanged: (event: {
+        set onorientationchanged(value: (event: {
             target: App;
             orientation: number;
-        }) => void;
+        }) => void);
         constructor(init?: AppInit);
         setWebApp(webApp: boolean): void;
         getSelectionHandler(): Selection;
@@ -3395,14 +3512,15 @@ declare namespace Ui {
         protected onWindowResize(event: any): void;
         protected onOrientationChange(event: any): void;
         update: () => void;
-        content: Element | undefined;
+        get content(): Element | undefined;
+        set content(content: Element | undefined);
         getFocusElement(): any;
         appendDialog(dialog: any): void;
         removeDialog(dialog: any): void;
         appendTopLayer(layer: any): void;
         removeTopLayer(layer: any): void;
         getArguments(): any;
-        readonly isReady: boolean;
+        get isReady(): boolean;
         protected onReady(): void;
         protected onWindowKeyUp(event: any): void;
         protected onLoad(): void;
@@ -3433,9 +3551,9 @@ declare namespace Ui {
         readonly submited: Core.Events<{
             target: Form;
         }>;
-        onsubmited: (event: {
+        set onsubmited(value: (event: {
             target: Form;
-        }) => void;
+        }) => void);
         constructor(init?: FormInit);
         protected onSubmit(event: any): void;
         submit(): void;
@@ -3452,7 +3570,7 @@ declare namespace Ui {
     class DialogGraphic extends CanvasElement {
         private _background;
         constructor();
-        background: Color | string;
+        set background(color: Color | string);
         updateCanvas(ctx: any): void;
     }
     class DialogTitle extends Label {
@@ -3513,25 +3631,28 @@ declare namespace Ui {
         readonly closed: Core.Events<{
             target: Dialog;
         }>;
-        onclosed: (event: {
+        set onclosed(value: (event: {
             target: Dialog;
-        }) => void;
+        }) => void);
         constructor(init?: DialogInit);
         getSelectionHandler(): Selection;
-        preferredWidth: number;
-        preferredHeight: number;
-        padding: number;
+        set preferredWidth(width: number);
+        set preferredHeight(height: number);
+        get padding(): number;
+        set padding(padding: number);
         open(): void;
         close(): void;
         onOpenTick(clock: any, progress: any, delta: any): void;
         getDefaultButton(): DefaultButton | undefined;
         defaultAction(): void;
-        title: string;
+        get title(): string;
+        set title(title: string);
         updateButtonsBoxVisible(): void;
-        cancelButton: Pressable | undefined;
-        actionButtons: Element[];
-        content: Element | undefined;
-        autoClose: boolean;
+        set cancelButton(button: Pressable | undefined);
+        set actionButtons(buttons: Element[]);
+        set content(content: Element | undefined);
+        get content(): Element | undefined;
+        set autoClose(autoClose: boolean);
         protected onCancelPress(): void;
         protected onFormSubmit(): void;
         protected onDialogSelectionChange(selection: Ui.Selection): void;
@@ -3578,29 +3699,39 @@ declare namespace Ui {
             target: Html;
             ref: string;
         }>;
-        onlink: (event: {
+        set onlink(value: (event: {
             target: Html;
             ref: string;
-        }) => void;
+        }) => void);
         constructor(init?: HtmlInit);
         getElements(tagName: any): any[];
         searchElements(tagName: any, element: any, res: any): void;
         getParentElement(tagName: any, element: any): any;
-        html: string;
+        get html(): string;
         private bindChildEvents;
-        htmlElement: HTMLElement;
-        text: string;
+        set html(html: string);
+        set htmlElement(htmlElement: HTMLElement);
+        get text(): string;
+        set text(text: string);
         private getTextContent;
-        textAlign: TextAlign;
-        fontSize: number;
-        fontFamily: string;
-        fontWeight: FontWeight;
-        interLine: number;
-        wordWrap: string;
-        wordBreak: string;
-        whiteSpace: string;
+        get textAlign(): TextAlign;
+        set textAlign(textAlign: TextAlign);
+        get fontSize(): number;
+        set fontSize(fontSize: number);
+        get fontFamily(): string;
+        set fontFamily(fontFamily: string);
+        get fontWeight(): FontWeight;
+        set fontWeight(fontWeight: FontWeight);
+        get interLine(): number;
+        set interLine(interLine: number);
+        get wordWrap(): string;
+        set wordWrap(wordWrap: string);
+        get wordBreak(): string;
+        set wordBreak(wordBreak: string);
+        get whiteSpace(): string;
+        set whiteSpace(whiteSpace: string);
         protected getColor(): Color;
-        color: Color | string | undefined;
+        set color(color: Color | string | undefined);
         protected onSubtreeModified(event: any): void;
         protected onKeyPress(event: KeyboardEvent): void;
         protected onImageLoad(event: any): void;
@@ -3622,7 +3753,7 @@ declare namespace Ui {
     }
     class Text extends Html implements TextInit {
         constructor(init?: TextInit);
-        textTransform: string;
+        set textTransform(textTransform: string);
     }
 }
 declare namespace Ui {
@@ -3645,14 +3776,20 @@ declare namespace Ui {
         private _inner;
         private _color;
         constructor(init?: ShadowInit);
-        color: Color | string;
-        inner: boolean;
-        shadowWidth: number;
-        radius: number;
-        radiusTopLeft: number;
-        radiusTopRight: number;
-        radiusBottomLeft: number;
-        radiusBottomRight: number;
+        set color(color: Color | string);
+        get inner(): boolean;
+        set inner(inner: boolean);
+        set shadowWidth(shadowWidth: number);
+        get shadowWidth(): number;
+        set radius(radius: number);
+        get radiusTopLeft(): number;
+        set radiusTopLeft(radiusTopLeft: number);
+        get radiusTopRight(): number;
+        set radiusTopRight(radiusTopRight: number);
+        get radiusBottomLeft(): number;
+        set radiusBottomLeft(radiusBottomLeft: number);
+        get radiusBottomRight(): number;
+        set radiusBottomRight(radiusBottomRight: number);
         protected updateCanvas(ctx: any): void;
     }
 }
@@ -3685,11 +3822,11 @@ declare namespace Ui {
             target: Toast;
         }>;
         constructor();
-        readonly isClosed: boolean;
+        get isClosed(): boolean;
         open(): void;
         close(): void;
         protected onOpenTick(clock: any, progress: any, delta: any): void;
-        content: Element;
+        set content(content: Element);
         protected arrangeCore(width: number, height: number): void;
         static send(content: Element | string): void;
     }
@@ -3714,20 +3851,21 @@ declare namespace Ui {
         readonly ready: Core.Events<{
             target: Image;
         }>;
-        onready: (event: {
+        set onready(value: (event: {
             target: Image;
-        }) => void;
+        }) => void);
         readonly error: Core.Events<{
             target: Image;
         }>;
-        onerror: (event: {
+        set onerror(value: (event: {
             target: Image;
-        }) => void;
+        }) => void);
         constructor(init?: ImageInit);
-        src: string | undefined;
-        readonly naturalWidth: number | undefined;
-        readonly naturalHeight: number | undefined;
-        readonly isReady: boolean;
+        get src(): string | undefined;
+        set src(src: string | undefined);
+        get naturalWidth(): number | undefined;
+        get naturalHeight(): number | undefined;
+        get isReady(): boolean;
         private onImageError;
         private onImageLoad;
         private onAppReady;
@@ -3753,7 +3891,8 @@ declare namespace Ui {
             width: number;
             height: number;
         };
-        value: number | 'infinite';
+        set value(value: number | 'infinite');
+        get value(): number | 'infinite';
         static style: object;
     }
 }
@@ -3788,28 +3927,35 @@ declare namespace Ui {
             target: Entry;
             value: string;
         }>;
-        onchanged: (event: {
+        set onchanged(value: (event: {
             target: Entry;
             value: string;
-        }) => void;
+        }) => void);
         readonly validated: Core.Events<{
             target: Entry;
             value: string;
         }>;
-        onvalidated: (event: {
+        set onvalidated(value: (event: {
             target: Entry;
             value: string;
-        }) => void;
+        }) => void);
         constructor(init?: EntryInit);
-        passwordMode: boolean;
-        fontSize: number;
-        fontFamily: string;
-        fontWeight: string;
+        get passwordMode(): boolean;
+        set passwordMode(passwordMode: boolean);
+        get fontSize(): number;
+        set fontSize(fontSize: number);
+        get fontFamily(): string;
+        set fontFamily(fontFamily: string);
+        get fontWeight(): string;
+        set fontWeight(fontWeight: string);
         private getColor;
-        color: Color | string;
-        value: string;
-        inputMode: string;
-        autocomplete: string;
+        set color(color: Color | string);
+        get value(): string;
+        set value(value: string);
+        get inputMode(): string;
+        set inputMode(value: string);
+        get autocomplete(): string;
+        set autocomplete(value: string);
         private onPaste;
         private onAfterPaste;
         private onChange;
@@ -3836,11 +3982,11 @@ declare namespace Ui {
             width: number;
             height: number;
         }>;
-        onresize: (event: {
+        set onresize(value: (event: {
             target: Fixed;
             width: number;
             height: number;
-        }) => void;
+        }) => void);
         constructor(init?: FixedInit);
         setPosition(item: Element, x: number, y: number): void;
         setRelativePosition(item: Element, x: number, y: number, absolute?: boolean): void;
@@ -3864,7 +4010,7 @@ declare namespace Ui {
         constructor(init?: ToolBarInit);
         append(child: Element, resizable?: boolean): void;
         remove(child: Element): void;
-        content: Element | Element[];
+        set content(content: Element | Element[]);
         protected measureCore(width: number, height: number): Size;
         protected arrangeCore(width: number, height: number): void;
         protected onStyleChange(): void;
@@ -3874,9 +4020,9 @@ declare namespace Ui {
 declare namespace Ui {
     class TextBgGraphic extends CanvasElement {
         private textHasFocus;
-        hasFocus: boolean;
-        private readonly background;
-        private readonly backgroundBorder;
+        set hasFocus(hasFocus: boolean);
+        private get background();
+        private get backgroundBorder();
         updateCanvas(ctx: any): void;
         onDisable(): void;
         onEnable(): void;
@@ -3914,23 +4060,27 @@ declare namespace Ui {
             target: TextField;
             value: string;
         }>;
-        onchanged: (event: {
+        set onchanged(value: (event: {
             target: TextField;
             value: string;
-        }) => void;
+        }) => void);
         readonly validated: Core.Events<{
             target: TextField;
         }>;
-        onvalidated: (event: {
+        set onvalidated(value: (event: {
             target: TextField;
-        }) => void;
+        }) => void);
         constructor(init?: TextFieldInit);
-        textHolder: string;
-        passwordMode: boolean;
-        value: string;
-        captureValidated: boolean;
-        inputMode: string;
-        autocomplete: string;
+        set textHolder(text: string);
+        set passwordMode(passwordMode: boolean);
+        get value(): string;
+        set value(value: string);
+        get captureValidated(): boolean;
+        set captureValidated(value: boolean);
+        get inputMode(): string;
+        set inputMode(value: string);
+        get autocomplete(): string;
+        set autocomplete(value: string);
         private onEntryFocus;
         private onEntryBlur;
         private onEntryChange;
@@ -3993,27 +4143,30 @@ declare namespace Ui {
             target: CheckBox;
             value: boolean;
         }>;
-        onchanged: (event: {
+        set onchanged(value: (event: {
             target: CheckBox;
             value: boolean;
-        }) => void;
+        }) => void);
         readonly toggled: Core.Events<{
             target: CheckBox;
         }>;
-        ontoggled: (event: {
+        set ontoggled(value: (event: {
             target: CheckBox;
-        }) => void;
+        }) => void);
         readonly untoggled: Core.Events<{
             target: CheckBox;
         }>;
-        onuntoggled: (event: {
+        set onuntoggled(value: (event: {
             target: CheckBox;
-        }) => void;
+        }) => void);
         constructor(init?: CheckBoxInit);
-        readonly isToggled: boolean;
-        value: boolean;
-        text: string;
-        content: Element;
+        get isToggled(): boolean;
+        get value(): boolean;
+        set value(value: boolean);
+        get text(): string;
+        set text(text: string);
+        get content(): Element;
+        set content(content: Element);
         toggle(): void;
         untoggle(): void;
         private onCheckPress;
@@ -4045,13 +4198,18 @@ declare namespace Ui {
         private _radiusBottomRight;
         private _frameWidth;
         constructor(init?: FrameInit);
-        frameWidth: number;
-        fill: Color | LinearGradient | string;
-        radius: number;
-        radiusTopLeft: number;
-        radiusTopRight: number;
-        radiusBottomLeft: number;
-        radiusBottomRight: number;
+        get frameWidth(): number;
+        set frameWidth(frameWidth: number);
+        set fill(fill: Color | LinearGradient | string);
+        set radius(radius: number);
+        get radiusTopLeft(): number;
+        set radiusTopLeft(radiusTopLeft: number);
+        get radiusTopRight(): number;
+        set radiusTopRight(radiusTopRight: number);
+        get radiusBottomLeft(): number;
+        set radiusBottomLeft(radiusBottomLeft: number);
+        get radiusBottomRight(): number;
+        set radiusBottomRight(radiusBottomRight: number);
         updateCanvas(ctx: any): void;
     }
 }
@@ -4069,10 +4227,11 @@ declare namespace Ui {
         private _itemAlign;
         constructor(init?: ScaleBoxInit);
         setFixedSize(width?: number, height?: number): void;
-        fixedWidth: number;
-        fixedHeight: number;
-        content: Element;
-        itemAlign: ScaleBoxAlign;
+        set fixedWidth(width: number);
+        set fixedHeight(height: number);
+        set content(content: Element);
+        get itemAlign(): ScaleBoxAlign;
+        set itemAlign(align: ScaleBoxAlign);
         protected measureCore(width: number, height: number): {
             width: any;
             height: any;
@@ -4099,20 +4258,24 @@ declare namespace Ui {
             target: TextArea;
             value: string;
         }>;
-        onchanged: (event: {
+        set onchanged(value: (event: {
             target: TextArea;
             value: string;
-        }) => void;
+        }) => void);
         constructor(init?: TextAreaInit);
-        fontSize: number;
-        fontFamily: string;
-        fontWeight: string;
-        color: Color | string;
+        set fontSize(fontSize: number);
+        get fontSize(): number;
+        set fontFamily(fontFamily: string);
+        get fontFamily(): string;
+        set fontWeight(fontWeight: string);
+        get fontWeight(): string;
+        set color(color: Color | string);
         private getColor;
-        value: string;
+        get value(): string;
+        set value(value: string);
         setOffset(offsetX: number, offsetY: number): void;
-        readonly offsetX: number;
-        readonly offsetY: number;
+        get offsetX(): number;
+        get offsetY(): number;
         protected onPaste(event: any): void;
         protected onAfterPaste(): void;
         protected onChange(event: any): void;
@@ -4153,13 +4316,14 @@ declare namespace Ui {
             target: TextAreaField;
             value: string;
         }>;
-        onchanged: (event: {
+        set onchanged(value: (event: {
             target: TextAreaField;
             value: string;
-        }) => void;
+        }) => void);
         constructor(init?: TextAreaFieldInit);
-        textHolder: string;
-        value: string;
+        set textHolder(text: string);
+        get value(): string;
+        set value(value: string);
         protected onTextAreaFocus(): void;
         protected onTextAreaBlur(): void;
         protected onTextAreaChange(entry: TextArea, value: string): void;
@@ -4174,17 +4338,17 @@ declare namespace Ui {
         private _cols;
         private _rows;
         constructor(init?: GridInit);
-        cols: string;
-        rows: string;
+        set cols(colsDef: string);
+        set rows(rowsDef: string);
         attach(child: Element, col: number, row: number, colSpan?: number, rowSpan?: number): void;
         detach(child: Element): void;
-        content: Array<{
+        set content(value: Array<{
             child: Element;
             col: number;
             row: number;
             colSpan?: number;
             rowSpan?: number;
-        }>;
+        }>);
         private getColMin;
         private getRowMin;
         protected measureCore(width: number, height: number): {
@@ -4222,10 +4386,13 @@ declare namespace Ui {
         private _itemAlign;
         private _spacing;
         constructor(init?: FlowInit);
-        content: Element[] | undefined;
-        spacing: number;
-        itemAlign: 'left' | 'right';
-        uniform: boolean;
+        set content(content: Element[] | undefined);
+        get spacing(): number;
+        set spacing(spacing: number);
+        get itemAlign(): 'left' | 'right';
+        set itemAlign(itemAlign: 'left' | 'right');
+        get uniform(): boolean;
+        set uniform(uniform: boolean);
         append(child: Element): void;
         prepend(child: Element): void;
         insertAt(child: Element, position: number): void;
@@ -4249,23 +4416,24 @@ declare namespace Ui {
             target: LimitedFlow;
             value: boolean;
         }>;
-        oncanexpandchanged: (event: {
+        set oncanexpandchanged(value: (event: {
             target: LimitedFlow;
             value: boolean;
-        }) => void;
+        }) => void);
         private _linesCount;
         readonly linechanged: Core.Events<{
             target: LimitedFlow;
             value: number;
         }>;
-        onlinechanged: (event: {
+        set onlinechanged(value: (event: {
             target: LimitedFlow;
             value: number;
-        }) => void;
+        }) => void);
         constructor();
-        maxLines: number | undefined;
-        readonly linesCount: number;
-        readonly canExpand: boolean;
+        get maxLines(): number | undefined;
+        set maxLines(value: number | undefined);
+        get linesCount(): number;
+        get canExpand(): boolean;
         protected measureCore(width: number, height: number): {
             width: number;
             height: number;
@@ -4283,7 +4451,8 @@ declare namespace Ui {
         private background;
         private clock;
         constructor(init?: ProgressBarInit);
-        value: number | 'infinite';
+        set value(value: number | 'infinite');
+        get value(): number | 'infinite';
         protected measureCore(width: number, height: number): {
             width: number;
             height: number;
@@ -4316,15 +4485,19 @@ declare namespace Ui {
             target: Paned;
             position: number;
         }>;
-        onchanged: (event: {
+        set onchanged(value: (event: {
             target: Paned;
             position: number;
-        }) => void;
+        }) => void);
         constructor(init?: PanedInit);
-        orientation: Orientation;
-        pos: number;
-        content1: Element;
-        content2: Element;
+        get orientation(): Orientation;
+        set orientation(orientation: Orientation);
+        get pos(): number;
+        set pos(pos: number);
+        get content1(): Element;
+        set content1(content1: Element);
+        get content2(): Element;
+        set content2(content2: Element);
         invert(): void;
         protected onCursorMove: () => void;
         protected measureCore(width: number, height: number): {
@@ -4374,14 +4547,16 @@ declare namespace Ui {
             target: Slider;
             value: number;
         }>;
-        onchanged: (event: {
+        set onchanged(value: (event: {
             target: Slider;
             value: number;
-        }) => void;
+        }) => void);
         constructor(init?: SliderInit);
-        value: number;
+        get value(): number;
+        set value(value: number);
         setValue(value: number, dontSignal?: boolean): void;
-        orientation: Orientation;
+        get orientation(): Orientation;
+        set orientation(orientation: Orientation);
         protected onButtonMove: () => void;
         protected updateValue(): void;
         protected getColor(): Color;
@@ -4428,69 +4603,73 @@ declare namespace Ui {
         readonly ready: Core.Events<{
             target: Audio;
         }>;
-        onready: (event: {
+        set onready(value: (event: {
             target: Audio;
-        }) => void;
+        }) => void);
         readonly ended: Core.Events<{
             target: Audio;
         }>;
-        onended: (event: {
+        set onended(value: (event: {
             target: Audio;
-        }) => void;
+        }) => void);
         readonly timeupdate: Core.Events<{
             target: Audio;
             time: number;
         }>;
-        ontimeupdate: (event: {
+        set ontimeupdate(value: (event: {
             target: Audio;
             time: number;
-        }) => void;
+        }) => void);
         readonly bufferingupdate: Core.Events<{
             target: Audio;
             buffer: number;
         }>;
-        onbufferingupdate: (event: {
+        set onbufferingupdate(value: (event: {
             target: Audio;
             buffer: number;
-        }) => void;
+        }) => void);
         readonly statechange: Core.Events<{
             target: Audio;
             state: MediaState;
         }>;
-        onstatechange: (event: {
+        set onstatechange(value: (event: {
             target: Audio;
             state: MediaState;
-        }) => void;
+        }) => void);
         readonly error: Core.Events<{
             target: Audio;
             code: number;
         }>;
-        onerror: (event: {
+        set onerror(value: (event: {
             target: Audio;
             code: number;
-        }) => void;
+        }) => void);
         static htmlAudio: boolean;
         static supportOgg: boolean;
         static supportMp3: boolean;
         static supportWav: boolean;
         static supportAac: boolean;
         constructor(init?: AudioInit);
-        src: string | undefined;
+        set src(src: string | undefined);
         play(): void;
         pause(): void;
         stop(): void;
-        controls: boolean;
-        controlsList: Array<string>;
-        volume: number;
-        readonly duration: number | undefined;
-        currentTime: number;
-        readonly state: MediaState;
-        readonly isReady: boolean;
+        set controls(value: boolean);
+        get controls(): boolean;
+        set controlsList(value: Array<string>);
+        get controlsList(): Array<string>;
+        set volume(volume: number);
+        get volume(): number;
+        get duration(): number | undefined;
+        set currentTime(time: number);
+        get currentTime(): number;
+        get state(): MediaState;
+        get isReady(): boolean;
         protected onReady(): void;
         protected onTimeUpdate(): void;
         protected onEnded(): void;
         protected onProgress(): void;
-        readonly currentBufferSize: number;
+        get currentBufferSize(): number;
         checkBuffering(): void;
         protected onError(): void;
         protected onWaiting(): void;
@@ -4522,9 +4701,9 @@ declare namespace Ui {
         readonly link: Core.Events<{
             target: LinkButton;
         }>;
-        onlink: (event: {
+        set onlink(value: (event: {
             target: LinkButton;
-        }) => void;
+        }) => void);
         constructor(init?: LinkButtonInit);
         protected onLinkButtonPress(): void;
         static style: object;
@@ -4551,12 +4730,17 @@ declare namespace Ui {
         private _stretchMaxRatio;
         private _spacing;
         constructor(init?: SFlowInit);
-        content: Element[] | undefined;
-        spacing: number;
-        itemAlign: SFlowAlign;
-        uniform: boolean;
-        uniformRatio: number;
-        stretchMaxRatio: number;
+        set content(content: Element[] | undefined);
+        get spacing(): number;
+        set spacing(spacing: number);
+        get itemAlign(): SFlowAlign;
+        set itemAlign(itemAlign: SFlowAlign);
+        get uniform(): boolean;
+        set uniform(uniform: boolean);
+        get uniformRatio(): number;
+        set uniformRatio(uniformRatio: number);
+        get stretchMaxRatio(): number;
+        set stretchMaxRatio(stretchMaxRatio: number);
         append(child: Element, floatVal?: SFlowFloat, flushVal?: SFlowFlush): void;
         prepend(child: Element, floatVal?: SFlowFloat, flushVal?: SFlowFlush): void;
         insertAt(child: Element, position: number, floatVal?: SFlowFloat, flushVal?: SFlowFlush): void;
@@ -4618,72 +4802,76 @@ declare namespace Ui {
             target: Video;
             state: MediaState;
         }>;
-        onstatechanged: (event: {
+        set onstatechanged(value: (event: {
             target: Video;
             state: MediaState;
-        }) => void;
+        }) => void);
         readonly ready: Core.Events<{
             target: Video;
         }>;
-        onready: (event: {
+        set onready(value: (event: {
             target: Video;
-        }) => void;
+        }) => void);
         readonly ended: Core.Events<{
             target: Video;
         }>;
-        onended: (event: {
+        set onended(value: (event: {
             target: Video;
-        }) => void;
+        }) => void);
         readonly error: Core.Events<{
             target: Video;
             code: number;
         }>;
-        onerror: (event: {
+        set onerror(value: (event: {
             target: Video;
             code: number;
-        }) => void;
+        }) => void);
         readonly timeupdated: Core.Events<{
             target: Video;
             time: number;
         }>;
-        ontimeupdated: (event: {
+        set ontimeupdated(value: (event: {
             target: Video;
             time: number;
-        }) => void;
+        }) => void);
         readonly bufferingupdated: Core.Events<{
             target: Video;
             buffer: number;
         }>;
-        onbufferingupdated: (event: {
+        set onbufferingupdated(value: (event: {
             target: Video;
             buffer: number;
-        }) => void;
+        }) => void);
         static htmlVideo: boolean;
         static flashVideo: boolean;
         static supportOgg: boolean;
         static supportMp4: boolean;
         static supportWebm: boolean;
         constructor(init?: VideoInit);
-        src: string | undefined;
-        poster: string;
-        autoplay: boolean;
+        set src(src: string | undefined);
+        set poster(src: string);
+        set autoplay(autoplay: boolean);
         play(): void;
         pause(): void;
         stop(): void;
-        controls: boolean;
-        controlsList: Array<string>;
-        volume: number;
-        readonly duration: number;
-        currentTime: number;
-        readonly state: MediaState;
-        readonly isReady: boolean;
-        readonly naturalWidth: number;
-        readonly naturalHeight: number;
+        set controls(value: boolean);
+        get controls(): boolean;
+        set controlsList(value: Array<string>);
+        get controlsList(): Array<string>;
+        set volume(volume: number);
+        get volume(): number;
+        get duration(): number;
+        set currentTime(time: number);
+        get currentTime(): number;
+        get state(): MediaState;
+        get isReady(): boolean;
+        get naturalWidth(): number;
+        get naturalHeight(): number;
         protected onReady(): void;
         protected onTimeUpdate(): void;
         protected onEnded(): void;
         protected onProgress(): void;
-        readonly currentBufferSize: number;
+        get currentBufferSize(): number;
         checkBuffering(): void;
         protected onError(): void;
         protected onWaiting(): void;
@@ -4718,17 +4906,20 @@ declare namespace Ui {
             target: MonthCalendar;
             value: Date;
         }>;
-        ondayselected: (event: {
+        set ondayselected(value: (event: {
             target: MonthCalendar;
             value: Date;
-        }) => void;
+        }) => void);
         constructor(init?: MonthCalendarInit);
-        dayFilter: number[];
-        dateFilter: string[];
-        date: Date;
-        selectedDate: Date;
-        selectMode: 'DAY' | 'WEEK';
-        mode: 'DAY' | 'MONTH' | 'YEAR';
+        set dayFilter(dayFilter: number[]);
+        set dateFilter(dateFilter: string[]);
+        set date(date: Date);
+        get selectedDate(): Date;
+        set selectedDate(selectedDate: Date);
+        get selectMode(): 'DAY' | 'WEEK';
+        set selectMode(value: 'DAY' | 'WEEK');
+        get mode(): 'DAY' | 'MONTH' | 'YEAR';
+        set mode(value: 'DAY' | 'MONTH' | 'YEAR');
         protected onLeftButtonPress(): void;
         protected onRightButtonPress(): void;
         protected onDaySelect(button: any): void;
@@ -4771,33 +4962,37 @@ declare namespace Ui {
             target: TextButtonField;
             value: string;
         }>;
-        onchanged: (event: {
+        set onchanged(value: (event: {
             target: TextButtonField;
             value: string;
-        }) => void;
+        }) => void);
         readonly buttonpressed: Core.Events<{
             target: TextButtonField;
         }>;
-        onbuttonpressed: (event: {
+        set onbuttonpressed(value: (event: {
             target: TextButtonField;
-        }) => void;
+        }) => void);
         readonly validated: Core.Events<{
             target: TextButtonField;
             value: string;
         }>;
-        onvalidated: (event: {
+        set onvalidated(value: (event: {
             target: TextButtonField;
             value: string;
-        }) => void;
+        }) => void);
         constructor(init?: TextButtonFieldInit);
-        textHolder: string;
-        widthText: number;
-        buttonIcon: string;
-        buttonText: string;
-        textValue: string;
-        value: string;
-        autocomplete: string;
-        passwordMode: boolean;
+        set textHolder(text: string);
+        set widthText(nbchar: number);
+        set buttonIcon(icon: string);
+        set buttonText(text: string);
+        get textValue(): string;
+        set textValue(value: string);
+        get value(): string;
+        set value(value: string);
+        get autocomplete(): string;
+        set autocomplete(value: string);
+        get passwordMode(): boolean;
+        set passwordMode(value: boolean);
         protected onButtonPress(): void;
         protected onEntryChange(entry: Entry, value: string): void;
         protected onFormSubmit(): void;
@@ -4819,10 +5014,11 @@ declare namespace Ui {
         protected _dayFilter?: number[];
         protected _dateFilter?: string[];
         constructor(init?: DatePickerInit);
-        dayFilter: number[];
-        dateFilter: string[];
-        readonly isValid: boolean;
-        selectedDate: Date;
+        set dayFilter(dayFilter: number[]);
+        set dateFilter(dateFilter: string[]);
+        get isValid(): boolean;
+        get selectedDate(): Date;
+        set selectedDate(date: Date);
         protected onDatePickerButtonPress(): void;
         protected onDatePickerChange(): void;
         private zeroPad;
@@ -4836,9 +5032,9 @@ declare namespace Ui {
         readonly download: Core.Events<{
             target: DownloadButton;
         }>;
-        ondownload: (event: {
+        set ondownload(value: (event: {
             target: DownloadButton;
-        }) => void;
+        }) => void);
         constructor(init?: DownloadButtonInit);
         protected onLinkPress(): void;
         style: object;
@@ -4858,7 +5054,7 @@ declare namespace Ui {
     }
     class ShapeIcon extends Shape implements ShapeIconInit {
         constructor(init?: IconInit);
-        icon: string;
+        set icon(icon: string);
         protected arrangeCore(width: number, height: number): void;
     }
 }
@@ -4872,12 +5068,13 @@ declare namespace Ui {
         readonly ready: Core.Events<{
             target: IFrame;
         }>;
-        onready: (event: {
+        set onready(value: (event: {
             target: IFrame;
-        }) => void;
+        }) => void);
         constructor(init?: IFrameInit);
-        src: string;
-        readonly isReady: boolean;
+        get src(): string;
+        set src(src: string);
+        get isReady(): boolean;
         protected onIFrameLoad(): void;
         protected renderDrawing(): any;
         protected arrangeCore(width: number, height: number): void;
@@ -4902,33 +5099,33 @@ declare namespace Ui {
         readonly anchorchanged: Core.Events<{
             target: ContentEditable;
         }>;
-        onanchorchanged: (event: {
+        set onanchorchanged(value: (event: {
             target: ContentEditable;
-        }) => void;
+        }) => void);
         readonly changed: Core.Events<{
             target: ContentEditable;
         }>;
-        onchanged: (event: {
+        set onchanged(value: (event: {
             target: ContentEditable;
-        }) => void;
+        }) => void);
         readonly validated: Core.Events<{
             target: ContentEditable;
         }>;
-        onvalidated: (event: {
+        set onvalidated(value: (event: {
             target: ContentEditable;
-        }) => void;
+        }) => void);
         readonly selectionentered: Core.Events<{
             target: ContentEditable;
         }>;
-        onselectionentered: (event: {
+        set onselectionentered(value: (event: {
             target: ContentEditable;
-        }) => void;
+        }) => void);
         readonly selectionleaved: Core.Events<{
             target: ContentEditable;
         }>;
-        onselectionleaved: (event: {
+        set onselectionleaved(value: (event: {
             target: ContentEditable;
-        }) => void;
+        }) => void);
         private _lastHtml;
         constructor(init?: ContentEditableInit);
         protected onLoad(): void;
@@ -4990,21 +5187,26 @@ declare namespace Ui {
             offsetX: number;
             offsetY: number;
         }>;
-        onscrolled: (event: {
+        set onscrolled(value: (event: {
             target: VBoxScrollable;
             offsetX: number;
             offsetY: number;
-        }) => void;
+        }) => void);
         constructor(init?: VBoxScrollableInit);
         reload(): void;
         getActiveItems(): Element[];
-        loader: ScrollLoader;
-        maxScale: number;
-        content: Element;
-        scrollHorizontal: boolean;
-        scrollVertical: boolean;
-        scrollbarVertical: Movable;
-        scrollbarHorizontal: Movable;
+        set loader(loader: ScrollLoader);
+        set maxScale(maxScale: number);
+        set content(content: Element);
+        get content(): Element;
+        get scrollHorizontal(): boolean;
+        set scrollHorizontal(scroll: boolean);
+        get scrollVertical(): boolean;
+        set scrollVertical(scroll: boolean);
+        get scrollbarVertical(): Movable;
+        set scrollbarVertical(scrollbarVertical: Movable);
+        get scrollbarHorizontal(): Movable;
+        set scrollbarHorizontal(scrollbarHorizontal: Movable);
         setOffset(offsetX?: number, offsetY?: number, absolute?: boolean): boolean;
         getOffsetX(): number;
         getRelativeOffsetX(): number;
@@ -5041,16 +5243,16 @@ declare namespace Ui {
             offsetX: number;
             offsetY: number;
         }>;
-        onscrolled: (event: {
+        set onscrolled(value: (event: {
             target: VBoxScrollableContent;
             offsetX: number;
             offsetY: number;
-        }) => void;
+        }) => void);
         constructor();
         setLoader(loader: any): void;
         getActiveItems(): Element[];
-        readonly offsetX: number;
-        readonly offsetY: number;
+        get offsetX(): number;
+        get offsetY(): number;
         setOffset(x: number, y: number): void;
         getContentWidth(): number;
         getContentHeight(): number;
@@ -5134,19 +5336,22 @@ declare namespace Ui {
             value: T;
             position: number;
         }>;
-        onchanged: (event: {
+        set onchanged(value: (event: {
             target: Combo<T>;
             value: T;
             position: number;
-        }) => void;
+        }) => void);
         constructor(init?: ComboInit<T>);
-        placeHolder: string;
-        field: keyof T;
-        iconField: keyof T;
-        data: T[];
-        position: number;
-        current: T;
-        readonly value: T;
+        set placeHolder(placeHolder: string);
+        set field(field: keyof T);
+        set iconField(field: keyof T);
+        set data(data: T[]);
+        get data(): T[];
+        get position(): number;
+        set position(position: number);
+        get current(): T;
+        get value(): T;
+        set current(current: T);
         protected onItemPress(popup: any, item: any, position: any): void;
         protected onPress(): void;
         protected updateColors(): void;
@@ -5177,12 +5382,15 @@ declare namespace Ui {
         }>;
         constructor(init?: ComboPopupInit<T>);
         private onSearchChange;
-        search: boolean;
-        allowNone: boolean;
-        field: keyof T;
-        iconField: keyof T;
-        data: T[];
-        position: number;
+        set search(value: boolean);
+        get allowNone(): boolean;
+        set allowNone(value: boolean);
+        get field(): keyof T;
+        set field(field: keyof T);
+        get iconField(): keyof T;
+        set iconField(field: keyof T);
+        set data(data: T[]);
+        set position(position: number);
         protected onItemPress(item: ComboItem): void;
     }
     class ComboItem extends Button {
@@ -5209,7 +5417,11 @@ declare namespace Ui {
         protected _sortOrder: number | undefined;
         protected _sortInvert: boolean;
         constructor(headerDef: HeaderDef);
-        sort: {
+        set sort(value: {
+            order: number | undefined;
+            invert: boolean;
+        });
+        get sort(): {
             order: number | undefined;
             invert: boolean;
         };
@@ -5234,21 +5446,25 @@ declare namespace Ui {
                 invert: boolean;
             }[];
         }>;
-        onsortchanged: (event: {
+        set onsortchanged(value: (event: {
             target: ListViewHeadersBar<T>;
             sortOrder: Array<{
                 key: keyof T;
                 invert: boolean;
             }>;
-        }) => void;
+        }) => void);
         constructor(init: any);
-        readonly sortColKey: keyof T;
-        readonly sortInvert: boolean;
+        get sortColKey(): keyof T;
+        get sortInvert(): boolean;
         sortBy(key: keyof T, invert: boolean): void;
-        sortOrder: Array<{
+        get sortOrder(): Array<{
             key: keyof T;
             invert: boolean;
         }>;
+        set sortOrder(value: Array<{
+            key: keyof T;
+            invert: boolean;
+        }>);
         protected measureCore(width: number, height: number): {
             width: number;
             height: number;
@@ -5270,19 +5486,21 @@ declare namespace Ui {
         readonly selected: Core.Events<{
             target: ListViewRow<T>;
         }>;
-        onselected: (event: {
+        set onselected(value: (event: {
             target: ListViewRow<T>;
-        }) => void;
+        }) => void);
         readonly unselected: Core.Events<{
             target: ListViewRow<T>;
         }>;
-        onunselected: (event: {
+        set onunselected(value: (event: {
             target: ListViewRow<T>;
-        }) => void;
+        }) => void);
         constructor(init: ListViewRowInit<T>);
         getValueFrom(key: string, data: T): any;
-        data: T;
-        isSelected: boolean;
+        get data(): T;
+        set data(data: T);
+        get isSelected(): boolean;
+        set isSelected(value: boolean);
         protected measureCore(width: number, height: number): {
             width: number;
             height: number;
@@ -5367,31 +5585,31 @@ declare namespace Ui {
         readonly selectionchanged: Core.Events<{
             target: ListView<T>;
         }>;
-        onselectionchanged: (event: {
+        set onselectionchanged(value: (event: {
             target: ListView<T>;
-        }) => void;
+        }) => void);
         readonly selected: Core.Events<{
             target: ListView<T>;
         }>;
-        onselected: (event: {
+        set onselected(value: (event: {
             target: ListView<T>;
-        }) => void;
+        }) => void);
         readonly unselected: Core.Events<{
             target: ListView<T>;
         }>;
-        onunselected: (event: {
+        set onunselected(value: (event: {
             target: ListView<T>;
-        }) => void;
+        }) => void);
         readonly activated: Core.Events<{
             target: ListView<T>;
             position: number;
             value: any;
         }>;
-        onactivated: (event: {
+        set onactivated(value: (event: {
             target: ListView<T>;
             position: number;
             value: any;
-        }) => void;
+        }) => void);
         readonly sortchanged: Core.Events<{
             target: ListView<T>;
             sortOrder: {
@@ -5399,24 +5617,25 @@ declare namespace Ui {
                 invert: boolean;
             }[];
         }>;
-        onsortchanged: (event: {
+        set onsortchanged(value: (event: {
             target: ListView<T>;
             sortOrder: Array<{
                 key: keyof T;
                 invert: boolean;
             }>;
-        }) => void;
+        }) => void);
         readonly datachanged: Core.Events<{
             target: ListView<T>;
         }>;
-        ondatachanged: (event: {
+        set ondatachanged(value: (event: {
             target: ListView<T>;
-        }) => void;
+        }) => void);
         constructor(init?: ListViewInit<T>);
-        scrolled: boolean;
-        scrollVertical: boolean;
-        scrollHorizontal: boolean;
-        allowMultiSort: boolean;
+        set scrolled(scrolled: boolean);
+        set scrollVertical(value: boolean);
+        set scrollHorizontal(value: boolean);
+        get allowMultiSort(): boolean;
+        set allowMultiSort(value: boolean);
         showHeaders(): void;
         hideHeaders(): void;
         getSelectionActions(): SelectionActions | ((v: T) => SelectionActions);
@@ -5427,21 +5646,26 @@ declare namespace Ui {
         removeData(data: any): void;
         removeDataAt(position: number): void;
         clearData(): void;
-        data: Array<T>;
+        get data(): Array<T>;
+        set data(data: Array<T>);
         sortData(): void;
         sortBy(key: keyof T, invert: boolean): void;
-        sortOrder: Array<{
+        get sortOrder(): Array<{
             key: keyof T;
             invert: boolean;
         }>;
-        readonly sortColKey: keyof T;
-        readonly sortInvert: boolean;
+        set sortOrder(value: Array<{
+            key: keyof T;
+            invert: boolean;
+        }>);
+        get sortColKey(): keyof T;
+        get sortInvert(): boolean;
         findDataRow(data: T): number;
         onSelectionEdit(selection: Selection): void;
         protected onChildInvalidateArrange(child: Element): void;
         onRowSelectionChanged(): void;
-        readonly rows: Array<ListViewRow<T>>;
-        readonly selectedRows: Array<ListViewRow<T>>;
+        get rows(): Array<ListViewRow<T>>;
+        get selectedRows(): Array<ListViewRow<T>>;
         selectAll(): void;
         unselectAll(): void;
     }
@@ -5507,17 +5731,17 @@ declare namespace Ui {
             target: Uploadable;
             file: File;
         }>;
-        onfile: (event: {
+        set onfile(value: (event: {
             target: Uploadable;
             file: File;
-        }) => void;
+        }) => void);
         constructor(init?: UploadableInit);
         setDirectoryMode(active: boolean): void;
-        directoryMode: boolean;
-        multiple: boolean;
+        set directoryMode(active: boolean);
+        set multiple(active: boolean);
         protected onFile(fileWrapper: any, file: File): void;
         protected onPress(): void;
-        content: Element;
+        set content(content: Element);
     }
     class UploadableFileWrapper extends Element {
         formDrawing: HTMLFormElement;
@@ -5532,10 +5756,10 @@ declare namespace Ui {
         }>;
         constructor();
         select(): void;
-        multiple: boolean;
+        set multiple(active: boolean);
         setDirectoryMode(active: any): void;
-        directoryMode: boolean;
-        accept: string | undefined;
+        set directoryMode(active: boolean);
+        set accept(value: string | undefined);
         protected createInput(): void;
         protected onChange: (event: any) => void;
         protected onLoad(): void;
@@ -5572,14 +5796,14 @@ declare namespace Ui {
             target: UploadButton;
             file: File;
         }>;
-        onfilechanged: (event: {
+        set onfilechanged(value: (event: {
             target: UploadButton;
             file: File;
-        }) => void;
+        }) => void);
         constructor(init?: UploadButtonInit);
-        directoryMode: boolean;
-        multiple: boolean;
-        accept: string | undefined;
+        set directoryMode(active: boolean);
+        set multiple(active: boolean);
+        set accept(value: string | undefined);
         protected onUploadButtonPress(): void;
         protected onFile(wrapper: UploadableFileWrapper, file: File): void;
     }
@@ -5607,7 +5831,7 @@ declare namespace Ui {
     class Slide extends Transition implements SlideInit {
         protected _direction: SlideDirection;
         constructor(init?: SlideInit);
-        direction: SlideDirection;
+        set direction(direction: SlideDirection);
         run(current: Element, next: Element, progress: number): void;
     }
 }
@@ -5644,16 +5868,18 @@ declare namespace Ui {
             target: TransitionBox;
             position: number;
         }>;
-        onchanged: (event: {
+        set onchanged(value: (event: {
             target: TransitionBox;
             position: number;
-        }) => void;
+        }) => void);
         constructor(init?: TransitionBoxInit);
-        position: number;
-        duration: number;
-        ease: Anim.EasingFunction | string;
-        transition: Transition | string;
-        current: Element;
+        get position(): number;
+        set position(position: number);
+        set duration(duration: number);
+        set ease(ease: Anim.EasingFunction | string);
+        set transition(transition: Transition | string);
+        get current(): Element;
+        set current(child: Element);
         setCurrentAt(position: number): void;
         replaceContent(content: any): void;
         protected onLoad(): void;
@@ -5715,44 +5941,53 @@ declare namespace Ui {
         readonly folded: Core.Events<{
             target: Fold;
         }>;
-        onfolded: (event: {
+        set onfolded(value: (event: {
             target: Fold;
-        }) => void;
+        }) => void);
         readonly unfolded: Core.Events<{
             target: Fold;
         }>;
-        onunfolded: (event: {
+        set onunfolded(value: (event: {
             target: Fold;
-        }) => void;
+        }) => void);
         readonly positionchanged: Core.Events<{
             target: Fold;
             position: "left" | "right" | "top" | "bottom";
         }>;
-        onpositionchanged: (event: {
+        set onpositionchanged(value: (event: {
             target: Fold;
             position: FoldDirection;
-        }) => void;
+        }) => void);
         readonly progress: Core.Events<{
             target: Fold;
             offset: number;
         }>;
-        onprogress: (event: {
+        set onprogress(value: (event: {
             target: Fold;
             offset: number;
-        }) => void;
+        }) => void);
         constructor(init?: FoldInit);
-        isFolded: boolean;
+        get isFolded(): boolean;
+        set isFolded(isFolded: boolean);
         fold(): void;
         unfold(): void;
-        over: boolean;
-        mode: FoldMode;
-        header: Element;
-        content: Element;
-        background: Element;
-        position: FoldDirection;
+        get over(): boolean;
+        set over(over: boolean);
+        get mode(): FoldMode;
+        set mode(mode: FoldMode);
+        get header(): Element;
+        set header(header: Element);
+        get content(): Element;
+        set content(content: Element);
+        get background(): Element;
+        set background(background: Element);
+        get position(): FoldDirection;
+        set position(position: FoldDirection);
         invert(): void;
-        animDuration: number;
-        protected offset: number;
+        get animDuration(): number;
+        set animDuration(duration: number);
+        protected get offset(): number;
+        protected set offset(offset: number);
         protected startAnimation(): void;
         protected stopAnimation(): void;
         protected onClockTick(clock: Anim.Clock, progress: number): void;
@@ -5785,12 +6020,13 @@ declare namespace Ui {
             target: Switch;
             value: boolean;
         }>;
-        onchanged: (event: {
+        set onchanged(value: (event: {
             target: Switch;
             value: boolean;
-        }) => void;
+        }) => void);
         constructor(init?: SwitchInit);
-        value: boolean;
+        get value(): boolean;
+        set value(value: boolean);
         private onButtonMove;
         private updatePos;
         private getForeground;
@@ -5826,16 +6062,19 @@ declare namespace Ui {
             page: AccordeonPage;
             position: number;
         }>;
-        onchanged: (event: {
+        set onchanged(value: (event: {
             target: Accordeonable;
             page: AccordeonPage;
             position: number;
-        }) => void;
+        }) => void);
         constructor(init?: AccordeonableInit);
-        orientation: AccordeonOrientation;
-        readonly pages: AccordeonPage[];
-        currentPage: AccordeonPage | undefined;
-        currentPosition: number;
+        get orientation(): AccordeonOrientation;
+        set orientation(orientation: AccordeonOrientation);
+        get pages(): AccordeonPage[];
+        get currentPage(): AccordeonPage | undefined;
+        set currentPage(page: AccordeonPage | undefined);
+        get currentPosition(): number;
+        set currentPosition(pos: number);
         appendPage(page: AccordeonPage, autoSelect?: boolean): void;
         removePage(page: AccordeonPage): void;
         private onClockTick;
@@ -5859,29 +6098,29 @@ declare namespace Ui {
         selected: Core.Events<{
             target: AccordeonPage;
         }>;
-        onselected: (event: {
+        set onselected(value: (event: {
             target: AccordeonPage;
-        }) => void;
+        }) => void);
         unselected: Core.Events<{
             target: AccordeonPage;
         }>;
-        onunselected: (event: {
+        set onunselected(value: (event: {
             target: AccordeonPage;
-        }) => void;
+        }) => void);
         closed: Core.Events<{
             target: AccordeonPage;
         }>;
-        onclosed: (event: {
+        set onclosed(value: (event: {
             target: AccordeonPage;
-        }) => void;
+        }) => void);
         orientationchanged: Core.Events<{
             target: AccordeonPage;
             orientation: Orientation;
         }>;
-        onorientationchanged: (event: {
+        set onorientationchanged(value: (event: {
             target: AccordeonPage;
             orientation: 'vertical' | 'horizontal';
-        }) => void;
+        }) => void);
         constructor(init?: any);
         close(): void;
         select(): void;
@@ -5952,21 +6191,21 @@ declare namespace Ui {
         private fixed;
         private markerOrientation;
         readonly drageffect: Core.Events<DragEvent>;
-        ondrageffect: (event: DragEvent) => void;
+        set ondrageffect(value: (event: DragEvent) => void);
         readonly dragentered: Core.Events<{
             target: DropAtBox<T>;
             data: any;
         }>;
-        ondragentered: (event: {
+        set ondragentered(value: (event: {
             target: DropAtBox<T>;
             data: any;
-        }) => void;
+        }) => void);
         readonly dragleaved: Core.Events<{
             target: DropAtBox<T>;
         }>;
-        ondragleaved: (event: {
+        set ondragleaved(value: (event: {
             target: DropAtBox<T>;
-        }) => void;
+        }) => void);
         readonly droppedat: Core.Events<{
             target: DropAtBox<T>;
             data: any;
@@ -5975,14 +6214,14 @@ declare namespace Ui {
             x: number;
             y: number;
         }>;
-        ondroppedat: (event: {
+        set ondroppedat(value: (event: {
             target: DropAtBox<T>;
             data: any;
             effect: string;
             position: number;
             x: number;
             y: number;
-        }) => void;
+        }) => void);
         readonly droppedfileat: Core.Events<{
             target: DropAtBox<T>;
             file: File;
@@ -5991,14 +6230,14 @@ declare namespace Ui {
             x: number;
             y: number;
         }>;
-        ondroppedfileat: (event: {
+        set ondroppedfileat(value: (event: {
             target: DropAtBox<T>;
             file: File;
             effect: string;
             position: number;
             x: number;
             y: number;
-        }) => void;
+        }) => void);
         constructor(container: T, init?: DropAtBoxInit<T>);
         addType(type: string | Function, effects: string | string[] | DropEffect[] | DropAtEffectFunc): void;
         setMarkerOrientation(orientation: any): void;
@@ -6009,8 +6248,8 @@ declare namespace Ui {
         insertAt(element: Element, pos: number): void;
         insertBefore(element: Element, child: Element): void;
         moveAt(element: Element, pos: number): void;
-        readonly logicalChildren: Element[];
-        content: Element;
+        get logicalChildren(): Element[];
+        set content(content: Element);
         clear(): void;
         append(item: Element): void;
         remove(item: Element): void;
@@ -6036,8 +6275,8 @@ declare namespace Ui {
     }
     class FlowDropBox extends DropAtBox<Flow> {
         constructor(init?: FlowDropBoxInit);
-        uniform: boolean;
-        spacing: number;
+        set uniform(uniform: boolean);
+        set spacing(spacing: number);
     }
     interface SFlowDropBoxInit extends DropAtBoxInit<SFlow> {
         stretchMaxRatio?: number;
@@ -6048,26 +6287,26 @@ declare namespace Ui {
     }
     class SFlowDropBox extends DropAtBox<SFlow> {
         constructor(init?: SFlowDropBoxInit);
-        stretchMaxRatio: number;
-        uniform: boolean;
-        uniformRatio: number;
-        itemAlign: SFlowAlign;
-        spacing: number;
+        set stretchMaxRatio(ratio: number);
+        set uniform(uniform: boolean);
+        set uniformRatio(uniformRatio: number);
+        set itemAlign(align: SFlowAlign);
+        set spacing(spacing: number);
     }
     interface VDropBoxInit extends DropAtBoxInit<VBox> {
         spacing?: number;
     }
     class VDropBox extends DropAtBox<VBox> {
         constructor(init?: VDropBoxInit);
-        uniform: boolean;
-        spacing: number;
+        set uniform(uniform: boolean);
+        set spacing(spacing: number);
     }
     interface HDropBoxInit extends DropAtBoxInit<HBox> {
     }
     class HDropBox extends DropAtBox<HBox> {
         constructor(init?: HDropBoxInit);
-        uniform: boolean;
-        spacing: number;
+        set uniform(uniform: boolean);
+        set spacing(spacing: number);
     }
 }
 declare namespace Ui {
@@ -6094,18 +6333,19 @@ declare namespace Ui {
             target: SegmentBar;
             value: any;
         }>;
-        onchanged: (event: {
+        set onchanged(value: (event: {
             target: SegmentBar;
             value: any;
-        }) => void;
+        }) => void);
         constructor(init?: SegmentBarInit);
-        orientation: 'horizontal' | 'vertical';
-        field: string;
-        iconField: string;
-        data: Array<any>;
-        currentPosition: number;
-        readonly logicalChildren: Array<SegmentButton>;
-        readonly current: SegmentButton | undefined;
+        set orientation(orientation: 'horizontal' | 'vertical');
+        set field(field: string);
+        set iconField(iconField: string);
+        set data(data: Array<any>);
+        set currentPosition(position: number);
+        get currentPosition(): number;
+        get logicalChildren(): Array<SegmentButton>;
+        get current(): SegmentButton | undefined;
         next(): void;
         previous(): void;
         private onSegmentSelect;
@@ -6134,19 +6374,20 @@ declare namespace Ui {
         private _data;
         private _radius;
         constructor(init?: SegmentButtonInit);
-        textTransform: string;
-        foreground: Color | string;
-        data: any;
-        text: string;
-        iconText: string;
-        boxHeight: number;
-        mode: 'left' | 'right' | 'top' | 'bottom';
-        radius: number;
-        spacing: number;
-        background: Color | string;
-        backgroundMode: 'top' | 'bottom' | 'left' | 'right' | 'stretch';
-        backgroundWidth: number;
-        backgroundHeight: number;
+        set textTransform(textTransform: string);
+        set foreground(color: Color | string);
+        get data(): any;
+        set data(data: any);
+        set text(text: string);
+        set iconText(icon: string);
+        set boxHeight(height: number);
+        set mode(mode: 'left' | 'right' | 'top' | 'bottom');
+        set radius(radius: number);
+        set spacing(spacing: number);
+        set background(color: Color | string);
+        set backgroundMode(mode: 'top' | 'bottom' | 'left' | 'right' | 'stretch');
+        set backgroundWidth(width: number);
+        set backgroundHeight(height: number);
         protected onDisable(): void;
         protected onEnable(): void;
     }
@@ -6171,13 +6412,14 @@ declare namespace Ui {
             path: string;
             position: number;
         }>;
-        onchanged: (event: {
+        set onchanged(value: (event: {
             target: Locator;
             path: string;
             position: number;
-        }) => void;
+        }) => void);
         constructor(init?: LocatorInit);
-        path: string;
+        set path(path: string);
+        get path(): string;
         private getBackground;
         private getLightColor;
         private getBackgroundBorder;
@@ -6205,9 +6447,9 @@ declare namespace Ui {
         private _length;
         private _fill;
         constructor(config: any);
-        radius: number;
-        arrowLength: number;
-        fill: Color | string;
+        set radius(radius: number);
+        set arrowLength(length: number);
+        set fill(color: Color | string);
         protected updateCanvas(ctx: any): void;
     }
     interface LocatorLeftArrowInit extends ShapeInit {
@@ -6218,8 +6460,8 @@ declare namespace Ui {
         private _radius;
         private _length;
         constructor(init?: LocatorLeftArrowInit);
-        radius: number;
-        arrowLength: number;
+        set radius(radius: number);
+        set arrowLength(length: number);
         protected arrangeCore(width: number, height: number): void;
     }
     interface LocatorLeftRightArrowInit extends ShapeInit {
@@ -6229,8 +6471,8 @@ declare namespace Ui {
     class LocatorLeftRightArrow extends Shape implements LocatorLeftRightArrowInit {
         private _length;
         constructor(init?: LocatorLeftRightArrowInit);
-        radius: number;
-        arrowLength: number;
+        set radius(radius: number);
+        set arrowLength(length: number);
         protected arrangeCore(width: number, height: number): void;
     }
 }
@@ -6258,25 +6500,28 @@ declare namespace Ui {
             target: Carouselable;
             position: number;
         }>;
-        onchanged: (event: {
+        set onchanged(value: (event: {
             target: Carouselable;
             position: number;
-        }) => void;
+        }) => void);
         constructor(init?: CarouselableInit);
-        autoPlay: number;
+        set autoPlay(delay: number);
         stopAutoPlay(): void;
         startAutoPlay(): void;
         private onAutoPlayTimeout;
-        bufferingSize: number;
-        readonly logicalChildren: Element[];
-        readonly currentPosition: number;
-        current: Element;
+        get bufferingSize(): number;
+        set bufferingSize(size: number);
+        get logicalChildren(): Element[];
+        get currentPosition(): number;
+        get current(): Element;
+        set current(value: Element);
         setCurrentAt(position: number, noAnimation?: boolean): void;
         setCurrent(current: Element, noAnimation?: boolean): void;
         next(): void;
         previous(): void;
-        ease: Anim.EasingFunction;
-        content: Element[];
+        get ease(): Anim.EasingFunction;
+        set ease(ease: Anim.EasingFunction);
+        set content(value: Element[]);
         append(child: Element): void;
         remove(child: Element): void;
         insertAt(child: Element, position: number): void;
@@ -6326,26 +6571,29 @@ declare namespace Ui {
             target: Carousel;
             position: number;
         }>;
-        onchanged: (event: {
+        set onchanged(value: (event: {
             target: Carousel;
             position: number;
-        }) => void;
+        }) => void);
         constructor(init?: CarouselInit);
-        autoPlay: number;
-        alwaysShowArrows: boolean;
+        set autoPlay(delay: number);
+        get alwaysShowArrows(): boolean;
+        set alwaysShowArrows(value: boolean);
         next(): void;
         previous(): void;
-        readonly logicalChildren: Element[];
-        readonly currentPosition: number;
-        current: Element;
+        get logicalChildren(): Element[];
+        get currentPosition(): number;
+        get current(): Element;
+        set current(value: Element);
         setCurrentAt(position: number, noAnimation?: boolean): void;
         setCurrent(current: Element, noAnimation?: boolean): void;
-        bufferingSize: number;
+        get bufferingSize(): number;
+        set bufferingSize(size: number);
         append(child: Element): void;
         remove(child: Element): void;
         insertAt(child: Element, pos: number): void;
         moveAt(child: Element, pos: number): void;
-        content: Element[];
+        set content(content: Element[]);
         private onCarouselableChange;
         private onCarouselableFocus;
         private onCarouselableBlur;
@@ -6381,17 +6629,28 @@ declare namespace Ui {
         private controlsBox;
         private focusInWatcher;
         constructor();
-        html: string;
-        text: string;
-        textAlign: TextAlign;
-        fontSize: number;
-        fontFamily: string;
-        fontWeight: FontWeight;
-        interLine: number;
-        wordWrap: string;
-        whiteSpace: string;
-        color: Color | string;
-        autoHideControls: boolean;
+        get html(): string;
+        set html(html: string);
+        get text(): string;
+        set text(text: string);
+        get textAlign(): TextAlign;
+        set textAlign(textAlign: TextAlign);
+        get fontSize(): number;
+        set fontSize(fontSize: number);
+        get fontFamily(): string;
+        set fontFamily(fontFamily: string);
+        get fontWeight(): FontWeight;
+        set fontWeight(fontWeight: FontWeight);
+        get interLine(): number;
+        set interLine(interLine: number);
+        get wordWrap(): string;
+        set wordWrap(wordWrap: string);
+        get whiteSpace(): string;
+        set whiteSpace(whiteSpace: string);
+        get color(): Color | string;
+        set color(color: Color | string);
+        get autoHideControls(): boolean;
+        set autoHideControls(value: boolean);
     }
 }
 declare namespace Ui {
@@ -6402,11 +6661,16 @@ declare namespace Ui {
         private _activeColor;
         private _borderWidth;
         constructor();
-        isDown: boolean;
-        isChecked: boolean;
-        color: Color;
-        borderWidth: number;
-        activeColor: any;
+        get isDown(): boolean;
+        set isDown(isDown: boolean);
+        get isChecked(): boolean;
+        set isChecked(isChecked: boolean);
+        get color(): Color;
+        set color(color: Color);
+        set borderWidth(borderWidth: number);
+        get borderWidth(): number;
+        set activeColor(color: Color);
+        get activeColor(): Color;
         updateCanvas(ctx: CanvasRenderingContext2D): void;
         measureCore(width: number, height: number): {
             width: number;
@@ -6446,28 +6710,32 @@ declare namespace Ui {
             target: RadioBox;
             value: boolean;
         }>;
-        onchanged: (event: {
+        set onchanged(value: (event: {
             target: RadioBox;
             value: boolean;
-        }) => void;
+        }) => void);
         readonly toggled: Core.Events<{
             target: RadioBox;
         }>;
-        ontoggled: (event: {
+        set ontoggled(value: (event: {
             target: RadioBox;
-        }) => void;
+        }) => void);
         readonly untoggled: Core.Events<{
             target: RadioBox;
         }>;
-        onuntoggled: (event: {
+        set onuntoggled(value: (event: {
             target: RadioBox;
-        }) => void;
+        }) => void);
         constructor(init?: RadioBoxInit);
-        readonly isToggled: boolean;
-        value: boolean;
-        text: string;
-        content: Element;
-        group: RadioGroup;
+        get isToggled(): boolean;
+        get value(): boolean;
+        set value(value: boolean);
+        get text(): string;
+        set text(text: string);
+        get content(): Element;
+        set content(content: Element);
+        get group(): RadioGroup;
+        set group(group: RadioGroup);
         toggle(): void;
         untoggle(): void;
         private onRadioPress;
@@ -6486,11 +6754,12 @@ declare namespace Ui {
         readonly changed: Core.Events<{
             target: RadioGroup;
         }>;
-        onchanged: (event: {
+        set onchanged(value: (event: {
             target: RadioGroup;
-        }) => void;
-        current: RadioBox | undefined;
-        readonly children: Array<RadioBox>;
+        }) => void);
+        get current(): RadioBox | undefined;
+        set current(radio: RadioBox | undefined);
+        get children(): Array<RadioBox>;
         add(radio: RadioBox): void;
         remove(radio: RadioBox): void;
         onRadioSelected(event: {
