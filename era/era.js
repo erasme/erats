@@ -26220,9 +26220,11 @@ var Ui;
                     this.alignClock.stop();
                 this.alignClock = undefined;
                 relprogress = 1;
-                this._value = (this.animNext === 1);
-                this.buttonContent.fill = this.getForeground();
-                this.changed.fire({ target: this, value: this._value });
+                if (this._value != (this.animNext === 1)) {
+                    this._value = (this.animNext === 1);
+                    this.buttonContent.fill = this.getForeground();
+                    this.changed.fire({ target: this, value: this._value });
+                }
             }
             relprogress = this.ease.ease(relprogress);
             this.pos = (this.animStart + relprogress * (this.animNext - this.animStart));
