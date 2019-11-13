@@ -58,6 +58,16 @@ namespace Ui {
             }
         }
 
+        protected onDisable() {
+            super.onDisable();
+            this.htmlDrawing.setAttribute('contenteditable', 'false');
+        }
+
+        protected onEnable() {
+            super.onEnable();
+            this.htmlDrawing.setAttribute('contenteditable', 'true');
+        }
+
         protected onLoad() {
             super.onLoad();
             document.addEventListener('selectionchange', this.testAnchorChange);

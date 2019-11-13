@@ -22623,6 +22623,14 @@ var Ui;
             enumerable: true,
             configurable: true
         });
+        ContentEditable.prototype.onDisable = function () {
+            _super.prototype.onDisable.call(this);
+            this.htmlDrawing.setAttribute('contenteditable', 'false');
+        };
+        ContentEditable.prototype.onEnable = function () {
+            _super.prototype.onEnable.call(this);
+            this.htmlDrawing.setAttribute('contenteditable', 'true');
+        };
         ContentEditable.prototype.onLoad = function () {
             _super.prototype.onLoad.call(this);
             document.addEventListener('selectionchange', this.testAnchorChange);

@@ -5128,6 +5128,8 @@ declare namespace Ui {
         }) => void);
         private _lastHtml;
         constructor(init?: ContentEditableInit);
+        protected onDisable(): void;
+        protected onEnable(): void;
         protected onLoad(): void;
         protected onUnload(): void;
         protected onKeyUp(event: any): void;
