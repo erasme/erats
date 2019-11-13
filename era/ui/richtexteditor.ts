@@ -130,7 +130,8 @@ namespace Ui {
                 },
                 onselectionentered: () => {
                     controls.enable();
-                    this.controlsBox.show();
+                    if (!this.isDisabled)
+                        this.controlsBox.show();
                 },
                 onselectionleaved: () => {
                 },
@@ -141,7 +142,8 @@ namespace Ui {
                 element: this,
                 onfocusin: () => {
                     controls.enable();
-                    this.controlsBox.show();
+                    if (!this.isDisabled)
+                        this.controlsBox.show();
                     this._textHolder.hide();
                 },
                 onfocusout: () => {
