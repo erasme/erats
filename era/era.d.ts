@@ -6628,7 +6628,10 @@ declare namespace Ui {
         private _autoHideControls;
         private controlsBox;
         private focusInWatcher;
+        private _textHolder;
+        private bg;
         constructor();
+        private showHideTextHolder;
         get html(): string;
         set html(html: string);
         get text(): string;
@@ -6649,6 +6652,10 @@ declare namespace Ui {
         set whiteSpace(whiteSpace: string);
         get color(): Color | string;
         set color(color: Color | string);
+        get textHolder(): string;
+        set textHolder(value: string);
+        get isBackgroundVisible(): boolean;
+        set isBackgroundVisible(value: boolean);
         get autoHideControls(): boolean;
         set autoHideControls(value: boolean);
     }

@@ -28735,6 +28735,8 @@ var Ui;
             var _this = _super.call(this) || this;
             _this._autoHideControls = false;
             _this.controlsBox = new Ui.LBox();
+            _this._textHolder = new Ui.Text();
+            _this.bg = new Ui.TextBgGraphic();
             _this.focusable = true;
             var boldButton = new RichTextButton().assign({
                 icon: 'format-bold', focusable: false,
@@ -28831,12 +28833,11 @@ var Ui;
                     insertURLButton
                 ]
             });
-            var bg = new Ui.TextBgGraphic();
             _this._contentEditable = new Ui.ContentEditable().assign({
                 margin: 10, interLine: 1.2, fontSize: 16,
                 html: '', resizable: true,
-                onfocused: function () { return bg.hasFocus = true; },
-                onblurred: function () { return bg.hasFocus = false; },
+                onfocused: function () { return _this.bg.hasFocus = true; },
+                onblurred: function () { return _this.bg.hasFocus = false; },
                 onanchorchanged: function () {
                     boldButton.isActive = document.queryCommandState('bold');
                     italicButton.isActive = document.queryCommandState('italic');
@@ -28858,15 +28859,17 @@ var Ui;
                 onfocusin: function () {
                     controls.enable();
                     _this.controlsBox.show();
+                    _this._textHolder.hide();
                 },
                 onfocusout: function () {
                     controls.disable();
                     if (_this.autoHideControls)
                         _this.controlsBox.hide(true);
+                    _this.showHideTextHolder();
                 }
             });
             _this.content = [
-                bg,
+                _this.bg,
                 new Ui.VBox().assign({
                     margin: 1,
                     content: [
@@ -28876,18 +28879,35 @@ var Ui;
                                 controls
                             ]
                         }),
-                        _this._contentEditable
+                        new Ui.LBox().assign({
+                            resizable: true,
+                            content: [
+                                _this._textHolder.assign({
+                                    textAlign: 'center',
+                                    verticalAlign: 'center',
+                                    opacity: 0.6
+                                }),
+                                _this._contentEditable
+                            ]
+                        })
                     ]
                 })
             ];
             return _this;
         }
+        RichTextEditor.prototype.showHideTextHolder = function () {
+            if (this.textHolder && this.textHolder != '' && (this.html == '' || this.html == '<br>') && !this.focusInWatcher.isFocusIn)
+                this._textHolder.show();
+            else
+                this._textHolder.hide();
+        };
         Object.defineProperty(RichTextEditor.prototype, "html", {
             get: function () {
                 return this._contentEditable.html;
             },
             set: function (html) {
                 this._contentEditable.html = html;
+                this.showHideTextHolder();
             },
             enumerable: true,
             configurable: true
@@ -28898,6 +28918,7 @@ var Ui;
             },
             set: function (text) {
                 this._contentEditable.text = text;
+                this.showHideTextHolder();
             },
             enumerable: true,
             configurable: true
@@ -28978,6 +28999,27 @@ var Ui;
             },
             set: function (color) {
                 this._contentEditable.color = color;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(RichTextEditor.prototype, "textHolder", {
+            get: function () {
+                return this._textHolder.text;
+            },
+            set: function (value) {
+                this._textHolder.text = value;
+                this.showHideTextHolder();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(RichTextEditor.prototype, "isBackgroundVisible", {
+            get: function () {
+                return this.bg.isVisible;
+            },
+            set: function (value) {
+                this.bg.isVisible = value;
             },
             enumerable: true,
             configurable: true
