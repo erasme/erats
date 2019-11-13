@@ -12,6 +12,8 @@ namespace Ui {
         private _autoHideControls = false;
         private controlsBox = new Ui.LBox();
         private focusInWatcher: FocusInWatcher;
+        private _textHolder = new Ui.Text();
+        private bg = new Ui.TextBgGraphic();
 
         constructor() {
             super();
@@ -113,13 +115,11 @@ namespace Ui {
                 ]
             });
 
-            let bg = new Ui.TextBgGraphic();
-
             this._contentEditable = new Ui.ContentEditable().assign({
                 margin: 10, interLine: 1.2, fontSize: 16,
                 html: '', resizable: true,
-                onfocused: () => bg.hasFocus = true,
-                onblurred: () => bg.hasFocus = false,
+                onfocused: () => this.bg.hasFocus = true,
+                onblurred: () => this.bg.hasFocus = false,
                 onanchorchanged: () => {
                     boldButton.isActive = document.queryCommandState('bold');
                     italicButton.isActive = document.queryCommandState('italic');
@@ -142,16 +142,18 @@ namespace Ui {
                 onfocusin: () => {
                     controls.enable();
                     this.controlsBox.show();
+                    this._textHolder.hide();
                 },
                 onfocusout: () => {
                     controls.disable();
                     if (this.autoHideControls)
                         this.controlsBox.hide(true);
+                    this.showHideTextHolder();
                 }
             });
 
             this.content = [
-                bg,
+                this.bg,
                 new Ui.VBox().assign({
                     margin: 1,
                     content: [
@@ -161,10 +163,27 @@ namespace Ui {
                                 controls
                             ]
                         }),
-                        this._contentEditable
+                        new Ui.LBox().assign({
+                            resizable: true,
+                            content: [
+                                this._textHolder.assign({
+                                    textAlign: 'center',
+                                    verticalAlign: 'center',
+                                    opacity: 0.6
+                                }),
+                                this._contentEditable
+                            ]
+                        })
                     ]
                 })
             ];
+        }
+
+        private showHideTextHolder() {
+            if (this.textHolder && this.textHolder != '' && (this.html == '' || this.html == '<br>') && !this.focusInWatcher.isFocusIn)
+                this._textHolder.show();
+            else
+                this._textHolder.hide();
         }
 
         get html(): string {
@@ -173,6 +192,7 @@ namespace Ui {
 
         set html(html: string) {
             this._contentEditable.html = html;
+            this.showHideTextHolder();
         }
 
         get text(): string {
@@ -181,6 +201,7 @@ namespace Ui {
 
         set text(text: string) {
             this._contentEditable.text = text;
+            this.showHideTextHolder();
         }
 
         get textAlign(): TextAlign {
@@ -245,6 +266,23 @@ namespace Ui {
 
         set color(color: Color | string) {
             this._contentEditable.color = color;
+        }
+
+        get textHolder(): string {
+            return this._textHolder.text;
+        }
+
+        set textHolder(value: string) {
+            this._textHolder.text = value;
+            this.showHideTextHolder();
+        }
+
+        get isBackgroundVisible(): boolean {
+            return this.bg.isVisible;
+        }
+
+        set isBackgroundVisible(value: boolean) {
+            this.bg.isVisible = value;
         }
 
         get autoHideControls(): boolean {
