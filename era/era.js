@@ -28856,7 +28856,8 @@ var Ui;
                 },
                 onselectionentered: function () {
                     controls.enable();
-                    _this.controlsBox.show();
+                    if (!_this.isDisabled)
+                        _this.controlsBox.show();
                 },
                 onselectionleaved: function () {
                 },
@@ -28866,7 +28867,8 @@ var Ui;
                 element: _this,
                 onfocusin: function () {
                     controls.enable();
-                    _this.controlsBox.show();
+                    if (!_this.isDisabled)
+                        _this.controlsBox.show();
                     _this._textHolder.hide();
                 },
                 onfocusout: function () {
