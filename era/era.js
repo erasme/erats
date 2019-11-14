@@ -28887,7 +28887,7 @@ var Ui;
                     content: [
                         _this.controlsBox.assign({
                             content: [
-                                new Ui.Rectangle().assign({ fill: 'white', opacity: 0.6 }),
+                                new Ui.Rectangle().assign({ fill: 'white', opacity: 0.2 }),
                                 controls
                             ]
                         }),
