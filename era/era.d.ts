@@ -6632,6 +6632,12 @@ declare namespace Ui {
         private focusInWatcher;
         private _textHolder;
         private bg;
+        readonly changed: Core.Events<{
+            target: RichTextEditor;
+        }>;
+        set onchanged(value: (event: {
+            target: RichTextEditor;
+        }) => void);
         constructor();
         private showHideTextHolder;
         get html(): string;

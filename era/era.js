@@ -28745,6 +28745,7 @@ var Ui;
             _this.controlsBox = new Ui.LBox();
             _this._textHolder = new Ui.Text();
             _this.bg = new Ui.TextBgGraphic();
+            _this.changed = new Core.Events();
             _this.focusable = true;
             var boldButton = new RichTextButton().assign({
                 icon: 'format-bold', focusable: false,
@@ -28861,6 +28862,7 @@ var Ui;
                 },
                 onselectionleaved: function () {
                 },
+                onchanged: function () { return _this.changed.fire({ target: _this }); },
                 selectable: true
             });
             _this.focusInWatcher = new Ui.FocusInWatcher({
@@ -28905,6 +28907,11 @@ var Ui;
             ];
             return _this;
         }
+        Object.defineProperty(RichTextEditor.prototype, "onchanged", {
+            set: function (value) { this.changed.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
         RichTextEditor.prototype.showHideTextHolder = function () {
             if (this.textHolder && this.textHolder != '' && (this.html == '' || this.html == '<br>') && !this.focusInWatcher.isFocusIn)
                 this._textHolder.show();

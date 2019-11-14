@@ -15,6 +15,9 @@ namespace Ui {
         private _textHolder = new Ui.Text();
         private bg = new Ui.TextBgGraphic();
 
+        readonly changed = new Core.Events<{ target: RichTextEditor }>();
+        set onchanged(value: (event: { target: RichTextEditor }) => void) { this.changed.connect(value); }
+
         constructor() {
             super();
             this.focusable = true;
@@ -135,6 +138,7 @@ namespace Ui {
                 },
                 onselectionleaved: () => {
                 },
+                onchanged: () => this.changed.fire({ target: this }),
                 selectable: true
             });
 
