@@ -17749,6 +17749,10 @@ var Ui;
             _this.focusable = true;
             _this.drawing.addEventListener('change', function (e) { return _this.onChange(e); });
             _this.drawing.addEventListener('paste', function (e) { return _this.onPaste(e); });
+            _this.drawing.addEventListener('click', function (e) {
+                if (!_this.isDisabled)
+                    e.stopImmediatePropagation();
+            });
             _this.drawing.addEventListener('keyup', function (e) { return _this.onKeyUp(e); });
             _this.drawing.addEventListener('keydown', function (e) { return _this.onKeyDown(e); });
             if (init) {
