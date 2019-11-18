@@ -484,13 +484,18 @@ namespace Ui
         }
 
         protected measureCore(width: number, height: number) {
+            return this.measureForOrientation(width, height, this.vertical ? 'vertical' : 'horizontal');
+        }
+
+        protected measureForOrientation(width: number, height: number, orientation: 'horizontal' | 'vertical'): { width: number, height: number } {
             let left = this.paddingLeft;
             let right = this.paddingRight;
             let top = this.paddingTop;
             let bottom = this.paddingBottom;
             let constraintWidth = Math.max(0, width - (left + right));
             let constraintHeight = Math.max(0, height - (top + bottom));
-            let size;
+            let size: { width: number, height: number };
+            this.vertical = orientation == 'vertical';
             if (this._uniform)
                 size = this.measureUniform(constraintWidth, constraintHeight);
             else {

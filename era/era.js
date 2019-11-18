@@ -8251,6 +8251,9 @@ var Ui;
             return { width: minWidth, height: minHeight };
         };
         Box.prototype.measureCore = function (width, height) {
+            return this.measureForOrientation(width, height, this.vertical ? 'vertical' : 'horizontal');
+        };
+        Box.prototype.measureForOrientation = function (width, height, orientation) {
             var left = this.paddingLeft;
             var right = this.paddingRight;
             var top = this.paddingTop;
@@ -8258,6 +8261,7 @@ var Ui;
             var constraintWidth = Math.max(0, width - (left + right));
             var constraintHeight = Math.max(0, height - (top + bottom));
             var size;
+            this.vertical = orientation == 'vertical';
             if (this._uniform)
                 size = this.measureUniform(constraintWidth, constraintHeight);
             else {
