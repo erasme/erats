@@ -36,6 +36,12 @@ namespace Ui {
             // handle paste
             this.drawing.addEventListener('paste', (e) => this.onPaste(e));
 
+            // handle click
+            this.drawing.addEventListener('click', (e) => {
+                if (!this.isDisabled)
+                    e.stopImmediatePropagation();
+            });
+
             // handle keyboard
             this.drawing.addEventListener('keyup', (e) => this.onKeyUp(e));
             this.drawing.addEventListener('keydown', (e) => this.onKeyDown(e));
