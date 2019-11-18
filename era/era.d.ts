@@ -1768,7 +1768,14 @@ declare namespace Ui {
         private measureUniform;
         private measureNonUniformVertical;
         private measureNonUniformHorizontal;
-        protected measureCore(width: number, height: number): any;
+        protected measureCore(width: number, height: number): {
+            width: number;
+            height: number;
+        };
+        protected measureForOrientation(width: number, height: number, orientation: 'horizontal' | 'vertical'): {
+            width: number;
+            height: number;
+        };
         protected arrangeCore(width: number, height: number): void;
     }
     interface VBoxInit extends BoxInit {
