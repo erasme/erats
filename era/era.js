@@ -14863,12 +14863,6 @@ var Ui;
             this.background.fill = this.getStyleProperty('background');
             this.shadow.drawing.style.backgroundColor = Ui.Color.create(this.getStyleProperty('shadow')).getCssRgba();
         };
-        Popup.prototype.onChildInvalidateMeasure = function (child, type) {
-            this.invalidateLayout();
-        };
-        Popup.prototype.onChildInvalidateArrange = function (child) {
-            this.invalidateLayout();
-        };
         Popup.prototype.open = function () {
             this.openPosOrElement();
         };
