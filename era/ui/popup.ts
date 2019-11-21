@@ -160,16 +160,6 @@ namespace Ui
             this.shadow.drawing.style.backgroundColor = Color.create(this.getStyleProperty('shadow')).getCssRgba();
         }
 
-        protected onChildInvalidateMeasure(child: Element, type) {
-            // Popup is a layout root and can handle layout (measure/arrange) for its children
-            this.invalidateLayout();
-        }
-
-        protected onChildInvalidateArrange(child: Element) {
-            // Popup is a layout root and can handle layout (measure/arrange) for its children
-            this.invalidateLayout();
-        }
-
         open() {
             this.openPosOrElement();
         }

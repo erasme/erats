@@ -3332,8 +3332,6 @@ declare namespace Ui {
         protected onOpenTick(clock: Anim.Clock, progress: number, delta: number): void;
         protected onPopupSelectionChange(selection: Selection): void;
         protected onStyleChange(): void;
-        protected onChildInvalidateMeasure(child: Element, type: any): void;
-        protected onChildInvalidateArrange(child: Element): void;
         open(): void;
         openAt(posX: number, posY: number): void;
         openElement(element: Element, position?: AttachBorder): void;
