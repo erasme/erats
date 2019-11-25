@@ -3754,11 +3754,9 @@ declare namespace Ui {
 }
 declare namespace Ui {
     interface TextInit extends CompactLabelInit {
-        textTransform?: string;
     }
     class Text extends CompactLabel implements TextInit {
         constructor(init?: TextInit);
-        set textTransform(textTransform: string);
     }
 }
 declare namespace Ui {

@@ -17102,22 +17102,8 @@ var Ui;
     var Text = (function (_super) {
         __extends(Text, _super);
         function Text(init) {
-            var _this = _super.call(this, init) || this;
-            _this.drawing.style.whiteSpace = 'pre-wrap';
-            if (init) {
-                if (init.textTransform !== undefined)
-                    _this.textTransform = init.textTransform;
-            }
-            return _this;
+            return _super.call(this, init) || this;
         }
-        Object.defineProperty(Text.prototype, "textTransform", {
-            set: function (textTransform) {
-                this.drawing.style.textTransform = textTransform;
-                this.invalidateMeasure();
-            },
-            enumerable: true,
-            configurable: true
-        });
         return Text;
     }(Ui.CompactLabel));
     Ui.Text = Text;
