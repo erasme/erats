@@ -13350,11 +13350,17 @@ var Ui;
             },
             set: function (color) {
                 if (this._color !== color) {
-                    this._color = color;
-                    if (Core.Navigator.supportRgba)
-                        this.textDrawing.style.color = this._color.getCssRgba();
-                    else
-                        this.textDrawing.style.color = this._color.getCssHtml();
+                    if (color == undefined) {
+                        this._color = undefined;
+                        this.textDrawing.style.color = this.color.getCssRgba();
+                    }
+                    else {
+                        this._color = Ui.Color.create(color);
+                        if (Core.Navigator.supportRgba)
+                            this.textDrawing.style.color = this._color.getCssRgba();
+                        else
+                            this.textDrawing.style.color = this._color.getCssHtml();
+                    }
                 }
             },
             enumerable: true,
@@ -17096,24 +17102,10 @@ var Ui;
     var Text = (function (_super) {
         __extends(Text, _super);
         function Text(init) {
-            var _this = _super.call(this, init) || this;
-            _this.drawing.style.whiteSpace = 'pre-wrap';
-            if (init) {
-                if (init.textTransform !== undefined)
-                    _this.textTransform = init.textTransform;
-            }
-            return _this;
+            return _super.call(this, init) || this;
         }
-        Object.defineProperty(Text.prototype, "textTransform", {
-            set: function (textTransform) {
-                this.drawing.style.textTransform = textTransform;
-                this.invalidateMeasure();
-            },
-            enumerable: true,
-            configurable: true
-        });
         return Text;
-    }(Ui.Html));
+    }(Ui.CompactLabel));
     Ui.Text = Text;
 })(Ui || (Ui = {}));
 var Ui;

@@ -338,7 +338,7 @@ namespace Ui
         whiteSpace?: string;
         wordWrap?: string;
         textTransform?: string;
-        color?: Color;
+        color?: Color | string | undefined;
     }
 
     export class CompactLabel extends Element implements CompactLabelInit
@@ -346,7 +346,7 @@ namespace Ui
         private _fontSize: number;
         private _fontFamily: string;
         private _fontWeight: string;
-        private _color: any;
+        private _color: Color | undefined;
         private textDrawing: HTMLElement;
         private _maxLine: number;
         private _interLine: number;
@@ -536,17 +536,23 @@ namespace Ui
             }
         }
 
-        set color(color: Color) {
+        set color(color: Color | string | undefined) {
             if (this._color !== color) {
-                this._color = color;
-                if (Core.Navigator.supportRgba)
-                    this.textDrawing.style.color = this._color.getCssRgba();
-                else
-                    this.textDrawing.style.color = this._color.getCssHtml();
+                if (color == undefined) {
+                    this._color = undefined;
+                    this.textDrawing.style.color = (this.color as Color).getCssRgba();
+                }
+                else {
+                    this._color = Color.create(color);
+                    if (Core.Navigator.supportRgba)
+                        this.textDrawing.style.color = this._color.getCssRgba();
+                    else
+                        this.textDrawing.style.color = this._color.getCssHtml();
+                }
             }
         }
 
-        get color(): Color {
+        get color(): Color | string | undefined {
             if (this._color !== undefined)
                 return this._color;
             else
@@ -562,9 +568,9 @@ namespace Ui
             this.textDrawing.style.fontSize = this.fontSize + 'px';
             this.textDrawing.style.lineHeight = this.fontSize + 'px';
             if (Core.Navigator.supportRgba)
-                this.textDrawing.style.color = this.color.getCssRgba();
+                this.textDrawing.style.color = (this.color as Color).getCssRgba();
             else
-                this.textDrawing.style.color = this.color.getCssHtml();
+                this.textDrawing.style.color = (this.color as Color).getCssHtml();
             this.textDrawing.style.position = 'absolute';
             this.textDrawing.style.left = '0px';
             this.textDrawing.style.top = '0px';
@@ -578,9 +584,9 @@ namespace Ui
             this.textDrawing.style.fontFamily = this.fontFamily;
             this.textDrawing.style.fontWeight = this.fontWeight;
             if (Core.Navigator.supportRgba)
-                this.textDrawing.style.color = this.color.getCssRgba();
+                this.textDrawing.style.color = (this.color as Color).getCssRgba();
             else
-                this.textDrawing.style.color = this.color.getCssHtml();
+                this.textDrawing.style.color = (this.color as Color).getCssHtml();
 
             this.textContext.setMaxLine(this.maxLine);
             this.textContext.setTextAlign(this.textAlign);
