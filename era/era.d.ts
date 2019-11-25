@@ -2939,7 +2939,7 @@ declare namespace Ui {
         whiteSpace?: string;
         wordWrap?: string;
         textTransform?: string;
-        color?: Color;
+        color?: Color | string | undefined;
     }
     class CompactLabel extends Element implements CompactLabelInit {
         private _fontSize;
@@ -2980,8 +2980,8 @@ declare namespace Ui {
         set wordWrap(wordWrap: string);
         get textTransform(): string;
         set textTransform(textTransform: string);
-        set color(color: Color);
-        get color(): Color;
+        set color(color: Color | string | undefined);
+        get color(): Color | string | undefined;
         protected renderDrawing(): any;
         protected onStyleChange(): void;
         invalidateTextMeasure(): void;
@@ -3753,10 +3753,10 @@ declare namespace Ui {
     }
 }
 declare namespace Ui {
-    interface TextInit extends HtmlInit {
+    interface TextInit extends CompactLabelInit {
         textTransform?: string;
     }
-    class Text extends Html implements TextInit {
+    class Text extends CompactLabel implements TextInit {
         constructor(init?: TextInit);
         set textTransform(textTransform: string);
     }

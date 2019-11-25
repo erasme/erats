@@ -1,10 +1,10 @@
 namespace Ui
 {
-    export interface TextInit extends HtmlInit {
+    export interface TextInit extends CompactLabelInit {
         textTransform?: string;
     }
 
-    export class Text extends Html implements TextInit
+    export class Text extends CompactLabel implements TextInit
     {
         constructor(init?: TextInit) {
             super(init);

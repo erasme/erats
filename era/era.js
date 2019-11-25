@@ -13350,11 +13350,17 @@ var Ui;
             },
             set: function (color) {
                 if (this._color !== color) {
-                    this._color = color;
-                    if (Core.Navigator.supportRgba)
-                        this.textDrawing.style.color = this._color.getCssRgba();
-                    else
-                        this.textDrawing.style.color = this._color.getCssHtml();
+                    if (color == undefined) {
+                        this._color = undefined;
+                        this.textDrawing.style.color = this.color.getCssRgba();
+                    }
+                    else {
+                        this._color = Ui.Color.create(color);
+                        if (Core.Navigator.supportRgba)
+                            this.textDrawing.style.color = this._color.getCssRgba();
+                        else
+                            this.textDrawing.style.color = this._color.getCssHtml();
+                    }
                 }
             },
             enumerable: true,
@@ -17113,7 +17119,7 @@ var Ui;
             configurable: true
         });
         return Text;
-    }(Ui.Html));
+    }(Ui.CompactLabel));
     Ui.Text = Text;
 })(Ui || (Ui = {}));
 var Ui;
