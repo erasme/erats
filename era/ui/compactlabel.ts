@@ -442,6 +442,7 @@ namespace Ui {
 
         set maxLine(maxLine: number) {
             this._maxLine = maxLine;
+            this.isMeasureValid = false;
             this.textContext.setMaxLine(this.maxLine);
             this.invalidateMeasure();
         }
