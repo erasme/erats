@@ -710,6 +710,19 @@ if (!Array.prototype.map) {
   };
 }
 
+// Provide a polyfill for Array.keys
+if (!Array.prototype.keys) {
+  (Array.prototype as any).keys = function() {
+    let i = 0;
+    let res = [];
+    for (let item of this) {
+      res.push(i++);
+    }
+    return res;
+  };
+}
+
+
 // Provide a polyfill for log10
 if (!Math.log10) {
   Math.log10 = function(x) {

@@ -694,6 +694,17 @@ if (!Array.prototype.map) {
         return A;
     };
 }
+if (!Array.prototype.keys) {
+    Array.prototype.keys = function () {
+        var i = 0;
+        var res = [];
+        for (var _i = 0, _a = this; _i < _a.length; _i++) {
+            var item = _a[_i];
+            res.push(i++);
+        }
+        return res;
+    };
+}
 if (!Math.log10) {
     Math.log10 = function (x) {
         return Math.log(x) * Math.LOG10E;
