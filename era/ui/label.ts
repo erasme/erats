@@ -380,8 +380,8 @@ namespace Ui {
         }
 
         static measureText(text: string, fontSize: number, fontFamily: string, fontWeight: string): { width: number, height: number } {
-            if ((text === '') ||  (text === undefined))
-                return { width: 0, height: 0 };
+            if ((text === '') || (text === undefined))
+                return { width: 0, height: fontSize };
             if (Core.Navigator.supportCanvas)
                 return Ui.Label.measureTextCanvas(text, fontSize, fontFamily, fontWeight);
             else

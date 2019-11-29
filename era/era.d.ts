@@ -2915,15 +2915,15 @@ declare namespace Ui {
         setTextTransform(textTransform: any): void;
         getTransformedText(): string;
         flushLine(y: any, line: any, width: any, render: any, lastLine?: boolean): number;
-        updateFlow(width: any, render: any): {
+        updateFlow(width: number, render: boolean): {
             width: number;
             height: number;
         };
-        updateFlowWords(width: any, render: any): {
+        updateFlowWords(width: number, render: boolean): {
             width: number;
             height: number;
         };
-        drawText(width: any, render: any): {
+        drawText(width: number, render: boolean): {
             width: number;
             height: number;
         };
@@ -2985,11 +2985,11 @@ declare namespace Ui {
         protected renderDrawing(): any;
         protected onStyleChange(): void;
         invalidateTextMeasure(): void;
-        protected measureCore(width: any, height: any): {
+        protected measureCore(width: number, height: number): {
             width: number;
             height: number;
         };
-        protected arrangeCore(width: any, height: any): void;
+        protected arrangeCore(width: number, height: number): void;
         static style: object;
     }
 }

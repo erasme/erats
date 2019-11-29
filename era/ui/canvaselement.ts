@@ -64,6 +64,7 @@ namespace Ui {
             super(init);
             this.selectable = false;
             this.canvasEngine = 'svg';
+            this.drawing.style.overflow = 'hidden';
         }
 
         get canvasEngine(): 'canvas' | 'svg' {

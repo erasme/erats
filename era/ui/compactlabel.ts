@@ -1,7 +1,5 @@
-namespace Ui
-{
-    export class CompactLabelContext extends Core.Object
-    {
+namespace Ui {
+    export class CompactLabelContext extends Core.Object {
         text: string = '';
         fontSize: number = 16;
         fontFamily: string = 'Sans-Serif';
@@ -123,7 +121,7 @@ namespace Ui
                 return this.text;
         }
 
-        flushLine(y, line, width, render, lastLine : boolean = false) {
+        flushLine(y, line, width, render, lastLine: boolean = false) {
             let size = Ui.Label.measureText(line, this.getFontSize(), this.getFontFamily(), this.getFontWeight());
             if (render) {
                 let x;
@@ -140,7 +138,7 @@ namespace Ui
             return size.height * ((lastLine === true) ? 1 : this.getInterLine());
         }
 
-        updateFlow(width, render) {
+        updateFlow(width: number, render: boolean) {
             if (this.text === undefined)
                 return { width: 0, height: 0 };
 
@@ -155,7 +153,20 @@ namespace Ui
             let line = '';
             let lineCount = 0;
             let maxWidth = 0;
+
             for (let i = 0; i < text.length; i++) {
+                if (text.charAt(i) == '\n') {
+                    if ((this.maxLine !== undefined) && (lineCount + 1 >= this.maxLine)) {
+                        y += this.flushLine(y, line + '...', width, render);
+                        if (x + dotWidth > maxWidth)
+                            maxWidth = x + dotWidth;
+                        return { width: maxWidth, height: y };
+                    }
+                    y += this.flushLine(y, line, width, render);
+                    lineCount++;
+                    line = '';
+                    continue;
+                }
                 let size = Ui.Label.measureText(line + text.charAt(i), fontSize, fontFamily, fontWeight);
                 if ((this.maxLine !== undefined) && (lineCount + 1 >= this.maxLine) && (size.width + dotWidth > width)) {
                     y += this.flushLine(y, line + '...', width, render);
@@ -182,11 +193,10 @@ namespace Ui
             return { width: maxWidth, height: y };
         }
 
-        updateFlowWords(width, render) {
+        updateFlowWords(width: number, render: boolean) {
             if (this.text == undefined)
                 return { width: 0, height: 0 };
 
-            let i; let lineWidth;
             let text = this.getTransformedText();
             let fontSize = this.getFontSize();
             let fontFamily = this.getFontFamily();
@@ -194,39 +204,44 @@ namespace Ui
 
             let dotWidth = (Ui.Label.measureText('...', fontSize, fontFamily, fontWeight)).width;
 
-            let words = [];
-            let wordsSize = [];
+            let words: string[] = [];
+            let wordsSize: number[] = [];
 
-            let tmpWords = text.split(' ');
-            for (i = 0; i < tmpWords.length; i++) {
-                let word = tmpWords[i];
-                while (true) {
-                    let wordSize = (Ui.Label.measureText(word, fontSize, fontFamily, fontWeight)).width;
-                    if (wordSize < width) {
-                        words.push(word);
-                        wordsSize.push(wordSize);
-                        break;
-                    }
-                    else {
-                        // find the biggest possible word part but a least take 1 char
-                        let tmpWord = '';
-                        for (let i2 = 0; i2 < word.length; i2++) {
-                            if ((Ui.Label.measureText(tmpWord + word.charAt(i2), fontSize, fontFamily, fontWeight)).width < width)
-                                tmpWord += word.charAt(i2);
-                            else {
-                                // take a least 1 char to avoid infinite loops
-                                if (tmpWord === '')
-                                    tmpWord = word.charAt(0);
-                                words.push(tmpWord);
-                                wordsSize.push((Ui.Label.measureText(tmpWord, fontSize, fontFamily, fontWeight)).width);
-                                word = word.substr(tmpWord.length, word.length - tmpWord.length);
-                                break;
+            let lines = text.split('\n');
+            for (let line of lines) {
+                let tmpWords = line.split(' ');
+                for (let i = 0; i < tmpWords.length; i++) {
+                    let word = tmpWords[i];
+                    while (true) {
+                        let wordSize = (Ui.Label.measureText(word, fontSize, fontFamily, fontWeight)).width;
+                        if (wordSize <= width) {
+                            words.push(word);
+                            wordsSize.push(wordSize);
+                            break;
+                        }
+                        else {
+                            // find the biggest possible word part but a least take 1 char
+                            let tmpWord = '';
+                            for (let i2 = 0; i2 < word.length; i2++) {
+                                if ((Ui.Label.measureText(tmpWord + word.charAt(i2), fontSize, fontFamily, fontWeight)).width < width)
+                                    tmpWord += word.charAt(i2);
+                                else {
+                                    // take a least 1 char to avoid infinite loops
+                                    if (tmpWord === '')
+                                        tmpWord = word.charAt(0);
+                                    words.push(tmpWord);
+                                    wordsSize.push((Ui.Label.measureText(tmpWord, fontSize, fontFamily, fontWeight)).width);
+                                    word = word.substr(tmpWord.length, word.length - tmpWord.length);
+                                    break;
+                                }
                             }
                         }
+                        if (word.length === 0)
+                            break;
                     }
-                    if (word.length === 0)
-                        break;
                 }
+                words.push('\n');
+                wordsSize.push(0);
             }
 
             let spaceWidth = (Ui.Label.measureText('. .', fontSize, fontFamily, fontWeight)).width - (Ui.Label.measureText('..', fontSize, fontFamily, fontWeight)).width;
@@ -236,12 +251,41 @@ namespace Ui
             let maxWidth = 0;
             let line = '';
             let lineCount = 0;
-            for (i = 0; i < words.length; i++) {
+            for (let i = 0; i < words.length; i++) {
+                if (words[i] == '\n') {
+                    if (lineCount + 1 >= this.maxLine && i != words.length - 1) {
+                        while (true) {
+                            let lineWidth = (Ui.Label.measureText(line, fontSize, fontFamily, fontWeight)).width;
+                            if (lineWidth + dotWidth > width) {
+                                if (line.length <= 1) {
+                                    line = '...';
+                                    break;
+                                }
+                                line = line.substr(0, line.length - 1);
+                            }
+                            else {
+                                line += '...';
+                                break;
+                            }
+                        }
+                        y += this.flushLine(y, line, width, render);
+                        if (x > maxWidth)
+                            maxWidth = x;
+                        return { width: maxWidth, height: y };
+                    }
+                    y += this.flushLine(y, line, width, render);
+                    if (x > maxWidth)
+                        maxWidth = x;
+                    x = 0;
+                    lineCount++;
+                    line = '';
+                    continue;
+                }
                 if (line !== '') {
                     if (x + spaceWidth > width) {
                         if (lineCount + 1 >= this.maxLine) {
                             while (true) {
-                                lineWidth = (Ui.Label.measureText(line, fontSize, fontFamily, fontWeight)).width;
+                                let lineWidth = (Ui.Label.measureText(line, fontSize, fontFamily, fontWeight)).width;
                                 if (lineWidth + dotWidth > width) {
                                     if (line.length <= 1) {
                                         line = '...';
@@ -274,7 +318,7 @@ namespace Ui
                 if (x + wordsSize[i] > width) {
                     if (lineCount + 1 >= this.maxLine) {
                         while (true) {
-                            lineWidth = (Ui.Label.measureText(line, fontSize, fontFamily, fontWeight)).width;
+                            let lineWidth = (Ui.Label.measureText(line, fontSize, fontFamily, fontWeight)).width;
                             if (lineWidth + dotWidth > width) {
                                 if (line.length <= 1) {
                                     line = '...';
@@ -312,7 +356,7 @@ namespace Ui
             return { width: maxWidth, height: y };
         }
 
-        drawText(width, render) {
+        drawText(width: number, render: boolean) {
             if (this.whiteSpace === 'nowrap') {
                 let text = this.getTransformedText();
                 let size = Ui.Label.measureText(text, this.fontSize, this.fontFamily, this.fontWeight);
@@ -341,8 +385,7 @@ namespace Ui
         color?: Color | string | undefined;
     }
 
-    export class CompactLabel extends Element implements CompactLabelInit
-    {
+    export class CompactLabel extends Element implements CompactLabelInit {
         private _fontSize: number;
         private _fontFamily: string;
         private _fontWeight: string;
@@ -358,7 +401,7 @@ namespace Ui
         lastAvailableWidth: number = 0;
         textContext: CompactLabelContext;
         private _whiteSpace: string;
-        private _wordWrap: string ;
+        private _wordWrap: string;
         private _textTransform: string;
 
         constructor(init?: CompactLabelInit) {
@@ -401,6 +444,7 @@ namespace Ui
 
         set maxLine(maxLine: number) {
             this._maxLine = maxLine;
+            this.isMeasureValid = false;
             this.textContext.setMaxLine(this.maxLine);
             this.invalidateMeasure();
         }
@@ -607,8 +651,8 @@ namespace Ui
             }
         }
 
-        protected measureCore(width, height) {
-            //console.log(this+'.measureCore('+width+','+height+') isMeasureValid: '+this.isMeasureValid+', lastMeasureWidth: '+this.lastMeasureWidth+', '+this.getText());
+        protected measureCore(width: number, height: number) {
+            //console.log(this+'.measureCore('+width+','+height+') isMeasureValid: '+this.isMeasureValid+', lastMeasureWidth: '+this.lastMeasureWidth+', '+this.text);
 
             if (!this.isMeasureValid || (this.lastAvailableWidth !== width)) {
                 //console.log(this+'.measureCore('+width+','+height+') isMeasureValid: '+this.isMeasureValid+', lastMeasureWidth: '+this.lastMeasureWidth);
@@ -619,15 +663,15 @@ namespace Ui
                 this.isMeasureValid = true;
                 this.isArrangeValid = false;
             }
-            //console.log(this+'.measureCore '+this.getText()+', need: '+this.lastMeasureWidth+','+this.lastMeasureHeight);
+            //console.log(this+'.measureCore '+this.text+', need: '+this.lastMeasureWidth+','+this.lastMeasureHeight);
             return { width: this.lastMeasureWidth, height: this.lastMeasureHeight };
         }
 
-        protected arrangeCore(width, height) {
+        protected arrangeCore(width: number, height: number) {
             while (this.textDrawing.hasChildNodes())
                 this.textDrawing.removeChild(this.textDrawing.firstChild);
             let textDrawing = this.textDrawing;
-            this.textContext.setDrawLine(function (x, y, line) {
+            this.textContext.setDrawLine(function (x: number, y: number, line: string) {
                 let tspan = document.createElement('div');
                 tspan.style.whiteSpace = 'nowrap';
                 tspan.style.wordWrap = 'none';

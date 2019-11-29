@@ -694,6 +694,17 @@ if (!Array.prototype.map) {
         return A;
     };
 }
+if (!Array.prototype.keys) {
+    Array.prototype.keys = function () {
+        var i = 0;
+        var res = [];
+        for (var _i = 0, _a = this; _i < _a.length; _i++) {
+            var item = _a[_i];
+            res.push(i++);
+        }
+        return res;
+    };
+}
 if (!Math.log10) {
     Math.log10 = function (x) {
         return Math.log(x) * Math.LOG10E;
@@ -4681,6 +4692,7 @@ var Ui;
             _this.generateNeeded = true;
             _this.selectable = false;
             _this.canvasEngine = 'svg';
+            _this.drawing.style.overflow = 'hidden';
             return _this;
         }
         Object.defineProperty(CanvasElement.prototype, "canvasEngine", {
@@ -9954,7 +9966,7 @@ var Ui;
         };
         Label.measureText = function (text, fontSize, fontFamily, fontWeight) {
             if ((text === '') || (text === undefined))
-                return { width: 0, height: 0 };
+                return { width: 0, height: fontSize };
             if (Core.Navigator.supportCanvas)
                 return Ui.Label.measureTextCanvas(text, fontSize, fontFamily, fontWeight);
             else
@@ -12976,6 +12988,18 @@ var Ui;
             var lineCount = 0;
             var maxWidth = 0;
             for (var i = 0; i < text.length; i++) {
+                if (text.charAt(i) == '\n') {
+                    if ((this.maxLine !== undefined) && (lineCount + 1 >= this.maxLine)) {
+                        y += this.flushLine(y, line + '...', width, render);
+                        if (x + dotWidth > maxWidth)
+                            maxWidth = x + dotWidth;
+                        return { width: maxWidth, height: y };
+                    }
+                    y += this.flushLine(y, line, width, render);
+                    lineCount++;
+                    line = '';
+                    continue;
+                }
                 var size = Ui.Label.measureText(line + text.charAt(i), fontSize, fontFamily, fontWeight);
                 if ((this.maxLine !== undefined) && (lineCount + 1 >= this.maxLine) && (size.width + dotWidth > width)) {
                     y += this.flushLine(y, line + '...', width, render);
@@ -13004,8 +13028,6 @@ var Ui;
         CompactLabelContext.prototype.updateFlowWords = function (width, render) {
             if (this.text == undefined)
                 return { width: 0, height: 0 };
-            var i;
-            var lineWidth;
             var text = this.getTransformedText();
             var fontSize = this.getFontSize();
             var fontFamily = this.getFontFamily();
@@ -13013,34 +13035,40 @@ var Ui;
             var dotWidth = (Ui.Label.measureText('...', fontSize, fontFamily, fontWeight)).width;
             var words = [];
             var wordsSize = [];
-            var tmpWords = text.split(' ');
-            for (i = 0; i < tmpWords.length; i++) {
-                var word = tmpWords[i];
-                while (true) {
-                    var wordSize = (Ui.Label.measureText(word, fontSize, fontFamily, fontWeight)).width;
-                    if (wordSize < width) {
-                        words.push(word);
-                        wordsSize.push(wordSize);
-                        break;
-                    }
-                    else {
-                        var tmpWord = '';
-                        for (var i2 = 0; i2 < word.length; i2++) {
-                            if ((Ui.Label.measureText(tmpWord + word.charAt(i2), fontSize, fontFamily, fontWeight)).width < width)
-                                tmpWord += word.charAt(i2);
-                            else {
-                                if (tmpWord === '')
-                                    tmpWord = word.charAt(0);
-                                words.push(tmpWord);
-                                wordsSize.push((Ui.Label.measureText(tmpWord, fontSize, fontFamily, fontWeight)).width);
-                                word = word.substr(tmpWord.length, word.length - tmpWord.length);
-                                break;
+            var lines = text.split('\n');
+            for (var _i = 0, lines_1 = lines; _i < lines_1.length; _i++) {
+                var line_1 = lines_1[_i];
+                var tmpWords = line_1.split(' ');
+                for (var i = 0; i < tmpWords.length; i++) {
+                    var word = tmpWords[i];
+                    while (true) {
+                        var wordSize = (Ui.Label.measureText(word, fontSize, fontFamily, fontWeight)).width;
+                        if (wordSize <= width) {
+                            words.push(word);
+                            wordsSize.push(wordSize);
+                            break;
+                        }
+                        else {
+                            var tmpWord = '';
+                            for (var i2 = 0; i2 < word.length; i2++) {
+                                if ((Ui.Label.measureText(tmpWord + word.charAt(i2), fontSize, fontFamily, fontWeight)).width < width)
+                                    tmpWord += word.charAt(i2);
+                                else {
+                                    if (tmpWord === '')
+                                        tmpWord = word.charAt(0);
+                                    words.push(tmpWord);
+                                    wordsSize.push((Ui.Label.measureText(tmpWord, fontSize, fontFamily, fontWeight)).width);
+                                    word = word.substr(tmpWord.length, word.length - tmpWord.length);
+                                    break;
+                                }
                             }
                         }
+                        if (word.length === 0)
+                            break;
                     }
-                    if (word.length === 0)
-                        break;
                 }
+                words.push('\n');
+                wordsSize.push(0);
             }
             var spaceWidth = (Ui.Label.measureText('. .', fontSize, fontFamily, fontWeight)).width - (Ui.Label.measureText('..', fontSize, fontFamily, fontWeight)).width;
             var y = 0;
@@ -13048,12 +13076,41 @@ var Ui;
             var maxWidth = 0;
             var line = '';
             var lineCount = 0;
-            for (i = 0; i < words.length; i++) {
+            for (var i = 0; i < words.length; i++) {
+                if (words[i] == '\n') {
+                    if (lineCount + 1 >= this.maxLine && i != words.length - 1) {
+                        while (true) {
+                            var lineWidth = (Ui.Label.measureText(line, fontSize, fontFamily, fontWeight)).width;
+                            if (lineWidth + dotWidth > width) {
+                                if (line.length <= 1) {
+                                    line = '...';
+                                    break;
+                                }
+                                line = line.substr(0, line.length - 1);
+                            }
+                            else {
+                                line += '...';
+                                break;
+                            }
+                        }
+                        y += this.flushLine(y, line, width, render);
+                        if (x > maxWidth)
+                            maxWidth = x;
+                        return { width: maxWidth, height: y };
+                    }
+                    y += this.flushLine(y, line, width, render);
+                    if (x > maxWidth)
+                        maxWidth = x;
+                    x = 0;
+                    lineCount++;
+                    line = '';
+                    continue;
+                }
                 if (line !== '') {
                     if (x + spaceWidth > width) {
                         if (lineCount + 1 >= this.maxLine) {
                             while (true) {
-                                lineWidth = (Ui.Label.measureText(line, fontSize, fontFamily, fontWeight)).width;
+                                var lineWidth = (Ui.Label.measureText(line, fontSize, fontFamily, fontWeight)).width;
                                 if (lineWidth + dotWidth > width) {
                                     if (line.length <= 1) {
                                         line = '...';
@@ -13086,7 +13143,7 @@ var Ui;
                 if (x + wordsSize[i] > width) {
                     if (lineCount + 1 >= this.maxLine) {
                         while (true) {
-                            lineWidth = (Ui.Label.measureText(line, fontSize, fontFamily, fontWeight)).width;
+                            var lineWidth = (Ui.Label.measureText(line, fontSize, fontFamily, fontWeight)).width;
                             if (lineWidth + dotWidth > width) {
                                 if (line.length <= 1) {
                                     line = '...';
@@ -13186,6 +13243,7 @@ var Ui;
             },
             set: function (maxLine) {
                 this._maxLine = maxLine;
+                this.isMeasureValid = false;
                 this.textContext.setMaxLine(this.maxLine);
                 this.invalidateMeasure();
             },
