@@ -2985,11 +2985,11 @@ declare namespace Ui {
         protected renderDrawing(): any;
         protected onStyleChange(): void;
         invalidateTextMeasure(): void;
-        protected measureCore(width: any, height: any): {
+        protected measureCore(width: number, height: number): {
             width: number;
             height: number;
         };
-        protected arrangeCore(width: any, height: any): void;
+        protected arrangeCore(width: number, height: number): void;
         static style: object;
     }
 }

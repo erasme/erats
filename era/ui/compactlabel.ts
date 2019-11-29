@@ -204,8 +204,8 @@ namespace Ui {
 
             let dotWidth = (Ui.Label.measureText('...', fontSize, fontFamily, fontWeight)).width;
 
-            let words = [];
-            let wordsSize = [];
+            let words: string[] = [];
+            let wordsSize: number[] = [];
 
             let lines = text.split('\n');
             for (let line of lines) {
@@ -274,6 +274,8 @@ namespace Ui {
                         return { width: maxWidth, height: y };
                     }
                     y += this.flushLine(y, line, width, render);
+                    if (x > maxWidth)
+                        maxWidth = x;
                     x = 0;
                     lineCount++;
                     line = '';
@@ -649,8 +651,8 @@ namespace Ui {
             }
         }
 
-        protected measureCore(width, height) {
-            //console.log(this+'.measureCore('+width+','+height+') isMeasureValid: '+this.isMeasureValid+', lastMeasureWidth: '+this.lastMeasureWidth+', '+this.getText());
+        protected measureCore(width: number, height: number) {
+            //console.log(this+'.measureCore('+width+','+height+') isMeasureValid: '+this.isMeasureValid+', lastMeasureWidth: '+this.lastMeasureWidth+', '+this.text);
 
             if (!this.isMeasureValid || (this.lastAvailableWidth !== width)) {
                 //console.log(this+'.measureCore('+width+','+height+') isMeasureValid: '+this.isMeasureValid+', lastMeasureWidth: '+this.lastMeasureWidth);
@@ -661,11 +663,11 @@ namespace Ui {
                 this.isMeasureValid = true;
                 this.isArrangeValid = false;
             }
-            //console.log(this+'.measureCore '+this.getText()+', need: '+this.lastMeasureWidth+','+this.lastMeasureHeight);
+            //console.log(this+'.measureCore '+this.text+', need: '+this.lastMeasureWidth+','+this.lastMeasureHeight);
             return { width: this.lastMeasureWidth, height: this.lastMeasureHeight };
         }
 
-        protected arrangeCore(width, height) {
+        protected arrangeCore(width: number, height: number) {
             while (this.textDrawing.hasChildNodes())
                 this.textDrawing.removeChild(this.textDrawing.firstChild);
             let textDrawing = this.textDrawing;

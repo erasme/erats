@@ -13087,6 +13087,8 @@ var Ui;
                         return { width: maxWidth, height: y };
                     }
                     y += this.flushLine(y, line, width, render);
+                    if (x > maxWidth)
+                        maxWidth = x;
                     x = 0;
                     lineCount++;
                     line = '';
