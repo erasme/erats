@@ -214,7 +214,7 @@ namespace Ui {
                     let word = tmpWords[i];
                     while (true) {
                         let wordSize = (Ui.Label.measureText(word, fontSize, fontFamily, fontWeight)).width;
-                        if (wordSize < width) {
+                        if (wordSize <= width) {
                             words.push(word);
                             wordsSize.push(wordSize);
                             break;
@@ -671,7 +671,7 @@ namespace Ui {
             while (this.textDrawing.hasChildNodes())
                 this.textDrawing.removeChild(this.textDrawing.firstChild);
             let textDrawing = this.textDrawing;
-            this.textContext.setDrawLine(function (x, y, line) {
+            this.textContext.setDrawLine(function (x: number, y: number, line: string) {
                 let tspan = document.createElement('div');
                 tspan.style.whiteSpace = 'nowrap';
                 tspan.style.wordWrap = 'none';

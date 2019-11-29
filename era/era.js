@@ -13031,7 +13031,7 @@ var Ui;
                     var word = tmpWords[i];
                     while (true) {
                         var wordSize = (Ui.Label.measureText(word, fontSize, fontFamily, fontWeight)).width;
-                        if (wordSize < width) {
+                        if (wordSize <= width) {
                             words.push(word);
                             wordsSize.push(wordSize);
                             break;
