@@ -4692,6 +4692,7 @@ var Ui;
             _this.generateNeeded = true;
             _this.selectable = false;
             _this.canvasEngine = 'svg';
+            _this.drawing.style.overflow = 'hidden';
             return _this;
         }
         Object.defineProperty(CanvasElement.prototype, "canvasEngine", {
