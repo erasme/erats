@@ -2915,15 +2915,15 @@ declare namespace Ui {
         setTextTransform(textTransform: any): void;
         getTransformedText(): string;
         flushLine(y: any, line: any, width: any, render: any, lastLine?: boolean): number;
-        updateFlow(width: any, render: any): {
+        updateFlow(width: number, render: boolean): {
             width: number;
             height: number;
         };
-        updateFlowWords(width: any, render: any): {
+        updateFlowWords(width: number, render: boolean): {
             width: number;
             height: number;
         };
-        drawText(width: any, render: any): {
+        drawText(width: number, render: boolean): {
             width: number;
             height: number;
         };
