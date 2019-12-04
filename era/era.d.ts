@@ -5744,6 +5744,8 @@ declare namespace Ui {
         setDirectoryMode(active: boolean): void;
         set directoryMode(active: boolean);
         set multiple(active: boolean);
+        set accept(value: string | undefined);
+        set capture(value: string | undefined);
         protected onFile(fileWrapper: any, file: File): void;
         protected onPress(): void;
         set content(content: Element);
@@ -5755,6 +5757,7 @@ declare namespace Ui {
         private _directoryMode;
         private _multiple;
         private _accept?;
+        private _capture?;
         readonly file: Core.Events<{
             target: UploadableFileWrapper;
             file: File;
@@ -5765,6 +5768,7 @@ declare namespace Ui {
         setDirectoryMode(active: any): void;
         set directoryMode(active: boolean);
         set accept(value: string | undefined);
+        set capture(value: string | undefined);
         protected createInput(): void;
         protected onChange: (event: any) => void;
         protected onLoad(): void;
@@ -5794,6 +5798,9 @@ declare namespace Ui {
             target: UploadButton;
             file: File;
         }) => void;
+        multiple?: boolean;
+        accept?: string;
+        capture?: string;
     }
     class UploadButton extends Button implements UploadButtonInit {
         input: UploadableFileWrapper;
@@ -5809,6 +5816,7 @@ declare namespace Ui {
         set directoryMode(active: boolean);
         set multiple(active: boolean);
         set accept(value: string | undefined);
+        set capture(value: string | undefined);
         protected onUploadButtonPress(): void;
         protected onFile(wrapper: UploadableFileWrapper, file: File): void;
     }
@@ -6393,8 +6401,13 @@ declare namespace Ui {
         set backgroundMode(mode: 'top' | 'bottom' | 'left' | 'right' | 'stretch');
         set backgroundWidth(width: number);
         set backgroundHeight(height: number);
+        get isTextVisible(): boolean;
+        protected onStyleChange(): void;
         protected onDisable(): void;
         protected onEnable(): void;
+        static style: {
+            showText: boolean;
+        };
     }
 }
 declare namespace Ui {

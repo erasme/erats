@@ -25101,6 +25101,20 @@ var Ui;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(Uploadable.prototype, "accept", {
+            set: function (value) {
+                this.input.accept = value;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Uploadable.prototype, "capture", {
+            set: function (value) {
+                this.input.capture = value;
+            },
+            enumerable: true,
+            configurable: true
+        });
         Uploadable.prototype.onFile = function (fileWrapper, file) {
             this.file.fire({ target: this, file: file });
         };
@@ -25190,6 +25204,19 @@ var Ui;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(UploadableFileWrapper.prototype, "capture", {
+            set: function (value) {
+                this._capture = value;
+                if (this.inputDrawing !== undefined) {
+                    if (this._capture)
+                        this.inputDrawing.setAttribute('capture', value);
+                    else
+                        this.inputDrawing.removeAttribute('capture');
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
         UploadableFileWrapper.prototype.createInput = function () {
             this.formDrawing = document.createElement('form');
             this.formDrawing.addEventListener('click', function (e) { return e.stopPropagation(); });
@@ -25207,6 +25234,8 @@ var Ui;
                 this.inputDrawing.setAttribute('multiple', '');
             if (this._accept)
                 this.inputDrawing.setAttribute('accept', this._accept);
+            if (this._capture)
+                this.inputDrawing.setAttribute('capture', this._capture);
             this.inputDrawing.style.position = 'absolute';
             this.inputDrawing.tabIndex = -1;
             this.inputDrawing.addEventListener('change', this.onChange);
@@ -25345,6 +25374,12 @@ var Ui;
                     _this.directoryMode = init.directoryMode;
                 if (init.onfilechanged)
                     _this.filechanged.connect(init.onfilechanged);
+                if (init.multiple)
+                    _this.multiple = init.multiple;
+                if (init.accept)
+                    _this.accept = init.accept;
+                if (init.capture)
+                    _this.capture = init.capture;
             }
             return _this;
         }
@@ -25370,6 +25405,13 @@ var Ui;
         Object.defineProperty(UploadButton.prototype, "accept", {
             set: function (value) {
                 this.input.accept = value;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(UploadButton.prototype, "capture", {
+            set: function (value) {
+                this.input.capture = value;
             },
             enumerable: true,
             configurable: true
@@ -27659,6 +27701,17 @@ var Ui;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(SegmentButton.prototype, "isTextVisible", {
+            get: function () {
+                return ((this.label.text !== undefined) && (this.getStyleProperty('showText')));
+            },
+            enumerable: true,
+            configurable: true
+        });
+        SegmentButton.prototype.onStyleChange = function () {
+            _super.prototype.onStyleChange.call(this);
+            this.isTextVisible ? this.label.show() : this.label.hide(true);
+        };
         SegmentButton.prototype.onDisable = function () {
             _super.prototype.onDisable.call(this);
             this.bg.opacity = 0.2;
@@ -27666,6 +27719,9 @@ var Ui;
         SegmentButton.prototype.onEnable = function () {
             _super.prototype.onEnable.call(this);
             this.bg.opacity = 1;
+        };
+        SegmentButton.style = {
+            showText: true,
         };
         return SegmentButton;
     }(Ui.Pressable));
