@@ -19,9 +19,11 @@ namespace Ui {
             this.scrollDiv.style.position = 'absolute';
             this.scrollDiv.style.top = '0px';
             this.scrollDiv.style.left = '0px';
-            this.scrollDiv.style.right = `-${NativeScrollableContent.nativeScrollBarWidth}px`;
-            this.scrollDiv.style.bottom = `-${NativeScrollableContent.nativeScrollBarHeight}px`;
+            this.scrollDiv.style.right = `0px`;
+            this.scrollDiv.style.bottom = `0px`;
             this.scrollDiv.style.overflow = 'scroll';
+            if (!Core.Navigator.iOs && !Core.Navigator.Android)
+                this.scrollDiv.classList.add('hide-scrollbar');
             // added for Chrome performance problem
             this.scrollDiv.style.setProperty('will-change', 'transform');
             // added for Chrome performance problem
@@ -100,19 +102,17 @@ namespace Ui {
         static nativeScrollBarHeight = 0;
 
         static initialize() {
-            let div = document.createElement('div');
-            div.style.position = 'absolute';
-            div.style.display = 'block';
-            div.style.opacity = '0';
-            div.style.width = '100px';
-            div.style.height = '100px';
-            div.style.overflow = 'scroll';
-            if (document.body == null)
-                document.body = document.createElement('body');
-            document.body.appendChild(div);
-            NativeScrollableContent.nativeScrollBarWidth = 100 - div.clientWidth;
-            NativeScrollableContent.nativeScrollBarHeight = 100 - div.clientHeight;
-            document.body.removeChild(div);
+            let style = document.createElement('style');
+            style.innerHTML = `
+            .hide-scrollbar {
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+            }
+            .hide-scrollbar::-webkit-scrollbar {
+                display: none;
+            }
+            `;
+            document.head.appendChild(style);
         }
     }
 
@@ -226,7 +226,7 @@ namespace Ui {
                 this.scrollbarVerticalBox.upped.connect(this.autoHideScrollbars);
                 this.scrollbarVerticalBox.moved.connect(this.onScrollbarVerticalMove);
                 this.appendChild(this.scrollbarVerticalBox);
-                if (NativeScrollableContent.nativeScrollBarHeight == 0)
+                if (Core.Navigator.iOs || Core.Navigator.Android)
                     this.scrollbarVerticalBox.hide(true);
             }
         }
@@ -246,7 +246,7 @@ namespace Ui {
                 this.scrollbarHorizontalBox.upped.connect(this.autoHideScrollbars);
                 this.scrollbarHorizontalBox.moved.connect(this.onScrollbarHorizontalMove);
                 this.appendChild(this.scrollbarHorizontalBox);
-                if (NativeScrollableContent.nativeScrollBarWidth == 0)
+                if (Core.Navigator.iOs || Core.Navigator.Android)
                     this.scrollbarHorizontalBox.hide(true);
             }
         }
@@ -406,8 +406,8 @@ namespace Ui {
                     this.scrollbarVerticalHeight = Math.max((this.viewHeight / this.contentHeight) * this.viewHeight, this.scrollbarVerticalBox.measureHeight);
                     this.scrollbarVerticalBox.arrange(this.layoutWidth - this.scrollbarVerticalBox.measureWidth, 0,
                         this.scrollbarVerticalBox.measureWidth, this.scrollbarVerticalHeight);
-                    if (NativeScrollableContent.nativeScrollBarHeight != 0)
-                    this.scrollbarVerticalBox.show();
+                    if (!Core.Navigator.iOs && !Core.Navigator.Android)
+                        this.scrollbarVerticalBox.show();
                 }
             }
             else {
@@ -422,8 +422,7 @@ namespace Ui {
                     this.scrollbarHorizontalWidth = Math.max((this.viewWidth / this.contentWidth) * this.viewWidth, this.scrollbarHorizontalBox.measureWidth);
                     this.scrollbarHorizontalBox.arrange(0, this.layoutHeight - this.scrollbarHorizontalBox.measureHeight,
                         this.scrollbarHorizontalWidth, this.scrollbarHorizontalBox.measureHeight);
-
-                    if (NativeScrollableContent.nativeScrollBarWidth != 0)
+                    if (!Core.Navigator.iOs && !Core.Navigator.Android)
                         this.scrollbarHorizontalBox.show();
                 }
             }
