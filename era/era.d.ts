@@ -6809,6 +6809,7 @@ declare namespace Ui {
         invalidateArrange(): void;
         updateLayout(width: number, height: number): void;
         set content(element: Element);
+        getInverseLayoutTransform(): Matrix;
         protected measureCore(width: number, height: number): {
             width: number;
             height: number;

@@ -38,6 +38,25 @@ namespace Ui {
         set content(element: Element) {
             this.appendChild(element);
         }
+
+        //
+        // Return the matrix to transform a coordinate from a child to
+        // the parent coordinate
+        //
+        getInverseLayoutTransform(): Matrix {
+
+            let matrix = super.getInverseLayoutTransform();
+            let current: HTMLElement | null = this.htmlParent;
+            while (current != null) {
+                let elMatrix = Ui.Matrix.createTranslate(current.offsetLeft - current.scrollLeft, current.offsetTop - current.scrollTop);
+                matrix = matrix.multiply(elMatrix);
+                current = current.offsetParent as HTMLElement;
+            }
+            matrix = matrix.multiply(Ui.Matrix.createTranslate(
+                -document.documentElement.scrollLeft,
+                -document.documentElement.scrollTop));
+            return matrix;
+        }
     
         protected measureCore(width: number, height: number): { width: number, height: number } {
             let minWidth = 0;

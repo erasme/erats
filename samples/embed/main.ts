@@ -11,7 +11,11 @@ window.onload = () => {
                 margin: 10, spacing: 10,
                 content: [
                     new Ui.Button().assign({
-                        text: 'click 1'
+                        text: 'click 1',
+                        onpressed: (e) => {
+                            let p = e.target.pointFromWindow(new Ui.Point(e.x, e.y));
+                            console.log(`press: ${e.x}, ${e.y} => ${p.x}, ${p.y}`);
+                        }
                     }),
                     new Ui.Button().assign({
                         text: 'click 2',

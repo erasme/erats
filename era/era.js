@@ -29662,6 +29662,17 @@ var Ui;
             enumerable: true,
             configurable: true
         });
+        Embed.prototype.getInverseLayoutTransform = function () {
+            var matrix = _super.prototype.getInverseLayoutTransform.call(this);
+            var current = this.htmlParent;
+            while (current != null) {
+                var elMatrix = Ui.Matrix.createTranslate(current.offsetLeft - current.scrollLeft, current.offsetTop - current.scrollTop);
+                matrix = matrix.multiply(elMatrix);
+                current = current.offsetParent;
+            }
+            matrix = matrix.multiply(Ui.Matrix.createTranslate(-document.documentElement.scrollLeft, -document.documentElement.scrollTop));
+            return matrix;
+        };
         Embed.prototype.measureCore = function (width, height) {
             var minWidth = 0;
             var minHeight = 0;
