@@ -372,6 +372,15 @@ namespace Ui {
             this.bg.height = height;
         }
 
+        get isTextVisible(): boolean {
+            return ((this.label.text !== undefined) && (this.getStyleProperty('showText')));
+        }
+
+        protected onStyleChange() {
+            super.onStyleChange();
+            this.isTextVisible ? this.label.show() : this.label.hide(true);
+        }
+
         protected onDisable() {
             super.onDisable();
             this.bg.opacity = 0.2;
@@ -380,6 +389,10 @@ namespace Ui {
         protected onEnable() {
             super.onEnable();
             this.bg.opacity = 1;
+        }
+
+        static style = {
+            showText: true,
         }
     }
 }

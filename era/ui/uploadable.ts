@@ -32,6 +32,14 @@ namespace Ui {
             this.input.multiple = active;
         }
 
+        set accept(value: string | undefined) {
+            this.input.accept = value;
+        }
+
+        set capture(value: string | undefined) {
+            this.input.capture = value;
+        }
+
         protected onFile(fileWrapper, file: File) {
             this.file.fire({ target: this, file: file });
         }
@@ -63,6 +71,7 @@ namespace Ui {
         private _directoryMode = false;
         private _multiple = false;
         private _accept?: string;
+        private _capture?: string;
         readonly file = new Core.Events<{ target: UploadableFileWrapper, file: File }>();
 
         constructor() {
@@ -109,6 +118,16 @@ namespace Ui {
             }
         }
 
+        set capture(value: string | undefined) {
+            this._capture = value;
+            if (this.inputDrawing !== undefined) {
+                if (this._capture)
+                    this.inputDrawing.setAttribute('capture', value);
+                else
+                    this.inputDrawing.removeAttribute('capture');
+            }
+        }
+
         protected createInput() {
             this.formDrawing = document.createElement('form');
             this.formDrawing.addEventListener('click', (e) => e.stopPropagation());
@@ -128,6 +147,8 @@ namespace Ui {
                 this.inputDrawing.setAttribute('multiple', '');
             if (this._accept)
                 this.inputDrawing.setAttribute('accept', this._accept);
+            if (this._capture)
+                this.inputDrawing.setAttribute('capture', this._capture);
             this.inputDrawing.style.position = 'absolute';
             this.inputDrawing.tabIndex = -1;
 

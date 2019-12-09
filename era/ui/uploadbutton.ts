@@ -2,6 +2,9 @@ namespace Ui {
     export interface UploadButtonInit extends ButtonInit {
         directoryMode?: boolean;
         onfilechanged?: (event: { target: UploadButton, file: File }) => void;
+        multiple?: boolean;
+        accept?: string;
+        capture?: string;
     }
 
     export class UploadButton extends Button implements UploadButtonInit {
@@ -28,6 +31,12 @@ namespace Ui {
                     this.directoryMode = init.directoryMode;
                 if (init.onfilechanged)
                     this.filechanged.connect(init.onfilechanged);
+                if (init.multiple)
+                    this.multiple = init.multiple;
+                if (init.accept)
+                    this.accept = init.accept;
+                if (init.capture)
+                    this.capture = init.capture;
             }
         }
 
@@ -41,6 +50,10 @@ namespace Ui {
 
         set accept(value: string | undefined) {
             this.input.accept = value;
+        }
+
+        set capture(value: string | undefined) {
+            this.input.capture = value;
         }
 
         protected onUploadButtonPress() {
