@@ -138,5 +138,6 @@
         "ui/richtexteditor.ts",
         "ui/radioboxgraphic.ts",
         "ui/radiobox.ts",
+        "ui/embed.ts",
     ]
 }

@@ -66,6 +66,7 @@ declare namespace Core {
         static supportUploadDirectory: boolean;
     }
 }
+declare var ResizeObserver: any;
 declare namespace Core {
     class Uri extends Object {
         scheme: string;
@@ -349,6 +350,7 @@ declare namespace Core {
         protected fields: object;
         protected _isCompleted: boolean;
         protected _isSent: boolean;
+        protected _lastStatus: number | undefined;
         field: string;
         protected loadedOctets: number;
         protected totalOctets: number;
@@ -6783,5 +6785,21 @@ declare namespace Ui {
         onRadioSelected(event: {
             target: RadioBox;
         }): void;
+    }
+}
+declare namespace Ui {
+    class Embed extends Ui.Container {
+        private obs;
+        private htmlParent;
+        constructor(parent: HTMLElement);
+        invalidateMeasure(): void;
+        invalidateArrange(): void;
+        updateLayout(width: number, height: number): void;
+        set content(element: Element);
+        protected measureCore(width: number, height: number): {
+            width: number;
+            height: number;
+        };
+        protected arrangeCore(width: number, height: number): void;
     }
 }

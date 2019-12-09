@@ -710,6 +710,33 @@ if (!Math.log10) {
         return Math.log(x) * Math.LOG10E;
     };
 }
+var ResizeObserver;
+if (ResizeObserver == undefined) {
+    if (window.MutationObserver) {
+        ResizeObserver = function (callback) {
+            this.callback = callback;
+        };
+        ResizeObserver.prototype.observe = function (element) {
+            var _this = this;
+            if (this.elements == undefined)
+                this.elements = [];
+            var data = {
+                element: element,
+                width: 0, height: 0,
+            };
+            var observer = new MutationObserver(function (e) {
+                if ((data.width != data.element.offsetWidth) || (data.height != data.element.offsetHeight)) {
+                    data.width = data.element.offsetWidth;
+                    data.height = data.element.offsetHeight;
+                    _this.callback();
+                }
+            });
+            observer.observe(element, {
+                attributes: true
+            });
+        };
+    }
+}
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
@@ -1780,7 +1807,7 @@ var Core;
         };
         Object.defineProperty(FilePostUploader.prototype, "status", {
             get: function () {
-                return this.request.status;
+                return this.request ? this.request.status : this._lastStatus;
             },
             enumerable: true,
             configurable: true
@@ -1854,6 +1881,7 @@ var Core;
             configurable: true
         });
         FilePostUploader.prototype.onStateChange = function (event) {
+            this._lastStatus = this.request.status;
             if (this.request.readyState == 4) {
                 this._isCompleted = true;
                 if (this.request.status == 200) {
@@ -12250,9 +12278,11 @@ var Ui;
             this.scrollDiv.style.position = 'absolute';
             this.scrollDiv.style.top = '0px';
             this.scrollDiv.style.left = '0px';
-            this.scrollDiv.style.right = "-" + NativeScrollableContent.nativeScrollBarWidth + "px";
-            this.scrollDiv.style.bottom = "-" + NativeScrollableContent.nativeScrollBarHeight + "px";
+            this.scrollDiv.style.right = "0px";
+            this.scrollDiv.style.bottom = "0px";
             this.scrollDiv.style.overflow = 'scroll';
+            if (!Core.Navigator.iOs && !Core.Navigator.Android)
+                this.scrollDiv.classList.add('hide-scrollbar');
             this.scrollDiv.style.setProperty('will-change', 'transform');
             this.scrollDiv.style.setProperty('transform', 'translateZ(0)');
             this.scrollDiv.style.setProperty('-webkit-overflow-scrolling', 'touch');
@@ -12331,19 +12361,9 @@ var Ui;
             return _super.prototype.getLayoutTransform.call(this).multiply(Ui.Matrix.createTranslate(this.scrollDiv.scrollLeft, this.scrollDiv.scrollTop));
         };
         NativeScrollableContent.initialize = function () {
-            var div = document.createElement('div');
-            div.style.position = 'absolute';
-            div.style.display = 'block';
-            div.style.opacity = '0';
-            div.style.width = '100px';
-            div.style.height = '100px';
-            div.style.overflow = 'scroll';
-            if (document.body == null)
-                document.body = document.createElement('body');
-            document.body.appendChild(div);
-            NativeScrollableContent.nativeScrollBarWidth = 100 - div.clientWidth;
-            NativeScrollableContent.nativeScrollBarHeight = 100 - div.clientHeight;
-            document.body.removeChild(div);
+            var style = document.createElement('style');
+            style.innerHTML = "\n            .hide-scrollbar {\n                scrollbar-width: none;\n                -ms-overflow-style: none;\n            }\n            .hide-scrollbar::-webkit-scrollbar {\n                display: none;\n            }\n            ";
+            document.head.appendChild(style);
         };
         NativeScrollableContent.nativeScrollBarWidth = 0;
         NativeScrollableContent.nativeScrollBarHeight = 0;
@@ -12489,7 +12509,7 @@ var Ui;
                 this.scrollbarVerticalBox.upped.connect(this.autoHideScrollbars);
                 this.scrollbarVerticalBox.moved.connect(this.onScrollbarVerticalMove);
                 this.appendChild(this.scrollbarVerticalBox);
-                if (NativeScrollableContent.nativeScrollBarHeight == 0)
+                if (Core.Navigator.iOs || Core.Navigator.Android)
                     this.scrollbarVerticalBox.hide(true);
             }
         };
@@ -12508,7 +12528,7 @@ var Ui;
                 this.scrollbarHorizontalBox.upped.connect(this.autoHideScrollbars);
                 this.scrollbarHorizontalBox.moved.connect(this.onScrollbarHorizontalMove);
                 this.appendChild(this.scrollbarHorizontalBox);
-                if (NativeScrollableContent.nativeScrollBarWidth == 0)
+                if (Core.Navigator.iOs || Core.Navigator.Android)
                     this.scrollbarHorizontalBox.hide(true);
             }
         };
@@ -12632,7 +12652,7 @@ var Ui;
                 if (this.scrollbarVerticalBox) {
                     this.scrollbarVerticalHeight = Math.max((this.viewHeight / this.contentHeight) * this.viewHeight, this.scrollbarVerticalBox.measureHeight);
                     this.scrollbarVerticalBox.arrange(this.layoutWidth - this.scrollbarVerticalBox.measureWidth, 0, this.scrollbarVerticalBox.measureWidth, this.scrollbarVerticalHeight);
-                    if (NativeScrollableContent.nativeScrollBarHeight != 0)
+                    if (!Core.Navigator.iOs && !Core.Navigator.Android)
                         this.scrollbarVerticalBox.show();
                 }
             }
@@ -12645,7 +12665,7 @@ var Ui;
                 if (this.scrollbarHorizontalBox) {
                     this.scrollbarHorizontalWidth = Math.max((this.viewWidth / this.contentWidth) * this.viewWidth, this.scrollbarHorizontalBox.measureWidth);
                     this.scrollbarHorizontalBox.arrange(0, this.layoutHeight - this.scrollbarHorizontalBox.measureHeight, this.scrollbarHorizontalWidth, this.scrollbarHorizontalBox.measureHeight);
-                    if (NativeScrollableContent.nativeScrollBarWidth != 0)
+                    if (!Core.Navigator.iOs && !Core.Navigator.Android)
                         this.scrollbarHorizontalBox.show();
                 }
             }
@@ -29548,5 +29568,65 @@ var Ui;
         return RadioGroup;
     }(Core.Object));
     Ui.RadioGroup = RadioGroup;
+})(Ui || (Ui = {}));
+var Ui;
+(function (Ui) {
+    var Embed = (function (_super) {
+        __extends(Embed, _super);
+        function Embed(parent) {
+            var _this = _super.call(this) || this;
+            _this.htmlParent = parent;
+            _this.drawing.style.position = 'relative';
+            parent.appendChild(_this.drawing);
+            _this.obs = new ResizeObserver(function () {
+                _this.updateLayout(parent.offsetWidth, parent.offsetHeight);
+            });
+            _this.obs.observe(parent);
+            _this.isLoaded = true;
+            _this.updateLayout(parent.offsetWidth, parent.offsetHeight);
+            return _this;
+        }
+        Embed.prototype.invalidateMeasure = function () {
+            this.invalidateLayout();
+        };
+        Embed.prototype.invalidateArrange = function () {
+            this.invalidateLayout();
+            this.updateLayout(this.htmlParent.offsetWidth, this.htmlParent.offsetHeight);
+        };
+        Embed.prototype.updateLayout = function (width, height) {
+            var size = this.measure(this.htmlParent.offsetWidth, this.htmlParent.offsetHeight);
+            var layoutWidth = Math.max(size.width, this.htmlParent.offsetWidth);
+            var layoutHeight = Math.max(size.height, this.htmlParent.offsetHeight);
+            this.arrange(0, 0, layoutWidth, layoutHeight);
+        };
+        Object.defineProperty(Embed.prototype, "content", {
+            set: function (element) {
+                this.appendChild(element);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Embed.prototype.measureCore = function (width, height) {
+            var minWidth = 0;
+            var minHeight = 0;
+            for (var _i = 0, _a = this.children; _i < _a.length; _i++) {
+                var child = _a[_i];
+                var size = child.measure(width, height);
+                if (size.width > minWidth)
+                    minWidth = size.width;
+                if (size.height > minHeight)
+                    minHeight = size.height;
+            }
+            return { width: minWidth, height: minHeight };
+        };
+        Embed.prototype.arrangeCore = function (width, height) {
+            for (var _i = 0, _a = this.children; _i < _a.length; _i++) {
+                var child = _a[_i];
+                child.arrange(0, 0, width, height);
+            }
+        };
+        return Embed;
+    }(Ui.Container));
+    Ui.Embed = Embed;
 })(Ui || (Ui = {}));
 //# sourceMappingURL=era.js.map
