@@ -45,6 +45,7 @@ namespace Core {
         protected fields: object;
         protected _isCompleted: boolean = false;
         protected _isSent: boolean = false;
+        protected _lastStatus: number | undefined;
         field: string = 'file';
 
         protected loadedOctets: number;
@@ -163,7 +164,7 @@ namespace Core {
         }
 
         get status(): number {
-            return this.request.status;
+            return this.request ? this.request.status : this._lastStatus;
         }
 
         sendAsync() {
@@ -221,6 +222,7 @@ namespace Core {
         }
 
         protected onStateChange(event) {
+            this._lastStatus = this.request.status;
             if (this.request.readyState == 4) {
                 this._isCompleted = true;
                 if (this.request.status == 200) {
