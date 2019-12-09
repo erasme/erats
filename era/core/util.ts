@@ -730,6 +730,34 @@ if (!Math.log10) {
   };
 }
 
+var ResizeObserver: any;
+// Provide a polyfill
+if (ResizeObserver == undefined) {
+    if ((<any>window).MutationObserver) {
+        ResizeObserver = function(callback: () => void) {
+            // @ts-ignore
+            this.callback = callback;
+        };
+        ResizeObserver.prototype.observe = function(element: HTMLElement) {
+            if (this.elements == undefined)
+                this.elements = [];
+            let data = {
+                element: element,
+                width: 0, height: 0,
+            }
+            let observer = new MutationObserver((e) => {
+                if ((data.width != data.element.offsetWidth) || (data.height != data.element.offsetHeight)) {
+                    data.width = data.element.offsetWidth;
+                    data.height = data.element.offsetHeight;
+                    this.callback();
+                }
+            });
+            observer.observe(element, {
+                attributes: true
+            });
+        }
+    }
+}
 
 /*
 // Implement trim if it's not natively available
