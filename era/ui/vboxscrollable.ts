@@ -1,4 +1,5 @@
-﻿namespace Ui {
+﻿
+namespace Ui {
     export class ScrollLoader extends Core.Object {
         readonly changed = new Core.Events<{ target: ScrollLoader }>();
         constructor() {
@@ -63,7 +64,7 @@
             this.contentBox.inertiaended.connect(() => this.autoHideScrollbars());
             this.appendChild(this.contentBox);
 
-            this.ptrmoved.connect((event: EmuPointerEvent) => {
+/*            this.ptrmoved.connect((event: EmuPointerEvent) => {
                 if (!this.isDisabled && !event.pointer.getIsDown() && (this.overWatcher === undefined)) {
                     this.overWatcher = event.pointer.watch(this);
                     this.isOver = true;
@@ -87,9 +88,12 @@
                         this.autoHideScrollbars();
                     });
                 }
-            });
+            });*/
 
-            this.wheelchanged.connect(e => this.onWheel(e));
+            new WheelWatcher({
+                element: this,
+                onchanged: (e) => this.onWheel(e)
+            });
             if (init) {
                 if (init.loader !== undefined)
                     this.loader = init.loader;	

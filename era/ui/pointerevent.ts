@@ -292,7 +292,7 @@ namespace Ui
                 watchers[i].move();
 
             if (this.captureWatcher === undefined) {
-                let target = App.current.elementFromPoint(new Point(this.x, this.y));
+                let target = Element.elementFromPoint(new Point(this.x, this.y));
                 if (target != undefined) {
                     let pointerEvent = new EmuPointerEvent('ptrmoved', this);
                     pointerEvent.dispatchEvent(target);
@@ -356,7 +356,7 @@ namespace Ui
             for (let i = 0; i < watchers.length; i++)
                 watchers[i].down();
 
-            let target = App.current.elementFromPoint(new Point(this.x, this.y));
+            let target = Element.elementFromPoint(new Point(this.x, this.y));
             let pointerEvent = new EmuPointerEvent('ptrdowned', this);
             if (target !== undefined)
                 pointerEvent.dispatchEvent(target);
@@ -373,7 +373,7 @@ namespace Ui
 
             let pointerEvent = new EmuPointerEvent('ptrupped', this);
             if (this.captureWatcher === undefined) {
-                let target = App.current.elementFromPoint(new Point(this.x, this.y));
+                let target = Element.elementFromPoint(new Point(this.x, this.y));
                 if (target != undefined)
                     pointerEvent.dispatchEvent(target);
             }

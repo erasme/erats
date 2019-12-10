@@ -49,15 +49,20 @@ namespace Ui
         }
     }
 
-    export class WheelManager extends Core.Object
+    export class WheelWatcher extends Core.Object
     {
-        app: App;
+        element: Element;
+        onchanged: (e: WheelEvent) => void;
 
-        constructor(app: App) {
+        constructor(init: {
+            element: Element,
+            onchanged: (e: WheelEvent) => void
+        }) {
             super();
-            this.app = app;
-            this.app.drawing.addEventListener('mousewheel', (e) => this.onMouseWheel(e));
-            this.app.drawing.addEventListener('DOMMouseScroll', (e) => this.onMouseWheel(e));
+            this.element = init.element;
+            this.onchanged = init.onchanged;
+            this.element.drawing.addEventListener('mousewheel', (e) => this.onMouseWheel(e));
+            this.element.drawing.addEventListener('DOMMouseScroll', (e) => this.onMouseWheel(e));
         }
 
         onMouseWheel(event) {
@@ -75,22 +80,19 @@ namespace Ui
             else if (event.detail != undefined)
                 deltaY = event.detail * 20;
 
-            let target = App.current.elementFromPoint(new Point(event.clientX, event.clientY));
-
-            if (target !== undefined) {
-                let wheelEvent = new Ui.WheelEvent();
-                wheelEvent.setClientX(event.clientX);
-                wheelEvent.setClientY(event.clientY);
-                wheelEvent.setDeltaX(deltaX);
-                wheelEvent.setDeltaY(deltaY);
-                wheelEvent.setCtrlKey(event.ctrlKey);
-                wheelEvent.setAltKey(event.altKey);
-                wheelEvent.setShiftKey(event.shiftKey);
-                wheelEvent.setMetaKey(event.metaKey);
-                wheelEvent.dispatchEvent(target);
-                if (wheelEvent.getIsPropagationStopped())
-                    event.preventDefault();
-            }
+            let wheelEvent = new Ui.WheelEvent();
+            wheelEvent.setClientX(event.clientX);
+            wheelEvent.setClientY(event.clientY);
+            wheelEvent.setDeltaX(deltaX);
+            wheelEvent.setDeltaY(deltaY);
+            wheelEvent.setCtrlKey(event.ctrlKey);
+            wheelEvent.setAltKey(event.altKey);
+            wheelEvent.setShiftKey(event.shiftKey);
+            wheelEvent.setMetaKey(event.metaKey);
+                
+            this.onchanged(wheelEvent);
+            if (wheelEvent.getIsPropagationStopped())
+                event.preventDefault();
         }
     }
 }	

@@ -18,9 +18,10 @@ var App = /** @class */ (function (_super) {
     function App() {
         var _this = _super.call(this) || this;
         _this.drawing.addEventListener('pointerdown', function (event) {
+            var el = Ui.Element.elementFromPoint(new Ui.Point(event.clientX, event.clientY));
             console.log('pointerdown at: ' + event.clientX + ',' + event.clientY + ' found: ' +
-                Ui.App.current.elementFromPoint(new Ui.Point(event.clientX, event.clientY)));
-            Ui.Toast.send("" + Ui.App.current.elementFromPoint(new Ui.Point(event.clientX, event.clientY)));
+                el);
+            Ui.Toast.send("" + el);
         }, true);
         var vbox = new Ui.VBox({ spacing: 10, margin: 10 });
         _this.content = vbox;

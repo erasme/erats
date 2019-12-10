@@ -13,14 +13,14 @@
         appendToast(toast: Toast) {
             toast.newToast = true;
             if (this.children.length === 0)
-                App.current.appendTopLayer(this);
+                App.appendTopLayer(this);
             this.appendChild(toast);
         }
 
         removeToast(toast: Toast) {
             this.removeChild(toast);
             if (this.children.length === 0)
-                App.current.removeTopLayer(this);
+                App.removeTopLayer(this);
         }
 
         protected onArrangeTick(clock, progress, delta) {

@@ -164,6 +164,12 @@ namespace Ui {
 
         constructor(init?: DialogInit) {
             super(init);
+            this.drawing.style.position = 'fixed';
+            this.drawing.style.top = '0';
+            this.drawing.style.bottom = '0';
+            this.drawing.style.left = '0';
+            this.drawing.style.right = '0';
+
             this.dialogSelection = new Ui.Selection();
 
             this.shadowGraphic = new Ui.Rectangle();
@@ -263,7 +269,7 @@ namespace Ui {
 
         open() {
             if (this.isClosed) {
-                Ui.App.current.appendDialog(this);
+                Ui.App.appendDialog(this);
                 this.isClosed = false;
 
                 if (this.openClock == undefined) {
@@ -312,7 +318,7 @@ namespace Ui {
                     this.openClock.stop();
                 this.openClock = undefined;
                 if (this.isClosed) {
-                    Ui.App.current.removeDialog(this);
+                    Ui.App.removeDialog(this);
                     this.lbox.enable();
                 }
             }

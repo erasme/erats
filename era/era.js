@@ -3149,7 +3149,6 @@ var Ui;
             _this.transformOriginY = 0.5;
             _this.transformOriginAbsolute = false;
             _this._opacity = 1;
-            _this.parentOpacity = 1;
             _this.focused = new Core.Events();
             _this.blurred = new Core.Events();
             _this.loaded = new Core.Events();
@@ -3158,11 +3157,6 @@ var Ui;
             _this.disabled = new Core.Events();
             _this.visible = new Core.Events();
             _this.hidden = new Core.Events();
-            _this.ptrdowned = new Core.Events();
-            _this.ptrmoved = new Core.Events();
-            _this.ptrupped = new Core.Events();
-            _this.ptrcanceled = new Core.Events();
-            _this.wheelchanged = new Core.Events();
             _this.dragover = new Core.Events();
             _this.onMouseDownFocus = function (event) {
                 _this.isMouseDownFocus = true;
@@ -3289,31 +3283,6 @@ var Ui;
         });
         Object.defineProperty(Element.prototype, "onhidden", {
             set: function (value) { this.hidden.connect(value); },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Element.prototype, "onptrdowned", {
-            set: function (value) { this.ptrdowned.connect(value); },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Element.prototype, "onptrmoved", {
-            set: function (value) { this.ptrmoved.connect(value); },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Element.prototype, "onptrupped", {
-            set: function (value) { this.ptrupped.connect(value); },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Element.prototype, "onptrcanceled", {
-            set: function (value) { this.ptrcanceled.connect(value); },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Element.prototype, "onwheelchanged", {
-            set: function (value) { this.wheelchanged.connect(value); },
             enumerable: true,
             configurable: true
         });
@@ -3483,8 +3452,7 @@ var Ui;
             this.arrangeValid = false;
             if (this.layoutValid) {
                 this.layoutValid = false;
-                if (Ui.App.current)
-                    Ui.App.current.enqueueLayout(this);
+                Ui.App.enqueueLayout(this);
             }
         };
         Element.prototype.onChildInvalidateMeasure = function (child, event) {
@@ -3495,8 +3463,7 @@ var Ui;
             this._layoutHeight = height;
             this.layoutValid = true;
             this.layoutCore();
-            this.layoutValid = this.arrangeValid && this.measureValid;
-            if (!this.layoutValid)
+            if (!this.arrangeValid || !this.measureValid)
                 this.invalidateLayout();
         };
         Element.prototype.layoutCore = function () {
@@ -3608,11 +3575,9 @@ var Ui;
         Element.prototype.drawCore = function () {
         };
         Element.prototype.invalidateDraw = function () {
-            if (Ui.App.current === undefined)
-                return;
             if (this.drawValid) {
                 this.drawValid = false;
-                Ui.App.current.enqueueDraw(this);
+                Ui.App.enqueueDraw(this);
             }
         };
         Element.prototype.renderDrawing = function () {
@@ -3903,12 +3868,6 @@ var Ui;
             enumerable: true,
             configurable: true
         });
-        Element.prototype.elementFromPoint = function (point) {
-            if (!this._eventsHidden && this.isVisible && this.getIsInside(point))
-                return this;
-            else
-                return undefined;
-        };
         Object.defineProperty(Element.prototype, "measureWidth", {
             get: function () {
                 return this.collapse ? 0 : this._measureWidth;
@@ -4378,7 +4337,13 @@ var Ui;
             return Ui.Element.transformToWindow(element).inverse();
         };
         Element.elementFromPoint = function (point) {
-            return Ui.App.current.elementFromPoint(point);
+            var element = document.elementFromPoint(point.x, point.y);
+            while (element) {
+                if (element.data && element.data instanceof Element)
+                    return element.data;
+                element = element.parentElement;
+            }
+            return undefined;
         };
         Element.getIsDrawingChildOf = function (drawing, parent) {
             var current = drawing;
@@ -4567,25 +4532,6 @@ var Ui;
                         return res;
                 }
             }
-            return undefined;
-        };
-        Container.prototype.elementFromPoint = function (point) {
-            if (!this.isVisible)
-                return undefined;
-            var p = point.multiply(this.getLayoutTransform());
-            var isInside = ((p.x >= 0) && (p.x <= this.layoutWidth) &&
-                (p.y >= 0) && (p.y <= this.layoutHeight));
-            if (this.clipToBounds && !isInside)
-                return undefined;
-            if (this._children != undefined) {
-                for (var i = this._children.length - 1; i >= 0; i--) {
-                    var found = this._children[i].elementFromPoint(p);
-                    if (found != undefined)
-                        return found;
-                }
-            }
-            if (!this.eventsHidden && isInside)
-                return this;
             return undefined;
         };
         Container.prototype.onLoad = function () {
@@ -6464,7 +6410,7 @@ var Ui;
             for (var i = 0; i < watchers.length; i++)
                 watchers[i].move();
             if (this.captureWatcher === undefined) {
-                var target = Ui.App.current.elementFromPoint(new Ui.Point(this.x, this.y));
+                var target = Ui.Element.elementFromPoint(new Ui.Point(this.x, this.y));
                 if (target != undefined) {
                     var pointerEvent = new EmuPointerEvent('ptrmoved', this);
                     pointerEvent.dispatchEvent(target);
@@ -6514,7 +6460,7 @@ var Ui;
             var watchers = this.watchers.slice();
             for (var i = 0; i < watchers.length; i++)
                 watchers[i].down();
-            var target = Ui.App.current.elementFromPoint(new Ui.Point(this.x, this.y));
+            var target = Ui.Element.elementFromPoint(new Ui.Point(this.x, this.y));
             var pointerEvent = new EmuPointerEvent('ptrdowned', this);
             if (target !== undefined)
                 pointerEvent.dispatchEvent(target);
@@ -6529,7 +6475,7 @@ var Ui;
             this.buttons = 0;
             var pointerEvent = new EmuPointerEvent('ptrupped', this);
             if (this.captureWatcher === undefined) {
-                var target = Ui.App.current.elementFromPoint(new Ui.Point(this.x, this.y));
+                var target = Ui.Element.elementFromPoint(new Ui.Point(this.x, this.y));
                 if (target != undefined)
                     pointerEvent.dispatchEvent(target);
             }
@@ -6950,7 +6896,7 @@ var Ui;
                     _this.x = clientX;
                     _this.y = clientY;
                     document.body.removeChild(_this.image);
-                    var overElement = Ui.App.current.elementFromPoint(new Ui.Point(clientX, clientY));
+                    var overElement = Ui.Element.elementFromPoint(new Ui.Point(clientX, clientY));
                     document.body.appendChild(_this.image);
                     deltaX = clientX - _this.startX;
                     deltaY = clientY - _this.startY;
@@ -7508,22 +7454,21 @@ var Ui;
     Ui.DragNativeDataTransfer = DragNativeDataTransfer;
     var DragNativeManager = (function (_super) {
         __extends(DragNativeManager, _super);
-        function DragNativeManager(app) {
+        function DragNativeManager() {
             var _this = _super.call(this) || this;
             _this.nativeTarget = undefined;
-            _this.app = app;
             _this.dataTransfer = new DragNativeDataTransfer();
-            _this.app.drawing.addEventListener('dragover', function (e) { return _this.onDragOver(e); });
-            _this.app.drawing.addEventListener('dragenter', function (e) { return _this.onDragEnter(e); });
-            _this.app.drawing.addEventListener('dragleave', function (e) { return _this.onDragLeave(e); });
-            _this.app.drawing.addEventListener('drop', function (e) { return _this.onDrop(e); });
+            window.addEventListener('dragover', function (e) { return _this.onDragOver(e); });
+            window.addEventListener('dragenter', function (e) { return _this.onDragEnter(e); });
+            window.addEventListener('dragleave', function (e) { return _this.onDragLeave(e); });
+            window.addEventListener('drop', function (e) { return _this.onDrop(e); });
             return _this;
         }
         DragNativeManager.prototype.onDragOver = function (event) {
             this.dataTransfer.setDataTransfer(event.dataTransfer);
             var point = new Ui.Point(event.clientX, event.clientY);
             this.dataTransfer.setPosition(point);
-            var overElement = this.app.elementFromPoint(point);
+            var overElement = Ui.Element.elementFromPoint(point);
             if (overElement !== undefined) {
                 var dragEvent = new DragEvent();
                 dragEvent.setType('dragover');
@@ -7666,16 +7611,17 @@ var Ui;
         return WheelEvent;
     }(Ui.Event));
     Ui.WheelEvent = WheelEvent;
-    var WheelManager = (function (_super) {
-        __extends(WheelManager, _super);
-        function WheelManager(app) {
+    var WheelWatcher = (function (_super) {
+        __extends(WheelWatcher, _super);
+        function WheelWatcher(init) {
             var _this = _super.call(this) || this;
-            _this.app = app;
-            _this.app.drawing.addEventListener('mousewheel', function (e) { return _this.onMouseWheel(e); });
-            _this.app.drawing.addEventListener('DOMMouseScroll', function (e) { return _this.onMouseWheel(e); });
+            _this.element = init.element;
+            _this.onchanged = init.onchanged;
+            _this.element.drawing.addEventListener('mousewheel', function (e) { return _this.onMouseWheel(e); });
+            _this.element.drawing.addEventListener('DOMMouseScroll', function (e) { return _this.onMouseWheel(e); });
             return _this;
         }
-        WheelManager.prototype.onMouseWheel = function (event) {
+        WheelWatcher.prototype.onMouseWheel = function (event) {
             var deltaX = 0;
             var deltaY = 0;
             if ((event.wheelDeltaX != undefined) && (event.wheelDeltaY != undefined)) {
@@ -7686,25 +7632,22 @@ var Ui;
                 deltaY = -event.wheelDelta / 2;
             else if (event.detail != undefined)
                 deltaY = event.detail * 20;
-            var target = Ui.App.current.elementFromPoint(new Ui.Point(event.clientX, event.clientY));
-            if (target !== undefined) {
-                var wheelEvent = new Ui.WheelEvent();
-                wheelEvent.setClientX(event.clientX);
-                wheelEvent.setClientY(event.clientY);
-                wheelEvent.setDeltaX(deltaX);
-                wheelEvent.setDeltaY(deltaY);
-                wheelEvent.setCtrlKey(event.ctrlKey);
-                wheelEvent.setAltKey(event.altKey);
-                wheelEvent.setShiftKey(event.shiftKey);
-                wheelEvent.setMetaKey(event.metaKey);
-                wheelEvent.dispatchEvent(target);
-                if (wheelEvent.getIsPropagationStopped())
-                    event.preventDefault();
-            }
+            var wheelEvent = new Ui.WheelEvent();
+            wheelEvent.setClientX(event.clientX);
+            wheelEvent.setClientY(event.clientY);
+            wheelEvent.setDeltaX(deltaX);
+            wheelEvent.setDeltaY(deltaY);
+            wheelEvent.setCtrlKey(event.ctrlKey);
+            wheelEvent.setAltKey(event.altKey);
+            wheelEvent.setShiftKey(event.shiftKey);
+            wheelEvent.setMetaKey(event.metaKey);
+            this.onchanged(wheelEvent);
+            if (wheelEvent.getIsPropagationStopped())
+                event.preventDefault();
         };
-        return WheelManager;
+        return WheelWatcher;
     }(Core.Object));
-    Ui.WheelManager = WheelManager;
+    Ui.WheelWatcher = WheelWatcher;
 })(Ui || (Ui = {}));
 var Ui;
 (function (Ui) {
@@ -10734,7 +10677,10 @@ var Ui;
             if (init.inertia != undefined)
                 _this.inertia = init.inertia;
             _this.element.setTransformOrigin(0, 0, true);
-            _this.element.wheelchanged.connect(function (e) { return _this.onWheel(e); });
+            new Ui.WheelWatcher({
+                element: _this.element,
+                onchanged: function (e) { return _this.onWheel(e); }
+            });
             new ElementPointerManager({
                 element: _this.element,
                 onptrdowned: function (e) { return _this.onPointerDown(e); }
@@ -11215,7 +11161,10 @@ var Ui;
                 element: _this,
                 onptrdowned: function (e) { return _this.onPointerDown(e); }
             });
-            _this.wheelchanged.connect(function (e) { return _this.onWheel(e); });
+            new Ui.WheelWatcher({
+                element: _this,
+                onchanged: function (e) { return _this.onWheel(e); }
+            });
             if (init) {
                 if (init.inertia !== undefined)
                     _this.inertia = init.inertia;
@@ -11787,7 +11736,10 @@ var Ui;
                     _this.autoHideScrollbars();
                 }
             });
-            _this.wheelchanged.connect(function (e) { return _this.onWheel(e); });
+            new Ui.WheelWatcher({
+                element: _this,
+                onchanged: function (e) { return _this.onWheel(e); }
+            });
             _this.drawing.addEventListener('keydown', function (e) { return _this.onKeyDown(e); });
             _this.setScrollbarHorizontal(new Ui.Movable());
             _this.setScrollbarVertical(new Ui.Movable());
@@ -14932,7 +14884,7 @@ var Ui;
                 this.openClock.stop();
                 this.openClock = undefined;
                 if (this.isClosed) {
-                    Ui.App.current.removeDialog(this);
+                    Ui.App.removeDialog(this);
                     this.enable();
                 }
             }
@@ -14959,7 +14911,7 @@ var Ui;
         Popup.prototype.openPosOrElement = function (posX, posY) {
             var _this = this;
             if (this.isClosed) {
-                Ui.App.current.appendDialog(this);
+                Ui.App.appendDialog(this);
                 this.isClosed = false;
                 this.attachedElement = undefined;
                 this.posX = undefined;
@@ -15821,49 +15773,12 @@ var Ui;
         __extends(App, _super);
         function App(init) {
             var _this = _super.call(this, init) || this;
-            _this.updateTask = false;
             _this._loaded = false;
-            _this.focusElement = undefined;
             _this.arguments = undefined;
-            _this._ready = false;
-            _this.orientation = 0;
             _this.webApp = true;
             _this.lastArrangeHeight = 0;
-            _this.windowWidth = 0;
-            _this.windowHeight = 0;
-            _this.dialogsFocus = [];
             _this.resized = new Core.Events();
-            _this.ready = new Core.Events();
             _this.parentmessage = new Core.Events();
-            _this.orientationchanged = new Core.Events();
-            _this.update = function () {
-                var innerWidth = document.body.clientWidth;
-                var innerHeight = document.body.clientHeight;
-                _this.updateTask = false;
-                if ((_this.windowWidth !== innerWidth) || (_this.windowHeight !== innerHeight)) {
-                    _this.windowWidth = innerWidth;
-                    _this.windowHeight = innerHeight;
-                    _this.resized.fire({ target: _this, width: _this.windowWidth, height: _this.windowHeight });
-                    _this.invalidateLayout();
-                }
-                var layoutList = _this.layoutList;
-                _this.layoutList = undefined;
-                while (layoutList != undefined) {
-                    var current = layoutList;
-                    layoutList = layoutList.layoutNext;
-                    current.layoutValid = true;
-                    current.layoutNext = undefined;
-                    current.updateLayout(_this.windowWidth, _this.windowHeight);
-                }
-                var drawList = _this.drawList;
-                _this.drawList = undefined;
-                while (drawList != undefined) {
-                    var next = drawList.drawNext;
-                    drawList.drawNext = undefined;
-                    drawList.draw();
-                    drawList = next;
-                }
-            };
             var args;
             Ui.App.current = _this;
             _this.drawing.style.cursor = 'default';
@@ -15901,32 +15816,11 @@ var Ui;
             _this.contentBox = new Ui.VBox();
             _this.appendChild(_this.contentBox);
             _this.setTransformOrigin(0, 0);
-            window.addEventListener('load', function () { return _this.onWindowLoad(); });
-            window.addEventListener('resize', function (e) { return _this.onWindowResize(e); });
-            window.addEventListener('keyup', function (e) { return _this.onWindowKeyUp(e); });
-            window.addEventListener('beforeprint', function () { Ui.App.isPrint = true; _this.invalidateMeasure(); _this.update(); });
+            window.addEventListener('beforeprint', function () { Ui.App.isPrint = true; _this.invalidateMeasure(); App.update(); });
             window.addEventListener('afterprint', function () { Ui.App.isPrint = false; _this.invalidateMeasure(); });
-            window.addEventListener('focus', function (event) {
-                if (event.target == undefined)
-                    return;
-                _this.focusElement = event.target;
-            }, true);
-            window.addEventListener('blur', function (event) {
-                _this.focusElement = undefined;
-            }, true);
-            window.addEventListener('dragstart', function (event) { return event.preventDefault(); });
-            window.addEventListener('dragenter', function (event) { event.preventDefault(); return false; });
-            window.addEventListener('dragover', function (event) {
-                event.dataTransfer.dropEffect = 'none';
-                event.preventDefault();
-                return false;
-            });
-            window.addEventListener('drop', function (event) { event.preventDefault(); return false; });
-            if ('onorientationchange' in window)
-                window.addEventListener('orientationchange', function (e) { return _this.onOrientationChange(e); });
             window.addEventListener('message', function (e) { return _this.onMessage(e); });
-            if (window['loaded'] === true)
-                _this.onWindowLoad();
+            if (App.isReady)
+                _this.onReady();
             if (init) {
                 if (init.content !== undefined)
                     _this.content = init.content;
@@ -15938,7 +15832,7 @@ var Ui;
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(App.prototype, "onready", {
+        Object.defineProperty(App, "onready", {
             set: function (value) { this.ready.connect(value); },
             enumerable: true,
             configurable: true
@@ -15948,7 +15842,7 @@ var Ui;
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(App.prototype, "onorientationchanged", {
+        Object.defineProperty(App, "onorientationchanged", {
             set: function (value) { this.orientationchanged.connect(value); },
             enumerable: true,
             configurable: true
@@ -15959,9 +15853,9 @@ var Ui;
         App.prototype.getSelectionHandler = function () {
             return this.selection;
         };
-        App.prototype.forceInvalidateMeasure = function (element) {
+        App.forceInvalidateMeasure = function (element) {
             if (element === undefined)
-                element = this;
+                element = Ui.App.current;
             if (element instanceof Ui.Container)
                 for (var i = 0; i < element.children.length; i++)
                     this.forceInvalidateMeasure(element.children[i]);
@@ -15969,7 +15863,7 @@ var Ui;
             if ('invalidateTextMeasure' in element)
                 element.invalidateTextMeasure();
         };
-        App.prototype.requireFont = function (fontFamily, fontWeight) {
+        App.requireFont = function (fontFamily, fontWeight) {
             var _this = this;
             var fontKey = fontFamily + ':' + fontWeight;
             if (this.requireFonts === undefined)
@@ -15980,12 +15874,12 @@ var Ui;
                     test = Ui.Label.isFontAvailable(fontFamily, fontWeight);
                 this.requireFonts[fontKey] = test;
                 if (test)
-                    this.forceInvalidateMeasure(this);
+                    App.invalidateAllTextMeasure();
                 else if (this.isReady && !test && (this.testFontTask === undefined))
                     this.testFontTask = new Core.DelayedTask(0.25, function () { return _this.testRequireFonts(); });
             }
         };
-        App.prototype.testRequireFonts = function () {
+        App.testRequireFonts = function () {
             var _this = this;
             var allDone = true;
             for (var fontKey in this.requireFonts) {
@@ -15995,8 +15889,7 @@ var Ui;
                     test = Ui.Label.isFontAvailable(fontTab[0], fontTab[1]);
                     if (test) {
                         this.requireFonts[fontKey] = true;
-                        var app = this;
-                        this.forceInvalidateMeasure(this);
+                        App.invalidateAllTextMeasure();
                     }
                     else
                         allDone = false;
@@ -16007,14 +15900,36 @@ var Ui;
             else
                 this.testFontTask = undefined;
         };
-        App.prototype.checkWindowSize = function () {
+        App.invalidateAllTextMeasure = function () {
+            for (var _i = 0, _a = this.dialogs; _i < _a.length; _i++) {
+                var dialog = _a[_i];
+                App.forceInvalidateMeasure(dialog);
+            }
+            for (var _b = 0, _c = this.topLayers; _b < _c.length; _b++) {
+                var layer = _c[_b];
+                App.forceInvalidateMeasure(layer);
+            }
+            if (Ui.App.current)
+                App.forceInvalidateMeasure(Ui.App.current);
+        };
+        App.checkWindowSize = function () {
             var innerWidth = document.body.clientWidth;
             var innerHeight = document.body.clientHeight;
-            if ((innerWidth !== this.layoutWidth) || (innerHeight !== this.layoutHeight))
-                this.invalidateMeasure();
+            if ((innerWidth !== this.windowWidth) || (innerHeight !== this.windowWidth)) {
+                if (Ui.App.current)
+                    Ui.App.current.invalidateLayout();
+                for (var _i = 0, _a = Ui.App.dialogs; _i < _a.length; _i++) {
+                    var dialog = _a[_i];
+                    dialog.invalidateLayout();
+                }
+                for (var _b = 0, _c = Ui.App.topLayers; _b < _c.length; _b++) {
+                    var topLayer = _c[_b];
+                    topLayer.invalidateLayout();
+                }
+            }
         };
         App.prototype.getOrientation = function () {
-            return this.orientation;
+            return App.orientation;
         };
         App.prototype.measureCore = function (width, height) {
             var minWidth = 0;
@@ -16031,52 +15946,93 @@ var Ui;
         };
         App.prototype.onSelectionChange = function (selection) {
         };
-        App.prototype.onWindowLoad = function () {
-            var meta;
-            var style;
+        App.onWindowLoad = function () {
+            console.log("onWindowLoad");
             if (Core.Navigator.iPad || Core.Navigator.iPhone || Core.Navigator.Android) {
-                if (this.webApp) {
-                    meta = document.createElement('meta');
-                    meta.name = 'apple-mobile-web-app-capable';
-                    meta.content = 'yes';
-                    document.getElementsByTagName("head")[0].appendChild(meta);
-                    meta = document.createElement('meta');
-                    meta.name = 'apple-mobile-web-app-status-bar-style';
-                    meta.content = 'black';
-                    document.getElementsByTagName("head")[0].appendChild(meta);
-                    meta = document.createElement('meta');
-                    meta.name = 'mobile-web-app-capable';
-                    meta.content = 'yes';
-                    document.getElementsByTagName("head")[0].appendChild(meta);
+                if (Ui.App.current && Ui.App.current.webApp) {
+                    var meta_1 = document.createElement('meta');
+                    meta_1.name = 'apple-mobile-web-app-capable';
+                    meta_1.content = 'yes';
+                    document.getElementsByTagName("head")[0].appendChild(meta_1);
+                    meta_1 = document.createElement('meta');
+                    meta_1.name = 'apple-mobile-web-app-status-bar-style';
+                    meta_1.content = 'black';
+                    document.getElementsByTagName("head")[0].appendChild(meta_1);
+                    meta_1 = document.createElement('meta');
+                    meta_1.name = 'mobile-web-app-capable';
+                    meta_1.content = 'yes';
+                    document.getElementsByTagName("head")[0].appendChild(meta_1);
                 }
             }
-            meta = document.createElement('meta');
+            var meta = document.createElement('meta');
             meta.name = 'viewport';
             meta.content = 'width=device-width, initial-scale=1.0, minimum-scale=1';
             document.getElementsByTagName("head")[0].appendChild(meta);
             if (Core.Navigator.isWebkit) {
-                style = document.createElement('style');
+                var style = document.createElement('style');
                 style.type = 'text/css';
                 style.innerHTML = '* { -webkit-tap-highlight-color: rgba(0, 0, 0, 0); }';
                 document.getElementsByTagName('head')[0].appendChild(style);
             }
             else if (Core.Navigator.isIE) {
-                style = document.createElement('style');
+                var style = document.createElement('style');
                 style.type = 'text/css';
                 style.innerHTML =
                     '@-ms-viewport { width: device-width; } ' +
                         'body { -ms-content-zooming: none; } ';
                 document.getElementsByTagName('head')[0].appendChild(style);
             }
-            this._loaded = true;
-            this.onReady();
+            window.addEventListener('resize', function (e) { return App.onWindowResize(e); });
+            window.addEventListener('keyup', function (e) { return App.onWindowKeyUp(e); });
+            if ('onorientationchange' in window)
+                window.addEventListener('orientationchange', function (e) { return App.onOrientationChange(e); });
+            window.addEventListener('focus', function (event) {
+                if (event.target == undefined)
+                    return;
+                App.focusElement = event.target;
+            }, true);
+            window.addEventListener('blur', function (event) {
+                App.focusElement = undefined;
+            }, true);
+            window.addEventListener('dragstart', function (event) { return event.preventDefault(); });
+            window.addEventListener('dragenter', function (event) { event.preventDefault(); return false; });
+            window.addEventListener('dragover', function (event) {
+                event.dataTransfer.dropEffect = 'none';
+                event.preventDefault();
+                return false;
+            });
+            window.addEventListener('drop', function (event) { event.preventDefault(); return false; });
+            if ((this.requireFonts !== undefined) && (this.testFontTask === undefined))
+                this.testRequireFonts();
+            for (var _i = 0, _a = this.dialogs; _i < _a.length; _i++) {
+                var dialog = _a[_i];
+                document.body.appendChild(dialog.drawing);
+                dialog.isLoaded = true;
+                dialog.parentVisible = true;
+            }
+            for (var _b = 0, _c = this.topLayers; _b < _c.length; _b++) {
+                var layer = _c[_b];
+                document.body.appendChild(layer.drawing);
+                layer.isLoaded = true;
+                layer.parentVisible = true;
+            }
+            if (Ui.App.current)
+                Ui.App.current.onReady();
+            App.checkWindowSize();
+            if (App.updateTask === false) {
+                App.updateTask = true;
+                requestAnimationFrame(App.update);
+            }
+            new Ui.DragNativeManager();
+            this.ready.fire({ target: this });
+            this._ready = true;
         };
-        App.prototype.onWindowResize = function (event) {
+        App.onWindowResize = function (event) {
             this.checkWindowSize();
         };
-        App.prototype.onOrientationChange = function (event) {
+        App.onOrientationChange = function (event) {
             this.orientation = window.orientation;
-            this.orientationchanged.fire({ target: this, orientation: this.orientation });
+            this.orientationchanged.fire({ orientation: this.orientation });
             this.checkWindowSize();
         };
         Object.defineProperty(App.prototype, "content", {
@@ -16095,62 +16051,61 @@ var Ui;
             enumerable: true,
             configurable: true
         });
-        App.prototype.getFocusElement = function () {
-            return this.focusElement;
-        };
-        App.prototype.appendDialog = function (dialog) {
-            dialog.invalidateLayout();
-            if (this.dialogs === undefined) {
-                this.dialogs = new Ui.LBox();
-                this.dialogs.eventsHidden = true;
-                if (this.topLayers !== undefined)
-                    this.insertChildBefore(this.dialogs, this.topLayers);
-                else
-                    this.appendChild(this.dialogs);
-            }
+        App.appendDialog = function (dialog) {
             this.dialogsFocus.push(this.focusElement);
-            this.dialogs.append(dialog);
-            this.contentBox.disable();
-            for (var i = 0; i < this.dialogs.children.length - 1; i++)
-                this.dialogs.children[i].disable();
-        };
-        App.prototype.removeDialog = function (dialog) {
-            if (this.dialogs !== undefined) {
-                var dialogFocus = this.dialogsFocus.pop();
-                this.dialogs.remove(dialog);
-                dialog.layoutValid = true;
-                if (this.dialogs.children.length === 0) {
-                    this.removeChild(this.dialogs);
-                    this.dialogs = undefined;
-                    this.contentBox.enable();
-                }
-                else if (this.dialogs.lastChild)
-                    this.dialogs.lastChild.enable();
-                if (dialogFocus && dialogFocus.focus && (typeof (dialogFocus.focus) == 'function'))
-                    dialogFocus.focus();
+            this.dialogs.push(dialog);
+            if (Ui.App.current)
+                Ui.App.current.contentBox.disable();
+            for (var i = 0; i < this.dialogs.length - 1; i++)
+                this.dialogs[i].disable();
+            if (document.readyState == 'complete') {
+                if (App.topLayers.length > 0)
+                    document.body.insertBefore(dialog.drawing, this.topLayers[0].drawing);
+                else
+                    document.body.appendChild(dialog.drawing);
+                dialog.isLoaded = true;
+                dialog.parentVisible = true;
             }
+            dialog.invalidateLayout();
         };
-        App.prototype.appendTopLayer = function (layer) {
-            if (this.topLayers === undefined) {
-                this.topLayers = new Ui.LBox();
-                this.topLayers.eventsHidden = true;
-                this.appendChild(this.topLayers);
+        App.removeDialog = function (dialog) {
+            var dialogFocus = App.dialogsFocus.pop();
+            this.dialogs = this.dialogs.filter(function (d) { return d !== dialog; });
+            dialog.layoutValid = true;
+            dialog.isLoaded = false;
+            dialog.parentVisible = false;
+            if (document.readyState == 'complete')
+                document.body.removeChild(dialog.drawing);
+            if (this.dialogs.length === 0) {
+                if (Ui.App.current)
+                    Ui.App.current.contentBox.enable();
             }
-            this.topLayers.append(layer);
+            else if (this.dialogs.length > 0)
+                this.dialogs[this.dialogs.length - 1].enable();
+            if (dialogFocus && dialogFocus.focus && (typeof (dialogFocus.focus) == 'function'))
+                dialogFocus.focus();
         };
-        App.prototype.removeTopLayer = function (layer) {
-            if (this.topLayers !== undefined) {
-                this.topLayers.remove(layer);
-                if (this.topLayers.children.length === 0) {
-                    this.removeChild(this.topLayers);
-                    this.topLayers = undefined;
-                }
+        App.appendTopLayer = function (layer) {
+            layer.invalidateLayout();
+            this.topLayers.push(layer);
+            if (document.readyState == 'complete') {
+                document.body.appendChild(layer.drawing);
+                layer.isLoaded = true;
+                layer.parentVisible = true;
             }
+            layer.invalidateLayout();
+        };
+        App.removeTopLayer = function (layer) {
+            App.topLayers = App.topLayers.filter(function (l) { return l !== layer; });
+            if (document.readyState == 'complete')
+                document.body.removeChild(layer.drawing);
+            layer.isLoaded = false;
+            layer.parentVisible = false;
         };
         App.prototype.getArguments = function () {
             return this.arguments;
         };
-        Object.defineProperty(App.prototype, "isReady", {
+        Object.defineProperty(App, "isReady", {
             get: function () {
                 return this._ready;
             },
@@ -16158,40 +16113,32 @@ var Ui;
             configurable: true
         });
         App.prototype.onReady = function () {
-            if (this._loaded) {
-                document.documentElement.style.position = 'absolute';
-                document.documentElement.style.padding = '0px';
-                document.documentElement.style.margin = '0px';
-                document.documentElement.style.border = '0px solid black';
-                document.documentElement.style.width = '100%';
-                document.documentElement.style.height = '100%';
-                document.body.style.position = 'absolute';
-                document.body.style.overflow = 'hidden';
-                document.body.style.padding = '0px';
-                document.body.style.margin = '0px';
-                document.body.style.border = '0px solid black';
-                document.body.style.outline = 'none';
-                document.body.style.width = '100%';
-                document.body.style.height = '100%';
+            console.log(this + ".onReady");
+            document.documentElement.style.position = 'absolute';
+            document.documentElement.style.padding = '0px';
+            document.documentElement.style.margin = '0px';
+            document.documentElement.style.border = '0px solid black';
+            document.documentElement.style.width = '100%';
+            document.documentElement.style.height = '100%';
+            document.body.style.position = 'absolute';
+            document.body.style.overflow = 'hidden';
+            document.body.style.padding = '0px';
+            document.body.style.margin = '0px';
+            document.body.style.border = '0px solid black';
+            document.body.style.outline = 'none';
+            document.body.style.width = '100%';
+            document.body.style.height = '100%';
+            if (document.body.children.length > 0)
+                document.body.insertBefore(this.drawing, document.body.children[0]);
+            else
                 document.body.appendChild(this.drawing);
-                if ((this.requireFonts !== undefined) && (this.testFontTask === undefined))
-                    this.testRequireFonts();
-                this.isLoaded = true;
-                this.parentVisible = true;
-                this.ready.fire({ target: this });
-                this._ready = true;
-                if ((this.updateTask === false) && this._ready) {
-                    this.updateTask = true;
-                    requestAnimationFrame(this.update);
-                }
-                new Ui.WheelManager(this);
-                new Ui.DragNativeManager(this);
-            }
+            this.isLoaded = true;
+            this.parentVisible = true;
         };
-        App.prototype.onWindowKeyUp = function (event) {
+        App.onWindowKeyUp = function (event) {
             var key = event.which;
-            if ((key == 27) && (this.dialogs !== undefined) && (this.dialogs.children.length > 0)) {
-                var element = this.dialogs.children[this.dialogs.children.length - 1];
+            if ((key == 27) && (App.dialogs !== undefined) && (App.dialogs.length > 0)) {
+                var element = App.dialogs[App.dialogs.length - 1];
                 if (element instanceof Ui.Dialog) {
                     var dialog = element;
                     if (dialog.dialogSelection.watchers.length > 0)
@@ -16237,54 +16184,21 @@ var Ui;
             }
             return undefined;
         };
-        App.prototype.enqueueDraw = function (element) {
-            element.drawNext = this.drawList;
-            this.drawList = element;
-            if ((this.updateTask === false) && this._ready) {
-                this.updateTask = true;
-                setTimeout(this.update, 0);
+        App.enqueueDraw = function (element) {
+            element.drawNext = App.drawList;
+            App.drawList = element;
+            if (App.isReady && App.updateTask === false) {
+                App.updateTask = true;
+                setTimeout(App.update, 0);
             }
         };
-        App.prototype.enqueueLayout = function (element) {
-            element.layoutNext = this.layoutList;
-            this.layoutList = element;
-            if ((this.updateTask === false) && this._ready) {
-                this.updateTask = true;
-                requestAnimationFrame(this.update);
+        App.enqueueLayout = function (element) {
+            element.layoutNext = App.layoutList;
+            App.layoutList = element;
+            if (App.isReady && App.updateTask === false) {
+                App.updateTask = true;
+                requestAnimationFrame(App.update);
             }
-        };
-        App.prototype.handleScrolling = function (drawing) {
-            var _this = this;
-            this.ptrdowned.connect(function (event) {
-                var startOffsetX = drawing.scrollLeft;
-                var startOffsetY = drawing.scrollTop;
-                var watcher = event.pointer.watch(_this);
-                watcher.moved.connect(function () {
-                    if (!watcher.getIsCaptured()) {
-                        if (watcher.pointer.getIsMove()) {
-                            var direction = watcher.getDirection();
-                            var allowed = false;
-                            if (direction === 'left')
-                                allowed = (drawing.scrollLeft + drawing.clientWidth) < drawing.scrollWidth;
-                            else if (direction === 'right')
-                                allowed = drawing.scrollLeft > 0;
-                            else if (direction === 'bottom')
-                                allowed = drawing.scrollTop > 0;
-                            else if (direction === 'top')
-                                allowed = true;
-                            if (allowed)
-                                watcher.capture();
-                            else
-                                watcher.cancel();
-                        }
-                    }
-                    else {
-                        var delta = watcher.getDelta();
-                        drawing.scrollLeft = startOffsetX - delta.x;
-                        drawing.scrollTop = startOffsetY - delta.y;
-                    }
-                });
-            });
         };
         App.prototype.getElementsByClass = function (className) {
             var res = new Array();
@@ -16328,9 +16242,9 @@ var Ui;
         };
         App.prototype.arrangeCore = function (w, h) {
             if (Core.Navigator.Android && Core.Navigator.isWebkit) {
-                if ((this.focusElement != undefined) && ((this.focusElement.tagName === 'INPUT') || (this.focusElement.tagName === 'TEXTAREA') || (this.focusElement.contenteditable))) {
+                if ((App.focusElement != undefined) && ((App.focusElement.tagName === 'INPUT') || (App.focusElement.tagName === 'TEXTAREA') || (App.focusElement.contenteditable))) {
                     if (h - 100 > this.lastArrangeHeight)
-                        this.focusElement.blur();
+                        App.focusElement.blur();
                 }
             }
             this.lastArrangeHeight = h;
@@ -16363,13 +16277,64 @@ var Ui;
                 rootWindow = rootWindow.parent;
             return rootWindow;
         };
+        App.initialize = function () {
+            if (document.readyState == 'complete')
+                App.onWindowLoad();
+            else
+                window.addEventListener('load', function () { return App.onWindowLoad(); });
+        };
+        App.focusElement = undefined;
+        App._ready = false;
+        App.orientation = 0;
+        App.updateTask = false;
+        App.windowWidth = 0;
+        App.windowHeight = 0;
+        App.dialogs = [];
+        App.dialogsFocus = [];
+        App.topLayers = [];
+        App.ready = new Core.Events();
+        App.orientationchanged = new Core.Events();
+        App.update = function () {
+            var innerWidth = window.innerWidth;
+            var innerHeight = window.innerHeight;
+            App.updateTask = false;
+            if ((App.windowWidth !== innerWidth) || (App.windowHeight !== innerHeight)) {
+                App.windowWidth = innerWidth;
+                App.windowHeight = innerHeight;
+                if (Ui.App.current) {
+                    App.current.resized.fire({ target: App.current, width: App.windowWidth, height: App.windowHeight });
+                    App.current.invalidateLayout();
+                }
+                for (var _i = 0, _a = App.dialogs; _i < _a.length; _i++) {
+                    var dialog = _a[_i];
+                    dialog.invalidateLayout();
+                }
+            }
+            var layoutList = App.layoutList;
+            App.layoutList = undefined;
+            while (layoutList != undefined) {
+                var current = layoutList;
+                layoutList = layoutList.layoutNext;
+                current.layoutValid = true;
+                current.layoutNext = undefined;
+                current.updateLayout(App.windowWidth, App.windowHeight);
+            }
+            var drawList = App.drawList;
+            App.drawList = undefined;
+            while (drawList != undefined) {
+                var next = drawList.drawNext;
+                drawList.drawNext = undefined;
+                drawList.draw();
+                drawList = next;
+            }
+        };
         App.current = undefined;
         App.isPrint = false;
         return App;
     }(Ui.Container));
     Ui.App = App;
 })(Ui || (Ui = {}));
-window.addEventListener('load', function () { return window['loaded'] = true; });
+Ui.App.initialize();
 var Ui;
 (function (Ui) {
     var Form = (function (_super) {
@@ -16529,6 +16494,11 @@ var Ui;
             _this.buttonsVisible = false;
             _this.isClosed = true;
             _this.closed = new Core.Events();
+            _this.drawing.style.position = 'fixed';
+            _this.drawing.style.top = '0';
+            _this.drawing.style.bottom = '0';
+            _this.drawing.style.left = '0';
+            _this.drawing.style.right = '0';
             _this.dialogSelection = new Ui.Selection();
             _this.shadowGraphic = new Ui.Rectangle();
             new Ui.PressWatcher({
@@ -16624,7 +16594,7 @@ var Ui;
         Dialog.prototype.open = function () {
             var _this = this;
             if (this.isClosed) {
-                Ui.App.current.appendDialog(this);
+                Ui.App.appendDialog(this);
                 this.isClosed = false;
                 if (this.openClock == undefined) {
                     this.openClock = new Anim.Clock({
@@ -16665,7 +16635,7 @@ var Ui;
                     this.openClock.stop();
                 this.openClock = undefined;
                 if (this.isClosed) {
-                    Ui.App.current.removeDialog(this);
+                    Ui.App.removeDialog(this);
                     this.lbox.enable();
                 }
             }
@@ -17368,13 +17338,13 @@ var Ui;
         Toaster.prototype.appendToast = function (toast) {
             toast.newToast = true;
             if (this.children.length === 0)
-                Ui.App.current.appendTopLayer(this);
+                Ui.App.appendTopLayer(this);
             this.appendChild(toast);
         };
         Toaster.prototype.removeToast = function (toast) {
             this.removeChild(toast);
             if (this.children.length === 0)
-                Ui.App.current.removeTopLayer(this);
+                Ui.App.removeTopLayer(this);
         };
         Toaster.prototype.onArrangeTick = function (clock, progress, delta) {
             for (var i = 0; i < this.children.length; i++) {
@@ -17557,7 +17527,7 @@ var Ui;
             _this.ready = new Core.Events();
             _this.error = new Core.Events();
             _this.onAppReady = function () {
-                Ui.App.current.ready.disconnect(_this.onAppReady);
+                Ui.App.ready.disconnect(_this.onAppReady);
                 _this.onImageDelayReady();
             };
             _this.imageDrawing.addEventListener('contextmenu', function (event) { return event.preventDefault(); });
@@ -17649,8 +17619,8 @@ var Ui;
             }
         };
         Image.prototype.onImageDelayReady = function () {
-            if (!Ui.App.current.isReady)
-                Ui.App.current.ready.connect(this.onAppReady);
+            if (!Ui.App.isReady)
+                Ui.App.ready.connect(this.onAppReady);
             else {
                 this.loaddone = true;
                 if (document.body == undefined) {
@@ -22812,29 +22782,10 @@ var Ui;
             _this.contentBox.downed.connect(function () { return _this.autoShowScrollbars(); });
             _this.contentBox.inertiaended.connect(function () { return _this.autoHideScrollbars(); });
             _this.appendChild(_this.contentBox);
-            _this.ptrmoved.connect(function (event) {
-                if (!_this.isDisabled && !event.pointer.getIsDown() && (_this.overWatcher === undefined)) {
-                    _this.overWatcher = event.pointer.watch(_this);
-                    _this.isOver = true;
-                    _this.autoShowScrollbars();
-                    _this.overWatcher.moved.connect(function () {
-                        if (!_this.overWatcher.getIsInside())
-                            _this.overWatcher.cancel();
-                    });
-                    _this.overWatcher.downed.connect(function () {
-                        _this.overWatcher.cancel();
-                    });
-                    _this.overWatcher.upped.connect(function () {
-                        _this.overWatcher.cancel();
-                    });
-                    _this.overWatcher.cancelled.connect(function () {
-                        _this.overWatcher = undefined;
-                        _this.isOver = false;
-                        _this.autoHideScrollbars();
-                    });
-                }
+            new Ui.WheelWatcher({
+                element: _this,
+                onchanged: function (e) { return _this.onWheel(e); }
             });
-            _this.wheelchanged.connect(function (e) { return _this.onWheel(e); });
             if (init) {
                 if (init.loader !== undefined)
                     _this.loader = init.loader;
@@ -28168,7 +28119,10 @@ var Ui;
             _this.downed.connect(function (e) { return _this.onCarouselableDown(); });
             _this.upped.connect(function (e) { return _this.onCarouselableUp(e.target, e.speedX, e.speedY, e.deltaX, e.deltaY, e.cumulMove, e.abort); });
             _this.drawing.addEventListener('keydown', function (e) { return _this.onKeyDown(e); });
-            _this.wheelchanged.connect(function (e) { return _this.onWheel(e); });
+            new Ui.WheelWatcher({
+                element: _this,
+                onchanged: function (e) { return _this.onWheel(e); }
+            });
             if (init) {
                 if (init.autoPlay)
                     _this.autoPlay = init.autoPlay;

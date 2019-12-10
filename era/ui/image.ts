@@ -115,13 +115,13 @@ namespace Ui
         }
 
         private onAppReady = () => {
-            Ui.App.current.ready.disconnect(this.onAppReady);
+            Ui.App.ready.disconnect(this.onAppReady);
             this.onImageDelayReady();
         }
 
         private onImageDelayReady() {
-            if (!Ui.App.current.isReady)
-                Ui.App.current.ready.connect(this.onAppReady);
+            if (!Ui.App.isReady)
+                Ui.App.ready.connect(this.onAppReady);
             else {
                 this.loaddone = true;
                 if (document.body == undefined) {

@@ -160,9 +160,6 @@ namespace Ui {
 
             this._iconBox = new LBox();
 
-            //this.downed.connect(() => this.updateColors());
-            //this.upped.connect(() => this.updateColors());
-
             this.downed.connect((e) => {
                 if (this.background instanceof ButtonBackground) {
                     if (e.x != undefined && e.y != undefined) {

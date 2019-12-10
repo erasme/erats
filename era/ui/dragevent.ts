@@ -578,7 +578,7 @@ namespace Ui {
                 //                if (this.catcher !== undefined)
                 //                    document.body.removeChild(this.catcher);
 
-                let overElement = App.current.elementFromPoint(new Point(clientX, clientY));
+                let overElement = Element.elementFromPoint(new Point(clientX, clientY));
 
                 //                if (this.catcher !== undefined)
                 //                    document.body.appendChild(this.catcher);
@@ -851,19 +851,17 @@ namespace Ui {
     }
 
     export class DragNativeManager extends Core.Object {
-        app: App;
         dataTransfer: DragNativeDataTransfer;
         nativeTarget: any = undefined;
 
-        constructor(app: App) {
+        constructor() {
             super();
-            this.app = app;
             this.dataTransfer = new DragNativeDataTransfer();
 
-            this.app.drawing.addEventListener('dragover', (e) => this.onDragOver(e));
-            this.app.drawing.addEventListener('dragenter', (e) => this.onDragEnter(e));
-            this.app.drawing.addEventListener('dragleave', (e) => this.onDragLeave(e));
-            this.app.drawing.addEventListener('drop', (e) => this.onDrop(e));
+            window.addEventListener('dragover', (e) => this.onDragOver(e));
+            window.addEventListener('dragenter', (e) => this.onDragEnter(e));
+            window.addEventListener('dragleave', (e) => this.onDragLeave(e));
+            window.addEventListener('drop', (e) => this.onDrop(e));
         }
 
         protected onDragOver(event) {
@@ -871,7 +869,7 @@ namespace Ui {
             let point = new Point(event.clientX, event.clientY);
             this.dataTransfer.setPosition(point);
 
-            let overElement = this.app.elementFromPoint(point);
+            let overElement = Element.elementFromPoint(point);
 
             if (overElement !== undefined) {
                 let dragEvent = new DragEvent();

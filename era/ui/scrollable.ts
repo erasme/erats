@@ -58,7 +58,10 @@ namespace Ui
                 }
             });
 
-            this.wheelchanged.connect(e => this.onWheel(e));
+            new WheelWatcher({
+                element: this,
+                onchanged: (e) => this.onWheel(e)
+            });
             this.drawing.addEventListener('keydown', (e) => this.onKeyDown(e));
 
             this.setScrollbarHorizontal(new Movable());
