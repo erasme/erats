@@ -637,6 +637,7 @@ namespace Ui {
                             this.imageEffect.parent = App.current;
                             this.imageEffect.isLoaded = true;
                             this.imageEffect.parentVisible = true;
+                            this.imageEffect.style = Ui.App.style;
                             this.imageEffect.setParentDisabled(false);
 
                             let size = this.imageEffect.measure(0, 0);

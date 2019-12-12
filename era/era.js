@@ -6939,6 +6939,7 @@ var Ui;
                                 _this.imageEffect.parent = Ui.App.current;
                                 _this.imageEffect.isLoaded = true;
                                 _this.imageEffect.parentVisible = true;
+                                _this.imageEffect.style = Ui.App.style;
                                 _this.imageEffect.setParentDisabled(false);
                                 var size = _this.imageEffect.measure(0, 0);
                                 _this.imageEffect.arrange(-size.width + (_this.startX - _this.startImagePoint.x - ofs), -size.height + (_this.startY - _this.startImagePoint.y - ofs), size.width, size.height);

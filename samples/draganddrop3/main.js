@@ -35,6 +35,8 @@ var App = /** @class */ (function (_super) {
         });
         new Ui.DropableWatcher({
             element: drop,
+            onentered: function () { return drop.fill = 'orange'; },
+            onleaved: function () { return drop.fill = 'green'; },
             ondropped: function (w, d, e) { console.log('DROP ' + e); return true; },
             types: [
                 { type: Ui.Rectangle, effects: 'copy' }
