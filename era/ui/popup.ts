@@ -230,6 +230,16 @@ namespace Ui
             }
         }
 
+        invalidateArrange() {
+            super.invalidateArrange();
+            this.invalidateLayout();
+        }
+
+        invalidateMeasure() {
+            super.invalidateMeasure();
+            this.invalidateLayout();
+        }
+
         protected measureCore(width: number, height: number) {
             let constraintWidth = Math.max(width - 40, 0);
             let constraintHeight = Math.max(height - 40, 0);

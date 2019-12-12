@@ -3329,6 +3329,8 @@ declare namespace Ui {
         openElement(element: Element, position?: AttachBorder): void;
         private openPosOrElement;
         close(): void;
+        invalidateArrange(): void;
+        invalidateMeasure(): void;
         protected measureCore(width: number, height: number): {
             width: number;
             height: number;
@@ -3650,6 +3652,8 @@ declare namespace Ui {
         protected onKeyUp(event: any): void;
         protected onShadowPress(): void;
         protected onStyleChange(): void;
+        invalidateArrange(): void;
+        invalidateMeasure(): void;
         protected measureCore(width: number, height: number): Size;
         protected arrangeCore(width: number, height: number): void;
         static style: object;
@@ -3790,6 +3794,8 @@ declare namespace Ui {
         appendToast(toast: Toast): void;
         removeToast(toast: Toast): void;
         protected onArrangeTick(clock: any, progress: any, delta: any): void;
+        invalidateArrange(): void;
+        invalidateMeasure(): void;
         protected measureCore(width: number, height: number): {
             width: number;
             height: number;

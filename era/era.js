@@ -14959,6 +14959,14 @@ var Ui;
                 }
             }
         };
+        Popup.prototype.invalidateArrange = function () {
+            _super.prototype.invalidateArrange.call(this);
+            this.invalidateLayout();
+        };
+        Popup.prototype.invalidateMeasure = function () {
+            _super.prototype.invalidateMeasure.call(this);
+            this.invalidateLayout();
+        };
         Popup.prototype.measureCore = function (width, height) {
             var constraintWidth = Math.max(width - 40, 0);
             var constraintHeight = Math.max(height - 40, 0);
@@ -16535,6 +16543,7 @@ var Ui;
             _this.dialogSelection.changed.connect(function (e) { return _this.onDialogSelectionChange(e.target); });
             _this.drawing.addEventListener('keyup', function (e) { return _this.onKeyUp(e); });
             _this.cancelButton = new DialogCloseButton();
+            _this.onStyleChange();
             if (init) {
                 if (init.padding !== undefined)
                     _this.padding = init.padding;
@@ -16742,6 +16751,14 @@ var Ui;
         Dialog.prototype.onStyleChange = function () {
             this.shadowGraphic.fill = this.getStyleProperty('shadow');
             this.graphic.background = this.getStyleProperty('background');
+        };
+        Dialog.prototype.invalidateArrange = function () {
+            _super.prototype.invalidateArrange.call(this);
+            this.invalidateLayout();
+        };
+        Dialog.prototype.invalidateMeasure = function () {
+            _super.prototype.invalidateMeasure.call(this);
+            this.invalidateLayout();
         };
         Dialog.prototype.measureCore = function (width, height) {
             this.shadowGraphic.measure(width, height);
@@ -17331,8 +17348,10 @@ var Ui;
         __extends(Toaster, _super);
         function Toaster() {
             var _this = _super.call(this) || this;
-            _this.margin = 10;
             _this.eventsHidden = true;
+            _this.drawing.style.position = 'fixed';
+            _this.drawing.style.top = '0';
+            _this.drawing.style.left = '0';
             return _this;
         }
         Toaster.prototype.appendToast = function (toast) {
@@ -17359,6 +17378,14 @@ var Ui;
             if (progress === 1)
                 this.arrangeClock = undefined;
         };
+        Toaster.prototype.invalidateArrange = function () {
+            _super.prototype.invalidateArrange.call(this);
+            this.invalidateLayout();
+        };
+        Toaster.prototype.invalidateMeasure = function () {
+            _super.prototype.invalidateMeasure.call(this);
+            this.invalidateLayout();
+        };
         Toaster.prototype.measureCore = function (width, height) {
             var spacing = 10;
             var maxWidth = 0;
@@ -17371,10 +17398,11 @@ var Ui;
                     maxWidth = size.width;
             }
             totalHeight += Math.max(0, this.children.length - 1) * spacing;
-            return { width: maxWidth, height: totalHeight };
+            return { width: maxWidth + 10, height: totalHeight + 10 };
         };
         Toaster.prototype.arrangeCore = function (width, height) {
             var _this = this;
+            console.log(this + ".arrangeCore(" + width + ", " + height + ")");
             var spacing = 10;
             var y = 0;
             for (var i = 0; i < this.children.length; i++) {
@@ -17382,7 +17410,7 @@ var Ui;
                 child.lastLayoutX = child.layoutX;
                 child.lastLayoutY = child.layoutY;
                 y += child.measureHeight;
-                child.arrange(0, height - y, this.measureWidth, child.measureHeight);
+                child.arrange(10, height - (y + 10), this.measureWidth, child.measureHeight);
                 y += spacing;
             }
             if (this.arrangeClock === undefined) {
@@ -17449,7 +17477,7 @@ var Ui;
                     this.openClock.timeupdate.connect(function (e) { return _this.onOpenTick(e.target, e.progress, e.deltaTick); });
                     this.opacity = 0;
                 }
-                new Core.DelayedTask(2, function () { return _this.close(); });
+                new Core.DelayedTask(20, function () { return _this.close(); });
                 Ui.Toaster.appendToast(this);
             }
         };

@@ -222,6 +222,8 @@ namespace Ui {
 
             this.cancelButton = new DialogCloseButton();
 
+            this.onStyleChange();
+
             if (init) {
                 if (init.padding !== undefined)
                     this.padding = init.padding;
@@ -424,6 +426,16 @@ namespace Ui {
         protected onStyleChange(): void {
             this.shadowGraphic.fill = this.getStyleProperty('shadow');
             this.graphic.background = this.getStyleProperty('background');
+        }
+
+        invalidateArrange() {
+            super.invalidateArrange();
+            this.invalidateLayout();
+        }
+
+        invalidateMeasure() {
+            super.invalidateMeasure();
+            this.invalidateLayout();
         }
 
         protected measureCore(width: number, height: number): Size {
