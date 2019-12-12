@@ -55,6 +55,8 @@ namespace Ui
             let args;
 
             Ui.App.current = this;
+            if (App.style)
+                this.setParentStyle(App.style);
             this.drawing.style.cursor = 'default';
 
             this.selection = new Ui.Selection();
@@ -392,6 +394,8 @@ namespace Ui
         }
 
         static appendDialog(dialog: Element) {
+            if (App.style)
+                dialog.setParentStyle(App.style);
             this.dialogsFocus.push(this.focusElement);
             this.dialogs.push(dialog);
             if (Ui.App.current)
@@ -428,6 +432,8 @@ namespace Ui
         }
 
         static appendTopLayer(layer: Element) {
+            if (App.style)
+                layer.setParentStyle(App.style);
             layer.invalidateLayout();
             this.topLayers.push(layer);
             if (document.readyState == 'complete') {
@@ -558,6 +564,22 @@ namespace Ui
                 App.updateTask = true;
                 requestAnimationFrame(App.update);
             }
+        }
+
+        static _style: object | undefined;
+
+        static get style(): object | undefined {
+            return this._style;
+        }
+
+        static set style(style: object | undefined) {
+            this._style = style;
+            for (let dialog of this.dialogs)
+                dialog.setParentStyle(style);
+            for (let layer of this.topLayers)
+                layer.setParentStyle(style);
+            if (Ui.App.current)
+                Ui.App.current.setParentStyle(style);
         }
 
         getElementsByClass(className: Function) {

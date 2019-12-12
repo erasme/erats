@@ -15789,6 +15789,8 @@ var Ui;
             _this.parentmessage = new Core.Events();
             var args;
             Ui.App.current = _this;
+            if (App.style)
+                _this.setParentStyle(App.style);
             _this.drawing.style.cursor = 'default';
             _this.selection = new Ui.Selection();
             _this.selection.changed.connect(function (e) { return _this.onSelectionChange(e.target); });
@@ -16060,6 +16062,8 @@ var Ui;
             configurable: true
         });
         App.appendDialog = function (dialog) {
+            if (App.style)
+                dialog.setParentStyle(App.style);
             this.dialogsFocus.push(this.focusElement);
             this.dialogs.push(dialog);
             if (Ui.App.current)
@@ -16094,6 +16098,8 @@ var Ui;
                 dialogFocus.focus();
         };
         App.appendTopLayer = function (layer) {
+            if (App.style)
+                layer.setParentStyle(App.style);
             layer.invalidateLayout();
             this.topLayers.push(layer);
             if (document.readyState == 'complete') {
@@ -16208,6 +16214,26 @@ var Ui;
                 requestAnimationFrame(App.update);
             }
         };
+        Object.defineProperty(App, "style", {
+            get: function () {
+                return this._style;
+            },
+            set: function (style) {
+                this._style = style;
+                for (var _i = 0, _a = this.dialogs; _i < _a.length; _i++) {
+                    var dialog = _a[_i];
+                    dialog.setParentStyle(style);
+                }
+                for (var _b = 0, _c = this.topLayers; _b < _c.length; _b++) {
+                    var layer = _c[_b];
+                    layer.setParentStyle(style);
+                }
+                if (Ui.App.current)
+                    Ui.App.current.setParentStyle(style);
+            },
+            enumerable: true,
+            configurable: true
+        });
         App.prototype.getElementsByClass = function (className) {
             var res = new Array();
             var reqSearch = function (current) {
@@ -17402,7 +17428,6 @@ var Ui;
         };
         Toaster.prototype.arrangeCore = function (width, height) {
             var _this = this;
-            console.log(this + ".arrangeCore(" + width + ", " + height + ")");
             var spacing = 10;
             var y = 0;
             for (var i = 0; i < this.children.length; i++) {

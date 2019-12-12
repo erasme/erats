@@ -110,13 +110,13 @@ var App = /** @class */ (function (_super) {
         content.append(vbox, true);
         vbox.append(new Ui.Button({
             text: 'default', width: 200,
-            onpressed: function () { return _this.style = undefined; }
+            onpressed: function () { return Ui.App.style = undefined; }
         }));
         var _loop_1 = function (i) {
             var style = styles[i];
             vbox.append(new Ui.Button({
                 text: "style" + i, width: 200,
-                onpressed: function () { return _this.style = style; }
+                onpressed: function () { return Ui.App.style = style; }
             }));
         };
         for (var i = 0; i < styles.length; i++) {

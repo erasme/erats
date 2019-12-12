@@ -3522,6 +3522,9 @@ declare namespace Ui {
         findFocusableDiv(current: any): any;
         static enqueueDraw(element: Element): void;
         static enqueueLayout(element: Element): void;
+        static _style: object | undefined;
+        static get style(): object | undefined;
+        static set style(style: object | undefined);
         getElementsByClass(className: Function): Element[];
         getElementByDrawing(drawing: any): any;
         getInverseLayoutTransform(): Matrix;
