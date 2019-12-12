@@ -91,7 +91,11 @@ namespace Ui {
             this.titleLabel.text = title;
         }
 
-        setCancelButton(button: Pressable) {
+        getCancelButton(): Pressable | undefined {
+            return this.cancelButton;
+        }
+
+        setCancelButton(button: Pressable | undefined) {
             if (this.cancelButton !== undefined) {
                 if (this.cancelButton instanceof Pressable)
                     this.cancelButton.pressed.disconnect(this.onCancelPress);
@@ -360,11 +364,19 @@ namespace Ui {
                 this.buttonsBox.hide(true);
             }
         }
-    
+
+        get cancelButton(): Pressable | undefined {
+            return this.actionBox.getCancelButton();
+        }
+
         set cancelButton(button: Pressable | undefined) {
             this._cancelButton = button;
             this.actionBox.setCancelButton(button);
             this.updateButtonsBoxVisible();
+        }
+
+        get actionButtons(): Element[] {
+            return this.actionBox.getActionButtons();
         }
 
         set actionButtons(buttons: Element[]) {

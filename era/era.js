@@ -16493,6 +16493,9 @@ var Ui;
         DialogButtonBox.prototype.setTitle = function (title) {
             this.titleLabel.text = title;
         };
+        DialogButtonBox.prototype.getCancelButton = function () {
+            return this.cancelButton;
+        };
         DialogButtonBox.prototype.setCancelButton = function (button) {
             if (this.cancelButton !== undefined) {
                 if (this.cancelButton instanceof Ui.Pressable)
@@ -16710,6 +16713,9 @@ var Ui;
             }
         };
         Object.defineProperty(Dialog.prototype, "cancelButton", {
+            get: function () {
+                return this.actionBox.getCancelButton();
+            },
             set: function (button) {
                 this._cancelButton = button;
                 this.actionBox.setCancelButton(button);
@@ -16719,6 +16725,9 @@ var Ui;
             configurable: true
         });
         Object.defineProperty(Dialog.prototype, "actionButtons", {
+            get: function () {
+                return this.actionBox.getActionButtons();
+            },
             set: function (buttons) {
                 this._actionButtons = buttons;
                 this.actionBox.setActionButtons(buttons);
