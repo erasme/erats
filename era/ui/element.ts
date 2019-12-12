@@ -671,8 +671,7 @@ namespace Ui {
         set maxWidth(width: number | undefined) {
             if (this._maxWidth !== width) {
                 this._maxWidth = width;
-                if (this._layoutWidth > this._maxWidth)
-                    this.invalidateMeasure();
+                this.invalidateMeasure();
             }
         }
 
@@ -683,8 +682,7 @@ namespace Ui {
         set maxHeight(height: number | undefined) {
             if (this._maxWidth !== height) {
                 this._maxHeight = height;
-                if (this._layoutHeight > this._maxHeight)
-                    this.invalidateMeasure();
+                this.invalidateMeasure();
             }
         }
 

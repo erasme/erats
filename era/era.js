@@ -3616,8 +3616,7 @@ var Ui;
             set: function (width) {
                 if (this._maxWidth !== width) {
                     this._maxWidth = width;
-                    if (this._layoutWidth > this._maxWidth)
-                        this.invalidateMeasure();
+                    this.invalidateMeasure();
                 }
             },
             enumerable: true,
@@ -3630,8 +3629,7 @@ var Ui;
             set: function (height) {
                 if (this._maxWidth !== height) {
                     this._maxHeight = height;
-                    if (this._layoutHeight > this._maxHeight)
-                        this.invalidateMeasure();
+                    this.invalidateMeasure();
                 }
             },
             enumerable: true,
