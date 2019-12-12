@@ -1478,6 +1478,8 @@ namespace Ui {
                 this.setParentDisabled(this._parent.isDisabled);
                 this.parentVisible = this._parent.isVisible;
             }
+            else
+                this.setParentStyle(Ui.App.style);
             this.loaded.fire({ target: this });
         }
 
