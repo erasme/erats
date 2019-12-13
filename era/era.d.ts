@@ -340,18 +340,14 @@ declare namespace Core {
     class FilePostUploader extends Object {
         protected _file: File;
         protected _service: string;
-        protected reader: undefined;
         protected request: XMLHttpRequest;
-        protected binaryString: boolean;
         protected _responseText: string;
-        protected fileReader: FileReader;
-        protected boundary: string;
         protected _method: string;
-        protected fields: object;
+        protected formData: FormData;
         protected _isCompleted: boolean;
         protected _isSent: boolean;
         protected _lastStatus: number | undefined;
-        field: string;
+        protected field: string;
         protected loadedOctets: number;
         protected totalOctets: number;
         readonly progress: Events<{
@@ -383,7 +379,9 @@ declare namespace Core {
         get file(): File;
         set file(file: File);
         set service(service: string);
-        setField(name: any, value: any): void;
+        setField(name: string, value: string | Blob, fileName?: string): void;
+        appendField(name: string, value: string | Blob, fileName?: string): void;
+        deleteField(name: string): void;
         set arguments(args: object);
         set destination(destination: string);
         send(): void;
@@ -398,8 +396,6 @@ declare namespace Core {
         get loaded(): number;
         protected onStateChange(event: any): void;
         protected onUpdateProgress(event: any): void;
-        protected onFileReaderError(event: any): void;
-        protected onFileReaderLoad(event: any): void;
     }
 }
 declare namespace Anim {

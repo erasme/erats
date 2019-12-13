@@ -1682,7 +1682,6 @@ var Core;
         __extends(FilePostUploader, _super);
         function FilePostUploader(init) {
             var _this = _super.call(this) || this;
-            _this.binaryString = false;
             _this._method = 'POST';
             _this._isCompleted = false;
             _this._isSent = false;
@@ -1690,7 +1689,7 @@ var Core;
             _this.progress = new Core.Events();
             _this.completed = new Core.Events();
             _this.error = new Core.Events();
-            _this.fields = {};
+            _this.formData = new FormData();
             if (init) {
                 if (init.method !== undefined)
                     _this.method = init.method;
@@ -1752,12 +1751,28 @@ var Core;
             enumerable: true,
             configurable: true
         });
-        FilePostUploader.prototype.setField = function (name, value) {
-            this.fields[name] = value;
+        FilePostUploader.prototype.setField = function (name, value, fileName) {
+            this.formData.set(name, value, fileName);
+        };
+        FilePostUploader.prototype.appendField = function (name, value, fileName) {
+            this.formData.append(name, value, fileName);
+        };
+        FilePostUploader.prototype.deleteField = function (name) {
+            this.formData.delete(name);
         };
         Object.defineProperty(FilePostUploader.prototype, "arguments", {
             set: function (args) {
-                this.fields = args;
+                for (var key in args) {
+                    if (Array.isArray(args[key])) {
+                        for (var _i = 0, _a = args[key]; _i < _a.length; _i++) {
+                            var data = _a[_i];
+                            this.formData.append(key, data);
+                        }
+                    }
+                    else {
+                        this.formData.append(key, args[key]);
+                    }
+                }
             },
             enumerable: true,
             configurable: true
@@ -1771,39 +1786,15 @@ var Core;
         });
         FilePostUploader.prototype.send = function () {
             var _this = this;
-            var field;
             this._isSent = true;
-            if (Core.Navigator.supportFormData) {
-                var formData = new FormData();
-                for (field in this.fields) {
-                    formData.append(field, this.fields[field]);
-                }
-                formData.append(this.field, this._file);
-                this.request = new XMLHttpRequest();
-                if ('upload' in this.request)
-                    this.request.upload.addEventListener('progress', function (e) { return _this.onUpdateProgress(e); });
-                this.request.open(this._method, this._service);
-                this.request.send(formData);
-                this.request.onreadystatechange = function (event) { return _this.onStateChange(event); };
-            }
-            else {
-                this.fileReader = new FileReader();
-                this.request = new XMLHttpRequest();
-                if ('upload' in this.request)
-                    this.request.upload.addEventListener('progress', function (e) { return _this.onUpdateProgress(e); });
-                this.request.open(this._method, this._service);
-                this.boundary = '----';
-                var characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-                for (var i = 0; i < 16; i++)
-                    this.boundary += characters[Math.floor(Math.random() * characters.length)];
-                this.boundary += '----';
-                this.request.setRequestHeader("Content-Type", "multipart/form-data, boundary=" + this.boundary);
-                this.request.setRequestHeader("Content-Length", this._file.size.toString());
-                this.request.onreadystatechange = function (event) { return _this.onStateChange(event); };
-                this.fileReader.onload = function (event) { return _this.onFileReaderLoad(event); };
-                this.fileReader.onerror = function (event) { return _this.onFileReaderError(event); };
-                this.fileReader.readAsBinaryString(this._file);
-            }
+            if (this._file)
+                this.formData.append(this.field, this._file);
+            this.request = new XMLHttpRequest();
+            if ('upload' in this.request)
+                this.request.upload.addEventListener('progress', function (e) { return _this.onUpdateProgress(e); });
+            this.request.open(this._method, this._service);
+            this.request.send(this.formData);
+            this.request.onreadystatechange = function (event) { return _this.onStateChange(event); };
         };
         Object.defineProperty(FilePostUploader.prototype, "status", {
             get: function () {
@@ -1899,21 +1890,6 @@ var Core;
             this.loadedOctets = event.loaded;
             this.totalOctets = event.total;
             this.progress.fire({ target: this, loaded: event.loaded, total: event.total });
-        };
-        FilePostUploader.prototype.onFileReaderError = function (event) {
-            this.request.abort();
-            this.request = undefined;
-            this.error.fire({ target: this, status: event.status });
-            this.fileReader = undefined;
-        };
-        FilePostUploader.prototype.onFileReaderLoad = function (event) {
-            var body = '--' + this.boundary + '\r\n';
-            body += "Content-Disposition: form-data; name='" + this.field + "'; filename='" + this._file.name + "'\r\n";
-            body += 'Content-Type: ' + this._file.type + '\r\n\r\n';
-            body += event.target.result + '\r\n';
-            body += '--' + this.boundary + '--';
-            this.request.sendAsBinary(body);
-            this.fileReader = undefined;
         };
         return FilePostUploader;
     }(Core.Object));
