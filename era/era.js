@@ -3330,6 +3330,16 @@ var Ui;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(Element.prototype, "title", {
+            get: function () {
+                return this.drawing.getAttribute('title');
+            },
+            set: function (title) {
+                this.drawing.setAttribute('title', title);
+            },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(Element.prototype, "focusable", {
             get: function () {
                 return this._focusable;

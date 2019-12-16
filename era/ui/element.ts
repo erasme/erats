@@ -305,6 +305,20 @@ namespace Ui {
         }
 
         //
+        // Set a title for the current element
+        //
+        set title(title: string) {
+            this.drawing.setAttribute('title', title);
+        }
+
+        //
+        // Return the title of the current element
+        //
+        get title(): string {
+            return this.drawing.getAttribute('title') as string;
+        }
+
+        //
         // Return whether or not the current element can get the focus
         //
         get focusable(): boolean {
