@@ -1988,6 +1988,8 @@ declare namespace Ui {
             middleButton?: boolean;
         }) => void);
         constructor(init?: PressableInit);
+        set title(title: string);
+        get title(): string;
         get isDown(): boolean;
         set lock(lock: boolean);
         get lock(): boolean;

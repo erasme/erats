@@ -8831,6 +8831,16 @@ var Ui;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(Pressable.prototype, "title", {
+            get: function () {
+                return this.drawing.getAttribute('title');
+            },
+            set: function (title) {
+                this.drawing.setAttribute('title', title);
+            },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(Pressable.prototype, "isDown", {
             get: function () {
                 return this.pressWatcher.isDown;
