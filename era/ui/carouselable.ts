@@ -36,7 +36,10 @@ namespace Ui {
             this.downed.connect(e => this.onCarouselableDown());
             this.upped.connect(e => this.onCarouselableUp(e.target, e.speedX, e.speedY, e.deltaX, e.deltaY, e.cumulMove, e.abort));
             this.drawing.addEventListener('keydown', e => this.onKeyDown(e));
-            this.wheelchanged.connect(e => this.onWheel(e));
+            new WheelWatcher({
+                element: this,
+                onchanged: (e) => this.onWheel(e)
+            });
 
             if (init) {
                 if (init.autoPlay)

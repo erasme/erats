@@ -25,6 +25,8 @@ class App extends Ui.App {
 
         new Ui.DropableWatcher({
             element: drop,
+            onentered: () => drop.fill = 'orange',
+            onleaved: () => drop.fill = 'green',
             ondropped: (w, d, e) => { console.log('DROP ' + e); return true; },
             types: [
                 { type: Ui.Rectangle, effects: 'copy' }

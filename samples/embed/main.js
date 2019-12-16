@@ -1,0 +1,37 @@
+"use strict";
+/// <reference path="../../era/era.d.ts" />
+window.onload = function () {
+    var e1 = document.getElementById('e1');
+    var embed = new Ui.Embed(e1);
+    embed.content = new Ui.LBox().assign({
+        content: [
+            new Ui.Rectangle().assign({ fill: 'red', radius: 10 }),
+            new Ui.VBox().assign({
+                margin: 10, spacing: 10,
+                content: [
+                    new Ui.Button().assign({
+                        text: 'click 1',
+                        onpressed: function (e) {
+                            var p = e.target.pointFromWindow(new Ui.Point(e.x, e.y));
+                            console.log("press: " + e.x + ", " + e.y + " => " + p.x + ", " + p.y);
+                        }
+                    }),
+                    new Ui.Button().assign({
+                        text: 'click 2',
+                        onpressed: function () {
+                            new Ui.Dialog().assign({
+                                title: 'Test dialog',
+                                content: new Ui.Rectangle().assign({
+                                    fill: 'green',
+                                    margin: 20,
+                                    width: 200,
+                                    height: 150
+                                })
+                            }).open();
+                        }
+                    })
+                ]
+            })
+        ]
+    });
+};

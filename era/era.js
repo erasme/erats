@@ -710,6 +710,33 @@ if (!Math.log10) {
         return Math.log(x) * Math.LOG10E;
     };
 }
+var ResizeObserver;
+if (ResizeObserver == undefined) {
+    if (window.MutationObserver) {
+        ResizeObserver = function (callback) {
+            this.callback = callback;
+        };
+        ResizeObserver.prototype.observe = function (element) {
+            var _this = this;
+            if (this.elements == undefined)
+                this.elements = [];
+            var data = {
+                element: element,
+                width: 0, height: 0,
+            };
+            var observer = new MutationObserver(function (e) {
+                if ((data.width != data.element.offsetWidth) || (data.height != data.element.offsetHeight)) {
+                    data.width = data.element.offsetWidth;
+                    data.height = data.element.offsetHeight;
+                    _this.callback();
+                }
+            });
+            observer.observe(element, {
+                attributes: true
+            });
+        };
+    }
+}
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
@@ -1655,7 +1682,6 @@ var Core;
         __extends(FilePostUploader, _super);
         function FilePostUploader(init) {
             var _this = _super.call(this) || this;
-            _this.binaryString = false;
             _this._method = 'POST';
             _this._isCompleted = false;
             _this._isSent = false;
@@ -1663,7 +1689,7 @@ var Core;
             _this.progress = new Core.Events();
             _this.completed = new Core.Events();
             _this.error = new Core.Events();
-            _this.fields = {};
+            _this.formData = new FormData();
             if (init) {
                 if (init.method !== undefined)
                     _this.method = init.method;
@@ -1725,12 +1751,28 @@ var Core;
             enumerable: true,
             configurable: true
         });
-        FilePostUploader.prototype.setField = function (name, value) {
-            this.fields[name] = value;
+        FilePostUploader.prototype.setField = function (name, value, fileName) {
+            this.formData.set(name, value, fileName);
+        };
+        FilePostUploader.prototype.appendField = function (name, value, fileName) {
+            this.formData.append(name, value, fileName);
+        };
+        FilePostUploader.prototype.deleteField = function (name) {
+            this.formData.delete(name);
         };
         Object.defineProperty(FilePostUploader.prototype, "arguments", {
             set: function (args) {
-                this.fields = args;
+                for (var key in args) {
+                    if (Array.isArray(args[key])) {
+                        for (var _i = 0, _a = args[key]; _i < _a.length; _i++) {
+                            var data = _a[_i];
+                            this.formData.append(key, data);
+                        }
+                    }
+                    else {
+                        this.formData.append(key, args[key]);
+                    }
+                }
             },
             enumerable: true,
             configurable: true
@@ -1744,43 +1786,19 @@ var Core;
         });
         FilePostUploader.prototype.send = function () {
             var _this = this;
-            var field;
             this._isSent = true;
-            if (Core.Navigator.supportFormData) {
-                var formData = new FormData();
-                for (field in this.fields) {
-                    formData.append(field, this.fields[field]);
-                }
-                formData.append(this.field, this._file);
-                this.request = new XMLHttpRequest();
-                if ('upload' in this.request)
-                    this.request.upload.addEventListener('progress', function (e) { return _this.onUpdateProgress(e); });
-                this.request.open(this._method, this._service);
-                this.request.send(formData);
-                this.request.onreadystatechange = function (event) { return _this.onStateChange(event); };
-            }
-            else {
-                this.fileReader = new FileReader();
-                this.request = new XMLHttpRequest();
-                if ('upload' in this.request)
-                    this.request.upload.addEventListener('progress', function (e) { return _this.onUpdateProgress(e); });
-                this.request.open(this._method, this._service);
-                this.boundary = '----';
-                var characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-                for (var i = 0; i < 16; i++)
-                    this.boundary += characters[Math.floor(Math.random() * characters.length)];
-                this.boundary += '----';
-                this.request.setRequestHeader("Content-Type", "multipart/form-data, boundary=" + this.boundary);
-                this.request.setRequestHeader("Content-Length", this._file.size.toString());
-                this.request.onreadystatechange = function (event) { return _this.onStateChange(event); };
-                this.fileReader.onload = function (event) { return _this.onFileReaderLoad(event); };
-                this.fileReader.onerror = function (event) { return _this.onFileReaderError(event); };
-                this.fileReader.readAsBinaryString(this._file);
-            }
+            if (this._file)
+                this.formData.append(this.field, this._file);
+            this.request = new XMLHttpRequest();
+            if ('upload' in this.request)
+                this.request.upload.addEventListener('progress', function (e) { return _this.onUpdateProgress(e); });
+            this.request.open(this._method, this._service);
+            this.request.send(this.formData);
+            this.request.onreadystatechange = function (event) { return _this.onStateChange(event); };
         };
         Object.defineProperty(FilePostUploader.prototype, "status", {
             get: function () {
-                return this.request.status;
+                return this.request ? this.request.status : this._lastStatus;
             },
             enumerable: true,
             configurable: true
@@ -1854,6 +1872,7 @@ var Core;
             configurable: true
         });
         FilePostUploader.prototype.onStateChange = function (event) {
+            this._lastStatus = this.request.status;
             if (this.request.readyState == 4) {
                 this._isCompleted = true;
                 if (this.request.status == 200) {
@@ -1871,21 +1890,6 @@ var Core;
             this.loadedOctets = event.loaded;
             this.totalOctets = event.total;
             this.progress.fire({ target: this, loaded: event.loaded, total: event.total });
-        };
-        FilePostUploader.prototype.onFileReaderError = function (event) {
-            this.request.abort();
-            this.request = undefined;
-            this.error.fire({ target: this, status: event.status });
-            this.fileReader = undefined;
-        };
-        FilePostUploader.prototype.onFileReaderLoad = function (event) {
-            var body = '--' + this.boundary + '\r\n';
-            body += "Content-Disposition: form-data; name='" + this.field + "'; filename='" + this._file.name + "'\r\n";
-            body += 'Content-Type: ' + this._file.type + '\r\n\r\n';
-            body += event.target.result + '\r\n';
-            body += '--' + this.boundary + '--';
-            this.request.sendAsBinary(body);
-            this.fileReader = undefined;
         };
         return FilePostUploader;
     }(Core.Object));
@@ -3121,7 +3125,6 @@ var Ui;
             _this.transformOriginY = 0.5;
             _this.transformOriginAbsolute = false;
             _this._opacity = 1;
-            _this.parentOpacity = 1;
             _this.focused = new Core.Events();
             _this.blurred = new Core.Events();
             _this.loaded = new Core.Events();
@@ -3130,11 +3133,6 @@ var Ui;
             _this.disabled = new Core.Events();
             _this.visible = new Core.Events();
             _this.hidden = new Core.Events();
-            _this.ptrdowned = new Core.Events();
-            _this.ptrmoved = new Core.Events();
-            _this.ptrupped = new Core.Events();
-            _this.ptrcanceled = new Core.Events();
-            _this.wheelchanged = new Core.Events();
             _this.dragover = new Core.Events();
             _this.onMouseDownFocus = function (event) {
                 _this.isMouseDownFocus = true;
@@ -3261,31 +3259,6 @@ var Ui;
         });
         Object.defineProperty(Element.prototype, "onhidden", {
             set: function (value) { this.hidden.connect(value); },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Element.prototype, "onptrdowned", {
-            set: function (value) { this.ptrdowned.connect(value); },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Element.prototype, "onptrmoved", {
-            set: function (value) { this.ptrmoved.connect(value); },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Element.prototype, "onptrupped", {
-            set: function (value) { this.ptrupped.connect(value); },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Element.prototype, "onptrcanceled", {
-            set: function (value) { this.ptrcanceled.connect(value); },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Element.prototype, "onwheelchanged", {
-            set: function (value) { this.wheelchanged.connect(value); },
             enumerable: true,
             configurable: true
         });
@@ -3455,8 +3428,7 @@ var Ui;
             this.arrangeValid = false;
             if (this.layoutValid) {
                 this.layoutValid = false;
-                if (Ui.App.current)
-                    Ui.App.current.enqueueLayout(this);
+                Ui.App.enqueueLayout(this);
             }
         };
         Element.prototype.onChildInvalidateMeasure = function (child, event) {
@@ -3467,8 +3439,7 @@ var Ui;
             this._layoutHeight = height;
             this.layoutValid = true;
             this.layoutCore();
-            this.layoutValid = this.arrangeValid && this.measureValid;
-            if (!this.layoutValid)
+            if (!this.arrangeValid || !this.measureValid)
                 this.invalidateLayout();
         };
         Element.prototype.layoutCore = function () {
@@ -3580,11 +3551,9 @@ var Ui;
         Element.prototype.drawCore = function () {
         };
         Element.prototype.invalidateDraw = function () {
-            if (Ui.App.current === undefined)
-                return;
             if (this.drawValid) {
                 this.drawValid = false;
-                Ui.App.current.enqueueDraw(this);
+                Ui.App.enqueueDraw(this);
             }
         };
         Element.prototype.renderDrawing = function () {
@@ -3623,8 +3592,7 @@ var Ui;
             set: function (width) {
                 if (this._maxWidth !== width) {
                     this._maxWidth = width;
-                    if (this._layoutWidth > this._maxWidth)
-                        this.invalidateMeasure();
+                    this.invalidateMeasure();
                 }
             },
             enumerable: true,
@@ -3637,8 +3605,7 @@ var Ui;
             set: function (height) {
                 if (this._maxWidth !== height) {
                     this._maxHeight = height;
-                    if (this._layoutHeight > this._maxHeight)
-                        this.invalidateMeasure();
+                    this.invalidateMeasure();
                 }
             },
             enumerable: true,
@@ -3875,12 +3842,6 @@ var Ui;
             enumerable: true,
             configurable: true
         });
-        Element.prototype.elementFromPoint = function (point) {
-            if (!this._eventsHidden && this.isVisible && this.getIsInside(point))
-                return this;
-            else
-                return undefined;
-        };
         Object.defineProperty(Element.prototype, "measureWidth", {
             get: function () {
                 return this.collapse ? 0 : this._measureWidth;
@@ -4328,6 +4289,8 @@ var Ui;
                 this.setParentDisabled(this._parent.isDisabled);
                 this.parentVisible = this._parent.isVisible;
             }
+            else
+                this.setParentStyle(Ui.App.style);
             this.loaded.fire({ target: this });
         };
         Element.prototype.onUnload = function () {
@@ -4350,7 +4313,13 @@ var Ui;
             return Ui.Element.transformToWindow(element).inverse();
         };
         Element.elementFromPoint = function (point) {
-            return Ui.App.current.elementFromPoint(point);
+            var element = document.elementFromPoint(point.x, point.y);
+            while (element) {
+                if (element.data && element.data instanceof Element)
+                    return element.data;
+                element = element.parentElement;
+            }
+            return undefined;
         };
         Element.getIsDrawingChildOf = function (drawing, parent) {
             var current = drawing;
@@ -4539,25 +4508,6 @@ var Ui;
                         return res;
                 }
             }
-            return undefined;
-        };
-        Container.prototype.elementFromPoint = function (point) {
-            if (!this.isVisible)
-                return undefined;
-            var p = point.multiply(this.getLayoutTransform());
-            var isInside = ((p.x >= 0) && (p.x <= this.layoutWidth) &&
-                (p.y >= 0) && (p.y <= this.layoutHeight));
-            if (this.clipToBounds && !isInside)
-                return undefined;
-            if (this._children != undefined) {
-                for (var i = this._children.length - 1; i >= 0; i--) {
-                    var found = this._children[i].elementFromPoint(p);
-                    if (found != undefined)
-                        return found;
-                }
-            }
-            if (!this.eventsHidden && isInside)
-                return this;
             return undefined;
         };
         Container.prototype.onLoad = function () {
@@ -6436,7 +6386,7 @@ var Ui;
             for (var i = 0; i < watchers.length; i++)
                 watchers[i].move();
             if (this.captureWatcher === undefined) {
-                var target = Ui.App.current.elementFromPoint(new Ui.Point(this.x, this.y));
+                var target = Ui.Element.elementFromPoint(new Ui.Point(this.x, this.y));
                 if (target != undefined) {
                     var pointerEvent = new EmuPointerEvent('ptrmoved', this);
                     pointerEvent.dispatchEvent(target);
@@ -6486,7 +6436,7 @@ var Ui;
             var watchers = this.watchers.slice();
             for (var i = 0; i < watchers.length; i++)
                 watchers[i].down();
-            var target = Ui.App.current.elementFromPoint(new Ui.Point(this.x, this.y));
+            var target = Ui.Element.elementFromPoint(new Ui.Point(this.x, this.y));
             var pointerEvent = new EmuPointerEvent('ptrdowned', this);
             if (target !== undefined)
                 pointerEvent.dispatchEvent(target);
@@ -6501,7 +6451,7 @@ var Ui;
             this.buttons = 0;
             var pointerEvent = new EmuPointerEvent('ptrupped', this);
             if (this.captureWatcher === undefined) {
-                var target = Ui.App.current.elementFromPoint(new Ui.Point(this.x, this.y));
+                var target = Ui.Element.elementFromPoint(new Ui.Point(this.x, this.y));
                 if (target != undefined)
                     pointerEvent.dispatchEvent(target);
             }
@@ -6922,7 +6872,7 @@ var Ui;
                     _this.x = clientX;
                     _this.y = clientY;
                     document.body.removeChild(_this.image);
-                    var overElement = Ui.App.current.elementFromPoint(new Ui.Point(clientX, clientY));
+                    var overElement = Ui.Element.elementFromPoint(new Ui.Point(clientX, clientY));
                     document.body.appendChild(_this.image);
                     deltaX = clientX - _this.startX;
                     deltaY = clientY - _this.startY;
@@ -6965,6 +6915,7 @@ var Ui;
                                 _this.imageEffect.parent = Ui.App.current;
                                 _this.imageEffect.isLoaded = true;
                                 _this.imageEffect.parentVisible = true;
+                                _this.imageEffect.style = Ui.App.style;
                                 _this.imageEffect.setParentDisabled(false);
                                 var size = _this.imageEffect.measure(0, 0);
                                 _this.imageEffect.arrange(-size.width + (_this.startX - _this.startImagePoint.x - ofs), -size.height + (_this.startY - _this.startImagePoint.y - ofs), size.width, size.height);
@@ -7480,22 +7431,21 @@ var Ui;
     Ui.DragNativeDataTransfer = DragNativeDataTransfer;
     var DragNativeManager = (function (_super) {
         __extends(DragNativeManager, _super);
-        function DragNativeManager(app) {
+        function DragNativeManager() {
             var _this = _super.call(this) || this;
             _this.nativeTarget = undefined;
-            _this.app = app;
             _this.dataTransfer = new DragNativeDataTransfer();
-            _this.app.drawing.addEventListener('dragover', function (e) { return _this.onDragOver(e); });
-            _this.app.drawing.addEventListener('dragenter', function (e) { return _this.onDragEnter(e); });
-            _this.app.drawing.addEventListener('dragleave', function (e) { return _this.onDragLeave(e); });
-            _this.app.drawing.addEventListener('drop', function (e) { return _this.onDrop(e); });
+            window.addEventListener('dragover', function (e) { return _this.onDragOver(e); });
+            window.addEventListener('dragenter', function (e) { return _this.onDragEnter(e); });
+            window.addEventListener('dragleave', function (e) { return _this.onDragLeave(e); });
+            window.addEventListener('drop', function (e) { return _this.onDrop(e); });
             return _this;
         }
         DragNativeManager.prototype.onDragOver = function (event) {
             this.dataTransfer.setDataTransfer(event.dataTransfer);
             var point = new Ui.Point(event.clientX, event.clientY);
             this.dataTransfer.setPosition(point);
-            var overElement = this.app.elementFromPoint(point);
+            var overElement = Ui.Element.elementFromPoint(point);
             if (overElement !== undefined) {
                 var dragEvent = new DragEvent();
                 dragEvent.setType('dragover');
@@ -7638,16 +7588,17 @@ var Ui;
         return WheelEvent;
     }(Ui.Event));
     Ui.WheelEvent = WheelEvent;
-    var WheelManager = (function (_super) {
-        __extends(WheelManager, _super);
-        function WheelManager(app) {
+    var WheelWatcher = (function (_super) {
+        __extends(WheelWatcher, _super);
+        function WheelWatcher(init) {
             var _this = _super.call(this) || this;
-            _this.app = app;
-            _this.app.drawing.addEventListener('mousewheel', function (e) { return _this.onMouseWheel(e); });
-            _this.app.drawing.addEventListener('DOMMouseScroll', function (e) { return _this.onMouseWheel(e); });
+            _this.element = init.element;
+            _this.onchanged = init.onchanged;
+            _this.element.drawing.addEventListener('mousewheel', function (e) { return _this.onMouseWheel(e); });
+            _this.element.drawing.addEventListener('DOMMouseScroll', function (e) { return _this.onMouseWheel(e); });
             return _this;
         }
-        WheelManager.prototype.onMouseWheel = function (event) {
+        WheelWatcher.prototype.onMouseWheel = function (event) {
             var deltaX = 0;
             var deltaY = 0;
             if ((event.wheelDeltaX != undefined) && (event.wheelDeltaY != undefined)) {
@@ -7658,25 +7609,22 @@ var Ui;
                 deltaY = -event.wheelDelta / 2;
             else if (event.detail != undefined)
                 deltaY = event.detail * 20;
-            var target = Ui.App.current.elementFromPoint(new Ui.Point(event.clientX, event.clientY));
-            if (target !== undefined) {
-                var wheelEvent = new Ui.WheelEvent();
-                wheelEvent.setClientX(event.clientX);
-                wheelEvent.setClientY(event.clientY);
-                wheelEvent.setDeltaX(deltaX);
-                wheelEvent.setDeltaY(deltaY);
-                wheelEvent.setCtrlKey(event.ctrlKey);
-                wheelEvent.setAltKey(event.altKey);
-                wheelEvent.setShiftKey(event.shiftKey);
-                wheelEvent.setMetaKey(event.metaKey);
-                wheelEvent.dispatchEvent(target);
-                if (wheelEvent.getIsPropagationStopped())
-                    event.preventDefault();
-            }
+            var wheelEvent = new Ui.WheelEvent();
+            wheelEvent.setClientX(event.clientX);
+            wheelEvent.setClientY(event.clientY);
+            wheelEvent.setDeltaX(deltaX);
+            wheelEvent.setDeltaY(deltaY);
+            wheelEvent.setCtrlKey(event.ctrlKey);
+            wheelEvent.setAltKey(event.altKey);
+            wheelEvent.setShiftKey(event.shiftKey);
+            wheelEvent.setMetaKey(event.metaKey);
+            this.onchanged(wheelEvent);
+            if (wheelEvent.getIsPropagationStopped())
+                event.preventDefault();
         };
-        return WheelManager;
+        return WheelWatcher;
     }(Core.Object));
-    Ui.WheelManager = WheelManager;
+    Ui.WheelWatcher = WheelWatcher;
 })(Ui || (Ui = {}));
 var Ui;
 (function (Ui) {
@@ -10706,7 +10654,10 @@ var Ui;
             if (init.inertia != undefined)
                 _this.inertia = init.inertia;
             _this.element.setTransformOrigin(0, 0, true);
-            _this.element.wheelchanged.connect(function (e) { return _this.onWheel(e); });
+            new Ui.WheelWatcher({
+                element: _this.element,
+                onchanged: function (e) { return _this.onWheel(e); }
+            });
             new ElementPointerManager({
                 element: _this.element,
                 onptrdowned: function (e) { return _this.onPointerDown(e); }
@@ -11187,7 +11138,10 @@ var Ui;
                 element: _this,
                 onptrdowned: function (e) { return _this.onPointerDown(e); }
             });
-            _this.wheelchanged.connect(function (e) { return _this.onWheel(e); });
+            new Ui.WheelWatcher({
+                element: _this,
+                onchanged: function (e) { return _this.onWheel(e); }
+            });
             if (init) {
                 if (init.inertia !== undefined)
                     _this.inertia = init.inertia;
@@ -11759,7 +11713,10 @@ var Ui;
                     _this.autoHideScrollbars();
                 }
             });
-            _this.wheelchanged.connect(function (e) { return _this.onWheel(e); });
+            new Ui.WheelWatcher({
+                element: _this,
+                onchanged: function (e) { return _this.onWheel(e); }
+            });
             _this.drawing.addEventListener('keydown', function (e) { return _this.onKeyDown(e); });
             _this.setScrollbarHorizontal(new Ui.Movable());
             _this.setScrollbarVertical(new Ui.Movable());
@@ -12250,9 +12207,11 @@ var Ui;
             this.scrollDiv.style.position = 'absolute';
             this.scrollDiv.style.top = '0px';
             this.scrollDiv.style.left = '0px';
-            this.scrollDiv.style.right = "-" + NativeScrollableContent.nativeScrollBarWidth + "px";
-            this.scrollDiv.style.bottom = "-" + NativeScrollableContent.nativeScrollBarHeight + "px";
+            this.scrollDiv.style.right = "0px";
+            this.scrollDiv.style.bottom = "0px";
             this.scrollDiv.style.overflow = 'scroll';
+            if (!Core.Navigator.iOs && !Core.Navigator.Android)
+                this.scrollDiv.classList.add('hide-scrollbar');
             this.scrollDiv.style.setProperty('will-change', 'transform');
             this.scrollDiv.style.setProperty('transform', 'translateZ(0)');
             this.scrollDiv.style.setProperty('-webkit-overflow-scrolling', 'touch');
@@ -12331,19 +12290,9 @@ var Ui;
             return _super.prototype.getLayoutTransform.call(this).multiply(Ui.Matrix.createTranslate(this.scrollDiv.scrollLeft, this.scrollDiv.scrollTop));
         };
         NativeScrollableContent.initialize = function () {
-            var div = document.createElement('div');
-            div.style.position = 'absolute';
-            div.style.display = 'block';
-            div.style.opacity = '0';
-            div.style.width = '100px';
-            div.style.height = '100px';
-            div.style.overflow = 'scroll';
-            if (document.body == null)
-                document.body = document.createElement('body');
-            document.body.appendChild(div);
-            NativeScrollableContent.nativeScrollBarWidth = 100 - div.clientWidth;
-            NativeScrollableContent.nativeScrollBarHeight = 100 - div.clientHeight;
-            document.body.removeChild(div);
+            var style = document.createElement('style');
+            style.innerHTML = "\n            .hide-scrollbar {\n                scrollbar-width: none;\n                -ms-overflow-style: none;\n            }\n            .hide-scrollbar::-webkit-scrollbar {\n                display: none;\n            }\n            ";
+            document.head.appendChild(style);
         };
         NativeScrollableContent.nativeScrollBarWidth = 0;
         NativeScrollableContent.nativeScrollBarHeight = 0;
@@ -12489,7 +12438,7 @@ var Ui;
                 this.scrollbarVerticalBox.upped.connect(this.autoHideScrollbars);
                 this.scrollbarVerticalBox.moved.connect(this.onScrollbarVerticalMove);
                 this.appendChild(this.scrollbarVerticalBox);
-                if (NativeScrollableContent.nativeScrollBarHeight == 0)
+                if (Core.Navigator.iOs || Core.Navigator.Android)
                     this.scrollbarVerticalBox.hide(true);
             }
         };
@@ -12508,7 +12457,7 @@ var Ui;
                 this.scrollbarHorizontalBox.upped.connect(this.autoHideScrollbars);
                 this.scrollbarHorizontalBox.moved.connect(this.onScrollbarHorizontalMove);
                 this.appendChild(this.scrollbarHorizontalBox);
-                if (NativeScrollableContent.nativeScrollBarWidth == 0)
+                if (Core.Navigator.iOs || Core.Navigator.Android)
                     this.scrollbarHorizontalBox.hide(true);
             }
         };
@@ -12632,7 +12581,7 @@ var Ui;
                 if (this.scrollbarVerticalBox) {
                     this.scrollbarVerticalHeight = Math.max((this.viewHeight / this.contentHeight) * this.viewHeight, this.scrollbarVerticalBox.measureHeight);
                     this.scrollbarVerticalBox.arrange(this.layoutWidth - this.scrollbarVerticalBox.measureWidth, 0, this.scrollbarVerticalBox.measureWidth, this.scrollbarVerticalHeight);
-                    if (NativeScrollableContent.nativeScrollBarHeight != 0)
+                    if (!Core.Navigator.iOs && !Core.Navigator.Android)
                         this.scrollbarVerticalBox.show();
                 }
             }
@@ -12645,7 +12594,7 @@ var Ui;
                 if (this.scrollbarHorizontalBox) {
                     this.scrollbarHorizontalWidth = Math.max((this.viewWidth / this.contentWidth) * this.viewWidth, this.scrollbarHorizontalBox.measureWidth);
                     this.scrollbarHorizontalBox.arrange(0, this.layoutHeight - this.scrollbarHorizontalBox.measureHeight, this.scrollbarHorizontalWidth, this.scrollbarHorizontalBox.measureHeight);
-                    if (NativeScrollableContent.nativeScrollBarWidth != 0)
+                    if (!Core.Navigator.iOs && !Core.Navigator.Android)
                         this.scrollbarHorizontalBox.show();
                 }
             }
@@ -14912,7 +14861,7 @@ var Ui;
                 this.openClock.stop();
                 this.openClock = undefined;
                 if (this.isClosed) {
-                    Ui.App.current.removeDialog(this);
+                    Ui.App.removeDialog(this);
                     this.enable();
                 }
             }
@@ -14939,7 +14888,7 @@ var Ui;
         Popup.prototype.openPosOrElement = function (posX, posY) {
             var _this = this;
             if (this.isClosed) {
-                Ui.App.current.appendDialog(this);
+                Ui.App.appendDialog(this);
                 this.isClosed = false;
                 this.attachedElement = undefined;
                 this.posX = undefined;
@@ -14986,6 +14935,14 @@ var Ui;
                     this.openClock.begin();
                 }
             }
+        };
+        Popup.prototype.invalidateArrange = function () {
+            _super.prototype.invalidateArrange.call(this);
+            this.invalidateLayout();
+        };
+        Popup.prototype.invalidateMeasure = function () {
+            _super.prototype.invalidateMeasure.call(this);
+            this.invalidateLayout();
         };
         Popup.prototype.measureCore = function (width, height) {
             var constraintWidth = Math.max(width - 40, 0);
@@ -15801,51 +15758,16 @@ var Ui;
         __extends(App, _super);
         function App(init) {
             var _this = _super.call(this, init) || this;
-            _this.updateTask = false;
             _this._loaded = false;
-            _this.focusElement = undefined;
             _this.arguments = undefined;
-            _this._ready = false;
-            _this.orientation = 0;
             _this.webApp = true;
             _this.lastArrangeHeight = 0;
-            _this.windowWidth = 0;
-            _this.windowHeight = 0;
-            _this.dialogsFocus = [];
             _this.resized = new Core.Events();
-            _this.ready = new Core.Events();
             _this.parentmessage = new Core.Events();
-            _this.orientationchanged = new Core.Events();
-            _this.update = function () {
-                var innerWidth = document.body.clientWidth;
-                var innerHeight = document.body.clientHeight;
-                _this.updateTask = false;
-                if ((_this.windowWidth !== innerWidth) || (_this.windowHeight !== innerHeight)) {
-                    _this.windowWidth = innerWidth;
-                    _this.windowHeight = innerHeight;
-                    _this.resized.fire({ target: _this, width: _this.windowWidth, height: _this.windowHeight });
-                    _this.invalidateLayout();
-                }
-                var layoutList = _this.layoutList;
-                _this.layoutList = undefined;
-                while (layoutList != undefined) {
-                    var current = layoutList;
-                    layoutList = layoutList.layoutNext;
-                    current.layoutValid = true;
-                    current.layoutNext = undefined;
-                    current.updateLayout(_this.windowWidth, _this.windowHeight);
-                }
-                var drawList = _this.drawList;
-                _this.drawList = undefined;
-                while (drawList != undefined) {
-                    var next = drawList.drawNext;
-                    drawList.drawNext = undefined;
-                    drawList.draw();
-                    drawList = next;
-                }
-            };
             var args;
             Ui.App.current = _this;
+            if (App.style)
+                _this.setParentStyle(App.style);
             _this.drawing.style.cursor = 'default';
             _this.selection = new Ui.Selection();
             _this.selection.changed.connect(function (e) { return _this.onSelectionChange(e.target); });
@@ -15881,32 +15803,11 @@ var Ui;
             _this.contentBox = new Ui.VBox();
             _this.appendChild(_this.contentBox);
             _this.setTransformOrigin(0, 0);
-            window.addEventListener('load', function () { return _this.onWindowLoad(); });
-            window.addEventListener('resize', function (e) { return _this.onWindowResize(e); });
-            window.addEventListener('keyup', function (e) { return _this.onWindowKeyUp(e); });
-            window.addEventListener('beforeprint', function () { Ui.App.isPrint = true; _this.invalidateMeasure(); _this.update(); });
+            window.addEventListener('beforeprint', function () { Ui.App.isPrint = true; _this.invalidateMeasure(); App.update(); });
             window.addEventListener('afterprint', function () { Ui.App.isPrint = false; _this.invalidateMeasure(); });
-            window.addEventListener('focus', function (event) {
-                if (event.target == undefined)
-                    return;
-                _this.focusElement = event.target;
-            }, true);
-            window.addEventListener('blur', function (event) {
-                _this.focusElement = undefined;
-            }, true);
-            window.addEventListener('dragstart', function (event) { return event.preventDefault(); });
-            window.addEventListener('dragenter', function (event) { event.preventDefault(); return false; });
-            window.addEventListener('dragover', function (event) {
-                event.dataTransfer.dropEffect = 'none';
-                event.preventDefault();
-                return false;
-            });
-            window.addEventListener('drop', function (event) { event.preventDefault(); return false; });
-            if ('onorientationchange' in window)
-                window.addEventListener('orientationchange', function (e) { return _this.onOrientationChange(e); });
             window.addEventListener('message', function (e) { return _this.onMessage(e); });
-            if (window['loaded'] === true)
-                _this.onWindowLoad();
+            if (App.isReady)
+                _this.onReady();
             if (init) {
                 if (init.content !== undefined)
                     _this.content = init.content;
@@ -15918,7 +15819,7 @@ var Ui;
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(App.prototype, "onready", {
+        Object.defineProperty(App, "onready", {
             set: function (value) { this.ready.connect(value); },
             enumerable: true,
             configurable: true
@@ -15928,7 +15829,7 @@ var Ui;
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(App.prototype, "onorientationchanged", {
+        Object.defineProperty(App, "onorientationchanged", {
             set: function (value) { this.orientationchanged.connect(value); },
             enumerable: true,
             configurable: true
@@ -15939,9 +15840,9 @@ var Ui;
         App.prototype.getSelectionHandler = function () {
             return this.selection;
         };
-        App.prototype.forceInvalidateMeasure = function (element) {
+        App.forceInvalidateMeasure = function (element) {
             if (element === undefined)
-                element = this;
+                element = Ui.App.current;
             if (element instanceof Ui.Container)
                 for (var i = 0; i < element.children.length; i++)
                     this.forceInvalidateMeasure(element.children[i]);
@@ -15949,7 +15850,7 @@ var Ui;
             if ('invalidateTextMeasure' in element)
                 element.invalidateTextMeasure();
         };
-        App.prototype.requireFont = function (fontFamily, fontWeight) {
+        App.requireFont = function (fontFamily, fontWeight) {
             var _this = this;
             var fontKey = fontFamily + ':' + fontWeight;
             if (this.requireFonts === undefined)
@@ -15960,12 +15861,12 @@ var Ui;
                     test = Ui.Label.isFontAvailable(fontFamily, fontWeight);
                 this.requireFonts[fontKey] = test;
                 if (test)
-                    this.forceInvalidateMeasure(this);
+                    App.invalidateAllTextMeasure();
                 else if (this.isReady && !test && (this.testFontTask === undefined))
                     this.testFontTask = new Core.DelayedTask(0.25, function () { return _this.testRequireFonts(); });
             }
         };
-        App.prototype.testRequireFonts = function () {
+        App.testRequireFonts = function () {
             var _this = this;
             var allDone = true;
             for (var fontKey in this.requireFonts) {
@@ -15975,8 +15876,7 @@ var Ui;
                     test = Ui.Label.isFontAvailable(fontTab[0], fontTab[1]);
                     if (test) {
                         this.requireFonts[fontKey] = true;
-                        var app = this;
-                        this.forceInvalidateMeasure(this);
+                        App.invalidateAllTextMeasure();
                     }
                     else
                         allDone = false;
@@ -15987,14 +15887,36 @@ var Ui;
             else
                 this.testFontTask = undefined;
         };
-        App.prototype.checkWindowSize = function () {
+        App.invalidateAllTextMeasure = function () {
+            for (var _i = 0, _a = this.dialogs; _i < _a.length; _i++) {
+                var dialog = _a[_i];
+                App.forceInvalidateMeasure(dialog);
+            }
+            for (var _b = 0, _c = this.topLayers; _b < _c.length; _b++) {
+                var layer = _c[_b];
+                App.forceInvalidateMeasure(layer);
+            }
+            if (Ui.App.current)
+                App.forceInvalidateMeasure(Ui.App.current);
+        };
+        App.checkWindowSize = function () {
             var innerWidth = document.body.clientWidth;
             var innerHeight = document.body.clientHeight;
-            if ((innerWidth !== this.layoutWidth) || (innerHeight !== this.layoutHeight))
-                this.invalidateMeasure();
+            if ((innerWidth !== this.windowWidth) || (innerHeight !== this.windowWidth)) {
+                if (Ui.App.current)
+                    Ui.App.current.invalidateLayout();
+                for (var _i = 0, _a = Ui.App.dialogs; _i < _a.length; _i++) {
+                    var dialog = _a[_i];
+                    dialog.invalidateLayout();
+                }
+                for (var _b = 0, _c = Ui.App.topLayers; _b < _c.length; _b++) {
+                    var topLayer = _c[_b];
+                    topLayer.invalidateLayout();
+                }
+            }
         };
         App.prototype.getOrientation = function () {
-            return this.orientation;
+            return App.orientation;
         };
         App.prototype.measureCore = function (width, height) {
             var minWidth = 0;
@@ -16011,52 +15933,93 @@ var Ui;
         };
         App.prototype.onSelectionChange = function (selection) {
         };
-        App.prototype.onWindowLoad = function () {
-            var meta;
-            var style;
+        App.onWindowLoad = function () {
+            console.log("onWindowLoad");
             if (Core.Navigator.iPad || Core.Navigator.iPhone || Core.Navigator.Android) {
-                if (this.webApp) {
-                    meta = document.createElement('meta');
-                    meta.name = 'apple-mobile-web-app-capable';
-                    meta.content = 'yes';
-                    document.getElementsByTagName("head")[0].appendChild(meta);
-                    meta = document.createElement('meta');
-                    meta.name = 'apple-mobile-web-app-status-bar-style';
-                    meta.content = 'black';
-                    document.getElementsByTagName("head")[0].appendChild(meta);
-                    meta = document.createElement('meta');
-                    meta.name = 'mobile-web-app-capable';
-                    meta.content = 'yes';
-                    document.getElementsByTagName("head")[0].appendChild(meta);
+                if (Ui.App.current && Ui.App.current.webApp) {
+                    var meta_1 = document.createElement('meta');
+                    meta_1.name = 'apple-mobile-web-app-capable';
+                    meta_1.content = 'yes';
+                    document.getElementsByTagName("head")[0].appendChild(meta_1);
+                    meta_1 = document.createElement('meta');
+                    meta_1.name = 'apple-mobile-web-app-status-bar-style';
+                    meta_1.content = 'black';
+                    document.getElementsByTagName("head")[0].appendChild(meta_1);
+                    meta_1 = document.createElement('meta');
+                    meta_1.name = 'mobile-web-app-capable';
+                    meta_1.content = 'yes';
+                    document.getElementsByTagName("head")[0].appendChild(meta_1);
                 }
             }
-            meta = document.createElement('meta');
+            var meta = document.createElement('meta');
             meta.name = 'viewport';
             meta.content = 'width=device-width, initial-scale=1.0, minimum-scale=1';
             document.getElementsByTagName("head")[0].appendChild(meta);
             if (Core.Navigator.isWebkit) {
-                style = document.createElement('style');
+                var style = document.createElement('style');
                 style.type = 'text/css';
                 style.innerHTML = '* { -webkit-tap-highlight-color: rgba(0, 0, 0, 0); }';
                 document.getElementsByTagName('head')[0].appendChild(style);
             }
             else if (Core.Navigator.isIE) {
-                style = document.createElement('style');
+                var style = document.createElement('style');
                 style.type = 'text/css';
                 style.innerHTML =
                     '@-ms-viewport { width: device-width; } ' +
                         'body { -ms-content-zooming: none; } ';
                 document.getElementsByTagName('head')[0].appendChild(style);
             }
-            this._loaded = true;
-            this.onReady();
+            window.addEventListener('resize', function (e) { return App.onWindowResize(e); });
+            window.addEventListener('keyup', function (e) { return App.onWindowKeyUp(e); });
+            if ('onorientationchange' in window)
+                window.addEventListener('orientationchange', function (e) { return App.onOrientationChange(e); });
+            window.addEventListener('focus', function (event) {
+                if (event.target == undefined)
+                    return;
+                App.focusElement = event.target;
+            }, true);
+            window.addEventListener('blur', function (event) {
+                App.focusElement = undefined;
+            }, true);
+            window.addEventListener('dragstart', function (event) { return event.preventDefault(); });
+            window.addEventListener('dragenter', function (event) { event.preventDefault(); return false; });
+            window.addEventListener('dragover', function (event) {
+                event.dataTransfer.dropEffect = 'none';
+                event.preventDefault();
+                return false;
+            });
+            window.addEventListener('drop', function (event) { event.preventDefault(); return false; });
+            if ((this.requireFonts !== undefined) && (this.testFontTask === undefined))
+                this.testRequireFonts();
+            for (var _i = 0, _a = this.dialogs; _i < _a.length; _i++) {
+                var dialog = _a[_i];
+                document.body.appendChild(dialog.drawing);
+                dialog.isLoaded = true;
+                dialog.parentVisible = true;
+            }
+            for (var _b = 0, _c = this.topLayers; _b < _c.length; _b++) {
+                var layer = _c[_b];
+                document.body.appendChild(layer.drawing);
+                layer.isLoaded = true;
+                layer.parentVisible = true;
+            }
+            if (Ui.App.current)
+                Ui.App.current.onReady();
+            App.checkWindowSize();
+            if (App.updateTask === false) {
+                App.updateTask = true;
+                requestAnimationFrame(App.update);
+            }
+            new Ui.DragNativeManager();
+            this.ready.fire({ target: this });
+            this._ready = true;
         };
-        App.prototype.onWindowResize = function (event) {
+        App.onWindowResize = function (event) {
             this.checkWindowSize();
         };
-        App.prototype.onOrientationChange = function (event) {
+        App.onOrientationChange = function (event) {
             this.orientation = window.orientation;
-            this.orientationchanged.fire({ target: this, orientation: this.orientation });
+            this.orientationchanged.fire({ orientation: this.orientation });
             this.checkWindowSize();
         };
         Object.defineProperty(App.prototype, "content", {
@@ -16075,62 +16038,65 @@ var Ui;
             enumerable: true,
             configurable: true
         });
-        App.prototype.getFocusElement = function () {
-            return this.focusElement;
-        };
-        App.prototype.appendDialog = function (dialog) {
-            dialog.invalidateLayout();
-            if (this.dialogs === undefined) {
-                this.dialogs = new Ui.LBox();
-                this.dialogs.eventsHidden = true;
-                if (this.topLayers !== undefined)
-                    this.insertChildBefore(this.dialogs, this.topLayers);
-                else
-                    this.appendChild(this.dialogs);
-            }
+        App.appendDialog = function (dialog) {
+            if (App.style)
+                dialog.setParentStyle(App.style);
             this.dialogsFocus.push(this.focusElement);
-            this.dialogs.append(dialog);
-            this.contentBox.disable();
-            for (var i = 0; i < this.dialogs.children.length - 1; i++)
-                this.dialogs.children[i].disable();
-        };
-        App.prototype.removeDialog = function (dialog) {
-            if (this.dialogs !== undefined) {
-                var dialogFocus = this.dialogsFocus.pop();
-                this.dialogs.remove(dialog);
-                dialog.layoutValid = true;
-                if (this.dialogs.children.length === 0) {
-                    this.removeChild(this.dialogs);
-                    this.dialogs = undefined;
-                    this.contentBox.enable();
-                }
-                else if (this.dialogs.lastChild)
-                    this.dialogs.lastChild.enable();
-                if (dialogFocus && dialogFocus.focus && (typeof (dialogFocus.focus) == 'function'))
-                    dialogFocus.focus();
+            this.dialogs.push(dialog);
+            if (Ui.App.current)
+                Ui.App.current.contentBox.disable();
+            for (var i = 0; i < this.dialogs.length - 1; i++)
+                this.dialogs[i].disable();
+            if (document.readyState == 'complete') {
+                if (App.topLayers.length > 0)
+                    document.body.insertBefore(dialog.drawing, this.topLayers[0].drawing);
+                else
+                    document.body.appendChild(dialog.drawing);
+                dialog.isLoaded = true;
+                dialog.parentVisible = true;
             }
+            dialog.invalidateLayout();
         };
-        App.prototype.appendTopLayer = function (layer) {
-            if (this.topLayers === undefined) {
-                this.topLayers = new Ui.LBox();
-                this.topLayers.eventsHidden = true;
-                this.appendChild(this.topLayers);
+        App.removeDialog = function (dialog) {
+            var dialogFocus = App.dialogsFocus.pop();
+            this.dialogs = this.dialogs.filter(function (d) { return d !== dialog; });
+            dialog.layoutValid = true;
+            dialog.isLoaded = false;
+            dialog.parentVisible = false;
+            if (document.readyState == 'complete')
+                document.body.removeChild(dialog.drawing);
+            if (this.dialogs.length === 0) {
+                if (Ui.App.current)
+                    Ui.App.current.contentBox.enable();
             }
-            this.topLayers.append(layer);
+            else if (this.dialogs.length > 0)
+                this.dialogs[this.dialogs.length - 1].enable();
+            if (dialogFocus && dialogFocus.focus && (typeof (dialogFocus.focus) == 'function'))
+                dialogFocus.focus();
         };
-        App.prototype.removeTopLayer = function (layer) {
-            if (this.topLayers !== undefined) {
-                this.topLayers.remove(layer);
-                if (this.topLayers.children.length === 0) {
-                    this.removeChild(this.topLayers);
-                    this.topLayers = undefined;
-                }
+        App.appendTopLayer = function (layer) {
+            if (App.style)
+                layer.setParentStyle(App.style);
+            layer.invalidateLayout();
+            this.topLayers.push(layer);
+            if (document.readyState == 'complete') {
+                document.body.appendChild(layer.drawing);
+                layer.isLoaded = true;
+                layer.parentVisible = true;
             }
+            layer.invalidateLayout();
+        };
+        App.removeTopLayer = function (layer) {
+            App.topLayers = App.topLayers.filter(function (l) { return l !== layer; });
+            if (document.readyState == 'complete')
+                document.body.removeChild(layer.drawing);
+            layer.isLoaded = false;
+            layer.parentVisible = false;
         };
         App.prototype.getArguments = function () {
             return this.arguments;
         };
-        Object.defineProperty(App.prototype, "isReady", {
+        Object.defineProperty(App, "isReady", {
             get: function () {
                 return this._ready;
             },
@@ -16138,40 +16104,32 @@ var Ui;
             configurable: true
         });
         App.prototype.onReady = function () {
-            if (this._loaded) {
-                document.documentElement.style.position = 'absolute';
-                document.documentElement.style.padding = '0px';
-                document.documentElement.style.margin = '0px';
-                document.documentElement.style.border = '0px solid black';
-                document.documentElement.style.width = '100%';
-                document.documentElement.style.height = '100%';
-                document.body.style.position = 'absolute';
-                document.body.style.overflow = 'hidden';
-                document.body.style.padding = '0px';
-                document.body.style.margin = '0px';
-                document.body.style.border = '0px solid black';
-                document.body.style.outline = 'none';
-                document.body.style.width = '100%';
-                document.body.style.height = '100%';
+            console.log(this + ".onReady");
+            document.documentElement.style.position = 'absolute';
+            document.documentElement.style.padding = '0px';
+            document.documentElement.style.margin = '0px';
+            document.documentElement.style.border = '0px solid black';
+            document.documentElement.style.width = '100%';
+            document.documentElement.style.height = '100%';
+            document.body.style.position = 'absolute';
+            document.body.style.overflow = 'hidden';
+            document.body.style.padding = '0px';
+            document.body.style.margin = '0px';
+            document.body.style.border = '0px solid black';
+            document.body.style.outline = 'none';
+            document.body.style.width = '100%';
+            document.body.style.height = '100%';
+            if (document.body.children.length > 0)
+                document.body.insertBefore(this.drawing, document.body.children[0]);
+            else
                 document.body.appendChild(this.drawing);
-                if ((this.requireFonts !== undefined) && (this.testFontTask === undefined))
-                    this.testRequireFonts();
-                this.isLoaded = true;
-                this.parentVisible = true;
-                this.ready.fire({ target: this });
-                this._ready = true;
-                if ((this.updateTask === false) && this._ready) {
-                    this.updateTask = true;
-                    requestAnimationFrame(this.update);
-                }
-                new Ui.WheelManager(this);
-                new Ui.DragNativeManager(this);
-            }
+            this.isLoaded = true;
+            this.parentVisible = true;
         };
-        App.prototype.onWindowKeyUp = function (event) {
+        App.onWindowKeyUp = function (event) {
             var key = event.which;
-            if ((key == 27) && (this.dialogs !== undefined) && (this.dialogs.children.length > 0)) {
-                var element = this.dialogs.children[this.dialogs.children.length - 1];
+            if ((key == 27) && (App.dialogs !== undefined) && (App.dialogs.length > 0)) {
+                var element = App.dialogs[App.dialogs.length - 1];
                 if (element instanceof Ui.Dialog) {
                     var dialog = element;
                     if (dialog.dialogSelection.watchers.length > 0)
@@ -16217,55 +16175,42 @@ var Ui;
             }
             return undefined;
         };
-        App.prototype.enqueueDraw = function (element) {
-            element.drawNext = this.drawList;
-            this.drawList = element;
-            if ((this.updateTask === false) && this._ready) {
-                this.updateTask = true;
-                setTimeout(this.update, 0);
+        App.enqueueDraw = function (element) {
+            element.drawNext = App.drawList;
+            App.drawList = element;
+            if (App.isReady && App.updateTask === false) {
+                App.updateTask = true;
+                setTimeout(App.update, 0);
             }
         };
-        App.prototype.enqueueLayout = function (element) {
-            element.layoutNext = this.layoutList;
-            this.layoutList = element;
-            if ((this.updateTask === false) && this._ready) {
-                this.updateTask = true;
-                requestAnimationFrame(this.update);
+        App.enqueueLayout = function (element) {
+            element.layoutNext = App.layoutList;
+            App.layoutList = element;
+            if (App.isReady && App.updateTask === false) {
+                App.updateTask = true;
+                requestAnimationFrame(App.update);
             }
         };
-        App.prototype.handleScrolling = function (drawing) {
-            var _this = this;
-            this.ptrdowned.connect(function (event) {
-                var startOffsetX = drawing.scrollLeft;
-                var startOffsetY = drawing.scrollTop;
-                var watcher = event.pointer.watch(_this);
-                watcher.moved.connect(function () {
-                    if (!watcher.getIsCaptured()) {
-                        if (watcher.pointer.getIsMove()) {
-                            var direction = watcher.getDirection();
-                            var allowed = false;
-                            if (direction === 'left')
-                                allowed = (drawing.scrollLeft + drawing.clientWidth) < drawing.scrollWidth;
-                            else if (direction === 'right')
-                                allowed = drawing.scrollLeft > 0;
-                            else if (direction === 'bottom')
-                                allowed = drawing.scrollTop > 0;
-                            else if (direction === 'top')
-                                allowed = true;
-                            if (allowed)
-                                watcher.capture();
-                            else
-                                watcher.cancel();
-                        }
-                    }
-                    else {
-                        var delta = watcher.getDelta();
-                        drawing.scrollLeft = startOffsetX - delta.x;
-                        drawing.scrollTop = startOffsetY - delta.y;
-                    }
-                });
-            });
-        };
+        Object.defineProperty(App, "style", {
+            get: function () {
+                return this._style;
+            },
+            set: function (style) {
+                this._style = style;
+                for (var _i = 0, _a = this.dialogs; _i < _a.length; _i++) {
+                    var dialog = _a[_i];
+                    dialog.setParentStyle(style);
+                }
+                for (var _b = 0, _c = this.topLayers; _b < _c.length; _b++) {
+                    var layer = _c[_b];
+                    layer.setParentStyle(style);
+                }
+                if (Ui.App.current)
+                    Ui.App.current.setParentStyle(style);
+            },
+            enumerable: true,
+            configurable: true
+        });
         App.prototype.getElementsByClass = function (className) {
             var res = new Array();
             var reqSearch = function (current) {
@@ -16308,9 +16253,9 @@ var Ui;
         };
         App.prototype.arrangeCore = function (w, h) {
             if (Core.Navigator.Android && Core.Navigator.isWebkit) {
-                if ((this.focusElement != undefined) && ((this.focusElement.tagName === 'INPUT') || (this.focusElement.tagName === 'TEXTAREA') || (this.focusElement.contenteditable))) {
+                if ((App.focusElement != undefined) && ((App.focusElement.tagName === 'INPUT') || (App.focusElement.tagName === 'TEXTAREA') || (App.focusElement.contenteditable))) {
                     if (h - 100 > this.lastArrangeHeight)
-                        this.focusElement.blur();
+                        App.focusElement.blur();
                 }
             }
             this.lastArrangeHeight = h;
@@ -16343,13 +16288,64 @@ var Ui;
                 rootWindow = rootWindow.parent;
             return rootWindow;
         };
+        App.initialize = function () {
+            if (document.readyState == 'complete')
+                App.onWindowLoad();
+            else
+                window.addEventListener('load', function () { return App.onWindowLoad(); });
+        };
+        App.focusElement = undefined;
+        App._ready = false;
+        App.orientation = 0;
+        App.updateTask = false;
+        App.windowWidth = 0;
+        App.windowHeight = 0;
+        App.dialogs = [];
+        App.dialogsFocus = [];
+        App.topLayers = [];
+        App.ready = new Core.Events();
+        App.orientationchanged = new Core.Events();
+        App.update = function () {
+            var innerWidth = window.innerWidth;
+            var innerHeight = window.innerHeight;
+            App.updateTask = false;
+            if ((App.windowWidth !== innerWidth) || (App.windowHeight !== innerHeight)) {
+                App.windowWidth = innerWidth;
+                App.windowHeight = innerHeight;
+                if (Ui.App.current) {
+                    App.current.resized.fire({ target: App.current, width: App.windowWidth, height: App.windowHeight });
+                    App.current.invalidateLayout();
+                }
+                for (var _i = 0, _a = App.dialogs; _i < _a.length; _i++) {
+                    var dialog = _a[_i];
+                    dialog.invalidateLayout();
+                }
+            }
+            var layoutList = App.layoutList;
+            App.layoutList = undefined;
+            while (layoutList != undefined) {
+                var current = layoutList;
+                layoutList = layoutList.layoutNext;
+                current.layoutValid = true;
+                current.layoutNext = undefined;
+                current.updateLayout(App.windowWidth, App.windowHeight);
+            }
+            var drawList = App.drawList;
+            App.drawList = undefined;
+            while (drawList != undefined) {
+                var next = drawList.drawNext;
+                drawList.drawNext = undefined;
+                drawList.draw();
+                drawList = next;
+            }
+        };
         App.current = undefined;
         App.isPrint = false;
         return App;
     }(Ui.Container));
     Ui.App = App;
 })(Ui || (Ui = {}));
-window.addEventListener('load', function () { return window['loaded'] = true; });
+Ui.App.initialize();
 var Ui;
 (function (Ui) {
     var Form = (function (_super) {
@@ -16473,6 +16469,9 @@ var Ui;
         DialogButtonBox.prototype.setTitle = function (title) {
             this.titleLabel.text = title;
         };
+        DialogButtonBox.prototype.getCancelButton = function () {
+            return this.cancelButton;
+        };
         DialogButtonBox.prototype.setCancelButton = function (button) {
             if (this.cancelButton !== undefined) {
                 if (this.cancelButton instanceof Ui.Pressable)
@@ -16509,6 +16508,11 @@ var Ui;
             _this.buttonsVisible = false;
             _this.isClosed = true;
             _this.closed = new Core.Events();
+            _this.drawing.style.position = 'fixed';
+            _this.drawing.style.top = '0';
+            _this.drawing.style.bottom = '0';
+            _this.drawing.style.left = '0';
+            _this.drawing.style.right = '0';
             _this.dialogSelection = new Ui.Selection();
             _this.shadowGraphic = new Ui.Rectangle();
             new Ui.PressWatcher({
@@ -16545,6 +16549,7 @@ var Ui;
             _this.dialogSelection.changed.connect(function (e) { return _this.onDialogSelectionChange(e.target); });
             _this.drawing.addEventListener('keyup', function (e) { return _this.onKeyUp(e); });
             _this.cancelButton = new DialogCloseButton();
+            _this.onStyleChange();
             if (init) {
                 if (init.padding !== undefined)
                     _this.padding = init.padding;
@@ -16604,7 +16609,7 @@ var Ui;
         Dialog.prototype.open = function () {
             var _this = this;
             if (this.isClosed) {
-                Ui.App.current.appendDialog(this);
+                Ui.App.appendDialog(this);
                 this.isClosed = false;
                 if (this.openClock == undefined) {
                     this.openClock = new Anim.Clock({
@@ -16645,7 +16650,7 @@ var Ui;
                     this.openClock.stop();
                 this.openClock = undefined;
                 if (this.isClosed) {
-                    Ui.App.current.removeDialog(this);
+                    Ui.App.removeDialog(this);
                     this.lbox.enable();
                 }
             }
@@ -16684,6 +16689,9 @@ var Ui;
             }
         };
         Object.defineProperty(Dialog.prototype, "cancelButton", {
+            get: function () {
+                return this.actionBox.getCancelButton();
+            },
             set: function (button) {
                 this._cancelButton = button;
                 this.actionBox.setCancelButton(button);
@@ -16693,6 +16701,9 @@ var Ui;
             configurable: true
         });
         Object.defineProperty(Dialog.prototype, "actionButtons", {
+            get: function () {
+                return this.actionBox.getActionButtons();
+            },
             set: function (buttons) {
                 this._actionButtons = buttons;
                 this.actionBox.setActionButtons(buttons);
@@ -16752,6 +16763,14 @@ var Ui;
         Dialog.prototype.onStyleChange = function () {
             this.shadowGraphic.fill = this.getStyleProperty('shadow');
             this.graphic.background = this.getStyleProperty('background');
+        };
+        Dialog.prototype.invalidateArrange = function () {
+            _super.prototype.invalidateArrange.call(this);
+            this.invalidateLayout();
+        };
+        Dialog.prototype.invalidateMeasure = function () {
+            _super.prototype.invalidateMeasure.call(this);
+            this.invalidateLayout();
         };
         Dialog.prototype.measureCore = function (width, height) {
             this.shadowGraphic.measure(width, height);
@@ -17341,20 +17360,22 @@ var Ui;
         __extends(Toaster, _super);
         function Toaster() {
             var _this = _super.call(this) || this;
-            _this.margin = 10;
             _this.eventsHidden = true;
+            _this.drawing.style.position = 'fixed';
+            _this.drawing.style.top = '0';
+            _this.drawing.style.left = '0';
             return _this;
         }
         Toaster.prototype.appendToast = function (toast) {
             toast.newToast = true;
             if (this.children.length === 0)
-                Ui.App.current.appendTopLayer(this);
+                Ui.App.appendTopLayer(this);
             this.appendChild(toast);
         };
         Toaster.prototype.removeToast = function (toast) {
             this.removeChild(toast);
             if (this.children.length === 0)
-                Ui.App.current.removeTopLayer(this);
+                Ui.App.removeTopLayer(this);
         };
         Toaster.prototype.onArrangeTick = function (clock, progress, delta) {
             for (var i = 0; i < this.children.length; i++) {
@@ -17369,6 +17390,14 @@ var Ui;
             if (progress === 1)
                 this.arrangeClock = undefined;
         };
+        Toaster.prototype.invalidateArrange = function () {
+            _super.prototype.invalidateArrange.call(this);
+            this.invalidateLayout();
+        };
+        Toaster.prototype.invalidateMeasure = function () {
+            _super.prototype.invalidateMeasure.call(this);
+            this.invalidateLayout();
+        };
         Toaster.prototype.measureCore = function (width, height) {
             var spacing = 10;
             var maxWidth = 0;
@@ -17381,7 +17410,7 @@ var Ui;
                     maxWidth = size.width;
             }
             totalHeight += Math.max(0, this.children.length - 1) * spacing;
-            return { width: maxWidth, height: totalHeight };
+            return { width: maxWidth + 10, height: totalHeight + 10 };
         };
         Toaster.prototype.arrangeCore = function (width, height) {
             var _this = this;
@@ -17392,7 +17421,7 @@ var Ui;
                 child.lastLayoutX = child.layoutX;
                 child.lastLayoutY = child.layoutY;
                 y += child.measureHeight;
-                child.arrange(0, height - y, this.measureWidth, child.measureHeight);
+                child.arrange(10, height - (y + 10), this.measureWidth, child.measureHeight);
                 y += spacing;
             }
             if (this.arrangeClock === undefined) {
@@ -17459,7 +17488,7 @@ var Ui;
                     this.openClock.timeupdate.connect(function (e) { return _this.onOpenTick(e.target, e.progress, e.deltaTick); });
                     this.opacity = 0;
                 }
-                new Core.DelayedTask(2, function () { return _this.close(); });
+                new Core.DelayedTask(20, function () { return _this.close(); });
                 Ui.Toaster.appendToast(this);
             }
         };
@@ -17537,7 +17566,7 @@ var Ui;
             _this.ready = new Core.Events();
             _this.error = new Core.Events();
             _this.onAppReady = function () {
-                Ui.App.current.ready.disconnect(_this.onAppReady);
+                Ui.App.ready.disconnect(_this.onAppReady);
                 _this.onImageDelayReady();
             };
             _this.imageDrawing.addEventListener('contextmenu', function (event) { return event.preventDefault(); });
@@ -17629,8 +17658,8 @@ var Ui;
             }
         };
         Image.prototype.onImageDelayReady = function () {
-            if (!Ui.App.current.isReady)
-                Ui.App.current.ready.connect(this.onAppReady);
+            if (!Ui.App.isReady)
+                Ui.App.ready.connect(this.onAppReady);
             else {
                 this.loaddone = true;
                 if (document.body == undefined) {
@@ -22792,29 +22821,10 @@ var Ui;
             _this.contentBox.downed.connect(function () { return _this.autoShowScrollbars(); });
             _this.contentBox.inertiaended.connect(function () { return _this.autoHideScrollbars(); });
             _this.appendChild(_this.contentBox);
-            _this.ptrmoved.connect(function (event) {
-                if (!_this.isDisabled && !event.pointer.getIsDown() && (_this.overWatcher === undefined)) {
-                    _this.overWatcher = event.pointer.watch(_this);
-                    _this.isOver = true;
-                    _this.autoShowScrollbars();
-                    _this.overWatcher.moved.connect(function () {
-                        if (!_this.overWatcher.getIsInside())
-                            _this.overWatcher.cancel();
-                    });
-                    _this.overWatcher.downed.connect(function () {
-                        _this.overWatcher.cancel();
-                    });
-                    _this.overWatcher.upped.connect(function () {
-                        _this.overWatcher.cancel();
-                    });
-                    _this.overWatcher.cancelled.connect(function () {
-                        _this.overWatcher = undefined;
-                        _this.isOver = false;
-                        _this.autoHideScrollbars();
-                    });
-                }
+            new Ui.WheelWatcher({
+                element: _this,
+                onchanged: function (e) { return _this.onWheel(e); }
             });
-            _this.wheelchanged.connect(function (e) { return _this.onWheel(e); });
             if (init) {
                 if (init.loader !== undefined)
                     _this.loader = init.loader;
@@ -25101,6 +25111,20 @@ var Ui;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(Uploadable.prototype, "accept", {
+            set: function (value) {
+                this.input.accept = value;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Uploadable.prototype, "capture", {
+            set: function (value) {
+                this.input.capture = value;
+            },
+            enumerable: true,
+            configurable: true
+        });
         Uploadable.prototype.onFile = function (fileWrapper, file) {
             this.file.fire({ target: this, file: file });
         };
@@ -25190,6 +25214,19 @@ var Ui;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(UploadableFileWrapper.prototype, "capture", {
+            set: function (value) {
+                this._capture = value;
+                if (this.inputDrawing !== undefined) {
+                    if (this._capture)
+                        this.inputDrawing.setAttribute('capture', value);
+                    else
+                        this.inputDrawing.removeAttribute('capture');
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
         UploadableFileWrapper.prototype.createInput = function () {
             this.formDrawing = document.createElement('form');
             this.formDrawing.addEventListener('click', function (e) { return e.stopPropagation(); });
@@ -25207,6 +25244,8 @@ var Ui;
                 this.inputDrawing.setAttribute('multiple', '');
             if (this._accept)
                 this.inputDrawing.setAttribute('accept', this._accept);
+            if (this._capture)
+                this.inputDrawing.setAttribute('capture', this._capture);
             this.inputDrawing.style.position = 'absolute';
             this.inputDrawing.tabIndex = -1;
             this.inputDrawing.addEventListener('change', this.onChange);
@@ -25345,6 +25384,12 @@ var Ui;
                     _this.directoryMode = init.directoryMode;
                 if (init.onfilechanged)
                     _this.filechanged.connect(init.onfilechanged);
+                if (init.multiple)
+                    _this.multiple = init.multiple;
+                if (init.accept)
+                    _this.accept = init.accept;
+                if (init.capture)
+                    _this.capture = init.capture;
             }
             return _this;
         }
@@ -25370,6 +25415,13 @@ var Ui;
         Object.defineProperty(UploadButton.prototype, "accept", {
             set: function (value) {
                 this.input.accept = value;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(UploadButton.prototype, "capture", {
+            set: function (value) {
+                this.input.capture = value;
             },
             enumerable: true,
             configurable: true
@@ -27659,6 +27711,17 @@ var Ui;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(SegmentButton.prototype, "isTextVisible", {
+            get: function () {
+                return ((this.label.text !== undefined) && (this.getStyleProperty('showText')));
+            },
+            enumerable: true,
+            configurable: true
+        });
+        SegmentButton.prototype.onStyleChange = function () {
+            _super.prototype.onStyleChange.call(this);
+            this.isTextVisible ? this.label.show() : this.label.hide(true);
+        };
         SegmentButton.prototype.onDisable = function () {
             _super.prototype.onDisable.call(this);
             this.bg.opacity = 0.2;
@@ -27666,6 +27729,9 @@ var Ui;
         SegmentButton.prototype.onEnable = function () {
             _super.prototype.onEnable.call(this);
             this.bg.opacity = 1;
+        };
+        SegmentButton.style = {
+            showText: true,
         };
         return SegmentButton;
     }(Ui.Pressable));
@@ -28092,7 +28158,10 @@ var Ui;
             _this.downed.connect(function (e) { return _this.onCarouselableDown(); });
             _this.upped.connect(function (e) { return _this.onCarouselableUp(e.target, e.speedX, e.speedY, e.deltaX, e.deltaY, e.cumulMove, e.abort); });
             _this.drawing.addEventListener('keydown', function (e) { return _this.onKeyDown(e); });
-            _this.wheelchanged.connect(function (e) { return _this.onWheel(e); });
+            new Ui.WheelWatcher({
+                element: _this,
+                onchanged: function (e) { return _this.onWheel(e); }
+            });
             if (init) {
                 if (init.autoPlay)
                     _this.autoPlay = init.autoPlay;
@@ -29548,5 +29617,76 @@ var Ui;
         return RadioGroup;
     }(Core.Object));
     Ui.RadioGroup = RadioGroup;
+})(Ui || (Ui = {}));
+var Ui;
+(function (Ui) {
+    var Embed = (function (_super) {
+        __extends(Embed, _super);
+        function Embed(parent) {
+            var _this = _super.call(this) || this;
+            _this.htmlParent = parent;
+            _this.drawing.style.position = 'relative';
+            parent.appendChild(_this.drawing);
+            _this.obs = new ResizeObserver(function () {
+                _this.updateLayout(parent.offsetWidth, parent.offsetHeight);
+            });
+            _this.obs.observe(parent);
+            _this.isLoaded = true;
+            _this.updateLayout(parent.offsetWidth, parent.offsetHeight);
+            return _this;
+        }
+        Embed.prototype.invalidateMeasure = function () {
+            this.invalidateLayout();
+        };
+        Embed.prototype.invalidateArrange = function () {
+            this.invalidateLayout();
+            this.updateLayout(this.htmlParent.offsetWidth, this.htmlParent.offsetHeight);
+        };
+        Embed.prototype.updateLayout = function (width, height) {
+            var size = this.measure(this.htmlParent.offsetWidth, this.htmlParent.offsetHeight);
+            var layoutWidth = Math.max(size.width, this.htmlParent.offsetWidth);
+            var layoutHeight = Math.max(size.height, this.htmlParent.offsetHeight);
+            this.arrange(0, 0, layoutWidth, layoutHeight);
+        };
+        Object.defineProperty(Embed.prototype, "content", {
+            set: function (element) {
+                this.appendChild(element);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Embed.prototype.getInverseLayoutTransform = function () {
+            var matrix = _super.prototype.getInverseLayoutTransform.call(this);
+            var current = this.htmlParent;
+            while (current != null) {
+                var elMatrix = Ui.Matrix.createTranslate(current.offsetLeft - current.scrollLeft, current.offsetTop - current.scrollTop);
+                matrix = matrix.multiply(elMatrix);
+                current = current.offsetParent;
+            }
+            matrix = matrix.multiply(Ui.Matrix.createTranslate(-document.documentElement.scrollLeft, -document.documentElement.scrollTop));
+            return matrix;
+        };
+        Embed.prototype.measureCore = function (width, height) {
+            var minWidth = 0;
+            var minHeight = 0;
+            for (var _i = 0, _a = this.children; _i < _a.length; _i++) {
+                var child = _a[_i];
+                var size = child.measure(width, height);
+                if (size.width > minWidth)
+                    minWidth = size.width;
+                if (size.height > minHeight)
+                    minHeight = size.height;
+            }
+            return { width: minWidth, height: minHeight };
+        };
+        Embed.prototype.arrangeCore = function (width, height) {
+            for (var _i = 0, _a = this.children; _i < _a.length; _i++) {
+                var child = _a[_i];
+                child.arrange(0, 0, width, height);
+            }
+        };
+        return Embed;
+    }(Ui.Container));
+    Ui.Embed = Embed;
 })(Ui || (Ui = {}));
 //# sourceMappingURL=era.js.map

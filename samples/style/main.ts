@@ -104,14 +104,14 @@ class App extends Ui.App {
 
 		vbox.append(new Ui.Button({
 			text: 'default', width: 200,
-			onpressed: () => this.style = undefined
+			onpressed: () => Ui.App.style = undefined
 		}));
 
 		for (let i = 0; i < styles.length; i++) {
 			let style = styles[i];
 			vbox.append(new Ui.Button({
 				text: `style${i}`, width: 200,
-				onpressed: () => this.style = style
+				onpressed: () => Ui.App.style = style
 			}));
 		}
 	}

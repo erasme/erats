@@ -66,6 +66,7 @@ declare namespace Core {
         static supportUploadDirectory: boolean;
     }
 }
+declare var ResizeObserver: any;
 declare namespace Core {
     class Uri extends Object {
         scheme: string;
@@ -339,17 +340,14 @@ declare namespace Core {
     class FilePostUploader extends Object {
         protected _file: File;
         protected _service: string;
-        protected reader: undefined;
         protected request: XMLHttpRequest;
-        protected binaryString: boolean;
         protected _responseText: string;
-        protected fileReader: FileReader;
-        protected boundary: string;
         protected _method: string;
-        protected fields: object;
+        protected formData: FormData;
         protected _isCompleted: boolean;
         protected _isSent: boolean;
-        field: string;
+        protected _lastStatus: number | undefined;
+        protected field: string;
         protected loadedOctets: number;
         protected totalOctets: number;
         readonly progress: Events<{
@@ -381,7 +379,9 @@ declare namespace Core {
         get file(): File;
         set file(file: File);
         set service(service: string);
-        setField(name: any, value: any): void;
+        setField(name: string, value: string | Blob, fileName?: string): void;
+        appendField(name: string, value: string | Blob, fileName?: string): void;
+        deleteField(name: string): void;
         set arguments(args: object);
         set destination(destination: string);
         send(): void;
@@ -396,8 +396,6 @@ declare namespace Core {
         get loaded(): number;
         protected onStateChange(event: any): void;
         protected onUpdateProgress(event: any): void;
-        protected onFileReaderError(event: any): void;
-        protected onFileReaderLoad(event: any): void;
     }
 }
 declare namespace Anim {
@@ -810,7 +808,6 @@ declare namespace Ui {
         transformOriginAbsolute: boolean;
         animClock?: Anim.Clock;
         private _opacity;
-        private parentOpacity;
         private _disabled?;
         parentDisabled?: boolean;
         private _style;
@@ -864,16 +861,6 @@ declare namespace Ui {
         set onhidden(value: (event: {
             target: Element;
         }) => void);
-        readonly ptrdowned: Core.Events<EmuPointerEvent>;
-        set onptrdowned(value: (event: EmuPointerEvent) => void);
-        readonly ptrmoved: Core.Events<EmuPointerEvent>;
-        set onptrmoved(value: (event: EmuPointerEvent) => void);
-        readonly ptrupped: Core.Events<EmuPointerEvent>;
-        set onptrupped(value: (event: EmuPointerEvent) => void);
-        readonly ptrcanceled: Core.Events<EmuPointerEvent>;
-        set onptrcanceled(value: (event: EmuPointerEvent) => void);
-        readonly wheelchanged: Core.Events<WheelEvent>;
-        set onwheelchanged(value: (event: WheelEvent) => void);
         readonly dragover: Core.Events<DragEvent>;
         set ondragover(value: (event: DragEvent) => void);
         constructor(init?: ElementInit);
@@ -950,7 +937,6 @@ declare namespace Ui {
         getIsInside(point: Point): boolean;
         set eventsHidden(eventsHidden: boolean);
         get eventsHidden(): boolean;
-        elementFromPoint(point: Point): Element | undefined;
         get measureWidth(): number;
         get measureHeight(): number;
         get isCollapsed(): boolean;
@@ -1030,7 +1016,6 @@ declare namespace Ui {
         hasChild(child: Element): boolean;
         clear(): void;
         get(name: string): Element | undefined;
-        elementFromPoint(point: Point): Element | undefined;
         protected onLoad(): void;
         protected onUnload(): void;
         protected onInternalStyleChange(): void;
@@ -1637,10 +1622,9 @@ declare namespace Ui {
         releaseDragWatcher(dragWatcher: DragWatcher): void;
     }
     class DragNativeManager extends Core.Object {
-        app: App;
         dataTransfer: DragNativeDataTransfer;
         nativeTarget: any;
-        constructor(app: App);
+        constructor();
         protected onDragOver(event: any): boolean;
         protected onDragEnter(e: any): void;
         protected onDragLeave(e: any): void;
@@ -1669,9 +1653,13 @@ declare namespace Ui {
         setShiftKey(shiftKey: any): void;
         setMetaKey(metaKey: any): void;
     }
-    class WheelManager extends Core.Object {
-        app: App;
-        constructor(app: App);
+    class WheelWatcher extends Core.Object {
+        element: Element;
+        onchanged: (e: WheelEvent) => void;
+        constructor(init: {
+            element: Element;
+            onchanged: (e: WheelEvent) => void;
+        });
         onMouseWheel(event: any): void;
     }
 }
@@ -3337,6 +3325,8 @@ declare namespace Ui {
         openElement(element: Element, position?: AttachBorder): void;
         private openPosOrElement;
         close(): void;
+        invalidateArrange(): void;
+        invalidateMeasure(): void;
         protected measureCore(width: number, height: number): {
             width: number;
             height: number;
@@ -3448,25 +3438,25 @@ declare namespace Ui {
         content?: Element;
     }
     class App extends Container {
-        private updateTask;
         private _loaded;
-        focusElement: any;
+        static focusElement: any;
         arguments: any;
-        private _ready;
-        orientation: number;
+        private static _ready;
+        static orientation: number;
         webApp: boolean;
         lastArrangeHeight: number;
-        private drawList?;
-        private layoutList?;
-        windowWidth: number;
-        windowHeight: number;
+        private static updateTask;
+        private static drawList?;
+        private static layoutList?;
+        static windowWidth: number;
+        static windowHeight: number;
         private contentBox;
         private _content?;
-        private dialogs?;
-        private dialogsFocus;
-        private topLayers?;
-        requireFonts: any;
-        testFontTask: any;
+        private static dialogs;
+        private static dialogsFocus;
+        private static topLayers;
+        static requireFonts: any;
+        static testFontTask: any;
         selection: Selection;
         readonly resized: Core.Events<{
             target: App;
@@ -3478,12 +3468,8 @@ declare namespace Ui {
             width: number;
             height: number;
         }) => void);
-        readonly ready: Core.Events<{
-            target: App;
-        }>;
-        set onready(value: (event: {
-            target: App;
-        }) => void);
+        static readonly ready: Core.Events<{}>;
+        static set onready(value: (event: {}) => void);
         readonly parentmessage: Core.Events<{
             target: App;
             message: any;
@@ -3492,49 +3478,49 @@ declare namespace Ui {
             target: App;
             message: any;
         }) => void);
-        readonly orientationchanged: Core.Events<{
-            target: App;
+        static readonly orientationchanged: Core.Events<{
             orientation: number;
         }>;
-        set onorientationchanged(value: (event: {
-            target: App;
+        static set onorientationchanged(value: (event: {
             orientation: number;
         }) => void);
         constructor(init?: AppInit);
         setWebApp(webApp: boolean): void;
         getSelectionHandler(): Selection;
-        forceInvalidateMeasure(element: Ui.Element): void;
-        requireFont(fontFamily: string, fontWeight: string): void;
-        testRequireFonts(): void;
-        checkWindowSize(): void;
+        static forceInvalidateMeasure(element: Ui.Element): void;
+        static requireFont(fontFamily: string, fontWeight: string): void;
+        static testRequireFonts(): void;
+        static invalidateAllTextMeasure(): void;
+        static checkWindowSize(): void;
         getOrientation(): number;
         protected measureCore(width: number, height: number): {
             width: number;
             height: number;
         };
         protected onSelectionChange(selection: any): void;
-        protected onWindowLoad(): void;
-        protected onWindowResize(event: any): void;
-        protected onOrientationChange(event: any): void;
-        update: () => void;
+        protected static onWindowLoad(): void;
+        protected static onWindowResize(event: any): void;
+        protected static onOrientationChange(event: any): void;
+        static update: () => void;
         get content(): Element | undefined;
         set content(content: Element | undefined);
-        getFocusElement(): any;
-        appendDialog(dialog: any): void;
-        removeDialog(dialog: any): void;
-        appendTopLayer(layer: any): void;
-        removeTopLayer(layer: any): void;
+        static appendDialog(dialog: Element): void;
+        static removeDialog(dialog: Element): void;
+        static appendTopLayer(layer: Element): void;
+        static removeTopLayer(layer: Element): void;
         getArguments(): any;
-        get isReady(): boolean;
+        static get isReady(): boolean;
         protected onReady(): void;
-        protected onWindowKeyUp(event: any): void;
+        protected static onWindowKeyUp(event: any): void;
         protected onLoad(): void;
         protected onMessage(event: any): void;
         sendMessageToParent(msg: any): void;
         findFocusableDiv(current: any): any;
-        enqueueDraw(element: Element): void;
-        enqueueLayout(element: Element): void;
-        handleScrolling(drawing: any): void;
+        static enqueueDraw(element: Element): void;
+        static enqueueLayout(element: Element): void;
+        static _style: object | undefined;
+        static get style(): object | undefined;
+        static set style(style: object | undefined);
         getElementsByClass(className: Function): Element[];
         getElementByDrawing(drawing: any): any;
         getInverseLayoutTransform(): Matrix;
@@ -3546,6 +3532,7 @@ declare namespace Ui {
         static isPrint: boolean;
         static getWindowIFrame(currentWindow: any): any;
         static getRootWindow(): Window;
+        static initialize(): void;
     }
 }
 declare namespace Ui {
@@ -3593,7 +3580,8 @@ declare namespace Ui {
         constructor();
         getTitle(): string;
         setTitle(title: string): void;
-        setCancelButton(button: Pressable): void;
+        getCancelButton(): Pressable | undefined;
+        setCancelButton(button: Pressable | undefined): void;
         setActionButtons(buttons: Array<Element>): void;
         getActionButtons(): Element[];
         onCancelPress: () => void;
@@ -3653,7 +3641,9 @@ declare namespace Ui {
         get title(): string;
         set title(title: string);
         updateButtonsBoxVisible(): void;
+        get cancelButton(): Pressable | undefined;
         set cancelButton(button: Pressable | undefined);
+        get actionButtons(): Element[];
         set actionButtons(buttons: Element[]);
         set content(content: Element | undefined);
         get content(): Element | undefined;
@@ -3664,6 +3654,8 @@ declare namespace Ui {
         protected onKeyUp(event: any): void;
         protected onShadowPress(): void;
         protected onStyleChange(): void;
+        invalidateArrange(): void;
+        invalidateMeasure(): void;
         protected measureCore(width: number, height: number): Size;
         protected arrangeCore(width: number, height: number): void;
         static style: object;
@@ -3804,6 +3796,8 @@ declare namespace Ui {
         appendToast(toast: Toast): void;
         removeToast(toast: Toast): void;
         protected onArrangeTick(clock: any, progress: any, delta: any): void;
+        invalidateArrange(): void;
+        invalidateMeasure(): void;
         protected measureCore(width: number, height: number): {
             width: number;
             height: number;
@@ -5744,6 +5738,8 @@ declare namespace Ui {
         setDirectoryMode(active: boolean): void;
         set directoryMode(active: boolean);
         set multiple(active: boolean);
+        set accept(value: string | undefined);
+        set capture(value: string | undefined);
         protected onFile(fileWrapper: any, file: File): void;
         protected onPress(): void;
         set content(content: Element);
@@ -5755,6 +5751,7 @@ declare namespace Ui {
         private _directoryMode;
         private _multiple;
         private _accept?;
+        private _capture?;
         readonly file: Core.Events<{
             target: UploadableFileWrapper;
             file: File;
@@ -5765,6 +5762,7 @@ declare namespace Ui {
         setDirectoryMode(active: any): void;
         set directoryMode(active: boolean);
         set accept(value: string | undefined);
+        set capture(value: string | undefined);
         protected createInput(): void;
         protected onChange: (event: any) => void;
         protected onLoad(): void;
@@ -5794,6 +5792,9 @@ declare namespace Ui {
             target: UploadButton;
             file: File;
         }) => void;
+        multiple?: boolean;
+        accept?: string;
+        capture?: string;
     }
     class UploadButton extends Button implements UploadButtonInit {
         input: UploadableFileWrapper;
@@ -5809,6 +5810,7 @@ declare namespace Ui {
         set directoryMode(active: boolean);
         set multiple(active: boolean);
         set accept(value: string | undefined);
+        set capture(value: string | undefined);
         protected onUploadButtonPress(): void;
         protected onFile(wrapper: UploadableFileWrapper, file: File): void;
     }
@@ -6393,8 +6395,13 @@ declare namespace Ui {
         set backgroundMode(mode: 'top' | 'bottom' | 'left' | 'right' | 'stretch');
         set backgroundWidth(width: number);
         set backgroundHeight(height: number);
+        get isTextVisible(): boolean;
+        protected onStyleChange(): void;
         protected onDisable(): void;
         protected onEnable(): void;
+        static style: {
+            showText: boolean;
+        };
     }
 }
 declare namespace Ui {
@@ -6783,5 +6790,22 @@ declare namespace Ui {
         onRadioSelected(event: {
             target: RadioBox;
         }): void;
+    }
+}
+declare namespace Ui {
+    class Embed extends Ui.Container {
+        private obs;
+        private htmlParent;
+        constructor(parent: HTMLElement);
+        invalidateMeasure(): void;
+        invalidateArrange(): void;
+        updateLayout(width: number, height: number): void;
+        set content(element: Element);
+        getInverseLayoutTransform(): Matrix;
+        protected measureCore(width: number, height: number): {
+            width: number;
+            height: number;
+        };
+        protected arrangeCore(width: number, height: number): void;
     }
 }

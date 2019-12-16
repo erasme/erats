@@ -127,7 +127,6 @@ namespace Ui {
         animClock?: Anim.Clock;
 
         private _opacity: number = 1;
-        private parentOpacity: number = 1;
 
         // handle disable
         private _disabled?: boolean;
@@ -161,21 +160,6 @@ namespace Ui {
 
         readonly hidden = new Core.Events<{ target: Element }>();
         set onhidden(value: (event: { target: Element }) => void) { this.hidden.connect(value); }
-
-        readonly ptrdowned = new Core.Events<EmuPointerEvent>();
-        set onptrdowned(value: (event: EmuPointerEvent) => void) { this.ptrdowned.connect(value); }
-
-        readonly ptrmoved = new Core.Events<EmuPointerEvent>();
-        set onptrmoved(value: (event: EmuPointerEvent) => void) { this.ptrmoved.connect(value); }
-
-        readonly ptrupped = new Core.Events<EmuPointerEvent>();
-        set onptrupped(value: (event: EmuPointerEvent) => void) { this.ptrupped.connect(value); }
-
-        readonly ptrcanceled = new Core.Events<EmuPointerEvent>();
-        set onptrcanceled(value: (event: EmuPointerEvent) => void) { this.ptrcanceled.connect(value); }
-
-        readonly wheelchanged = new Core.Events<WheelEvent>();
-        set onwheelchanged(value: (event: WheelEvent) => void) { this.wheelchanged.connect(value); }
 
         readonly dragover = new Core.Events<DragEvent>();
         set ondragover(value: (event: DragEvent) => void) { this.dragover.connect(value); }
@@ -463,8 +447,7 @@ namespace Ui {
             this.arrangeValid = false;
             if (this.layoutValid) {
                 this.layoutValid = false;
-                if (Ui.App.current)
-                    Ui.App.current.enqueueLayout(this);
+                Ui.App.enqueueLayout(this);
             }
         }
 
@@ -477,8 +460,7 @@ namespace Ui {
             this._layoutHeight = height;
             this.layoutValid = true;
             this.layoutCore();
-            this.layoutValid = this.arrangeValid && this.measureValid;
-            if (!this.layoutValid)
+            if (!this.arrangeValid || !this.measureValid)
                 this.invalidateLayout();
         }
 
@@ -631,11 +613,9 @@ namespace Ui {
         // to be updated
         //
         invalidateDraw() {
-            if (Ui.App.current === undefined)
-                return;
             if (this.drawValid) {
                 this.drawValid = false;
-                Ui.App.current.enqueueDraw(this);
+                Ui.App.enqueueDraw(this);
             }
         }
 
@@ -691,8 +671,7 @@ namespace Ui {
         set maxWidth(width: number | undefined) {
             if (this._maxWidth !== width) {
                 this._maxWidth = width;
-                if (this._layoutWidth > this._maxWidth)
-                    this.invalidateMeasure();
+                this.invalidateMeasure();
             }
         }
 
@@ -703,8 +682,7 @@ namespace Ui {
         set maxHeight(height: number | undefined) {
             if (this._maxWidth !== height) {
                 this._maxHeight = height;
-                if (this._layoutHeight > this._maxHeight)
-                    this.invalidateMeasure();
+                this.invalidateMeasure();
             }
         }
 
@@ -1020,13 +998,6 @@ namespace Ui {
 
         get eventsHidden(): boolean {
             return this._eventsHidden;
-        }
-
-        elementFromPoint(point: Point): Element | undefined {
-            if (!this._eventsHidden && this.isVisible && this.getIsInside(point))
-                return this;
-            else
-                return undefined;
         }
 
         //
@@ -1505,6 +1476,8 @@ namespace Ui {
                 this.setParentDisabled(this._parent.isDisabled);
                 this.parentVisible = this._parent.isVisible;
             }
+            else
+                this.setParentStyle(Ui.App.style);
             this.loaded.fire({ target: this });
         }
 
@@ -1531,7 +1504,14 @@ namespace Ui {
         }
 
         static elementFromPoint(point: Point): Element {
-            return App.current.elementFromPoint(point);
+            let element = document.elementFromPoint(point.x, point.y);
+            while (element) {
+                if ((element as any).data && (element as any).data instanceof Element)
+                    return (element as any).data as Element;
+                element = element.parentElement;
+            }
+            return undefined;
+//            return App.current.elementFromPoint(point);
         }
 
         static getIsDrawingChildOf(drawing, parent): boolean {

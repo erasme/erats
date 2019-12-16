@@ -5,43 +5,44 @@ namespace Ui
     }
 
     export class App extends Container {
-        private updateTask: boolean = false;
         private _loaded: boolean = false;
-        focusElement: any = undefined;
+        static focusElement: any = undefined;
         arguments: any = undefined;
-        private _ready: boolean = false;
-        orientation: number = 0;
+        private static _ready: boolean = false;
+        static orientation: number = 0;
         webApp: boolean = true;
         lastArrangeHeight: number = 0;
 
-        private drawList?: Element;
-        private layoutList?: Element;
-        windowWidth: number = 0;
-        windowHeight: number = 0;
+        private static updateTask: boolean = false;
+        private static drawList?: Element;
+        private static layoutList?: Element;
+
+        static windowWidth: number = 0;
+        static windowHeight: number = 0;
 
         private contentBox: Box;
         private _content?: Element;
 
-        private dialogs?: LBox;
-        private dialogsFocus = [];
-        private topLayers?: LBox;
+        private static dialogs: Element[] = [];
+        private static dialogsFocus = [];
+        private static topLayers: Element[] = [];
 
-        requireFonts: any;
-        testFontTask: any;
+        static requireFonts: any;
+        static testFontTask: any;
 
         selection: Selection;
 
         readonly resized = new Core.Events<{ target: App, width: number, height: number }>();
         set onresized(value: (event: { target: App, width: number, height: number }) => void) { this.resized.connect(value); }
 
-        readonly ready = new Core.Events<{ target: App }>();
-        set onready(value: (event: { target: App }) => void) { this.ready.connect(value); }
+        static readonly ready = new Core.Events<{}>();
+        static set onready(value: (event: {}) => void) { this.ready.connect(value); }
 
         readonly parentmessage = new Core.Events<{ target: App, message: any }>();
         set onparentmessage(value: (event: { target: App, message: any }) => void) { this.parentmessage.connect(value); }
 
-        readonly orientationchanged = new Core.Events<{ target: App, orientation: number }>();
-        set onorientationchanged(value: (event: { target: App, orientation: number }) => void) { this.orientationchanged.connect(value); }
+        static readonly orientationchanged = new Core.Events<{ orientation: number }>();
+        static set onorientationchanged(value: (event: { orientation: number }) => void) { this.orientationchanged.connect(value); }
 
         //
         // @constructs
@@ -54,6 +55,8 @@ namespace Ui
             let args;
 
             Ui.App.current = this;
+            if (App.style)
+                this.setParentStyle(App.style);
             this.drawing.style.cursor = 'default';
 
             this.selection = new Ui.Selection();
@@ -96,38 +99,15 @@ namespace Ui
 
             this.setTransformOrigin(0, 0);
 
-            window.addEventListener('load', () => this.onWindowLoad());
-            window.addEventListener('resize', e => this.onWindowResize(e));
-            window.addEventListener('keyup', e => this.onWindowKeyUp(e));
-            window.addEventListener('beforeprint', () => { Ui.App.isPrint = true; this.invalidateMeasure(); this.update(); });
+//            window.addEventListener('load', () => this.onWindowLoad());
+            window.addEventListener('beforeprint', () => { Ui.App.isPrint = true; this.invalidateMeasure(); App.update(); });
             window.addEventListener('afterprint', () => { Ui.App.isPrint = false; this.invalidateMeasure(); });
-
-            window.addEventListener('focus', (event: FocusEvent) => {
-                if (event.target == undefined)
-                    return;
-                this.focusElement = event.target;
-            }, true);
-
-            window.addEventListener('blur', (event: FocusEvent) => {
-                this.focusElement = undefined;
-            }, true);
-
-            window.addEventListener('dragstart', (event) => event.preventDefault());
-            window.addEventListener('dragenter', (event) => { event.preventDefault(); return false; });
-            window.addEventListener('dragover', (event) => {
-                event.dataTransfer.dropEffect = 'none';
-                event.preventDefault(); return false;
-            });
-            window.addEventListener('drop', (event) => { event.preventDefault(); return false; });
-
-            if ('onorientationchange' in window)
-                window.addEventListener('orientationchange', (e) => this.onOrientationChange(e));
 
             // handle messages
             window.addEventListener('message', (e) => this.onMessage(e));
 
-            if (window['loaded'] === true)
-                this.onWindowLoad();
+            if (App.isReady)
+                this.onReady();
             if (init) {
                 if (init.content !== undefined)
                     this.content = init.content;
@@ -143,9 +123,9 @@ namespace Ui
             return this.selection;
         }
 
-        forceInvalidateMeasure(element: Ui.Element) {
+        static forceInvalidateMeasure(element: Ui.Element) {
             if (element === undefined)
-                element = this;
+                element = Ui.App.current;
             if (element instanceof Ui.Container)
                 for (let i = 0; i < element.children.length; i++)
                     this.forceInvalidateMeasure(element.children[i]);
@@ -154,7 +134,7 @@ namespace Ui
                 (element as any).invalidateTextMeasure();
         }
 
-        requireFont(fontFamily: string, fontWeight: string) {
+        static requireFont(fontFamily: string, fontWeight: string) {
             let fontKey = fontFamily + ':' + fontWeight;
             if (this.requireFonts === undefined)
                 this.requireFonts = {};
@@ -164,13 +144,13 @@ namespace Ui
                     test = Ui.Label.isFontAvailable(fontFamily, fontWeight);
                 this.requireFonts[fontKey] = test;
                 if (test)
-                    this.forceInvalidateMeasure(this);
+                    App.invalidateAllTextMeasure();
                 else if (this.isReady && !test && (this.testFontTask === undefined))
                     this.testFontTask = new Core.DelayedTask(0.25, () => this.testRequireFonts());
             }
         }
 
-        testRequireFonts() {
+        static testRequireFonts() {
             let allDone = true;
             for (let fontKey in this.requireFonts) {
                 let test = this.requireFonts[fontKey];
@@ -179,8 +159,7 @@ namespace Ui
                     test = Ui.Label.isFontAvailable(fontTab[0], fontTab[1]);
                     if (test) {
                         this.requireFonts[fontKey] = true;
-                        let app = this;
-                        this.forceInvalidateMeasure(this);
+                        App.invalidateAllTextMeasure();
                     }
                     else
                         allDone = false;
@@ -192,15 +171,31 @@ namespace Ui
                 this.testFontTask = undefined;
         }
 
-        checkWindowSize() {
+        static invalidateAllTextMeasure() {
+            for (let dialog of this.dialogs)
+                App.forceInvalidateMeasure(dialog);
+            for (let layer of this.topLayers)
+                App.forceInvalidateMeasure(layer);
+            if (Ui.App.current)
+                App.forceInvalidateMeasure(Ui.App.current);
+        }
+
+        static checkWindowSize() {
             let innerWidth = document.body.clientWidth;
             let innerHeight = document.body.clientHeight;
-            if ((innerWidth !== this.layoutWidth) || (innerHeight !== this.layoutHeight))
-                this.invalidateMeasure();
+            if ((innerWidth !== this.windowWidth) || (innerHeight !== this.windowWidth)) {
+                if (Ui.App.current)
+                    Ui.App.current.invalidateLayout();
+                for (let dialog of Ui.App.dialogs)
+                    dialog.invalidateLayout();
+                for (let topLayer of Ui.App.topLayers)
+                    topLayer.invalidateLayout();
+            }
+                
         }
 
         getOrientation() {
-            return this.orientation;
+            return App.orientation;
         }
 
         //
@@ -222,12 +217,12 @@ namespace Ui
         protected onSelectionChange(selection) {
         }
 
-        protected onWindowLoad() {
-            let meta; let style;
+        protected static onWindowLoad() {
+            console.log(`onWindowLoad`);
             if (Core.Navigator.iPad || Core.Navigator.iPhone || Core.Navigator.Android) {
-                if (this.webApp) {
+                if (Ui.App.current && Ui.App.current.webApp) {
                     // support app mode for iPad, iPod and iPhone
-                    meta = document.createElement('meta');
+                    let meta = document.createElement('meta');
                     meta.name = 'apple-mobile-web-app-capable';
                     meta.content = 'yes';
                     document.getElementsByTagName("head")[0].appendChild(meta);
@@ -244,21 +239,21 @@ namespace Ui
                 }
             }
             // set initial device scale for mobile app
-            meta = document.createElement('meta');
+            let meta = document.createElement('meta');
             meta.name = 'viewport';
             meta.content = 'width=device-width, initial-scale=1.0, minimum-scale=1';
             document.getElementsByTagName("head")[0].appendChild(meta);
 
             // hide scroll tap focus (webkit)
             if (Core.Navigator.isWebkit) {
-                style = document.createElement('style');
+                let style = document.createElement('style');
                 style.type = 'text/css';
                 style.innerHTML = '* { -webkit-tap-highlight-color: rgba(0, 0, 0, 0); }';
                 document.getElementsByTagName('head')[0].appendChild(style);
             }
             // disable page zoom and auto scale for IE
             else if (Core.Navigator.isIE) {
-                style = document.createElement('style');
+                let style = document.createElement('style');
                 style.type = 'text/css';
                 style.innerHTML =
                     '@-ms-viewport { width: device-width; } ' +
@@ -266,25 +261,82 @@ namespace Ui
                     //'* { touch-action: none; } ';
                 document.getElementsByTagName('head')[0].appendChild(style);
             }
-            this._loaded = true;
-            this.onReady();
+
+            window.addEventListener('resize', e => App.onWindowResize(e));
+            window.addEventListener('keyup', e => App.onWindowKeyUp(e));
+
+            if ('onorientationchange' in window)
+                window.addEventListener('orientationchange', (e) => App.onOrientationChange(e));
+
+            window.addEventListener('focus', (event: FocusEvent) => {
+                if (event.target == undefined)
+                    return;
+                App.focusElement = event.target;
+            }, true);
+
+            window.addEventListener('blur', (event: FocusEvent) => {
+                App.focusElement = undefined;
+            }, true);
+
+            window.addEventListener('dragstart', (event) => event.preventDefault());
+            window.addEventListener('dragenter', (event) => { event.preventDefault(); return false; });
+            window.addEventListener('dragover', (event) => {
+                event.dataTransfer.dropEffect = 'none';
+                event.preventDefault(); return false;
+            });
+            window.addEventListener('drop', (event) => { event.preventDefault(); return false; });
+
+            if ((this.requireFonts !== undefined) && (this.testFontTask === undefined))
+                this.testRequireFonts();
+
+            for (let dialog of this.dialogs) {
+                document.body.appendChild(dialog.drawing);
+                dialog.isLoaded = true;
+                dialog.parentVisible = true;
+            }
+            for (let layer of this.topLayers) {
+                document.body.appendChild(layer.drawing);
+                layer.isLoaded = true;
+                layer.parentVisible = true;
+            }
+
+            if (Ui.App.current)
+                Ui.App.current.onReady();
+
+            App.checkWindowSize();
+
+            if (App.updateTask === false) {
+                App.updateTask = true;
+                requestAnimationFrame(App.update);
+            }
+
+            // handle native drag & drop
+            new Ui.DragNativeManager();
+
+            // signal ERAts is ready
+            this.ready.fire({ target: this });
+            this._ready = true;
+
+//            this.onReady();
         }
 
-        protected onWindowResize(event) {
+        protected static onWindowResize(event) {
             this.checkWindowSize();
         }
 
-        protected onOrientationChange(event) {
+        protected static onOrientationChange(event) {
             this.orientation = window.orientation as number;
-            this.orientationchanged.fire({ target: this, orientation: this.orientation });
+            this.orientationchanged.fire({ orientation: this.orientation });
             this.checkWindowSize();
         }
 
-        update = () => {
+        static update = () => {
             // update measure
-            let innerWidth = document.body.clientWidth;
-            let innerHeight = document.body.clientHeight;
-            this.updateTask = false;
+            //let innerWidth = document.body.clientWidth;
+            //let innerHeight = document.body.clientHeight;
+            let innerWidth = window.innerWidth;
+            let innerHeight = window.innerHeight;
+            App.updateTask = false;
 
             // to work like Windows 8 and iOS. Take outer size for not
             // taking care of the virtual keyboard size
@@ -293,27 +345,32 @@ namespace Ui
             //			innerHeight = window.outerHeight;
             //		}
 
-            if ((this.windowWidth !== innerWidth) || (this.windowHeight !== innerHeight)) {
-                this.windowWidth = innerWidth;
-                this.windowHeight = innerHeight;
-                this.resized.fire({ target: this, width: this.windowWidth, height: this.windowHeight });
-                this.invalidateLayout();
+            if ((App.windowWidth !== innerWidth) || (App.windowHeight !== innerHeight)) {
+                App.windowWidth = innerWidth;
+                App.windowHeight = innerHeight;
+
+                if (Ui.App.current) {
+                    App.current.resized.fire({ target: App.current, width: App.windowWidth, height: App.windowHeight });
+                    App.current.invalidateLayout();
+                }
+                for (let dialog of App.dialogs)
+                    dialog.invalidateLayout();
             }
 
             // update measure/arrange
-            let layoutList = this.layoutList;
-            this.layoutList = undefined;
+            let layoutList = App.layoutList;
+            App.layoutList = undefined;
             while (layoutList != undefined) {
                 let current = layoutList;
                 layoutList = layoutList.layoutNext;
                 current.layoutValid = true;
                 current.layoutNext = undefined;
-                current.updateLayout(this.windowWidth, this.windowHeight);
+                current.updateLayout(App.windowWidth, App.windowHeight);
             }
 
             // update draw
-            let drawList = this.drawList;
-            this.drawList = undefined;
+            let drawList = App.drawList;
+            App.drawList = undefined;
             while (drawList != undefined) {
                 let next = drawList.drawNext;
                 drawList.drawNext = undefined;
@@ -336,61 +393,63 @@ namespace Ui
             }
         }
 
-        getFocusElement() {
-            return this.focusElement;
-        }
-
-        appendDialog(dialog) {
-            dialog.invalidateLayout();
-            if (this.dialogs === undefined) {
-                this.dialogs = new Ui.LBox();
-                this.dialogs.eventsHidden = true;
-                if (this.topLayers !== undefined)
-                    this.insertChildBefore(this.dialogs, this.topLayers);
-                else
-                    this.appendChild(this.dialogs);
-            }
+        static appendDialog(dialog: Element) {
+            if (App.style)
+                dialog.setParentStyle(App.style);
             this.dialogsFocus.push(this.focusElement);
-            this.dialogs.append(dialog);
-            this.contentBox.disable();
-            for (let i = 0; i < this.dialogs.children.length - 1; i++)
-                this.dialogs.children[i].disable();
+            this.dialogs.push(dialog);
+            if (Ui.App.current)
+                Ui.App.current.contentBox.disable();
+            for (let i = 0; i < this.dialogs.length - 1; i++)
+                this.dialogs[i].disable();
+            if (document.readyState == 'complete') {
+                if (App.topLayers.length > 0)
+                    document.body.insertBefore(dialog.drawing, this.topLayers[0].drawing);
+                else
+                    document.body.appendChild(dialog.drawing);
+                dialog.isLoaded = true;
+                dialog.parentVisible = true;
+            }
+            dialog.invalidateLayout();
         }
 
-        removeDialog(dialog) {
-            if (this.dialogs !== undefined) {
-                let dialogFocus = this.dialogsFocus.pop();
-                this.dialogs.remove(dialog);
-                dialog.layoutValid = true;
-                if (this.dialogs.children.length === 0) {
-                    this.removeChild(this.dialogs);
-                    this.dialogs = undefined;
-                    this.contentBox.enable();
-                }
-                else if (this.dialogs.lastChild)
-                    this.dialogs.lastChild.enable();
-                if (dialogFocus && dialogFocus.focus && (typeof(dialogFocus.focus) == 'function'))
-                    dialogFocus.focus();
+        static removeDialog(dialog: Element) {
+            let dialogFocus = App.dialogsFocus.pop();
+            this.dialogs = this.dialogs.filter(d => d !== dialog);
+            dialog.layoutValid = true;
+            dialog.isLoaded = false;
+            dialog.parentVisible = false;
+            if (document.readyState == 'complete')
+                document.body.removeChild(dialog.drawing);
+            if (this.dialogs.length === 0) {
+                if (Ui.App.current)
+                    Ui.App.current.contentBox.enable();
             }
+            else if (this.dialogs.length > 0)
+                this.dialogs[this.dialogs.length - 1].enable();
+            if (dialogFocus && dialogFocus.focus && (typeof(dialogFocus.focus) == 'function'))
+                dialogFocus.focus();
         }
 
-        appendTopLayer(layer) {
-            if (this.topLayers === undefined) {
-                this.topLayers = new Ui.LBox();
-                this.topLayers.eventsHidden = true;
-                this.appendChild(this.topLayers);
+        static appendTopLayer(layer: Element) {
+            if (App.style)
+                layer.setParentStyle(App.style);
+            layer.invalidateLayout();
+            this.topLayers.push(layer);
+            if (document.readyState == 'complete') {
+                document.body.appendChild(layer.drawing);
+                layer.isLoaded = true;
+                layer.parentVisible = true;
             }
-            this.topLayers.append(layer);
+            layer.invalidateLayout();
         }
 
-        removeTopLayer(layer) {
-            if (this.topLayers !== undefined) {
-                this.topLayers.remove(layer);
-                if (this.topLayers.children.length === 0) {
-                    this.removeChild(this.topLayers);
-                    this.topLayers = undefined;
-                }
-            }
+        static removeTopLayer(layer: Element) {
+            App.topLayers = App.topLayers.filter(l => l !== layer);
+            if (document.readyState == 'complete')
+                document.body.removeChild(layer.drawing);
+            layer.isLoaded = false;
+            layer.parentVisible = false;
         }
 
         //
@@ -400,62 +459,43 @@ namespace Ui
             return this.arguments;
         }
 
-        get isReady(): boolean {
+        static get isReady(): boolean {
             return this._ready;
         }
 
         protected onReady() {
-            if (this._loaded) {
-                document.documentElement.style.position = 'absolute';
-                document.documentElement.style.padding = '0px';
-                document.documentElement.style.margin = '0px';
-                document.documentElement.style.border = '0px solid black';
-                document.documentElement.style.width = '100%';
-                document.documentElement.style.height = '100%';
+            console.log(`${this}.onReady`);
+            document.documentElement.style.position = 'absolute';
+            document.documentElement.style.padding = '0px';
+            document.documentElement.style.margin = '0px';
+            document.documentElement.style.border = '0px solid black';
+            document.documentElement.style.width = '100%';
+            document.documentElement.style.height = '100%';
 
-                document.body.style.position = 'absolute';
-                document.body.style.overflow = 'hidden';
-                document.body.style.padding = '0px';
-                document.body.style.margin = '0px';
-                document.body.style.border = '0px solid black';
-                document.body.style.outline = 'none';
-                document.body.style.width = '100%';
-                document.body.style.height = '100%';
+            document.body.style.position = 'absolute';
+            document.body.style.overflow = 'hidden';
+            document.body.style.padding = '0px';
+            document.body.style.margin = '0px';
+            document.body.style.border = '0px solid black';
+            document.body.style.outline = 'none';
+            document.body.style.width = '100%';
+            document.body.style.height = '100%';
 
+            if (document.body.children.length > 0)
+                document.body.insertBefore(this.drawing, document.body.children[0]);
+            else
                 document.body.appendChild(this.drawing);
 
-                //this.handleScrolling(document.body);
-
-                if ((this.requireFonts !== undefined) && (this.testFontTask === undefined))
-                    this.testRequireFonts();
-
-                this.isLoaded = true;
-                this.parentVisible = true;
-                this.ready.fire({ target: this });
-
-                this._ready = true;
-                if ((this.updateTask === false) && this._ready) {
-                    this.updateTask = true;
-                    requestAnimationFrame(this.update);
-                }
-
-                // create a WheelManager to handle wheel events
-                new Ui.WheelManager(this);
-
-                // handle pointer events
-                //new Ui.PointerManager(this);
-
-                // handle native drag & drop
-                new Ui.DragNativeManager(this);
-            }
+            this.isLoaded = true;
+            this.parentVisible = true;
         }
 
-        protected onWindowKeyUp(event) {
+        protected static onWindowKeyUp(event) {
             let key = event.which;
 
             // escape
-            if ((key == 27) && (this.dialogs !== undefined) && (this.dialogs.children.length > 0)) {
-                let element = this.dialogs.children[this.dialogs.children.length - 1];
+            if ((key == 27) && (App.dialogs !== undefined) && (App.dialogs.length > 0)) {
+                let element = App.dialogs[App.dialogs.length - 1];
                 if (element instanceof Dialog) {
                     let dialog = element as Dialog;
                     // if selection is not empty, empty the selection
@@ -508,56 +548,38 @@ namespace Ui
             return undefined;
         }
 
-        enqueueDraw(element: Element) {
-            element.drawNext = this.drawList;
-            this.drawList = element;
-            if ((this.updateTask === false) && this._ready) {
-                this.updateTask = true;
-                setTimeout(this.update, 0);
+        static enqueueDraw(element: Element) {
+            element.drawNext = App.drawList;
+            App.drawList = element;
+            if (App.isReady && App.updateTask === false) {
+                App.updateTask = true;
+                setTimeout(App.update, 0);
             }
         }
 
-        enqueueLayout(element: Element) {
-            element.layoutNext = this.layoutList;
-            this.layoutList = element;
-            if ((this.updateTask === false) && this._ready) {
-                this.updateTask = true;
-                requestAnimationFrame(this.update);
+        static enqueueLayout(element: Element) {
+            element.layoutNext = App.layoutList;
+            App.layoutList = element;
+            if (App.isReady && App.updateTask === false) {
+                App.updateTask = true;
+                requestAnimationFrame(App.update);
             }
         }
 
-        handleScrolling(drawing) {
-            this.ptrdowned.connect((event: EmuPointerEvent) => {
-                let startOffsetX = drawing.scrollLeft;
-                let startOffsetY = drawing.scrollTop;
-                let watcher = event.pointer.watch(this);
-                watcher.moved.connect(() => {
-                    if (!watcher.getIsCaptured()) {
-                        if (watcher.pointer.getIsMove()) {
-                            let direction = watcher.getDirection();
-                            let allowed = false;
-                            if (direction === 'left')
-                                allowed = (drawing.scrollLeft + drawing.clientWidth) < drawing.scrollWidth;
-                            else if (direction === 'right')
-                                allowed = drawing.scrollLeft > 0;
-                            else if (direction === 'bottom')
-                                allowed = drawing.scrollTop > 0;
-                            // if scroll down, allways allow it because of virtual keyboards
-                            else if (direction === 'top')
-                                allowed = true;// (drawing.scrollTop + drawing.clientHeight) < drawing.scrollHeight;
-                            if (allowed)
-                                watcher.capture();
-                            else
-                                watcher.cancel();
-                        }
-                    }
-                    else {
-                        let delta = watcher.getDelta();
-                        drawing.scrollLeft = startOffsetX - delta.x;
-                        drawing.scrollTop = startOffsetY - delta.y;
-                    }
-                });
-            });
+        static _style: object | undefined;
+
+        static get style(): object | undefined {
+            return this._style;
+        }
+
+        static set style(style: object | undefined) {
+            this._style = style;
+            for (let dialog of this.dialogs)
+                dialog.setParentStyle(style);
+            for (let layer of this.topLayers)
+                layer.setParentStyle(style);
+            if (Ui.App.current)
+                Ui.App.current.setParentStyle(style);
         }
 
         getElementsByClass(className: Function) {
@@ -612,9 +634,9 @@ namespace Ui
             // on Android, remove focus of text elements when
             // the virtual keyboard is closed. Else it will re-open at each touch
             if (Core.Navigator.Android && Core.Navigator.isWebkit) {
-                if ((this.focusElement != undefined) && ((this.focusElement.tagName === 'INPUT') || (this.focusElement.tagName === 'TEXTAREA') || (this.focusElement.contenteditable))) {
+                if ((App.focusElement != undefined) && ((App.focusElement.tagName === 'INPUT') || (App.focusElement.tagName === 'TEXTAREA') || (App.focusElement.contenteditable))) {
                     if (h - 100 > this.lastArrangeHeight)
-                        this.focusElement.blur();
+                        App.focusElement.blur();
                 }
             }
             this.lastArrangeHeight = h;
@@ -652,7 +674,15 @@ namespace Ui
                 rootWindow = rootWindow.parent;
             return rootWindow;
         }
+
+        static initialize() {
+            if(document.readyState == 'complete')
+                App.onWindowLoad();
+            else 
+                window.addEventListener('load', () => App.onWindowLoad());
+        }
     }
 }
 
-window.addEventListener('load', () => window['loaded'] = true);
+Ui.App.initialize();
+

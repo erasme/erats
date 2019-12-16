@@ -12,6 +12,21 @@ namespace Core {
     }
 
     export class FilePostUploader extends Object {
+
+        protected _file: File;
+        protected _service: string;
+        protected request: XMLHttpRequest;
+        protected _responseText: string;
+        protected _method: string = 'POST';
+        protected formData: FormData;
+        protected _isCompleted: boolean = false;
+        protected _isSent: boolean = false;
+        protected _lastStatus: number | undefined;
+        protected field: string = 'file';
+
+        protected loadedOctets: number;
+        protected totalOctets: number;
+
         /**
          * Fires when each time upload progress, usefull to create a upload progress bar
          * @name Core.FilePostUploader#progress
@@ -20,42 +35,24 @@ namespace Core {
          * @param {number} loaded Amount of bytes loaded
          * @param {number} total Total amount of bytes to load
          */
-        /**
-         * Fires when upload request got status == 200
-         * @name Core.FilePostUploader#complete
-         * @event
-         * @param {Core.FilePostUploader} uploader The uploader itself
-         */
-        /**
-         * Fires when upload request got status != 200 or when there is a error while reading the file
-         * @name Core.FilePostUploader#complete
-         * @event
-         * @param {Core.FilePostUploader} uploader The uploader itself
-         */
-
-        protected _file: File;
-        protected _service: string;
-        protected reader: undefined;
-        protected request: XMLHttpRequest;
-        protected binaryString: boolean = false;
-        protected _responseText: string;
-        protected fileReader: FileReader;
-        protected boundary: string;
-        protected _method: string = 'POST';
-        protected fields: object;
-        protected _isCompleted: boolean = false;
-        protected _isSent: boolean = false;
-        field: string = 'file';
-
-        protected loadedOctets: number;
-        protected totalOctets: number;
-
         readonly progress = new Core.Events<{ target: FilePostUploader, loaded: number, total: number }>();
         set onprogress(value: (event: { target: FilePostUploader, loaded: number, total: number }) => void) { this.progress.connect(value); }
 
+        /**
+        * Fires when upload request got status == 200
+        * @name Core.FilePostUploader#complete
+        * @event
+        * @param {Core.FilePostUploader} uploader The uploader itself
+        */
         readonly completed = new Core.Events<{ target: FilePostUploader }>();
         set oncompleted(value: (event: { target: FilePostUploader }) => void) { this.completed.connect(value); }
 
+        /**
+        * Fires when upload request got status != 200 or when there is a error while reading the file
+        * @name Core.FilePostUploader#complete
+        * @event
+        * @param {Core.FilePostUploader} uploader The uploader itself
+        */
         readonly error = new Core.Events<{ target: FilePostUploader, status: number }>();
         set onerror(value: (event: { target: FilePostUploader, status: number }) => void) { this.error.connect(value); }
 
@@ -67,7 +64,7 @@ namespace Core {
         */
         constructor(init?: FilePostUploaderInit) {
             super();
-            this.fields = {};
+            this.formData = new FormData();
             if (init) {
                 if (init.method !== undefined)
                     this.method = init.method;
@@ -106,12 +103,28 @@ namespace Core {
             this._service = service;
         }
 
-        setField(name, value) {
-            this.fields[name] = value;
+        setField(name: string, value: string | Blob, fileName?: string) {
+            this.formData.set(name, value, fileName)
+        }
+
+        appendField(name: string, value: string | Blob, fileName?: string) {
+            this.formData.append(name, value, fileName)
+        }
+
+        deleteField(name: string) {
+            this.formData.delete(name);
         }
 
         set arguments(args: object) {
-            this.fields = args;
+            for (const key in args) {
+                if (Array.isArray(args[key])) {
+                    for (const data of args[key]) {
+                        this.formData.append(key, data);
+                    }
+                } else {
+                    this.formData.append(key, args[key]);
+                }
+            }
         }
 
         set destination(destination: string) {
@@ -122,48 +135,20 @@ namespace Core {
         // Send the file
         //
         send() {
-            //let wrapper; 
-            let field;
             this._isSent = true;
-            if (Core.Navigator.supportFormData) {
-                let formData = new FormData();
-                for (field in this.fields) {
-                    formData.append(field, this.fields[field]);
-                }
-                formData.append(this.field, this._file);
+            if (this._file)
+                this.formData.append(this.field, this._file);
 
-                this.request = new XMLHttpRequest();
-                if ('upload' in this.request)
-                    this.request.upload.addEventListener('progress', e => this.onUpdateProgress(e));
-                this.request.open(this._method, this._service);
-                this.request.send(formData);
-                this.request.onreadystatechange = (event) => this.onStateChange(event);
-            }
-            else {
-                this.fileReader = new FileReader();
-                this.request = new XMLHttpRequest();
-                if ('upload' in this.request)
-                    this.request.upload.addEventListener('progress', e => this.onUpdateProgress(e));
-                this.request.open(this._method, this._service);
-
-                this.boundary = '----';
-                let characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-                for (let i = 0; i < 16; i++)
-                    this.boundary += characters[Math.floor(Math.random() * characters.length)];
-                this.boundary += '----';
-
-                this.request.setRequestHeader("Content-Type", "multipart/form-data, boundary=" + this.boundary);
-                this.request.setRequestHeader("Content-Length", this._file.size.toString());
-                this.request.onreadystatechange = (event) => this.onStateChange(event);
-                this.fileReader.onload = (event) => this.onFileReaderLoad(event);
-                this.fileReader.onerror = (event) => this.onFileReaderError(event);
-
-                this.fileReader.readAsBinaryString(this._file);
-            }
+            this.request = new XMLHttpRequest();
+            if ('upload' in this.request)
+                this.request.upload.addEventListener('progress', e => this.onUpdateProgress(e));
+            this.request.open(this._method, this._service);
+            this.request.send(this.formData);
+            this.request.onreadystatechange = (event) => this.onStateChange(event);
         }
 
         get status(): number {
-            return this.request.status;
+            return this.request ? this.request.status : this._lastStatus;
         }
 
         sendAsync() {
@@ -221,6 +206,7 @@ namespace Core {
         }
 
         protected onStateChange(event) {
+            this._lastStatus = this.request.status;
             if (this.request.readyState == 4) {
                 this._isCompleted = true;
                 if (this.request.status == 200) {
@@ -240,30 +226,5 @@ namespace Core {
             this.totalOctets = event.total;
             this.progress.fire({ target: this, loaded: event.loaded, total: event.total });
         }
-
-        protected onFileReaderError(event) {
-            this.request.abort();
-            this.request = undefined;
-            this.error.fire({ target: this, status: event.status });
-            this.fileReader = undefined;
-        }
-
-        protected onFileReaderLoad(event) {
-            let body = '--' + this.boundary + '\r\n';
-            body += "Content-Disposition: form-data; name='" + this.field + "'; filename='" + this._file.name + "'\r\n";
-            body += 'Content-Type: ' + this._file.type + '\r\n\r\n';
-            body += event.target.result + '\r\n';
-            body += '--' + this.boundary + '--';
-            (this.request as any).sendAsBinary(body);
-
-            this.fileReader = undefined;
-        }
-
-        /*protected onIFrameLoad(event) {
-            this._responseText = event.target.contentWindow.document.body.innerText;
-            document.body.removeChild(this._file.iframe);
-            this.completed.fire({ target: this });
-        }*/
     }
 }
-

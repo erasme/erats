@@ -91,7 +91,11 @@ namespace Ui {
             this.titleLabel.text = title;
         }
 
-        setCancelButton(button: Pressable) {
+        getCancelButton(): Pressable | undefined {
+            return this.cancelButton;
+        }
+
+        setCancelButton(button: Pressable | undefined) {
             if (this.cancelButton !== undefined) {
                 if (this.cancelButton instanceof Pressable)
                     this.cancelButton.pressed.disconnect(this.onCancelPress);
@@ -164,6 +168,12 @@ namespace Ui {
 
         constructor(init?: DialogInit) {
             super(init);
+            this.drawing.style.position = 'fixed';
+            this.drawing.style.top = '0';
+            this.drawing.style.bottom = '0';
+            this.drawing.style.left = '0';
+            this.drawing.style.right = '0';
+
             this.dialogSelection = new Ui.Selection();
 
             this.shadowGraphic = new Ui.Rectangle();
@@ -216,6 +226,8 @@ namespace Ui {
 
             this.cancelButton = new DialogCloseButton();
 
+            this.onStyleChange();
+
             if (init) {
                 if (init.padding !== undefined)
                     this.padding = init.padding;
@@ -263,7 +275,7 @@ namespace Ui {
 
         open() {
             if (this.isClosed) {
-                Ui.App.current.appendDialog(this);
+                Ui.App.appendDialog(this);
                 this.isClosed = false;
 
                 if (this.openClock == undefined) {
@@ -312,7 +324,7 @@ namespace Ui {
                     this.openClock.stop();
                 this.openClock = undefined;
                 if (this.isClosed) {
-                    Ui.App.current.removeDialog(this);
+                    Ui.App.removeDialog(this);
                     this.lbox.enable();
                 }
             }
@@ -352,11 +364,19 @@ namespace Ui {
                 this.buttonsBox.hide(true);
             }
         }
-    
+
+        get cancelButton(): Pressable | undefined {
+            return this.actionBox.getCancelButton();
+        }
+
         set cancelButton(button: Pressable | undefined) {
             this._cancelButton = button;
             this.actionBox.setCancelButton(button);
             this.updateButtonsBoxVisible();
+        }
+
+        get actionButtons(): Element[] {
+            return this.actionBox.getActionButtons();
         }
 
         set actionButtons(buttons: Element[]) {
@@ -418,6 +438,16 @@ namespace Ui {
         protected onStyleChange(): void {
             this.shadowGraphic.fill = this.getStyleProperty('shadow');
             this.graphic.background = this.getStyleProperty('background');
+        }
+
+        invalidateArrange() {
+            super.invalidateArrange();
+            this.invalidateLayout();
+        }
+
+        invalidateMeasure() {
+            super.invalidateMeasure();
+            this.invalidateLayout();
         }
 
         protected measureCore(width: number, height: number): Size {

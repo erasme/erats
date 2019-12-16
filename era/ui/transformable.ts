@@ -269,8 +269,10 @@ namespace Ui {
 
             this.element.setTransformOrigin(0, 0, true);
 
-
-            this.element.wheelchanged.connect(e => this.onWheel(e));
+            new WheelWatcher({
+                element: this.element,
+                onchanged: (e) => this.onWheel(e)
+            });
 
             new ElementPointerManager({
                 element: this.element,
@@ -839,7 +841,10 @@ namespace Ui {
                 onptrdowned: (e) => this.onPointerDown(e)
             });
 
-            this.wheelchanged.connect(e => this.onWheel(e));
+            new WheelWatcher({
+                element: this,
+                onchanged: (e) => this.onWheel(e)
+            });
 
             if (init) {
                 if (init.inertia !== undefined)

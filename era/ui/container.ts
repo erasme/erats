@@ -191,31 +191,6 @@ namespace Ui
             return undefined;
         }
 
-        elementFromPoint(point: Point): Element | undefined {
-            if (!this.isVisible)
-                return undefined;
-
-            let p = point.multiply(this.getLayoutTransform());
-
-            let isInside = ((p.x >= 0) && (p.x <= this.layoutWidth) &&
-                (p.y >= 0) && (p.y <= this.layoutHeight));
-
-            if (this.clipToBounds && !isInside)
-                return undefined;
-
-            if (this._children != undefined) {
-                for (let i = this._children.length - 1; i >= 0; i--) {
-                    let found = this._children[i].elementFromPoint(p);
-                    if (found != undefined)
-                        return found;
-                }
-            }
-            if (!this.eventsHidden && isInside)
-                return this;
-
-            return undefined;
-        }
-
         protected onLoad() {
             super.onLoad();
             for (let i = 0; i < this._children.length; i++)

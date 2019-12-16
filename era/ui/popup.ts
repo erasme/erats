@@ -142,7 +142,7 @@ namespace Ui
                 this.openClock.stop();
                 this.openClock = undefined;
                 if (this.isClosed) {
-                    App.current.removeDialog(this);
+                    App.removeDialog(this);
                     this.enable();
                 }
             }
@@ -174,7 +174,7 @@ namespace Ui
 
         private openPosOrElement(posX?, posY?) {
             if (this.isClosed) {
-                App.current.appendDialog(this);
+                App.appendDialog(this);
                 this.isClosed = false;
 
                 this.attachedElement = undefined;
@@ -228,6 +228,16 @@ namespace Ui
                     this.openClock.begin();
                 }
             }
+        }
+
+        invalidateArrange() {
+            super.invalidateArrange();
+            this.invalidateLayout();
+        }
+
+        invalidateMeasure() {
+            super.invalidateMeasure();
+            this.invalidateLayout();
         }
 
         protected measureCore(width: number, height: number) {

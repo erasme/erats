@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ES5",
+    "module": "none",
+    "strict": true,
+    "outFile": "./main.js",
+    "lib": [
+      "dom",
+      "es2015"
+    ]
+  },
+  "files": [
+    "main.ts",
+  ]
+}

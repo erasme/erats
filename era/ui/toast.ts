@@ -6,21 +6,24 @@
 
         constructor() {
             super();
-            this.margin = 10;
+            //this.margin = 10;
             this.eventsHidden = true;
+            this.drawing.style.position = 'fixed';
+            this.drawing.style.top = '0';
+            this.drawing.style.left = '0';
         }
 
         appendToast(toast: Toast) {
             toast.newToast = true;
             if (this.children.length === 0)
-                App.current.appendTopLayer(this);
+                App.appendTopLayer(this);
             this.appendChild(toast);
         }
 
         removeToast(toast: Toast) {
             this.removeChild(toast);
             if (this.children.length === 0)
-                App.current.removeTopLayer(this);
+                App.removeTopLayer(this);
         }
 
         protected onArrangeTick(clock, progress, delta) {
@@ -40,6 +43,16 @@
                 this.arrangeClock = undefined;
         }
 
+        invalidateArrange() {
+            super.invalidateArrange();
+            this.invalidateLayout();
+        }
+
+        invalidateMeasure() {
+            super.invalidateMeasure();
+            this.invalidateLayout();
+        }
+
         protected measureCore(width: number, height: number) {
             let spacing = 10;
             let maxWidth = 0;
@@ -52,7 +65,7 @@
                     maxWidth = size.width;
             }
             totalHeight += Math.max(0, this.children.length - 1) * spacing;
-            return { width: maxWidth, height: totalHeight };
+            return { width: maxWidth + 10, height: totalHeight + 10 };
         }
 
         protected arrangeCore(width: number, height: number) {
@@ -63,7 +76,7 @@
                 child.lastLayoutX = child.layoutX;
                 child.lastLayoutY = child.layoutY;
                 y += child.measureHeight;
-                child.arrange(0, height - y, this.measureWidth, child.measureHeight);
+                child.arrange(10, height - (y + 10), this.measureWidth, child.measureHeight);
                 y += spacing;
             }
             if (this.arrangeClock === undefined) {
@@ -115,7 +128,6 @@
 
         open() {
             if (this._isClosed) {
-                //			Ui.App.current.appendDialog(this, false);
                 this._isClosed = false;
 
                 if (this.openClock == undefined) {
@@ -128,7 +140,7 @@
                     this.opacity = 0;
                     // the start of the animation is delayed to the next arrange
                 }
-                new Core.DelayedTask(2, () => this.close());
+                new Core.DelayedTask(20, () => this.close());
                 Ui.Toaster.appendToast(this);
             }
         }
