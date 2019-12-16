@@ -874,8 +874,6 @@ declare namespace Ui {
         get layoutHeight(): number;
         set id(id: string);
         get id(): string;
-        set title(title: string);
-        get title(): string;
         get focusable(): boolean;
         set focusable(focusable: boolean);
         private onMouseDownFocus;
@@ -1990,6 +1988,8 @@ declare namespace Ui {
             middleButton?: boolean;
         }) => void);
         constructor(init?: PressableInit);
+        set title(title: string);
+        get title(): string;
         get isDown(): boolean;
         set lock(lock: boolean);
         get lock(): boolean;
