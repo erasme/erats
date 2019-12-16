@@ -17498,7 +17498,7 @@ var Ui;
                     this.openClock.timeupdate.connect(function (e) { return _this.onOpenTick(e.target, e.progress, e.deltaTick); });
                     this.opacity = 0;
                 }
-                new Core.DelayedTask(20, function () { return _this.close(); });
+                new Core.DelayedTask(2, function () { return _this.close(); });
                 Ui.Toaster.appendToast(this);
             }
         };
