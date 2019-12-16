@@ -140,7 +140,7 @@
                     this.opacity = 0;
                     // the start of the animation is delayed to the next arrange
                 }
-                new Core.DelayedTask(20, () => this.close());
+                new Core.DelayedTask(2, () => this.close());
                 Ui.Toaster.appendToast(this);
             }
         }
