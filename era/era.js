@@ -27393,6 +27393,13 @@ var Ui;
             configurable: true
         });
         Object.defineProperty(SegmentBar.prototype, "data", {
+            get: function () {
+                var data = [];
+                for (var i = 0; i < this.logicalChildren.length; i++) {
+                    data.push(this.logicalChildren[i].data);
+                }
+                return data;
+            },
             set: function (data) {
                 var pos = this.currentPosition;
                 while (this.box.firstChild !== undefined) {
