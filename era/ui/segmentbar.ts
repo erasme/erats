@@ -175,6 +175,7 @@ namespace Ui {
             let textHeight = this.getStyleProperty('textHeight');
             let textTransform = this.getStyleProperty('textTransform');
 
+            this.box.spacing = spacing;
             this.box.margin = borderWidth;
             this.border.fill = backgroundBorder;
             for (let i = 0; i < this.box.children.length; i++) {

@@ -27502,6 +27502,7 @@ var Ui;
             var activeForeground = this.getStyleProperty('activeForeground');
             var textHeight = this.getStyleProperty('textHeight');
             var textTransform = this.getStyleProperty('textTransform');
+            this.box.spacing = spacing;
             this.box.margin = borderWidth;
             this.border.fill = backgroundBorder;
             for (var i = 0; i < this.box.children.length; i++) {
