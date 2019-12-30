@@ -218,7 +218,6 @@ namespace Ui
         }
 
         protected static onWindowLoad() {
-            console.log(`onWindowLoad`);
             if (Core.Navigator.iPad || Core.Navigator.iPhone || Core.Navigator.Android) {
                 if (Ui.App.current && Ui.App.current.webApp) {
                     // support app mode for iPad, iPod and iPhone
@@ -241,7 +240,11 @@ namespace Ui
             // set initial device scale for mobile app
             let meta = document.createElement('meta');
             meta.name = 'viewport';
-            meta.content = 'width=device-width, initial-scale=1.0, minimum-scale=1';
+            // disable user scalable for iOS because it create problem with double tap actions
+            if (Core.Navigator.iOs)
+                meta.content = 'width=device-width, user-scalable=no';
+            else
+                meta.content = 'width=device-width, initial-scale=1.0, minimum-scale=1';
             document.getElementsByTagName("head")[0].appendChild(meta);
 
             // hide scroll tap focus (webkit)
@@ -464,7 +467,6 @@ namespace Ui
         }
 
         protected onReady() {
-            console.log(`${this}.onReady`);
             document.documentElement.style.position = 'absolute';
             document.documentElement.style.padding = '0px';
             document.documentElement.style.margin = '0px';

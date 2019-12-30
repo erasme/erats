@@ -15944,7 +15944,6 @@ var Ui;
         App.prototype.onSelectionChange = function (selection) {
         };
         App.onWindowLoad = function () {
-            console.log("onWindowLoad");
             if (Core.Navigator.iPad || Core.Navigator.iPhone || Core.Navigator.Android) {
                 if (Ui.App.current && Ui.App.current.webApp) {
                     var meta_1 = document.createElement('meta');
@@ -15963,7 +15962,10 @@ var Ui;
             }
             var meta = document.createElement('meta');
             meta.name = 'viewport';
-            meta.content = 'width=device-width, initial-scale=1.0, minimum-scale=1';
+            if (Core.Navigator.iOs)
+                meta.content = 'width=device-width, user-scalable=no';
+            else
+                meta.content = 'width=device-width, initial-scale=1.0, minimum-scale=1';
             document.getElementsByTagName("head")[0].appendChild(meta);
             if (Core.Navigator.isWebkit) {
                 var style = document.createElement('style');
@@ -16114,7 +16116,6 @@ var Ui;
             configurable: true
         });
         App.prototype.onReady = function () {
-            console.log(this + ".onReady");
             document.documentElement.style.position = 'absolute';
             document.documentElement.style.padding = '0px';
             document.documentElement.style.margin = '0px';
