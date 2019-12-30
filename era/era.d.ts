@@ -6351,6 +6351,7 @@ declare namespace Ui {
         set field(field: string);
         set iconField(iconField: string);
         set data(data: Array<any>);
+        get data(): Array<any>;
         set currentPosition(position: number);
         get currentPosition(): number;
         get logicalChildren(): Array<SegmentButton>;

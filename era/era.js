@@ -27394,6 +27394,13 @@ var Ui;
             configurable: true
         });
         Object.defineProperty(SegmentBar.prototype, "data", {
+            get: function () {
+                var data = [];
+                for (var i = 0; i < this.logicalChildren.length; i++) {
+                    data.push(this.logicalChildren[i].data);
+                }
+                return data;
+            },
             set: function (data) {
                 var pos = this.currentPosition;
                 while (this.box.firstChild !== undefined) {
@@ -27496,6 +27503,7 @@ var Ui;
             var activeForeground = this.getStyleProperty('activeForeground');
             var textHeight = this.getStyleProperty('textHeight');
             var textTransform = this.getStyleProperty('textTransform');
+            this.box.spacing = spacing;
             this.box.margin = borderWidth;
             this.border.fill = backgroundBorder;
             for (var i = 0; i < this.box.children.length; i++) {

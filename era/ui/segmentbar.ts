@@ -82,6 +82,14 @@ namespace Ui {
             this.currentPosition = Math.max(0, Math.min(pos, this.box.children.length - 1));
         }
 
+        get data(): Array<any> {
+            let data = [];
+            for (let i = 0; i < this.logicalChildren.length; i++) {
+                data.push(this.logicalChildren[i].data);
+            }
+            return data;
+        }
+
         set currentPosition(position: number) {
             if ((position >= 0) && (position < this.box.children.length)) {
                 this._current = this.box.children[position] as SegmentButton;
@@ -167,6 +175,7 @@ namespace Ui {
             let textHeight = this.getStyleProperty('textHeight');
             let textTransform = this.getStyleProperty('textTransform');
 
+            this.box.spacing = spacing;
             this.box.margin = borderWidth;
             this.border.fill = backgroundBorder;
             for (let i = 0; i < this.box.children.length; i++) {
