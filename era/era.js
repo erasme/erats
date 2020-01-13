@@ -27555,7 +27555,7 @@ var Ui;
             activeForeground: 'rgba(250,250,250,1)',
             radius: 3,
             textHeight: 26,
-            spacing: 10,
+            spacing: 0,
             padding: 7,
             textTransform: 'uppercase'
         };
