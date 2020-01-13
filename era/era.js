@@ -1682,6 +1682,7 @@ var Core;
         __extends(FilePostUploader, _super);
         function FilePostUploader(init) {
             var _this = _super.call(this) || this;
+            _this.headers = undefined;
             _this._method = 'POST';
             _this._isCompleted = false;
             _this._isSent = false;
@@ -1693,6 +1694,8 @@ var Core;
             if (init) {
                 if (init.method !== undefined)
                     _this.method = init.method;
+                if (init.headers !== undefined)
+                    _this.headers = init.headers;
                 if (init.file !== undefined)
                     _this.file = init.file;
                 if (init.field !== undefined)
@@ -1727,6 +1730,11 @@ var Core;
             enumerable: true,
             configurable: true
         });
+        FilePostUploader.prototype.setRequestHeader = function (header, value) {
+            if (this.headers === undefined)
+                this.headers = {};
+            this.headers[header] = value;
+        };
         Object.defineProperty(FilePostUploader.prototype, "method", {
             set: function (method) {
                 this._method = method;
@@ -1792,6 +1800,10 @@ var Core;
             this.request = new XMLHttpRequest();
             if ('upload' in this.request)
                 this.request.upload.addEventListener('progress', function (e) { return _this.onUpdateProgress(e); });
+            if (this.headers !== undefined) {
+                for (var header in this.headers)
+                    this.request.setRequestHeader(header, this.headers[header]);
+            }
             this.request.open(this._method, this._service);
             this.request.send(this.formData);
             this.request.onreadystatechange = function (event) { return _this.onStateChange(event); };

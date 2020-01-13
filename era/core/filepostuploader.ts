@@ -1,6 +1,7 @@
 namespace Core {
     export interface FilePostUploaderInit {
         method?: string;
+        headers?: object;
         file?: File;
         field?: string;
         service?: string;
@@ -12,7 +13,7 @@ namespace Core {
     }
 
     export class FilePostUploader extends Object {
-
+        headers: object = undefined;
         protected _file: File;
         protected _service: string;
         protected request: XMLHttpRequest;
@@ -68,6 +69,8 @@ namespace Core {
             if (init) {
                 if (init.method !== undefined)
                     this.method = init.method;
+                if (init.headers !== undefined)
+                    this.headers = init.headers;
                 if (init.file !== undefined)
                     this.file = init.file;
                 if (init.field !== undefined)
@@ -85,6 +88,12 @@ namespace Core {
                 if (init.onerror)
                     this.error.connect(init.onerror);
             }
+        }
+
+        setRequestHeader(header: string, value: string) {
+            if (this.headers === undefined)
+                this.headers = {};
+            this.headers[header] = value;
         }
 
         set method(method: string) {
@@ -142,6 +151,10 @@ namespace Core {
             this.request = new XMLHttpRequest();
             if ('upload' in this.request)
                 this.request.upload.addEventListener('progress', e => this.onUpdateProgress(e));
+            if (this.headers !== undefined) {
+                for (let header in this.headers)
+                    this.request.setRequestHeader(header, this.headers[header]);
+            }
             this.request.open(this._method, this._service);
             this.request.send(this.formData);
             this.request.onreadystatechange = (event) => this.onStateChange(event);

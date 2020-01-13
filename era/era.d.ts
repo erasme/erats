@@ -319,6 +319,7 @@ declare namespace Core {
 declare namespace Core {
     interface FilePostUploaderInit {
         method?: string;
+        headers?: object;
         file?: File;
         field?: string;
         service?: string;
@@ -338,6 +339,7 @@ declare namespace Core {
         }) => void;
     }
     class FilePostUploader extends Object {
+        headers: object;
         protected _file: File;
         protected _service: string;
         protected request: XMLHttpRequest;
@@ -375,6 +377,7 @@ declare namespace Core {
             status: number;
         }) => void);
         constructor(init?: FilePostUploaderInit);
+        setRequestHeader(header: string, value: string): void;
         set method(method: string);
         get file(): File;
         set file(file: File);
