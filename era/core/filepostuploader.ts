@@ -151,11 +151,11 @@ namespace Core {
             this.request = new XMLHttpRequest();
             if ('upload' in this.request)
                 this.request.upload.addEventListener('progress', e => this.onUpdateProgress(e));
+            this.request.open(this._method, this._service);
             if (this.headers !== undefined) {
                 for (let header in this.headers)
                     this.request.setRequestHeader(header, this.headers[header]);
             }
-            this.request.open(this._method, this._service);
             this.request.send(this.formData);
             this.request.onreadystatechange = (event) => this.onStateChange(event);
         }
