@@ -13,7 +13,7 @@ namespace Core {
     }
 
     export class FilePostUploader extends Object {
-        headers: object = undefined;
+        _headers: object = undefined;
         protected _file: File;
         protected _service: string;
         protected request: XMLHttpRequest;
@@ -88,6 +88,14 @@ namespace Core {
                 if (init.onerror)
                     this.error.connect(init.onerror);
             }
+        }
+
+        set headers(headers: object) {
+            this._headers = Core.Util.clone(headers);
+        }
+
+        get headers(): object {
+            return this._headers;
         }
 
         setRequestHeader(header: string, value: string) {

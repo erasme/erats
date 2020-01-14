@@ -141,7 +141,7 @@ declare module Core {
         binary: boolean;
         arguments: object;
         content: any;
-        headers: object;
+        _headers: object;
         private request;
         static requestHeaders: object;
         readonly error: Events<{
@@ -159,6 +159,8 @@ declare module Core {
             target: HttpRequest;
         }) => void);
         constructor(init?: HttpRequestInit);
+        set headers(headers: object);
+        get headers(): object;
         setRequestHeader(header: any, value: any): void;
         addArgument(argName: any, argValue: any): void;
         abort(): void;
@@ -339,7 +341,6 @@ declare namespace Core {
         }) => void;
     }
     class FilePostUploader extends Object {
-        headers: object;
         protected _file: File;
         protected _service: string;
         protected request: XMLHttpRequest;
@@ -377,7 +378,9 @@ declare namespace Core {
             status: number;
         }) => void);
         constructor(init?: FilePostUploaderInit);
-        setRequestHeader(header: string, value: string): void;
+        _headers: object;
+        set headers(headers: object);
+        get headers(): object;
         set method(method: string);
         get file(): File;
         set file(file: File);

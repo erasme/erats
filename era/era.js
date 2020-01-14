@@ -992,7 +992,7 @@ var Core;
             _this.binary = false;
             _this.arguments = undefined;
             _this.content = undefined;
-            _this.headers = undefined;
+            _this._headers = undefined;
             _this.error = new Core.Events();
             _this.done = new Core.Events();
             _this.request = new XMLHttpRequest();
@@ -1032,6 +1032,16 @@ var Core;
         });
         Object.defineProperty(HttpRequest.prototype, "ondone", {
             set: function (value) { this.done.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(HttpRequest.prototype, "headers", {
+            get: function () {
+                return this._headers;
+            },
+            set: function (headers) {
+                this._headers = Core.Util.clone(headers);
+            },
             enumerable: true,
             configurable: true
         });
@@ -1682,7 +1692,6 @@ var Core;
         __extends(FilePostUploader, _super);
         function FilePostUploader(init) {
             var _this = _super.call(this) || this;
-            _this.headers = undefined;
             _this._method = 'POST';
             _this._isCompleted = false;
             _this._isSent = false;
@@ -1730,11 +1739,16 @@ var Core;
             enumerable: true,
             configurable: true
         });
-        FilePostUploader.prototype.setRequestHeader = function (header, value) {
-            if (this.headers === undefined)
-                this.headers = {};
-            this.headers[header] = value;
-        };
+        Object.defineProperty(FilePostUploader.prototype, "headers", {
+            get: function () {
+                return this._headers;
+            },
+            set: function (headers) {
+                this._headers = Core.Util.clone(headers);
+            },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(FilePostUploader.prototype, "method", {
             set: function (method) {
                 this._method = method;

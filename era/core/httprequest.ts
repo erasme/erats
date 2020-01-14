@@ -18,7 +18,7 @@ module Core {
         binary: boolean = false;
         arguments: object = undefined;
         content: any = undefined;
-        headers: object = undefined;
+        _headers: object = undefined;
         private request: XMLHttpRequest;
         static requestHeaders: object = undefined;
         readonly error = new Core.Events<{ target: HttpRequest, code: number }>();
@@ -59,6 +59,14 @@ module Core {
                 if (init.onerror)
                     this.error.connect(init.onerror);
             }
+        }
+
+        set headers(headers: object) {
+            this._headers = Core.Util.clone(headers);
+        }
+
+        get headers(): object {
+            return this._headers;
         }
 
         setRequestHeader(header, value) {
