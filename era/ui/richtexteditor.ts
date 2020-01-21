@@ -18,6 +18,9 @@ namespace Ui {
         readonly changed = new Core.Events<{ target: RichTextEditor }>();
         set onchanged(value: (event: { target: RichTextEditor }) => void) { this.changed.connect(value); }
 
+        readonly link = new Core.Events<{ target: RichTextEditor, ref: string }>();
+        set onlink(value: (event: { target: RichTextEditor, ref: string }) => void) { this.link.connect(value); }
+
         constructor() {
             super();
             this.focusable = true;
@@ -139,6 +142,7 @@ namespace Ui {
                 onselectionleaved: () => {
                 },
                 onchanged: () => this.changed.fire({ target: this }),
+                onlink: (e) => this.link.fire({ target: this, ref: e.ref }),
                 selectable: true
             });
 

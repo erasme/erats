@@ -1692,6 +1692,7 @@ var Core;
         __extends(FilePostUploader, _super);
         function FilePostUploader(init) {
             var _this = _super.call(this) || this;
+            _this._headers = undefined;
             _this._method = 'POST';
             _this._isCompleted = false;
             _this._isSent = false;
@@ -1749,6 +1750,11 @@ var Core;
             enumerable: true,
             configurable: true
         });
+        FilePostUploader.prototype.setRequestHeader = function (header, value) {
+            if (this.headers === undefined)
+                this.headers = {};
+            this.headers[header] = value;
+        };
         Object.defineProperty(FilePostUploader.prototype, "method", {
             set: function (method) {
                 this._method = method;
@@ -28912,6 +28918,7 @@ var Ui;
             _this._textHolder = new Ui.Text();
             _this.bg = new Ui.TextBgGraphic();
             _this.changed = new Core.Events();
+            _this.link = new Core.Events();
             _this.focusable = true;
             var boldButton = new RichTextButton().assign({
                 icon: 'format-bold', focusable: false,
@@ -29029,6 +29036,7 @@ var Ui;
                 onselectionleaved: function () {
                 },
                 onchanged: function () { return _this.changed.fire({ target: _this }); },
+                onlink: function (e) { return _this.link.fire({ target: _this, ref: e.ref }); },
                 selectable: true
             });
             _this.focusInWatcher = new Ui.FocusInWatcher({
@@ -29075,6 +29083,11 @@ var Ui;
         }
         Object.defineProperty(RichTextEditor.prototype, "onchanged", {
             set: function (value) { this.changed.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(RichTextEditor.prototype, "onlink", {
+            set: function (value) { this.link.connect(value); },
             enumerable: true,
             configurable: true
         });

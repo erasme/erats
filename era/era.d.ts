@@ -341,6 +341,7 @@ declare namespace Core {
         }) => void;
     }
     class FilePostUploader extends Object {
+        _headers: object;
         protected _file: File;
         protected _service: string;
         protected request: XMLHttpRequest;
@@ -378,9 +379,9 @@ declare namespace Core {
             status: number;
         }) => void);
         constructor(init?: FilePostUploaderInit);
-        _headers: object;
         set headers(headers: object);
         get headers(): object;
+        setRequestHeader(header: string, value: string): void;
         set method(method: string);
         get file(): File;
         set file(file: File);
@@ -6656,6 +6657,14 @@ declare namespace Ui {
         }>;
         set onchanged(value: (event: {
             target: RichTextEditor;
+        }) => void);
+        readonly link: Core.Events<{
+            target: RichTextEditor;
+            ref: string;
+        }>;
+        set onlink(value: (event: {
+            target: RichTextEditor;
+            ref: string;
         }) => void);
         constructor();
         private showHideTextHolder;
