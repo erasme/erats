@@ -648,7 +648,7 @@ declare namespace Ui {
         addL(l: number): Color;
         getCssRgba(): string;
         getCssRgb(): string;
-        getCssHtml(): string;
+        getCssHtml(alpha?: boolean): string;
         getRgba(): {
             r: number;
             g: number;

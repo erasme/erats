@@ -2821,7 +2821,8 @@ var Ui;
         Color.prototype.getCssRgb = function () {
             return 'rgb(' + Math.round(this.r * 255) + ',' + Math.round(this.g * 255) + ',' + Math.round(this.b * 255) + ')';
         };
-        Color.prototype.getCssHtml = function () {
+        Color.prototype.getCssHtml = function (alpha) {
+            if (alpha === void 0) { alpha = false; }
             var res = '#';
             var t = Math.round(this.r * 255).toString(16);
             if (t.length == 1)
@@ -2835,6 +2836,12 @@ var Ui;
             if (t.length == 1)
                 t = '0' + t;
             res += t;
+            if (alpha) {
+                t = Math.round(this.a * 255).toString(16);
+                if (t.length == 1)
+                    t = '0' + t;
+                res += t;
+            }
             return res;
         };
         Color.prototype.getRgba = function () {
@@ -2974,17 +2981,31 @@ var Ui;
                     return new Color(r, g, b);
                 }
                 else if (color.indexOf('#') === 0) {
-                    if (color.length == 7) {
+                    if (color.length == 4) {
+                        r = parseInt(color.substr(1, 1), 16) / 15;
+                        g = parseInt(color.substr(2, 1), 16) / 15;
+                        b = parseInt(color.substr(3, 1), 16) / 15;
+                        return new Color(r, g, b);
+                    }
+                    else if (color.length == 5) {
+                        r = parseInt(color.substr(1, 1), 16) / 15;
+                        g = parseInt(color.substr(2, 1), 16) / 15;
+                        b = parseInt(color.substr(3, 1), 16) / 15;
+                        a = parseInt(color.substr(4, 1), 16) / 15;
+                        return new Color(r, g, b, a);
+                    }
+                    else if (color.length == 7) {
                         r = parseInt(color.substr(1, 2), 16) / 255;
                         g = parseInt(color.substr(3, 2), 16) / 255;
                         b = parseInt(color.substr(5, 2), 16) / 255;
                         return new Color(r, g, b);
                     }
-                    else if (color.length == 4) {
-                        r = parseInt(color.substr(1, 1), 16) / 15;
-                        g = parseInt(color.substr(2, 1), 16) / 15;
-                        b = parseInt(color.substr(3, 1), 16) / 15;
-                        return new Color(r, g, b);
+                    else if (color.length == 9) {
+                        r = parseInt(color.substr(1, 2), 16) / 255;
+                        g = parseInt(color.substr(3, 2), 16) / 255;
+                        b = parseInt(color.substr(5, 2), 16) / 255;
+                        a = parseInt(color.substr(7, 2), 16) / 255;
+                        return new Color(r, g, b, a);
                     }
                 }
             }

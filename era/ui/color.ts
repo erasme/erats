@@ -1,7 +1,5 @@
-namespace Ui
-{
-    export class Color extends Core.Object
-    {
+namespace Ui {
+    export class Color extends Core.Object {
         r: number = 0;
         g: number = 0;
         b: number = 0;
@@ -51,7 +49,7 @@ namespace Ui
             return 'rgb(' + Math.round(this.r * 255) + ',' + Math.round(this.g * 255) + ',' + Math.round(this.b * 255) + ')';
         }
 
-        getCssHtml(): string {
+        getCssHtml(alpha = false): string {
             let res = '#';
             let t = Math.round(this.r * 255).toString(16);
             if (t.length == 1)
@@ -65,6 +63,12 @@ namespace Ui
             if (t.length == 1)
                 t = '0' + t;
             res += t;
+            if (alpha) {
+                t = Math.round(this.a * 255).toString(16);
+                if (t.length == 1)
+                    t = '0' + t;
+                res += t;
+            }
             return res;
         }
 
@@ -216,17 +220,31 @@ namespace Ui
                     return new Color(r, g, b);
                 }
                 else if (color.indexOf('#') === 0) {
-                    if (color.length == 7) {
+                    if (color.length == 4) {
+                        r = parseInt(color.substr(1, 1), 16) / 15;
+                        g = parseInt(color.substr(2, 1), 16) / 15;
+                        b = parseInt(color.substr(3, 1), 16) / 15;
+                        return new Color(r, g, b);
+                    }
+                    else if (color.length == 5) {
+                        r = parseInt(color.substr(1, 1), 16) / 15;
+                        g = parseInt(color.substr(2, 1), 16) / 15;
+                        b = parseInt(color.substr(3, 1), 16) / 15;
+                        a = parseInt(color.substr(4, 1), 16) / 15;
+                        return new Color(r, g, b, a);
+                    }
+                    else if (color.length == 7) {
                         r = parseInt(color.substr(1, 2), 16) / 255;
                         g = parseInt(color.substr(3, 2), 16) / 255;
                         b = parseInt(color.substr(5, 2), 16) / 255;
                         return new Color(r, g, b);
                     }
-                    else if (color.length == 4) {
-                        r = parseInt(color.substr(1, 1), 16) / 15;
-                        g = parseInt(color.substr(2, 1), 16) / 15;
-                        b = parseInt(color.substr(3, 1), 16) / 15;
-                        return new Color(r, g, b);
+                    else if (color.length == 9) {
+                        r = parseInt(color.substr(1, 2), 16) / 255;
+                        g = parseInt(color.substr(3, 2), 16) / 255;
+                        b = parseInt(color.substr(5, 2), 16) / 255;
+                        a = parseInt(color.substr(7, 2), 16) / 255;
+                        return new Color(r, g, b, a);
                     }
                 }
             }
