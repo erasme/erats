@@ -11,6 +11,7 @@ namespace Ui {
         textAlign: 'start' | 'end' | 'left' | 'right' | 'center';
         textBaseline: 'top' | 'hanging' | 'middle' | 'alphabetic' | 'ideographic' | 'bottom';
         direction: 'ltr' | 'rtl' | 'inherit';
+        title: string | undefined;
 
         beginPath();
         moveTo(x: number, y: number);
@@ -59,12 +60,30 @@ namespace Ui {
         private canvasDrawing: HTMLCanvasElement;
         private dpiRatio: number = 1;
         private generateNeeded = true;
+        private _allowPointerEvent: boolean = false;
 
         constructor(init?: ContainerInit) {
             super(init);
             this.selectable = false;
             this.canvasEngine = 'svg';
             this.drawing.style.overflow = 'hidden';
+        }
+
+        get allowPointerEvent(): boolean {
+            return this._allowPointerEvent;
+        }
+
+        set allowPointerEvent(value: boolean) {
+            if (this._allowPointerEvent != value) {
+                this._allowPointerEvent = value;
+                if (this.svgDrawing) {
+                    if (value)
+                        this.svgDrawing.removeAttribute('pointer-events');
+                    else
+                        this.svgDrawing.setAttribute('pointer-events', 'none');
+                }
+                    
+            }
         }
 
         get canvasEngine(): 'canvas' | 'svg' {
@@ -114,7 +133,8 @@ namespace Ui {
                 // because touch* events are captured by the initial element they
                 // are raised over. If this element is remove from the DOM (like canvas redraw)
                 // the following events (like touchmove, touchend) will never raised
-                svgDrawing.setAttribute('pointer-events', 'none');
+                if (!this._allowPointerEvent)
+                    svgDrawing.setAttribute('pointer-events', 'none');
                 let ctx = new Core.SVG2DContext(svgDrawing);
                 this.updateCanvas(ctx as Ui.CanvasRenderingContext2D);
                 this.svgDrawing = svgDrawing;
@@ -404,6 +424,7 @@ namespace Core {
         textBaseline: any = 'alphabetic';
         direction: any = 'inherit';
         clipId: any = undefined;
+        title: string | undefined = undefined;
 
         document: any = undefined;
         currentPath: any = undefined;
@@ -480,6 +501,12 @@ namespace Core {
                 svg.setAttributeNS(null, 'clip-path', 'url(#' + this.clipId + ')');
             svg.style.opacity = this.globalAlpha;
             svg.transform.baseVal.initialize(this.document.createSVGTransformFromMatrix(this.currentTransform));
+            if (this.title) {
+                let title = document.createElementNS(svgNS, 'title');
+                title.textContent = this.title;
+                this.title = undefined;
+                svg.appendChild(title);
+            }
             this.g.appendChild(svg);
         }
 

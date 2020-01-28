@@ -1062,6 +1062,7 @@ declare namespace Ui {
         textAlign: 'start' | 'end' | 'left' | 'right' | 'center';
         textBaseline: 'top' | 'hanging' | 'middle' | 'alphabetic' | 'ideographic' | 'bottom';
         direction: 'ltr' | 'rtl' | 'inherit';
+        title: string | undefined;
         beginPath(): any;
         moveTo(x: number, y: number): any;
         lineTo(x: number, y: number): any;
@@ -1106,7 +1107,10 @@ declare namespace Ui {
         private canvasDrawing;
         private dpiRatio;
         private generateNeeded;
+        private _allowPointerEvent;
         constructor(init?: ContainerInit);
+        get allowPointerEvent(): boolean;
+        set allowPointerEvent(value: boolean);
         get canvasEngine(): 'canvas' | 'svg';
         set canvasEngine(value: 'canvas' | 'svg');
         update(): void;
@@ -1158,6 +1162,7 @@ declare namespace Core {
         textBaseline: any;
         direction: any;
         clipId: any;
+        title: string | undefined;
         document: any;
         currentPath: any;
         g: any;

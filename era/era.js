@@ -4693,11 +4693,30 @@ var Ui;
             var _this = _super.call(this, init) || this;
             _this.dpiRatio = 1;
             _this.generateNeeded = true;
+            _this._allowPointerEvent = false;
             _this.selectable = false;
             _this.canvasEngine = 'svg';
             _this.drawing.style.overflow = 'hidden';
             return _this;
         }
+        Object.defineProperty(CanvasElement.prototype, "allowPointerEvent", {
+            get: function () {
+                return this._allowPointerEvent;
+            },
+            set: function (value) {
+                if (this._allowPointerEvent != value) {
+                    this._allowPointerEvent = value;
+                    if (this.svgDrawing) {
+                        if (value)
+                            this.svgDrawing.removeAttribute('pointer-events');
+                        else
+                            this.svgDrawing.setAttribute('pointer-events', 'none');
+                    }
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(CanvasElement.prototype, "canvasEngine", {
             get: function () {
                 return this._canvasEngine;
@@ -4739,7 +4758,8 @@ var Ui;
                 svgDrawing.style.height = this.layoutHeight + 'px';
                 svgDrawing.setAttribute('focusable', 'false');
                 svgDrawing.setAttribute('draggable', 'false');
-                svgDrawing.setAttribute('pointer-events', 'none');
+                if (!this._allowPointerEvent)
+                    svgDrawing.setAttribute('pointer-events', 'none');
                 var ctx = new Core.SVG2DContext(svgDrawing);
                 this.updateCanvas(ctx);
                 this.svgDrawing = svgDrawing;
@@ -5008,6 +5028,7 @@ var Core;
             _this.textBaseline = 'alphabetic';
             _this.direction = 'inherit';
             _this.clipId = undefined;
+            _this.title = undefined;
             _this.document = undefined;
             _this.currentPath = undefined;
             _this.g = undefined;
@@ -5069,6 +5090,12 @@ var Core;
                 svg.setAttributeNS(null, 'clip-path', 'url(#' + this.clipId + ')');
             svg.style.opacity = this.globalAlpha;
             svg.transform.baseVal.initialize(this.document.createSVGTransformFromMatrix(this.currentTransform));
+            if (this.title) {
+                var title = document.createElementNS(svgNS, 'title');
+                title.textContent = this.title;
+                this.title = undefined;
+                svg.appendChild(title);
+            }
             this.g.appendChild(svg);
         };
         SVG2DContext.prototype.stroke = function () {
