@@ -447,7 +447,8 @@ namespace Ui {
             this.arrangeValid = false;
             if (this.layoutValid) {
                 this.layoutValid = false;
-                Ui.App.enqueueLayout(this);
+                if (this.isLoaded)
+                    Ui.App.enqueueLayout(this);
             }
         }
 
@@ -1478,6 +1479,8 @@ namespace Ui {
             }
             else
                 this.setParentStyle(Ui.App.style);
+            if (!this.layoutValid)
+                Ui.App.enqueueLayout(this);
             this.loaded.fire({ target: this });
         }
 
