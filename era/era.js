@@ -24741,8 +24741,20 @@ var Ui;
             _this.append(_this.vboxScroll, true);
             _this.vbox = new Ui.VBox();
             _this.vboxScroll.content = _this.vbox;
-            _this.vboxScroll.scrolled.connect(function (e) { return _this.headersScroll.setOffset(e.offsetX, undefined, true, true); });
-            _this.headersScroll.scrolled.connect(function (e) { return _this.vboxScroll.setOffset(e.offsetX, undefined, true, true); });
+            var lastContentScroll = Date.now();
+            var lastHeaderScroll = Date.now();
+            _this.vboxScroll.scrolled.connect(function (e) {
+                if (Date.now() - lastContentScroll > 150) {
+                    lastHeaderScroll = Date.now();
+                    _this.headersScroll.setOffset(e.offsetX, undefined, true, true);
+                }
+            });
+            _this.headersScroll.scrolled.connect(function (e) {
+                if (Date.now() - lastHeaderScroll > 150) {
+                    lastContentScroll = Date.now();
+                    _this.vboxScroll.setOffset(e.offsetX, undefined, true, true);
+                }
+            });
             if (init) {
                 if (init.scrolled !== undefined)
                     _this.scrolled = init.scrolled;

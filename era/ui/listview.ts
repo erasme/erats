@@ -583,8 +583,20 @@ namespace Ui {
             this.vbox = new VBox();
             this.vboxScroll.content = this.vbox;
 
-            this.vboxScroll.scrolled.connect((e) => this.headersScroll.setOffset(e.offsetX, undefined, true, true));
-            this.headersScroll.scrolled.connect((e) => this.vboxScroll.setOffset(e.offsetX, undefined, true, true));
+            let lastContentScroll = Date.now();
+            let lastHeaderScroll = Date.now();
+            this.vboxScroll.scrolled.connect((e) => {
+                if (Date.now() - lastContentScroll > 150) {
+                    lastHeaderScroll = Date.now();
+                    this.headersScroll.setOffset(e.offsetX, undefined, true, true);
+                }
+            });
+            this.headersScroll.scrolled.connect((e) => { 
+                if (Date.now() - lastHeaderScroll > 150) {
+                    lastContentScroll = Date.now();
+                    this.vboxScroll.setOffset(e.offsetX, undefined, true, true);
+                }
+            });
 
             // handle keyboard              
             // this.drawing.addEventListener('keydown', (e) => this.onKeyDown(e));
