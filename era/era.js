@@ -22629,7 +22629,17 @@ var Ui;
             var _this = _super.call(this, init) || this;
             _this._isReady = false;
             _this.ready = new Core.Events();
-            _this.iframeDrawing.addEventListener('load', function () { return _this.onIFrameLoad(); });
+            _this.locationchanged = new Core.Events();
+            _this.iframeDrawing.addEventListener('load', function () {
+                try {
+                    if (_this.isReady) {
+                        var location_1 = _this.iframeDrawing.contentWindow.location;
+                        _this.locationchanged.fire({ target: _this, value: location_1 });
+                    }
+                }
+                catch (_a) { }
+                _this.onIFrameLoad();
+            });
             if (init) {
                 if (init.src !== undefined)
                     _this.src = init.src;
@@ -22638,6 +22648,11 @@ var Ui;
         }
         Object.defineProperty(IFrame.prototype, "onready", {
             set: function (value) { this.ready.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(IFrame.prototype, "onlocationchanged", {
+            set: function (value) { this.locationchanged.connect(value); },
             enumerable: true,
             configurable: true
         });

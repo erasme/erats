@@ -8,10 +8,20 @@ namespace Ui {
         protected _isReady: boolean = false;
         readonly ready = new Core.Events<{ target: IFrame }>();
         set onready(value: (event: { target: IFrame }) => void) { this.ready.connect(value); }
+        readonly locationchanged = new Core.Events<{ target: IFrame, value: Location }>();
+        set onlocationchanged(value: (event: { target: IFrame, value: Location }) => void) { this.locationchanged.connect(value); }
 
         constructor(init?: IFrameInit) {
             super(init);
-            this.iframeDrawing.addEventListener('load', () => this.onIFrameLoad());
+            this.iframeDrawing.addEventListener('load', () => {
+                try {
+                    if (this.isReady) {
+                        let location = this.iframeDrawing.contentWindow.location;
+                        this.locationchanged.fire({ target: this, value: location });
+                    }
+                } catch {}
+                this.onIFrameLoad();
+            });
             if (init) {
                 if (init.src !== undefined)
                     this.src = init.src;

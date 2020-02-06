@@ -5082,6 +5082,14 @@ declare namespace Ui {
         set onready(value: (event: {
             target: IFrame;
         }) => void);
+        readonly locationchanged: Core.Events<{
+            target: IFrame;
+            value: Location;
+        }>;
+        set onlocationchanged(value: (event: {
+            target: IFrame;
+            value: Location;
+        }) => void);
         constructor(init?: IFrameInit);
         get src(): string;
         set src(src: string);
