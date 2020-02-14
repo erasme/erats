@@ -387,7 +387,13 @@ namespace Ui {
 
         protected onStyleChange() {
             super.onStyleChange();
-            this.isTextVisible ? this.label.show() : this.label.hide(true);
+            if (this.isTextVisible) {
+                this.label.show();
+                this.title = '';
+            } else {
+                this.label.hide(true);
+                this.title = this.label.text;
+            }
         }
 
         protected onDisable() {

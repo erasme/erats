@@ -27849,7 +27849,14 @@ var Ui;
         });
         SegmentButton.prototype.onStyleChange = function () {
             _super.prototype.onStyleChange.call(this);
-            this.isTextVisible ? this.label.show() : this.label.hide(true);
+            if (this.isTextVisible) {
+                this.label.show();
+                this.title = '';
+            }
+            else {
+                this.label.hide(true);
+                this.title = this.label.text;
+            }
         };
         SegmentButton.prototype.onDisable = function () {
             _super.prototype.onDisable.call(this);
