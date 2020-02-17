@@ -18402,7 +18402,7 @@ var Ui;
             _this.append(_this.graphic);
             _this.textholder = new Ui.Label({
                 opacity: 0.5,
-                horizontalAlign: 'left',
+                horizontalAlign: 'left', verticalAlign: 'top',
                 margin: 7,
                 marginLeft: 10,
                 marginRight: 10
