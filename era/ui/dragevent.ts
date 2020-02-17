@@ -528,7 +528,7 @@ namespace Ui {
                         let rect = div.getBoundingClientRect();
                         let x = this.watcher.pointer.getX();
                         let y = this.watcher.pointer.getY();
-                        let activeWidth = 20;
+                        let activeWidth = this.watcher.pointer.type == 'touch' ? 40 : 20;
                         let leftAllowed = horizontalAllowed && (x - rect.left < activeWidth) && (x - rect.left > 0);
                         let rightAllowed = horizontalAllowed && (x - rect.right > -(activeWidth+NativeScrollableContent.nativeScrollBarWidth)) && (x - rect.right < 0);
                         let topAllowed = verticalAllowed && (y - rect.top < activeWidth) && (y - rect.top > 0);

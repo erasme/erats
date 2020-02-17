@@ -7388,7 +7388,7 @@ var Ui;
                         var rect = div.getBoundingClientRect();
                         var x = this.watcher.pointer.getX();
                         var y = this.watcher.pointer.getY();
-                        var activeWidth = 20;
+                        var activeWidth = this.watcher.pointer.type == 'touch' ? 40 : 20;
                         var leftAllowed = horizontalAllowed && (x - rect.left < activeWidth) && (x - rect.left > 0);
                         var rightAllowed = horizontalAllowed && (x - rect.right > -(activeWidth + Ui.NativeScrollableContent.nativeScrollBarWidth)) && (x - rect.right < 0);
                         var topAllowed = verticalAllowed && (y - rect.top < activeWidth) && (y - rect.top > 0);
