@@ -18433,7 +18433,7 @@ var Ui;
             _this.append(_this.graphic);
             _this.textholder = new Ui.Label({
                 opacity: 0.5,
-                horizontalAlign: 'left', verticalAlign: 'top',
+                horizontalAlign: 'left', verticalAlign: 'center',
                 marginTop: 11, marginBottom: 7,
                 marginLeft: 10, marginRight: 10
             });
@@ -19417,7 +19417,8 @@ var Ui;
             _this.textholder = new Ui.Label({
                 opacity: 0.5,
                 horizontalAlign: 'left',
-                margin: 7,
+                verticalAlign: 'top',
+                margin: 8,
                 marginLeft: 10,
                 marginRight: 10
             });

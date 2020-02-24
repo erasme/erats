@@ -21,7 +21,8 @@ namespace Ui {
             this.textholder = new Label({
                 opacity: 0.5,
                 horizontalAlign: 'left',
-                margin: 7,
+                verticalAlign: 'top',
+                margin: 8,
                 marginLeft: 10,
                 marginRight: 10
             });
