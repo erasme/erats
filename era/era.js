@@ -14840,6 +14840,7 @@ var Ui;
             _this.posY = undefined;
             _this.attachedElement = undefined;
             _this.attachedBorder = undefined;
+            _this._modal = true;
             _this._autoClose = true;
             _this._preferredWidth = undefined;
             _this._preferredHeight = undefined;
@@ -14885,6 +14886,19 @@ var Ui;
         }
         Object.defineProperty(Popup.prototype, "onclosed", {
             set: function (value) { this.closed.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Popup.prototype, "modal", {
+            get: function () {
+                return this._modal;
+            },
+            set: function (value) {
+                if (this._modal != value) {
+                    this._modal = value;
+                    this.shadow.opacity = value ? 1 : 0.01;
+                }
+            },
             enumerable: true,
             configurable: true
         });
@@ -14981,7 +14995,7 @@ var Ui;
         Popup.prototype.openPosOrElement = function (posX, posY) {
             var _this = this;
             if (this.isClosed) {
-                Ui.App.appendDialog(this);
+                Ui.App.appendDialog(this, this.modal);
                 this.isClosed = false;
                 this.attachedElement = undefined;
                 this.posX = undefined;
@@ -16133,15 +16147,18 @@ var Ui;
             enumerable: true,
             configurable: true
         });
-        App.appendDialog = function (dialog) {
+        App.appendDialog = function (dialog, modal) {
+            if (modal === void 0) { modal = true; }
             if (App.style)
                 dialog.setParentStyle(App.style);
             this.dialogsFocus.push(this.focusElement);
             this.dialogs.push(dialog);
-            if (Ui.App.current)
-                Ui.App.current.contentBox.disable();
-            for (var i = 0; i < this.dialogs.length - 1; i++)
-                this.dialogs[i].disable();
+            if (modal) {
+                if (Ui.App.current)
+                    Ui.App.current.contentBox.disable();
+                for (var i = 0; i < this.dialogs.length - 1; i++)
+                    this.dialogs[i].disable();
+            }
             if (document.readyState == 'complete') {
                 if (App.topLayers.length > 0)
                     document.body.insertBefore(dialog.drawing, this.topLayers[0].drawing);
@@ -16600,6 +16617,7 @@ var Ui;
         function Dialog(init) {
             var _this = _super.call(this, init) || this;
             _this.buttonsVisible = false;
+            _this._modal = true;
             _this.isClosed = true;
             _this.closed = new Core.Events();
             _this.drawing.style.position = 'fixed';
@@ -16674,6 +16692,19 @@ var Ui;
         Dialog.prototype.getSelectionHandler = function () {
             return this.dialogSelection;
         };
+        Object.defineProperty(Dialog.prototype, "modal", {
+            get: function () {
+                return this._modal;
+            },
+            set: function (value) {
+                if (this._modal != value) {
+                    this._modal = value;
+                    this.shadowGraphic.opacity = value ? 1 : 0.01;
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(Dialog.prototype, "preferredWidth", {
             set: function (width) {
                 this._preferredWidth = width;
@@ -16703,7 +16734,7 @@ var Ui;
         Dialog.prototype.open = function () {
             var _this = this;
             if (this.isClosed) {
-                Ui.App.appendDialog(this);
+                Ui.App.appendDialog(this, this.modal);
                 this.isClosed = false;
                 if (this.openClock == undefined) {
                     this.openClock = new Anim.Clock({
@@ -22843,9 +22874,61 @@ var Ui;
             var html = this.htmlDrawing.outerHTML;
             if (this._lastHtml !== html) {
                 this._lastHtml = html;
-                this.changed.fire({ target: this });
+                this.changed.fire({ target: this, element: this.htmlDrawing });
             }
             return _super.prototype.measureCore.call(this, width, height);
+        };
+        ContentEditable.unwrapNode = function (node) {
+            var parent = node.parentNode;
+            if (!parent)
+                return;
+            while (node.firstChild) {
+                parent.insertBefore(node.firstChild, node);
+            }
+            parent.removeChild(node);
+        };
+        ContentEditable.filterNode = function (node, allowedTags) {
+            if (allowedTags.indexOf(node.nodeName) == -1)
+                ContentEditable.unwrapNode(node);
+            var element = node;
+            if (element.removeAttribute)
+                element.removeAttribute('style');
+        };
+        ;
+        ContentEditable.filterHtmlContent = function (rootElement, allowedTags) {
+            for (var i = 0; i < rootElement.childNodes.length; i++) {
+                var child = rootElement.childNodes[i];
+                ContentEditable.filterNode(child, allowedTags);
+            }
+        };
+        ContentEditable.prototype.findTag = function (tagName) {
+            var selection = window.getSelection();
+            if (selection == null)
+                return undefined;
+            if (selection.anchorNode == null)
+                return undefined;
+            var current = selection.anchorNode;
+            while (current) {
+                if (current == this.htmlDrawing)
+                    return undefined;
+                if (current.nodeName == tagName)
+                    return current;
+                current = current.parentNode;
+            }
+            return undefined;
+        };
+        ContentEditable.saveSelection = function () {
+            var selection = window.getSelection();
+            return selection && selection.rangeCount ? selection.getRangeAt(0) : null;
+        };
+        ContentEditable.restoreSelection = function (range) {
+            if (range) {
+                var selection = window.getSelection();
+                if (selection) {
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                }
+            }
         };
         return ContentEditable;
     }(Ui.Html));
@@ -29045,20 +29128,6 @@ var Ui;
                 ontoggled: function () { return document.execCommand('insertUnorderedList', false, null); },
                 onuntoggled: function () { return document.execCommand('insertUnorderedList', false, null); }
             });
-            var insertImageButton = new Ui.Button().assign({
-                icon: 'format-insert-image', focusable: false,
-                style: {
-                    borderWidth: 0,
-                    background: 'rgba(255,255,255,0)',
-                    activeBackground: 'rgba(255,255,255,0)'
-                },
-                onpressed: function () {
-                    var url = window.prompt("URL de l'image à insérer :");
-                    if (url) {
-                        document.execCommand('insertImage', false, url);
-                    }
-                }
-            });
             var insertURLButton = new Ui.Button().assign({
                 icon: 'format-insert-url', focusable: false,
                 style: {
@@ -29073,15 +29142,18 @@ var Ui;
                     }
                 }
             });
-            var quoteButton = new Ui.Button().assign({
+            var quoteButton = new RichTextButton().assign({
                 icon: 'format-quote', focusable: false,
                 style: {
                     borderWidth: 0,
                     background: 'rgba(255,255,255,0)',
                     activeBackground: 'rgba(255,255,255,0)'
                 },
-                onpressed: function () {
-                    document.execCommand('formatBlock', false, '<blockquote>');
+                ontoggled: function () { return document.execCommand('formatBlock', false, '<blockquote>'); },
+                onuntoggled: function () {
+                    var sel = window.getSelection();
+                    if (sel)
+                        Ui.ContentEditable.unwrapNode(sel.anchorNode);
                 }
             });
             var controls = new Ui.HBox().assign({
@@ -29090,16 +29162,12 @@ var Ui;
                     boldButton,
                     italicButton,
                     underlineButton,
-                    quoteButton,
-                    alignLeftButton,
-                    alignCenterButton,
-                    alignRightButton,
                     insertOrderedListButton,
                     insertUnorderedListButton,
-                    insertImageButton,
                     insertURLButton
                 ]
             });
+            var allowedTags = ['B', 'I', 'U', 'A', '#text', 'BR', 'OL', 'UL', 'LI', 'BLOCKQUOTE'];
             _this._contentEditable = new Ui.ContentEditable().assign({
                 margin: 10, interLine: 1.2, fontSize: 16,
                 html: '', resizable: true,
@@ -29112,6 +29180,7 @@ var Ui;
                     alignLeftButton.isActive = document.queryCommandState('justifyLeft');
                     alignCenterButton.isActive = document.queryCommandState('justifyCenter');
                     alignRightButton.isActive = document.queryCommandState('justifyRight');
+                    quoteButton.isActive = _this._contentEditable.findTag('BLOCKQUOTE') != undefined;
                 },
                 onselectionentered: function () {
                     controls.enable();
@@ -29120,10 +29189,32 @@ var Ui;
                 },
                 onselectionleaved: function () {
                 },
-                onchanged: function () { return _this.changed.fire({ target: _this }); },
+                onchanged: function (e) {
+                    Ui.ContentEditable.filterHtmlContent(e.element, allowedTags);
+                    _this.changed.fire({ target: _this });
+                },
                 onlink: function (e) { return _this.link.fire({ target: _this, ref: e.ref }); },
                 selectable: true
             });
+            _this._contentEditable.drawing.addEventListener('keydown', function (e) {
+                if (e.ctrlKey) {
+                    if (e.which == 66) {
+                        document.execCommand('bold', false);
+                        e.stopPropagation();
+                        e.preventDefault();
+                    }
+                    else if (e.which == 73) {
+                        document.execCommand('italic', false);
+                        e.stopPropagation();
+                        e.preventDefault();
+                    }
+                    else if (e.which == 85) {
+                        document.execCommand('underline', false);
+                        e.stopPropagation();
+                        e.preventDefault();
+                    }
+                }
+            }, { capture: true });
             _this.focusInWatcher = new Ui.FocusInWatcher({
                 element: _this,
                 onfocusin: function () {
@@ -29131,6 +29222,7 @@ var Ui;
                     if (!_this.isDisabled)
                         _this.controlsBox.show();
                     _this._textHolder.hide();
+                    document.execCommand('defaultParagraphSeparator', false, 'br');
                 },
                 onfocusout: function () {
                     controls.disable();

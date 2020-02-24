@@ -1390,7 +1390,7 @@ declare namespace Ui {
         };
         getPosition(): Point;
         getIsInside(): boolean;
-        getDirection(): "left" | "right" | "top" | "bottom";
+        getDirection(): "left" | "right" | "bottom" | "top";
         getSpeed(): {
             x: number;
             y: number;
@@ -3312,6 +3312,7 @@ declare namespace Ui {
         posY: number;
         attachedElement: Element;
         attachedBorder: AttachBorder;
+        private _modal;
         private _autoClose;
         private _preferredWidth;
         private _preferredHeight;
@@ -3324,6 +3325,8 @@ declare namespace Ui {
             target: Popup;
         }) => void);
         constructor(init?: PopupInit);
+        get modal(): boolean;
+        set modal(value: boolean);
         set preferredWidth(width: number);
         set preferredHeight(height: number);
         getSelectionHandler(): Selection;
@@ -3518,7 +3521,7 @@ declare namespace Ui {
         static update: () => void;
         get content(): Element | undefined;
         set content(content: Element | undefined);
-        static appendDialog(dialog: Element): void;
+        static appendDialog(dialog: Element, modal?: boolean): void;
         static removeDialog(dialog: Element): void;
         static appendTopLayer(layer: Element): void;
         static removeTopLayer(layer: Element): void;
@@ -3631,6 +3634,7 @@ declare namespace Ui {
         private _preferredHeight;
         private actionBox;
         private contextBox;
+        private _modal;
         private _autoClose?;
         private openClock?;
         isClosed: boolean;
@@ -3643,6 +3647,8 @@ declare namespace Ui {
         }) => void);
         constructor(init?: DialogInit);
         getSelectionHandler(): Selection;
+        get modal(): boolean;
+        set modal(value: boolean);
         set preferredWidth(width: number);
         set preferredHeight(height: number);
         get padding(): number;
@@ -5106,6 +5112,7 @@ declare namespace Ui {
         }) => void;
         onchanged?: (event: {
             target: ContentEditable;
+            element: HTMLElement;
         }) => void;
         onvalidated?: (event: {
             target: ContentEditable;
@@ -5123,9 +5130,11 @@ declare namespace Ui {
         }) => void);
         readonly changed: Core.Events<{
             target: ContentEditable;
+            element: HTMLElement;
         }>;
         set onchanged(value: (event: {
             target: ContentEditable;
+            element: HTMLElement;
         }) => void);
         readonly validated: Core.Events<{
             target: ContentEditable;
@@ -5158,6 +5167,12 @@ declare namespace Ui {
             width: number;
             height: number;
         };
+        static unwrapNode(node: Node): void;
+        static filterNode(node: Node, allowedTags: string[]): void;
+        static filterHtmlContent(rootElement: HTMLElement, allowedTags: string[]): void;
+        findTag(tagName: string): Node | undefined;
+        static saveSelection(): Range | null;
+        static restoreSelection(range: Range | null): void;
     }
 }
 declare namespace Ui {
@@ -5981,7 +5996,7 @@ declare namespace Ui {
         }) => void);
         readonly positionchanged: Core.Events<{
             target: Fold;
-            position: "left" | "right" | "top" | "bottom";
+            position: "left" | "right" | "bottom" | "top";
         }>;
         set onpositionchanged(value: (event: {
             target: Fold;

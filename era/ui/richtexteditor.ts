@@ -64,20 +64,6 @@ namespace Ui {
                 ontoggled: () => document.execCommand('insertUnorderedList', false, null),
                 onuntoggled: () => document.execCommand('insertUnorderedList', false, null)
             });
-            let insertImageButton = new Button().assign({
-                icon: 'format-insert-image', focusable: false,
-                style: {
-                    borderWidth: 0,
-                    background: 'rgba(255,255,255,0)',
-                    activeBackground: 'rgba(255,255,255,0)'
-                },
-                onpressed: () => {
-                    const url = window.prompt("URL de l'image à insérer :");
-                    if ( url ) {
-                        document.execCommand('insertImage', false, url);
-                    }
-                }
-            });
             let insertURLButton = new Button().assign({
                 icon: 'format-insert-url', focusable: false,
                 style: {
@@ -92,15 +78,18 @@ namespace Ui {
                     }
                 }
             });
-            let quoteButton = new Button().assign({
+            let quoteButton = new RichTextButton().assign({
                 icon: 'format-quote', focusable: false,
                 style: {
                     borderWidth: 0,
                     background: 'rgba(255,255,255,0)',
                     activeBackground: 'rgba(255,255,255,0)'
                 },
-                onpressed: () => {
-                    document.execCommand('formatBlock', false, '<blockquote>');
+                ontoggled: () => document.execCommand('formatBlock', false, '<blockquote>'),
+                onuntoggled: () => {
+                    let sel = window.getSelection();
+                    if (sel)
+                        ContentEditable.unwrapNode(sel.anchorNode);
                 }
             });
 
@@ -110,16 +99,17 @@ namespace Ui {
                     boldButton,
                     italicButton,
                     underlineButton,
-                    quoteButton,
-                    alignLeftButton,
-                    alignCenterButton,
-                    alignRightButton,
+//                    quoteButton,
+//                    alignLeftButton,
+//                    alignCenterButton,
+//                    alignRightButton,
                     insertOrderedListButton,
                     insertUnorderedListButton,
-                    insertImageButton,
                     insertURLButton
                 ]
             });
+            
+            let allowedTags = ['B', 'I', 'U', 'A', '#text', 'BR', 'OL', 'UL', 'LI', 'BLOCKQUOTE'];
 
             this._contentEditable = new Ui.ContentEditable().assign({
                 margin: 10, interLine: 1.2, fontSize: 16,
@@ -133,6 +123,7 @@ namespace Ui {
                     alignLeftButton.isActive = document.queryCommandState('justifyLeft');
                     alignCenterButton.isActive = document.queryCommandState('justifyCenter');
                     alignRightButton.isActive = document.queryCommandState('justifyRight');
+                    quoteButton.isActive = this._contentEditable.findTag('BLOCKQUOTE') != undefined;
                 },
                 onselectionentered: () => {
                     controls.enable();
@@ -141,10 +132,33 @@ namespace Ui {
                 },
                 onselectionleaved: () => {
                 },
-                onchanged: () => this.changed.fire({ target: this }),
+                onchanged: (e) => {
+                    ContentEditable.filterHtmlContent(e.element, allowedTags);
+                    this.changed.fire({ target: this });
+                },
                 onlink: (e) => this.link.fire({ target: this, ref: e.ref }),
                 selectable: true
             });
+
+            this._contentEditable.drawing.addEventListener('keydown', (e) => {
+                if (e.ctrlKey) {
+                    // Ctrl + B
+                    if (e.which == 66) {
+                        document.execCommand('bold', false);
+                        e.stopPropagation(); e.preventDefault();
+                    }
+                    // Ctrl + I
+                    else if (e.which == 73) {
+                        document.execCommand('italic', false);
+                        e.stopPropagation(); e.preventDefault();
+                    }
+                    // Ctrl + U
+                    else if (e.which == 85) {
+                        document.execCommand('underline', false);
+                        e.stopPropagation(); e.preventDefault();
+                    }
+                }
+            }, { capture: true });
 
             this.focusInWatcher = new FocusInWatcher({
                 element: this,
@@ -153,6 +167,8 @@ namespace Ui {
                     if (!this.isDisabled)
                         this.controlsBox.show();
                     this._textHolder.hide();
+                    // user BR when Enter is pressed
+                    document.execCommand('defaultParagraphSeparator', false, 'br');
                 },
                 onfocusout: () => {
                     controls.disable();
