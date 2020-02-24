@@ -10,8 +10,7 @@ namespace Ui
 
     export type AttachBorder = 'right' | 'left' | 'top' | 'bottom' | 'center';
 
-    export class Popup extends Container implements PopupInit
-    {
+    export class Popup extends Container implements PopupInit {
         popupSelection: Selection;
         background: PopupBackground;
         shadow: Pressable;
@@ -22,6 +21,7 @@ namespace Ui
         posY: number = undefined;
         attachedElement: Element = undefined;
         attachedBorder: AttachBorder = undefined;
+        private _modal: boolean = true;
         private _autoClose: boolean = true;
         private _preferredWidth: number = undefined;
         private _preferredHeight: number = undefined;
@@ -77,6 +77,17 @@ namespace Ui
                     this.autoClose = init.autoClose;
                 if (init.content !== undefined)
                     this.content = init.content;
+            }
+        }
+
+        get modal(): boolean {
+            return this._modal;
+        }
+
+        set modal(value: boolean) {
+            if (this._modal != value) {
+                this._modal = value;
+                this.shadow.opacity = value ? 1 : 0.01;
             }
         }
 
@@ -174,7 +185,7 @@ namespace Ui
 
         private openPosOrElement(posX?, posY?) {
             if (this.isClosed) {
-                App.appendDialog(this);
+                App.appendDialog(this, this.modal);
                 this.isClosed = false;
 
                 this.attachedElement = undefined;

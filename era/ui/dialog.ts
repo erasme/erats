@@ -159,6 +159,7 @@ namespace Ui {
         private _preferredHeight: number | undefined;
         private actionBox: DialogButtonBox;
         private contextBox: ContextBar;
+        private _modal: boolean = true;
         private _autoClose?: boolean;
         private openClock?: Anim.Clock;
         isClosed: boolean = true;
@@ -255,6 +256,17 @@ namespace Ui {
             return this.dialogSelection;
         }
 
+        get modal(): boolean {
+            return this._modal;
+        }
+
+        set modal(value: boolean) {
+            if (this._modal != value) {
+                this._modal = value;
+                this.shadowGraphic.opacity = value ? 1 : 0.01;
+            }
+        }
+
         set preferredWidth(width: number) {
             this._preferredWidth = width;
             this.invalidateMeasure();
@@ -275,7 +287,7 @@ namespace Ui {
 
         open() {
             if (this.isClosed) {
-                Ui.App.appendDialog(this);
+                Ui.App.appendDialog(this, this.modal);
                 this.isClosed = false;
 
                 if (this.openClock == undefined) {

@@ -396,15 +396,17 @@ namespace Ui
             }
         }
 
-        static appendDialog(dialog: Element) {
+        static appendDialog(dialog: Element, modal: boolean = true) {
             if (App.style)
                 dialog.setParentStyle(App.style);
             this.dialogsFocus.push(this.focusElement);
             this.dialogs.push(dialog);
-            if (Ui.App.current)
-                Ui.App.current.contentBox.disable();
-            for (let i = 0; i < this.dialogs.length - 1; i++)
-                this.dialogs[i].disable();
+            if (modal) {
+                if (Ui.App.current)
+                    Ui.App.current.contentBox.disable();
+                for (let i = 0; i < this.dialogs.length - 1; i++)
+                    this.dialogs[i].disable();
+            }
             if (document.readyState == 'complete') {
                 if (App.topLayers.length > 0)
                     document.body.insertBefore(dialog.drawing, this.topLayers[0].drawing);
