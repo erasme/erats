@@ -350,7 +350,6 @@ var Ui;
                                     onclosed: function () { return Ui.ContentEditable.restoreSelection(range); }
                                 });
                                 dialog.open();
-                                console.log('TODO');
                             }
                         }));
                         popup_2.openAt(e.x, e.y);
@@ -534,7 +533,10 @@ var App = /** @class */ (function (_super) {
         _this.content = new Ui.VBox().assign({
             content: [
                 new Ui.Text().assign({ text: 'Un texte super sympa', selectable: true, margin: 50 }),
-                new Ui.LightTextEditor().assign({ margin: 50, fontSize: 20, resizable: true })
+                new Ui.LightTextEditor().assign({
+                    margin: 50, fontSize: 20, resizable: true,
+                    onlink: function (e) { return window.open(e.ref, '_blank'); }
+                })
             ]
         });
         return _this;

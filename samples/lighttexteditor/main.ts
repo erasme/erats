@@ -450,7 +450,10 @@ class App extends Ui.App {
         this.content = new Ui.VBox().assign({
             content: [
                 new Ui.Text().assign({ text: 'Un texte super sympa', selectable: true, margin: 50 }),
-                new Ui.LightTextEditor().assign({ margin: 50, fontSize: 20, resizable: true })
+                new Ui.LightTextEditor().assign({
+                    margin: 50, fontSize: 20, resizable: true,
+                    onlink: (e) => window.open(e.ref, '_blank')
+                })
             ]
         })
     }
