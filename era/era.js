@@ -18434,9 +18434,8 @@ var Ui;
             _this.textholder = new Ui.Label({
                 opacity: 0.5,
                 horizontalAlign: 'left', verticalAlign: 'top',
-                margin: 7,
-                marginLeft: 10,
-                marginRight: 10
+                marginTop: 11, marginBottom: 7,
+                marginLeft: 10, marginRight: 10
             });
             _this.append(_this.textholder);
             _this.entry = new Ui.Entry({
