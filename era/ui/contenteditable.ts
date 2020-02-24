@@ -1,7 +1,7 @@
 namespace Ui {
     export interface ContentEditableInit extends HtmlInit {
         onanchorchanged?: (event: { target: ContentEditable }) => void;
-        onchanged?: (event: { target: ContentEditable }) => void;
+        onchanged?: (event: { target: ContentEditable, element: HTMLElement }) => void;
         onvalidated?: (event: { target: ContentEditable }) => void;
     }
 
@@ -11,8 +11,8 @@ namespace Ui {
         private _hasSelection: boolean = false;
         readonly anchorchanged = new Core.Events<{ target: ContentEditable }>();
         set onanchorchanged(value: (event: { target: ContentEditable }) => void) { this.anchorchanged.connect(value); }
-        readonly changed = new Core.Events<{ target: ContentEditable }>();
-        set onchanged(value: (event: { target: ContentEditable }) => void) { this.changed.connect(value); }
+        readonly changed = new Core.Events<{ target: ContentEditable, element: HTMLElement }>();
+        set onchanged(value: (event: { target: ContentEditable, element: HTMLElement }) => void) { this.changed.connect(value); }
         readonly validated = new Core.Events<{ target: ContentEditable }>();
         set onvalidated(value: (event: { target: ContentEditable }) => void) { this.validated.connect(value); }
         readonly selectionentered = new Core.Events<{ target: ContentEditable }>();
@@ -126,9 +126,66 @@ namespace Ui {
             let html = this.htmlDrawing.outerHTML;
             if (this._lastHtml !== html) {
                 this._lastHtml = html;
-                this.changed.fire({ target: this });
+                this.changed.fire({ target: this, element: this.htmlDrawing });
             }
             return super.measureCore(width, height);
+        }
+
+        static unwrapNode(node: Node) {
+            let parent = node.parentNode;
+            if (!parent)
+                return;
+            while (node.firstChild) {
+                parent.insertBefore(node.firstChild, node);
+            }
+            parent.removeChild(node);
+        }
+
+        static filterNode(node: Node, allowedTags: string[]) {
+            if (allowedTags.indexOf(node.nodeName) == -1)
+                ContentEditable.unwrapNode(node);
+            let element = node as HTMLElement;
+            if (element.removeAttribute)
+                element.removeAttribute('style');
+        };
+
+        static filterHtmlContent(rootElement: HTMLElement, allowedTags: string[]) {
+            for (let i = 0; i < rootElement.childNodes.length; i++) {
+                let child = rootElement.childNodes[i];
+                ContentEditable.filterNode(child, allowedTags);
+            }
+        }
+
+        findTag(tagName: string): Node | undefined {
+            let selection = window.getSelection();
+            if (selection == null)
+                return undefined;
+            if (selection.anchorNode == null)
+                return undefined;
+            let current: Node | null = selection.anchorNode;
+            while (current) {
+                if (current == this.htmlDrawing)
+                    return undefined;
+                if (current.nodeName == tagName)
+                    return current;
+                current = current.parentNode;
+            }
+            return undefined;
+        }
+
+        static saveSelection(): Range | null {
+            let selection = window.getSelection();
+            return selection && selection.rangeCount ? selection.getRangeAt(0) : null;
+        }
+
+        static restoreSelection(range: Range | null) {
+            if (range) {
+                let selection = window.getSelection();
+                if (selection) {
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                }
+            }
         }
     }
 }	
