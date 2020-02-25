@@ -358,7 +358,6 @@ namespace Ui {
             width = (this.width !== undefined) ? Math.max(width, this.width) : width;
 
             this.drawing.style.width = width + 'px';
-            //console.log(this+'.measureCore('+width+','+height+') clientWidth: '+this.htmlDrawing.clientWidth+' '+this.drawing.innerHTML);
             this.htmlDrawing.style.width = '';
             this.htmlDrawing.style.height = '';
             // if client width is bigger than the constraint width, set the htmlDrawing
@@ -366,26 +365,22 @@ namespace Ui {
             let measureWidth: number;
             if (this.htmlDrawing.clientWidth == width)
                 measureWidth = width;
-
-            //if (this.htmlDrawing.clientWidth >= width) {
-            //	this.htmlDrawing.style.width = width + 'px';
-            //	measureWidth = width;
-            //}
             // if the clientWidth is less than the available one, take it and add 1
             // because the returned clientWidth is an integer value but the real one
             // is a floating value in Chrome. And this floating point value is Math.floor
             else
                 measureWidth = Math.max(this.htmlDrawing.clientWidth, this.htmlDrawing.scrollWidth) + 1;
+            let measureHeight = Math.max(this.htmlDrawing.clientHeight, this.fontSize);
+            // restore the previous layout in case arrange will not be used
+            this.htmlDrawing.style.width = `${this.layoutWidth}px`;
+            this.htmlDrawing.style.height = `${this.layoutHeight}px`;
             return {
                 width: measureWidth,
-                height: Math.max(this.htmlDrawing.clientHeight, this.fontSize)
+                height: measureHeight
             };
         }
 
         protected arrangeCore(width: number, height: number) {
-            //		console.log(this+'.arrangeCore('+width+','+height+')');
-            //		this.htmlDrawing.style.width = width+'px';// '100%';
-            // add 1px to the width because of Chrome pixel bug
             this.htmlDrawing.style.width = `${width}px`;
             this.htmlDrawing.style.height = `${height}px`;
         }

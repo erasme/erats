@@ -17275,9 +17275,12 @@ var Ui;
                 measureWidth = width;
             else
                 measureWidth = Math.max(this.htmlDrawing.clientWidth, this.htmlDrawing.scrollWidth) + 1;
+            var measureHeight = Math.max(this.htmlDrawing.clientHeight, this.fontSize);
+            this.htmlDrawing.style.width = this.layoutWidth + "px";
+            this.htmlDrawing.style.height = this.layoutHeight + "px";
             return {
                 width: measureWidth,
-                height: Math.max(this.htmlDrawing.clientHeight, this.fontSize)
+                height: measureHeight
             };
         };
         Html.prototype.arrangeCore = function (width, height) {
