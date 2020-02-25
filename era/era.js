@@ -18434,7 +18434,7 @@ var Ui;
             _this.textholder = new Ui.Label({
                 opacity: 0.5,
                 horizontalAlign: 'left', verticalAlign: 'center',
-                marginTop: 11, marginBottom: 7,
+                marginTop: 7, marginBottom: 7,
                 marginLeft: 10, marginRight: 10
             });
             _this.append(_this.textholder);
@@ -18442,7 +18442,8 @@ var Ui;
                 margin: 7,
                 marginLeft: 10,
                 marginRight: 10,
-                fontSize: 16
+                fontSize: 16,
+                verticalAlign: 'center'
             });
             _this.entry.focused.connect(function () { return _this.onEntryFocus(); });
             _this.entry.blurred.connect(function () { return _this.onEntryBlur(); });

@@ -26,7 +26,7 @@ namespace Ui {
             this.textholder = new Label({
                 opacity: 0.5,
                 horizontalAlign: 'left', verticalAlign: 'center',
-                marginTop: 11, marginBottom: 7,
+                marginTop: 7, marginBottom: 7,
                 marginLeft: 10, marginRight: 10
             });
             this.append(this.textholder);
@@ -35,7 +35,8 @@ namespace Ui {
                 margin: 7,
                 marginLeft: 10,
                 marginRight: 10,
-                fontSize: 16
+                fontSize: 16,
+                verticalAlign: 'center'
             });
             this.entry.focused.connect(() => this.onEntryFocus());
             this.entry.blurred.connect(() => this.onEntryBlur());
