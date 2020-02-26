@@ -141,19 +141,36 @@ namespace Ui {
             parent.removeChild(node);
         }
 
-        static filterNode(node: Node, allowedTags: string[]) {
+        static filterNode(node: Node, allowedTags: string[], removeScript: boolean = false) {
+            let childNodes: Node[] = [];
+            for (let i = 0; i < node.childNodes.length; i++)
+                childNodes.push(node.childNodes[i]);
+            for (let child of childNodes)
+                ContentEditable.filterNode(child, allowedTags, removeScript);
             if (allowedTags.indexOf(node.nodeName) == -1)
                 ContentEditable.unwrapNode(node);
             let element = node as HTMLElement;
-            if (element.removeAttribute)
+            if (element.removeAttribute) {
                 element.removeAttribute('style');
+                if (removeScript) {
+                    let rmAttrs: string[] = [];
+                    for (let i = 0; i < element.attributes.length; i++) {
+                        let attr = element.attributes[i];
+                        if (attr.name.indexOf('on') == 0)
+                            rmAttrs.push(attr.name);
+                    }
+                    for (let attrName of rmAttrs)
+                        element.removeAttribute(attrName);
+                }
+            }
         };
 
-        static filterHtmlContent(rootElement: HTMLElement, allowedTags: string[]) {
-            for (let i = 0; i < rootElement.childNodes.length; i++) {
-                let child = rootElement.childNodes[i];
-                ContentEditable.filterNode(child, allowedTags);
-            }
+        static filterHtmlContent(rootElement: HTMLElement, allowedTags: string[], removeScript: boolean = false) {
+            let childNodes: Node[] = [];
+            for (let i = 0; i < rootElement.childNodes.length; i++)
+                childNodes.push(rootElement.childNodes[i]);
+            for (let child of childNodes)
+                ContentEditable.filterNode(child, allowedTags, removeScript);
         }
 
         findTag(tagName: string): Node | undefined {

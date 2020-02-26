@@ -22891,18 +22891,43 @@ var Ui;
             }
             parent.removeChild(node);
         };
-        ContentEditable.filterNode = function (node, allowedTags) {
+        ContentEditable.filterNode = function (node, allowedTags, removeScript) {
+            if (removeScript === void 0) { removeScript = false; }
+            var childNodes = [];
+            for (var i = 0; i < node.childNodes.length; i++)
+                childNodes.push(node.childNodes[i]);
+            for (var _i = 0, childNodes_1 = childNodes; _i < childNodes_1.length; _i++) {
+                var child = childNodes_1[_i];
+                ContentEditable.filterNode(child, allowedTags, removeScript);
+            }
             if (allowedTags.indexOf(node.nodeName) == -1)
                 ContentEditable.unwrapNode(node);
             var element = node;
-            if (element.removeAttribute)
+            if (element.removeAttribute) {
                 element.removeAttribute('style');
+                if (removeScript) {
+                    var rmAttrs = [];
+                    for (var i = 0; i < element.attributes.length; i++) {
+                        var attr = element.attributes[i];
+                        if (attr.name.indexOf('on') == 0)
+                            rmAttrs.push(attr.name);
+                    }
+                    for (var _a = 0, rmAttrs_1 = rmAttrs; _a < rmAttrs_1.length; _a++) {
+                        var attrName = rmAttrs_1[_a];
+                        element.removeAttribute(attrName);
+                    }
+                }
+            }
         };
         ;
-        ContentEditable.filterHtmlContent = function (rootElement, allowedTags) {
-            for (var i = 0; i < rootElement.childNodes.length; i++) {
-                var child = rootElement.childNodes[i];
-                ContentEditable.filterNode(child, allowedTags);
+        ContentEditable.filterHtmlContent = function (rootElement, allowedTags, removeScript) {
+            if (removeScript === void 0) { removeScript = false; }
+            var childNodes = [];
+            for (var i = 0; i < rootElement.childNodes.length; i++)
+                childNodes.push(rootElement.childNodes[i]);
+            for (var _i = 0, childNodes_2 = childNodes; _i < childNodes_2.length; _i++) {
+                var child = childNodes_2[_i];
+                ContentEditable.filterNode(child, allowedTags, removeScript);
             }
         };
         ContentEditable.prototype.findTag = function (tagName) {
