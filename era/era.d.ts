@@ -1298,6 +1298,7 @@ declare namespace Ui {
         get fill(): Color | string;
         set fill(value: Color | string);
         set path(value: string);
+        get icon(): string;
         set icon(value: string);
         protected onStyleChange(): void;
         protected onLoadingFailed(): void;

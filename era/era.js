@@ -5852,6 +5852,9 @@ var Ui;
             configurable: true
         });
         Object.defineProperty(Icon.prototype, "icon", {
+            get: function () {
+                return this._icon;
+            },
             set: function (value) {
                 if (this._icon == value)
                     return;

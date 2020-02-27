@@ -49,6 +49,10 @@ namespace Ui {
             this.normalize();
         }
 
+        get icon(): string {
+            return this._icon;
+        }
+
         set icon(value: string) {
             if (this._icon == value)
                 return;
