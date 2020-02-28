@@ -173,6 +173,14 @@ namespace Ui {
                 ContentEditable.filterNode(child, allowedTags, removeScript);
         }
 
+        static filterHtmlString(html: string, allowedTags: string[], removeScript: boolean = false) {
+            let parser = new DOMParser();
+            let doc = parser.parseFromString(html, 'text/html');
+            // filter tags
+            Ui.ContentEditable.filterHtmlContent(doc.documentElement, allowedTags, true);
+            return doc.documentElement.innerHTML;
+        }
+
         findTag(tagName: string): Node | undefined {
             let selection = window.getSelection();
             if (selection == null)

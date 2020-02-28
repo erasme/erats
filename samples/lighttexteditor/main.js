@@ -187,6 +187,19 @@ var Ui;
                 onlink: function (e) { return _this.link.fire({ target: _this, ref: e.ref }); },
                 selectable: true
             });
+            _this._contentEditable.drawing.addEventListener('paste', function (e) {
+                var _a, _b;
+                var selection = window.getSelection();
+                if (!selection || !selection.rangeCount)
+                    return;
+                var text = (_a = e.clipboardData) === null || _a === void 0 ? void 0 : _a.getData('text');
+                var html = (_b = e.clipboardData) === null || _b === void 0 ? void 0 : _b.getData('text/html');
+                if (html)
+                    document.execCommand('insertHTML', false, Ui.ContentEditable.filterHtmlString(html, allowedTags, true));
+                else if (text)
+                    document.execCommand('insertText', false, text);
+                e.preventDefault();
+            });
             _this._contentEditable.drawing.addEventListener('keydown', function (e) {
                 if (e.ctrlKey) {
                     // Ctrl + B

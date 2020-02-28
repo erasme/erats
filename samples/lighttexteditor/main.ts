@@ -138,6 +138,20 @@ namespace Ui {
                 onlink: (e) => this.link.fire({ target: this, ref: e.ref }),
                 selectable: true
             });
+            this._contentEditable.drawing.addEventListener('paste', (e) => {
+                let selection = window.getSelection();
+                if (!selection || !selection.rangeCount)
+                    return;
+
+                let text = e.clipboardData?.getData('text');
+                let html = e.clipboardData?.getData('text/html');
+    
+                if (html)
+                    document.execCommand('insertHTML', false, ContentEditable.filterHtmlString(html, allowedTags, true));
+                else if (text)
+                    document.execCommand('insertText', false, text);
+                e.preventDefault();
+            });
             this._contentEditable.drawing.addEventListener('keydown', (e) => {
                 if (e.ctrlKey) {
                     // Ctrl + B

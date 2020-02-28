@@ -22933,6 +22933,13 @@ var Ui;
                 ContentEditable.filterNode(child, allowedTags, removeScript);
             }
         };
+        ContentEditable.filterHtmlString = function (html, allowedTags, removeScript) {
+            if (removeScript === void 0) { removeScript = false; }
+            var parser = new DOMParser();
+            var doc = parser.parseFromString(html, 'text/html');
+            Ui.ContentEditable.filterHtmlContent(doc.documentElement, allowedTags, true);
+            return doc.documentElement.innerHTML;
+        };
         ContentEditable.prototype.findTag = function (tagName) {
             var selection = window.getSelection();
             if (selection == null)

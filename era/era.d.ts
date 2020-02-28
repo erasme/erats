@@ -5171,6 +5171,7 @@ declare namespace Ui {
         static unwrapNode(node: Node): void;
         static filterNode(node: Node, allowedTags: string[], removeScript?: boolean): void;
         static filterHtmlContent(rootElement: HTMLElement, allowedTags: string[], removeScript?: boolean): void;
+        static filterHtmlString(html: string, allowedTags: string[], removeScript?: boolean): string;
         findTag(tagName: string): Node | undefined;
         static saveSelection(): Range | null;
         static restoreSelection(range: Range | null): void;
