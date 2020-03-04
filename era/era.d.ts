@@ -2160,6 +2160,7 @@ declare namespace Ui {
 }
 declare namespace Ui {
     class Selection extends Core.Object {
+        private _allowMultiple;
         private _watchers;
         readonly changed: Core.Events<{
             target: Selection;
@@ -2168,6 +2169,8 @@ declare namespace Ui {
             target: Selection;
         }) => void);
         constructor();
+        get allowMultiple(): boolean;
+        set allowMultiple(value: boolean);
         clear(): void;
         appendRange(start: SelectionableWatcher, end: SelectionableWatcher): void;
         append(elements: Array<SelectionableWatcher> | SelectionableWatcher): void;

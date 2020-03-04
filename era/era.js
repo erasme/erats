@@ -9368,6 +9368,7 @@ var Ui;
         __extends(Selection, _super);
         function Selection() {
             var _this = _super.call(this) || this;
+            _this._allowMultiple = true;
             _this.changed = new Core.Events();
             _this.onElementUnload = function (e) {
                 var watcher = Ui.SelectionableWatcher.getSelectionableWatcher(e.target);
@@ -9378,6 +9379,21 @@ var Ui;
         }
         Object.defineProperty(Selection.prototype, "onchanged", {
             set: function (value) { this.changed.connect(value); },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Selection.prototype, "allowMultiple", {
+            get: function () {
+                return this._allowMultiple;
+            },
+            set: function (value) {
+                this._allowMultiple = value;
+                if (value && this._watchers.length > 1) {
+                    var last = this._watchers[this._watchers.length - 1];
+                    this.clear();
+                    this.internalAppend(last);
+                }
+            },
             enumerable: true,
             configurable: true
         });
@@ -9456,6 +9472,8 @@ var Ui;
         Selection.prototype.internalAppend = function (watcher) {
             if (this._watchers.indexOf(watcher) != -1)
                 return false;
+            if (!this.allowMultiple)
+                this.clear();
             this._watchers.push(watcher);
             watcher.element.unloaded.connect(this.onElementUnload);
             watcher.onSelect(this);

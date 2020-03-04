@@ -1,5 +1,6 @@
 namespace Ui {
     export class Selection extends Core.Object {
+        private _allowMultiple = true;
         private _watchers: SelectionableWatcher[];
         readonly changed = new Core.Events<{ target: Selection }>();
         set onchanged(value: (event: { target: Selection }) => void) { this.changed.connect(value); }
@@ -7,6 +8,19 @@ namespace Ui {
         constructor() {
             super();
             this._watchers = [];
+        }
+
+        get allowMultiple(): boolean {
+            return this._allowMultiple;
+        }
+
+        set allowMultiple(value: boolean) {
+            this._allowMultiple = value;
+            if (value && this._watchers.length > 1) {
+                let last = this._watchers[this._watchers.length -1];
+                this.clear();
+                this.internalAppend(last);
+            }
         }
 
         clear() {
@@ -91,6 +105,8 @@ namespace Ui {
             // test if we already have it
             if (this._watchers.indexOf(watcher) != -1)
                 return false;
+            if (!this.allowMultiple)
+                this.clear();
             this._watchers.push(watcher);
             watcher.element.unloaded.connect(this.onElementUnload);
             watcher.onSelect(this);
