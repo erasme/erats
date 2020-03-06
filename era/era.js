@@ -13731,6 +13731,8 @@ var Ui;
                 return [];
         };
         DropableWatcher.prototype.onDragEffect = function (dataTransfer) {
+            if (this.element.isDisabled)
+                return [];
             var dragEvent = new Ui.DragEvent();
             dragEvent.setType('drageffect');
             dragEvent.setBubbles(false);
@@ -13743,6 +13745,8 @@ var Ui;
                 return this.getAllowedTypesEffect(dataTransfer);
         };
         DropableWatcher.prototype.onDragEffectFunction = function (dataTransfer, func) {
+            if (this.element.isDisabled)
+                return [];
             return func(dataTransfer.getData(), dataTransfer);
         };
         DropableWatcher.prototype.onDrop = function (dataTransfer, dropEffect, x, y) {

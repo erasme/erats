@@ -188,6 +188,8 @@ namespace Ui
         // This method return the possible allowed effect [move|copy|link|...] in an array
         //
         protected onDragEffect(dataTransfer: DragDataTransfer) {
+            if (this.element.isDisabled)
+                return [];
             let dragEvent = new Ui.DragEvent();
             dragEvent.setType('drageffect');
             dragEvent.setBubbles(false);
@@ -201,6 +203,8 @@ namespace Ui
         }
 
         protected onDragEffectFunction(dataTransfer: DragDataTransfer, func: DropEffectFunc): DropEffect[] {
+            if (this.element.isDisabled)
+                return [];
             return func(dataTransfer.getData(), dataTransfer);
         }
 
