@@ -27,7 +27,6 @@ namespace Ui {
         transform?: Matrix;
         eventsHidden?: boolean;
         style?: object;
-        isDisabled?: boolean;
         isVisible?: boolean;
         onfocused?: (event: { target: Element }) => void;
         onblurred?: (event: { target: Element }) => void;
@@ -238,8 +237,6 @@ namespace Ui {
                     this.eventsHidden = init.eventsHidden;
                 if (init.style !== undefined)
                     this.style = init.style;
-                if (init.isDisabled !== undefined)
-                    this.isDisabled = init.isDisabled;
                 if (init.isVisible !== undefined)
                     this.isVisible = init.isVisible;
                 if (init.onfocused)

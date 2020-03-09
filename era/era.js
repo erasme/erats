@@ -3260,8 +3260,6 @@ var Ui;
                     _this.eventsHidden = init.eventsHidden;
                 if (init.style !== undefined)
                     _this.style = init.style;
-                if (init.isDisabled !== undefined)
-                    _this.isDisabled = init.isDisabled;
                 if (init.isVisible !== undefined)
                     _this.isVisible = init.isVisible;
                 if (init.onfocused)

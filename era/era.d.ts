@@ -742,7 +742,6 @@ declare namespace Ui {
         transform?: Matrix;
         eventsHidden?: boolean;
         style?: object;
-        isDisabled?: boolean;
         isVisible?: boolean;
         onfocused?: (event: {
             target: Element;
