@@ -5081,6 +5081,7 @@ declare namespace Ui {
 declare namespace Ui {
     interface IFrameInit extends ElementInit {
         src?: string;
+        allowFullscreen?: boolean;
     }
     class IFrame extends Element {
         protected iframeDrawing: HTMLIFrameElement;
@@ -5102,6 +5103,8 @@ declare namespace Ui {
         constructor(init?: IFrameInit);
         get src(): string;
         set src(src: string);
+        get allowFullscreen(): boolean;
+        set allowFullscreen(allowFullscreen: boolean);
         get isReady(): boolean;
         protected onIFrameLoad(): void;
         protected renderDrawing(): any;

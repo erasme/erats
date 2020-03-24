@@ -1,6 +1,7 @@
 namespace Ui {
     export interface IFrameInit extends ElementInit {
         src?: string;
+        allowFullscreen?: boolean;
     }
 
     export class IFrame extends Element {
@@ -19,12 +20,14 @@ namespace Ui {
                         let location = this.iframeDrawing.contentWindow.location;
                         this.locationchanged.fire({ target: this, value: location });
                     }
-                } catch {}
+                } catch { }
                 this.onIFrameLoad();
             });
             if (init) {
                 if (init.src !== undefined)
                     this.src = init.src;
+                if (init.allowFullscreen !== undefined)
+                    this.allowFullscreen = init.allowFullscreen;
             }
         }
 
@@ -35,6 +38,14 @@ namespace Ui {
         set src(src: string) {
             this._isReady = false;
             this.iframeDrawing.setAttribute('src', src);
+        }
+
+        get allowFullscreen(): boolean {
+            return this.iframeDrawing.allowFullscreen
+        }
+
+        set allowFullscreen(allowFullscreen: boolean) {
+            this.iframeDrawing.allowFullscreen = allowFullscreen;
         }
 
         get isReady(): boolean {
@@ -82,5 +93,5 @@ namespace Ui {
             this.iframeDrawing.style.width = width + 'px';
         }
     }
-}	
+}
 

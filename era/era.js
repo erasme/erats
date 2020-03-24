@@ -22701,6 +22701,8 @@ var Ui;
             if (init) {
                 if (init.src !== undefined)
                     _this.src = init.src;
+                if (init.allowFullscreen !== undefined)
+                    _this.allowFullscreen = init.allowFullscreen;
             }
             return _this;
         }
@@ -22721,6 +22723,16 @@ var Ui;
             set: function (src) {
                 this._isReady = false;
                 this.iframeDrawing.setAttribute('src', src);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(IFrame.prototype, "allowFullscreen", {
+            get: function () {
+                return this.iframeDrawing.allowFullscreen;
+            },
+            set: function (allowFullscreen) {
+                this.iframeDrawing.allowFullscreen = allowFullscreen;
             },
             enumerable: true,
             configurable: true
