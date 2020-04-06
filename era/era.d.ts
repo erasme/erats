@@ -3812,10 +3812,15 @@ declare namespace Ui {
     }
 }
 declare namespace Ui {
+    type ToastPosition = 'BottomLeft' | 'BottomRight' | 'TopLeft' | 'TopRight';
     class Toaster extends Container {
-        static current: Toaster;
+        readonly position: ToastPosition;
+        static currentBottomLeft: Toaster;
+        static currentTopLeft: Toaster;
+        static currentTopRight: Toaster;
+        static currentBottomRight: Toaster;
         private arrangeClock?;
-        constructor();
+        constructor(position: ToastPosition);
         appendToast(toast: Toast): void;
         removeToast(toast: Toast): void;
         protected onArrangeTick(clock: any, progress: any, delta: any): void;
@@ -3841,14 +3846,15 @@ declare namespace Ui {
         readonly closed: Core.Events<{
             target: Toast;
         }>;
+        private toaster?;
         constructor();
         get isClosed(): boolean;
-        open(): void;
+        open(position?: ToastPosition): void;
         close(): void;
         protected onOpenTick(clock: any, progress: any, delta: any): void;
         set content(content: Element);
         protected arrangeCore(width: number, height: number): void;
-        static send(content: Element | string): void;
+        static send(content: Element | string, position?: ToastPosition): void;
     }
 }
 declare namespace Ui {

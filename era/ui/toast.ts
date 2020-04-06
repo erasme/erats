@@ -1,10 +1,14 @@
 ﻿namespace Ui {
+    export type ToastPosition = 'BottomLeft' | 'BottomRight' | 'TopLeft' | 'TopRight';
 
     export class Toaster extends Container {
-        static current: Toaster;
+        static currentBottomLeft: Toaster;
+        static currentTopLeft: Toaster;
+        static currentTopRight: Toaster;
+        static currentBottomRight: Toaster;
         private arrangeClock?: Anim.Clock;
 
-        constructor() {
+        constructor(readonly position: ToastPosition) {
             super();
             //this.margin = 10;
             this.eventsHidden = true;
@@ -76,7 +80,14 @@
                 child.lastLayoutX = child.layoutX;
                 child.lastLayoutY = child.layoutY;
                 y += child.measureHeight;
-                child.arrange(10, height - (y + 10), this.measureWidth, child.measureHeight);
+                if (this.position == 'TopLeft')
+                    child.arrange(10, 10 + y - child.measureHeight, this.measureWidth, child.measureHeight);
+                else if (this.position == 'TopRight')
+                    child.arrange(width - (10 + child.measureWidth), 10 + y - child.measureHeight, this.measureWidth, child.measureHeight);
+                else if (this.position == 'BottomRight')
+                    child.arrange(width - (10 + child.measureWidth), height - (y + 10), this.measureWidth, child.measureHeight);
+                else
+                    child.arrange(10, height - (y + 10), this.measureWidth, child.measureHeight);
                 y += spacing;
             }
             if (this.arrangeClock === undefined) {
@@ -87,11 +98,11 @@
         }
 
         static appendToast(toast: Toast) {
-            Ui.Toaster.current.appendToast(toast);
+            Ui.Toaster.currentBottomLeft.appendToast(toast);
         }
 
         static removeToast(toast: Toast) {
-            Ui.Toaster.current.removeToast(toast);
+            Ui.Toaster.currentBottomLeft.removeToast(toast);
         }
     }
 
@@ -105,6 +116,7 @@
         lastLayoutWidth: number = 0;
         lastLayoutHeight: number = 0;
         readonly closed = new Core.Events<{ target: Toast }>();
+        private toaster?: Toaster;
 
         constructor() {
             super();
@@ -126,7 +138,7 @@
             return this._isClosed;
         }
 
-        open() {
+        open(position: ToastPosition = 'TopLeft') {
             if (this._isClosed) {
                 this._isClosed = false;
 
@@ -141,7 +153,15 @@
                     // the start of the animation is delayed to the next arrange
                 }
                 new Core.DelayedTask(2, () => this.close());
-                Ui.Toaster.appendToast(this);
+                if (position == 'TopLeft')
+                    this.toaster = Ui.Toaster.currentTopLeft;
+                else if (position == 'TopRight')
+                    this.toaster = Ui.Toaster.currentTopRight;
+                else if (position == 'BottomRight')
+                    this.toaster = Ui.Toaster.currentBottomRight;
+                else
+                    this.toaster = Ui.Toaster.currentBottomLeft;
+                this.toaster.appendToast(this);
             }
         }
 
@@ -176,7 +196,7 @@
                 if (this._isClosed) {
                     this.enable();
                     this.closed.fire({ target: this });
-                    Ui.Toaster.removeToast(this);
+                    this.toaster?.removeToast(this);
                 }
             }
         }
@@ -192,7 +212,7 @@
                 this.openClock.begin();
         }
 
-        static send(content: Element | string) {
+        static send(content: Element | string, position: ToastPosition = 'TopLeft') {
             let toast = new Ui.Toast();
             if (typeof (content) === 'string') {
                 let t = new Ui.Text();
@@ -204,9 +224,12 @@
                 content = t;
             }
             toast.content = content;
-            toast.open();
+            toast.open(position);
         }
     }
 }	
 
-Ui.Toaster.current = new Ui.Toaster();
+Ui.Toaster.currentTopLeft = new Ui.Toaster('TopLeft');
+Ui.Toaster.currentBottomLeft = new Ui.Toaster('BottomLeft');
+Ui.Toaster.currentTopRight = new Ui.Toaster('TopRight');
+Ui.Toaster.currentBottomRight = new Ui.Toaster('BottomRight');

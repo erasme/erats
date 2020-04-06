@@ -17509,8 +17509,9 @@ var Ui;
 (function (Ui) {
     var Toaster = (function (_super) {
         __extends(Toaster, _super);
-        function Toaster() {
+        function Toaster(position) {
             var _this = _super.call(this) || this;
+            _this.position = position;
             _this.eventsHidden = true;
             _this.drawing.style.position = 'fixed';
             _this.drawing.style.top = '0';
@@ -17572,7 +17573,14 @@ var Ui;
                 child.lastLayoutX = child.layoutX;
                 child.lastLayoutY = child.layoutY;
                 y += child.measureHeight;
-                child.arrange(10, height - (y + 10), this.measureWidth, child.measureHeight);
+                if (this.position == 'TopLeft')
+                    child.arrange(10, 10 + y - child.measureHeight, this.measureWidth, child.measureHeight);
+                else if (this.position == 'TopRight')
+                    child.arrange(width - (10 + child.measureWidth), 10 + y - child.measureHeight, this.measureWidth, child.measureHeight);
+                else if (this.position == 'BottomRight')
+                    child.arrange(width - (10 + child.measureWidth), height - (y + 10), this.measureWidth, child.measureHeight);
+                else
+                    child.arrange(10, height - (y + 10), this.measureWidth, child.measureHeight);
                 y += spacing;
             }
             if (this.arrangeClock === undefined) {
@@ -17582,10 +17590,10 @@ var Ui;
             }
         };
         Toaster.appendToast = function (toast) {
-            Ui.Toaster.current.appendToast(toast);
+            Ui.Toaster.currentBottomLeft.appendToast(toast);
         };
         Toaster.removeToast = function (toast) {
-            Ui.Toaster.current.removeToast(toast);
+            Ui.Toaster.currentBottomLeft.removeToast(toast);
         };
         return Toaster;
     }(Ui.Container));
@@ -17627,8 +17635,9 @@ var Ui;
             enumerable: true,
             configurable: true
         });
-        Toast.prototype.open = function () {
+        Toast.prototype.open = function (position) {
             var _this = this;
+            if (position === void 0) { position = 'TopLeft'; }
             if (this._isClosed) {
                 this._isClosed = false;
                 if (this.openClock == undefined) {
@@ -17640,7 +17649,15 @@ var Ui;
                     this.opacity = 0;
                 }
                 new Core.DelayedTask(2, function () { return _this.close(); });
-                Ui.Toaster.appendToast(this);
+                if (position == 'TopLeft')
+                    this.toaster = Ui.Toaster.currentTopLeft;
+                else if (position == 'TopRight')
+                    this.toaster = Ui.Toaster.currentTopRight;
+                else if (position == 'BottomRight')
+                    this.toaster = Ui.Toaster.currentBottomRight;
+                else
+                    this.toaster = Ui.Toaster.currentBottomLeft;
+                this.toaster.appendToast(this);
             }
         };
         Toast.prototype.close = function () {
@@ -17659,6 +17676,7 @@ var Ui;
             }
         };
         Toast.prototype.onOpenTick = function (clock, progress, delta) {
+            var _a;
             var end = (progress >= 1);
             if (this._isClosed)
                 progress = 1 - progress;
@@ -17671,7 +17689,7 @@ var Ui;
                 if (this._isClosed) {
                     this.enable();
                     this.closed.fire({ target: this });
-                    Ui.Toaster.removeToast(this);
+                    (_a = this.toaster) === null || _a === void 0 ? void 0 : _a.removeToast(this);
                 }
             }
         };
@@ -17687,7 +17705,8 @@ var Ui;
             if ((this.openClock != undefined) && !this.openClock.isActive)
                 this.openClock.begin();
         };
-        Toast.send = function (content) {
+        Toast.send = function (content, position) {
+            if (position === void 0) { position = 'TopLeft'; }
             var toast = new Ui.Toast();
             if (typeof (content) === 'string') {
                 var t = new Ui.Text();
@@ -17699,13 +17718,16 @@ var Ui;
                 content = t;
             }
             toast.content = content;
-            toast.open();
+            toast.open(position);
         };
         return Toast;
     }(Ui.LBox));
     Ui.Toast = Toast;
 })(Ui || (Ui = {}));
-Ui.Toaster.current = new Ui.Toaster();
+Ui.Toaster.currentTopLeft = new Ui.Toaster('TopLeft');
+Ui.Toaster.currentBottomLeft = new Ui.Toaster('BottomLeft');
+Ui.Toaster.currentTopRight = new Ui.Toaster('TopRight');
+Ui.Toaster.currentBottomRight = new Ui.Toaster('BottomRight');
 var Ui;
 (function (Ui) {
     var Image = (function (_super) {
