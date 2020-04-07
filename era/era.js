@@ -17637,7 +17637,7 @@ var Ui;
         });
         Toast.prototype.open = function (position) {
             var _this = this;
-            if (position === void 0) { position = 'TopLeft'; }
+            if (position === void 0) { position = 'BottomLeft'; }
             if (this._isClosed) {
                 this._isClosed = false;
                 if (this.openClock == undefined) {
@@ -17706,7 +17706,7 @@ var Ui;
                 this.openClock.begin();
         };
         Toast.send = function (content, position) {
-            if (position === void 0) { position = 'TopLeft'; }
+            if (position === void 0) { position = 'BottomLeft'; }
             var toast = new Ui.Toast();
             if (typeof (content) === 'string') {
                 var t = new Ui.Text();

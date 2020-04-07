@@ -138,7 +138,7 @@
             return this._isClosed;
         }
 
-        open(position: ToastPosition = 'TopLeft') {
+        open(position: ToastPosition = 'BottomLeft') {
             if (this._isClosed) {
                 this._isClosed = false;
 
@@ -212,7 +212,7 @@
                 this.openClock.begin();
         }
 
-        static send(content: Element | string, position: ToastPosition = 'TopLeft') {
+        static send(content: Element | string, position: ToastPosition = 'BottomLeft') {
             let toast = new Ui.Toast();
             if (typeof (content) === 'string') {
                 let t = new Ui.Text();
