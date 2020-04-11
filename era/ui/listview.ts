@@ -19,7 +19,7 @@ namespace Ui {
         protected _sortOrder: number | undefined;
         protected _sortInvert: boolean = false;
 
-        constructor(readonly headerDef: HeaderDef) {
+        constructor(readonly headerDef: HeaderDef, readonly listview: ListView) {
             super();
             if (headerDef.title instanceof Element)
                 this.ui = headerDef.title;
@@ -212,7 +212,7 @@ namespace Ui {
         readonly sortchanged = new Core.Events<{ target: ListViewHeadersBar<T>, sortOrder: Array<{ key: keyof T, invert: boolean }> }>();
         set onsortchanged(value: (event: { target: ListViewHeadersBar<T>, sortOrder: Array<{ key: keyof T, invert: boolean }> }) => void) { this.sortchanged.connect(value); }
 
-        constructor(init) {
+        constructor(init, readonly listview: ListView) {
             super();
 
             this.headers = init.headers;
@@ -220,7 +220,7 @@ namespace Ui {
 
             for (let i = 0; i < init.headers.length; i++) {
                 let headerDef = init.headers[i];
-                let headerUi = new ListViewHeader(headerDef).assign({
+                let headerUi = new ListViewHeader(headerDef, listview).assign({
                     width: headerDef.width,
                     onpressed: e => {
                         if (headerDef.key !== undefined)
@@ -505,6 +505,7 @@ namespace Ui {
     export interface ListViewInit<T> extends VBoxInit {
         headers?: HeaderDef[];
         scrolled?: boolean;
+        headerStoreKey?: string;
         allowMultiSort?: boolean;
         scrollVertical?: boolean;
         scrollHorizontal?: boolean;
@@ -535,6 +536,7 @@ namespace Ui {
         private _scrollHorizontal: boolean = true;
         vbox: VBox;
         vboxScroll: ScrollingArea;
+        private _headerStoreKey: string | undefined;
 
         private _selectionChangedLock = false;
         readonly selectionchanged = new Core.Events<{ target: ListView<T> }>();
@@ -556,6 +558,8 @@ namespace Ui {
                 this.headers = init.headers;
             else
                 this.headers = [{ width: 100, type: 'string', title: 'Title', key: 'default' }];
+            if (init && init.headerStoreKey !== undefined)
+                this.headerStoreKey = init.headerStoreKey;
 
             this.selectionActions = {
                 edit: {
@@ -571,7 +575,7 @@ namespace Ui {
             this.headersScroll.setScrollbarHorizontal(new Movable());
             this.append(this.headersScroll);
 
-            this.headersBar = new ListViewHeadersBar({ headers: this.headers }).assign({
+            this.headersBar = new ListViewHeadersBar({ headers: this.headers }, this).assign({
                 onsortchanged: (e) => this.sortOrder = e.sortOrder
             });
             this.headersScroll.content = this.headersBar;
@@ -622,6 +626,29 @@ namespace Ui {
                     this.selectionchanged.connect(init.onselectionchanged);
                 if (init.allowMultiSort != undefined)
                     this.allowMultiSort = init.allowMultiSort;
+            }
+        }
+
+        get headerStoreKey(): string | undefined {
+            return this._headerStoreKey;
+        }
+
+        set headerStoreKey(key: string | undefined) {
+            if (this._headerStoreKey != key) {
+                this._headerStoreKey = key;
+                this.loadStoredWidth();
+            }
+        }
+
+        private loadStoredWidth() {
+            if (localStorage && this.headerStoreKey) {
+                for (let header of this.headers) {
+                    if (!header.key)
+                        continue;
+                    let value = localStorage.getItem(`${this.headerStoreKey}.header.${header.key}`);
+                    if (value)
+                        header.width = parseInt(value);
+                }
             }
         }
 
@@ -975,6 +1002,9 @@ namespace Ui {
         protected onUp() {
             let delta = this.grip.positionX;
             this.header.width = Math.max(this.measureWidth, this.header.measureWidth + delta);
+            if (this.header.listview.headerStoreKey && localStorage && this.headerDef.key) {
+                localStorage.setItem(`${this.header.listview.headerStoreKey}.header.${this.headerDef.key}`, this.header.width.toString());
+            }
             this.invalidateArrange();
         }
 

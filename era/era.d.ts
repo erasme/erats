@@ -5458,6 +5458,7 @@ declare namespace Ui {
     }
     class ListViewHeader extends Pressable {
         readonly headerDef: HeaderDef;
+        readonly listview: ListView;
         protected ui: Element;
         protected background: Rectangle;
         protected sortBox: HBox;
@@ -5465,7 +5466,7 @@ declare namespace Ui {
         protected sortArrow: Icon;
         protected _sortOrder: number | undefined;
         protected _sortInvert: boolean;
-        constructor(headerDef: HeaderDef);
+        constructor(headerDef: HeaderDef, listview: ListView);
         set sort(value: {
             order: number | undefined;
             invert: boolean;
@@ -5482,6 +5483,7 @@ declare namespace Ui {
         static style: object;
     }
     class ListViewHeadersBar<T> extends Container {
+        readonly listview: ListView;
         allowMultiSort: boolean;
         private headers;
         private _sortOrder;
@@ -5502,7 +5504,7 @@ declare namespace Ui {
                 invert: boolean;
             }>;
         }) => void);
-        constructor(init: any);
+        constructor(init: any, listview: ListView);
         get sortColKey(): keyof T;
         get sortInvert(): boolean;
         sortBy(key: keyof T, invert: boolean): void;
@@ -5582,6 +5584,7 @@ declare namespace Ui {
     interface ListViewInit<T> extends VBoxInit {
         headers?: HeaderDef[];
         scrolled?: boolean;
+        headerStoreKey?: string;
         allowMultiSort?: boolean;
         scrollVertical?: boolean;
         scrollHorizontal?: boolean;
@@ -5630,6 +5633,7 @@ declare namespace Ui {
         private _scrollHorizontal;
         vbox: VBox;
         vboxScroll: ScrollingArea;
+        private _headerStoreKey;
         private _selectionChangedLock;
         readonly selectionchanged: Core.Events<{
             target: ListView<T>;
@@ -5680,6 +5684,9 @@ declare namespace Ui {
             target: ListView<T>;
         }) => void);
         constructor(init?: ListViewInit<T>);
+        get headerStoreKey(): string | undefined;
+        set headerStoreKey(key: string | undefined);
+        private loadStoredWidth;
         set scrolled(scrolled: boolean);
         set scrollVertical(value: boolean);
         set scrollHorizontal(value: boolean);

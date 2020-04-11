@@ -24400,9 +24400,10 @@ var Ui;
 (function (Ui) {
     var ListViewHeader = (function (_super) {
         __extends(ListViewHeader, _super);
-        function ListViewHeader(headerDef) {
+        function ListViewHeader(headerDef, listview) {
             var _this = _super.call(this) || this;
             _this.headerDef = headerDef;
+            _this.listview = listview;
             _this.background = new Ui.Rectangle();
             _this.sortBox = new Ui.HBox();
             _this.sortOrderLabel = new Ui.Label();
@@ -24600,8 +24601,9 @@ var Ui;
     }(Ui.Popup));
     var ListViewHeadersBar = (function (_super) {
         __extends(ListViewHeadersBar, _super);
-        function ListViewHeadersBar(init) {
+        function ListViewHeadersBar(init, listview) {
             var _this = _super.call(this) || this;
+            _this.listview = listview;
             _this.allowMultiSort = true;
             _this._sortOrder = new Array();
             _this.rowsHeight = 0;
@@ -24611,7 +24613,7 @@ var Ui;
             _this.uis = [];
             var _loop_7 = function (i) {
                 var headerDef = init.headers[i];
-                var headerUi = new ListViewHeader(headerDef).assign({
+                var headerUi = new ListViewHeader(headerDef, listview).assign({
                     width: headerDef.width,
                     onpressed: function (e) {
                         if (headerDef.key !== undefined)
@@ -24914,6 +24916,8 @@ var Ui;
                 _this.headers = init.headers;
             else
                 _this.headers = [{ width: 100, type: 'string', title: 'Title', key: 'default' }];
+            if (init && init.headerStoreKey !== undefined)
+                _this.headerStoreKey = init.headerStoreKey;
             _this.selectionActions = {
                 edit: {
                     "default": true,
@@ -24926,7 +24930,7 @@ var Ui;
             });
             _this.headersScroll.setScrollbarHorizontal(new Ui.Movable());
             _this.append(_this.headersScroll);
-            _this.headersBar = new ListViewHeadersBar({ headers: _this.headers }).assign({
+            _this.headersBar = new ListViewHeadersBar({ headers: _this.headers }, _this).assign({
                 onsortchanged: function (e) { return _this.sortOrder = e.sortOrder; }
             });
             _this.headersScroll.content = _this.headersBar;
@@ -25003,6 +25007,31 @@ var Ui;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(ListView.prototype, "headerStoreKey", {
+            get: function () {
+                return this._headerStoreKey;
+            },
+            set: function (key) {
+                if (this._headerStoreKey != key) {
+                    this._headerStoreKey = key;
+                    this.loadStoredWidth();
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        ListView.prototype.loadStoredWidth = function () {
+            if (localStorage && this.headerStoreKey) {
+                for (var _i = 0, _a = this.headers; _i < _a.length; _i++) {
+                    var header = _a[_i];
+                    if (!header.key)
+                        continue;
+                    var value = localStorage.getItem(this.headerStoreKey + ".header." + header.key);
+                    if (value)
+                        header.width = parseInt(value);
+                }
+            }
+        };
         Object.defineProperty(ListView.prototype, "scrolled", {
             set: function (scrolled) {
                 this.scrollVertical = scrolled;
@@ -25337,6 +25366,9 @@ var Ui;
         ListViewColBar.prototype.onUp = function () {
             var delta = this.grip.positionX;
             this.header.width = Math.max(this.measureWidth, this.header.measureWidth + delta);
+            if (this.header.listview.headerStoreKey && localStorage && this.headerDef.key) {
+                localStorage.setItem(this.header.listview.headerStoreKey + ".header." + this.headerDef.key, this.header.width.toString());
+            }
             this.invalidateArrange();
         };
         ListViewColBar.prototype.measureCore = function (width, height) {

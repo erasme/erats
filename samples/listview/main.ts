@@ -127,6 +127,7 @@ class App extends Ui.App {
 		let listview = new Ui.ListView({
 			margin: 0,
 			scrolled: true,
+			headerStoreKey: 'local.test.app',
 			headers: [
 				{ type: 'string', title: 'Data 0', key: 'data0', width: 40, ui: ListViewBoolCell },
 				{ type: 'string', title: 'Data 1', key: 'data1', width: 200 },
