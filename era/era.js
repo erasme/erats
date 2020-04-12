@@ -20264,9 +20264,9 @@ var Ui;
             minHeight = Math.max(size.height, minHeight);
             minWidth = Math.max(size.width, minWidth);
             if (this.orientation == 'horizontal')
-                return { width: Math.max(minWidth, 12), height: minHeight };
+                return { width: Math.max(minWidth, 8), height: minHeight };
             else
-                return { width: minWidth, height: Math.max(minHeight, 12) };
+                return { width: minWidth, height: Math.max(minHeight, 8) };
         };
         ProgressBar.prototype.arrangeCore = function (width, height) {
             this.background.arrange(0, 0, width, height);

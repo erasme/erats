@@ -84,9 +84,9 @@ namespace Ui {
             minWidth = Math.max(size.width, minWidth);
 
             if (this.orientation == 'horizontal')
-                return { width: Math.max(minWidth, 12), height: minHeight };
+                return { width: Math.max(minWidth, 8), height: minHeight };
             else
-                return { width: minWidth, height: Math.max(minHeight, 12) };
+                return { width: minWidth, height: Math.max(minHeight, 8) };
         }
 
         protected arrangeCore(width: number, height: number) {
