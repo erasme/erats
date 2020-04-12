@@ -20192,11 +20192,14 @@ var Ui;
         function ProgressBar(init) {
             var _this = _super.call(this, init) || this;
             _this._value = 0;
-            _this.background = new Ui.Rectangle({ height: 4 });
+            _this._orientation = 'horizontal';
+            _this.background = new Ui.Rectangle({ width: 4, height: 4 });
             _this.appendChild(_this.background);
-            _this.bar = new Ui.Rectangle({ height: 4 });
+            _this.bar = new Ui.Rectangle({ width: 4, height: 4 });
             _this.appendChild(_this.bar);
             if (init) {
+                if (init.orientation !== undefined)
+                    _this.orientation = init.orientation;
                 if (init.value !== undefined)
                     _this.value = init.value;
             }
@@ -20205,8 +20208,14 @@ var Ui;
                 ontimeupdate: function (e) {
                     var p = e.progress;
                     var p2 = (p > 0.5) ? 2 - 2 * p : 2 * p;
-                    var x = p2 * (_this.layoutWidth - _this.bar.layoutWidth);
-                    _this.bar.transform = new Ui.Matrix().translate(x, 0);
+                    if (_this.orientation == 'horizontal') {
+                        var x = p2 * (_this.layoutWidth - _this.bar.layoutWidth);
+                        _this.bar.transform = new Ui.Matrix().translate(x, 0);
+                    }
+                    else {
+                        var y = (1 - p2) * (_this.layoutHeight - _this.bar.layoutHeight);
+                        _this.bar.transform = new Ui.Matrix().translate(0, y);
+                    }
                 }
             });
             return _this;
@@ -20224,7 +20233,22 @@ var Ui;
                         this.clock.stop();
                         this.bar.transform = new Ui.Matrix().translate(0, 0);
                     }
+                    if (typeof this._value == 'number')
+                        this._value = Math.max(0, Math.min(1, this._value));
                     this.invalidateArrange();
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(ProgressBar.prototype, "orientation", {
+            get: function () {
+                return this._orientation;
+            },
+            set: function (value) {
+                if (this._orientation != value) {
+                    this._orientation = value;
+                    this.invalidateMeasure();
                 }
             },
             enumerable: true,
@@ -20233,23 +20257,29 @@ var Ui;
         ProgressBar.prototype.measureCore = function (width, height) {
             var minHeight = 0;
             var minWidth = 0;
-            var size;
-            size = this.bar.measure(width, height);
+            var size = this.bar.measure(width, height);
             minHeight = Math.max(size.height, minHeight);
             minWidth = Math.max(size.width, minWidth);
             size = this.background.measure(width, height);
             minHeight = Math.max(size.height, minHeight);
             minWidth = Math.max(size.width, minWidth);
-            return { width: Math.max(minWidth, 12), height: minHeight };
+            if (this.orientation == 'horizontal')
+                return { width: Math.max(minWidth, 12), height: minHeight };
+            else
+                return { width: minWidth, height: Math.max(minHeight, 12) };
         };
         ProgressBar.prototype.arrangeCore = function (width, height) {
             this.background.arrange(0, 0, width, height);
-            var barWidth = width * (typeof this.value == 'number' ? this.value : 0.2);
+            var barWidth = (this.orientation == 'horizontal' ? width : height) * (typeof this.value == 'number' ? this.value : 0.2);
+            barWidth = Math.floor(barWidth);
             if (barWidth < 2)
                 this.bar.hide();
             else {
                 this.bar.show();
-                this.bar.arrange(0, 0, barWidth, this.layoutHeight);
+                if (this.orientation == 'horizontal')
+                    this.bar.arrange(0, 0, barWidth, height);
+                else
+                    this.bar.arrange(0, height - barWidth, width, barWidth);
             }
         };
         ProgressBar.prototype.onVisible = function () {

@@ -4470,15 +4470,19 @@ declare namespace Ui {
 declare namespace Ui {
     interface ProgressBarInit extends ContainerInit {
         value?: number | 'infinite';
+        orientation?: 'horizontal' | 'vertical';
     }
     class ProgressBar extends Container implements ProgressBarInit {
         private _value;
         readonly bar: Rectangle;
         private background;
         private clock;
+        private _orientation;
         constructor(init?: ProgressBarInit);
-        set value(value: number | 'infinite');
         get value(): number | 'infinite';
+        set value(value: number | 'infinite');
+        get orientation(): 'horizontal' | 'vertical';
+        set orientation(value: 'horizontal' | 'vertical');
         protected measureCore(width: number, height: number): {
             width: number;
             height: number;
