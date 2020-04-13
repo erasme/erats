@@ -5937,6 +5937,7 @@ var Ui;
                 }
                 child.style.width = '100%';
                 child.style.height = '100%';
+                child.style.position = 'absolute';
             }
         };
         Icon.initialize = function () {
