@@ -534,7 +534,7 @@
 
         constructor(init?: VDropBoxInit) {
             super(
-                new VBox().assign({ spacing: init && init.spacing ? init.spacing : undefined }),
+                new VBox().assign({ spacing: init && init.spacing ? init.spacing : 0 }),
                 init
             );
             this.setMarkerOrientation('vertical');

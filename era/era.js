@@ -27630,7 +27630,7 @@ var Ui;
     var VDropBox = (function (_super) {
         __extends(VDropBox, _super);
         function VDropBox(init) {
-            var _this = _super.call(this, new Ui.VBox().assign({ spacing: init && init.spacing ? init.spacing : undefined }), init) || this;
+            var _this = _super.call(this, new Ui.VBox().assign({ spacing: init && init.spacing ? init.spacing : 0 }), init) || this;
             _this.setMarkerOrientation('vertical');
             return _this;
         }
