@@ -20,8 +20,10 @@ namespace Ui {
 
             this.element = init.element;
             this.element.drawing.addEventListener('focusin', () => {
-                this._isFocusIn = true;
-                this.delayFocus();
+                if (!this.element.isDisabled) {
+                    this._isFocusIn = true;
+                    this.delayFocus();
+                }
             });
             this.element.drawing.addEventListener('focusout', () => {
                 this._isFocusIn = false;

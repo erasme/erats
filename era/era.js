@@ -8544,8 +8544,10 @@ var Ui;
                 _this.focusout = init.onfocusout;
             _this.element = init.element;
             _this.element.drawing.addEventListener('focusin', function () {
-                _this._isFocusIn = true;
-                _this.delayFocus();
+                if (!_this.element.isDisabled) {
+                    _this._isFocusIn = true;
+                    _this.delayFocus();
+                }
             });
             _this.element.drawing.addEventListener('focusout', function () {
                 _this._isFocusIn = false;
