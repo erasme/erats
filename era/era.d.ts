@@ -5395,7 +5395,9 @@ declare namespace Ui {
             position: number;
         }) => void);
         constructor(init?: ComboInit<T>);
+        get placeHolder(): string;
         set placeHolder(placeHolder: string);
+        get field(): keyof T;
         set field(field: keyof T);
         set iconField(field: keyof T);
         set data(data: T[]);

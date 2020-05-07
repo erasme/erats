@@ -67,10 +67,18 @@ namespace Ui {
             }
         }
 
+        get placeHolder(): string {
+            return this._placeHolder;
+        }
+
         set placeHolder(placeHolder: string) {
             this._placeHolder = placeHolder;
             if (this._position === -1)
                 this.text = this._placeHolder;
+        }
+
+        get field(): keyof T {
+            return this._field;
         }
 
         set field(field: keyof T) {

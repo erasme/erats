@@ -24122,6 +24122,9 @@ var Ui;
             configurable: true
         });
         Object.defineProperty(Combo.prototype, "placeHolder", {
+            get: function () {
+                return this._placeHolder;
+            },
             set: function (placeHolder) {
                 this._placeHolder = placeHolder;
                 if (this._position === -1)
@@ -24131,6 +24134,9 @@ var Ui;
             configurable: true
         });
         Object.defineProperty(Combo.prototype, "field", {
+            get: function () {
+                return this._field;
+            },
             set: function (field) {
                 this._field = field;
                 if (this._data !== undefined)
