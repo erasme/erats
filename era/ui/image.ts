@@ -148,6 +148,7 @@ namespace Ui
             this.imageDrawing.style.width = '0px';
             this.imageDrawing.style.height = '0px';
             this.imageDrawing.style.pointerEvents = 'none';
+            this.imageDrawing.style.overflow = 'hidden';
             this.imageDrawing.setAttribute('draggable', 'false');
             if (Core.Navigator.isWebkit) {
                 // no text selection
