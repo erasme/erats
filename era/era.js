@@ -14890,6 +14890,7 @@ var Ui;
             _this.contentBox.setTransformOrigin(0, 0);
             _this.appendChild(_this.contentBox);
             _this.scroll = new Ui.ScrollingArea();
+            _this.scroll.drawing.style.overflow = 'hidden';
             _this.contentBox.append(_this.scroll);
             _this.contextBox = new Ui.ContextBar();
             _this.contextBox.selection = _this.popupSelection;
@@ -15010,7 +15011,7 @@ var Ui;
             this.shadow.drawing.style.backgroundColor = Ui.Color.create(this.getStyleProperty('shadow')).getCssRgba();
             var radius = this.getStyleProperty('radius');
             this.background.radius = radius;
-            this.contentBox.drawing.style.borderRadius = radius + "px";
+            this.scroll.drawing.style.borderRadius = radius + "px";
         };
         Popup.prototype.open = function () {
             this.openPosOrElement();

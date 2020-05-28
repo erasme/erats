@@ -55,6 +55,7 @@ namespace Ui
             this.appendChild(this.contentBox);
 
             this.scroll = new ScrollingArea();
+            this.scroll.drawing.style.overflow = 'hidden';
             this.contentBox.append(this.scroll);
 
             this.contextBox = new ContextBar();
@@ -171,7 +172,7 @@ namespace Ui
             this.shadow.drawing.style.backgroundColor = Color.create(this.getStyleProperty('shadow')).getCssRgba();
             let radius = this.getStyleProperty('radius');
             this.background.radius = radius;
-            this.contentBox.drawing.style.borderRadius = `${radius}px`;
+            this.scroll.drawing.style.borderRadius = `${radius}px`;
         }
 
         open() {
