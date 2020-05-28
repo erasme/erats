@@ -16541,31 +16541,6 @@ var Ui;
         return DialogCloseButton;
     }(Ui.Button));
     Ui.DialogCloseButton = DialogCloseButton;
-    var DialogGraphic = (function (_super) {
-        __extends(DialogGraphic, _super);
-        function DialogGraphic() {
-            var _this = _super.call(this) || this;
-            _this._background = Ui.Color.create('#f8f8f8');
-            return _this;
-        }
-        Object.defineProperty(DialogGraphic.prototype, "background", {
-            set: function (color) {
-                this._background = Ui.Color.create(color);
-                this.invalidateDraw();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        DialogGraphic.prototype.updateCanvas = function (ctx) {
-            var w = this.layoutWidth;
-            var h = this.layoutHeight;
-            ctx.roundRectFilledShadow(0, 0, w, h, 2, 2, 2, 2, false, 3, new Ui.Color(0, 0, 0, 0.3));
-            ctx.fillStyle = this._background.getCssRgba();
-            ctx.fillRect(3, 3, w - 6, h - 6);
-        };
-        return DialogGraphic;
-    }(Ui.CanvasElement));
-    Ui.DialogGraphic = DialogGraphic;
     var DialogTitle = (function (_super) {
         __extends(DialogTitle, _super);
         function DialogTitle() {
@@ -16661,10 +16636,10 @@ var Ui;
             _this.lbox = new Ui.Form();
             _this.lbox.submited.connect(function () { return _this.onFormSubmit(); });
             _this.appendChild(_this.lbox);
-            _this.graphic = new Ui.DialogGraphic();
-            _this.lbox.append(_this.graphic);
             _this.vbox = new Ui.VBox();
             _this.vbox.margin = 3;
+            _this.vbox.drawing.style.boxShadow = '0px 0px 4px rgba(0,0,0,0.5)';
+            _this.vbox.drawing.style.overflow = 'hidden';
             _this.lbox.append(_this.vbox);
             _this.buttonsBox = new Ui.LBox();
             _this.buttonsBox.height = 32;
@@ -16913,7 +16888,8 @@ var Ui;
         };
         Dialog.prototype.onStyleChange = function () {
             this.shadowGraphic.fill = this.getStyleProperty('shadow');
-            this.graphic.background = this.getStyleProperty('background');
+            this.vbox.drawing.style.backgroundColor = Ui.Color.create(this.getStyleProperty('background')).getCssRgba();
+            this.vbox.drawing.style.borderRadius = this.getStyleProperty('radius') + "px";
         };
         Dialog.prototype.invalidateArrange = function () {
             _super.prototype.invalidateArrange.call(this);
@@ -16941,7 +16917,8 @@ var Ui;
         Dialog.style = {
             autoClose: true,
             shadow: 'rgba(0,0,0,0.5)',
-            background: '#f8f8f8'
+            background: '#f8f8f8',
+            radius: 0
         };
         return Dialog;
     }(Ui.Container));

@@ -19,33 +19,6 @@ namespace Ui {
         }
     }
 
-    export class DialogGraphic extends CanvasElement {
-
-        private _background: Color;
-
-        constructor() {
-            super();
-            this._background = Color.create('#f8f8f8');
-        }
-    
-        set background(color: Color | string) {
-            this._background = Ui.Color.create(color);
-            this.invalidateDraw();
-        }
-
-        updateCanvas(ctx) {
-            let w = this.layoutWidth;
-            let h = this.layoutHeight;
-
-            // shadow
-            ctx.roundRectFilledShadow(0, 0, w, h, 2, 2, 2, 2, false, 3, new Ui.Color(0, 0, 0, 0.3));
-
-            // content background
-            ctx.fillStyle = this._background.getCssRgba();
-            ctx.fillRect(3, 3, w - 6, h - 6);
-        }
-    }
-
     export class DialogTitle extends Label
     {
         static style: object = {
@@ -146,7 +119,6 @@ namespace Ui {
     export class Dialog extends Container implements DialogInit {
         dialogSelection: Selection;
         protected shadowGraphic: Rectangle;
-        protected graphic: DialogGraphic;
         private lbox: Form;
         private vbox: VBox;
         private contentBox: LBox;
@@ -189,11 +161,10 @@ namespace Ui {
             this.lbox.submited.connect(() => this.onFormSubmit());
             this.appendChild(this.lbox);
 
-            this.graphic = new Ui.DialogGraphic();
-            this.lbox.append(this.graphic);
-
             this.vbox = new Ui.VBox();
             this.vbox.margin = 3;
+            this.vbox.drawing.style.boxShadow = '0px 0px 4px rgba(0,0,0,0.5)';
+            this.vbox.drawing.style.overflow = 'hidden';
             this.lbox.append(this.vbox);
 
             this.buttonsBox = new Ui.LBox();
@@ -449,7 +420,8 @@ namespace Ui {
     
         protected onStyleChange(): void {
             this.shadowGraphic.fill = this.getStyleProperty('shadow');
-            this.graphic.background = this.getStyleProperty('background');
+            this.vbox.drawing.style.backgroundColor = Color.create(this.getStyleProperty('background')).getCssRgba();
+            this.vbox.drawing.style.borderRadius = `${this.getStyleProperty('radius')}px`;
         }
 
         invalidateArrange() {
@@ -495,7 +467,8 @@ namespace Ui {
         static style: object = {
             autoClose: true,
             shadow: 'rgba(0,0,0,0.5)',
-            background: '#f8f8f8'
+            background: '#f8f8f8',
+            radius: 0
         }
     }
 }	

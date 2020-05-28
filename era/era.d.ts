@@ -3579,12 +3579,6 @@ declare namespace Ui {
         constructor(init?: DialogCloseButtonInit);
         static style: object;
     }
-    class DialogGraphic extends CanvasElement {
-        private _background;
-        constructor();
-        set background(color: Color | string);
-        updateCanvas(ctx: any): void;
-    }
     class DialogTitle extends Label {
         static style: object;
     }
@@ -3624,7 +3618,6 @@ declare namespace Ui {
     class Dialog extends Container implements DialogInit {
         dialogSelection: Selection;
         protected shadowGraphic: Rectangle;
-        protected graphic: DialogGraphic;
         private lbox;
         private vbox;
         private contentBox;
