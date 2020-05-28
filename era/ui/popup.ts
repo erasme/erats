@@ -169,6 +169,9 @@ namespace Ui
         protected onStyleChange() {
             this.background.fill = this.getStyleProperty('background');
             this.shadow.drawing.style.backgroundColor = Color.create(this.getStyleProperty('shadow')).getCssRgba();
+            let radius = this.getStyleProperty('radius');
+            this.background.radius = radius;
+            this.contentBox.drawing.style.borderRadius = `${radius}px`;
         }
 
         open() {
@@ -516,7 +519,8 @@ namespace Ui
 
         static style: any = {
             background: '#f8f8f8',
-            shadow: 'rgba(0,0,0,0.15)'
+            shadow: 'rgba(0,0,0,0.15)',
+            radius: 0
         }
     }
 
@@ -604,11 +608,20 @@ namespace Ui
         
             if (this.arrowBorder == 'none') {
                 ctx.fillStyle = 'rgba(0,0,0,0.1)';
-                ctx.fillRect(0, 0, width, height);
+                ctx.beginPath();
+                ctx.roundRect(0, 0, width, height, this._radius, this._radius, this._radius, this._radius, false);
+                ctx.closePath();
+                ctx.fill();
                 ctx.fillStyle = 'rgba(0,0,0,0.5)';
-                ctx.fillRect(1, 1, width - 2, height - 2);
+                ctx.beginPath();
+                ctx.roundRect(1, 1, width - 2, height - 2, this._radius, this._radius, this._radius, this._radius, false);
+                ctx.closePath();
+                ctx.fill();
                 ctx.fillStyle = this._fill.getCssRgba();
-                ctx.fillRect(2, 2, width - 4, height - 4);
+                ctx.beginPath();
+                ctx.roundRect(2, 2, width - 4, height - 4, this._radius, this._radius, this._radius, this._radius, false);
+                ctx.closePath();
+                ctx.fill();
             }
             else {
                 ctx.fillStyle = 'rgba(0,0,0,0.1)';
