@@ -25497,12 +25497,8 @@ var Ui;
                 if (this._content !== content) {
                     if (this._content !== undefined)
                         this.remove(this._content);
-                    if (content !== undefined) {
-                        if (this.input instanceof Ui.UploadableWrapper)
-                            this.prepend(content);
-                        else
-                            this.append(content);
-                    }
+                    if (content !== undefined)
+                        this.append(content);
                     this._content = content;
                 }
             },
@@ -25610,24 +25606,10 @@ var Ui;
             this.inputDrawing.tabIndex = -1;
             this.inputDrawing.addEventListener('change', this.onChange);
             this.formDrawing.appendChild(this.inputDrawing);
-            if (Core.Navigator.supportFileAPI) {
-                while (this.drawing.childNodes.length > 0)
-                    this.drawing.removeChild(this.drawing.childNodes[0]);
-                this.drawing.appendChild(this.formDrawing);
-                this.arrange(this.layoutX, this.layoutY, this.layoutWidth, this.layoutHeight);
-            }
-            else {
-                this.iframeDrawing = document.createElement('iframe');
-                this.iframeDrawing.style.position = 'absolute';
-                this.iframeDrawing.style.top = '0px';
-                this.iframeDrawing.style.left = '0px';
-                this.iframeDrawing.style.width = '0px';
-                this.iframeDrawing.style.height = '0px';
-                this.iframeDrawing.style.clip = 'rect(0px 0px 0px 0px)';
-                document.body.appendChild(this.iframeDrawing);
-                this.iframeDrawing.contentWindow.document.write("<!DOCTYPE html><html><body></body></html>");
-                this.iframeDrawing.contentWindow.document.body.appendChild(this.formDrawing);
-            }
+            while (this.drawing.childNodes.length > 0)
+                this.drawing.removeChild(this.drawing.childNodes[0]);
+            this.drawing.appendChild(this.formDrawing);
+            this.arrange(this.layoutX, this.layoutY, this.layoutWidth, this.layoutHeight);
         };
         UploadableFileWrapper.prototype.onLoad = function () {
             _super.prototype.onLoad.call(this);
@@ -25657,71 +25639,6 @@ var Ui;
         return UploadableFileWrapper;
     }(Ui.Element));
     Ui.UploadableFileWrapper = UploadableFileWrapper;
-    var UploadableWrapper = (function (_super) {
-        __extends(UploadableWrapper, _super);
-        function UploadableWrapper() {
-            var _this = _super.call(this) || this;
-            _this.directoryMode = false;
-            _this.file = new Core.Events();
-            _this.clipToBounds = true;
-            _this.opacity = 0;
-            return _this;
-        }
-        UploadableWrapper.prototype.setDirectoryMode = function (active) {
-        };
-        UploadableWrapper.prototype.createInput = function () {
-            var _this = this;
-            this.formDrawing = document.createElement('form');
-            this.formDrawing.method = 'POST';
-            this.formDrawing.enctype = 'multipart/form-data';
-            this.formDrawing.encoding = 'multipart/form-data';
-            this.formDrawing.style.display = 'block';
-            this.formDrawing.style.position = 'absolute';
-            this.formDrawing.style.left = '0px';
-            this.formDrawing.style.top = '0px';
-            this.formDrawing.style.width = this.layoutWidth + 'px';
-            this.formDrawing.style.height = this.layoutHeight + 'px';
-            this.inputDrawing = document.createElement('input');
-            this.inputDrawing.type = 'file';
-            this.inputDrawing.name = 'file';
-            this.inputDrawing.tabIndex = -1;
-            this.inputDrawing.style.fontSize = '200px';
-            this.inputDrawing.style.display = 'block';
-            this.inputDrawing.style.cursor = 'pointer';
-            this.inputDrawing.style.position = 'absolute';
-            this.inputDrawing.style.left = '0px';
-            this.inputDrawing.style.top = '0px';
-            this.inputDrawing.style.width = this.layoutWidth + 'px';
-            this.inputDrawing.style.height = this.layoutHeight + 'px';
-            this.formDrawing.appendChild(this.inputDrawing);
-            this.inputDrawing.addEventListener('change', function (e) { return _this.onChange(e); });
-            if (Core.Navigator.isWebkit)
-                this.inputDrawing.style.webkitUserSelect = 'none';
-            this.inputDrawing.addEventListener('touchstart', function (event) {
-                event.dontPreventDefault = true;
-            });
-            this.inputDrawing.addEventListener('touchend', function (event) {
-                event.dontPreventDefault = true;
-            });
-            return this.formDrawing;
-        };
-        UploadableWrapper.prototype.onChange = function (event) {
-            for (var i = 0; i < this.inputDrawing.files.length; i++)
-                this.file.fire({ target: this, file: this.inputDrawing.files[i] });
-        };
-        UploadableWrapper.prototype.renderDrawing = function () {
-            var drawing = _super.prototype.renderDrawing.call(this);
-            drawing.appendChild(this.createInput());
-        };
-        UploadableWrapper.prototype.arrangeCore = function (width, height) {
-            this.formDrawing.style.width = Math.round(width) + 'px';
-            this.formDrawing.style.height = Math.round(height) + 'px';
-            this.inputDrawing.style.width = Math.round(width) + 'px';
-            this.inputDrawing.style.height = Math.round(height) + 'px';
-        };
-        return UploadableWrapper;
-    }(Ui.Element));
-    Ui.UploadableWrapper = UploadableWrapper;
 })(Ui || (Ui = {}));
 var Ui;
 (function (Ui) {

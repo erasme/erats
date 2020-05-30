@@ -5825,21 +5825,6 @@ declare namespace Ui {
         protected onUnload(): void;
         protected arrangeCore(w: number, h: number): void;
     }
-    class UploadableWrapper extends Element {
-        formDrawing: HTMLFormElement;
-        inputDrawing: HTMLInputElement;
-        directoryMode: boolean;
-        readonly file: Core.Events<{
-            target: UploadableWrapper;
-            file: File;
-        }>;
-        constructor();
-        setDirectoryMode(active: any): void;
-        protected createInput(): HTMLFormElement;
-        onChange(event: any): void;
-        protected renderDrawing(): void;
-        protected arrangeCore(width: number, height: number): void;
-    }
 }
 declare namespace Ui {
     interface UploadButtonInit extends ButtonInit {
