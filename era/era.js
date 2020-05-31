@@ -17006,12 +17006,15 @@ var Ui;
                 element = element.parentNode;
             } while (true);
         };
+        Html.prototype.onSetHtml = function () {
+        };
         Object.defineProperty(Html.prototype, "html", {
             get: function () {
                 return this.htmlDrawing.innerHTML;
             },
             set: function (html) {
                 this.htmlDrawing.innerHTML = html;
+                this.onSetHtml();
                 this.bindChildEvents();
                 this.invalidateMeasure();
             },
@@ -17028,6 +17031,7 @@ var Ui;
                 while (this.htmlDrawing.firstChild)
                     this.htmlDrawing.removeChild(this.htmlDrawing.firstChild);
                 this.htmlDrawing.appendChild(htmlElement);
+                this.onSetHtml();
                 this.bindChildEvents();
                 this.invalidateMeasure();
             },
@@ -17060,6 +17064,7 @@ var Ui;
                     }
                     this.html = content2;
                 }
+                this.onSetHtml();
                 this.invalidateMeasure();
             },
             enumerable: true,
@@ -22930,6 +22935,14 @@ var Ui;
             enumerable: true,
             configurable: true
         });
+        ContentEditable.prototype.onSetHtml = function () {
+            _super.prototype.onSetHtml.call(this);
+            var html = this.htmlDrawing.outerHTML;
+            if (this._lastHtml !== html) {
+                this._lastHtml = html;
+                this.changed.fire({ target: this, element: this.htmlDrawing });
+            }
+        };
         ContentEditable.prototype.onDisable = function () {
             _super.prototype.onDisable.call(this);
             this.htmlDrawing.setAttribute('contenteditable', 'false');

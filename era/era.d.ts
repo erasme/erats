@@ -3720,6 +3720,7 @@ declare namespace Ui {
         getElements(tagName: any): any[];
         searchElements(tagName: any, element: any, res: any): void;
         getParentElement(tagName: any, element: any): any;
+        protected onSetHtml(): void;
         get html(): string;
         private bindChildEvents;
         set html(html: string);
@@ -5165,6 +5166,7 @@ declare namespace Ui {
         }) => void);
         private _lastHtml;
         constructor(init?: ContentEditableInit);
+        protected onSetHtml(): void;
         protected onDisable(): void;
         protected onEnable(): void;
         protected onLoad(): void;

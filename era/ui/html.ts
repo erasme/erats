@@ -90,6 +90,9 @@ namespace Ui {
             } while (true);
         }
 
+        protected onSetHtml() {
+        }
+
         get html(): string {
             return this.htmlDrawing.innerHTML;
         }
@@ -104,6 +107,7 @@ namespace Ui {
         set html(html) {
             // update HTML content
             this.htmlDrawing.innerHTML = html;
+            this.onSetHtml();
             this.bindChildEvents();
             this.invalidateMeasure();
         }
@@ -112,6 +116,7 @@ namespace Ui {
             while (this.htmlDrawing.firstChild)
                 this.htmlDrawing.removeChild(this.htmlDrawing.firstChild);
             this.htmlDrawing.appendChild(htmlElement);
+            this.onSetHtml();
             this.bindChildEvents();
             this.invalidateMeasure();
         }
@@ -143,6 +148,7 @@ namespace Ui {
                 }
                 this.html = content2;
             }
+            this.onSetHtml();
             this.invalidateMeasure();
         }
 

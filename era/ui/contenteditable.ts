@@ -58,6 +58,15 @@ namespace Ui {
             }
         }
 
+        protected onSetHtml() {
+            super.onSetHtml();
+            let html = this.htmlDrawing.outerHTML;
+            if (this._lastHtml !== html) {
+                this._lastHtml = html;
+                this.changed.fire({ target: this, element: this.htmlDrawing });
+            }
+        }
+
         protected onDisable() {
             super.onDisable();
             this.htmlDrawing.setAttribute('contenteditable', 'false');
