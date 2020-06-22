@@ -6077,6 +6077,8 @@ declare namespace Ui {
         constructor(init?: SwitchInit);
         get value(): boolean;
         set value(value: boolean);
+        set title(title: string);
+        get title(): string;
         private onButtonMove;
         private updatePos;
         private getForeground;

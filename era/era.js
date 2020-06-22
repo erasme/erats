@@ -26536,6 +26536,16 @@ var Ui;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(Switch.prototype, "title", {
+            get: function () {
+                return this.drawing.getAttribute('title');
+            },
+            set: function (title) {
+                this.drawing.setAttribute('title', title);
+            },
+            enumerable: true,
+            configurable: true
+        });
         Switch.prototype.updatePos = function () {
             var width = this.layoutWidth;
             var height = this.layoutHeight;

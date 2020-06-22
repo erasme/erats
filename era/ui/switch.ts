@@ -72,6 +72,20 @@ namespace Ui {
                 this.changed.fire({ target: this, value: this._value });
             }
         }
+
+        //
+        // Set a title for the current element
+        //
+        set title(title: string) {
+            this.drawing.setAttribute('title', title);
+        }
+
+        //
+        // Return the title of the current element
+        //
+        get title(): string {
+            return this.drawing.getAttribute('title') as string;
+        }
     
         private onButtonMove = () => {
             let pos = this.button.positionX;
