@@ -197,7 +197,7 @@ declare namespace Core {
         handle: any;
         readonly timeupdated: Events<{
             target: Timer;
-            arguments: any[];
+            arguments: Array<any>;
         }>;
         set ontimeupdated(value: (event: {
             target: Timer;
@@ -5493,10 +5493,10 @@ declare namespace Ui {
         headersHeight: number;
         readonly sortchanged: Core.Events<{
             target: ListViewHeadersBar<T>;
-            sortOrder: {
+            sortOrder: Array<{
                 key: keyof T;
                 invert: boolean;
-            }[];
+            }>;
         }>;
         set onsortchanged(value: (event: {
             target: ListViewHeadersBar<T>;
@@ -5666,10 +5666,10 @@ declare namespace Ui {
         }) => void);
         readonly sortchanged: Core.Events<{
             target: ListView<T>;
-            sortOrder: {
+            sortOrder: Array<{
                 key: keyof T;
                 invert: boolean;
-            }[];
+            }>;
         }>;
         set onsortchanged(value: (event: {
             target: ListView<T>;
@@ -6002,7 +6002,7 @@ declare namespace Ui {
         }) => void);
         readonly positionchanged: Core.Events<{
             target: Fold;
-            position: "left" | "right" | "bottom" | "top";
+            position: FoldDirection;
         }>;
         set onpositionchanged(value: (event: {
             target: Fold;
@@ -6167,7 +6167,7 @@ declare namespace Ui {
         }) => void);
         orientationchanged: Core.Events<{
             target: AccordeonPage;
-            orientation: Orientation;
+            orientation: 'vertical' | 'horizontal';
         }>;
         set onorientationchanged(value: (event: {
             target: AccordeonPage;

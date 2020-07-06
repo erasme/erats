@@ -127,6 +127,7 @@ namespace Ui {
         // Private
         //
         private initFromHsl(h: number, s: number, l: number, a: number = 1) {
+            this.a = Math.min(Math.max(a, 0), 1);
             if (s <= 0) {
                 this.r = l; this.g = l; this.b = l;
                 return;
@@ -161,7 +162,6 @@ namespace Ui {
                 this.g = 0;
             if (isNaN(this.b))
                 this.b = 0;
-            this.a = Math.min(Math.max(a, 0), 1);
         }
 
         private initFromYuv(y: number, u: number, v: number, a: number = 1) {

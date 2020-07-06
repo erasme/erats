@@ -1027,12 +1027,12 @@ var Core;
         }
         Object.defineProperty(HttpRequest.prototype, "onerror", {
             set: function (value) { this.error.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(HttpRequest.prototype, "ondone", {
             set: function (value) { this.done.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(HttpRequest.prototype, "headers", {
@@ -1042,7 +1042,7 @@ var Core;
             set: function (headers) {
                 this._headers = Core.Util.clone(headers);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         HttpRequest.prototype.setRequestHeader = function (header, value) {
@@ -1118,14 +1118,14 @@ var Core;
             get: function () {
                 return this.request.responseText;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(HttpRequest.prototype, "responseBase64", {
             get: function () {
                 return Core.Util.toBase64(this.request.responseText);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(HttpRequest.prototype, "responseJSON", {
@@ -1139,7 +1139,7 @@ var Core;
                 }
                 return res;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(HttpRequest.prototype, "responseXML", {
@@ -1152,14 +1152,14 @@ var Core;
                 catch (e) { }
                 return undefined;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(HttpRequest.prototype, "status", {
             get: function () {
                 return this.request.status;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         HttpRequest.setRequestHeader = function (header, value) {
@@ -1232,7 +1232,7 @@ var Core;
         }
         Object.defineProperty(Timer.prototype, "ontimeupdated", {
             set: function (value) { this.timeupdated.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Timer.prototype.abort = function () {
@@ -1349,22 +1349,22 @@ var Core;
         }
         Object.defineProperty(Socket.prototype, "onerror", {
             set: function (value) { this.error.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Socket.prototype, "onmessage", {
             set: function (value) { this.message.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Socket.prototype, "onclosed", {
             set: function (value) { this.closed.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Socket.prototype, "onopened", {
             set: function (value) { this.opened.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Socket.prototype.send = function (msg) {
@@ -1727,17 +1727,17 @@ var Core;
         }
         Object.defineProperty(FilePostUploader.prototype, "onprogress", {
             set: function (value) { this.progress.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(FilePostUploader.prototype, "oncompleted", {
             set: function (value) { this.completed.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(FilePostUploader.prototype, "onerror", {
             set: function (value) { this.error.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(FilePostUploader.prototype, "headers", {
@@ -1747,7 +1747,7 @@ var Core;
             set: function (headers) {
                 this._headers = Core.Util.clone(headers);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         FilePostUploader.prototype.setRequestHeader = function (header, value) {
@@ -1759,7 +1759,7 @@ var Core;
             set: function (method) {
                 this._method = method;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(FilePostUploader.prototype, "file", {
@@ -1769,14 +1769,14 @@ var Core;
             set: function (file) {
                 this._file = file;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(FilePostUploader.prototype, "service", {
             set: function (service) {
                 this._service = service;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         FilePostUploader.prototype.setField = function (name, value, fileName) {
@@ -1802,14 +1802,14 @@ var Core;
                     }
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(FilePostUploader.prototype, "destination", {
             set: function (destination) {
                 this.setField('destination', destination);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         FilePostUploader.prototype.send = function () {
@@ -1832,7 +1832,7 @@ var Core;
             get: function () {
                 return this.request ? this.request.status : this._lastStatus;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         FilePostUploader.prototype.sendAsync = function () {
@@ -1865,7 +1865,7 @@ var Core;
             get: function () {
                 return this._responseText;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(FilePostUploader.prototype, "responseJSON", {
@@ -1879,28 +1879,28 @@ var Core;
                 }
                 return res;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(FilePostUploader.prototype, "isCompleted", {
             get: function () {
                 return this._isCompleted;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(FilePostUploader.prototype, "total", {
             get: function () {
                 return this.totalOctets;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(FilePostUploader.prototype, "loaded", {
             get: function () {
                 return this.loadedOctets;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         FilePostUploader.prototype.onStateChange = function (event) {
@@ -2229,49 +2229,49 @@ var Anim;
             set: function (animation) {
                 this._animation = animation;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Clock.prototype, "repeat", {
             set: function (repeat) {
                 this._repeat = repeat;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Clock.prototype, "speed", {
             set: function (speed) {
                 this._speed = speed;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Clock.prototype, "autoReverse", {
             set: function (autoReverse) {
                 this._autoReverse = autoReverse;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Clock.prototype, "beginTime", {
             set: function (beginTime) {
                 this._beginTime = beginTime;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Clock.prototype, "ease", {
             set: function (ease) {
                 this._ease = Anim.EasingFunction.create(ease);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Clock.prototype, "target", {
             set: function (target) {
                 this._target = target;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Clock.prototype, "duration", {
@@ -2281,7 +2281,7 @@ var Anim;
                 else
                     this._duration = duration;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Clock.prototype, "parent", {
@@ -2291,42 +2291,42 @@ var Anim;
             set: function (parent) {
                 this._parent = parent;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Clock.prototype, "globalTime", {
             get: function () {
                 return this._globalTime + (this.lastTick - this.startTime) * this._speed;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Clock.prototype, "isActive", {
             get: function () {
                 return this._isActive || (this.pendingState === 'active');
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Clock.prototype, "time", {
             get: function () {
                 return this._time;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Clock.prototype, "iteration", {
             get: function () {
                 return this._iteration;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Clock.prototype, "progress", {
             get: function () {
                 return this._progress;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Clock.prototype.begin = function () {
@@ -2496,7 +2496,7 @@ var Anim;
                         this.appendChild(content);
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         ClockGroup.prototype.begin = function () {
@@ -2891,6 +2891,7 @@ var Ui;
         };
         Color.prototype.initFromHsl = function (h, s, l, a) {
             if (a === void 0) { a = 1; }
+            this.a = Math.min(Math.max(a, 0), 1);
             if (s <= 0) {
                 this.r = l;
                 this.g = l;
@@ -2939,7 +2940,6 @@ var Ui;
                 this.g = 0;
             if (isNaN(this.b))
                 this.b = 0;
-            this.a = Math.min(Math.max(a, 0), 1);
         };
         Color.prototype.initFromYuv = function (y, u, v, a) {
             if (a === void 0) { a = 1; }
@@ -3275,47 +3275,47 @@ var Ui;
         }
         Object.defineProperty(Element.prototype, "onfocused", {
             set: function (value) { this.focused.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Element.prototype, "onblurred", {
             set: function (value) { this.blurred.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Element.prototype, "onloaded", {
             set: function (value) { this.loaded.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Element.prototype, "onunloaded", {
             set: function (value) { this.unloaded.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Element.prototype, "onenabled", {
             set: function (value) { this.enabled.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Element.prototype, "ondisabled", {
             set: function (value) { this.disabled.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Element.prototype, "onvisible", {
             set: function (value) { this.visible.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Element.prototype, "onhidden", {
             set: function (value) { this.hidden.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Element.prototype, "ondragover", {
             set: function (value) { this.dragover.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Element.prototype, "selectable", {
@@ -3327,7 +3327,7 @@ var Ui;
                 this.drawing.selectable = selectable;
                 Element.setSelectable(this.drawing, selectable);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Element.prototype, "resizable", {
@@ -3340,35 +3340,35 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Element.prototype, "layoutX", {
             get: function () {
                 return this._layoutX;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Element.prototype, "layoutY", {
             get: function () {
                 return this._layoutY;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Element.prototype, "layoutWidth", {
             get: function () {
                 return this._layoutWidth;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Element.prototype, "layoutHeight", {
             get: function () {
                 return this._layoutHeight;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Element.prototype, "id", {
@@ -3378,7 +3378,7 @@ var Ui;
             set: function (id) {
                 this.drawing.setAttribute('id', id);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Element.prototype, "focusable", {
@@ -3398,7 +3398,7 @@ var Ui;
                     }
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Element.prototype.getIsMouseFocus = function () {
@@ -3415,7 +3415,7 @@ var Ui;
                         this.drawing.setAttributeNS('http://www.w3.org/2005/07/aaa', 'role', role);
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Element.prototype.measure = function (width, height) {
@@ -3621,7 +3621,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Element.prototype, "height", {
@@ -3634,7 +3634,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Element.prototype, "maxWidth", {
@@ -3647,7 +3647,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Element.prototype, "maxHeight", {
@@ -3660,7 +3660,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Element.prototype, "verticalAlign", {
@@ -3673,7 +3673,7 @@ var Ui;
                     this.invalidateArrange();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Element.prototype, "horizontalAlign", {
@@ -3686,7 +3686,7 @@ var Ui;
                     this.invalidateArrange();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Element.prototype, "clipToBounds", {
@@ -3702,7 +3702,7 @@ var Ui;
                         this.drawing.style.removeProperty('overflow');
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Element.prototype.setClipRectangle = function (x, y, width, height) {
@@ -3734,7 +3734,7 @@ var Ui;
                 this.marginLeft = margin;
                 this.marginRight = margin;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Element.prototype, "marginTop", {
@@ -3747,7 +3747,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Element.prototype, "marginBottom", {
@@ -3760,7 +3760,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Element.prototype, "marginLeft", {
@@ -3773,7 +3773,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Element.prototype, "marginRight", {
@@ -3786,7 +3786,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Element.prototype, "opacity", {
@@ -3799,7 +3799,7 @@ var Ui;
                     this.drawing.style.opacity = this._opacity.toString();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Element.prototype.focus = function () {
@@ -3823,7 +3823,7 @@ var Ui;
                     this.updateTransform();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Element.prototype.setTransformOrigin = function (x, y, absolute) {
@@ -3891,28 +3891,28 @@ var Ui;
                 this._eventsHidden = eventsHidden;
                 this.invalidateArrange();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Element.prototype, "measureWidth", {
             get: function () {
                 return this.collapse ? 0 : this._measureWidth;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Element.prototype, "measureHeight", {
             get: function () {
                 return this.collapse ? 0 : this._measureHeight;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Element.prototype, "isCollapsed", {
             get: function () {
                 return this.collapse;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Element.prototype.hide = function (collapse) {
@@ -3952,7 +3952,7 @@ var Ui;
                 else
                     this.hide();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Element.prototype, "parentVisible", {
@@ -3966,7 +3966,7 @@ var Ui;
                         this.onInternalHidden();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Element.prototype.onInternalHidden = function () {
@@ -4036,7 +4036,7 @@ var Ui;
                 else
                     this.enable();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Element.prototype.setParentDisabled = function (disabled) {
@@ -4184,7 +4184,7 @@ var Ui;
             set: function (parent) {
                 this._parent = parent;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Element.prototype.getParentByClass = function (classFunc) {
@@ -4208,7 +4208,7 @@ var Ui;
                 this.mergeStyles();
                 this.onInternalStyleChange();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Element.prototype.setStyleProperty = function (property, value) {
@@ -4259,7 +4259,7 @@ var Ui;
             get: function () {
                 return this._hasFocus;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Element.prototype.scrollIntoView = function () {
@@ -4285,7 +4285,7 @@ var Ui;
                         this.onUnload();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Element.prototype.onFocus = function (event) {
@@ -4430,7 +4430,7 @@ var Ui;
             set: function (containerDrawing) {
                 this._containerDrawing = containerDrawing;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Container.prototype.appendChild = function (child) {
@@ -4512,7 +4512,7 @@ var Ui;
             get: function () {
                 return this._children;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Container.prototype, "firstChild", {
@@ -4522,7 +4522,7 @@ var Ui;
                 else
                     return undefined;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Container.prototype, "lastChild", {
@@ -4532,7 +4532,7 @@ var Ui;
                 else
                     return undefined;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Container.prototype.getChildPosition = function (child) {
@@ -4715,7 +4715,7 @@ var Ui;
                     }
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(CanvasElement.prototype, "canvasEngine", {
@@ -4734,7 +4734,7 @@ var Ui;
                     this.invalidateDraw();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         CanvasElement.prototype.update = function () {
@@ -4772,7 +4772,7 @@ var Ui;
             get: function () {
                 return this._context;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         CanvasElement.prototype.updateCanvas = function (context) {
@@ -5607,7 +5607,7 @@ var Ui;
                         this.drawing.style.background = this._fill.getBackgroundImage();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Rectangle.prototype, "radius", {
@@ -5617,7 +5617,7 @@ var Ui;
                 this.radiusBottomLeft = radius;
                 this.radiusBottomRight = radius;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Rectangle.prototype, "radiusTopLeft", {
@@ -5628,7 +5628,7 @@ var Ui;
                 this._radiusTopLeft = radiusTopLeft;
                 this.drawing.style.borderTopLeftRadius = radiusTopLeft + "px";
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Rectangle.prototype, "radiusTopRight", {
@@ -5639,7 +5639,7 @@ var Ui;
                 this._radiusTopRight = radiusTopRight;
                 this.drawing.style.borderTopRightRadius = radiusTopRight + "px";
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Rectangle.prototype, "radiusBottomLeft", {
@@ -5650,7 +5650,7 @@ var Ui;
                 this._radiusTopRight = radiusBottomLeft;
                 this.drawing.style.borderBottomLeftRadius = radiusBottomLeft + "px";
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Rectangle.prototype, "radiusBottomRight", {
@@ -5661,7 +5661,7 @@ var Ui;
                 this._radiusTopRight = radiusBottomRight;
                 this.drawing.style.borderBottomRightRadius = radiusBottomRight + "px";
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         return Rectangle;
@@ -5712,7 +5712,7 @@ var Ui;
                     this.invalidateDraw();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Shape.prototype, "fill", {
@@ -5730,7 +5730,7 @@ var Ui;
                     this.invalidateDraw();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Shape.prototype, "path", {
@@ -5740,7 +5740,7 @@ var Ui;
                     this.invalidateDraw();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Shape.prototype.onStyleChange = function () {
@@ -5822,7 +5822,7 @@ var Ui;
         }
         Object.defineProperty(Icon.prototype, "onloadingfailed", {
             set: function (value) { this.loadingfailed.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Icon.prototype, "fill", {
@@ -5836,7 +5836,7 @@ var Ui;
                 this._fill = value;
                 this.drawing.style.fill = Ui.Color.create(this.fill).getCssRgba();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Icon.prototype, "path", {
@@ -5846,7 +5846,7 @@ var Ui;
                     "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"48\" height=\"48\" viewBox=\"0 0 48 48\">\n        <path d=\"" + value + "\"/>\n    </svg>";
                 this.normalize();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Icon.prototype, "icon", {
@@ -5867,7 +5867,7 @@ var Ui;
                         this.path = path;
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Icon.prototype.onStyleChange = function () {
@@ -6074,7 +6074,7 @@ var Ui;
                 this._icon = icon;
                 this.invalidateDraw();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(DualIcon.prototype, "fill", {
@@ -6088,7 +6088,7 @@ var Ui;
                 this._fill = fill;
                 this.invalidateDraw();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(DualIcon.prototype, "stroke", {
@@ -6102,7 +6102,7 @@ var Ui;
                 this._stroke = stroke;
                 this.invalidateDraw();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(DualIcon.prototype, "strokeWidth", {
@@ -6116,7 +6116,7 @@ var Ui;
                 this._strokeWidth = strokeWidth;
                 this.invalidateDraw();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         DualIcon.prototype.updateCanvas = function (ctx) {
@@ -7756,7 +7756,7 @@ var Ui;
             set: function (content) {
                 this.setContent(content);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(LBox.prototype, "padding", {
@@ -7766,7 +7766,7 @@ var Ui;
                 this.paddingLeft = padding;
                 this.paddingRight = padding;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(LBox.prototype, "paddingTop", {
@@ -7779,7 +7779,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(LBox.prototype, "paddingBottom", {
@@ -7792,7 +7792,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(LBox.prototype, "paddingLeft", {
@@ -7805,7 +7805,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(LBox.prototype, "paddingRight", {
@@ -7818,7 +7818,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         LBox.prototype.append = function (child) {
@@ -7944,7 +7944,7 @@ var Ui;
                     }
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Box.prototype, "orientation", {
@@ -7963,7 +7963,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Box.prototype, "padding", {
@@ -7973,7 +7973,7 @@ var Ui;
                 this.paddingLeft = padding;
                 this.paddingRight = padding;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Box.prototype, "paddingTop", {
@@ -7986,7 +7986,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Box.prototype, "paddingBottom", {
@@ -7999,7 +7999,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Box.prototype, "paddingLeft", {
@@ -8012,7 +8012,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Box.prototype, "paddingRight", {
@@ -8025,7 +8025,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Box.prototype, "uniform", {
@@ -8038,7 +8038,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Box.prototype, "spacing", {
@@ -8051,7 +8051,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Box.prototype.append = function (child, resizable) {
@@ -8484,7 +8484,7 @@ var Ui;
             get: function () {
                 return this._isOver;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         return OverWatcher;
@@ -8511,19 +8511,19 @@ var Ui;
         }
         Object.defineProperty(Overable.prototype, "onentered", {
             set: function (value) { this.entered.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Overable.prototype, "onleaved", {
             set: function (value) { this.leaved.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Overable.prototype, "isOver", {
             get: function () {
                 return this.watcher.isOver;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         return Overable;
@@ -8574,7 +8574,7 @@ var Ui;
             get: function () {
                 return this._isDelayFocusIn;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         return FocusInWatcher;
@@ -8665,7 +8665,7 @@ var Ui;
             set: function (fill) {
                 this.ripple.style.background = Ui.Color.create(fill).getCssRgba();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(RippleEffect.prototype, "pressable", {
@@ -8689,7 +8689,7 @@ var Ui;
                 });
                 pressable.upped.connect(function () { return _this.up(); });
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         return RippleEffect;
@@ -8735,7 +8735,7 @@ var Ui;
             get: function () {
                 return this._isDown;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         PressWatcher.prototype.onPointerDown = function (event) {
@@ -8895,27 +8895,27 @@ var Ui;
         }
         Object.defineProperty(Pressable.prototype, "ondowned", {
             set: function (value) { this.downed.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Pressable.prototype, "onupped", {
             set: function (value) { this.upped.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Pressable.prototype, "onpressed", {
             set: function (value) { this.pressed.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Pressable.prototype, "onactivated", {
             set: function (value) { this.activated.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Pressable.prototype, "ondelayedpress", {
             set: function (value) { this.delayedpress.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Pressable.prototype, "title", {
@@ -8925,14 +8925,14 @@ var Ui;
             set: function (title) {
                 this.drawing.setAttribute('title', title);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Pressable.prototype, "isDown", {
             get: function () {
                 return this.pressWatcher.isDown;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Pressable.prototype, "lock", {
@@ -8946,7 +8946,7 @@ var Ui;
                 else
                     this.drawing.style.cursor = 'pointer';
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Pressable.prototype, "allowMiddleButton", {
@@ -8956,7 +8956,7 @@ var Ui;
             set: function (value) {
                 this.pressWatcher.allowMiddleButton = value;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Pressable.prototype.onDown = function (x, y) {
@@ -9056,7 +9056,7 @@ var Ui;
             get: function () {
                 return this._dragDelta;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         DraggableWatcher.prototype.dispose = function () {
@@ -9113,12 +9113,12 @@ var Ui;
         }
         Object.defineProperty(Draggable.prototype, "ondragstarted", {
             set: function (value) { this.dragstarted.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Draggable.prototype, "ondragended", {
             set: function (value) { this.dragended.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Draggable.prototype, "draggableData", {
@@ -9128,7 +9128,7 @@ var Ui;
             set: function (data) {
                 this.draggableWatcher.data = data;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Draggable.prototype.setAllowedMode = function (allowedMode) {
@@ -9138,7 +9138,7 @@ var Ui;
             get: function () {
                 return this._dragDelta;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Draggable.prototype.onDragStart = function (dataTransfer) {
@@ -9202,7 +9202,7 @@ var Ui;
                     });
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(SelectionableWatcher.prototype, "draggable", {
@@ -9226,7 +9226,7 @@ var Ui;
                     }
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(SelectionableWatcher.prototype, "isSelected", {
@@ -9244,7 +9244,7 @@ var Ui;
                     }
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         SelectionableWatcher.prototype.onSelect = function (selection) {
@@ -9320,12 +9320,12 @@ var Ui;
         }
         Object.defineProperty(Selectionable.prototype, "onselected", {
             set: function (value) { this.selected.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Selectionable.prototype, "onunselected", {
             set: function (value) { this.unselected.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Selectionable.prototype, "isSelected", {
@@ -9335,7 +9335,7 @@ var Ui;
             set: function (isSelected) {
                 this.selectionWatcher.isSelected = isSelected;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Selectionable.prototype.onSelect = function (selection) {
@@ -9380,7 +9380,7 @@ var Ui;
         }
         Object.defineProperty(Selection.prototype, "onchanged", {
             set: function (value) { this.changed.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Selection.prototype, "allowMultiple", {
@@ -9395,7 +9395,7 @@ var Ui;
                     this.internalAppend(last);
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Selection.prototype.clear = function () {
@@ -9524,7 +9524,7 @@ var Ui;
                 if (addList.length > 0 || removeList.length > 0)
                     this.changed.fire({ target: this });
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Selection.prototype, "elements", {
@@ -9534,7 +9534,7 @@ var Ui;
             set: function (elements) {
                 this.watchers = elements.map(function (el) { return Ui.SelectionableWatcher.getSelectionableWatcher(el); });
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Selection.prototype.getElementActions = function (watcher) {
@@ -9734,7 +9734,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Label.prototype, "fontSize", {
@@ -9753,7 +9753,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Label.prototype, "fontFamily", {
@@ -9771,7 +9771,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Label.prototype, "fontWeight", {
@@ -9789,7 +9789,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Label.prototype, "textTransform", {
@@ -9807,7 +9807,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Label.prototype, "textAlign", {
@@ -9823,7 +9823,7 @@ var Ui;
                     this.drawing.style.textAlign = this.textAlign;
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Label.prototype, "color", {
@@ -9836,7 +9836,7 @@ var Ui;
                         this.labelDrawing.style.color = this.getColor().getCssHtml();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Label.prototype.getColor = function () {
@@ -9855,7 +9855,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Label.prototype.onStyleChange = function () {
@@ -10100,17 +10100,17 @@ var Ui;
         }
         Object.defineProperty(MovableBase.prototype, "onupped", {
             set: function (value) { this.upped.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(MovableBase.prototype, "ondowned", {
             set: function (value) { this.downed.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(MovableBase.prototype, "onmoved", {
             set: function (value) { this.moved.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(MovableBase.prototype, "lock", {
@@ -10122,14 +10122,14 @@ var Ui;
                 if (lock)
                     this.stopInertia();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(MovableBase.prototype, "isDown", {
             get: function () {
                 return this._isDown;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(MovableBase.prototype, "inertia", {
@@ -10139,7 +10139,7 @@ var Ui;
             set: function (inertiaActive) {
                 this._inertia = inertiaActive;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(MovableBase.prototype, "moveHorizontal", {
@@ -10150,7 +10150,7 @@ var Ui;
                 this._moveHorizontal = moveHorizontal;
                 this.updateTouchAction();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(MovableBase.prototype, "moveVertical", {
@@ -10161,7 +10161,7 @@ var Ui;
                 this._moveVertical = moveVertical;
                 this.updateTouchAction();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         MovableBase.prototype.updateTouchAction = function () {
@@ -10216,14 +10216,14 @@ var Ui;
             get: function () {
                 return this.posX;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(MovableBase.prototype, "positionY", {
             get: function () {
                 return this.posY;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         MovableBase.prototype.onMove = function (x, y) {
@@ -10482,7 +10482,7 @@ var Ui;
                     this.drawing.style.cursor = this._cursor;
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Movable.prototype.onKeyDown = function (event) {
@@ -10530,7 +10530,7 @@ var Ui;
                 if (this._content)
                     this.appendChild(this._content);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Movable.prototype.onDisable = function () {
@@ -10783,56 +10783,56 @@ var Ui;
             set: function (value) {
                 this._allowLeftMouse = value;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TransformableWatcher.prototype, "allowScale", {
             set: function (allow) {
                 this._allowScale = allow;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TransformableWatcher.prototype, "minScale", {
             set: function (minScale) {
                 this._minScale = minScale;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TransformableWatcher.prototype, "maxScale", {
             set: function (maxScale) {
                 this._maxScale = maxScale;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TransformableWatcher.prototype, "allowRotate", {
             set: function (allow) {
                 this._allowRotate = allow;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TransformableWatcher.prototype, "allowTranslate", {
             set: function (allow) {
                 this._allowTranslate = allow;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TransformableWatcher.prototype, "isDown", {
             get: function () {
                 return this._isDown;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TransformableWatcher.prototype, "isInertia", {
             get: function () {
                 return this.inertiaClock !== undefined;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TransformableWatcher.prototype, "angle", {
@@ -10842,7 +10842,7 @@ var Ui;
             set: function (angle) {
                 this.setContentTransform(undefined, undefined, undefined, angle);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TransformableWatcher.prototype, "scale", {
@@ -10852,7 +10852,7 @@ var Ui;
             set: function (scale) {
                 this.setContentTransform(undefined, undefined, scale, undefined);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         TransformableWatcher.prototype.scaleAt = function (scale, x, y) {
@@ -10883,7 +10883,7 @@ var Ui;
             set: function (translateX) {
                 this.setContentTransform(translateX, undefined, undefined, undefined);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TransformableWatcher.prototype, "translateY", {
@@ -10893,7 +10893,7 @@ var Ui;
             set: function (translateY) {
                 this.setContentTransform(undefined, translateY, undefined, undefined);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         TransformableWatcher.prototype.buildMatrix = function (translateX, translateY, scale, angle) {
@@ -10918,7 +10918,7 @@ var Ui;
                     scale(this._scale, this._scale).
                     rotate(this._angle));
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         TransformableWatcher.prototype.getBoundaryBox = function (matrix) {
@@ -10963,7 +10963,7 @@ var Ui;
             set: function (inertiaActive) {
                 this._inertia = inertiaActive;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         TransformableWatcher.prototype.onDown = function () {
@@ -11297,83 +11297,83 @@ var Ui;
         }
         Object.defineProperty(Transformable.prototype, "ondowned", {
             set: function (value) { this.downed.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Transformable.prototype, "onupped", {
             set: function (value) { this.upped.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Transformable.prototype, "ontransformed", {
             set: function (value) { this.transformed.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Transformable.prototype, "oninertiastarted", {
             set: function (value) { this.inertiastarted.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Transformable.prototype, "oninertiaended", {
             set: function (value) { this.inertiaended.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Transformable.prototype, "allowLeftMouse", {
             set: function (value) {
                 this._allowLeftMouse = value;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Transformable.prototype, "allowScale", {
             set: function (allow) {
                 this._allowScale = allow;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Transformable.prototype, "minScale", {
             set: function (minScale) {
                 this._minScale = minScale;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Transformable.prototype, "maxScale", {
             set: function (maxScale) {
                 this._maxScale = maxScale;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Transformable.prototype, "allowRotate", {
             set: function (allow) {
                 this._allowRotate = allow;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Transformable.prototype, "allowTranslate", {
             set: function (allow) {
                 this._allowTranslate = allow;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Transformable.prototype, "isDown", {
             get: function () {
                 return this._isDown;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Transformable.prototype, "isInertia", {
             get: function () {
                 return this.inertiaClock !== undefined;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Transformable.prototype, "angle", {
@@ -11383,7 +11383,7 @@ var Ui;
             set: function (angle) {
                 this.setContentTransform(undefined, undefined, undefined, angle);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Transformable.prototype, "scale", {
@@ -11393,7 +11393,7 @@ var Ui;
             set: function (scale) {
                 this.setContentTransform(undefined, undefined, scale, undefined);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Transformable.prototype, "translateX", {
@@ -11403,7 +11403,7 @@ var Ui;
             set: function (translateX) {
                 this.setContentTransform(translateX, undefined, undefined, undefined);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Transformable.prototype, "translateY", {
@@ -11413,7 +11413,7 @@ var Ui;
             set: function (translateY) {
                 this.setContentTransform(undefined, translateY, undefined, undefined);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Transformable.prototype.buildMatrix = function (translateX, translateY, scale, angle) {
@@ -11439,7 +11439,7 @@ var Ui;
                     rotate(this._angle).
                     translate(-this.layoutWidth * this.transformOriginX, -this.layoutHeight * this.transformOriginX);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Transformable.prototype.getBoundaryBox = function (matrix) {
@@ -11484,7 +11484,7 @@ var Ui;
             set: function (inertiaActive) {
                 this._inertia = inertiaActive;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Transformable.prototype.onContentTransform = function (testOnly) {
@@ -11742,7 +11742,7 @@ var Ui;
             set: function (content) {
                 this.contentBox.content = content;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Transformable.prototype.arrangeCore = function (width, height) {
@@ -11855,14 +11855,14 @@ var Ui;
         }
         Object.defineProperty(Scrollable.prototype, "onscrolled", {
             set: function (value) { this.scrolled.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Scrollable.prototype, "maxScale", {
             set: function (maxScale) {
                 this.contentBox.maxScale = maxScale;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Scrollable.prototype, "content", {
@@ -11872,7 +11872,7 @@ var Ui;
             set: function (content) {
                 this.setContent(content);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Scrollable.prototype.setContent = function (content) {
@@ -11885,7 +11885,7 @@ var Ui;
             set: function (inertiaActive) {
                 this.contentBox.inertia = inertiaActive;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Scrollable.prototype, "scrollHorizontal", {
@@ -11898,7 +11898,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Scrollable.prototype, "scrollVertical", {
@@ -11911,7 +11911,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Scrollable.prototype.setScrollbarVertical = function (scrollbarVertical) {
@@ -12009,21 +12009,21 @@ var Ui;
             set: function (scale) {
                 this.contentBox.scale = scale;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Scrollable.prototype, "isDown", {
             get: function () {
                 return this.contentBox.isDown;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Scrollable.prototype, "isInertia", {
             get: function () {
                 return this.contentBox.isInertia;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Scrollable.prototype.onWheel = function (event) {
@@ -12237,21 +12237,21 @@ var Ui;
         }
         Object.defineProperty(ScrollableContent.prototype, "onscrolled", {
             set: function (value) { this.scrolled.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ScrollableContent.prototype, "offsetX", {
             get: function () {
                 return -this.translateX;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ScrollableContent.prototype, "offsetY", {
             get: function () {
                 return -this.translateY;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         ScrollableContent.prototype.setOffset = function (x, y) {
@@ -12261,14 +12261,14 @@ var Ui;
             get: function () {
                 return this._contentWidth;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ScrollableContent.prototype, "contentHeight", {
             get: function () {
                 return this._contentHeight;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         ScrollableContent.prototype.arrangeCore = function (width, height) {
@@ -12311,7 +12311,7 @@ var Ui;
         }
         Object.defineProperty(NativeScrollableContent.prototype, "onscrolled", {
             set: function (value) { this.scrolled.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         NativeScrollableContent.prototype.renderDrawing = function () {
@@ -12347,21 +12347,21 @@ var Ui;
                         this.appendChild(this._content);
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(NativeScrollableContent.prototype, "offsetX", {
             get: function () {
                 return this.scrollDiv.scrollLeft;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(NativeScrollableContent.prototype, "offsetY", {
             get: function () {
                 return this.scrollDiv.scrollTop;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         NativeScrollableContent.prototype.stopInertia = function () {
@@ -12374,14 +12374,14 @@ var Ui;
             get: function () {
                 return this._content ? this._content.layoutWidth + this._content.marginLeft + this._content.marginRight : 0;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(NativeScrollableContent.prototype, "contentHeight", {
             get: function () {
                 return this._content ? this._content.layoutHeight + this._content.marginTop + this._content.marginBottom : 0;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         NativeScrollableContent.prototype.measureCore = function (width, height) {
@@ -12499,7 +12499,7 @@ var Ui;
         }
         Object.defineProperty(NativeScrollable.prototype, "onscrolled", {
             set: function (value) { this.scrolled.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(NativeScrollable.prototype, "content", {
@@ -12509,7 +12509,7 @@ var Ui;
             set: function (content) {
                 this.contentBox.content = content;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(NativeScrollable.prototype, "scrollHorizontal", {
@@ -12522,7 +12522,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(NativeScrollable.prototype, "scrollVertical", {
@@ -12535,7 +12535,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         NativeScrollable.prototype.setScrollbarVertical = function (scrollbarVertical) {
@@ -12858,14 +12858,14 @@ var Ui;
             set: function (radius) {
                 this.rect.radius = radius;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Scrollbar.prototype, "fill", {
             set: function (color) {
                 this.rect.fill = color;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Scrollbar.prototype.startAnim = function () {
@@ -13311,7 +13311,7 @@ var Ui;
                 this.textContext.setMaxLine(this.maxLine);
                 this.invalidateMeasure();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(CompactLabel.prototype, "text", {
@@ -13323,7 +13323,7 @@ var Ui;
                 this.isMeasureValid = false;
                 this.invalidateMeasure();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(CompactLabel.prototype, "textAlign", {
@@ -13338,7 +13338,7 @@ var Ui;
                 this.textContext.setTextAlign(this.textAlign);
                 this.invalidateArrange();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(CompactLabel.prototype, "interLine", {
@@ -13354,7 +13354,7 @@ var Ui;
                 this.isMeasureValid = false;
                 this.invalidateMeasure();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(CompactLabel.prototype, "fontSize", {
@@ -13372,7 +13372,7 @@ var Ui;
                 this.textDrawing.style.lineHeight = this.fontSize + 'px';
                 this.invalidateMeasure();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(CompactLabel.prototype, "fontFamily", {
@@ -13389,7 +13389,7 @@ var Ui;
                 this.textDrawing.style.fontFamily = this.fontFamily;
                 this.invalidateMeasure();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(CompactLabel.prototype, "fontWeight", {
@@ -13406,7 +13406,7 @@ var Ui;
                 this.textDrawing.style.fontWeight = this.fontWeight;
                 this.invalidateMeasure();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(CompactLabel.prototype, "whiteSpace", {
@@ -13424,7 +13424,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(CompactLabel.prototype, "wordWrap", {
@@ -13442,7 +13442,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(CompactLabel.prototype, "textTransform", {
@@ -13460,7 +13460,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(CompactLabel.prototype, "color", {
@@ -13485,7 +13485,7 @@ var Ui;
                     }
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         CompactLabel.prototype.renderDrawing = function () {
@@ -13636,7 +13636,7 @@ var Ui;
                 this.allowedTypes = [];
                 types.forEach(function (type) { return _this.addType(type.type, type.effects); });
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         DropableWatcher.prototype.onDragOver = function (event) {
@@ -13804,27 +13804,27 @@ var Ui;
         }
         Object.defineProperty(DropBox.prototype, "ondrageffect", {
             set: function (value) { this.drageffect.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(DropBox.prototype, "ondragentered", {
             set: function (value) { this.dragentered.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(DropBox.prototype, "ondragleaved", {
             set: function (value) { this.dragleaved.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(DropBox.prototype, "ondropped", {
             set: function (value) { this.dropped.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(DropBox.prototype, "ondroppedfile", {
             set: function (value) { this.droppedfile.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         DropBox.prototype.addType = function (type, effects) {
@@ -14017,28 +14017,28 @@ var Ui;
             set: function (borderWidth) {
                 this.drawing.style.borderWidth = borderWidth + "px";
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(SimpleButtonBackground.prototype, "border", {
             set: function (border) {
                 this.drawing.style.borderColor = Ui.Color.create(border).getCssRgba();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(SimpleButtonBackground.prototype, "radius", {
             set: function (radius) {
                 this.drawing.style.borderRadius = radius + "px";
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(SimpleButtonBackground.prototype, "background", {
             set: function (background) {
                 this.drawing.style.backgroundColor = Ui.Color.create(background).getCssRgba();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         return SimpleButtonBackground;
@@ -14067,21 +14067,21 @@ var Ui;
             set: function (borderWidth) {
                 this.drawing.style.borderWidth = borderWidth + "px";
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ButtonBackground.prototype, "border", {
             set: function (border) {
                 this.drawing.style.borderColor = Ui.Color.create(border).getCssRgba();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ButtonBackground.prototype, "radius", {
             set: function (radius) {
                 this.drawing.style.borderRadius = radius + "px";
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ButtonBackground.prototype, "background", {
@@ -14093,7 +14093,7 @@ var Ui;
                 else
                     this.ripple.fill = 'rgba(255,255,255,0.3)';
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         return ButtonBackground;
@@ -14125,7 +14125,7 @@ var Ui;
                 this._label.margin = margin;
                 this._bg.radius = (value + margin * 2) / 2;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ButtonBadge.prototype, "badge", {
@@ -14133,7 +14133,7 @@ var Ui;
                 this._badge = badge;
                 this._label.text = badge;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ButtonBadge.prototype, "badgeColor", {
@@ -14141,7 +14141,7 @@ var Ui;
                 this._badgeColor = Ui.Color.create(badgeColor);
                 this._bg.fill = this._badgeColor;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ButtonBadge.prototype, "badgeTextColor", {
@@ -14149,7 +14149,7 @@ var Ui;
                 this._badgeTextColor = Ui.Color.create(badgeTextColor);
                 this._label.color = this._badgeTextColor;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         return ButtonBadge;
@@ -14237,14 +14237,14 @@ var Ui;
                 this.prepend(this.bg);
                 this.onStyleChange();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Button.prototype, "textBox", {
             get: function () {
                 return this._textBox;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Button.prototype, "text", {
@@ -14254,7 +14254,7 @@ var Ui;
             set: function (text) {
                 this.setTextOrElement(text);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Button.prototype.setTextOrElement = function (text) {
@@ -14293,7 +14293,7 @@ var Ui;
             get: function () {
                 return this._iconBox;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Button.prototype, "icon", {
@@ -14303,7 +14303,7 @@ var Ui;
             set: function (icon) {
                 this.setIconOrElement(icon);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Button.prototype.setIconOrElement = function (icon) {
@@ -14351,7 +14351,7 @@ var Ui;
                     marker.fill = this.getForegroundColor();
                 this.mainBox.append(this._marker);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Button.prototype, "isActive", {
@@ -14364,7 +14364,7 @@ var Ui;
                     this.updateColors();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Button.prototype, "badge", {
@@ -14384,7 +14384,7 @@ var Ui;
                 }
                 this._badgeContent.badge = text;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Button.prototype, "orientation", {
@@ -14399,7 +14399,7 @@ var Ui;
                 this.buttonPartsBox.orientation = this.orientation;
                 this.updateVisibles();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Button.prototype.getBackgroundColor = function () {
@@ -14468,14 +14468,14 @@ var Ui;
             get: function () {
                 return ((this._text !== undefined) && (this.getStyleProperty('showText') || (this._icon === undefined)));
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Button.prototype, "isIconVisible", {
             get: function () {
                 return ((this._icon !== undefined) && (this.getStyleProperty('showIcon') || (this._text === undefined)));
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Button.prototype.updateVisibles = function () {
@@ -14645,12 +14645,12 @@ var Ui;
         }
         Object.defineProperty(ToggleButton.prototype, "ontoggled", {
             set: function (value) { this.toggled.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ToggleButton.prototype, "onuntoggled", {
             set: function (value) { this.untoggled.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ToggleButton.prototype, "isToggled", {
@@ -14663,7 +14663,7 @@ var Ui;
                 else
                     this.onUntoggle();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         ToggleButton.prototype.onToggleButtonPress = function () {
@@ -14727,14 +14727,14 @@ var Ui;
             set: function (action) {
                 this._action = action;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ActionButton.prototype, "selection", {
             set: function (selection) {
                 this._selection = selection;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         ActionButton.prototype.onActionButtonEffect = function (data, dataTransfer) {
@@ -14840,7 +14840,7 @@ var Ui;
                 if (this._selection != undefined)
                     this._selection.changed.connect(this.onSelectionChange);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         ContextBar.prototype.onClosePress = function () {
@@ -14913,7 +14913,7 @@ var Ui;
         }
         Object.defineProperty(Popup.prototype, "onclosed", {
             set: function (value) { this.closed.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Popup.prototype, "modal", {
@@ -14926,7 +14926,7 @@ var Ui;
                     this.shadow.opacity = value ? 1 : 0.01;
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Popup.prototype, "preferredWidth", {
@@ -14934,7 +14934,7 @@ var Ui;
                 this._preferredWidth = width;
                 this.invalidateMeasure();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Popup.prototype, "preferredHeight", {
@@ -14942,7 +14942,7 @@ var Ui;
                 this._preferredHeight = height;
                 this.invalidateMeasure();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Popup.prototype.getSelectionHandler = function () {
@@ -14952,7 +14952,7 @@ var Ui;
             set: function (autoClose) {
                 this._autoClose = autoClose;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Popup.prototype, "content", {
@@ -14962,7 +14962,7 @@ var Ui;
             set: function (content) {
                 this.scroll.content = content;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Popup.prototype.onShadowPress = function () {
@@ -15309,7 +15309,7 @@ var Ui;
                     this.invalidateArrange();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(PopupBackground.prototype, "arrowOffset", {
@@ -15322,7 +15322,7 @@ var Ui;
                     this.invalidateArrange();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(PopupBackground.prototype, "radius", {
@@ -15332,7 +15332,7 @@ var Ui;
                     this.invalidateArrange();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(PopupBackground.prototype, "fill", {
@@ -15342,7 +15342,7 @@ var Ui;
                     this.invalidateDraw();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         PopupBackground.prototype.genPath = function (width, height, radius, arrowBorder, arrowSize, arrowOffset) {
@@ -15510,7 +15510,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(MenuToolBar.prototype, "menuPosition", {
@@ -15523,7 +15523,7 @@ var Ui;
                     this.invalidateArrange();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(MenuToolBar.prototype, "itemsAlign", {
@@ -15536,14 +15536,14 @@ var Ui;
                     this.invalidateArrange();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(MenuToolBar.prototype, "logicalChildren", {
             get: function () {
                 return this.items;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(MenuToolBar.prototype, "padding", {
@@ -15553,7 +15553,7 @@ var Ui;
                 this.paddingLeft = padding;
                 this.paddingRight = padding;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(MenuToolBar.prototype, "paddingTop", {
@@ -15566,7 +15566,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(MenuToolBar.prototype, "paddingBottom", {
@@ -15579,7 +15579,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(MenuToolBar.prototype, "paddingLeft", {
@@ -15592,7 +15592,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(MenuToolBar.prototype, "paddingRight", {
@@ -15605,7 +15605,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(MenuToolBar.prototype, "spacing", {
@@ -15618,7 +15618,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         MenuToolBar.prototype.append = function (child, resizable) {
@@ -15963,22 +15963,22 @@ var Ui;
         }
         Object.defineProperty(App.prototype, "onresized", {
             set: function (value) { this.resized.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(App, "onready", {
             set: function (value) { this.ready.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(App.prototype, "onparentmessage", {
             set: function (value) { this.parentmessage.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(App, "onorientationchanged", {
             set: function (value) { this.orientationchanged.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         App.prototype.setWebApp = function (webApp) {
@@ -16184,7 +16184,7 @@ var Ui;
                     this._content = content;
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         App.appendDialog = function (dialog, modal) {
@@ -16252,7 +16252,7 @@ var Ui;
             get: function () {
                 return this._ready;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         App.prototype.onReady = function () {
@@ -16359,7 +16359,7 @@ var Ui;
                 if (Ui.App.current)
                     Ui.App.current.setParentStyle(style);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         App.prototype.getElementsByClass = function (className) {
@@ -16509,7 +16509,7 @@ var Ui;
         }
         Object.defineProperty(Form.prototype, "onsubmited", {
             set: function (value) { this.submited.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Form.prototype.onSubmit = function (event) {
@@ -16701,7 +16701,7 @@ var Ui;
         }
         Object.defineProperty(Dialog.prototype, "onclosed", {
             set: function (value) { this.closed.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Dialog.prototype.getSelectionHandler = function () {
@@ -16717,7 +16717,7 @@ var Ui;
                     this.shadowGraphic.opacity = value ? 1 : 0.01;
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Dialog.prototype, "preferredWidth", {
@@ -16725,7 +16725,7 @@ var Ui;
                 this._preferredWidth = width;
                 this.invalidateMeasure();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Dialog.prototype, "preferredHeight", {
@@ -16733,7 +16733,7 @@ var Ui;
                 this._preferredHeight = height;
                 this.invalidateMeasure();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Dialog.prototype, "padding", {
@@ -16743,7 +16743,7 @@ var Ui;
             set: function (padding) {
                 this.contentBox.margin = padding;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Dialog.prototype.open = function () {
@@ -16813,7 +16813,7 @@ var Ui;
             set: function (title) {
                 this.actionBox.setTitle(title);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Dialog.prototype.updateButtonsBoxVisible = function () {
@@ -16837,7 +16837,7 @@ var Ui;
                 this.actionBox.setCancelButton(button);
                 this.updateButtonsBoxVisible();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Dialog.prototype, "actionButtons", {
@@ -16849,7 +16849,7 @@ var Ui;
                 this.actionBox.setActionButtons(buttons);
                 this.updateButtonsBoxVisible();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Dialog.prototype, "content", {
@@ -16859,14 +16859,14 @@ var Ui;
             set: function (content) {
                 this.contentBox.content = content;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Dialog.prototype, "autoClose", {
             set: function (autoClose) {
                 this._autoClose = autoClose;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Dialog.prototype.onCancelPress = function () {
@@ -16979,7 +16979,7 @@ var Ui;
         }
         Object.defineProperty(Html.prototype, "onlink", {
             set: function (value) { this.link.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Html.prototype.getElements = function (tagName) {
@@ -17018,7 +17018,7 @@ var Ui;
                 this.bindChildEvents();
                 this.invalidateMeasure();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Html.prototype.bindChildEvents = function () {
@@ -17035,7 +17035,7 @@ var Ui;
                 this.bindChildEvents();
                 this.invalidateMeasure();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Html.prototype, "text", {
@@ -17067,7 +17067,7 @@ var Ui;
                 this.onSetHtml();
                 this.invalidateMeasure();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Html.prototype.getTextContent = function (el) {
@@ -17095,7 +17095,7 @@ var Ui;
                     this.drawing.style.textAlign = this.textAlign;
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Html.prototype, "fontSize", {
@@ -17112,7 +17112,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Html.prototype, "fontFamily", {
@@ -17129,7 +17129,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Html.prototype, "fontWeight", {
@@ -17146,7 +17146,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Html.prototype, "interLine", {
@@ -17163,7 +17163,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Html.prototype, "wordWrap", {
@@ -17180,7 +17180,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Html.prototype, "wordBreak", {
@@ -17197,7 +17197,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Html.prototype, "whiteSpace", {
@@ -17214,7 +17214,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Html.prototype.getColor = function () {
@@ -17239,7 +17239,7 @@ var Ui;
                     }
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Html.prototype.onSubtreeModified = function (event) {
@@ -17375,7 +17375,7 @@ var Ui;
                     this.invalidateDraw();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Shadow.prototype, "inner", {
@@ -17388,7 +17388,7 @@ var Ui;
                     this.invalidateDraw();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Shadow.prototype, "shadowWidth", {
@@ -17401,7 +17401,7 @@ var Ui;
                     this.invalidateDraw();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Shadow.prototype, "radius", {
@@ -17412,7 +17412,7 @@ var Ui;
                 this._radiusBottomRight = radius;
                 this.invalidateDraw();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Shadow.prototype, "radiusTopLeft", {
@@ -17425,7 +17425,7 @@ var Ui;
                     this.invalidateDraw();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Shadow.prototype, "radiusTopRight", {
@@ -17438,7 +17438,7 @@ var Ui;
                     this.invalidateDraw();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Shadow.prototype, "radiusBottomLeft", {
@@ -17451,7 +17451,7 @@ var Ui;
                     this.invalidateDraw();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Shadow.prototype, "radiusBottomRight", {
@@ -17464,7 +17464,7 @@ var Ui;
                     this.invalidateDraw();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Shadow.prototype.updateCanvas = function (ctx) {
@@ -17631,7 +17631,7 @@ var Ui;
             get: function () {
                 return this._isClosed;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Toast.prototype.open = function (position) {
@@ -17696,7 +17696,7 @@ var Ui;
             set: function (content) {
                 this.toastContentBox.content = content;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Toast.prototype.arrangeCore = function (width, height) {
@@ -17756,12 +17756,12 @@ var Ui;
         }
         Object.defineProperty(Image.prototype, "onready", {
             set: function (value) { this.ready.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Image.prototype, "onerror", {
             set: function (value) { this.error.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Image.prototype, "src", {
@@ -17787,28 +17787,28 @@ var Ui;
                 }
                 this.setSrcLock = false;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Image.prototype, "naturalWidth", {
             get: function () {
                 return this._naturalWidth;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Image.prototype, "naturalHeight", {
             get: function () {
                 return this._naturalHeight;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Image.prototype, "isReady", {
             get: function () {
                 return this.loaddone;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Image.prototype.onImageError = function (event) {
@@ -17970,7 +17970,7 @@ var Ui;
                     this.invalidateDraw();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Loading.style = {
@@ -18025,12 +18025,12 @@ var Ui;
         }
         Object.defineProperty(Entry.prototype, "onchanged", {
             set: function (value) { this.changed.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Entry.prototype, "onvalidated", {
             set: function (value) { this.validated.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Entry.prototype, "passwordMode", {
@@ -18046,7 +18046,7 @@ var Ui;
                         this.drawing.setAttribute('type', 'text');
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Entry.prototype, "fontSize", {
@@ -18063,7 +18063,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Entry.prototype, "fontFamily", {
@@ -18080,7 +18080,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Entry.prototype, "fontWeight", {
@@ -18097,7 +18097,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Entry.prototype.getColor = function () {
@@ -18116,7 +18116,7 @@ var Ui;
                         this.drawing.style.color = this.getColor().getCssHtml();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Entry.prototype, "value", {
@@ -18129,7 +18129,7 @@ var Ui;
                 this._value = value;
                 this.drawing.value = this._value;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Entry.prototype, "inputMode", {
@@ -18139,7 +18139,7 @@ var Ui;
             set: function (value) {
                 this.drawing.inputMode = value;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Entry.prototype, "autocomplete", {
@@ -18149,7 +18149,7 @@ var Ui;
             set: function (value) {
                 this.drawing.autocomplete = value;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Entry.prototype.onPaste = function (event) {
@@ -18264,7 +18264,7 @@ var Ui;
         }
         Object.defineProperty(Fixed.prototype, "onresize", {
             set: function (value) { this.resize.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Fixed.prototype.setPosition = function (item, x, y) {
@@ -18366,7 +18366,7 @@ var Ui;
             set: function (content) {
                 this.hbox.content = content;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         ToolBar.prototype.measureCore = function (width, height) {
@@ -18403,7 +18403,7 @@ var Ui;
                     this.invalidateDraw();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TextBgGraphic.prototype, "background", {
@@ -18415,7 +18415,7 @@ var Ui;
                     color = Ui.Color.create(this.getStyleProperty('background'));
                 return color;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TextBgGraphic.prototype, "backgroundBorder", {
@@ -18425,7 +18425,7 @@ var Ui;
                 else
                     return Ui.Color.create(this.getStyleProperty('backgroundBorder'));
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         TextBgGraphic.prototype.updateCanvas = function (ctx) {
@@ -18516,26 +18516,26 @@ var Ui;
         }
         Object.defineProperty(TextField.prototype, "onchanged", {
             set: function (value) { this.changed.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TextField.prototype, "onvalidated", {
             set: function (value) { this.validated.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TextField.prototype, "textHolder", {
             set: function (text) {
                 this.textholder.text = text;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TextField.prototype, "passwordMode", {
             set: function (passwordMode) {
                 this.entry.passwordMode = passwordMode;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TextField.prototype, "value", {
@@ -18549,7 +18549,7 @@ var Ui;
                 else
                     this.textholder.hide();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TextField.prototype, "captureValidated", {
@@ -18559,7 +18559,7 @@ var Ui;
             set: function (value) {
                 this.entry.captureValidated = value;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TextField.prototype, "inputMode", {
@@ -18569,7 +18569,7 @@ var Ui;
             set: function (value) {
                 this.entry.inputMode = value;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TextField.prototype, "autocomplete", {
@@ -18579,7 +18579,7 @@ var Ui;
             set: function (value) {
                 this.entry.autocomplete = value;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         TextField.prototype.onEntryFocus = function () {
@@ -18760,24 +18760,24 @@ var Ui;
         }
         Object.defineProperty(CheckBox.prototype, "onchanged", {
             set: function (value) { this.changed.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(CheckBox.prototype, "ontoggled", {
             set: function (value) { this.toggled.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(CheckBox.prototype, "onuntoggled", {
             set: function (value) { this.untoggled.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(CheckBox.prototype, "isToggled", {
             get: function () {
                 return this._isToggled;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(CheckBox.prototype, "value", {
@@ -18790,7 +18790,7 @@ var Ui;
                 else
                     this.untoggle();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(CheckBox.prototype, "text", {
@@ -18822,7 +18822,7 @@ var Ui;
                     }
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(CheckBox.prototype, "content", {
@@ -18853,7 +18853,7 @@ var Ui;
                     this.contentBox.append(this._content);
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         CheckBox.prototype.toggle = function () {
@@ -18981,7 +18981,7 @@ var Ui;
                     this.invalidateDraw();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Frame.prototype, "fill", {
@@ -18993,7 +18993,7 @@ var Ui;
                     this.invalidateDraw();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Frame.prototype, "radius", {
@@ -19003,7 +19003,7 @@ var Ui;
                 this.radiusBottomLeft = radius;
                 this.radiusBottomRight = radius;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Frame.prototype, "radiusTopLeft", {
@@ -19016,7 +19016,7 @@ var Ui;
                     this.invalidateDraw();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Frame.prototype, "radiusTopRight", {
@@ -19029,7 +19029,7 @@ var Ui;
                     this.invalidateDraw();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Frame.prototype, "radiusBottomLeft", {
@@ -19042,7 +19042,7 @@ var Ui;
                     this.invalidateDraw();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Frame.prototype, "radiusBottomRight", {
@@ -19055,7 +19055,7 @@ var Ui;
                     this.invalidateDraw();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Frame.prototype.updateCanvas = function (ctx) {
@@ -19133,14 +19133,14 @@ var Ui;
             set: function (width) {
                 this.setFixedSize(width, undefined);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ScaleBox.prototype, "fixedHeight", {
             set: function (height) {
                 this.setFixedSize(undefined, height);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ScaleBox.prototype, "content", {
@@ -19151,7 +19151,7 @@ var Ui;
                     this.appendChild(content);
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ScaleBox.prototype, "itemAlign", {
@@ -19164,7 +19164,7 @@ var Ui;
                     this.invalidateArrange();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         ScaleBox.prototype.measureCore = function (width, height) {
@@ -19245,7 +19245,7 @@ var Ui;
         }
         Object.defineProperty(TextArea.prototype, "onchanged", {
             set: function (value) { this.changed.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TextArea.prototype, "fontSize", {
@@ -19262,7 +19262,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TextArea.prototype, "fontFamily", {
@@ -19279,7 +19279,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TextArea.prototype, "fontWeight", {
@@ -19296,7 +19296,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TextArea.prototype, "color", {
@@ -19309,7 +19309,7 @@ var Ui;
                         this.drawing.style.color = this.getColor().getCssHtml();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         TextArea.prototype.getColor = function () {
@@ -19329,7 +19329,7 @@ var Ui;
                     this.drawing.value = value;
                 this.invalidateMeasure();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         TextArea.prototype.setOffset = function (offsetX, offsetY) {
@@ -19340,14 +19340,14 @@ var Ui;
             get: function () {
                 return this.drawing.scrollLeft;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TextArea.prototype, "offsetY", {
             get: function () {
                 return this.drawing.scrollTop;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         TextArea.prototype.onPaste = function (event) {
@@ -19494,14 +19494,14 @@ var Ui;
         }
         Object.defineProperty(TextAreaField.prototype, "onchanged", {
             set: function (value) { this.changed.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TextAreaField.prototype, "textHolder", {
             set: function (text) {
                 this.textholder.text = text;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TextAreaField.prototype, "value", {
@@ -19515,7 +19515,7 @@ var Ui;
                 else
                     this.textholder.hide();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         TextAreaField.prototype.onTextAreaFocus = function () {
@@ -19568,7 +19568,7 @@ var Ui;
                         throw ('Ui.Grid column definition "' + col + '" not supported');
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Grid.prototype, "rows", {
@@ -19589,7 +19589,7 @@ var Ui;
                         throw ('Ui.Grid row definition "' + row + '" not supported');
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Grid.prototype.attach = function (child, col, row, colSpan, rowSpan) {
@@ -19613,7 +19613,7 @@ var Ui;
                     this.attach(item.child, item.col, item.row, item.colSpan, item.rowSpan);
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Grid.prototype.getColMin = function (colPos) {
@@ -19915,7 +19915,7 @@ var Ui;
                         this.appendChild(content[i]);
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Flow.prototype, "spacing", {
@@ -19929,7 +19929,7 @@ var Ui;
                     this.invalidateArrange();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Flow.prototype, "itemAlign", {
@@ -19943,7 +19943,7 @@ var Ui;
                     this.invalidateArrange();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Flow.prototype, "uniform", {
@@ -19956,7 +19956,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Flow.prototype.append = function (child) {
@@ -20111,12 +20111,12 @@ var Ui;
         }
         Object.defineProperty(LimitedFlow.prototype, "oncanexpandchanged", {
             set: function (value) { this.canexpandchanged.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(LimitedFlow.prototype, "onlinechanged", {
             set: function (value) { this.linechanged.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(LimitedFlow.prototype, "maxLines", {
@@ -20127,7 +20127,7 @@ var Ui;
                 this._maxLines = value;
                 this.invalidateMeasure();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(LimitedFlow.prototype, "linesCount", {
@@ -20137,14 +20137,14 @@ var Ui;
                 var countPerLine = Math.max(Math.floor((this.layoutWidth + this.spacing) / (this.uniformWidth + this.spacing)), 1);
                 return Math.ceil(this.children.length / countPerLine);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(LimitedFlow.prototype, "canExpand", {
             get: function () {
                 return this._canExpand;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         LimitedFlow.prototype.measureCore = function (width, height) {
@@ -20238,7 +20238,7 @@ var Ui;
                     this.invalidateArrange();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ProgressBar.prototype, "orientation", {
@@ -20251,7 +20251,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         ProgressBar.prototype.measureCore = function (width, height) {
@@ -20373,7 +20373,7 @@ var Ui;
         }
         Object.defineProperty(Paned.prototype, "onchanged", {
             set: function (value) { this.changed.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Paned.prototype, "orientation", {
@@ -20396,7 +20396,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Paned.prototype, "pos", {
@@ -20407,7 +20407,7 @@ var Ui;
                 this._pos = pos;
                 this.invalidateMeasure();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Paned.prototype, "content1", {
@@ -20423,7 +20423,7 @@ var Ui;
                         this.content1Box.append(this._content1);
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Paned.prototype, "content2", {
@@ -20439,7 +20439,7 @@ var Ui;
                         this.content2Box.append(this._content2);
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Paned.prototype.invert = function () {
@@ -20605,7 +20605,7 @@ var Ui;
         }
         Object.defineProperty(Slider.prototype, "onchanged", {
             set: function (value) { this.changed.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Slider.prototype, "value", {
@@ -20615,7 +20615,7 @@ var Ui;
             set: function (value) {
                 this.setValue(value);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Slider.prototype.setValue = function (value, dontSignal) {
@@ -20652,7 +20652,7 @@ var Ui;
                     this.onStyleChange();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Slider.prototype.updateValue = function () {
@@ -20809,32 +20809,32 @@ var Ui;
         }
         Object.defineProperty(Audio.prototype, "onready", {
             set: function (value) { this.ready.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Audio.prototype, "onended", {
             set: function (value) { this.ended.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Audio.prototype, "ontimeupdate", {
             set: function (value) { this.timeupdate.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Audio.prototype, "onbufferingupdate", {
             set: function (value) { this.bufferingupdate.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Audio.prototype, "onstatechange", {
             set: function (value) { this.statechange.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Audio.prototype, "onerror", {
             set: function (value) { this.error.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Audio.prototype, "src", {
@@ -20851,7 +20851,7 @@ var Ui;
                 }
                 catch (e) { }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Audio.prototype.play = function () {
@@ -20886,7 +20886,7 @@ var Ui;
                 this.audioMeasureValid = false;
                 this.invalidateMeasure();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Audio.prototype, "controlsList", {
@@ -20910,7 +20910,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Audio.prototype, "volume", {
@@ -20920,7 +20920,7 @@ var Ui;
             set: function (volume) {
                 this.audioDrawing.volume = volume;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Audio.prototype, "duration", {
@@ -20931,7 +20931,7 @@ var Ui;
                 else
                     return duration;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Audio.prototype, "currentTime", {
@@ -20944,21 +20944,21 @@ var Ui;
             set: function (time) {
                 this.audioDrawing.currentTime = time;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Audio.prototype, "state", {
             get: function () {
                 return this._state;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Audio.prototype, "isReady", {
             get: function () {
                 return this.canplaythrough;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Audio.prototype.onReady = function () {
@@ -21009,7 +21009,7 @@ var Ui;
                 }
                 return timebuffer;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Audio.prototype.checkBuffering = function () {
@@ -21140,7 +21140,7 @@ var Ui;
         }
         Object.defineProperty(LinkButton.prototype, "onlink", {
             set: function (value) { this.link.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         LinkButton.prototype.onLinkButtonPress = function () {
@@ -21481,7 +21481,7 @@ var Ui;
                         this.appendChild(content[i]);
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(SFlow.prototype, "spacing", {
@@ -21495,7 +21495,7 @@ var Ui;
                     this.invalidateArrange();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(SFlow.prototype, "itemAlign", {
@@ -21509,7 +21509,7 @@ var Ui;
                     this.invalidateArrange();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(SFlow.prototype, "uniform", {
@@ -21522,7 +21522,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(SFlow.prototype, "uniformRatio", {
@@ -21535,7 +21535,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(SFlow.prototype, "stretchMaxRatio", {
@@ -21548,7 +21548,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         SFlow.prototype.append = function (child, floatVal, flushVal) {
@@ -21718,32 +21718,32 @@ var Ui;
         }
         Object.defineProperty(Video.prototype, "onstatechanged", {
             set: function (value) { this.statechanged.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Video.prototype, "onready", {
             set: function (value) { this.ready.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Video.prototype, "onended", {
             set: function (value) { this.ended.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Video.prototype, "onerror", {
             set: function (value) { this.error.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Video.prototype, "ontimeupdated", {
             set: function (value) { this.timeupdated.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Video.prototype, "onbufferingupdated", {
             set: function (value) { this.bufferingupdated.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Video.prototype, "src", {
@@ -21761,21 +21761,21 @@ var Ui;
                 }
                 catch (e) { }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Video.prototype, "poster", {
             set: function (src) {
                 this.videoDrawing.setAttribute('poster', src);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Video.prototype, "autoplay", {
             set: function (autoplay) {
                 this.videoDrawing.autoplay = autoplay;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Video.prototype.play = function () {
@@ -21808,7 +21808,7 @@ var Ui;
                 else
                     delete (this.videoDrawing.controls);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Video.prototype, "controlsList", {
@@ -21830,7 +21830,7 @@ var Ui;
                     }
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Video.prototype, "volume", {
@@ -21840,14 +21840,14 @@ var Ui;
             set: function (volume) {
                 this.videoDrawing.volume = volume;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Video.prototype, "duration", {
             get: function () {
                 return this.videoDrawing.duration;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Video.prototype, "currentTime", {
@@ -21860,35 +21860,35 @@ var Ui;
             set: function (time) {
                 this.videoDrawing.currentTime = time;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Video.prototype, "state", {
             get: function () {
                 return this._state;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Video.prototype, "isReady", {
             get: function () {
                 return this.canplaythrough;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Video.prototype, "naturalWidth", {
             get: function () {
                 return this.videoDrawing.videoWidth;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Video.prototype, "naturalHeight", {
             get: function () {
                 return this.videoDrawing.videoHeight;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Video.prototype.onReady = function () {
@@ -21941,7 +21941,7 @@ var Ui;
                 }
                 return timebuffer;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Video.prototype.checkBuffering = function () {
@@ -22065,7 +22065,7 @@ var Ui;
         }
         Object.defineProperty(MonthCalendar.prototype, "ondayselected", {
             set: function (value) { this.dayselected.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(MonthCalendar.prototype, "dayFilter", {
@@ -22073,7 +22073,7 @@ var Ui;
                 this._dayFilter = dayFilter;
                 this.updateDate();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(MonthCalendar.prototype, "dateFilter", {
@@ -22081,7 +22081,7 @@ var Ui;
                 this._dateFilter = dateFilter;
                 this.updateDate();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(MonthCalendar.prototype, "date", {
@@ -22089,7 +22089,7 @@ var Ui;
                 this._date = new Date(date.getTime());
                 this.updateDate();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(MonthCalendar.prototype, "selectedDate", {
@@ -22101,7 +22101,7 @@ var Ui;
                 this._date = new Date(selectedDate.getTime());
                 this.updateDate();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(MonthCalendar.prototype, "selectMode", {
@@ -22114,7 +22114,7 @@ var Ui;
                     this.updateDate(false);
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(MonthCalendar.prototype, "mode", {
@@ -22127,7 +22127,7 @@ var Ui;
                     this.updateDate(false);
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         MonthCalendar.prototype.onLeftButtonPress = function () {
@@ -22443,45 +22443,45 @@ var Ui;
         }
         Object.defineProperty(TextButtonField.prototype, "onchanged", {
             set: function (value) { this.changed.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TextButtonField.prototype, "onbuttonpressed", {
             set: function (value) { this.buttonpressed.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TextButtonField.prototype, "onvalidated", {
             set: function (value) { this.validated.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TextButtonField.prototype, "textHolder", {
             set: function (text) {
                 this._textholder.text = text;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TextButtonField.prototype, "widthText", {
             set: function (nbchar) {
                 this.entry.width = nbchar * 16 * 2 / 3;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TextButtonField.prototype, "buttonIcon", {
             set: function (icon) {
                 this.button.icon = icon;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TextButtonField.prototype, "buttonText", {
             set: function (text) {
                 this.button.text = text;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TextButtonField.prototype, "textValue", {
@@ -22493,7 +22493,7 @@ var Ui;
                 if (value && value != '')
                     this._textholder.hide();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TextButtonField.prototype, "value", {
@@ -22503,7 +22503,7 @@ var Ui;
             set: function (value) {
                 this.textValue = value;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TextButtonField.prototype, "autocomplete", {
@@ -22513,7 +22513,7 @@ var Ui;
             set: function (value) {
                 this.entry.autocomplete = value;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TextButtonField.prototype, "passwordMode", {
@@ -22523,7 +22523,7 @@ var Ui;
             set: function (value) {
                 this.entry.passwordMode = value;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         TextButtonField.prototype.onButtonPress = function () {
@@ -22574,21 +22574,21 @@ var Ui;
             set: function (dayFilter) {
                 this._dayFilter = dayFilter;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(DatePicker.prototype, "dateFilter", {
             set: function (dateFilter) {
                 this._dateFilter = dateFilter;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(DatePicker.prototype, "isValid", {
             get: function () {
                 return this._isValid;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(DatePicker.prototype, "selectedDate", {
@@ -22606,7 +22606,7 @@ var Ui;
                 }
                 this._isValid = true;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         DatePicker.prototype.onDatePickerButtonPress = function () {
@@ -22673,7 +22673,7 @@ var Ui;
         }
         Object.defineProperty(DownloadButton.prototype, "ondownload", {
             set: function (value) { this.download.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         DownloadButton.prototype.onLinkPress = function () {
@@ -22720,7 +22720,7 @@ var Ui;
             set: function (icon) {
                 this.path = Ui.Icon.icons[icon];
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         ShapeIcon.prototype.arrangeCore = function (width, height) {
@@ -22760,12 +22760,12 @@ var Ui;
         }
         Object.defineProperty(IFrame.prototype, "onready", {
             set: function (value) { this.ready.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(IFrame.prototype, "onlocationchanged", {
             set: function (value) { this.locationchanged.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(IFrame.prototype, "src", {
@@ -22776,7 +22776,7 @@ var Ui;
                 this._isReady = false;
                 this.iframeDrawing.setAttribute('src', src);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(IFrame.prototype, "allowFullscreen", {
@@ -22786,14 +22786,14 @@ var Ui;
             set: function (allowFullscreen) {
                 this.iframeDrawing.allowFullscreen = allowFullscreen;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(IFrame.prototype, "isReady", {
             get: function () {
                 return this._isReady;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         IFrame.prototype.onIFrameLoad = function () {
@@ -22912,27 +22912,27 @@ var Ui;
         }
         Object.defineProperty(ContentEditable.prototype, "onanchorchanged", {
             set: function (value) { this.anchorchanged.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ContentEditable.prototype, "onchanged", {
             set: function (value) { this.changed.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ContentEditable.prototype, "onvalidated", {
             set: function (value) { this.validated.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ContentEditable.prototype, "onselectionentered", {
             set: function (value) { this.selectionentered.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ContentEditable.prototype, "onselectionleaved", {
             set: function (value) { this.selectionleaved.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         ContentEditable.prototype.onSetHtml = function () {
@@ -23168,7 +23168,7 @@ var Ui;
         }
         Object.defineProperty(VBoxScrollable.prototype, "onscrolled", {
             set: function (value) { this.scrolled.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         VBoxScrollable.prototype.reload = function () {
@@ -23181,14 +23181,14 @@ var Ui;
             set: function (loader) {
                 this.contentBox.setLoader(loader);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(VBoxScrollable.prototype, "maxScale", {
             set: function (maxScale) {
                 this.contentBox.maxScale = maxScale;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(VBoxScrollable.prototype, "content", {
@@ -23198,7 +23198,7 @@ var Ui;
             set: function (content) {
                 this.contentBox.content = content;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(VBoxScrollable.prototype, "scrollHorizontal", {
@@ -23211,7 +23211,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(VBoxScrollable.prototype, "scrollVertical", {
@@ -23224,7 +23224,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(VBoxScrollable.prototype, "scrollbarVertical", {
@@ -23248,7 +23248,7 @@ var Ui;
                     this.appendChild(this._scrollbarVertical);
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(VBoxScrollable.prototype, "scrollbarHorizontal", {
@@ -23272,7 +23272,7 @@ var Ui;
                     this.appendChild(this._scrollbarHorizontal);
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         VBoxScrollable.prototype.setOffset = function (offsetX, offsetY, absolute) {
@@ -23478,7 +23478,7 @@ var Ui;
         }
         Object.defineProperty(VBoxScrollableContent.prototype, "onscrolled", {
             set: function (value) { this.scrolled.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         VBoxScrollableContent.prototype.setLoader = function (loader) {
@@ -23498,14 +23498,14 @@ var Ui;
             get: function () {
                 return -this.translateX;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(VBoxScrollableContent.prototype, "offsetY", {
             get: function () {
                 return Math.max(0, (((-this.translateY) / this.scale) - this.getMinY()) * this.scale);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         VBoxScrollableContent.prototype.setOffset = function (x, y) {
@@ -24123,7 +24123,7 @@ var Ui;
         }
         Object.defineProperty(Combo.prototype, "onchanged", {
             set: function (value) { this.changed.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Combo.prototype, "placeHolder", {
@@ -24135,7 +24135,7 @@ var Ui;
                 if (this._position === -1)
                     this.text = this._placeHolder;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Combo.prototype, "field", {
@@ -24147,7 +24147,7 @@ var Ui;
                 if (this._data !== undefined)
                     this.data = this._data;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Combo.prototype, "iconField", {
@@ -24156,7 +24156,7 @@ var Ui;
                 if (this._data !== undefined)
                     this.data = this._data;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Combo.prototype, "data", {
@@ -24171,7 +24171,7 @@ var Ui;
                 this.text = this._placeHolder;
                 this.position = oldPosition;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Combo.prototype, "position", {
@@ -24197,7 +24197,7 @@ var Ui;
                     this.changed.fire({ target: this, value: this._current, position: this._position });
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Combo.prototype, "current", {
@@ -24217,14 +24217,14 @@ var Ui;
                 if (position != -1)
                     this.position = position;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Combo.prototype, "value", {
             get: function () {
                 return this._current;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Combo.prototype.onItemPress = function (popup, item, position) {
@@ -24341,7 +24341,7 @@ var Ui;
                 else
                     this.searchField.hide(true);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ComboPopup.prototype, "allowNone", {
@@ -24355,7 +24355,7 @@ var Ui;
                 else
                     this.emptyField.hide(true);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ComboPopup.prototype, "field", {
@@ -24367,7 +24367,7 @@ var Ui;
                 if (this._data !== undefined)
                     this.data = this._data;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ComboPopup.prototype, "iconField", {
@@ -24379,7 +24379,7 @@ var Ui;
                 if (this._data !== undefined)
                     this.data = this._data;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ComboPopup.prototype, "data", {
@@ -24402,14 +24402,14 @@ var Ui;
                     _loop_4(i);
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ComboPopup.prototype, "position", {
             set: function (position) {
                 this.list.children[position].isActive = true;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         ComboPopup.prototype.onItemPress = function (item) {
@@ -24503,7 +24503,7 @@ var Ui;
                         this.sortArrow.transform = undefined;
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         ListViewHeader.prototype.getColor = function () {
@@ -24579,7 +24579,7 @@ var Ui;
         }
         Object.defineProperty(ListViewHeaderSortPopup.prototype, "onchanged", {
             set: function (value) { this.changed.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         ListViewHeaderSortPopup.prototype.onChanged = function (field) {
@@ -24638,7 +24638,7 @@ var Ui;
                 this.updateFields();
                 this._changedLock = false;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         return ListViewHeaderSortPopup;
@@ -24689,21 +24689,21 @@ var Ui;
         }
         Object.defineProperty(ListViewHeadersBar.prototype, "onsortchanged", {
             set: function (value) { this.sortchanged.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ListViewHeadersBar.prototype, "sortColKey", {
             get: function () {
                 return (this._sortOrder.length > 0) ? this._sortOrder[0].key : undefined;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ListViewHeadersBar.prototype, "sortInvert", {
             get: function () {
                 return (this._sortOrder.length > 0) ? this._sortOrder[0].invert : false;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         ListViewHeadersBar.prototype.sortBy = function (key, invert) {
@@ -24728,7 +24728,7 @@ var Ui;
                     _loop_8(ui);
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         ListViewHeadersBar.prototype.measureCore = function (width, height) {
@@ -24816,12 +24816,12 @@ var Ui;
         }
         Object.defineProperty(ListViewRow.prototype, "onselected", {
             set: function (value) { this.selected.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ListViewRow.prototype, "onunselected", {
             set: function (value) { this.unselected.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         ListViewRow.prototype.getValueFrom = function (key, data) {
@@ -24843,7 +24843,7 @@ var Ui;
                     cell.setValue((key != undefined) ? this.getValueFrom(key, this._data) : this._data);
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ListViewRow.prototype, "isSelected", {
@@ -24853,7 +24853,7 @@ var Ui;
             set: function (value) {
                 this.selectionWatcher.isSelected = value;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         ListViewRow.prototype.measureCore = function (width, height) {
@@ -25023,32 +25023,32 @@ var Ui;
         }
         Object.defineProperty(ListView.prototype, "onselectionchanged", {
             set: function (value) { this.selectionchanged.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ListView.prototype, "onselected", {
             set: function (value) { this.selected.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ListView.prototype, "onunselected", {
             set: function (value) { this.unselected.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ListView.prototype, "onactivated", {
             set: function (value) { this.activated.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ListView.prototype, "onsortchanged", {
             set: function (value) { this.sortchanged.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ListView.prototype, "ondatachanged", {
             set: function (value) { this.datachanged.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ListView.prototype, "headerStoreKey", {
@@ -25061,7 +25061,7 @@ var Ui;
                     this.loadStoredWidth();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         ListView.prototype.loadStoredWidth = function () {
@@ -25081,7 +25081,7 @@ var Ui;
                 this.scrollVertical = scrolled;
                 this.scrollHorizontal = scrolled;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ListView.prototype, "scrollVertical", {
@@ -25091,7 +25091,7 @@ var Ui;
                     this.vboxScroll.scrollVertical = value;
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ListView.prototype, "scrollHorizontal", {
@@ -25102,7 +25102,7 @@ var Ui;
                     this.vboxScroll.scrollHorizontal = value;
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ListView.prototype, "allowMultiSort", {
@@ -25112,7 +25112,7 @@ var Ui;
             set: function (value) {
                 this.headersBar.allowMultiSort = value;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         ListView.prototype.showHeaders = function () {
@@ -25189,7 +25189,7 @@ var Ui;
                 }
                 this.datachanged.fire({ target: this });
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         ListView.prototype.sortData = function () {
@@ -25224,21 +25224,21 @@ var Ui;
                 }
                 this.sortchanged.fire({ target: this, sortOrder: this.sortOrder });
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ListView.prototype, "sortColKey", {
             get: function () {
                 return this.headersBar.sortColKey;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ListView.prototype, "sortInvert", {
             get: function () {
                 return this.headersBar.sortInvert;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         ListView.prototype.findDataRow = function (data) {
@@ -25269,14 +25269,14 @@ var Ui;
             get: function () {
                 return this.vbox.children;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ListView.prototype, "selectedRows", {
             get: function () {
                 return this.rows.filter(function (value) { return value.isSelected; });
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         ListView.prototype.selectAll = function () {
@@ -25464,7 +25464,7 @@ var Ui;
         }
         Object.defineProperty(Uploadable.prototype, "onfile", {
             set: function (value) { this.file.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Uploadable.prototype.setDirectoryMode = function (active) {
@@ -25474,28 +25474,28 @@ var Ui;
             set: function (active) {
                 this.input.directoryMode = active;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Uploadable.prototype, "multiple", {
             set: function (active) {
                 this.input.multiple = active;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Uploadable.prototype, "accept", {
             set: function (value) {
                 this.input.accept = value;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Uploadable.prototype, "capture", {
             set: function (value) {
                 this.input.capture = value;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Uploadable.prototype.onFile = function (fileWrapper, file) {
@@ -25515,7 +25515,7 @@ var Ui;
                     this._content = content;
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         return Uploadable;
@@ -25551,7 +25551,7 @@ var Ui;
                         this.inputDrawing.removeAttribute('multiple');
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         UploadableFileWrapper.prototype.setDirectoryMode = function (active) {
@@ -25567,7 +25567,7 @@ var Ui;
                         this.inputDrawing.removeAttribute('webkitdirectory');
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(UploadableFileWrapper.prototype, "accept", {
@@ -25580,7 +25580,7 @@ var Ui;
                         this.inputDrawing.removeAttribute('accept');
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(UploadableFileWrapper.prototype, "capture", {
@@ -25593,7 +25593,7 @@ var Ui;
                         this.inputDrawing.removeAttribute('capture');
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         UploadableFileWrapper.prototype.createInput = function () {
@@ -25685,35 +25685,35 @@ var Ui;
         }
         Object.defineProperty(UploadButton.prototype, "onfilechanged", {
             set: function (value) { this.filechanged.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(UploadButton.prototype, "directoryMode", {
             set: function (active) {
                 this.input.setDirectoryMode(active);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(UploadButton.prototype, "multiple", {
             set: function (active) {
                 this.input.multiple = active;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(UploadButton.prototype, "accept", {
             set: function (value) {
                 this.input.accept = value;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(UploadButton.prototype, "capture", {
             set: function (value) {
                 this.input.capture = value;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         UploadButton.prototype.onUploadButtonPress = function () {
@@ -25793,7 +25793,7 @@ var Ui;
             set: function (direction) {
                 this._direction = direction;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Slide.prototype.run = function (current, next, progress) {
@@ -25939,7 +25939,7 @@ var Ui;
         }
         Object.defineProperty(TransitionBox.prototype, "onchanged", {
             set: function (value) { this.changed.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TransitionBox.prototype, "position", {
@@ -25949,28 +25949,28 @@ var Ui;
             set: function (position) {
                 this.setCurrentAt(position);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TransitionBox.prototype, "duration", {
             set: function (duration) {
                 this._duration = duration;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TransitionBox.prototype, "ease", {
             set: function (ease) {
                 this._ease = Anim.EasingFunction.create(ease);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TransitionBox.prototype, "transition", {
             set: function (transition) {
                 this._transition = Ui.Transition.create(transition);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TransitionBox.prototype, "current", {
@@ -25985,7 +25985,7 @@ var Ui;
                 if (pos != -1)
                     this.setCurrentAt(pos);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         TransitionBox.prototype.setCurrentAt = function (position) {
@@ -26150,22 +26150,22 @@ var Ui;
         }
         Object.defineProperty(Fold.prototype, "onfolded", {
             set: function (value) { this.folded.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Fold.prototype, "onunfolded", {
             set: function (value) { this.unfolded.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Fold.prototype, "onpositionchanged", {
             set: function (value) { this.positionchanged.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Fold.prototype, "onprogress", {
             set: function (value) { this.progress.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Fold.prototype, "isFolded", {
@@ -26187,7 +26187,7 @@ var Ui;
                     }
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Fold.prototype.fold = function () {
@@ -26216,7 +26216,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Fold.prototype, "mode", {
@@ -26230,7 +26230,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Fold.prototype, "header", {
@@ -26243,7 +26243,7 @@ var Ui;
                     this.headerBox.content = this._header;
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Fold.prototype, "content", {
@@ -26256,7 +26256,7 @@ var Ui;
                     this.contentBox.content = this._content;
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Fold.prototype, "background", {
@@ -26272,7 +26272,7 @@ var Ui;
                         this.prependChild(this._background);
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Fold.prototype, "position", {
@@ -26286,7 +26286,7 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Fold.prototype.invert = function () {
@@ -26302,7 +26302,7 @@ var Ui;
             set: function (duration) {
                 this._animDuration = duration;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Fold.prototype, "offset", {
@@ -26354,7 +26354,7 @@ var Ui;
                     }
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Fold.prototype.startAnimation = function () {
@@ -26511,7 +26511,7 @@ var Ui;
         }
         Object.defineProperty(Switch.prototype, "onchanged", {
             set: function (value) { this.changed.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Switch.prototype, "value", {
@@ -26533,7 +26533,7 @@ var Ui;
                     this.changed.fire({ target: this, value: this._value });
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Switch.prototype, "title", {
@@ -26543,7 +26543,7 @@ var Ui;
             set: function (title) {
                 this.drawing.setAttribute('title', title);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Switch.prototype.updatePos = function () {
@@ -26710,7 +26710,7 @@ var Ui;
         }
         Object.defineProperty(Accordeonable.prototype, "onchanged", {
             set: function (value) { this.changed.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Accordeonable.prototype, "orientation", {
@@ -26725,14 +26725,14 @@ var Ui;
                     this.invalidateMeasure();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Accordeonable.prototype, "pages", {
             get: function () {
                 return this.children;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Accordeonable.prototype, "currentPage", {
@@ -26747,7 +26747,7 @@ var Ui;
                     }
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Accordeonable.prototype, "currentPosition", {
@@ -26781,7 +26781,7 @@ var Ui;
                     this.clock.begin();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Accordeonable.prototype.appendPage = function (page, autoSelect) {
@@ -26941,22 +26941,22 @@ var Ui;
         }
         Object.defineProperty(AccordeonPage.prototype, "onselected", {
             set: function (value) { this.selected.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(AccordeonPage.prototype, "onunselected", {
             set: function (value) { this.unselected.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(AccordeonPage.prototype, "onclosed", {
             set: function (value) { this.closed.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(AccordeonPage.prototype, "onorientationchanged", {
             set: function (value) { this.orientationchanged.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         AccordeonPage.prototype.close = function () {
@@ -27109,27 +27109,27 @@ var Ui;
         }
         Object.defineProperty(DropAtBox.prototype, "ondrageffect", {
             set: function (value) { this.drageffect.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(DropAtBox.prototype, "ondragentered", {
             set: function (value) { this.dragentered.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(DropAtBox.prototype, "ondragleaved", {
             set: function (value) { this.dragleaved.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(DropAtBox.prototype, "ondroppedat", {
             set: function (value) { this.droppedat.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(DropAtBox.prototype, "ondroppedfileat", {
             set: function (value) { this.droppedfileat.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         DropAtBox.prototype.addType = function (type, effects) {
@@ -27285,14 +27285,14 @@ var Ui;
             get: function () {
                 return this.container.children;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(DropAtBox.prototype, "content", {
             set: function (content) {
                 this.container.content = content;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         DropAtBox.prototype.clear = function () {
@@ -27497,14 +27497,14 @@ var Ui;
             set: function (uniform) {
                 this.container.uniform = uniform;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(FlowDropBox.prototype, "spacing", {
             set: function (spacing) {
                 this.container.spacing = spacing;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         return FlowDropBox;
@@ -27533,35 +27533,35 @@ var Ui;
             set: function (ratio) {
                 this.container.stretchMaxRatio = ratio;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(SFlowDropBox.prototype, "uniform", {
             set: function (uniform) {
                 this.container.uniform = uniform;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(SFlowDropBox.prototype, "uniformRatio", {
             set: function (uniformRatio) {
                 this.container.uniformRatio = uniformRatio;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(SFlowDropBox.prototype, "itemAlign", {
             set: function (align) {
                 this.container.itemAlign = align;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(SFlowDropBox.prototype, "spacing", {
             set: function (spacing) {
                 this.container.spacing = spacing;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         return SFlowDropBox;
@@ -27578,14 +27578,14 @@ var Ui;
             set: function (uniform) {
                 this.container.uniform = uniform;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(VDropBox.prototype, "spacing", {
             set: function (spacing) {
                 this.container.spacing = spacing;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         return VDropBox;
@@ -27602,14 +27602,14 @@ var Ui;
             set: function (uniform) {
                 this.container.uniform = uniform;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(HDropBox.prototype, "spacing", {
             set: function (spacing) {
                 this.container.spacing = spacing;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         return HDropBox;
@@ -27657,7 +27657,7 @@ var Ui;
         }
         Object.defineProperty(SegmentBar.prototype, "onchanged", {
             set: function (value) { this.changed.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(SegmentBar.prototype, "orientation", {
@@ -27665,21 +27665,21 @@ var Ui;
                 this._orientation = orientation;
                 this.box.orientation = orientation;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(SegmentBar.prototype, "field", {
             set: function (field) {
                 this._field = field;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(SegmentBar.prototype, "iconField", {
             set: function (iconField) {
                 this._iconField = iconField;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(SegmentBar.prototype, "data", {
@@ -27709,7 +27709,7 @@ var Ui;
                 }
                 this.currentPosition = Math.max(0, Math.min(pos, this.box.children.length - 1));
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(SegmentBar.prototype, "currentPosition", {
@@ -27725,21 +27725,21 @@ var Ui;
                     this.onSegmentSelect({ target: this._current });
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(SegmentBar.prototype, "logicalChildren", {
             get: function () {
                 return this.box.children;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(SegmentBar.prototype, "current", {
             get: function () {
                 return this._current;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         SegmentBar.prototype.next = function () {
@@ -27884,7 +27884,7 @@ var Ui;
             set: function (textTransform) {
                 this.label.textTransform = textTransform;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(SegmentButton.prototype, "foreground", {
@@ -27892,7 +27892,7 @@ var Ui;
                 this.label.color = Ui.Color.create(color);
                 this.icon.fill = Ui.Color.create(color);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(SegmentButton.prototype, "data", {
@@ -27902,7 +27902,7 @@ var Ui;
             set: function (data) {
                 this._data = data;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(SegmentButton.prototype, "text", {
@@ -27910,7 +27910,7 @@ var Ui;
                 this.label.text = text;
                 this.label.show();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(SegmentButton.prototype, "iconText", {
@@ -27918,14 +27918,14 @@ var Ui;
                 this.icon.icon = icon;
                 this.icon.show();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(SegmentButton.prototype, "boxHeight", {
             set: function (height) {
                 this.box.height = height;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(SegmentButton.prototype, "mode", {
@@ -27962,7 +27962,7 @@ var Ui;
                     this.bg.radiusBottomRight = 0;
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(SegmentButton.prototype, "radius", {
@@ -27970,21 +27970,21 @@ var Ui;
                 this._radius = radius;
                 this.mode = this._mode;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(SegmentButton.prototype, "spacing", {
             set: function (spacing) {
                 this.box.margin = spacing;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(SegmentButton.prototype, "background", {
             set: function (color) {
                 this.bg.fill = color;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(SegmentButton.prototype, "backgroundMode", {
@@ -28002,28 +28002,28 @@ var Ui;
                     this.bg.verticalAlign = 'stretch';
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(SegmentButton.prototype, "backgroundWidth", {
             set: function (width) {
                 this.bg.width = width;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(SegmentButton.prototype, "backgroundHeight", {
             set: function (height) {
                 this.bg.height = height;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(SegmentButton.prototype, "isTextVisible", {
             get: function () {
                 return ((this.label.text !== undefined) && (this.getStyleProperty('showText')));
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         SegmentButton.prototype.onStyleChange = function () {
@@ -28071,7 +28071,7 @@ var Ui;
         }
         Object.defineProperty(Locator.prototype, "onchanged", {
             set: function (value) { this.changed.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Locator.prototype, "path", {
@@ -28173,7 +28173,7 @@ var Ui;
                 }
                 this.updateColors();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Locator.prototype.getBackground = function () {
@@ -28346,7 +28346,7 @@ var Ui;
                 this._radius = radius;
                 this.invalidateArrange();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(LocatorRightArrow.prototype, "arrowLength", {
@@ -28354,7 +28354,7 @@ var Ui;
                 this._length = length;
                 this.invalidateArrange();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(LocatorRightArrow.prototype, "fill", {
@@ -28362,7 +28362,7 @@ var Ui;
                 this._fill = Ui.Color.create(color);
                 this.invalidateDraw();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         LocatorRightArrow.prototype.updateCanvas = function (ctx) {
@@ -28396,7 +28396,7 @@ var Ui;
             set: function (radius) {
                 this._radius = radius;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(LocatorLeftArrow.prototype, "arrowLength", {
@@ -28404,7 +28404,7 @@ var Ui;
                 this._length = length;
                 this.invalidateDraw();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         LocatorLeftArrow.prototype.arrangeCore = function (width, height) {
@@ -28433,7 +28433,7 @@ var Ui;
         Object.defineProperty(LocatorLeftRightArrow.prototype, "radius", {
             set: function (radius) {
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(LocatorLeftRightArrow.prototype, "arrowLength", {
@@ -28441,7 +28441,7 @@ var Ui;
                 this._length = length;
                 this.invalidateDraw();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         LocatorLeftRightArrow.prototype.arrangeCore = function (width, height) {
@@ -28491,7 +28491,7 @@ var Ui;
         }
         Object.defineProperty(Carouselable.prototype, "onchanged", {
             set: function (value) { this.changed.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Carouselable.prototype, "autoPlay", {
@@ -28504,7 +28504,7 @@ var Ui;
                     this.startAutoPlay();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Carouselable.prototype.stopAutoPlay = function () {
@@ -28536,14 +28536,14 @@ var Ui;
                     this.updateItems();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Carouselable.prototype, "logicalChildren", {
             get: function () {
                 return this.items;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Carouselable.prototype, "currentPosition", {
@@ -28553,7 +28553,7 @@ var Ui;
                 else
                     return this.pos;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Carouselable.prototype, "current", {
@@ -28563,7 +28563,7 @@ var Ui;
             set: function (value) {
                 this.setCurrent(value);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Carouselable.prototype.setCurrentAt = function (position, noAnimation) {
@@ -28617,7 +28617,7 @@ var Ui;
             set: function (ease) {
                 this._ease = Anim.EasingFunction.create(ease);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Carouselable.prototype, "content", {
@@ -28629,7 +28629,7 @@ var Ui;
                     this.append(el);
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Carouselable.prototype.append = function (child) {
@@ -28923,14 +28923,14 @@ var Ui;
         }
         Object.defineProperty(Carousel.prototype, "onchanged", {
             set: function (value) { this.changed.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Carousel.prototype, "autoPlay", {
             set: function (delay) {
                 this.carouselable.autoPlay = delay;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Carousel.prototype, "alwaysShowArrows", {
@@ -28944,7 +28944,7 @@ var Ui;
                 else
                     this.hideArrows();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Carousel.prototype.next = function () {
@@ -28957,14 +28957,14 @@ var Ui;
             get: function () {
                 return this.carouselable.logicalChildren;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Carousel.prototype, "currentPosition", {
             get: function () {
                 return this.carouselable.currentPosition;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Carousel.prototype, "current", {
@@ -28974,7 +28974,7 @@ var Ui;
             set: function (value) {
                 this.setCurrent(value);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Carousel.prototype.setCurrentAt = function (position, noAnimation) {
@@ -28992,7 +28992,7 @@ var Ui;
             set: function (size) {
                 this.carouselable.bufferingSize = size;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Carousel.prototype.append = function (child) {
@@ -29011,7 +29011,7 @@ var Ui;
             set: function (content) {
                 this.carouselable.content = content;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Carousel.prototype.onCarouselableChange = function (carouselable, position) {
@@ -29356,12 +29356,12 @@ var Ui;
         }
         Object.defineProperty(RichTextEditor.prototype, "onchanged", {
             set: function (value) { this.changed.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(RichTextEditor.prototype, "onlink", {
             set: function (value) { this.link.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         RichTextEditor.prototype.showHideTextHolder = function () {
@@ -29378,7 +29378,7 @@ var Ui;
                 this._contentEditable.html = html;
                 this.showHideTextHolder();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(RichTextEditor.prototype, "text", {
@@ -29389,7 +29389,7 @@ var Ui;
                 this._contentEditable.text = text;
                 this.showHideTextHolder();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(RichTextEditor.prototype, "textAlign", {
@@ -29399,7 +29399,7 @@ var Ui;
             set: function (textAlign) {
                 this._contentEditable.textAlign = textAlign;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(RichTextEditor.prototype, "fontSize", {
@@ -29409,7 +29409,7 @@ var Ui;
             set: function (fontSize) {
                 this._contentEditable.fontSize = fontSize;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(RichTextEditor.prototype, "fontFamily", {
@@ -29419,7 +29419,7 @@ var Ui;
             set: function (fontFamily) {
                 this._contentEditable.fontFamily = fontFamily;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(RichTextEditor.prototype, "fontWeight", {
@@ -29429,7 +29429,7 @@ var Ui;
             set: function (fontWeight) {
                 this._contentEditable.fontWeight = fontWeight;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(RichTextEditor.prototype, "interLine", {
@@ -29439,7 +29439,7 @@ var Ui;
             set: function (interLine) {
                 this._contentEditable.interLine = interLine;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(RichTextEditor.prototype, "wordWrap", {
@@ -29449,7 +29449,7 @@ var Ui;
             set: function (wordWrap) {
                 this._contentEditable.wordWrap = wordWrap;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(RichTextEditor.prototype, "whiteSpace", {
@@ -29459,7 +29459,7 @@ var Ui;
             set: function (whiteSpace) {
                 this._contentEditable.whiteSpace = whiteSpace;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(RichTextEditor.prototype, "color", {
@@ -29469,7 +29469,7 @@ var Ui;
             set: function (color) {
                 this._contentEditable.color = color;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(RichTextEditor.prototype, "textHolder", {
@@ -29480,7 +29480,7 @@ var Ui;
                 this._textHolder.text = value;
                 this.showHideTextHolder();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(RichTextEditor.prototype, "isBackgroundVisible", {
@@ -29490,7 +29490,7 @@ var Ui;
             set: function (value) {
                 this.bg.isVisible = value;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(RichTextEditor.prototype, "autoHideControls", {
@@ -29506,7 +29506,7 @@ var Ui;
                         this.controlsBox.show();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         return RichTextEditor;
@@ -29547,7 +29547,7 @@ var Ui;
                     this.invalidateDraw();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(RadioBoxGraphic.prototype, "isChecked", {
@@ -29560,7 +29560,7 @@ var Ui;
                     this.invalidateDraw();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(RadioBoxGraphic.prototype, "color", {
@@ -29573,7 +29573,7 @@ var Ui;
                     this.invalidateDraw();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(RadioBoxGraphic.prototype, "borderWidth", {
@@ -29584,7 +29584,7 @@ var Ui;
                     this.invalidateDraw();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(RadioBoxGraphic.prototype, "activeColor", {
@@ -29603,7 +29603,7 @@ var Ui;
                     this.invalidateDraw();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         RadioBoxGraphic.prototype.updateCanvas = function (ctx) {
@@ -29691,24 +29691,24 @@ var Ui;
         }
         Object.defineProperty(RadioBox.prototype, "onchanged", {
             set: function (value) { this.changed.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(RadioBox.prototype, "ontoggled", {
             set: function (value) { this.toggled.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(RadioBox.prototype, "onuntoggled", {
             set: function (value) { this.untoggled.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(RadioBox.prototype, "isToggled", {
             get: function () {
                 return this._isToggled;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(RadioBox.prototype, "value", {
@@ -29721,7 +29721,7 @@ var Ui;
                 else
                     this.untoggle();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(RadioBox.prototype, "text", {
@@ -29753,7 +29753,7 @@ var Ui;
                     }
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(RadioBox.prototype, "content", {
@@ -29784,7 +29784,7 @@ var Ui;
                     this.contentBox.append(this._content);
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(RadioBox.prototype, "group", {
@@ -29799,7 +29799,7 @@ var Ui;
                     group.add(this);
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         RadioBox.prototype.toggle = function () {
@@ -29892,7 +29892,7 @@ var Ui;
         }
         Object.defineProperty(RadioGroup.prototype, "onchanged", {
             set: function (value) { this.changed.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(RadioGroup.prototype, "current", {
@@ -29909,7 +29909,7 @@ var Ui;
                 this._current = radio;
                 this.changed.fire({ target: this });
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(RadioGroup.prototype, "children", {
@@ -29917,7 +29917,7 @@ var Ui;
                 var _this = this;
                 return Object.keys(this.content).map(function (prop) { return _this.content[prop]; });
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         RadioGroup.prototype.add = function (radio) {
@@ -29983,7 +29983,7 @@ var Ui;
             set: function (element) {
                 this.appendChild(element);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Embed.prototype.getInverseLayoutTransform = function () {
