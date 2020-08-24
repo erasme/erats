@@ -741,7 +741,7 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
@@ -22381,15 +22381,14 @@ var Ui;
     var TextFieldButton = (function (_super) {
         __extends(TextFieldButton, _super);
         function TextFieldButton() {
-            var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.style = {
-                padding: 6,
-                iconSize: 22,
-                background: 'rgba(250,250,250,0)',
-                backgroundBorder: 'rgba(140,140,140,0)'
-            };
-            return _this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
+        TextFieldButton.style = {
+            padding: 6,
+            iconSize: 22,
+            background: 'rgba(250,250,250,0)',
+            backgroundBorder: 'rgba(140,140,140,0)'
+        };
         return TextFieldButton;
     }(Ui.Button));
     Ui.TextFieldButton = TextFieldButton;
@@ -22665,9 +22664,6 @@ var Ui;
         function DownloadButton(init) {
             var _this = _super.call(this, init) || this;
             _this.download = new Core.Events();
-            _this.style = {
-                background: '#a4f4a4'
-            };
             _this.link.connect(function () { return _this.onLinkPress(); });
             return _this;
         }
@@ -22678,6 +22674,9 @@ var Ui;
         });
         DownloadButton.prototype.onLinkPress = function () {
             this.download.fire({ target: this });
+        };
+        DownloadButton.style = {
+            background: '#a4f4a4'
         };
         return DownloadButton;
     }(Ui.LinkButton));
@@ -29162,14 +29161,13 @@ var Ui;
     var RichTextButton = (function (_super) {
         __extends(RichTextButton, _super);
         function RichTextButton() {
-            var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.style = {
-                borderWidth: 0,
-                background: 'rgba(255,255,255,0)',
-                activeBackground: 'rgba(255,255,255,0)'
-            };
-            return _this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
+        RichTextButton.style = {
+            borderWidth: 0,
+            background: 'rgba(255,255,255,0)',
+            activeBackground: 'rgba(255,255,255,0)'
+        };
         return RichTextButton;
     }(Ui.ToggleButton));
     Ui.RichTextButton = RichTextButton;

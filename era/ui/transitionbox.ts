@@ -17,7 +17,6 @@ namespace Ui {
         protected next: Element;
         protected replaceMode: boolean = false;
         protected progress: number;
-        children: TransitionBoxContent[];
         readonly changed = new Core.Events<{ target: TransitionBox, position: number }>();
         set onchanged(value: (event: { target: TransitionBox, position: number }) => void) { this.changed.connect(value); }
 
@@ -207,12 +206,12 @@ namespace Ui {
 
         remove(child) {
             for (let i = 0; i < this.children.length; i++) {
-                if (this.children[i].firstChild == child) {
+                if ((this.children[i] as TransitionBoxContent).firstChild == child) {
                     if (i < this._position)
                         this._position--;
                     else if (i == this._position)
                         this._position = -1;
-                    this.children[i].remove(child);
+                    (this.children[i] as TransitionBoxContent).remove(child);
                     super.remove(this.children[i]);
                     break;
                 }
@@ -221,7 +220,7 @@ namespace Ui {
 
         getChildPosition(child: Element) {
             for (let i = 0; i < this.children.length; i++) {
-                if (this.children[i].children[0] == child)
+                if ((this.children[i] as TransitionBoxContent).children[0] == child)
                     return i;
             }
             return -1;

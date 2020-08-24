@@ -4957,7 +4957,7 @@ declare namespace Ui {
 }
 declare namespace Ui {
     class TextFieldButton extends Button {
-        style: object;
+        static style: object;
     }
     interface TextButtonFieldInit extends FormInit {
         textHolder?: string;
@@ -5061,7 +5061,7 @@ declare namespace Ui {
         }) => void);
         constructor(init?: DownloadButtonInit);
         protected onLinkPress(): void;
-        style: object;
+        static style: object;
     }
 }
 declare namespace Ui {
@@ -5913,7 +5913,6 @@ declare namespace Ui {
         protected next: Element;
         protected replaceMode: boolean;
         protected progress: number;
-        children: TransitionBoxContent[];
         readonly changed: Core.Events<{
             target: TransitionBox;
             position: number;
@@ -6675,7 +6674,7 @@ declare namespace Ui {
 }
 declare namespace Ui {
     class RichTextButton extends ToggleButton {
-        style: {
+        static style: {
             borderWidth: number;
             background: string;
             activeBackground: string;

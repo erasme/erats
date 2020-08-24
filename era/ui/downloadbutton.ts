@@ -14,7 +14,7 @@ namespace Ui {
             this.download.fire({ target: this });
         }
 
-        style: object = {
+        static style: object = {
             background: '#a4f4a4'
         }
     }

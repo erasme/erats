@@ -1,6 +1,6 @@
 namespace Ui {
     export class RichTextButton extends ToggleButton {
-        style = {
+        static style = {
             borderWidth: 0,
             background: 'rgba(255,255,255,0)',
             activeBackground: 'rgba(255,255,255,0)'
