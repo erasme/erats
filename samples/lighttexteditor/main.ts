@@ -47,7 +47,7 @@ namespace Ui {
             this.textPart.color = color;
         }
 
-        style = {
+        static style = {
             textTransform: 'none',
             borderWidth: 0,
             background: 'rgba(255,255,255,0)',
@@ -100,7 +100,7 @@ namespace Ui {
             this.textPart.color = color;
         }
 
-        style = {
+        static style = {
             textTransform: 'none',
             borderWidth: 0,
             background: 'rgba(255,255,255,0)',

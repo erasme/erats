@@ -4,7 +4,7 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
@@ -57,12 +57,6 @@ var Ui;
             var _this = _super.call(this) || this;
             _this.textPart = new Ui.Label();
             _this.shortcutPart = new Ui.Label();
-            _this.style = {
-                textTransform: 'none',
-                borderWidth: 0,
-                background: 'rgba(255,255,255,0)',
-                activeBackground: 'rgba(255,255,255,0)'
-            };
             _this.setTextOrElement(new Ui.HBox().assign({
                 spacing: 10,
                 content: [
@@ -82,14 +76,14 @@ var Ui;
             set: function (value) {
                 this.textPart.text = value;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(LightTextToggleButton.prototype, "shortcut", {
             set: function (value) {
                 this.shortcutPart.text = value;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         LightTextToggleButton.prototype.updateColors = function () {
@@ -105,6 +99,12 @@ var Ui;
             var color = this.getForegroundColor();
             this.textPart.color = color;
         };
+        LightTextToggleButton.style = {
+            textTransform: 'none',
+            borderWidth: 0,
+            background: 'rgba(255,255,255,0)',
+            activeBackground: 'rgba(255,255,255,0)'
+        };
         return LightTextToggleButton;
     }(Ui.ToggleButton));
     Ui.LightTextToggleButton = LightTextToggleButton;
@@ -114,12 +114,6 @@ var Ui;
             var _this = _super.call(this) || this;
             _this.textPart = new Ui.Label();
             _this.shortcutPart = new Ui.Label();
-            _this.style = {
-                textTransform: 'none',
-                borderWidth: 0,
-                background: 'rgba(255,255,255,0)',
-                activeBackground: 'rgba(255,255,255,0)'
-            };
             _this.setTextOrElement(new Ui.HBox().assign({
                 spacing: 10,
                 content: [
@@ -139,14 +133,14 @@ var Ui;
             set: function (value) {
                 this.textPart.text = value;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(LightTextButton.prototype, "shortcut", {
             set: function (value) {
                 this.shortcutPart.text = value;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         LightTextButton.prototype.updateColors = function () {
@@ -161,6 +155,12 @@ var Ui;
             this.shortcutPart.fontSize = fontSize;
             var color = this.getForegroundColor();
             this.textPart.color = color;
+        };
+        LightTextButton.style = {
+            textTransform: 'none',
+            borderWidth: 0,
+            background: 'rgba(255,255,255,0)',
+            activeBackground: 'rgba(255,255,255,0)'
         };
         return LightTextButton;
     }(Ui.Button));
@@ -398,12 +398,12 @@ var Ui;
         }
         Object.defineProperty(LightTextEditor.prototype, "onchanged", {
             set: function (value) { this.changed.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(LightTextEditor.prototype, "onlink", {
             set: function (value) { this.link.connect(value); },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         LightTextEditor.prototype.showHideTextHolder = function () {
@@ -420,7 +420,7 @@ var Ui;
                 this._contentEditable.html = html;
                 this.showHideTextHolder();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(LightTextEditor.prototype, "text", {
@@ -431,7 +431,7 @@ var Ui;
                 this._contentEditable.text = text;
                 this.showHideTextHolder();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(LightTextEditor.prototype, "textAlign", {
@@ -441,7 +441,7 @@ var Ui;
             set: function (textAlign) {
                 this._contentEditable.textAlign = textAlign;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(LightTextEditor.prototype, "fontSize", {
@@ -451,7 +451,7 @@ var Ui;
             set: function (fontSize) {
                 this._contentEditable.fontSize = fontSize;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(LightTextEditor.prototype, "fontFamily", {
@@ -461,7 +461,7 @@ var Ui;
             set: function (fontFamily) {
                 this._contentEditable.fontFamily = fontFamily;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(LightTextEditor.prototype, "fontWeight", {
@@ -471,7 +471,7 @@ var Ui;
             set: function (fontWeight) {
                 this._contentEditable.fontWeight = fontWeight;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(LightTextEditor.prototype, "interLine", {
@@ -481,7 +481,7 @@ var Ui;
             set: function (interLine) {
                 this._contentEditable.interLine = interLine;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(LightTextEditor.prototype, "wordWrap", {
@@ -491,7 +491,7 @@ var Ui;
             set: function (wordWrap) {
                 this._contentEditable.wordWrap = wordWrap;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(LightTextEditor.prototype, "whiteSpace", {
@@ -501,7 +501,7 @@ var Ui;
             set: function (whiteSpace) {
                 this._contentEditable.whiteSpace = whiteSpace;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(LightTextEditor.prototype, "color", {
@@ -511,7 +511,7 @@ var Ui;
             set: function (color) {
                 this._contentEditable.color = color;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(LightTextEditor.prototype, "textHolder", {
@@ -522,7 +522,7 @@ var Ui;
                 this._textHolder.text = value;
                 this.showHideTextHolder();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(LightTextEditor.prototype, "isBackgroundVisible", {
@@ -532,7 +532,7 @@ var Ui;
             set: function (value) {
                 this.bg.isVisible = value;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         return LightTextEditor;
