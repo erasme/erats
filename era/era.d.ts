@@ -3206,8 +3206,8 @@ declare namespace Ui {
         set marker(marker: Element);
         get isActive(): boolean;
         set isActive(isActive: boolean);
-        get badge(): string;
-        set badge(text: string);
+        get badge(): string | undefined;
+        set badge(text: string | undefined);
         get orientation(): Orientation;
         set orientation(orientation: Orientation);
         protected getBackgroundColor(): Color;

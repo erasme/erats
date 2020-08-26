@@ -337,22 +337,30 @@ namespace Ui {
             }
         }
 
-        get badge(): string {
+        get badge(): string | undefined {
             return this._badge;
         }
 
-        set badge(text: string) {
+        set badge(text: string | undefined) {
             this._badge = text;
-            if (!this._badgeContent) {
-                this._badgeContent = new ButtonBadge().assign({
-                    verticalAlign: 'top', horizontalAlign: 'right',
-                    fontSize: parseInt(this.getStyleProperty('iconSize')) / 4,
-                    badgeColor: this.getStyleProperty('badgeColor'),
-                    badgeTextColor: this.getStyleProperty('badgeTextColor')
-                });
-                this.iconBox.append(this._badgeContent);
+            if (this._badge == undefined) {
+                if (this._badgeContent) {
+                    this.iconBox.remove(this._badgeContent);
+                    this._badgeContent = undefined;
+                }
             }
-            this._badgeContent.badge = text;
+            else {
+                if (!this._badgeContent) {
+                    this._badgeContent = new ButtonBadge().assign({
+                        verticalAlign: 'top', horizontalAlign: 'right',
+                        fontSize: parseInt(this.getStyleProperty('iconSize')) / 4,
+                        badgeColor: this.getStyleProperty('badgeColor'),
+                        badgeTextColor: this.getStyleProperty('badgeTextColor')
+                    });
+                    this.iconBox.append(this._badgeContent);
+                }
+                this._badgeContent.badge = text;
+            }
         }
 
         get orientation(): Orientation {
