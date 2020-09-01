@@ -156,7 +156,7 @@ namespace Ui {
             if (value)
                 this.videoDrawing.controls = true;
             else
-                delete (this.videoDrawing.controls);
+                this.videoDrawing.controls = false;
         }
 
         //
@@ -179,7 +179,7 @@ namespace Ui {
         get controlsList(): Array<string> {
             if (this.videoDrawing['controlsList'] === undefined)
                 return [];
-            let controlsList = [];
+            let controlsList = new Array<string>();
             (this.videoDrawing['controlsList'] as DOMTokenList).forEach(token => controlsList.push(token));
             return controlsList;
         }
@@ -341,7 +341,7 @@ namespace Ui {
 
         protected onError(): void {
             this._state = 'error';
-            this.error.fire({ target: this, code: this.videoDrawing.error.code });
+            this.error.fire({ target: this, code: this.videoDrawing.error ? this.videoDrawing.error.code : 0 });
             this.statechanged.fire({ target: this, state: this._state });
         }
 

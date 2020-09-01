@@ -7,6 +7,7 @@ new Ui.App({
         textAlign: 'center',
         maxLine: 4,
         width: 100,
-        text: "very long piece of text withsuperunsplittedword to see\n what happend when text is too long really too long"
+        text: `very long piece of text withsuperunsplittedword to see
+ what happend when text is too long really too long`
     })
 });

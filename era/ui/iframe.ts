@@ -17,7 +17,7 @@ namespace Ui {
             this.iframeDrawing.addEventListener('load', () => {
                 try {
                     if (this.isReady) {
-                        let location = this.iframeDrawing.contentWindow.location;
+                        let location = this.iframeDrawing.contentWindow!.location;
                         this.locationchanged.fire({ target: this, value: location });
                     }
                 } catch { }
@@ -32,12 +32,12 @@ namespace Ui {
         }
 
         get src(): string {
-            return this.iframeDrawing.getAttribute('src');
+            return this.iframeDrawing.src;
         }
 
         set src(src: string) {
             this._isReady = false;
-            this.iframeDrawing.setAttribute('src', src);
+            this.iframeDrawing.src = src;
         }
 
         get allowFullscreen(): boolean {

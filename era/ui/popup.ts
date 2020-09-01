@@ -17,15 +17,15 @@ namespace Ui
         contextBox: ContextBar;
         contentBox: LBox;
         scroll: ScrollingArea;
-        posX: number = undefined;
-        posY: number = undefined;
-        attachedElement: Element = undefined;
-        attachedBorder: AttachBorder = undefined;
+        posX?: number = undefined;
+        posY?: number = undefined;
+        attachedElement?: Element = undefined;
+        attachedBorder?: AttachBorder = undefined;
         private _modal: boolean = true;
         private _autoClose: boolean = true;
-        private _preferredWidth: number = undefined;
-        private _preferredHeight: number = undefined;
-        openClock: Anim.Clock = undefined;
+        private _preferredWidth?: number = undefined;
+        private _preferredHeight?: number = undefined;
+        openClock?: Anim.Clock = undefined;
         isClosed: boolean = true;
         readonly closed = new Core.Events<{ target: Popup }>();
         set onclosed(value: (event: { target: Popup }) => void) { this.closed.connect(value); }
@@ -151,8 +151,10 @@ namespace Ui
             }
 
             if (end) {
-                this.openClock.stop();
-                this.openClock = undefined;
+                if (this.openClock) {
+                    this.openClock.stop();
+                    this.openClock = undefined;
+                }
                 if (this.isClosed) {
                     App.removeDialog(this);
                     this.enable();
@@ -528,7 +530,7 @@ namespace Ui
     export class PopupBackground extends CanvasElement
     {
         private _radius: number = 8;
-        private _fill: Color;
+        private _fill!: Color;
         private _arrowBorder: 'left'|'right'|'top'|'bottom'|'none' = 'left';
         private _arrowOffset: number = 30;
         private readonly arrowSize: number = 10;

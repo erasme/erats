@@ -41,17 +41,10 @@ declare namespace Core {
         static isGecko: boolean;
         static isWebkit: boolean;
         static isIE: boolean;
-        static isIE7: boolean;
-        static isIE8: boolean;
-        static isIE10: boolean;
-        static isIE11: boolean;
         static isOpera: boolean;
         static isChrome: boolean;
         static isSafari: boolean;
         static isFirefox: boolean;
-        static isFirefox3: boolean;
-        static isFirefox3_5: boolean;
-        static isFirefox3_6: boolean;
         static iPad: boolean;
         static iPhone: boolean;
         static iOs: boolean;
@@ -60,7 +53,6 @@ declare namespace Core {
         static supportCanvas: boolean;
         static supportRgba: boolean;
         static supportRgb: boolean;
-        static supportOpacity: boolean;
         static supportFormData: boolean;
         static supportFileAPI: boolean;
         static supportUploadDirectory: boolean;
@@ -818,7 +810,7 @@ declare namespace Ui {
         parentDisabled?: boolean;
         private _style;
         private _parentStyle;
-        mergeStyle: object | undefined;
+        mergeStyle: any | undefined;
         readonly focused: Core.Events<{
             target: Element;
         }>;
@@ -995,7 +987,7 @@ declare namespace Ui {
         protected onUnload(): void;
         static transformToWindow(element: Element): Matrix;
         static transformFromWindow(element: Element): Matrix;
-        static elementFromPoint(point: Point): Element;
+        static elementFromPoint(point: Point): Element | undefined;
         static getIsDrawingChildOf(drawing: any, parent: any): boolean;
         static setSelectable(drawing: any, selectable: any): void;
     }
@@ -1366,7 +1358,7 @@ declare namespace Ui {
     }
     class PointerWatcher extends Core.Object {
         element: Element;
-        pointer: Pointer;
+        pointer: Pointer | undefined;
         readonly downed: Core.Events<{
             target: PointerWatcher;
         }>;
@@ -1418,7 +1410,7 @@ declare namespace Ui {
         cumulMove: number;
         chainLevel: number;
         watchers: PointerWatcher[];
-        captureWatcher: PointerWatcher;
+        captureWatcher?: PointerWatcher;
         history: any;
         buttons: number;
         button: number;
@@ -1864,15 +1856,15 @@ declare namespace Ui {
 declare namespace Ui {
     class PressWatcher extends Core.Object {
         private element;
-        private press;
-        private down;
-        private up;
-        private activate;
-        private delayedpress;
+        private press?;
+        private down?;
+        private up?;
+        private activate?;
+        private delayedpress?;
         private _pointerId?;
         private _isDown;
-        private lastTime;
-        private delayedTimer;
+        private lastTime?;
+        private delayedTimer?;
         x?: number;
         y?: number;
         altKey?: boolean;
@@ -2654,7 +2646,7 @@ declare namespace Ui {
         showShadows: boolean;
         lock: boolean;
         isOver: boolean;
-        protected showClock: Anim.Clock;
+        protected showClock?: Anim.Clock;
         offsetX: number;
         offsetY: number;
         relativeOffsetX: number;
@@ -3311,15 +3303,15 @@ declare namespace Ui {
         contextBox: ContextBar;
         contentBox: LBox;
         scroll: ScrollingArea;
-        posX: number;
-        posY: number;
-        attachedElement: Element;
-        attachedBorder: AttachBorder;
+        posX?: number;
+        posY?: number;
+        attachedElement?: Element;
+        attachedBorder?: AttachBorder;
         private _modal;
         private _autoClose;
-        private _preferredWidth;
-        private _preferredHeight;
-        openClock: Anim.Clock;
+        private _preferredWidth?;
+        private _preferredHeight?;
+        openClock?: Anim.Clock;
         isClosed: boolean;
         readonly closed: Core.Events<{
             target: Popup;
@@ -3717,8 +3709,8 @@ declare namespace Ui {
             ref: string;
         }) => void);
         constructor(init?: HtmlInit);
-        getElements(tagName: any): any[];
-        searchElements(tagName: any, element: any, res: any): void;
+        getElements(tagName: string): HTMLElement[];
+        searchElements(tagName: string, element: HTMLElement, res: HTMLElement[]): void;
         getParentElement(tagName: any, element: any): any;
         protected onSetHtml(): void;
         get html(): string;
@@ -4499,10 +4491,10 @@ declare namespace Ui {
         private vertical;
         private cursor;
         private content1Box;
-        private _content1;
+        private _content1?;
         private minContent1Size;
         private content2Box;
-        private _content2;
+        private _content2?;
         private minContent2Size;
         private _pos;
         readonly changed: Core.Events<{
@@ -4518,10 +4510,10 @@ declare namespace Ui {
         set orientation(orientation: Orientation);
         get pos(): number;
         set pos(pos: number);
-        get content1(): Element;
-        set content1(content1: Element);
-        get content2(): Element;
-        set content2(content2: Element);
+        get content1(): Element | undefined;
+        set content1(content1: Element | undefined);
+        get content2(): Element | undefined;
+        set content2(content2: Element | undefined);
         invert(): void;
         protected onCursorMove: () => void;
         protected measureCore(width: number, height: number): {
@@ -4747,9 +4739,9 @@ declare namespace Ui {
     }
     class SFlow extends Container implements SFlowInit, IContainer {
         private _uniform;
-        private _uniformRatio;
-        private _uniformWidth;
-        private _uniformHeight;
+        private _uniformRatio?;
+        private _uniformWidth?;
+        private _uniformHeight?;
         private _itemAlign;
         private _stretchMaxRatio;
         private _spacing;
@@ -6463,7 +6455,7 @@ declare namespace Ui {
         private foregrounds;
         private backgrounds;
         private border;
-        private focusedPart;
+        private focusedPart?;
         readonly changed: Core.Events<{
             target: Locator;
             path: string;

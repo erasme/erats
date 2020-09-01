@@ -6,16 +6,17 @@ namespace Ui {
     }
 
     export class Locator extends Container implements LocatorInit {
-        private _path: string;
-        private foregrounds: Array<Pressable>;
-        private backgrounds: Array<Rectangle | LocatorRightArrow | LocatorLeftArrow | LocatorLeftRightArrow>;
-        private border: Rectangle;
-        private focusedPart: Pressable;
+        private _path: string = '';
+        private foregrounds!: Array<Pressable>;
+        private backgrounds!: Array<Rectangle | LocatorRightArrow | LocatorLeftArrow | LocatorLeftRightArrow>;
+        private border!: Rectangle;
+        private focusedPart?: Pressable;
         readonly changed = new Core.Events<{ target: Locator, path: string, position: number }>();
         set onchanged(value: (event: { target: Locator, path: string, position: number }) => void) { this.changed.connect(value); }
     
         constructor(init?: LocatorInit) {
             super(init);
+            this.path = '';
             this.focused.connect(() => this.updateColors());
             this.blurred.connect(() => this.updateColors());
             if (init) {
@@ -69,7 +70,7 @@ namespace Ui {
             }
             else {
                 let paths = path.split('/');
-                let cleanPaths = [];
+                let cleanPaths = new Array<string>();
                 for (let i = 0; i < paths.length; i++) {
                     if (paths[i] !== '')
                         cleanPaths.push(paths[i]);

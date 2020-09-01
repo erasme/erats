@@ -10,10 +10,10 @@ namespace Ui {
         private vertical: boolean = true;
         private cursor: Movable;
         private content1Box: LBox;
-        private _content1: Element;
+        private _content1?: Element;
         private minContent1Size: number = 0;
         private content2Box: LBox;
-        private _content2: Element;
+        private _content2?: Element;
         private minContent2Size: number = 0;
         private _pos: number = 0.5;
         readonly changed = new Core.Events<{ target: Paned, position: number }>();
@@ -84,11 +84,11 @@ namespace Ui {
             this.invalidateMeasure();
         }
 
-        get content1(): Element {
+        get content1(): Element | undefined {
             return this._content1;
         }
 
-        set content1(content1: Element) {
+        set content1(content1: Element | undefined) {
             if (this._content1 !== content1) {
                 if (this._content1 !== undefined)
                     this.content1Box.remove(this._content1);
@@ -98,11 +98,11 @@ namespace Ui {
             }
         }
 
-        get content2(): Element {
+        get content2(): Element | undefined {
             return this._content2;
         }
 
-        set content2(content2: Element) {
+        set content2(content2: Element | undefined) {
             if (this._content2 !== content2) {
                 if (this._content2 !== undefined)
                     this.content2Box.remove(this._content2);

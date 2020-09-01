@@ -226,7 +226,7 @@ namespace Ui {
                     if (this._selectMode == 'DAY')
                         isSelected = (this._selectedDate !== undefined) && (current.getFullYear() === this._selectedDate.getFullYear()) && (current.getMonth() === this._selectedDate.getMonth()) && (current.getDate() === this._selectedDate.getDate());
                     else if (this._selectMode == 'WEEK')
-                        isSelected = selectedWeekStart && (weekStart.getFullYear() === selectedWeekStart.getFullYear()) && (weekStart.getMonth() === selectedWeekStart.getMonth()) && (weekStart.getDate() === selectedWeekStart.getDate());
+                        isSelected = selectedWeekStart != undefined && (weekStart.getFullYear() === selectedWeekStart.getFullYear()) && (weekStart.getMonth() === selectedWeekStart.getMonth()) && (weekStart.getDate() === selectedWeekStart.getDate());
 
                     let currentMonth = current.getMonth() == month;
                     day.monthCalendarDate = current;
@@ -296,7 +296,7 @@ namespace Ui {
                 let month = new MonthYearButton().assign({
                     text: monthNames[i],
                     onpressed: () => {
-                        this._date = month.monthCalendarDate;
+                        this._date = month.monthCalendarDate!;
                         this.mode = 'DAY';
                     }
                 });
@@ -330,7 +330,7 @@ namespace Ui {
                 let year = new MonthYearButton().assign({
                     text: currentYear.toString(),
                     onpressed: () => {
-                        this._date = year.monthCalendarDate;
+                        this._date = year.monthCalendarDate!;
                         this.mode = 'DAY';
                     }
                 });
@@ -368,14 +368,14 @@ namespace Ui {
     }
 
     class DayButton extends Pressable {
-        monthCalendarDate: Date;
-        monthCalendarCurrent: boolean;
+        monthCalendarDate?: Date;
+        monthCalendarCurrent?: boolean;
         isSelected: boolean = false;
     }
 
     class MonthYearButton extends FlatButton {
-        monthCalendarDate: Date;
-        monthCalendarCurrent: boolean;
+        monthCalendarDate?: Date;
+        monthCalendarCurrent?: boolean;
 
         constructor(init?: ButtonInit) {
             super(init);

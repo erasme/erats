@@ -16,12 +16,12 @@ namespace Ui
         private contentBox: ScrollableContent = undefined;
         private _scrollHorizontal: boolean = true;
         private _scrollVertical: boolean = true;
-        scrollbarHorizontalBox: Movable;
-        scrollbarVerticalBox: Movable;
+        scrollbarHorizontalBox!: Movable;
+        scrollbarVerticalBox!: Movable;
         showShadows: boolean = false;
         lock: boolean = false;
         isOver: boolean = false;
-        protected showClock: Anim.Clock = undefined;
+        protected showClock?: Anim.Clock = undefined;
         offsetX: number = 0;
         offsetY: number = 0;
         relativeOffsetX: number = 0;
@@ -320,8 +320,10 @@ namespace Ui
             if (this.scrollbarVerticalBox)
                 this.scrollbarVerticalBox.opacity = opacity;
             if (stop) {
-                this.showClock.stop();
-                this.showClock = undefined;
+                if (this.showClock) {
+                    this.showClock.stop();
+                    this.showClock = undefined;
+                }
             }
         }
 

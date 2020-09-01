@@ -1,18 +1,5 @@
 "use strict";
 /// <reference path="../../era/era.d.ts" />
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 //
 // Play with styles
 //
@@ -36,7 +23,7 @@ var __extends = (this && this.__extends) || (function () {
         }
     ]
 }];*/
-var styles = [
+let styles = [
     {
         types: [
             {
@@ -93,38 +80,31 @@ var styles = [
         ]
     }
 ];
-var App = /** @class */ (function (_super) {
-    __extends(App, _super);
-    function App() {
-        var _this = _super.call(this) || this;
-        var content = new Ui.VBox();
-        _this.content = content;
-        var toolbar = new Ui.ToolBar();
+class App extends Ui.App {
+    constructor() {
+        super();
+        let content = new Ui.VBox();
+        this.content = content;
+        let toolbar = new Ui.ToolBar();
         toolbar.append(new Ui.Button({ text: 'button1' }));
         toolbar.append(new Ui.Element(), true);
         toolbar.append(new Ui.Label({ text: 'The Title', fontWeight: 'bold' }));
         toolbar.append(new Ui.Element(), true);
         toolbar.append(new Ui.Button({ text: 'button2' }));
         content.append(toolbar);
-        var vbox = new Ui.VBox({ verticalAlign: 'center', horizontalAlign: 'center', spacing: 10 });
+        let vbox = new Ui.VBox({ verticalAlign: 'center', horizontalAlign: 'center', spacing: 10 });
         content.append(vbox, true);
         vbox.append(new Ui.Button({
             text: 'default', width: 200,
-            onpressed: function () { return Ui.App.style = undefined; }
+            onpressed: () => Ui.App.style = undefined
         }));
-        var _loop_1 = function (i) {
-            var style = styles[i];
+        for (let i = 0; i < styles.length; i++) {
+            let style = styles[i];
             vbox.append(new Ui.Button({
-                text: "style" + i,
-                width: 200,
-                onpressed: function () { return Ui.App.style = style; }
+                text: `style${i}`, width: 200,
+                onpressed: () => Ui.App.style = style
             }));
-        };
-        for (var i = 0; i < styles.length; i++) {
-            _loop_1(i);
         }
-        return _this;
     }
-    return App;
-}(Ui.App));
+}
 new App();

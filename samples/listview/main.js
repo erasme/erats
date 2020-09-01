@@ -1,66 +1,45 @@
 "use strict";
 /// <reference path="../../era/era.d.ts" />
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var ListViewBoolCell = /** @class */ (function (_super) {
-    __extends(ListViewBoolCell, _super);
-    function ListViewBoolCell() {
-        var _this = _super.call(this) || this;
-        _this.clipToBounds = true;
-        _this.ui = new Ui.Rectangle({
+class ListViewBoolCell extends Ui.ListViewCell {
+    constructor() {
+        super();
+        this.clipToBounds = true;
+        this.ui = new Ui.Rectangle({
             margin: 8, width: 16, height: 16,
             horizontalAlign: 'center', verticalAlign: 'center'
         });
-        _this.append(_this.ui);
-        return _this;
+        this.append(this.ui);
     }
-    ListViewBoolCell.prototype.onValueChange = function (value) {
+    onValueChange(value) {
         if (value)
             this.ui.fill = '#60e270';
         else
             this.ui.fill = '#E84D4D';
-    };
-    return ListViewBoolCell;
-}(Ui.ListViewCell));
-var Logs = /** @class */ (function (_super) {
-    __extends(Logs, _super);
-    function Logs(init) {
-        var _this = _super.call(this, init) || this;
-        _this.append(new Ui.Label({ text: 'Logs:', horizontalAlign: 'left', fontWeight: 'bold' }));
-        _this.scrolling = new Ui.ScrollingArea();
-        _this.append(_this.scrolling, true);
-        _this.logs = new Ui.VBox();
-        _this.scrolling.content = _this.logs;
-        return _this;
     }
-    Logs.prototype.log = function (text, color) {
-        if (color === void 0) { color = 'black'; }
+}
+class Logs extends Ui.VBox {
+    constructor(init) {
+        super(init);
+        this.append(new Ui.Label({ text: 'Logs:', horizontalAlign: 'left', fontWeight: 'bold' }));
+        this.scrolling = new Ui.ScrollingArea();
+        this.append(this.scrolling, true);
+        this.logs = new Ui.VBox();
+        this.scrolling.content = this.logs;
+    }
+    log(text, color = 'black') {
         this.logs.prepend(new Ui.Label({ text: text, color: color, horizontalAlign: 'left' }));
-    };
-    return Logs;
-}(Ui.VBox));
-var App = /** @class */ (function (_super) {
-    __extends(App, _super);
-    function App() {
-        var _this = _super.call(this) || this;
-        var vbox = new Ui.VBox();
-        _this.content = vbox;
-        var toolbar = new Ui.ToolBar({ margin: 10 });
+    }
+}
+class App extends Ui.App {
+    constructor() {
+        super();
+        let vbox = new Ui.VBox();
+        this.content = vbox;
+        let toolbar = new Ui.ToolBar({ margin: 10 });
         vbox.append(toolbar);
         toolbar.append(new Ui.CheckBox({
             text: 'show headers', value: true, width: 200,
-            onchanged: function (e) {
+            onchanged: e => {
                 if (e.value)
                     listview.showHeaders();
                 else
@@ -69,13 +48,13 @@ var App = /** @class */ (function (_super) {
         }));
         toolbar.append(new Ui.CheckBox({
             text: 'data scrolled (best perf)', value: true, width: 250,
-            onchanged: function (e) { return listview.scrolled = e.value; }
+            onchanged: e => listview.scrolled = e.value
         }));
         toolbar.append(new Ui.Button({
             text: 'set 1500', verticalAlign: 'center',
-            onpressed: function () {
-                var data = [];
-                for (var i = 0; i < 1500; i++) {
+            onpressed: () => {
+                let data = [];
+                for (let i = 0; i < 1500; i++) {
                     data.push({
                         data0: ((i % 3) === 0),
                         data1: 'hi number ' + i,
@@ -89,13 +68,13 @@ var App = /** @class */ (function (_super) {
         }));
         toolbar.append(new Ui.Button({
             text: 'clear all', verticalAlign: 'center',
-            onpressed: function () { return listview.clearData(); }
+            onpressed: () => listview.clearData()
         }));
         toolbar.append(new Ui.Button({
             text: 'append 70', verticalAlign: 'center',
-            onpressed: function () {
-                var count = listview.data.length;
-                for (var i = 0; i < 70; i++) {
+            onpressed: () => {
+                let count = listview.data.length;
+                for (let i = 0; i < 70; i++) {
                     listview.appendData({
                         data0: ((i % 3) === 0),
                         data1: 'hi number ' + i,
@@ -108,20 +87,20 @@ var App = /** @class */ (function (_super) {
         }));
         toolbar.append(new Ui.Button({
             text: 'update numbers', verticalAlign: 'center',
-            onpressed: function () {
-                var data = listview.data;
-                for (var i = 0; i < data.length; i++) {
-                    var obj = data[i];
+            onpressed: () => {
+                let data = listview.data;
+                for (let i = 0; i < data.length; i++) {
+                    let obj = data[i];
                     data[i].data3 = Math.floor(Math.random() * 50);
                 }
                 listview.updateData();
             }
         }));
-        var hbox = new Ui.HBox({ spacing: 5 });
+        let hbox = new Ui.HBox({ spacing: 5 });
         vbox.append(hbox, true);
-        var scroll = new Ui.ScrollingArea();
+        let scroll = new Ui.ScrollingArea();
         hbox.append(scroll, true);
-        var listview = new Ui.ListView({
+        let listview = new Ui.ListView({
             margin: 0,
             scrolled: true,
             headerStoreKey: 'local.test.app',
@@ -132,10 +111,10 @@ var App = /** @class */ (function (_super) {
                 { type: 'string', title: 'Numbers', key: 'data3', ui: Ui.ListViewCellNumber },
                 { type: 'string', title: 'Pos', key: 'data4', ui: Ui.ListViewCellNumber }
             ],
-            onactivated: function (e) { return logs.log('activate row: ' + e.value); }
+            onactivated: e => logs.log('activate row: ' + e.value)
         });
         scroll.content = listview;
-        for (var i = 0; i < 50; i++) {
+        for (let i = 0; i < 50; i++) {
             listview.appendData({
                 data0: ((i % 3) === 0),
                 data1: 'hi number ' + i,
@@ -144,10 +123,8 @@ var App = /** @class */ (function (_super) {
                 data4: i
             });
         }
-        var logs = new Logs({ width: 250 });
+        let logs = new Logs({ width: 250 });
         hbox.append(logs);
-        return _this;
     }
-    return App;
-}(Ui.App));
+}
 new App();

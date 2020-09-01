@@ -454,8 +454,7 @@ namespace Ui {
                     this.image.appendChild(image);
                 }
 
-                if (Core.Navigator.supportOpacity)
-                    this.image.style.opacity = '0.8';
+                this.image.style.opacity = '0.8';
 
                 let ofs = this.delayed ? -10 : 0;
 

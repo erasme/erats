@@ -1,18 +1,5 @@
 "use strict";
 /// <reference path="../../era/era.d.ts" />
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -22,185 +9,135 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
 var Ui;
 (function (Ui) {
-    var LightTextToggleButton = /** @class */ (function (_super) {
-        __extends(LightTextToggleButton, _super);
-        function LightTextToggleButton() {
-            var _this = _super.call(this) || this;
-            _this.textPart = new Ui.Label();
-            _this.shortcutPart = new Ui.Label();
-            _this.setTextOrElement(new Ui.HBox().assign({
+    class LightTextToggleButton extends Ui.ToggleButton {
+        constructor() {
+            super();
+            this.textPart = new Ui.Label();
+            this.shortcutPart = new Ui.Label();
+            this.setTextOrElement(new Ui.HBox().assign({
                 spacing: 10,
                 content: [
-                    _this.textPart.assign({
+                    this.textPart.assign({
                         resizable: true,
                         horizontalAlign: 'left'
                     }),
-                    _this.shortcutPart
+                    this.shortcutPart
                 ]
             }));
-            return _this;
         }
-        Object.defineProperty(LightTextToggleButton.prototype, "text", {
-            get: function () {
-                return this.textPart.text;
-            },
-            set: function (value) {
-                this.textPart.text = value;
-            },
-            enumerable: false,
-            configurable: true
-        });
-        Object.defineProperty(LightTextToggleButton.prototype, "shortcut", {
-            set: function (value) {
-                this.shortcutPart.text = value;
-            },
-            enumerable: false,
-            configurable: true
-        });
-        LightTextToggleButton.prototype.updateColors = function () {
-            _super.prototype.updateColors.call(this);
-            var color = this.getForegroundColor();
+        get text() {
+            return this.textPart.text;
+        }
+        set text(value) {
+            this.textPart.text = value;
+        }
+        set shortcut(value) {
+            this.shortcutPart.text = value;
+        }
+        updateColors() {
+            super.updateColors();
+            let color = this.getForegroundColor();
             this.textPart.color = color;
-        };
-        LightTextToggleButton.prototype.onStyleChange = function () {
-            _super.prototype.onStyleChange.call(this);
-            var fontSize = this.getStyleProperty('fontSize');
+        }
+        onStyleChange() {
+            super.onStyleChange();
+            let fontSize = this.getStyleProperty('fontSize');
             this.textPart.fontSize = fontSize;
             this.shortcutPart.fontSize = fontSize;
-            var color = this.getForegroundColor();
+            let color = this.getForegroundColor();
             this.textPart.color = color;
-        };
-        LightTextToggleButton.style = {
-            textTransform: 'none',
-            borderWidth: 0,
-            background: 'rgba(255,255,255,0)',
-            activeBackground: 'rgba(255,255,255,0)'
-        };
-        return LightTextToggleButton;
-    }(Ui.ToggleButton));
+        }
+    }
+    LightTextToggleButton.style = {
+        textTransform: 'none',
+        borderWidth: 0,
+        background: 'rgba(255,255,255,0)',
+        activeBackground: 'rgba(255,255,255,0)'
+    };
     Ui.LightTextToggleButton = LightTextToggleButton;
-    var LightTextButton = /** @class */ (function (_super) {
-        __extends(LightTextButton, _super);
-        function LightTextButton() {
-            var _this = _super.call(this) || this;
-            _this.textPart = new Ui.Label();
-            _this.shortcutPart = new Ui.Label();
-            _this.setTextOrElement(new Ui.HBox().assign({
+    class LightTextButton extends Ui.Button {
+        constructor() {
+            super();
+            this.textPart = new Ui.Label();
+            this.shortcutPart = new Ui.Label();
+            this.setTextOrElement(new Ui.HBox().assign({
                 spacing: 10,
                 content: [
-                    _this.textPart.assign({
+                    this.textPart.assign({
                         resizable: true,
                         horizontalAlign: 'left'
                     }),
-                    _this.shortcutPart
+                    this.shortcutPart
                 ]
             }));
-            return _this;
         }
-        Object.defineProperty(LightTextButton.prototype, "text", {
-            get: function () {
-                return this.textPart.text;
-            },
-            set: function (value) {
-                this.textPart.text = value;
-            },
-            enumerable: false,
-            configurable: true
-        });
-        Object.defineProperty(LightTextButton.prototype, "shortcut", {
-            set: function (value) {
-                this.shortcutPart.text = value;
-            },
-            enumerable: false,
-            configurable: true
-        });
-        LightTextButton.prototype.updateColors = function () {
-            _super.prototype.updateColors.call(this);
-            var color = this.getForegroundColor();
+        get text() {
+            return this.textPart.text;
+        }
+        set text(value) {
+            this.textPart.text = value;
+        }
+        set shortcut(value) {
+            this.shortcutPart.text = value;
+        }
+        updateColors() {
+            super.updateColors();
+            let color = this.getForegroundColor();
             this.textPart.color = color;
-        };
-        LightTextButton.prototype.onStyleChange = function () {
-            _super.prototype.onStyleChange.call(this);
-            var fontSize = this.getStyleProperty('fontSize');
+        }
+        onStyleChange() {
+            super.onStyleChange();
+            let fontSize = this.getStyleProperty('fontSize');
             this.textPart.fontSize = fontSize;
             this.shortcutPart.fontSize = fontSize;
-            var color = this.getForegroundColor();
+            let color = this.getForegroundColor();
             this.textPart.color = color;
-        };
-        LightTextButton.style = {
-            textTransform: 'none',
-            borderWidth: 0,
-            background: 'rgba(255,255,255,0)',
-            activeBackground: 'rgba(255,255,255,0)'
-        };
-        return LightTextButton;
-    }(Ui.Button));
+        }
+    }
+    LightTextButton.style = {
+        textTransform: 'none',
+        borderWidth: 0,
+        background: 'rgba(255,255,255,0)',
+        activeBackground: 'rgba(255,255,255,0)'
+    };
     Ui.LightTextButton = LightTextButton;
-    var LightTextEditor = /** @class */ (function (_super) {
-        __extends(LightTextEditor, _super);
-        function LightTextEditor() {
-            var _this = _super.call(this) || this;
-            _this._textHolder = new Ui.Text();
-            _this.bg = new Ui.TextBgGraphic();
-            _this.changed = new Core.Events();
-            _this.link = new Core.Events();
-            _this.focusable = true;
-            var allowedTags = ['B', 'I', 'U', 'A', '#text', 'BR'];
-            _this._contentEditable = new Ui.ContentEditable().assign({
+    class LightTextEditor extends Ui.LBox {
+        constructor() {
+            super();
+            this._textHolder = new Ui.Text();
+            this.bg = new Ui.TextBgGraphic();
+            this.changed = new Core.Events();
+            this.link = new Core.Events();
+            this.focusable = true;
+            let allowedTags = ['B', 'I', 'U', 'A', '#text', 'BR'];
+            this._contentEditable = new Ui.ContentEditable().assign({
                 margin: 10, interLine: 1.2, fontSize: 16,
                 html: '', resizable: true,
-                onfocused: function () { return _this.bg.hasFocus = true; },
-                onblurred: function () { return _this.bg.hasFocus = false; },
-                onchanged: function (e) {
+                onfocused: () => this.bg.hasFocus = true,
+                onblurred: () => this.bg.hasFocus = false,
+                onchanged: (e) => {
                     Ui.ContentEditable.filterHtmlContent(e.element, allowedTags);
-                    _this.changed.fire({ target: _this });
+                    this.changed.fire({ target: this });
                 },
-                onlink: function (e) { return _this.link.fire({ target: _this, ref: e.ref }); },
+                onlink: (e) => this.link.fire({ target: this, ref: e.ref }),
                 selectable: true
             });
-            _this._contentEditable.drawing.addEventListener('paste', function (e) {
+            this._contentEditable.drawing.addEventListener('paste', (e) => {
                 var _a, _b;
-                var selection = window.getSelection();
+                let selection = window.getSelection();
                 if (!selection || !selection.rangeCount)
                     return;
-                var text = (_a = e.clipboardData) === null || _a === void 0 ? void 0 : _a.getData('text');
-                var html = (_b = e.clipboardData) === null || _b === void 0 ? void 0 : _b.getData('text/html');
+                let text = (_a = e.clipboardData) === null || _a === void 0 ? void 0 : _a.getData('text');
+                let html = (_b = e.clipboardData) === null || _b === void 0 ? void 0 : _b.getData('text/html');
                 if (html)
                     document.execCommand('insertHTML', false, Ui.ContentEditable.filterHtmlString(html, allowedTags, true));
                 else if (text)
                     document.execCommand('insertText', false, text);
                 e.preventDefault();
             });
-            _this._contentEditable.drawing.addEventListener('keydown', function (e) {
+            this._contentEditable.drawing.addEventListener('keydown', (e) => {
                 if (e.ctrlKey) {
                     // Ctrl + B
                     if (e.which == 66) {
@@ -223,38 +160,38 @@ var Ui;
                 }
             }, { capture: true });
             new Ui.ContextMenuWatcher({
-                element: _this._contentEditable,
-                press: function (e) {
-                    var selection = window.getSelection();
+                element: this._contentEditable,
+                press: (e) => {
+                    let selection = window.getSelection();
                     if (!selection)
                         return;
-                    var link = _this._contentEditable.findTag('A');
+                    let link = this._contentEditable.findTag('A');
                     if (link) {
-                        var popup_1 = new Ui.Popup();
-                        popup_1.assign({
+                        let popup = new Ui.Popup();
+                        popup.assign({
                             content: new Ui.VBox().assign({
                                 content: [
                                     new LightTextButton().assign({
                                         text: 'Visiter le lien',
-                                        onpressed: function () {
-                                            popup_1.close();
-                                            var a = link;
+                                        onpressed: () => {
+                                            popup.close();
+                                            let a = link;
                                             window.open(a.href, '_blank');
                                         }
                                     }),
                                     new LightTextButton().assign({
                                         text: 'Editer le lien',
-                                        onpressed: function () {
-                                            popup_1.close();
-                                            var a = link;
-                                            var urlField = new Ui.TextField();
-                                            var dialog = new Ui.Dialog().assign({
+                                        onpressed: () => {
+                                            popup.close();
+                                            let a = link;
+                                            let urlField = new Ui.TextField();
+                                            let dialog = new Ui.Dialog().assign({
                                                 modal: false,
                                                 title: 'URL du lien',
                                                 actionButtons: [
                                                     new Ui.DefaultButton().assign({
                                                         text: 'Enregistrer',
-                                                        onpressed: function () {
+                                                        onpressed: () => {
                                                             dialog.close();
                                                             a.href = urlField.value;
                                                         }
@@ -267,8 +204,8 @@ var Ui;
                                     }),
                                     new LightTextButton().assign({
                                         text: 'Supprimer le lien',
-                                        onpressed: function () {
-                                            popup_1.close();
+                                        onpressed: () => {
+                                            popup.close();
                                             Ui.ContentEditable.unwrapNode(link);
                                         }
                                     })
@@ -277,8 +214,8 @@ var Ui;
                         }).openAt(e.x, e.y);
                     }
                     else {
-                        var vbox = new Ui.VBox();
-                        var popup_2 = new Ui.MenuPopup().assign({
+                        let vbox = new Ui.VBox();
+                        let popup = new Ui.MenuPopup().assign({
                             modal: false,
                             content: vbox.assign({
                                 content: [
@@ -287,15 +224,12 @@ var Ui;
                                         icon: 'format-bold',
                                         text: 'Gras', shortcut: 'Ctrl+B',
                                         focusable: false,
-                                        ontoggled: function () { return __awaiter(_this, void 0, void 0, function () {
-                                            return __generator(this, function (_a) {
-                                                popup_2.close();
-                                                document.execCommand('bold', false);
-                                                return [2 /*return*/];
-                                            });
-                                        }); },
-                                        onuntoggled: function () {
-                                            popup_2.close();
+                                        ontoggled: () => __awaiter(this, void 0, void 0, function* () {
+                                            popup.close();
+                                            document.execCommand('bold', false);
+                                        }),
+                                        onuntoggled: () => {
+                                            popup.close();
                                             document.execCommand('bold', false);
                                         }
                                     }),
@@ -304,12 +238,12 @@ var Ui;
                                         icon: 'format-italic',
                                         text: 'Italic', shortcut: 'Ctrl+I',
                                         focusable: false,
-                                        ontoggled: function () {
-                                            popup_2.close();
+                                        ontoggled: () => {
+                                            popup.close();
                                             document.execCommand('italic', false);
                                         },
-                                        onuntoggled: function () {
-                                            popup_2.close();
+                                        onuntoggled: () => {
+                                            popup.close();
                                             document.execCommand('italic', false);
                                         }
                                     }),
@@ -318,12 +252,12 @@ var Ui;
                                         icon: 'format-underline',
                                         text: 'Souligné', shortcut: 'Ctrl+U',
                                         focusable: false,
-                                        ontoggled: function () {
-                                            popup_2.close();
+                                        ontoggled: () => {
+                                            popup.close();
                                             document.execCommand('underline', false);
                                         },
-                                        onuntoggled: function () {
-                                            popup_2.close();
+                                        onuntoggled: () => {
+                                            popup.close();
                                             document.execCommand('underline', false);
                                         }
                                     }),
@@ -334,22 +268,22 @@ var Ui;
                             icon: 'format-insert-url',
                             text: 'Insérer un lien',
                             focusable: false,
-                            onpressed: function () {
+                            onpressed: () => {
                                 Ui.ContentEditable.saveSelection();
-                                var selection = window.getSelection();
-                                var range = selection && selection.rangeCount ? selection.getRangeAt(0) : null;
-                                popup_2.close();
-                                var urlField = new Ui.TextField();
-                                var dialog = new Ui.Dialog().assign({
+                                let selection = window.getSelection();
+                                let range = selection && selection.rangeCount ? selection.getRangeAt(0) : null;
+                                popup.close();
+                                let urlField = new Ui.TextField();
+                                let dialog = new Ui.Dialog().assign({
                                     modal: false,
                                     title: 'URL du lien',
                                     actionButtons: [
                                         new Ui.DefaultButton().assign({
                                             text: 'Insérer',
-                                            onpressed: function () {
+                                            onpressed: () => {
                                                 dialog.close();
                                                 if (selection && selection.type == 'Caret') {
-                                                    var a = document.createElement('a');
+                                                    let a = document.createElement('a');
                                                     a.href = urlField.value;
                                                     a.innerText = urlField.value;
                                                     document.execCommand('insertHTML', false, a.outerHTML);
@@ -360,201 +294,140 @@ var Ui;
                                         })
                                     ],
                                     content: urlField,
-                                    onclosed: function () { return Ui.ContentEditable.restoreSelection(range); }
+                                    onclosed: () => Ui.ContentEditable.restoreSelection(range)
                                 });
                                 dialog.open();
                             }
                         }));
-                        popup_2.openAt(e.x, e.y);
+                        popup.openAt(e.x, e.y);
                     }
                 }
             });
-            _this.focusInWatcher = new Ui.FocusInWatcher({
-                element: _this,
-                onfocusin: function () {
-                    _this._textHolder.hide();
+            this.focusInWatcher = new Ui.FocusInWatcher({
+                element: this,
+                onfocusin: () => {
+                    this._textHolder.hide();
                     // user BR when Enter is pressed
                     document.execCommand('defaultParagraphSeparator', false, 'br');
                 },
-                onfocusout: function () {
-                    _this.showHideTextHolder();
+                onfocusout: () => {
+                    this.showHideTextHolder();
                 }
             });
-            _this.content = [
-                _this.bg,
+            this.content = [
+                this.bg,
                 new Ui.LBox().assign({
                     resizable: true,
                     content: [
-                        _this._textHolder.assign({
+                        this._textHolder.assign({
                             textAlign: 'center',
                             verticalAlign: 'center',
                             opacity: 0.6
                         }),
-                        _this._contentEditable
+                        this._contentEditable
                     ]
                 })
             ];
-            return _this;
         }
-        Object.defineProperty(LightTextEditor.prototype, "onchanged", {
-            set: function (value) { this.changed.connect(value); },
-            enumerable: false,
-            configurable: true
-        });
-        Object.defineProperty(LightTextEditor.prototype, "onlink", {
-            set: function (value) { this.link.connect(value); },
-            enumerable: false,
-            configurable: true
-        });
-        LightTextEditor.prototype.showHideTextHolder = function () {
+        set onchanged(value) { this.changed.connect(value); }
+        set onlink(value) { this.link.connect(value); }
+        showHideTextHolder() {
             if (this.textHolder && this.textHolder != '' && (this.html == '' || this.html == '<br>') && !this.focusInWatcher.isFocusIn)
                 this._textHolder.show();
             else
                 this._textHolder.hide();
-        };
-        Object.defineProperty(LightTextEditor.prototype, "html", {
-            get: function () {
-                return this._contentEditable.html;
-            },
-            set: function (html) {
-                this._contentEditable.html = html;
-                this.showHideTextHolder();
-            },
-            enumerable: false,
-            configurable: true
-        });
-        Object.defineProperty(LightTextEditor.prototype, "text", {
-            get: function () {
-                return this._contentEditable.text;
-            },
-            set: function (text) {
-                this._contentEditable.text = text;
-                this.showHideTextHolder();
-            },
-            enumerable: false,
-            configurable: true
-        });
-        Object.defineProperty(LightTextEditor.prototype, "textAlign", {
-            get: function () {
-                return this._contentEditable.textAlign;
-            },
-            set: function (textAlign) {
-                this._contentEditable.textAlign = textAlign;
-            },
-            enumerable: false,
-            configurable: true
-        });
-        Object.defineProperty(LightTextEditor.prototype, "fontSize", {
-            get: function () {
-                return this._contentEditable.fontSize;
-            },
-            set: function (fontSize) {
-                this._contentEditable.fontSize = fontSize;
-            },
-            enumerable: false,
-            configurable: true
-        });
-        Object.defineProperty(LightTextEditor.prototype, "fontFamily", {
-            get: function () {
-                return this._contentEditable.fontFamily;
-            },
-            set: function (fontFamily) {
-                this._contentEditable.fontFamily = fontFamily;
-            },
-            enumerable: false,
-            configurable: true
-        });
-        Object.defineProperty(LightTextEditor.prototype, "fontWeight", {
-            get: function () {
-                return this._contentEditable.fontWeight;
-            },
-            set: function (fontWeight) {
-                this._contentEditable.fontWeight = fontWeight;
-            },
-            enumerable: false,
-            configurable: true
-        });
-        Object.defineProperty(LightTextEditor.prototype, "interLine", {
-            get: function () {
-                return this._contentEditable.interLine;
-            },
-            set: function (interLine) {
-                this._contentEditable.interLine = interLine;
-            },
-            enumerable: false,
-            configurable: true
-        });
-        Object.defineProperty(LightTextEditor.prototype, "wordWrap", {
-            get: function () {
-                return this._contentEditable.wordWrap;
-            },
-            set: function (wordWrap) {
-                this._contentEditable.wordWrap = wordWrap;
-            },
-            enumerable: false,
-            configurable: true
-        });
-        Object.defineProperty(LightTextEditor.prototype, "whiteSpace", {
-            get: function () {
-                return this._contentEditable.whiteSpace;
-            },
-            set: function (whiteSpace) {
-                this._contentEditable.whiteSpace = whiteSpace;
-            },
-            enumerable: false,
-            configurable: true
-        });
-        Object.defineProperty(LightTextEditor.prototype, "color", {
-            get: function () {
-                return this._contentEditable.color;
-            },
-            set: function (color) {
-                this._contentEditable.color = color;
-            },
-            enumerable: false,
-            configurable: true
-        });
-        Object.defineProperty(LightTextEditor.prototype, "textHolder", {
-            get: function () {
-                return this._textHolder.text;
-            },
-            set: function (value) {
-                this._textHolder.text = value;
-                this.showHideTextHolder();
-            },
-            enumerable: false,
-            configurable: true
-        });
-        Object.defineProperty(LightTextEditor.prototype, "isBackgroundVisible", {
-            get: function () {
-                return this.bg.isVisible;
-            },
-            set: function (value) {
-                this.bg.isVisible = value;
-            },
-            enumerable: false,
-            configurable: true
-        });
-        return LightTextEditor;
-    }(Ui.LBox));
+        }
+        get html() {
+            return this._contentEditable.html;
+        }
+        set html(html) {
+            this._contentEditable.html = html;
+            this.showHideTextHolder();
+        }
+        get text() {
+            return this._contentEditable.text;
+        }
+        set text(text) {
+            this._contentEditable.text = text;
+            this.showHideTextHolder();
+        }
+        get textAlign() {
+            return this._contentEditable.textAlign;
+        }
+        set textAlign(textAlign) {
+            this._contentEditable.textAlign = textAlign;
+        }
+        get fontSize() {
+            return this._contentEditable.fontSize;
+        }
+        set fontSize(fontSize) {
+            this._contentEditable.fontSize = fontSize;
+        }
+        get fontFamily() {
+            return this._contentEditable.fontFamily;
+        }
+        set fontFamily(fontFamily) {
+            this._contentEditable.fontFamily = fontFamily;
+        }
+        get fontWeight() {
+            return this._contentEditable.fontWeight;
+        }
+        set fontWeight(fontWeight) {
+            this._contentEditable.fontWeight = fontWeight;
+        }
+        get interLine() {
+            return this._contentEditable.interLine;
+        }
+        set interLine(interLine) {
+            this._contentEditable.interLine = interLine;
+        }
+        get wordWrap() {
+            return this._contentEditable.wordWrap;
+        }
+        set wordWrap(wordWrap) {
+            this._contentEditable.wordWrap = wordWrap;
+        }
+        get whiteSpace() {
+            return this._contentEditable.whiteSpace;
+        }
+        set whiteSpace(whiteSpace) {
+            this._contentEditable.whiteSpace = whiteSpace;
+        }
+        get color() {
+            return this._contentEditable.color;
+        }
+        set color(color) {
+            this._contentEditable.color = color;
+        }
+        get textHolder() {
+            return this._textHolder.text;
+        }
+        set textHolder(value) {
+            this._textHolder.text = value;
+            this.showHideTextHolder();
+        }
+        get isBackgroundVisible() {
+            return this.bg.isVisible;
+        }
+        set isBackgroundVisible(value) {
+            this.bg.isVisible = value;
+        }
+    }
     Ui.LightTextEditor = LightTextEditor;
 })(Ui || (Ui = {}));
-var App = /** @class */ (function (_super) {
-    __extends(App, _super);
-    function App() {
-        var _this = _super.call(this) || this;
-        _this.content = new Ui.VBox().assign({
+class App extends Ui.App {
+    constructor() {
+        super();
+        this.content = new Ui.VBox().assign({
             content: [
                 new Ui.Text().assign({ text: 'Un texte super sympa', selectable: true, margin: 50 }),
                 new Ui.LightTextEditor().assign({
                     margin: 50, fontSize: 20, resizable: true,
-                    onlink: function (e) { return window.open(e.ref, '_blank'); }
+                    onlink: (e) => window.open(e.ref, '_blank')
                 })
             ]
         });
-        return _this;
     }
-    return App;
-}(Ui.App));
+}
 new App();
 //# sourceMappingURL=main.js.map

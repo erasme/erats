@@ -1,6 +1,6 @@
 "use strict";
 /// <reference path="../../era/era.d.ts" />
-var scl = new Ui.NativeScrollingArea();
+let scl = new Ui.NativeScrollingArea();
 new Ui.App().assign({
     content: new Ui.VBox().assign({
         content: [
@@ -8,11 +8,11 @@ new Ui.App().assign({
                 content: [
                     new Ui.Button().assign({
                         text: 'top left',
-                        onpressed: function () { return scl.setOffset(0, 0); }
+                        onpressed: () => scl.setOffset(0, 0)
                     }),
                     new Ui.Button().assign({
                         text: 'bottom right',
-                        onpressed: function () { return scl.setOffset(1, 1); }
+                        onpressed: () => scl.setOffset(1, 1)
                     })
                 ]
             }),
@@ -37,7 +37,7 @@ new Ui.App().assign({
                         {
                             child: new Ui.Button().assign({
                                 width: 200, height: 200, text: 'fun',
-                                onpressed: function () { return console.log('grid button press'); }
+                                onpressed: () => console.log('grid button press')
                             }),
                             col: 1, row: 1
                         },

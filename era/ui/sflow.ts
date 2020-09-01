@@ -21,7 +21,7 @@ namespace Ui {
         height: number = 0;
         xpos: number = 0;
         ypos: number = 0;
-        zones: { xstart: number, xend: number }[];
+        zones: Array<{ xstart: number, xend: number }>;
         currentZone: number;
         boxes: { x: number, y: number, width: number, height: number }[];
         lineHeight: number = 0;
@@ -30,16 +30,16 @@ namespace Ui {
         drawWidth: number = 0;
         drawSpaceWidth: number = 0;
         render: boolean = false;
-        centerstatus: false;
+        centerstatus: boolean = false;
         spacing: number = 0;
         align: 'left' | 'right' | 'center' | 'stretch' = 'left';
         stretchMaxRatio: number = 1.7;
         uniform: boolean = false;
-        uniformWidth: number;
-        uniformHeight: number;
+        uniformWidth?: number;
+        uniformHeight?: number;
         firstLine: boolean = true;
         lastLine: boolean = false;
-        stretchUniformWidth: number;
+        stretchUniformWidth?: number;
 
         constructor(init: SFlowStateInit) {
             super();
@@ -177,7 +177,7 @@ namespace Ui {
 
                     if (this.uniform && (this.align === 'stretch')) {
                         if (this.lastLine && !this.firstLine)
-                            itemWidth = Math.max(cmd.width, this.stretchUniformWidth);
+                            itemWidth = Math.max(cmd.width, this.stretchUniformWidth!);
                         else
                             this.stretchUniformWidth = itemWidth;
                     }
@@ -212,8 +212,8 @@ namespace Ui {
                 if ((this.ypos + this.lineHeight < box.y) || (this.ypos >= box.y + box.height)) {
                     continue;
                 }
-                var tmpZones = [];
-                for (var i = 0; i < this.zones.length; i++) {
+                let tmpZones = new Array<{ xstart: number, xend: number}>();
+                for (let i = 0; i < this.zones.length; i++) {
                     zone = this.zones[i];
                     // check different x split
                     if ((box.x <= zone.xstart) && (box.x + box.width < zone.xend))
@@ -349,9 +349,9 @@ namespace Ui {
 
     export class SFlow extends Container implements SFlowInit, IContainer {
         private _uniform: boolean = false;
-        private _uniformRatio: number;
-        private _uniformWidth: number;
-        private _uniformHeight: number;
+        private _uniformRatio?: number;
+        private _uniformWidth?: number;
+        private _uniformHeight?: number;
         private _itemAlign: SFlowAlign = 'left';
         private _stretchMaxRatio: number = 1.3;
         private _spacing: number = 0;
@@ -443,7 +443,7 @@ namespace Ui {
         }
 
         get uniformRatio(): number {
-            return this._uniformRatio;
+            return this._uniformRatio ? this._uniformRatio : 1;
         }
 
         set uniformRatio(uniformRatio: number) {

@@ -1,76 +1,61 @@
 "use strict";
 /// <reference path="../../era/era.d.ts" />
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var App = /** @class */ (function (_super) {
-    __extends(App, _super);
-    function App() {
-        var _this = _super.call(this) || this;
-        var vbox = new Ui.VBox({
+class App extends Ui.App {
+    constructor() {
+        super();
+        let vbox = new Ui.VBox({
             padding: 10, spacing: 10
         });
-        _this.content = vbox;
-        var text = new Ui.Text();
+        this.content = vbox;
+        let text = new Ui.Text();
         text.text = 'Icon SVG path';
         vbox.append(text);
-        var hbox = new Ui.HBox();
+        let hbox = new Ui.HBox();
         vbox.append(hbox, true);
-        var scroll = new Ui.ScrollingArea();
+        let scroll = new Ui.ScrollingArea();
         hbox.append(scroll, true);
-        _this.pathTextField = new Ui.TextAreaField({
-            onchanged: function (e) { return _this.onPathTextFieldChanged(); }
+        this.pathTextField = new Ui.TextAreaField({
+            onchanged: e => this.onPathTextFieldChanged()
         });
-        scroll.content = _this.pathTextField;
-        _this.sourceIcon = new Ui.Shape();
-        _this.sourceIcon.width = 192;
-        _this.sourceIcon.height = 192;
-        _this.sourceIcon.scale = 4;
-        hbox.append(_this.sourceIcon);
+        scroll.content = this.pathTextField;
+        this.sourceIcon = new Ui.Shape();
+        this.sourceIcon.width = 192;
+        this.sourceIcon.height = 192;
+        this.sourceIcon.scale = 4;
+        hbox.append(this.sourceIcon);
         hbox = new Ui.HBox();
         vbox.append(hbox);
         hbox.append(new Ui.Button({
             text: 'Clean',
-            onpressed: function () { return _this.onCleanPressed(); }
+            onpressed: () => this.onCleanPressed()
         }));
-        _this.decimalField = new Ui.TextField();
-        _this.decimalField.width = 40;
-        _this.decimalField.value = '2';
-        hbox.append(_this.decimalField);
-        _this.scaleField = new Ui.TextField();
-        _this.scaleField.width = 40;
-        _this.scaleField.value = '1';
-        hbox.append(_this.scaleField);
+        this.decimalField = new Ui.TextField();
+        this.decimalField.width = 40;
+        this.decimalField.value = '2';
+        hbox.append(this.decimalField);
+        this.scaleField = new Ui.TextField();
+        this.scaleField.width = 40;
+        this.scaleField.value = '1';
+        hbox.append(this.scaleField);
         hbox = new Ui.HBox();
         hbox.spacing = 10;
         vbox.append(hbox, true);
         scroll = new Ui.ScrollingArea();
         hbox.append(scroll, true);
-        _this.cleanedPathTextField = new Ui.TextAreaField();
-        _this.cleanedPathTextField.disable();
-        scroll.content = _this.cleanedPathTextField;
-        _this.destIcon = new Ui.Shape();
-        _this.destIcon.width = 192;
-        _this.destIcon.height = 192;
-        _this.destIcon.scale = 4;
-        hbox.append(_this.destIcon);
-        _this.statusLabel = new Ui.Label();
-        vbox.append(_this.statusLabel);
-        return _this;
+        this.cleanedPathTextField = new Ui.TextAreaField();
+        this.cleanedPathTextField.disable();
+        scroll.content = this.cleanedPathTextField;
+        this.destIcon = new Ui.Shape();
+        this.destIcon.width = 192;
+        this.destIcon.height = 192;
+        this.destIcon.scale = 4;
+        hbox.append(this.destIcon);
+        this.statusLabel = new Ui.Label();
+        vbox.append(this.statusLabel);
     }
-    App.prototype.testPath = function (path) {
-        var svgDrawing = document.createElementNS(svgNS, 'svg');
-        var ctx = new Core.SVG2DContext(svgDrawing);
+    testPath(path) {
+        let svgDrawing = document.createElementNS(svgNS, 'svg');
+        let ctx = new Core.SVG2DContext(svgDrawing);
         try {
             ctx.svgPath(path);
         }
@@ -78,9 +63,9 @@ var App = /** @class */ (function (_super) {
             return false;
         }
         return true;
-    };
-    App.prototype.onPathTextFieldChanged = function () {
-        var path = this.pathTextField.value;
+    }
+    onPathTextFieldChanged() {
+        let path = this.pathTextField.value;
         if (this.testPath(path)) {
             this.sourceIcon.fill = undefined;
             this.sourceIcon.path = path;
@@ -89,12 +74,12 @@ var App = /** @class */ (function (_super) {
             this.sourceIcon.fill = 'red';
             this.sourceIcon.path = Ui.Icon.getPath('deny');
         }
-    };
-    App.prototype.onCleanPressed = function () {
-        var svgParser = new Ui.SvgParser(this.pathTextField.value);
-        var lastIsValue = false;
-        var lastCmd = '';
-        var res = '';
+    }
+    onCleanPressed() {
+        let svgParser = new Ui.SvgParser(this.pathTextField.value);
+        let lastIsValue = false;
+        let lastCmd = '';
+        let res = '';
         svgParser.next();
         while (!svgParser.isEnd()) {
             if (svgParser.isCmd()) {
@@ -105,9 +90,9 @@ var App = /** @class */ (function (_super) {
                 }
             }
             else {
-                var roundScale = Math.pow(10, parseInt(this.decimalField.value));
-                var valNum = Math.round(svgParser.getCurrent() * parseInt(this.scaleField.value) * roundScale);
-                var val = (valNum / roundScale).toString();
+                let roundScale = Math.pow(10, parseInt(this.decimalField.value));
+                let valNum = Math.round(svgParser.getCurrent() * parseInt(this.scaleField.value) * roundScale);
+                let val = (valNum / roundScale).toString();
                 if (val.substring(0, 2) === '0.')
                     val = '.' + val.substring(2);
                 if (val.substring(0, 3) === '-0.')
@@ -128,9 +113,8 @@ var App = /** @class */ (function (_super) {
             this.destIcon.fill = 'red';
             this.destIcon.path = Ui.Icon.getPath('deny');
         }
-        var ratio = res.length / this.pathTextField.value.length;
+        let ratio = res.length / this.pathTextField.value.length;
         this.statusLabel.text = 'ratio: ' + Math.round(ratio * 100) + '%, saved: ' + (100 - Math.round(ratio * 100)) + '%';
-    };
-    return App;
-}(Ui.App));
+    }
+}
 new App();

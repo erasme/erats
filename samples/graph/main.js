@@ -1,44 +1,26 @@
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 var Graph;
 (function (Graph) {
-    var DonutGraph = /** @class */ (function (_super) {
-        __extends(DonutGraph, _super);
-        function DonutGraph(init) {
-            var _this = _super.call(this, init) || this;
-            _this.data = init.data;
-            return _this;
+    class DonutGraph extends Ui.CanvasElement {
+        constructor(init) {
+            super(init);
+            this.data = init.data;
         }
-        DonutGraph.prototype.updateCanvas = function (ctx) {
-            var w = this.layoutWidth;
-            var h = this.layoutHeight;
-            var r = Math.min(w, h) / 2;
-            var total = 0;
-            for (var _i = 0, _a = this.data; _i < _a.length; _i++) {
-                var d = _a[_i];
+        updateCanvas(ctx) {
+            let w = this.layoutWidth;
+            let h = this.layoutHeight;
+            let r = Math.min(w, h) / 2;
+            let total = 0;
+            for (let d of this.data)
                 total += d.value;
-            }
-            var startAngle = -Math.PI / 2;
-            for (var _b = 0, _c = this.data; _b < _c.length; _b++) {
-                var d = _c[_b];
-                var angle = (d.value / total) * Math.PI * 2;
-                var endAngle = startAngle + angle;
+            let startAngle = -Math.PI / 2;
+            for (let d of this.data) {
+                let angle = (d.value / total) * Math.PI * 2;
+                let endAngle = startAngle + angle;
                 ctx.fillStyle = Ui.Color.create(d.color).getCssRgba();
                 ctx.beginPath();
-                var x1 = w / 2 + Math.cos(startAngle) * r;
-                var y1 = h / 2 + Math.sin(startAngle) * r;
+                let x1 = w / 2 + Math.cos(startAngle) * r;
+                let y1 = h / 2 + Math.sin(startAngle) * r;
                 ctx.moveTo(x1, y1);
                 ctx.arc(w / 2, h / 2, r - 0.5, startAngle, endAngle, false);
                 ctx.arc(w / 2, h / 2, r * 0.6 - 0.5, endAngle, startAngle, true);
@@ -46,38 +28,35 @@ var Graph;
                 ctx.fill();
                 startAngle = endAngle;
             }
-        };
-        return DonutGraph;
-    }(Ui.CanvasElement));
-    Graph.DonutGraph = DonutGraph;
-    var BarGraph = /** @class */ (function (_super) {
-        __extends(BarGraph, _super);
-        function BarGraph(init) {
-            var _this = _super.call(this, init) || this;
-            _this.minY = 0;
-            _this.maxY = 0;
-            _this.data = init.data;
-            _this.xAxis = init.xAxis;
-            for (var i = 0; i < _this.data.length; i++) {
-                var c = _this.data[i];
-                if ((_this.minY === undefined) || (c < _this.minY))
-                    _this.minY = c;
-                if ((_this.maxY === undefined) || (c > _this.maxY))
-                    _this.maxY = c;
-            }
-            return _this;
         }
-        BarGraph.prototype.updateCanvas = function (ctx) {
-            var w = this.layoutWidth;
-            var h = this.layoutHeight;
-            var colW = (w - (40)) / this.xAxis.length;
-            var tmp = this.maxY;
-            var powerLevel = 0;
+    }
+    Graph.DonutGraph = DonutGraph;
+    class BarGraph extends Ui.CanvasElement {
+        constructor(init) {
+            super(init);
+            this.minY = 0;
+            this.maxY = 0;
+            this.data = init.data;
+            this.xAxis = init.xAxis;
+            for (let i = 0; i < this.data.length; i++) {
+                let c = this.data[i];
+                if ((this.minY === undefined) || (c < this.minY))
+                    this.minY = c;
+                if ((this.maxY === undefined) || (c > this.maxY))
+                    this.maxY = c;
+            }
+        }
+        updateCanvas(ctx) {
+            let w = this.layoutWidth;
+            let h = this.layoutHeight;
+            let colW = (w - (40)) / this.xAxis.length;
+            let tmp = this.maxY;
+            let powerLevel = 0;
             while (tmp > 10) {
                 tmp /= 10;
                 powerLevel++;
             }
-            var topY = Math.pow(10, powerLevel + 1);
+            let topY = Math.pow(10, powerLevel + 1);
             if (topY > this.maxY * 2)
                 topY /= 2;
             if (topY > this.maxY * 2)
@@ -88,8 +67,8 @@ var Graph;
             ctx.textAlign = 'center';
             // draw x axis
             ctx.fillRect(40, h - 20, w - (40), 1);
-            for (var i = 0; i < this.xAxis.length; i++) {
-                var text = this.xAxis[i];
+            for (let i = 0; i < this.xAxis.length; i++) {
+                let text = this.xAxis[i];
                 ctx.fillText(text, 40 + (i * colW) + colW / 2, h - 20 + 4, colW);
                 if (i > 0)
                     ctx.fillRect(40 + (i * colW), h - 20, 1, 4);
@@ -97,26 +76,26 @@ var Graph;
             ctx.textBaseline = 'middle';
             ctx.textAlign = 'right';
             // draw y axis
-            for (var i = 0; i < 5; i++) {
-                var text = (topY * i) / 5;
+            for (let i = 0; i < 5; i++) {
+                let text = (topY * i) / 5;
                 ctx.fillText(text.toString(), 40 - 4, (h - 20) - (((h - 40) * i) / 5));
                 ctx.globalAlpha = 0.2;
                 ctx.fillRect(40, (h - 20) - (((h - 40) * i) / 5), w - (40), 1);
                 ctx.globalAlpha = 1;
             }
             // draw values
-            var barColor = Ui.Color.create(this.getStyleProperty('barColor'));
-            var hsl = barColor.getHsl();
-            var borderColor = Ui.Color.createFromHsl(hsl.h, Math.min(1, hsl.s + 0.8), Math.max(0, hsl.l - 0.2));
+            let barColor = Ui.Color.create(this.getStyleProperty('barColor'));
+            let hsl = barColor.getHsl();
+            let borderColor = Ui.Color.createFromHsl(hsl.h, Math.min(1, hsl.s + 0.8), Math.max(0, hsl.l - 0.2));
             ctx.fillStyle = barColor.getCssRgba();
             ctx.lineWidth = 1;
             ctx.strokeStyle = borderColor.getCssRgba();
-            for (var i = 0; i < this.data.length; i++) {
+            for (let i = 0; i < this.data.length; i++) {
                 ctx.fillStyle = barColor.getCssRgba();
-                var cX = Math.round(40 + (colW * i) + colW / 2);
-                var cH = Math.round((h - 40) * this.data[i] / topY);
-                var cW2 = Math.round(colW / 4);
-                var cW = cW2 * 2;
+                let cX = Math.round(40 + (colW * i) + colW / 2);
+                let cH = Math.round((h - 40) * this.data[i] / topY);
+                let cW2 = Math.round(colW / 4);
+                let cW = cW2 * 2;
                 ctx.fillRect(cX - cW2, 20 + (h - 40) - cH, cW, cH);
                 ctx.fillStyle = borderColor.getCssRgba();
                 ctx.beginPath();
@@ -130,45 +109,42 @@ var Graph;
                 ctx.lineTo(cX - cW2 + 1, 20 + (h - 40));
                 ctx.fill();
             }
-        };
-        BarGraph.prototype.onStyleChange = function () {
-            this.invalidateDraw();
-        };
-        BarGraph.style = {
-            foreground: '#444444',
-            barColor: '#6aa5db'
-        };
-        return BarGraph;
-    }(Ui.CanvasElement));
-    Graph.BarGraph = BarGraph;
-    var LineGraph = /** @class */ (function (_super) {
-        __extends(LineGraph, _super);
-        function LineGraph(init) {
-            var _this = _super.call(this, init) || this;
-            _this.minY = 0;
-            _this.maxY = 0;
-            _this.data = init.data;
-            _this.xAxis = init.xAxis;
-            for (var i = 0; i < _this.data.length; i++) {
-                var c = _this.data[i];
-                if ((_this.minY === undefined) || (c < _this.minY))
-                    _this.minY = c;
-                if ((_this.maxY === undefined) || (c > _this.maxY))
-                    _this.maxY = c;
-            }
-            return _this;
         }
-        LineGraph.prototype.updateCanvas = function (ctx) {
-            var w = this.layoutWidth;
-            var h = this.layoutHeight;
-            var colW = (w - (40)) / this.xAxis.length;
-            var tmp = this.maxY;
-            var powerLevel = 0;
+        onStyleChange() {
+            this.invalidateDraw();
+        }
+    }
+    BarGraph.style = {
+        foreground: '#444444',
+        barColor: '#6aa5db'
+    };
+    Graph.BarGraph = BarGraph;
+    class LineGraph extends Ui.CanvasElement {
+        constructor(init) {
+            super(init);
+            this.minY = 0;
+            this.maxY = 0;
+            this.data = init.data;
+            this.xAxis = init.xAxis;
+            for (let i = 0; i < this.data.length; i++) {
+                let c = this.data[i];
+                if ((this.minY === undefined) || (c < this.minY))
+                    this.minY = c;
+                if ((this.maxY === undefined) || (c > this.maxY))
+                    this.maxY = c;
+            }
+        }
+        updateCanvas(ctx) {
+            let w = this.layoutWidth;
+            let h = this.layoutHeight;
+            let colW = (w - (40)) / this.xAxis.length;
+            let tmp = this.maxY;
+            let powerLevel = 0;
             while (tmp > 10) {
                 tmp /= 10;
                 powerLevel++;
             }
-            var topY = Math.pow(10, powerLevel + 1);
+            let topY = Math.pow(10, powerLevel + 1);
             if (topY > this.maxY * 2)
                 topY /= 2;
             if (topY > this.maxY * 2)
@@ -179,8 +155,8 @@ var Graph;
             ctx.textAlign = 'center';
             // draw x axis
             ctx.fillRect(40, h - 20, w - (40), 1);
-            for (var i = 0; i < this.xAxis.length; i++) {
-                var text = this.xAxis[i];
+            for (let i = 0; i < this.xAxis.length; i++) {
+                let text = this.xAxis[i];
                 ctx.fillText(text, 40 + (i * colW) + colW / 2, h - 20 + 4, colW);
                 if (i > 0)
                     ctx.fillRect(40 + (i * colW), h - 20, 1, 4);
@@ -188,8 +164,8 @@ var Graph;
             ctx.textBaseline = 'middle';
             ctx.textAlign = 'right';
             // draw y axis
-            for (var i = 0; i < 5; i++) {
-                var text = (topY * i) / 5;
+            for (let i = 0; i < 5; i++) {
+                let text = (topY * i) / 5;
                 ctx.fillText(text.toString(), 40 - 4, (h - 20) - (((h - 40) * i) / 5));
                 ctx.globalAlpha = 0.2;
                 ctx.fillRect(40, (h - 20) - (((h - 40) * i) / 5), w - (40), 1);
@@ -199,11 +175,11 @@ var Graph;
             ctx.strokeStyle = Ui.Color.create(this.getStyleProperty('lineColor')).getCssRgba();
             ctx.lineWidth = 2;
             ctx.beginPath();
-            var lastX = 0;
-            var lastY = 0;
-            for (var i = 0; i < this.data.length; i++) {
-                var cX = 40 + (colW * i) + colW / 2;
-                var cY = h - 20 - (h - 40) * this.data[i] / topY;
+            let lastX = 0;
+            let lastY = 0;
+            for (let i = 0; i < this.data.length; i++) {
+                let cX = 40 + (colW * i) + colW / 2;
+                let cY = h - 20 - (h - 40) * this.data[i] / topY;
                 if (i === 0)
                     ctx.moveTo(cX, cY);
                 else
@@ -213,98 +189,94 @@ var Graph;
                 lastY = cY;
             }
             ctx.stroke();
-        };
-        LineGraph.prototype.onStyleChange = function () {
+        }
+        onStyleChange() {
             this.invalidateDraw();
-        };
-        LineGraph.style = {
-            foreground: '#444444',
-            lineColor: '#317fc8'
-        };
-        return LineGraph;
-    }(Ui.CanvasElement));
+        }
+    }
+    LineGraph.style = {
+        foreground: '#444444',
+        lineColor: '#317fc8'
+    };
     Graph.LineGraph = LineGraph;
 })(Graph || (Graph = {}));
 var Graph;
 (function (Graph) {
-    var TimeLineGraph = /** @class */ (function (_super) {
-        __extends(TimeLineGraph, _super);
-        function TimeLineGraph(init) {
-            var _this = _super.call(this, init) || this;
-            _this.data = new Array();
-            _this.minY = 0;
-            _this.maxY = 0;
-            _this.unit = 'none';
-            _this.mode = 'normal';
+    class TimeLineGraph extends Ui.CanvasElement {
+        constructor(init) {
+            super(init);
+            this.data = new Array();
+            this.minY = 0;
+            this.maxY = 0;
+            this.unit = 'none';
+            this.mode = 'normal';
             if (init.data != undefined)
-                _this.data = init.data;
+                this.data = init.data;
             if (init.startTime != undefined)
-                _this.startTime = init.startTime;
+                this.startTime = init.startTime;
             else
-                _this.startTime = new Date();
+                this.startTime = new Date();
             if (init.endTime != undefined)
-                _this.endTime = init.endTime;
+                this.endTime = init.endTime;
             else
-                _this.endTime = new Date();
+                this.endTime = new Date();
             if (init.unit != undefined)
-                _this.unit = init.unit;
+                this.unit = init.unit;
             if (init.mode != undefined)
-                _this.mode = init.mode;
-            if (_this.mode === 'diff') {
-                for (var d = 0; d < _this.data.length; d++) {
-                    var data = _this.data[d].data;
-                    var lastV = data[0].value;
-                    var lastT = data[0].time;
-                    for (var i = 1; i < data.length; i++) {
-                        var c = (data[i].value - lastV) / ((data[i].time.getTime() - lastT.getTime()) / 1000);
-                        if ((_this.minY === undefined) || (c < _this.minY))
-                            _this.minY = c;
-                        if ((_this.maxY === undefined) || (c > _this.maxY))
-                            _this.maxY = c;
+                this.mode = init.mode;
+            if (this.mode === 'diff') {
+                for (let d = 0; d < this.data.length; d++) {
+                    let data = this.data[d].data;
+                    let lastV = data[0].value;
+                    let lastT = data[0].time;
+                    for (let i = 1; i < data.length; i++) {
+                        let c = (data[i].value - lastV) / ((data[i].time.getTime() - lastT.getTime()) / 1000);
+                        if ((this.minY === undefined) || (c < this.minY))
+                            this.minY = c;
+                        if ((this.maxY === undefined) || (c > this.maxY))
+                            this.maxY = c;
                         lastV = data[i].value;
                         lastT = data[i].time;
                     }
                 }
             }
             else {
-                for (var d = 0; d < _this.data.length; d++) {
-                    var data = _this.data[d].data;
-                    for (var i = 0; i < data.length; i++) {
-                        var c = data[i].value;
-                        if ((_this.minY === undefined) || (c < _this.minY))
-                            _this.minY = c;
-                        if ((_this.maxY === undefined) || (c > _this.maxY))
-                            _this.maxY = c;
+                for (let d = 0; d < this.data.length; d++) {
+                    let data = this.data[d].data;
+                    for (let i = 0; i < data.length; i++) {
+                        let c = data[i].value;
+                        if ((this.minY === undefined) || (c < this.minY))
+                            this.minY = c;
+                        if ((this.maxY === undefined) || (c > this.maxY))
+                            this.maxY = c;
                     }
                 }
             }
-            _this.minY = 0;
+            this.minY = 0;
             if (init.maxY != undefined)
-                _this.maxY = init.maxY;
-            if (_this.maxY === 0)
-                _this.maxY = 1;
-            _this.transformWatcher = new Ui.TransformableWatcher({
-                element: _this,
+                this.maxY = init.maxY;
+            if (this.maxY === 0)
+                this.maxY = 1;
+            this.transformWatcher = new Ui.TransformableWatcher({
+                element: this,
                 allowTranslate: true,
                 allowRotate: false,
                 minScale: 0.0001,
                 maxScale: 100,
                 inertia: true,
-                transform: function () { return _this.onContentTransform(); }
+                transform: () => this.onContentTransform()
             });
-            _this.setTransformOrigin(1, 0);
-            return _this;
+            this.setTransformOrigin(1, 0);
         }
-        TimeLineGraph.prototype.zeroPad = function (val, size) {
-            if (size === void 0) { size = 2; }
-            var s = val.toString();
+        zeroPad(val, size = 2) {
+            let s = val.toString();
             while (s.length < size) {
                 s = "0" + s;
             }
             return s;
-        };
-        TimeLineGraph.prototype.formatBps = function (value) {
-            var res;
+        }
+        formatBps(value) {
+            let res;
             if (value === 0)
                 res = '0';
             else if (value > 1000000000)
@@ -316,9 +288,9 @@ var Graph;
             else
                 res = value + ' b/s';
             return res;
-        };
-        TimeLineGraph.prototype.formatSeconds = function (value) {
-            var res;
+        }
+        formatSeconds(value) {
+            let res;
             if (value === 0)
                 res = '0';
             else if (value > 3600 * 24)
@@ -334,12 +306,12 @@ var Graph;
             else
                 res = Math.round(value * 1000000) + ' μs';
             return res;
-        };
-        TimeLineGraph.prototype.formatPercent = function (value) {
-            var res;
+        }
+        formatPercent(value) {
+            let res;
             return Math.round(value * 100) + ' %';
-        };
-        TimeLineGraph.prototype.formatUnit = function (value) {
+        }
+        formatUnit(value) {
             if (this.unit === 'bps')
                 return this.formatBps(value);
             else if (this.unit === 'percent')
@@ -348,41 +320,41 @@ var Graph;
                 return this.formatSeconds(value);
             else
                 return value;
-        };
-        TimeLineGraph.prototype.formatMonth = function (month) {
+        }
+        formatMonth(month) {
             return ['jan', 'fev', 'mars', 'avril', 'mai', 'juin', 'juil',
                 'aout', 'sept', 'oct', 'nov', 'dec'][month];
-        };
-        TimeLineGraph.prototype.formatFullMonth = function (month) {
+        }
+        formatFullMonth(month) {
             return ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet',
                 'aout', 'septembre', 'octobre', 'novembre', 'décembre'][month];
-        };
-        TimeLineGraph.prototype.formatWeekDay = function (day) {
+        }
+        formatWeekDay(day) {
             return ['dim', 'lun', 'mar', 'mer', 'jeu', 'ven', 'sam'][day];
-        };
-        TimeLineGraph.prototype.yearRound = function (date) {
+        }
+        yearRound(date) {
             return new Date(date.getFullYear(), 0, 1, 0);
-        };
-        TimeLineGraph.prototype.monthRound = function (date) {
+        }
+        monthRound(date) {
             return new Date(date.getFullYear(), date.getMonth(), 1, 0);
-        };
-        TimeLineGraph.prototype.dayRound = function (date) {
+        }
+        dayRound(date) {
             return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0);
-        };
-        TimeLineGraph.prototype.hourRound = function (date, hours) {
+        }
+        hourRound(date, hours) {
             return new Date(date.getFullYear(), date.getMonth(), date.getDate(), Math.floor(date.getHours() / hours) * hours);
-        };
-        TimeLineGraph.prototype.onContentTransform = function () {
-            var scale = this.transformWatcher.scale;
+        }
+        onContentTransform() {
+            let scale = this.transformWatcher.scale;
             this.transformWatcher.translateY = 0;
             //console.log(this + '.onContentTransform scale: ' + scale + ', translateX: ' + this.translateX);
             this.invalidateDraw();
-        };
-        TimeLineGraph.prototype.updateCanvas = function (ctx) {
-            var w = this.layoutWidth;
-            var h = this.layoutHeight;
-            var powerLevel = Math.ceil(Math.log10(this.maxY));
-            var topY = Math.pow(10, powerLevel);
+        }
+        updateCanvas(ctx) {
+            let w = this.layoutWidth;
+            let h = this.layoutHeight;
+            let powerLevel = Math.ceil(Math.log10(this.maxY));
+            let topY = Math.pow(10, powerLevel);
             if (topY > this.maxY * 2)
                 topY /= 2;
             if (topY > this.maxY * 2)
@@ -392,25 +364,25 @@ var Graph;
             ctx.textBaseline = 'middle';
             ctx.textAlign = 'right';
             // draw y axis
-            for (var i = 0; i <= 5; i++) {
-                var text = this.formatUnit((topY * i) / 5);
+            for (let i = 0; i <= 5; i++) {
+                let text = this.formatUnit((topY * i) / 5);
                 ctx.fillText(text.toString(), 60 - 4, (h - 25) - (((h - 45) * i) / 5));
                 ctx.globalAlpha = (i === 0) ? 1 : 0.2;
                 ctx.fillRect(60, (h - 25) - (((h - 45) * i) / 5), w - (40), 1);
                 ctx.globalAlpha = 1;
             }
-            var deltaTime = (this.endTime.getTime() - this.startTime.getTime()) / this.transformWatcher.scale;
-            var endTime = new Date(this.endTime.getTime() - (this.transformWatcher.translateX * (deltaTime / (w - 60))));
+            let deltaTime = (this.endTime.getTime() - this.startTime.getTime()) / this.transformWatcher.scale;
+            let endTime = new Date(this.endTime.getTime() - (this.transformWatcher.translateX * (deltaTime / (w - 60))));
             //		console.log('this.endTime: '+this.endTime+', endTime: '+endTime+', ms/pix: '+(deltaTime / (w - 60)));
-            var startTime = new Date(endTime.getTime() - deltaTime);
+            let startTime = new Date(endTime.getTime() - deltaTime);
             ctx.fillStyle = Ui.Color.create(this.getStyleProperty('foreground')).getCssRgba();
             ctx.font = 'normal 10px Sans-Serif';
             ctx.textBaseline = 'top';
             ctx.textAlign = 'center';
             // draw x axis
             deltaTime = endTime.getTime() - startTime.getTime();
-            var nbXMarks = Math.round((w - 60) / 50);
-            var deltaMarkTime = deltaTime / nbXMarks;
+            let nbXMarks = Math.round((w - 60) / 50);
+            let deltaMarkTime = deltaTime / nbXMarks;
             if (deltaMarkTime <= 60 * 1000)
                 deltaMarkTime = 60 * 1000;
             else if (deltaMarkTime <= 2 * 60 * 1000)
@@ -438,13 +410,13 @@ var Graph;
             //		deltaMarkTime = (Math.floor(deltaMarkTime / 60000) + 1) * 60000;
             // month
             if (deltaMarkTime >= 30 * 24 * 60 * 60 * 1000) {
-                var currentTime = this.monthRound(new Date(startTime.getTime() + 15 * 24 * 60 * 60 * 1000));
-                var centerX = (15 * 24 * 60 * 60 * 1000 / deltaTime) * (w - 60);
+                let currentTime = this.monthRound(new Date(startTime.getTime() + 15 * 24 * 60 * 60 * 1000));
+                let centerX = (15 * 24 * 60 * 60 * 1000 / deltaTime) * (w - 60);
                 while (currentTime.getTime() < endTime.getTime()) {
-                    var x = 60 + ((currentTime.getTime() - startTime.getTime()) / deltaTime) * (w - 60);
+                    let x = 60 + ((currentTime.getTime() - startTime.getTime()) / deltaTime) * (w - 60);
                     if (x >= 60) {
                         ctx.fillRect(x, h - 25, 1, 4);
-                        var text = this.formatMonth(currentTime.getMonth());
+                        let text = this.formatMonth(currentTime.getMonth());
                         ctx.fillText(text, x + centerX, h - 25 + 4);
                     }
                     currentTime = this.monthRound(new Date(currentTime.getTime() + deltaMarkTime + 15 * 24 * 60 * 60 * 1000));
@@ -454,26 +426,26 @@ var Graph;
                 currentTime = this.yearRound(new Date(startTime.getTime() - 182 * 24 * 60 * 60 * 1000));
                 centerX = (182 * 24 * 60 * 60 * 1000 / deltaTime) * (w - 60);
                 while (currentTime.getTime() < endTime.getTime()) {
-                    var x = 60 + ((currentTime.getTime() - startTime.getTime()) / deltaTime) * (w - 60);
+                    let x = 60 + ((currentTime.getTime() - startTime.getTime()) / deltaTime) * (w - 60);
                     if (x >= 60)
                         ctx.fillRect(x - 1, h - 25, 2, 4);
-                    var text = currentTime.getFullYear().toString();
-                    var textSize = ctx.measureText(text).width;
+                    let text = currentTime.getFullYear().toString();
+                    let textSize = ctx.measureText(text).width;
                     currentTime = this.yearRound(new Date(currentTime.getTime() + 547 * 24 * 60 * 60 * 1000));
-                    var xEnd = 60 + ((currentTime.getTime() - startTime.getTime()) / deltaTime) * (w - 60);
+                    let xEnd = 60 + ((currentTime.getTime() - startTime.getTime()) / deltaTime) * (w - 60);
                     ctx.fillText(text, Math.max(x + 5 + textSize / 2, Math.min(xEnd - 5 - textSize / 2, Math.max(60 + textSize / 2, Math.min(x + centerX, w - textSize / 2)))), h - 10);
                 }
                 ctx.font = 'normal 10px Sans-Serif';
             }
             // day
             else if (deltaMarkTime >= 24 * 60 * 60 * 1000) {
-                var currentTime = this.dayRound(new Date(startTime.getTime() + 12 * 60 * 60 * 1000));
-                var centerX = (12 * 60 * 60 * 1000 / deltaTime) * (w - 60);
+                let currentTime = this.dayRound(new Date(startTime.getTime() + 12 * 60 * 60 * 1000));
+                let centerX = (12 * 60 * 60 * 1000 / deltaTime) * (w - 60);
                 while (currentTime.getTime() < endTime.getTime()) {
-                    var x = 60 + ((currentTime.getTime() - startTime.getTime()) / deltaTime) * (w - 60);
+                    let x = 60 + ((currentTime.getTime() - startTime.getTime()) / deltaTime) * (w - 60);
                     if (x >= 60) {
                         ctx.fillRect(x, h - 25, 1, 4);
-                        var text = this.formatWeekDay(currentTime.getDay()) + ' ' + currentTime.getDate();
+                        let text = this.formatWeekDay(currentTime.getDay()) + ' ' + currentTime.getDate();
                         ctx.fillText(text, x + centerX, h - 25 + 4);
                     }
                     currentTime = this.dayRound(new Date(currentTime.getTime() + deltaMarkTime + 12 * 60 * 60 * 1000));
@@ -483,30 +455,30 @@ var Graph;
                 currentTime = this.monthRound(new Date(startTime.getTime() - 15 * 24 * 60 * 60 * 1000));
                 centerX = (15 * 24 * 60 * 60 * 1000 / deltaTime) * (w - 60);
                 while (currentTime.getTime() < endTime.getTime()) {
-                    var x = 60 + ((currentTime.getTime() - startTime.getTime()) / deltaTime) * (w - 60);
+                    let x = 60 + ((currentTime.getTime() - startTime.getTime()) / deltaTime) * (w - 60);
                     if (x >= 60)
                         ctx.fillRect(x - 1, h - 25, 2, 4);
-                    var text = this.formatFullMonth(currentTime.getMonth()) + ' ' + currentTime.getFullYear();
-                    var textSize = ctx.measureText(text).width;
+                    let text = this.formatFullMonth(currentTime.getMonth()) + ' ' + currentTime.getFullYear();
+                    let textSize = ctx.measureText(text).width;
                     currentTime = this.monthRound(new Date(currentTime.getTime() + 45 * 24 * 60 * 60 * 1000));
-                    var xEnd = 60 + ((currentTime.getTime() - startTime.getTime()) / deltaTime) * (w - 60);
+                    let xEnd = 60 + ((currentTime.getTime() - startTime.getTime()) / deltaTime) * (w - 60);
                     ctx.fillText(text, Math.max(x + 5 + textSize / 2, Math.min(xEnd - 5 - textSize / 2, Math.max(60 + textSize / 2, Math.min(x + centerX, w - textSize / 2)))), h - 10);
                 }
                 ctx.font = 'normal 10px Sans-Serif';
             }
             // hour
             else {
-                var currentTime = void 0;
+                let currentTime;
                 //		currentTime = (Math.floor(currentTime / 60000) + 1) * 60000;
                 if (deltaMarkTime > 60 * 60 * 1000)
                     currentTime = this.hourRound(startTime, Math.floor(deltaMarkTime / (60 * 60 * 1000)));
                 else
                     currentTime = new Date(Math.ceil(startTime.getTime() / deltaMarkTime) * deltaMarkTime);
                 while (currentTime.getTime() < endTime.getTime()) {
-                    var x = 60 + ((currentTime.getTime() - startTime.getTime()) / deltaTime) * (w - 60);
+                    let x = 60 + ((currentTime.getTime() - startTime.getTime()) / deltaTime) * (w - 60);
                     if (x >= 60) {
                         ctx.fillRect(x, h - 25, 1, 4);
-                        var text = this.zeroPad(currentTime.getHours()) + ':' + this.zeroPad(currentTime.getMinutes());
+                        let text = this.zeroPad(currentTime.getHours()) + ':' + this.zeroPad(currentTime.getMinutes());
                         ctx.fillText(text, x, h - 25 + 4);
                     }
                     if (deltaMarkTime > 60 * 60 * 1000)
@@ -517,37 +489,37 @@ var Graph;
                 // level 2: day
                 ctx.font = 'bold 10px Sans-Serif';
                 currentTime = this.dayRound(new Date(startTime.getTime() - 12 * 60 * 60 * 1000));
-                var centerX = (12 * 60 * 60 * 1000 / deltaTime) * (w - 60);
+                let centerX = (12 * 60 * 60 * 1000 / deltaTime) * (w - 60);
                 while (currentTime.getTime() < endTime.getTime()) {
-                    var x = 60 + ((currentTime.getTime() - startTime.getTime()) / deltaTime) * (w - 60);
+                    let x = 60 + ((currentTime.getTime() - startTime.getTime()) / deltaTime) * (w - 60);
                     if (x >= 60)
                         ctx.fillRect(x - 1, h - 25, 2, 4);
-                    var text = this.formatWeekDay(currentTime.getDay()) + ' ' + currentTime.getDate() + ' ' + this.formatMonth(currentTime.getMonth()) + ' ' + currentTime.getFullYear();
-                    var textSize = ctx.measureText(text).width;
+                    let text = this.formatWeekDay(currentTime.getDay()) + ' ' + currentTime.getDate() + ' ' + this.formatMonth(currentTime.getMonth()) + ' ' + currentTime.getFullYear();
+                    let textSize = ctx.measureText(text).width;
                     currentTime = this.dayRound(new Date(currentTime.getTime() + 36 * 60 * 60 * 1000));
-                    var xEnd = 60 + ((currentTime.getTime() - startTime.getTime()) / deltaTime) * (w - 60);
+                    let xEnd = 60 + ((currentTime.getTime() - startTime.getTime()) / deltaTime) * (w - 60);
                     ctx.fillText(text, Math.max(x + 5 + textSize / 2, Math.min(xEnd - 5 - textSize / 2, Math.max(60 + textSize / 2, Math.min(x + centerX, w - textSize / 2)))), h - 10);
                 }
                 ctx.font = 'normal 10px Sans-Serif';
             }
             // draw values
-            for (var d = 0; d < this.data.length; d++) {
-                var item = this.data[d];
-                var data = item.data;
+            for (let d = 0; d < this.data.length; d++) {
+                let item = this.data[d];
+                let data = item.data;
                 if (item.color)
                     ctx.strokeStyle = Ui.Color.create(item.color).getCssRgba();
                 else
                     ctx.strokeStyle = Ui.Color.create(this.getStyleProperty('lineColor')).getCssRgba();
                 ctx.lineWidth = 2;
                 ctx.beginPath();
-                var lastX = void 0;
-                var lastY = void 0;
-                var lastV = data[0].value;
-                var lastT = data[0].time;
-                for (var i = 1; i < data.length; i++) {
-                    var cX = 60 + (data[i].time.getTime() - startTime.getTime()) /
+                let lastX;
+                let lastY;
+                let lastV = data[0].value;
+                let lastT = data[0].time;
+                for (let i = 1; i < data.length; i++) {
+                    let cX = 60 + (data[i].time.getTime() - startTime.getTime()) /
                         (endTime.getTime() - startTime.getTime()) * (w - 60);
-                    var c = void 0;
+                    let c;
                     if (this.mode === 'diff') {
                         if (data[i].value < lastV)
                             c = 0;
@@ -556,7 +528,7 @@ var Graph;
                     }
                     else
                         c = data[i].value;
-                    var cY = h - 25 - (h - 45) * c / topY;
+                    let cY = h - 25 - (h - 45) * c / topY;
                     if (cX >= 60) {
                         if ((lastX !== undefined) && (lastX >= 60))
                             ctx.lineTo(lastX, cY);
@@ -572,11 +544,11 @@ var Graph;
                 ctx.stroke();
             }
             // draw legend
-            var xDelta = 0;
+            let xDelta = 0;
             ctx.textBaseline = 'middle';
             ctx.textAlign = 'right';
-            for (var d = this.data.length - 1; d >= 0; d--) {
-                var def = this.data[d];
+            for (let d = this.data.length - 1; d >= 0; d--) {
+                let def = this.data[d];
                 if (def.color !== undefined)
                     ctx.fillStyle = Ui.Color.create(def.color).getCssRgba();
                 else
@@ -586,56 +558,53 @@ var Graph;
                 ctx.fillRect(w - xDelta - 5, 3, 5, 5);
                 xDelta += 20;
             }
-        };
-        TimeLineGraph.prototype.onStyleChange = function () {
+        }
+        onStyleChange() {
             this.invalidateDraw();
-        };
-        TimeLineGraph.style = {
-            foreground: '#444444',
-            lineColor: '#627DF7'
-        };
-        return TimeLineGraph;
-    }(Ui.CanvasElement));
+        }
+    }
+    TimeLineGraph.style = {
+        foreground: '#444444',
+        lineColor: '#627DF7'
+    };
     Graph.TimeLineGraph = TimeLineGraph;
 })(Graph || (Graph = {}));
 /// <reference path="../../era/era.d.ts" />
-var App = /** @class */ (function (_super) {
-    __extends(App, _super);
-    function App() {
-        var _this = _super.call(this) || this;
-        var scroll = new Ui.ScrollingArea();
-        _this.content = scroll;
-        _this.vbox = new Ui.VBox({ spacing: 20 });
-        scroll.content = _this.vbox;
-        var xAxis = ['lun', 'mar', 'mer', 'jeu', 'ven', 'sam', 'dim'];
-        var data = [12, 45, 22, 36, 65, 43, 12];
-        var barGraph = new Graph.BarGraph({
+class App extends Ui.App {
+    constructor() {
+        super();
+        let scroll = new Ui.ScrollingArea();
+        this.content = scroll;
+        this.vbox = new Ui.VBox({ spacing: 20 });
+        scroll.content = this.vbox;
+        let xAxis = ['lun', 'mar', 'mer', 'jeu', 'ven', 'sam', 'dim'];
+        let data = [12, 45, 22, 36, 65, 43, 12];
+        let barGraph = new Graph.BarGraph({
             xAxis: xAxis, data: data, height: 300,
             margin: 40
         });
-        _this.vbox.append(barGraph);
-        var lineGraph = new Graph.LineGraph({
+        this.vbox.append(barGraph);
+        let lineGraph = new Graph.LineGraph({
             xAxis: xAxis, data: data, height: 300,
             margin: 40
         });
-        _this.vbox.append(lineGraph);
-        var donutData = [
+        this.vbox.append(lineGraph);
+        let donutData = [
             { value: 15, color: '#69a6dd', text: 'Poivre' },
             { value: 45, color: '#ee939e', text: 'Piment' },
             { value: 24, color: '#68dda2', text: 'Sel' },
             { value: 9, color: '#fdc102', text: 'Moutarde' }
         ];
-        var donutGraph = new Graph.DonutGraph({
+        let donutGraph = new Graph.DonutGraph({
             width: 150, height: 150,
             data: donutData
         });
-        var hbox = new Ui.HBox({ spacing: 40, horizontalAlign: 'center' });
-        _this.vbox.append(hbox);
+        let hbox = new Ui.HBox({ spacing: 40, horizontalAlign: 'center' });
+        this.vbox.append(hbox);
         hbox.append(donutGraph);
-        var vbox = new Ui.VBox({ spacing: 10, verticalAlign: 'center' });
+        let vbox = new Ui.VBox({ spacing: 10, verticalAlign: 'center' });
         hbox.append(vbox);
-        for (var _i = 0, donutData_1 = donutData; _i < donutData_1.length; _i++) {
-            var d = donutData_1[_i];
+        for (let d of donutData) {
             vbox.append(new Ui.HBox({
                 spacing: 10,
                 content: [
@@ -644,22 +613,21 @@ var App = /** @class */ (function (_super) {
                 ]
             }));
         }
-        _this.onDataLoaded();
-        return _this;
+        this.onDataLoaded();
     }
-    App.prototype.onDataLoaded = function () {
+    onDataLoaded() {
         // graph sur 10 min (1 valeure 10s = 60 valeures)
         var endTime = new Date(1449400783000);
         var startTime = new Date(endTime.getTime() - (6 * 60 * 60) * 1000);
-        var cpuData = [];
-        var cpuData2 = [];
-        var currentTime = startTime.getTime();
+        let cpuData = [];
+        let cpuData2 = [];
+        let currentTime = startTime.getTime();
         while (currentTime < endTime.getTime()) {
             currentTime += 5 * 1000;
-            var progress = (currentTime - startTime.getTime()) / (endTime.getTime() - startTime.getTime());
-            var coef = (1 - Math.pow((progress * 2 - 1), 2));
-            var coef2 = Math.sin(progress * Math.PI * 2);
-            var coef3 = coef2 * (1 - Math.pow((progress * 2 - 1), 2));
+            let progress = (currentTime - startTime.getTime()) / (endTime.getTime() - startTime.getTime());
+            let coef = (1 - Math.pow((progress * 2 - 1), 2));
+            let coef2 = Math.sin(progress * Math.PI * 2);
+            let coef3 = coef2 * (1 - Math.pow((progress * 2 - 1), 2));
             cpuData.push({ time: new Date(currentTime), value: coef / 2 + Math.random() * coef2 / 4 });
             cpuData2.push({ time: new Date(currentTime), value: Math.abs(coef3 / 3 + Math.random() * coef2 / 4) });
         }
@@ -689,8 +657,7 @@ var App = /** @class */ (function (_super) {
             startTime: startTime, endTime: endTime
         });
         this.vbox.append(graph);
-    };
-    return App;
-}(Ui.App));
+    }
+}
 new App();
 //# sourceMappingURL=main.js.map

@@ -1,31 +1,13 @@
 "use strict";
 /// <reference path="../../era/era.d.ts" />
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var app = new Ui.App();
-var vbox = new Ui.VBox({
+let app = new Ui.App();
+let vbox = new Ui.VBox({
     verticalAlign: 'center', horizontalAlign: 'center',
     spacing: 20
 });
 app.content = vbox;
-var Data = /** @class */ (function (_super) {
-    __extends(Data, _super);
-    function Data() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    return Data;
-}(Core.Object));
+class Data extends Core.Object {
+}
 //
 // Define a draggable element. Choose a mimetype for the content. Most of the time
 // use an application specific mimetype. The mimetype is used between a drag element
@@ -35,7 +17,7 @@ var Data = /** @class */ (function (_super) {
 //
 // Put some content to see something
 //
-var draggable = new Ui.Draggable({
+let draggable = new Ui.Draggable({
     width: 64, height: 64, horizontalAlign: 'center',
     content: [
         new Ui.Rectangle({ fill: 'lightblue', radius: 8 }),
@@ -45,8 +27,8 @@ var draggable = new Ui.Draggable({
     // to return some feedback to the user.
     //
     // Here, the opacity of the drag element is changed
-    ondragstarted: function (e) { return e.target.opacity = 0.5; },
-    ondragended: function (e) { return e.target.opacity = 1; }
+    ondragstarted: e => e.target.opacity = 0.5,
+    ondragended: e => e.target.opacity = 1
 });
 draggable.draggableData = new Data();
 vbox.append(draggable);
@@ -58,7 +40,7 @@ vbox.append(draggable);
 //  - move: drag has negociated a move of the element in a drop element.
 //          in this case, the original element should be suppressed
 //
-draggable.dragended.connect(function (e) {
+draggable.dragended.connect(e => {
     if ((e.effect == 'none') || (e.effect == 'copy'))
         draggable.opacity = 1;
     if (e.effect == 'move')
@@ -67,18 +49,18 @@ draggable.dragended.connect(function (e) {
 //
 // Define a DropBox. The DropBox is a possible target for a drag element.
 //
-var dropbox = new Ui.DropBox({
+let dropbox = new Ui.DropBox({
     width: 200, height: 200,
-    ondragentered: function () { return dropBg.fill = 'orange'; },
-    ondragleaved: function () { return dropBg.fill = 'lightgreen'; }
+    ondragentered: () => dropBg.fill = 'orange',
+    ondragleaved: () => dropBg.fill = 'lightgreen'
 });
 dropbox.addType(Data, 'copy');
 dropbox.addType('text/uri-list', 'copy');
-dropbox.addType('text', function (data) { return [{ action: 'copy' }]; });
+dropbox.addType('text', (data) => [{ action: 'copy' }]);
 // fill with content to see something
-var dropBg = new Ui.Rectangle({ fill: 'lightgreen', radius: 8 });
+let dropBg = new Ui.Rectangle({ fill: 'lightgreen', radius: 8 });
 dropbox.append(dropBg);
-var droplabel = new Ui.Label({
+let droplabel = new Ui.Label({
     text: 'drop here', horizontalAlign: 'center',
     verticalAlign: 'center', margin: 10
 });
@@ -88,15 +70,15 @@ vbox.append(dropbox);
 // Connect to the drop event called when a compatible element is
 // dropped in the box.
 //
-dropbox.dropped.connect(function (e) {
-    var data = e.data;
+dropbox.dropped.connect(e => {
+    let data = e.data;
     if (data instanceof Ui.DragNativeData) {
         if (data.hasType('text/uri-list'))
             data = data.getData('text/uri-list');
         else if (data.hasType('text/plain'))
             data = data.getData('text/plain');
     }
-    droplabel.text = "message: " + data;
-    new Core.DelayedTask(1, function () { return droplabel.text = 'drop here'; });
+    droplabel.text = `message: ${data}`;
+    new Core.DelayedTask(1, () => droplabel.text = 'drop here');
 });
 //# sourceMappingURL=main.js.map

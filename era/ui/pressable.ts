@@ -2,15 +2,15 @@ namespace Ui {
 
     export class PressWatcher extends Core.Object {
         private element: Ui.Element;
-        private press: (watcher: PressWatcher) => void;
-        private down: (watcher: PressWatcher) => void;
-        private up: (watcher: PressWatcher) => void;
-        private activate: (watcher: PressWatcher) => void;
-        private delayedpress: (watcher: PressWatcher) => void;
+        private press?: (watcher: PressWatcher) => void;
+        private down?: (watcher: PressWatcher) => void;
+        private up?: (watcher: PressWatcher) => void;
+        private activate?: (watcher: PressWatcher) => void;
+        private delayedpress?: (watcher: PressWatcher) => void;
         private _pointerId?: number;
         private _isDown: boolean = false;
-        private lastTime: number = undefined;
-        private delayedTimer: Core.DelayedTask;
+        private lastTime?: number = undefined;
+        private delayedTimer?: Core.DelayedTask;
         x?: number;
         y?: number;
         altKey?: boolean;

@@ -2,7 +2,7 @@ namespace Ui
 {
     export class EmuPointerEvent extends Event
     {
-        pointer: Pointer = undefined;
+        pointer: Pointer;
         clientX: number = 0;
         clientY: number = 0;
         pointerType: string = 'mouse';
@@ -20,7 +20,7 @@ namespace Ui
     export class PointerWatcher extends Core.Object
     {
         element: Element;
-        pointer: Pointer;
+        pointer: Pointer | undefined;
         readonly downed = new Core.Events<{ target: PointerWatcher }>()
         readonly moved = new Core.Events<{ target: PointerWatcher }>()
         readonly upped = new Core.Events<{ target: PointerWatcher }>()
@@ -145,7 +145,7 @@ namespace Ui
 
     export class Pointer extends Core.Object
     {
-        id: number = undefined;
+        id: number;
         x: number = 0;
         y: number = 0;
         initialX: number = 0;
@@ -153,12 +153,12 @@ namespace Ui
         altKey: boolean = false;
         ctrlKey: boolean = false;
         shiftKey: boolean = false;
-        type: string = undefined;
-        start: number = undefined;
+        type: string;
+        start: number;
         cumulMove: number = 0;
         chainLevel: number = 0;
-        watchers: PointerWatcher[] = undefined;
-        captureWatcher: PointerWatcher = undefined;
+        watchers: PointerWatcher[];
+        captureWatcher?: PointerWatcher = undefined;
         history: any = undefined;
         buttons: number = 0;
         button: number = 0;

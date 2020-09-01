@@ -3,8 +3,8 @@
 //
 // Play with Ui.VBox, the element allow vertical stacking
 //
-var app = new Ui.App();
-var vbox1 = new Ui.VBox();
+let app = new Ui.App();
+let vbox1 = new Ui.VBox();
 app.content = vbox1;
 // create a 20 tall rectangle. The default packing behavior of element
 // is to stretch the available size. In this case, the width will be

@@ -1,47 +1,31 @@
 "use strict";
 /// <reference path="../../era/era.d.ts" />
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var App = /** @class */ (function (_super) {
-    __extends(App, _super);
-    function App() {
-        var _this = _super.call(this) || this;
-        var vbox = new Ui.VBox().assign({ verticalAlign: 'center', horizontalAlign: 'center', spacing: 5 });
-        _this.content = vbox;
-        var count = 0;
-        var activateCount = 0;
-        var delayedCount = 0;
-        var label = new Ui.Label().assign({ text: 'press count: 0' });
+class App extends Ui.App {
+    constructor() {
+        super();
+        let vbox = new Ui.VBox().assign({ verticalAlign: 'center', horizontalAlign: 'center', spacing: 5 });
+        this.content = vbox;
+        let count = 0;
+        let activateCount = 0;
+        let delayedCount = 0;
+        let label = new Ui.Label().assign({ text: 'press count: 0' });
         vbox.append(label);
-        var label2 = new Ui.Label().assign({ text: 'activate count: 0' });
+        let label2 = new Ui.Label().assign({ text: 'activate count: 0' });
         vbox.append(label2);
-        var label3 = new Ui.Label().assign({ text: 'delayed press count: 0' });
+        let label3 = new Ui.Label().assign({ text: 'delayed press count: 0' });
         vbox.append(label3);
-        var rectangle = new Ui.Rectangle().assign({
+        let rectangle = new Ui.Rectangle().assign({
             width: 100, height: 100, fill: 'lightblue', horizontalAlign: 'center'
         });
-        var pressable = new Ui.Pressable().assign({
-            onpressed: function () { return label.text = "press count: " + ++count; },
-            onactivated: function () { return label2.text = "activate count: " + ++activateCount; },
-            ondelayedpress: function () { return label3.text = "delayed press count: " + ++delayedCount; },
-            ondowned: function () { return rectangle.fill = 'blue'; },
-            onupped: function () { return rectangle.fill = 'lightblue'; },
+        let pressable = new Ui.Pressable().assign({
+            onpressed: () => label.text = `press count: ${++count}`,
+            onactivated: () => label2.text = `activate count: ${++activateCount}`,
+            ondelayedpress: () => label3.text = `delayed press count: ${++delayedCount}`,
+            ondowned: () => rectangle.fill = 'blue',
+            onupped: () => rectangle.fill = 'lightblue',
             content: rectangle
         });
         vbox.append(pressable);
-        return _this;
     }
-    return App;
-}(Ui.App));
+}
 new App();

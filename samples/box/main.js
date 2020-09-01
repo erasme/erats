@@ -1,32 +1,18 @@
 "use strict";
 /// <reference path="../../era/era.d.ts" />
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var App = /** @class */ (function (_super) {
-    __extends(App, _super);
-    function App() {
-        var _this = _super.call(this) || this;
-        var greenRect = new Ui.Rectangle();
-        var box = new Ui.Box();
-        _this.content = new Ui.VBox().assign({
+class App extends Ui.App {
+    constructor() {
+        super();
+        let greenRect = new Ui.Rectangle();
+        let box = new Ui.Box();
+        this.content = new Ui.VBox().assign({
             content: [
                 new Ui.ToolBar().assign({
                     content: [
                         new Ui.Button().assign({
                             resizable: true,
                             text: 'change orientation',
-                            onpressed: function () {
+                            onpressed: () => {
                                 if (box.orientation == 'horizontal')
                                     box.orientation = 'vertical';
                                 else
@@ -36,12 +22,12 @@ var App = /** @class */ (function (_super) {
                         new Ui.Button().assign({
                             text: 'change uniform',
                             resizable: true,
-                            onpressed: function () { return box.uniform = !box.uniform; }
+                            onpressed: () => box.uniform = !box.uniform
                         }),
                         new Ui.Button().assign({
                             text: 'change resizable (green)',
                             resizable: true,
-                            onpressed: function () { return greenRect.resizable = !greenRect.resizable; }
+                            onpressed: () => greenRect.resizable = !greenRect.resizable
                         })
                     ]
                 }),
@@ -55,8 +41,6 @@ var App = /** @class */ (function (_super) {
                 })
             ]
         });
-        return _this;
     }
-    return App;
-}(Ui.App));
+}
 new App();

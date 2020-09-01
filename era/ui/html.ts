@@ -16,7 +16,7 @@ namespace Ui {
 
     export class Html extends Element implements HtmlInit {
         captureLink = true;
-        protected htmlDrawing: HTMLElement;
+        protected htmlDrawing!: HTMLElement;
         private bindedOnImageLoad: any = undefined;
         private _fontSize?: number;
         private _fontFamily?: string;
@@ -63,16 +63,18 @@ namespace Ui {
             }
         }
 
-        getElements(tagName) {
-            let res = [];
+        getElements(tagName: string) {
+            let res = new Array<HTMLElement>();
             this.searchElements(tagName.toUpperCase(), this.htmlDrawing, res);
             return res;
         }
 
-        searchElements(tagName, element, res) {
+        searchElements(tagName: string, element: HTMLElement, res: HTMLElement[]) {
             for (let i = 0; i < element.childNodes.length; i++) {
                 let child = element.childNodes[i];
-                if (('tagName' in child) && (child.tagName.toUpperCase() == tagName))
+                if (!(child instanceof HTMLElement))
+                    continue;
+                if (child.tagName.toUpperCase() == tagName)
                     res.push(child);
                 this.searchElements(tagName, child, res);
             }

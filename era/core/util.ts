@@ -262,10 +262,6 @@ namespace Core
         static isWebkit: boolean = (navigator.userAgent.match(/WebKit\//i) !== null);
 
         static isIE: boolean = (navigator.userAgent.match(/MSIE/i) !== null) || (navigator.userAgent.match(/Trident/i) !== null);
-        static isIE7: boolean = (navigator.userAgent.match(/MSIE 7\./i) !== null);
-        static isIE8: boolean = (navigator.userAgent.match(/MSIE 8\./i) !== null);
-        static isIE10: boolean = (navigator.userAgent.match(/MSIE 10\./i) !== null);
-        static isIE11: boolean = Navigator.isIE && (navigator.userAgent.match(/rv:11\./i) !== null);
 
         static isOpera: boolean =  ((navigator.userAgent === undefined) || (navigator.userAgent.match(/Opera\//i) !== null));
 
@@ -274,9 +270,6 @@ namespace Core
         static isSafari: boolean = (navigator.userAgent.match(/ Safari\//) !== null);
 
         static isFirefox: boolean = (navigator.userAgent.match(/ Firefox\//) !== null);
-        static isFirefox3: boolean = (navigator.userAgent.match(/ Firefox\/3\./) !== null);
-        static isFirefox3_5: boolean = (navigator.userAgent.match(/ Firefox\/3\.5\./) !== null);
-        static isFirefox3_6: boolean = (navigator.userAgent.match(/ Firefox\/3\.6\./) !== null);
 
         static iPad: boolean = (navigator.userAgent.match(/iPad/i) !== null);
         static iPhone: boolean = (navigator.userAgent.match(/iPhone/i) !== null);
@@ -288,8 +281,6 @@ namespace Core
         static supportCanvas: boolean = true;
         static supportRgba: boolean = true;
         static supportRgb: boolean = true;
-
-        static supportOpacity: boolean = !Navigator.isIE7 && !Navigator.isIE8;
 
         static supportFormData: boolean = true;
         static supportFileAPI: boolean = true;
@@ -758,64 +749,3 @@ if (ResizeObserver == undefined) {
         }
     }
 }
-
-/*
-// Implement trim if it's not natively available
-// Code from https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/String/Trim#Compatibility
-if(!String.prototype.trim) {
-    String.prototype.trim = function () {
-        return this.replace(/^\s+|\s+$/g,'');
-    };
-}
-
-// Implement bind function if not supported
-if(!Function.prototype.bind) {
-    Function.prototype.bind = function(obj) {
-        var scope = obj;
-        var callback = this;
-        var args;
-        if(arguments.length > 1)
-            args = arguments.slice(1, arguments.length-1);
-        else
-            args = [];
-        var wrapper = function() {
-            return callback.apply(scope, args.concat(arguments));
-        };
-        return wrapper;
-    };
-}
-
-// correct IE specific bugs
-if(Core.Navigator.isIE) {
-    if(Core.Navigator.supportSVG) {
-        SVGTextContentElement.prototype.__getStartPositionOfChar = SVGTextContentElement.prototype.getStartPositionOfChar;
-        SVGTextContentElement.prototype.getStartPositionOfChar = function(charnum) {
-            var point = this.__getStartPositionOfChar(charnum);
-            return point.matrixTransform(this.getScreenCTM().inverse());
-        };
-        SVGTextContentElement.prototype.__getEndPositionOfChar = SVGTextContentElement.prototype.getEndPositionOfChar;
-        SVGTextContentElement.prototype.getEndPositionOfChar = function(charnum) {
-            var point = this.__getEndPositionOfChar(charnum);
-            return point.matrixTransform(this.getScreenCTM().inverse());
-        };
-
-        SVGTextContentElement.prototype.__getCharNumAtPosition = SVGTextContentElement.prototype.getCharNumAtPosition;
-        SVGTextContentElement.prototype.getCharNumAtPosition = function(point) {
-            return this.getCharNumAtPositionHelper(point.x, 0, this.getNumberOfChars()-1);
-        };
-        SVGTextContentElement.prototype.getCharNumAtPositionHelper = function(x, start, end) {
-            let startX = this.getStartPositionOfChar(start).x;
-            let endX = this.getEndPositionOfChar(end).x;
-            if((x < startX) || (x > endX))
-                return -1;
-            if(start == end)
-                return start;
-            var middle = Math.floor((start + end)/2);
-            var res = this.getCharNumAtPositionHelper(x, start, middle);
-            if(res != -1)
-                return res;
-            return this.getCharNumAtPositionHelper(x, middle+1, end);
-        };
-    }
-}
-*/

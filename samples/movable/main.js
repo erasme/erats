@@ -1,24 +1,10 @@
 "use strict";
 /// <reference path="../../era/era.d.ts" />
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var App = /** @class */ (function (_super) {
-    __extends(App, _super);
-    function App() {
-        var _this = _super.call(this) || this;
-        var fixed = new Ui.Fixed();
-        _this.content = fixed;
+class App extends Ui.App {
+    constructor() {
+        super();
+        let fixed = new Ui.Fixed();
+        this.content = fixed;
         fixed.append(new Ui.Movable({
             inertia: true,
             content: new Ui.LBox({
@@ -48,8 +34,8 @@ var App = /** @class */ (function (_super) {
         }), 250, 0);
         fixed.append(new Ui.Movable({
             moveVertical: false,
-            onmoved: function (e) {
-                var m = e.target;
+            onmoved: e => {
+                let m = e.target;
                 if (m.positionX < 0)
                     m.setPosition(0, undefined);
                 else if (m.positionX > 100)
@@ -62,8 +48,6 @@ var App = /** @class */ (function (_super) {
                 ]
             })
         }), 0, 400);
-        return _this;
     }
-    return App;
-}(Ui.App));
+}
 new App();

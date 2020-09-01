@@ -1,11 +1,11 @@
 "use strict";
 /// <reference path="../../era/era.d.ts" />
-var app = new Ui.App();
-var grid = new Ui.Grid();
+let app = new Ui.App();
+let grid = new Ui.Grid();
 grid.cols = 'auto,auto,*';
 grid.rows = 'auto,auto,auto,*,2*';
 app.content = grid;
-var r = new Ui.Rectangle();
+let r = new Ui.Rectangle();
 r.fill = 'lightgreen';
 r.width = 150;
 r.height = 50;
@@ -22,7 +22,7 @@ r.height = 50;
 grid.attach(r, 0, 1, 1, 1);
 var button = new Ui.Button({
     text: 'salut',
-    onpressed: function () { return console.log('press'); }
+    onpressed: () => console.log('press')
 });
 grid.attach(button, 0, 2, 2, 1);
 r = new Ui.Rectangle();

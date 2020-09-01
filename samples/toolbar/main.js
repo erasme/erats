@@ -6,11 +6,11 @@ new Ui.App().assign({
         content: [
             new Ui.Button().assign({
                 text: 'button1',
-                onpressed: function () { return console.log('press button1'); }
+                onpressed: () => console.log('press button1')
             }),
             new Ui.Button().assign({
                 text: 'button2',
-                onpressed: function () { return console.log('press button2'); }
+                onpressed: () => console.log('press button2')
             })
         ]
     })

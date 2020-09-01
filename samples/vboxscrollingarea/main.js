@@ -1,36 +1,19 @@
 "use strict";
 /// <reference path="../../era/era.d.ts" />
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var TestScrollLoader = /** @class */ (function (_super) {
-    __extends(TestScrollLoader, _super);
-    function TestScrollLoader() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    TestScrollLoader.prototype.signalChange = function () {
+class TestScrollLoader extends Ui.ScrollLoader {
+    signalChange() {
         this.changed.fire({ target: this });
-    };
-    TestScrollLoader.prototype.getMin = function () {
+    }
+    getMin() {
         return 0;
-    };
-    TestScrollLoader.prototype.getMax = function () {
+    }
+    getMax() {
         return 200;
-    };
-    TestScrollLoader.prototype.getElementAt = function (position) {
-        var item = new Ui.LBox({ marginBottom: 10 });
-        var text = 'item ' + position;
-        var color;
+    }
+    getElementAt(position) {
+        let item = new Ui.LBox({ marginBottom: 10 });
+        let text = 'item ' + position;
+        let color;
         if (position % 4 === 0) {
             color = '#f0a0f0';
             text = 'this item is a very long text to handle this special case. So a lot a text is needed here';
@@ -49,38 +32,31 @@ var TestScrollLoader = /** @class */ (function (_super) {
             item.append(new Ui.Text().assign({ text: text, margin: 10 * (position % 4), textAlign: 'center' }));
         }
         return item;
-    };
-    return TestScrollLoader;
-}(Ui.ScrollLoader));
-var TestScrollLoader2 = /** @class */ (function (_super) {
-    __extends(TestScrollLoader2, _super);
-    function TestScrollLoader2() {
-        return _super !== null && _super.apply(this, arguments) || this;
     }
-    TestScrollLoader2.prototype.signalChange = function () {
+}
+class TestScrollLoader2 extends Ui.ScrollLoader {
+    signalChange() {
         this.changed.fire({ target: this });
-    };
-    TestScrollLoader2.prototype.getMin = function () {
+    }
+    getMin() {
         return 0;
-    };
-    TestScrollLoader2.prototype.getMax = function () {
+    }
+    getMax() {
         return 2;
-    };
-    TestScrollLoader2.prototype.getElementAt = function (position) {
+    }
+    getElementAt(position) {
         return new Ui.Image().assign({ src: 'building.png', height: 700, width: 400, marginBottom: 10 });
-    };
-    return TestScrollLoader2;
-}(Ui.ScrollLoader));
-var App = /** @class */ (function (_super) {
-    __extends(App, _super);
-    function App() {
-        var _this = _super.call(this) || this;
-        var loader = new TestScrollLoader();
-        _this.content = new Ui.VBox().assign({
+    }
+}
+class App extends Ui.App {
+    constructor() {
+        super();
+        let loader = new TestScrollLoader();
+        this.content = new Ui.VBox().assign({
             content: [
                 new Ui.Button().assign({
                     text: 'Reload',
-                    onpressed: function (e) { return loader.signalChange(); }
+                    onpressed: e => loader.signalChange()
                 }),
                 new Ui.LBox().assign({
                     margin: 40, resizable: true,
@@ -93,8 +69,6 @@ var App = /** @class */ (function (_super) {
                 })
             ]
         });
-        return _this;
     }
-    return App;
-}(Ui.App));
+}
 new App();

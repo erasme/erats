@@ -134,7 +134,7 @@ namespace Ui {
         // handle styles
         private _style: object | undefined;
         private _parentStyle: object | undefined;
-        mergeStyle: object | undefined;
+        mergeStyle: any | undefined;
 
         readonly focused = new Core.Events<{ target: Element }>();
         set onfocused(value: (event: { target: Element }) => void) { this.focused.connect(value); }
@@ -741,7 +741,7 @@ namespace Ui {
         }
 
         updateClipRectangle() {
-            if (this.clipX !== undefined) {
+            if (this.clipX !== undefined && this.clipY !== undefined && this.clipWidth !== undefined && this.clipHeight !== undefined) {
                 let x = Math.round(this.clipX);
                 let y = Math.round(this.clipY);
                 let width = Math.round(this.clipWidth);
@@ -1083,8 +1083,8 @@ namespace Ui {
             if (this.drawing === undefined)
                 return;
             let visible = false;
-            let current: Node = this.drawing;
-            while (current !== undefined) {
+            let current: Node | null = this.drawing;
+            while (current != undefined) {
                 if (current instanceof HTMLElement && current.style.display === 'none') {
                     visible = false;
                     break;
@@ -1503,7 +1503,7 @@ namespace Ui {
             return Ui.Element.transformToWindow(element).inverse();
         }
 
-        static elementFromPoint(point: Point): Element {
+        static elementFromPoint(point: Point): Element | undefined {
             let element = document.elementFromPoint(point.x, point.y);
             while (element) {
                 if ((element as any).data && (element as any).data instanceof Element)

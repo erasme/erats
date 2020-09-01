@@ -1,51 +1,32 @@
 "use strict";
 /// <reference path="../../era/era.d.ts" />
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var Logs = /** @class */ (function (_super) {
-    __extends(Logs, _super);
-    function Logs() {
-        var _this = _super.call(this) || this;
-        _this.append(new Ui.Label({ text: 'Logs:', horizontalAlign: 'left', fontWeight: 'bold' }));
-        var scrolling = new Ui.ScrollingArea();
-        _this.append(scrolling, true);
-        _this.logs = new Ui.VBox();
-        scrolling.content = _this.logs;
-        return _this;
+class Logs extends Ui.VBox {
+    constructor() {
+        super();
+        this.append(new Ui.Label({ text: 'Logs:', horizontalAlign: 'left', fontWeight: 'bold' }));
+        let scrolling = new Ui.ScrollingArea();
+        this.append(scrolling, true);
+        this.logs = new Ui.VBox();
+        scrolling.content = this.logs;
     }
-    Logs.prototype.log = function (text, color) {
+    log(text, color) {
         if (color == undefined)
             color = 'black';
         this.logs.prepend(new Ui.Label({ text: text, color: color, horizontalAlign: 'left' }));
-    };
-    return Logs;
-}(Ui.VBox));
-var App = /** @class */ (function (_super) {
-    __extends(App, _super);
-    function App() {
-        var _this = _super.call(this) || this;
-        var vbox = new Ui.VBox({ padding: 50, spacing: 10 });
-        _this.content = vbox;
+    }
+}
+class App extends Ui.App {
+    constructor() {
+        super();
+        let vbox = new Ui.VBox({ padding: 50, spacing: 10 });
+        this.content = vbox;
         vbox.append(new Ui.TextButtonField({
             buttonIcon: 'search', textHolder: 'Search',
-            onchanged: function (e) { return logs.log("change: " + e.value); },
-            onvalidated: function (e) { return logs.log("validate: " + e.value, 'green'); }
+            onchanged: e => logs.log(`change: ${e.value}`),
+            onvalidated: e => logs.log(`validate: ${e.value}`, 'green')
         }));
-        var logs = new Logs();
+        let logs = new Logs();
         vbox.append(logs, true);
-        return _this;
     }
-    return App;
-}(Ui.App));
+}
 new App();
