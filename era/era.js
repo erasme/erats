@@ -6563,15 +6563,27 @@ var Ui;
             else if (('tagName' in element) && (element.tagName.toUpperCase() == 'CANVAS')) {
                 res = document.createElement('img');
                 res.oncontextmenu = function (e) { e.preventDefault(); };
-                for (key in element.style)
-                    res.style[key] = element.style[key];
+                for (key in element.style) {
+                    if (key == 'length')
+                        continue;
+                    try {
+                        res.style[key] = element.style[key];
+                    }
+                    catch (e) { }
+                }
                 res.setAttribute('src', element.toDataURL('image/png'));
             }
             else if (!Core.Navigator.isFirefox && (element.toDataURL !== undefined)) {
                 res = document.createElement('img');
                 res.oncontextmenu = function (e) { e.preventDefault(); };
-                for (key in element.style)
-                    res.style[key] = element.style[key];
+                for (key in element.style) {
+                    if (key == 'length')
+                        continue;
+                    try {
+                        res.style[key] = element.style[key];
+                    }
+                    catch (e) { }
+                }
                 res.setAttribute('src', element.toDataURL('image/png'));
             }
             else {

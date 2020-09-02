@@ -359,16 +359,26 @@ namespace Ui {
                 res = document.createElement('img');
                 res.oncontextmenu = function (e) { e.preventDefault(); };
                 // copy styles (position)
-                for (key in element.style)
-                    res.style[key] = element.style[key];
+                for (key in element.style) {
+                    if (key == 'length')
+                        continue;
+                    try {
+                        res.style[key] = element.style[key];
+                    } catch(e) {}
+                }
                 res.setAttribute('src', (element as HTMLCanvasElement).toDataURL('image/png'));
             }
             else if (!Core.Navigator.isFirefox && (element.toDataURL !== undefined)) {
                 res = document.createElement('img');
                 res.oncontextmenu = function (e) { e.preventDefault(); };
                 // copy styles (position)
-                for (key in element.style)
-                    res.style[key] = element.style[key];
+                for (key in element.style) {
+                    if (key == 'length')
+                        continue;
+                    try {
+                        res.style[key] = element.style[key];
+                    } catch(e) {}
+                }
                 res.setAttribute('src', element.toDataURL('image/png'));
             }
             else {
