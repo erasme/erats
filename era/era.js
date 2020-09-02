@@ -6553,9 +6553,7 @@ var Ui;
         }
         generateImage(element) {
             let res;
-            let key;
             let child;
-            let i;
             if (('tagName' in element) && (element.tagName.toUpperCase() == 'IMG')) {
                 res = element.cloneNode(false);
                 res.oncontextmenu = function (e) { e.preventDefault(); };
@@ -6563,27 +6561,13 @@ var Ui;
             else if (('tagName' in element) && (element.tagName.toUpperCase() == 'CANVAS')) {
                 res = document.createElement('img');
                 res.oncontextmenu = function (e) { e.preventDefault(); };
-                for (key in element.style) {
-                    if (key == 'length')
-                        continue;
-                    try {
-                        res.style[key] = element.style[key];
-                    }
-                    catch (e) { }
-                }
+                res.style.cssText = element.style.cssText;
                 res.setAttribute('src', element.toDataURL('image/png'));
             }
             else if (!Core.Navigator.isFirefox && (element.toDataURL !== undefined)) {
                 res = document.createElement('img');
                 res.oncontextmenu = function (e) { e.preventDefault(); };
-                for (key in element.style) {
-                    if (key == 'length')
-                        continue;
-                    try {
-                        res.style[key] = element.style[key];
-                    }
-                    catch (e) { }
-                }
+                res.style.cssText = element.style.cssText;
                 res.setAttribute('src', element.toDataURL('image/png'));
             }
             else {
@@ -6592,7 +6576,7 @@ var Ui;
                     res.style.webkitUserSelect = 'none';
                     res.style.webkitUserCallout = 'none';
                 }
-                for (i = 0; i < element.childNodes.length; i++) {
+                for (let i = 0; i < element.childNodes.length; i++) {
                     child = element.childNodes[i];
                     res.appendChild(this.generateImage(child));
                 }

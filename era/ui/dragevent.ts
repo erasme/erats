@@ -349,7 +349,7 @@ namespace Ui {
         }
 
         protected generateImage(element): HTMLElement {
-            let res; let key; let child; let i;
+            let res; let child;
 
             if (('tagName' in element) && (element.tagName.toUpperCase() == 'IMG')) {
                 res = element.cloneNode(false);
@@ -359,26 +359,14 @@ namespace Ui {
                 res = document.createElement('img');
                 res.oncontextmenu = function (e) { e.preventDefault(); };
                 // copy styles (position)
-                for (key in element.style) {
-                    if (key == 'length')
-                        continue;
-                    try {
-                        res.style[key] = element.style[key];
-                    } catch(e) {}
-                }
+                res.style.cssText = element.style.cssText;
                 res.setAttribute('src', (element as HTMLCanvasElement).toDataURL('image/png'));
             }
             else if (!Core.Navigator.isFirefox && (element.toDataURL !== undefined)) {
                 res = document.createElement('img');
                 res.oncontextmenu = function (e) { e.preventDefault(); };
                 // copy styles (position)
-                for (key in element.style) {
-                    if (key == 'length')
-                        continue;
-                    try {
-                        res.style[key] = element.style[key];
-                    } catch(e) {}
-                }
+                res.style.cssText = element.style.cssText;
                 res.setAttribute('src', element.toDataURL('image/png'));
             }
             else {
@@ -388,7 +376,7 @@ namespace Ui {
                     // to disable the magnifier in iOS WebApp mode
                     res.style.webkitUserCallout = 'none';
                 }
-                for (i = 0; i < element.childNodes.length; i++) {
+                for (let i = 0; i < element.childNodes.length; i++) {
                     child = element.childNodes[i];
                     res.appendChild(this.generateImage(child));
                 }
