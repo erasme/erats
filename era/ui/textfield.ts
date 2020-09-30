@@ -122,6 +122,22 @@ namespace Ui {
         private onEntryChange(entry, value) {
             this.changed.fire({ target: this, value: value });
         }
+
+        protected onStyleChange() {
+            let padding: number = this.getStyleProperty('padding');
+            this.entry.marginTop = padding;
+            this.entry.marginBottom = padding;
+            this.entry.marginLeft = padding + 3;
+            this.entry.marginRight = padding + 3;
+            this.textholder.marginTop = padding;
+            this.textholder.marginBottom = padding;
+            this.textholder.marginLeft = padding + 3;
+            this.textholder.marginRight = padding + 3;
+        }
+
+        public static style = {
+            padding: 7
+        }
     }
 }
 
