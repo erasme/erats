@@ -654,14 +654,14 @@ declare namespace Ui {
             a: number;
         };
         getHsla(): {
-            h: any;
-            s: any;
+            h: number;
+            s: number;
             l: number;
             a: number;
         };
         getHsl(): {
-            h: any;
-            s: any;
+            h: number;
+            s: number;
             l: number;
             a: number;
         };

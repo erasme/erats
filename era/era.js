@@ -2563,25 +2563,22 @@ var Ui;
             let b = this.b;
             let min = Math.min(r, Math.min(g, b));
             let max = Math.max(r, Math.max(g, b));
-            let h;
-            let s;
-            let l = max;
             let delta = max - min;
-            if (delta === 0)
-                return { h: 0, s: 0, l: l, a: this.a };
-            if (max !== 0)
-                s = delta / max;
+            let h = 0;
+            let s = 0;
+            let l = 0;
+            if (delta == 0)
+                h = 0;
+            else if (max == r)
+                h = ((g - b) / delta) % 6;
+            else if (max == g)
+                h = (b - r) / delta + 2;
             else
-                return { h: 0, s: 0, l: l, a: this.a };
-            if (r === max)
-                h = (g - b) / delta;
-            else if (g === max)
-                h = 2 + (b - r) / delta;
-            else
-                h = 4 + (r - g) / delta;
-            h *= 60;
-            if (h < 0)
-                h += 360;
+                h = (r - g) / delta + 4;
+            h = Math.round(h * 60);
+            h = (h + 360) % 360;
+            l = (max + min) / 2;
+            s = delta == 0 ? 0 : delta / (1 - Math.abs(2 * l - 1));
             return { h: h, s: s, l: l, a: this.a };
         }
         getHsl() {
