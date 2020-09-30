@@ -2604,42 +2604,45 @@ var Ui;
                 this.b = l;
                 return;
             }
-            h /= 60;
-            let i = Math.floor(h);
-            let f = h - i;
-            let p = l * (1 - s);
-            let q = l * (1 - s * f);
-            let t = l * (1 - s * (1 - f));
-            if (i === 0) {
-                this.r = l;
-                this.g = t;
-                this.b = p;
+            let c = (1 - Math.abs(2 * l - 1)) * s;
+            let x = c * (1 - Math.abs((h / 60) % 2 - 1));
+            let m = l - c / 2;
+            let r = 0;
+            let g = 0;
+            let b = 0;
+            if (0 <= h && h < 60) {
+                r = c;
+                g = x;
+                b = 0;
             }
-            else if (i == 1) {
-                this.r = q;
-                this.g = l;
-                this.b = p;
+            else if (60 <= h && h < 120) {
+                r = x;
+                g = c;
+                b = 0;
             }
-            else if (i == 2) {
-                this.r = p;
-                this.g = l;
-                this.b = t;
+            else if (120 <= h && h < 180) {
+                r = 0;
+                g = c;
+                b = x;
             }
-            else if (i == 3) {
-                this.r = p;
-                this.g = q;
-                this.b = l;
+            else if (180 <= h && h < 240) {
+                r = 0;
+                g = x;
+                b = c;
             }
-            else if (i == 4) {
-                this.r = t;
-                this.g = p;
-                this.b = l;
+            else if (240 <= h && h < 300) {
+                r = x;
+                g = 0;
+                b = c;
             }
-            else {
-                this.r = l;
-                this.g = p;
-                this.b = q;
+            else if (300 <= h && h <= 360) {
+                r = c;
+                g = 0;
+                b = x;
             }
+            this.r = r + m;
+            this.g = g + m;
+            this.b = b + m;
             if (isNaN(this.r))
                 this.r = 0;
             if (isNaN(this.g))
@@ -16545,7 +16548,21 @@ var Ui;
         onEntryChange(entry, value) {
             this.changed.fire({ target: this, value: value });
         }
+        onStyleChange() {
+            let padding = this.getStyleProperty('padding');
+            this.entry.marginTop = padding;
+            this.entry.marginBottom = padding;
+            this.entry.marginLeft = padding + 3;
+            this.entry.marginRight = padding + 3;
+            this.textholder.marginTop = padding;
+            this.textholder.marginBottom = padding;
+            this.textholder.marginLeft = padding + 3;
+            this.textholder.marginRight = padding + 3;
+        }
     }
+    TextField.style = {
+        padding: 7
+    };
     Ui.TextField = TextField;
 })(Ui || (Ui = {}));
 var Ui;

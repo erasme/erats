@@ -4096,6 +4096,10 @@ declare namespace Ui {
         private onEntryFocus;
         private onEntryBlur;
         private onEntryChange;
+        protected onStyleChange(): void;
+        static style: {
+            padding: number;
+        };
     }
 }
 declare namespace Ui {
