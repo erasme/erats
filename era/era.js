@@ -26330,4 +26330,734 @@ var Ui;
     }
     Ui.Embed = Embed;
 })(Ui || (Ui = {}));
+var Form;
+(function (Form) {
+    class Field extends Ui.VBox {
+        constructor(init) {
+            super(init);
+            this._required = false;
+            this.flow = new Ui.Flow();
+            this.changed = new Core.Events();
+            this.validchanged = new Core.Events();
+            this.margin = 5;
+            this.spacing = 5;
+            this.flow = new Ui.Flow();
+            this.flow.hide(true);
+            this.append(this.flow);
+            this._title = new Ui.Text();
+            this.flow.append(this._title);
+            this._requiredText = new Ui.Html({
+                color: 'red', html: '<label title="champs obligatoire">*</label>'
+            });
+            this._requiredText.hide(true);
+            this.flow.append(this._requiredText);
+            this.field = this.generateUi();
+            if ('changed' in this.field && this.field['changed'] instanceof Core.Events)
+                this.field['changed'].connect(() => {
+                    this.onChange();
+                    let value;
+                    if ('value' in this.field)
+                        value = this.field.value;
+                    this.changed.fire({ target: this, value: value });
+                });
+            this.field.marginLeft = 10;
+            this.append(this.field);
+            this._desc = new Ui.Text({ fontSize: 12, marginLeft: 10 });
+            this._desc.hide(true);
+            this.append(this._desc);
+            if (init) {
+                if (init.title !== undefined)
+                    this.title = init.title;
+                if (init.desc !== undefined)
+                    this.desc = init.desc;
+                if (init.required !== undefined)
+                    this.required = init.required;
+                if (init.validate !== undefined)
+                    this.validate = init.validate;
+                if (init.onchanged)
+                    this.changed.connect(init.onchanged);
+                if (init.onvalidchanged)
+                    this.validchanged.connect(init.onvalidchanged);
+            }
+            this._lastIsValid = this.isValid;
+        }
+        set onchanged(value) { this.changed.connect(value); }
+        ;
+        set onvalidchanged(value) { this.validchanged.connect(value); }
+        ;
+        get isValid() {
+            return this._errorMsg == undefined && (!this.required || this.isDefined);
+        }
+        set title(title) {
+            this._title.text = title;
+            this.flow.show();
+        }
+        set desc(value) {
+            this._desc.text = value;
+            this._descString = value;
+            if (value != undefined)
+                this._desc.show();
+            else
+                this._desc.hide(true);
+        }
+        get required() {
+            return this._required;
+        }
+        set required(value) {
+            if (this._required != value) {
+                this._required = value;
+                if (this._required && !this.isDisabled)
+                    this._requiredText.show();
+                else
+                    this._requiredText.hide(true);
+                this.checkIsValid();
+            }
+        }
+        checkIsValid() {
+            this.onChange();
+        }
+        onValidate() {
+            return __awaiter(this, void 0, void 0, function* () {
+                return (this.validate) ? yield this.validate() : undefined;
+            });
+        }
+        onChange() {
+            return __awaiter(this, void 0, void 0, function* () {
+                let newErrorMsg = yield this.onValidate();
+                if (newErrorMsg) {
+                    this._desc.text = newErrorMsg;
+                    this._desc.color = 'red';
+                    this._desc.show();
+                }
+                else if (this._errorMsg != undefined) {
+                    this._desc.text = this._descString ? this._descString : '';
+                    this._desc.color = 'rgba(0,0,0,0.6)';
+                    if (!this._descString)
+                        this._desc.hide();
+                }
+                this._errorMsg = newErrorMsg;
+                let isValid = this.isValid;
+                if (this._lastIsValid != isValid) {
+                    this._lastIsValid = isValid;
+                    this.validchanged.fire({ target: this, value: isValid });
+                }
+            });
+        }
+        onDisable() {
+            super.onDisable();
+            this._requiredText.hide(true);
+        }
+        onEnable() {
+            super.onEnable();
+            if (this._required)
+                this._requiredText.show();
+        }
+    }
+    Form.Field = Field;
+    class TextField extends Field {
+        constructor(init) {
+            super(init);
+            if (init) {
+                if (init.placeholder != undefined)
+                    this.placeholder = init.placeholder;
+                if (init.value != undefined)
+                    this.value = init.value;
+            }
+        }
+        generateUi() {
+            return new Ui.TextField();
+        }
+        get isDefined() {
+            return this.field.value != '';
+        }
+        get value() {
+            return this.field.value;
+        }
+        set value(value) {
+            this.field.value = value;
+        }
+        set placeholder(value) {
+            this.field.textHolder = value;
+        }
+    }
+    Form.TextField = TextField;
+    class TextButtonField extends Field {
+        constructor() {
+            super();
+            this.pressed = new Core.Events();
+            this.field.buttonpressed.connect((e) => this.pressed.fire({ target: this }));
+        }
+        set onpressed(value) { this.pressed.connect(value); }
+        generateUi() {
+            return new Ui.TextButtonField();
+        }
+        get isDefined() {
+            return this.field.value != '';
+        }
+        get value() {
+            return this.field.value;
+        }
+        set value(value) {
+            this.field.value = value;
+        }
+        set placeholder(value) {
+            this.field.textHolder = value;
+        }
+        set icon(value) {
+            this.field.buttonIcon = value;
+        }
+    }
+    Form.TextButtonField = TextButtonField;
+    class TextAreaField extends Field {
+        constructor(init) {
+            super(init);
+            if (init) {
+                if (init.placeholder != undefined)
+                    this.placeholder = init.placeholder;
+            }
+        }
+        generateUi() {
+            return new Ui.TextAreaField();
+        }
+        get isDefined() {
+            return this.field.value != '';
+        }
+        get value() {
+            return this.field.value;
+        }
+        set value(value) {
+            this.field.value = value;
+        }
+        set placeholder(value) {
+            this.field.textHolder = value;
+        }
+    }
+    Form.TextAreaField = TextAreaField;
+    class DateField extends Field {
+        constructor(init) {
+            super(init);
+            if (init) {
+                if (init.placeholder !== undefined)
+                    this.placeholder = init.placeholder;
+                else
+                    this.placeholder = 'jj/mm/aaaa';
+                if (init.value)
+                    this.value = init.value;
+            }
+        }
+        generateUi() {
+            return new Ui.DatePicker();
+        }
+        get isDefined() {
+            return this.field.selectedDate != undefined;
+        }
+        get value() {
+            return this.field.selectedDate;
+        }
+        set value(value) {
+            this.field.selectedDate = value;
+        }
+        set placeholder(value) {
+            this.field.textHolder = value;
+        }
+    }
+    Form.DateField = DateField;
+    class TimeField extends Field {
+        constructor(init) {
+            super(init);
+            this.placeholder = 'hh:mm';
+            this.validate = () => __awaiter(this, void 0, void 0, function* () {
+                if (this.value != "" && !this.value.match(/^\d{1,2}:\d{1,2}$/))
+                    return "Format attendu hh:mm";
+                let parts = this.value.split(':');
+                let hours = parseInt(parts[0]);
+                let minutes = parseInt(parts[1]);
+                if (hours < 0 || hours > 23)
+                    return "Heure invalide";
+                if (minutes < 0 || minutes > 59)
+                    return "Minutes invalides";
+            });
+            if (init) {
+                if (init.placeholder !== undefined)
+                    this.placeholder = init.placeholder;
+                if (init.value)
+                    this.value = init.value;
+            }
+        }
+        generateUi() {
+            return new Ui.TextField();
+        }
+        get isDefined() {
+            return this.field.value != undefined && this.field.value != '';
+        }
+        get value() {
+            return this.field.value;
+        }
+        set value(value) {
+            this.field.value = value;
+        }
+        get time() {
+            if (this.value == "" || !this.value.match(/^\d{1,2}:\d{1,2}$/))
+                return undefined;
+            let parts = this.value.split(':');
+            let hours = parseInt(parts[0]);
+            if (hours < 0 || hours > 23)
+                return undefined;
+            let minutes = parseInt(parts[1]);
+            if (minutes < 0 || minutes > 59)
+                return undefined;
+            return { hours: hours, minutes: minutes };
+        }
+        get hours() {
+            let time = this.time;
+            return (!time) ? undefined : time.hours;
+        }
+        get minutes() {
+            let time = this.time;
+            return (!time) ? undefined : time.minutes;
+        }
+        get totalSeconds() {
+            let time = this.time;
+            return (!time) ? undefined : time.hours * 3600 + time.minutes * 60;
+        }
+        set placeholder(value) {
+            this.field.textHolder = value;
+        }
+    }
+    Form.TimeField = TimeField;
+    class SliderField extends Field {
+        constructor(init) {
+            super(init);
+        }
+        generateUi() {
+            return new Ui.Slider();
+        }
+        get isDefined() {
+            return true;
+        }
+        get value() {
+            return this.field.value;
+        }
+        set value(value) {
+            this.field.value = value;
+        }
+    }
+    Form.SliderField = SliderField;
+    class ComboField extends Field {
+        constructor(init) {
+            super(init);
+            this._data = [];
+            if (init) {
+                if (init.text !== undefined)
+                    this.text = init.text;
+                if (init.key !== undefined)
+                    this.key = init.key;
+                if (init.search !== undefined)
+                    this.search = init.search;
+                if (init.placeholder !== undefined)
+                    this.placeholder = init.placeholder;
+                if (init.data !== undefined)
+                    this.data = init.data;
+                if (init.position !== undefined)
+                    this.position = init.position;
+                if (init.value !== undefined)
+                    this.value = init.value;
+                if (init.allowNone != undefined)
+                    this.allowNone = init.allowNone;
+            }
+        }
+        generateUi() {
+            return new Ui.Combo();
+        }
+        get isDefined() {
+            return this.field.position != -1;
+        }
+        set search(value) {
+            this.field.search = value;
+        }
+        set key(key) {
+            this.field.field = key;
+        }
+        get allowNone() {
+            return this.field.allowNone;
+        }
+        set allowNone(value) {
+            this.field.allowNone = value;
+        }
+        get data() {
+            return this._data;
+        }
+        set data(data) {
+            this._data = data;
+            this.field.data = this._data;
+        }
+        set text(value) {
+            this.field.text = value;
+        }
+        get value() {
+            return this.field.value;
+        }
+        set value(value) {
+            if (value) {
+                let pos = this.data.indexOf(value);
+                this.field.position = pos;
+            }
+            else
+                this.field.position = -1;
+        }
+        set position(position) {
+            this.field.position = position;
+        }
+        set placeholder(value) {
+            this.field.placeHolder = value;
+        }
+    }
+    Form.ComboField = ComboField;
+    class CheckBoxField extends Field {
+        constructor(init) {
+            super(init);
+            if (init) {
+                if (init.value != undefined)
+                    this.value = init.value;
+            }
+        }
+        generateUi() {
+            return new Ui.CheckBox();
+        }
+        get isDefined() {
+            return true;
+        }
+        get value() {
+            return this.field.value;
+        }
+        set value(value) {
+            this.field.value = value;
+        }
+    }
+    Form.CheckBoxField = CheckBoxField;
+    class YesNoField extends Field {
+        constructor(init) {
+            super(init);
+            if (init) {
+                if (init.allowNone != undefined)
+                    this.allowNone = init.allowNone;
+                if (init.value != undefined)
+                    this.value = init.value;
+            }
+        }
+        generateUi() {
+            return new Ui.Combo({
+                field: 'name',
+                data: [
+                    { name: 'Oui', value: true },
+                    { name: 'Non', value: false }
+                ]
+            });
+        }
+        get isDefined() {
+            return this.field.value !== undefined && this.field.value.value !== undefined;
+        }
+        get value() {
+            return this.field.value.value;
+        }
+        set value(value) {
+            this.field.position = value ? 0 : 1;
+        }
+        get allowNone() {
+            return this.field.allowNone;
+        }
+        set allowNone(value) {
+            this.field.allowNone = value;
+        }
+    }
+    Form.YesNoField = YesNoField;
+    class NumberField extends Field {
+        constructor(init) {
+            super(init);
+            if (init) {
+                if (init.value != undefined)
+                    this.value = init.value;
+            }
+        }
+        generateUi() {
+            return new Ui.TextField();
+        }
+        get isDefined() {
+            return this.field.value != '' && !isNaN(parseFloat(this.field.value));
+        }
+        get value() {
+            return parseFloat(this.field.value);
+        }
+        set value(value) {
+            this.field.value = value.toString();
+        }
+        set placeholder(value) {
+            this.field.textHolder = value;
+        }
+    }
+    Form.NumberField = NumberField;
+    class ColorField extends Field {
+        constructor(init) {
+            super(init);
+            if (init) {
+                if (init.value != undefined)
+                    this.value = init.value;
+            }
+        }
+        generateUi() {
+            return new Ui.ColorButton();
+        }
+        get isDefined() {
+            return true;
+        }
+        get value() {
+            return this.field.value;
+        }
+        set value(value) {
+            this.field.value = value;
+        }
+        get alpha() {
+            return this.field.alpha;
+        }
+        set alpha(value) {
+            this.field.alpha = value;
+        }
+        set palette(palette) {
+            this.field.palette = palette.map(color => Ui.Color.create(color));
+        }
+        get palette() {
+            return this.field.palette;
+        }
+    }
+    Form.ColorField = ColorField;
+})(Form || (Form = {}));
+var Ui;
+(function (Ui) {
+    class CheckerBoard extends Ui.CanvasElement {
+        constructor() {
+            super();
+            this._size = 10;
+            this.clipToBounds = true;
+        }
+        get size() {
+            return this._size;
+        }
+        set size(value) {
+            if (value != this._size) {
+                this._size = value;
+                this.invalidateDraw();
+            }
+        }
+        updateCanvas(ctx) {
+            let nx = Math.ceil(this.layoutWidth / this.size);
+            let ny = Math.ceil(this.layoutHeight / this.size);
+            for (let y = 0; y < ny; y++) {
+                for (let x = 0; x < nx; x++) {
+                    ctx.fillStyle = (x + y) % 2 ? 'black' : '#999999';
+                    ctx.fillRect(x * this.size, y * this.size, this.size, this.size);
+                }
+            }
+        }
+    }
+    Ui.CheckerBoard = CheckerBoard;
+    class ColorSlider extends Ui.Slider {
+        updateColors() {
+            this.bar.fill = 'rgba(0,0,0,0)';
+            this.background.drawing.style.background = 'linear-gradient(to right, hsl(0, 100%, 50%), hsl(60,100%,50%), hsl(120, 100%, 50%), hsl(180, 100%, 50%), hsl(270, 100%, 50%), hsl(359, 100%, 50%))';
+            this.buttonContent.fill = Ui.Color.createFromHsl(this.value * 360, 1, 0.5, 1);
+        }
+        updateValue() {
+            super.updateValue();
+            this.updateColors();
+        }
+    }
+    Ui.ColorSlider = ColorSlider;
+    class ColorChooser extends Ui.HBox {
+        constructor(init) {
+            super(init);
+            this._value = new Ui.Color();
+            this.hSlider = new ColorSlider();
+            this.lock = false;
+            this.alpha = false;
+            this.changed = new Core.Events();
+            this.spacing = 10;
+            this.colorRect = new Ui.Rectangle({ width: 80, height: 80 });
+            this.append(new Ui.LBox().assign({
+                content: [
+                    new CheckerBoard().assign({
+                        opacity: 0.4
+                    }),
+                    this.colorRect
+                ]
+            }));
+            let vbox = new Ui.VBox();
+            this.append(vbox, true);
+            vbox.append(new Ui.VBox().assign({
+                content: [
+                    new Ui.Text().assign({ text: 'Couleur' }),
+                    this.hSlider.assign({
+                        marginLeft: 10,
+                        onchanged: () => this.sliderChanged()
+                    })
+                ]
+            }));
+            this.sSlider = new window.Form.SliderField({
+                title: 'Saturation', onchanged: e => this.sliderChanged()
+            });
+            vbox.append(this.sSlider);
+            this.lSlider = new window.Form.SliderField({
+                title: 'Lumière', onchanged: e => this.sliderChanged()
+            });
+            vbox.append(this.lSlider);
+            this.aSlider = new window.Form.SliderField({
+                title: 'Transparence', onchanged: e => this.sliderChanged()
+            });
+            this.field = new window.Form.TextField({
+                title: 'HTML', width: 200,
+                onchanged: e => {
+                    if (this.lock)
+                        return;
+                    try {
+                        this.lock = true;
+                        this._value = Ui.Color.parse(this.field.value);
+                        this.updateColor();
+                        this.updateSliders();
+                        this.changed.fire({ target: this, value: this._value });
+                    }
+                    catch (e) { }
+                    this.lock = false;
+                }
+            });
+            vbox.append(this.field);
+            if (init) {
+                if (init.alpha) {
+                    this.alpha = init.alpha;
+                    vbox.insertBefore(this.aSlider, this.field);
+                }
+                if (init.value !== undefined)
+                    this.value = init.value;
+                if (init.onchanged)
+                    this.changed.connect(init.onchanged);
+            }
+            if (!init || !init.value)
+                this.value = 'black';
+        }
+        sliderChanged() {
+            if (this.lock)
+                return;
+            let hsla = {
+                h: this.hSlider.value * 360,
+                s: this.sSlider.value,
+                l: this.lSlider.value,
+                a: this.aSlider.value
+            };
+            this._value = Ui.Color.createFromHsl(hsla.h, hsla.s, hsla.l, hsla.a);
+            this.updateColor();
+            this.updateField();
+            this.changed.fire({ target: this, value: this._value });
+        }
+        updateColor() {
+            this.colorRect.fill = this._value;
+        }
+        updateSliders() {
+            let hsla = this._value.getHsla();
+            this.hSlider.value = hsla.h / 360;
+            this.sSlider.value = hsla.s;
+            this.lSlider.value = hsla.l;
+            this.aSlider.value = hsla.a;
+        }
+        updateField() {
+            this.field.value = this._value.getCssHtml(this.alpha);
+        }
+        set value(value) {
+            this.lock = true;
+            try {
+                this._value = Ui.Color.create(value);
+                this.updateColor();
+                this.updateSliders();
+                this.updateField();
+            }
+            catch (e) { }
+            this.lock = false;
+        }
+        get value() {
+            return this._value;
+        }
+    }
+    Ui.ColorChooser = ColorChooser;
+    class ColorButton extends Ui.Button {
+        constructor(init) {
+            super(init);
+            this.color = new Ui.Color();
+            this.alpha = false;
+            this.changed = new Core.Events();
+            this.rect = new Ui.Rectangle({ verticalAlign: 'center' });
+            this.value = new Ui.Color();
+            this.setIconOrElement(new Ui.LBox().assign({
+                content: [
+                    new CheckerBoard().assign({
+                        opacity: 0.4
+                    }),
+                    this.rect
+                ]
+            }));
+            this.pressed.connect(() => this.onColorButtonPress());
+            this.palette = new Array();
+            if (init) {
+                if (init.value !== undefined)
+                    this.value = init.value;
+                if (init.palette !== undefined)
+                    this.palette = init.palette.map(color => Ui.Color.create(color));
+                if (init.alpha !== undefined)
+                    this.alpha = init.alpha;
+            }
+        }
+        set onchanged(value) { this.changed.connect(value); }
+        ;
+        set palette(palette) {
+            this._palette = palette.map(color => Ui.Color.create(color));
+        }
+        get palette() {
+            return this._palette;
+        }
+        set value(color) {
+            this.color = color;
+            this.rect.fill = this.color;
+            this.changed.fire({ target: this, value: this.color });
+        }
+        get value() {
+            return this.color;
+        }
+        onColorButtonPress() {
+            let popup = new Ui.MenuPopup();
+            let lbox = new Ui.LBox({ padding: 10 });
+            popup.content = lbox;
+            let vbox = new Ui.VBox({ spacing: 10 });
+            lbox.content = vbox;
+            let colorChooser = new ColorChooser({
+                value: this.color, alpha: this.alpha,
+                onchanged: e => this.value = e.value
+            });
+            vbox.append(colorChooser);
+            if (this.palette.length > 0) {
+                let flow = new Ui.Flow({ spacing: 5 });
+                vbox.prepend(flow);
+                for (let color of this.palette) {
+                    flow.append(new Ui.Pressable({
+                        content: new Ui.Rectangle({ width: 32, height: 32, fill: color }),
+                        onpressed: () => { colorChooser.value = color; this.value = color; }
+                    }));
+                }
+            }
+            popup.openElement(this, 'left');
+        }
+        onStyleChange() {
+            super.onStyleChange();
+            let size = this.getStyleProperty('iconSize');
+            this.rect.width = size;
+            this.rect.height = size;
+        }
+    }
+    Ui.ColorButton = ColorButton;
+})(Ui || (Ui = {}));
 //# sourceMappingURL=era.js.map

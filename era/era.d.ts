@@ -6858,3 +6858,296 @@ declare namespace Ui {
         protected arrangeCore(width: number, height: number): void;
     }
 }
+declare namespace Form {
+    interface FieldInit<TE extends Ui.Element> extends Ui.VBoxInit {
+        title?: string;
+        desc?: string;
+        validate?: () => Promise<string | undefined>;
+        required?: boolean;
+        onchanged?: (event: {
+            target: Field<TE>;
+            value: any;
+        }) => void;
+        onvalidchanged?: (event: {
+            target: Field<TE>;
+            value: boolean;
+        }) => void;
+    }
+    abstract class Field<TE extends Ui.Element> extends Ui.VBox implements FieldInit<TE> {
+        field: TE;
+        validate?: () => Promise<string | undefined>;
+        private _title;
+        private _desc;
+        private _descString?;
+        private _errorMsg;
+        private _requiredText;
+        private _required;
+        private _lastIsValid;
+        private flow;
+        readonly changed: Core.Events<{
+            target: Field<TE>;
+            value: any;
+        }>;
+        set onchanged(value: (event: {
+            target: Field<TE>;
+            value: any;
+        }) => void);
+        readonly validchanged: Core.Events<{
+            target: Field<TE>;
+            value: boolean;
+        }>;
+        set onvalidchanged(value: (event: {
+            target: Field<TE>;
+            value: boolean;
+        }) => void);
+        constructor(init?: FieldInit<TE>);
+        protected abstract generateUi(): TE;
+        abstract get isDefined(): boolean;
+        get isValid(): boolean;
+        set title(title: string);
+        set desc(value: string);
+        get required(): boolean;
+        set required(value: boolean);
+        checkIsValid(): void;
+        protected onValidate(): Promise<string>;
+        protected onChange(): Promise<void>;
+        protected onDisable(): void;
+        protected onEnable(): void;
+    }
+    interface TextFieldInit extends FieldInit<Ui.TextField> {
+        placeholder?: string;
+        value?: string;
+    }
+    class TextField extends Field<Ui.TextField> implements TextFieldInit {
+        constructor(init?: TextFieldInit);
+        protected generateUi(): Ui.TextField;
+        get isDefined(): boolean;
+        get value(): string;
+        set value(value: string);
+        set placeholder(value: string);
+    }
+    class TextButtonField extends Field<Ui.TextButtonField> {
+        readonly pressed: Core.Events<{
+            target: TextButtonField;
+        }>;
+        set onpressed(value: (event: {
+            target: TextButtonField;
+        }) => void);
+        constructor();
+        protected generateUi(): Ui.TextButtonField;
+        get isDefined(): boolean;
+        get value(): string;
+        set value(value: string);
+        set placeholder(value: string);
+        set icon(value: string);
+    }
+    interface TextAreaFieldInit extends FieldInit<Ui.TextAreaField> {
+        placeholder?: string;
+    }
+    class TextAreaField extends Field<Ui.TextAreaField> implements TextAreaFieldInit {
+        constructor(init?: TextAreaFieldInit);
+        protected generateUi(): Ui.TextAreaField;
+        get isDefined(): boolean;
+        get value(): string;
+        set value(value: string);
+        set placeholder(value: string);
+    }
+    interface DateFieldInit extends FieldInit<Ui.DatePicker> {
+        placeholder?: string;
+        value?: Date;
+    }
+    class DateField extends Field<Ui.DatePicker> {
+        constructor(init?: DateFieldInit);
+        protected generateUi(): Ui.DatePicker;
+        get isDefined(): boolean;
+        get value(): Date;
+        set value(value: Date);
+        set placeholder(value: string);
+    }
+    interface TimeFieldInit extends FieldInit<Ui.TextField> {
+        placeholder?: string;
+        value?: string;
+    }
+    class TimeField extends Field<Ui.TextField> {
+        constructor(init?: TextFieldInit);
+        protected generateUi(): Ui.TextField;
+        get isDefined(): boolean;
+        get value(): string;
+        set value(value: string);
+        get time(): {
+            hours: number;
+            minutes: number;
+        } | undefined;
+        get hours(): number | undefined;
+        get minutes(): number | undefined;
+        get totalSeconds(): number | undefined;
+        set placeholder(value: string);
+    }
+    interface SliderFieldInit extends FieldInit<Ui.Slider> {
+    }
+    class SliderField extends Field<Ui.Slider> implements SliderFieldInit {
+        constructor(init?: SliderFieldInit);
+        protected generateUi(): Ui.Slider;
+        get isDefined(): boolean;
+        get value(): number;
+        set value(value: number);
+    }
+    interface ComboFieldInit<T> extends FieldInit<Ui.Combo<T>> {
+        text?: string;
+        value?: T;
+        key?: keyof T;
+        search?: boolean;
+        data?: T[];
+        allowNone?: boolean;
+        placeholder?: string;
+        position?: number;
+    }
+    class ComboField<T> extends Field<Ui.Combo<T>> implements ComboFieldInit<T> {
+        private _data;
+        constructor(init?: ComboFieldInit<T>);
+        protected generateUi(): Ui.Combo<T>;
+        get isDefined(): boolean;
+        set search(value: boolean);
+        set key(key: keyof T);
+        get allowNone(): boolean;
+        set allowNone(value: boolean);
+        get data(): T[];
+        set data(data: T[]);
+        set text(value: string);
+        get value(): T;
+        set value(value: T);
+        set position(position: number);
+        set placeholder(value: string);
+    }
+    interface CheckBoxFieldInit extends FieldInit<Ui.CheckBox> {
+        value?: boolean;
+    }
+    class CheckBoxField extends Field<Ui.CheckBox> implements CheckBoxFieldInit {
+        constructor(init?: CheckBoxFieldInit);
+        protected generateUi(): Ui.CheckBox;
+        get isDefined(): boolean;
+        get value(): boolean;
+        set value(value: boolean);
+    }
+    interface YesNoFieldInit extends FieldInit<Ui.Combo<{
+        name: string;
+        value: boolean;
+    }>> {
+        value?: boolean;
+        allowNone?: boolean;
+    }
+    class YesNoField extends Field<Ui.Combo<{
+        name: string;
+        value: boolean;
+    }>> implements YesNoFieldInit {
+        constructor(init?: YesNoFieldInit);
+        protected generateUi(): Ui.Combo<{
+            name: string;
+            value: boolean;
+        }>;
+        get isDefined(): boolean;
+        get value(): boolean;
+        set value(value: boolean);
+        get allowNone(): boolean;
+        set allowNone(value: boolean);
+    }
+    interface NumberFieldInit extends FieldInit<Ui.TextField> {
+        placeholder?: string;
+        value?: number;
+    }
+    class NumberField extends Field<Ui.TextField> implements NumberFieldInit {
+        constructor(init?: NumberFieldInit);
+        protected generateUi(): Ui.TextField;
+        get isDefined(): boolean;
+        get value(): number;
+        set value(value: number);
+        set placeholder(value: string);
+    }
+    interface ColorFieldInit extends Form.FieldInit<Ui.ColorButton> {
+        value?: Ui.Color;
+    }
+    class ColorField extends Field<Ui.ColorButton> implements ColorFieldInit {
+        constructor(init?: ColorFieldInit);
+        protected generateUi(): Ui.ColorButton;
+        get isDefined(): boolean;
+        get value(): Ui.Color;
+        set value(value: Ui.Color);
+        get alpha(): boolean;
+        set alpha(value: boolean);
+        set palette(palette: Array<Ui.Color>);
+        get palette(): Array<Ui.Color>;
+    }
+}
+declare namespace Ui {
+    class CheckerBoard extends Ui.CanvasElement {
+        private _size;
+        constructor();
+        get size(): number;
+        set size(value: number);
+        protected updateCanvas(ctx: Ui.CanvasRenderingContext2D): void;
+    }
+    class ColorSlider extends Ui.Slider {
+        protected updateColors(): void;
+        protected updateValue(): void;
+    }
+    interface ColorChooserInit extends Ui.HBoxInit {
+        alpha?: boolean;
+        value?: Ui.Color | string;
+        onchanged?: (event: {
+            target: ColorChooser;
+            value: Ui.Color;
+        }) => void;
+    }
+    class ColorChooser extends Ui.HBox {
+        _value: Color;
+        colorRect: Ui.Rectangle;
+        hSlider: ColorSlider;
+        sSlider: Form.SliderField;
+        lSlider: Form.SliderField;
+        aSlider: Form.SliderField;
+        field: Form.TextField;
+        lock: boolean;
+        alpha: boolean;
+        changed: Core.Events<{
+            target: ColorChooser;
+            value: Ui.Color;
+        }>;
+        constructor(init?: ColorChooserInit);
+        private sliderChanged;
+        private updateColor;
+        private updateSliders;
+        private updateField;
+        set value(value: Ui.Color | string);
+        get value(): Ui.Color | string;
+    }
+    interface ColorButtonInit extends Ui.ButtonInit {
+        value?: Ui.Color;
+        alpha?: boolean;
+        palette?: Array<Ui.Color | string>;
+        onchanged?: (event: {
+            target: ColorButton;
+            value: Ui.Color;
+        }) => void;
+    }
+    class ColorButton extends Ui.Button {
+        color: Color;
+        alpha: boolean;
+        private rect;
+        private _palette;
+        changed: Core.Events<{
+            target: ColorButton;
+            value: Ui.Color;
+        }>;
+        set onchanged(value: (e: {
+            target: ColorButton;
+            value: Ui.Color;
+        }) => void);
+        constructor(init?: ColorButtonInit);
+        set palette(palette: Array<Ui.Color>);
+        get palette(): Array<Ui.Color>;
+        set value(color: Ui.Color);
+        get value(): Ui.Color;
+        private onColorButtonPress;
+        protected onStyleChange(): void;
+    }
+}

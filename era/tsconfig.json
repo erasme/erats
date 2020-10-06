@@ -139,5 +139,7 @@
         "ui/radioboxgraphic.ts",
         "ui/radiobox.ts",
         "ui/embed.ts",
+        "form/form.ts",
+        "ui/colorchooser.ts"
     ]
 }
