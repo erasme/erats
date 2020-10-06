@@ -4298,11 +4298,11 @@ declare namespace Ui {
         protected onKeyDown(event: any): void;
         protected onKeyUp(event: any): void;
         protected renderDrawing(): HTMLTextAreaElement;
-        protected measureCore(width: any, height: any): {
+        protected measureCore(width: number, height: number): {
             width: number;
             height: number;
         };
-        protected arrangeCore(width: any, height: any): void;
+        protected arrangeCore(width: number, height: number): void;
         protected onDisable(): void;
         protected onEnable(): void;
         protected onStyleChange(): void;

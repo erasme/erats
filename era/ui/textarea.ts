@@ -203,7 +203,7 @@ namespace Ui {
             return drawing;
         }
 
-        protected measureCore(width, height) {
+        protected measureCore(width: number, height: number) {
             this.drawing.style.width = width + 'px';
             this.drawing.style.height = '';
             let size = { width: this.drawing.scrollWidth, height: Math.max(this.fontSize, this.drawing.scrollHeight) };
@@ -213,7 +213,7 @@ namespace Ui {
             return size;
         }
 
-        protected arrangeCore(width, height) {
+        protected arrangeCore(width: number, height: number) {
             this.drawing.style.width = width + 'px';
             this.drawing.style.height = height + 'px';
         }

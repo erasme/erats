@@ -100,10 +100,12 @@ namespace Ui
 
         private onImageLoad(event) {
             if ((event.target != undefined) && (event.target.naturalWidth != undefined) && (event.target.naturalHeight != undefined)) {
-                this.loaddone = true;
                 this._naturalWidth = event.target.naturalWidth;
                 this._naturalHeight = event.target.naturalHeight;
-                this.ready.fire({ target: this });
+                if (!this.loaddone) {
+                    this.loaddone = true;
+                    this.ready.fire({ target: this });
+                }
                 this.invalidateMeasure();
             }
             else {
