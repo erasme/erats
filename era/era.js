@@ -305,6 +305,7 @@ var Core;
     Navigator.supportCanvas = true;
     Navigator.supportRgba = true;
     Navigator.supportRgb = true;
+    Navigator.supportWebP = true;
     Navigator.supportFormData = true;
     Navigator.supportFileAPI = true;
     Navigator.supportUploadDirectory = false;
@@ -345,6 +346,12 @@ var Core;
     let testInput = document.createElement('input');
     Core.Navigator.supportFileAPI = 'files' in testInput;
     Core.Navigator.supportUploadDirectory = 'webkitdirectory' in testInput;
+    let testCanvas = document.createElement('canvas');
+    if (!!(testCanvas.getContext && testCanvas.getContext('2d'))) {
+        Core.Navigator.supportWebP = testCanvas.toDataURL('image/webp').indexOf('data:image/webp') == 0;
+    }
+    else
+        Core.Navigator.supportWebP = false;
 })();
 if (Object.assign == undefined) {
     Object.assign = function () {

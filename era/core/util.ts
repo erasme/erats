@@ -281,6 +281,7 @@ namespace Core
         static supportCanvas: boolean = true;
         static supportRgba: boolean = true;
         static supportRgb: boolean = true;
+        static supportWebP: boolean = true;
 
         static supportFormData: boolean = true;
         static supportFileAPI: boolean = true;
@@ -323,6 +324,15 @@ namespace Core
     let testInput = document.createElement('input');
     Core.Navigator.supportFileAPI = 'files' in testInput;
     Core.Navigator.supportUploadDirectory = 'webkitdirectory' in testInput;
+
+
+    let testCanvas = document.createElement('canvas');
+    if (!!(testCanvas.getContext && testCanvas.getContext('2d'))) {
+        // was able or not to get WebP representation
+        Core.Navigator.supportWebP = testCanvas.toDataURL('image/webp').indexOf('data:image/webp') == 0;
+    }
+    else 
+        Core.Navigator.supportWebP = false;
 })();
 
 // provide polyfill Object.assign if needed

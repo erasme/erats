@@ -53,6 +53,7 @@ declare namespace Core {
         static supportCanvas: boolean;
         static supportRgba: boolean;
         static supportRgb: boolean;
+        static supportWebP: boolean;
         static supportFormData: boolean;
         static supportFileAPI: boolean;
         static supportUploadDirectory: boolean;
