@@ -9510,12 +9510,16 @@ var Ui;
             pointer.shiftKey = pointerEvent.shiftKey;
             pointer.down(pointerEvent.clientX, pointerEvent.clientY, pointerEvent.buttons, pointerEvent.button);
             let onPointerMove = (e) => {
+                if (e.pointerId != pointer.id)
+                    return;
                 pointer.ctrlKey = e.ctrlKey;
                 pointer.altKey = e.altKey;
                 pointer.shiftKey = e.shiftKey;
                 pointer.move(e.clientX, e.clientY);
             };
             let onPointerUp = (e) => {
+                if (e.pointerId != pointer.id)
+                    return;
                 if (pointer.getIsCaptured()) {
                     e.preventDefault();
                     e.stopImmediatePropagation();
@@ -9531,6 +9535,8 @@ var Ui;
                     this.element.drawing.removeEventListener('contextmenu', onContextMenu, { capture: true });
             };
             let onPointerCancel = (e) => {
+                if (e.pointerId != pointer.id)
+                    return;
                 pointer.ctrlKey = e.ctrlKey;
                 pointer.altKey = e.altKey;
                 pointer.shiftKey = e.shiftKey;

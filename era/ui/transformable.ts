@@ -32,12 +32,16 @@ namespace Ui {
             pointer.down(pointerEvent.clientX, pointerEvent.clientY, pointerEvent.buttons, pointerEvent.button);
 
             let onPointerMove = (e: PointerEvent) => {
+                if (e.pointerId != pointer.id)
+                    return;
                 pointer.ctrlKey = e.ctrlKey;
                 pointer.altKey = e.altKey;
                 pointer.shiftKey = e.shiftKey;
                 pointer.move(e.clientX, e.clientY);
             };
             let onPointerUp = (e: PointerEvent) => {
+                if (e.pointerId != pointer.id)
+                    return;
                 if (pointer.getIsCaptured()) {
                     e.preventDefault();
                     e.stopImmediatePropagation();
@@ -53,6 +57,8 @@ namespace Ui {
                     this.element.drawing.removeEventListener('contextmenu', onContextMenu, { capture: true });
             };
             let onPointerCancel = (e: PointerEvent) => {
+                if (e.pointerId != pointer.id)
+                    return;
                 pointer.ctrlKey = e.ctrlKey;
                 pointer.altKey = e.altKey;
                 pointer.shiftKey = e.shiftKey;
