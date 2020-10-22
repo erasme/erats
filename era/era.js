@@ -17980,12 +17980,6 @@ var Ui;
             this.appendChild(this.background);
             this.bar = new Ui.Rectangle({ width: 4, height: 4 });
             this.appendChild(this.bar);
-            if (init) {
-                if (init.orientation !== undefined)
-                    this.orientation = init.orientation;
-                if (init.value !== undefined)
-                    this.value = init.value;
-            }
             this.clock = new Anim.Clock({
                 repeat: 'forever', duration: 2,
                 ontimeupdate: e => {
@@ -18001,6 +17995,12 @@ var Ui;
                     }
                 }
             });
+            if (init) {
+                if (init.orientation !== undefined)
+                    this.orientation = init.orientation;
+                if (init.value !== undefined)
+                    this.value = init.value;
+            }
         }
         get value() {
             return this._value;

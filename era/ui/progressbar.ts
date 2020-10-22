@@ -17,13 +17,6 @@ namespace Ui {
             this.appendChild(this.background);
             this.bar = new Ui.Rectangle({ width: 4, height: 4 });
             this.appendChild(this.bar);
-            if (init) {
-                if (init.orientation !== undefined)
-                    this.orientation = init.orientation;
-                if (init.value !== undefined)
-                    this.value = init.value;
-            }
-
             this.clock = new Anim.Clock({
                 repeat: 'forever', duration: 2,
                 ontimeupdate: e => {
@@ -39,6 +32,13 @@ namespace Ui {
                     }
                 }
             });
+
+            if (init) {
+                if (init.orientation !== undefined)
+                    this.orientation = init.orientation;
+                if (init.value !== undefined)
+                    this.value = init.value;
+            }
         }
 
         get value(): number | 'infinite' {
@@ -52,7 +52,7 @@ namespace Ui {
                     this.clock.begin();
                 else {
                     this.clock.stop();
-                    this.bar.transform = new Ui.Matrix().translate(0,0);
+                    this.bar.transform = new Ui.Matrix().translate(0, 0);
                 }
                 if (typeof this._value == 'number')
                     this._value = Math.max(0, Math.min(1, this._value));
@@ -70,7 +70,7 @@ namespace Ui {
                 this.invalidateMeasure();
             }
         }
-        
+
         protected measureCore(width: number, height: number) {
             let minHeight = 0;
             let minWidth = 0;
