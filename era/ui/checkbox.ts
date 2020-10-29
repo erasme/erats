@@ -213,6 +213,7 @@ namespace Ui {
             this.graphic.setRadius(this.getStyleProperty('radius'));
             this.bg.borderWidth = parseInt(this.getStyleProperty('borderWidth'));
             this.bg.background = this.getStyleProperty('background');
+            this.bg.radius = parseInt(this.getStyleProperty('borderRadius'));
         }
 
         static style: object = {
@@ -225,7 +226,8 @@ namespace Ui {
             background: 'rgba(250,250,250,0)',
             backgroundBorder: 'rgba(250,250,250,0)',
             focusBackgroundBorder: '#21d3ff',
-            radius: 3
+            radius: 3,
+            borderRadius: 4
         }
     }
 }
