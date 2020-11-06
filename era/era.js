@@ -3953,6 +3953,11 @@ var Ui;
             this._containerDrawing = containerDrawing;
         }
         appendChild(child) {
+            if (child.parent !== undefined) {
+                console.error('try to load in the DOM an element already loaded');
+                if (child.parent instanceof Container)
+                    child.parent.removeChild(child);
+            }
             child.parent = this;
             this._children.push(child);
             this._containerDrawing.appendChild(child.drawing);
@@ -3962,6 +3967,11 @@ var Ui;
             this.onChildInvalidateMeasure(child, 'add');
         }
         prependChild(child) {
+            if (child.parent !== undefined) {
+                console.error('try to load in the DOM an element already loaded');
+                if (child.parent instanceof Container)
+                    child.parent.removeChild(child);
+            }
             child.parent = this;
             this._children.unshift(child);
             if (this._containerDrawing.firstChild !== undefined)
@@ -3991,6 +4001,11 @@ var Ui;
         }
         insertChildAt(child, position) {
             position = Math.max(0, Math.min(position, this._children.length));
+            if (child.parent !== undefined) {
+                console.error('try to load in the DOM an element already loaded');
+                if (child.parent instanceof Container)
+                    child.parent.removeChild(child);
+            }
             child.parent = this;
             this._children.splice(position, 0, child);
             if ((this._containerDrawing.firstChild !== undefined) && (position < this._children.length - 1))
