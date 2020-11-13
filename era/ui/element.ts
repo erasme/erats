@@ -528,8 +528,8 @@ namespace Ui {
                     width = this._measureWidth;
                 }
                 else if (this._horizontalAlign == 'stretch' && this._maxWidth && this._maxWidth < width) {
-                    x += (width - this._maxWidth) / 2;
-                    width = this._maxWidth;
+                    x += (width - Math.max(this._maxWidth, this._measureWidth)) / 2;
+                    width = Math.max(this._maxWidth, this._measureWidth);
                 }
 
                 // handle margin
