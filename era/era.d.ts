@@ -3825,23 +3825,28 @@ declare namespace Ui {
         private _isClosed;
         private openClock?;
         private toastContentBox;
+        private rectangle;
         newToast: boolean;
         lastLayoutX: number;
         lastLayoutY: number;
         lastLayoutWidth: number;
         lastLayoutHeight: number;
+        duration: number;
         readonly closed: Core.Events<{
             target: Toast;
         }>;
         private toaster?;
         constructor();
+        get background(): string | Color | LinearGradient;
+        set background(value: string | Color | LinearGradient);
         get isClosed(): boolean;
         open(position?: ToastPosition): void;
         close(): void;
         protected onOpenTick(clock: any, progress: any, delta: any): void;
         set content(content: Element);
         protected arrangeCore(width: number, height: number): void;
-        static send(content: Element | string, position?: ToastPosition): void;
+        static send(content: Element | string, position?: ToastPosition, duration?: number): Toast;
+        static sendError(content: string, position?: ToastPosition, duration?: number): Toast;
     }
 }
 declare namespace Ui {

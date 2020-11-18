@@ -110,28 +110,40 @@
         private _isClosed: boolean = true;
         private openClock?: Anim.Clock;
         private toastContentBox: LBox;
+        private rectangle = new Ui.Rectangle();
         newToast: boolean = false;
         lastLayoutX: number = 0;
         lastLayoutY: number = 0;
         lastLayoutWidth: number = 0;
         lastLayoutHeight: number = 0;
+        duration = 2;
         readonly closed = new Core.Events<{ target: Toast }>();
         private toaster?: Toaster;
 
         constructor() {
             super();
 
-            let sha = new Ui.Shadow();
-            sha.shadowWidth = 3; sha.radius = 1; sha.inner = false; sha.opacity = 0.4;
-            this.append(sha);
+            this.append(new Ui.Shadow().assign({
+                shadowWidth: 3, radius: 1, inner: false, opacity: 0.4
+            }));
 
-            let r = new Rectangle();
-            r.fill = '#303030'; r.width = 200; r.height = 30; r.margin = 2; r.opacity = 1;
-            this.append(r);
+            this.append(this.rectangle.assign({
+                fill: '#303030',
+                width: 200, height: 30,
+                margin: 2, opacity: 1
+            }));
 
             this.toastContentBox = new LBox();
             this.toastContentBox.margin = 10; this.toastContentBox.width = 200;
             this.append(this.toastContentBox);
+        }
+
+        get background() {
+            return this.rectangle.fill;
+        }
+
+        set background(value) {
+            this.rectangle.fill = value;
         }
 
         get isClosed(): boolean {
@@ -152,7 +164,7 @@
                     this.opacity = 0;
                     // the start of the animation is delayed to the next arrange
                 }
-                new Core.DelayedTask(2, () => this.close());
+                new Core.DelayedTask(this.duration, () => this.close());
                 if (position == 'TopLeft')
                     this.toaster = Ui.Toaster.currentTopLeft;
                 else if (position == 'TopRight')
@@ -212,8 +224,9 @@
                 this.openClock.begin();
         }
 
-        static send(content: Element | string, position: ToastPosition = 'BottomLeft') {
+        static send(content: Element | string, position: ToastPosition = 'BottomLeft', duration: number = 2) {
             let toast = new Ui.Toast();
+            toast.duration = duration;
             if (typeof (content) === 'string') {
                 let t = new Ui.Text();
                 t.text = content as string;
@@ -225,6 +238,13 @@
             }
             toast.content = content;
             toast.open(position);
+            return toast;
+        }
+
+        static sendError(content: string, position: ToastPosition = 'BottomLeft', duration: number = 2) {
+            return Ui.Toast.send(content, position, duration).assign({
+                background: '#f04040'
+            });
         }
     }
 }	

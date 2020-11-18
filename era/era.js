@@ -15738,29 +15738,32 @@ var Ui;
         constructor() {
             super();
             this._isClosed = true;
+            this.rectangle = new Ui.Rectangle();
             this.newToast = false;
             this.lastLayoutX = 0;
             this.lastLayoutY = 0;
             this.lastLayoutWidth = 0;
             this.lastLayoutHeight = 0;
+            this.duration = 2;
             this.closed = new Core.Events();
-            let sha = new Ui.Shadow();
-            sha.shadowWidth = 3;
-            sha.radius = 1;
-            sha.inner = false;
-            sha.opacity = 0.4;
-            this.append(sha);
-            let r = new Ui.Rectangle();
-            r.fill = '#303030';
-            r.width = 200;
-            r.height = 30;
-            r.margin = 2;
-            r.opacity = 1;
-            this.append(r);
+            this.append(new Ui.Shadow().assign({
+                shadowWidth: 3, radius: 1, inner: false, opacity: 0.4
+            }));
+            this.append(this.rectangle.assign({
+                fill: '#303030',
+                width: 200, height: 30,
+                margin: 2, opacity: 1
+            }));
             this.toastContentBox = new Ui.LBox();
             this.toastContentBox.margin = 10;
             this.toastContentBox.width = 200;
             this.append(this.toastContentBox);
+        }
+        get background() {
+            return this.rectangle.fill;
+        }
+        set background(value) {
+            this.rectangle.fill = value;
         }
         get isClosed() {
             return this._isClosed;
@@ -15776,7 +15779,7 @@ var Ui;
                     this.openClock.timeupdate.connect((e) => this.onOpenTick(e.target, e.progress, e.deltaTick));
                     this.opacity = 0;
                 }
-                new Core.DelayedTask(2, () => this.close());
+                new Core.DelayedTask(this.duration, () => this.close());
                 if (position == 'TopLeft')
                     this.toaster = Ui.Toaster.currentTopLeft;
                 else if (position == 'TopRight')
@@ -15828,8 +15831,9 @@ var Ui;
             if ((this.openClock != undefined) && !this.openClock.isActive)
                 this.openClock.begin();
         }
-        static send(content, position = 'BottomLeft') {
+        static send(content, position = 'BottomLeft', duration = 2) {
             let toast = new Ui.Toast();
+            toast.duration = duration;
             if (typeof (content) === 'string') {
                 let t = new Ui.Text();
                 t.text = content;
@@ -15841,6 +15845,12 @@ var Ui;
             }
             toast.content = content;
             toast.open(position);
+            return toast;
+        }
+        static sendError(content, position = 'BottomLeft', duration = 2) {
+            return Ui.Toast.send(content, position, duration).assign({
+                background: '#f04040'
+            });
         }
     }
     Ui.Toast = Toast;
