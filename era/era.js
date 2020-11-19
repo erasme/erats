@@ -1058,6 +1058,15 @@ var Core;
         getResponseHeader(header) {
             return this.request.getResponseHeader(header);
         }
+        get responseType() {
+            return this.request.responseType;
+        }
+        set responseType(value) {
+            this.request.responseType = value;
+        }
+        get response() {
+            return this.request.response;
+        }
         get responseText() {
             return this.request.responseText;
         }

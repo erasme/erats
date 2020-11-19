@@ -161,6 +161,9 @@ declare module Core {
         sendAsync(): Promise<HttpRequest>;
         waitAsync(): Promise<HttpRequest>;
         getResponseHeader(header: string): string;
+        get responseType(): XMLHttpRequestResponseType;
+        set responseType(value: XMLHttpRequestResponseType);
+        get response(): any;
         get responseText(): string;
         get responseBase64(): string;
         get responseJSON(): any;
