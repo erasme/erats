@@ -81,7 +81,7 @@ namespace Ui
         }
 
         static style: TextBgGraphicStyle = {
-            radius: 0,
+            radius: 2,
             borderWidth: 1,
             background: Color.create('rgba(120,120,120,0.2)'),
             focusBackground: Color.create('rgba(33,211,255,0.4)'),
