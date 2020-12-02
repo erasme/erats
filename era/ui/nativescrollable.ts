@@ -24,8 +24,8 @@ namespace Ui {
             this.scrollDiv.style.overflow = 'scroll';
             if (!Core.Navigator.iOs && !Core.Navigator.Android)
                 this.scrollDiv.classList.add('hide-scrollbar');
-            // added for Chrome performance problem
-            this.scrollDiv.style.setProperty('will-change', 'transform');
+            // added for Chrome performance problem (disabled because this generate blur text since Chrome 87)
+            //this.scrollDiv.style.setProperty('will-change', 'transform');
             // added for Chrome performance problem
             this.scrollDiv.style.setProperty('transform', 'translateZ(0)');
             // added for iOS to allow scrolling

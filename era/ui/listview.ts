@@ -437,7 +437,7 @@ namespace Ui {
         }
 
         static style: object = {
-            sepColor: 'rgba(0,0,0,0.5)',
+            sepColor: 'rgba(0,0,0,0.1)',
             color: new Color(0.99, 0.99, 0.99, 0.1),
             selectColor: new Color(0.88, 0.88, 0.88)
         }

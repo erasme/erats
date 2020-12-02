@@ -468,7 +468,7 @@ namespace Ui {
             autoClose: true,
             shadow: 'rgba(0,0,0,0.5)',
             background: '#f8f8f8',
-            radius: 0
+            radius: 5
         }
     }
 }	

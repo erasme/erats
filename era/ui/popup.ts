@@ -442,7 +442,7 @@ namespace Ui
             this.contentBox.arrange(px, py, usedWidth, usedHeight);
         }
 
-        setTop(x, y, width, height) {
+        setTop(x: number, y: number, width: number, height: number) {
             let usedWidth = Math.min(
                 this._preferredWidth ? Math.max(this.contentBox.measureWidth, this._preferredWidth) : this.contentBox.measureWidth,
                 width - 40);
@@ -473,7 +473,7 @@ namespace Ui
             this.contentBox.arrange(px, py - 10, usedWidth, usedHeight);
         }
 
-        setBottom(x, y, width, height) {
+        setBottom(x: number, y: number, width: number, height: number) {
             let usedWidth = Math.min(
                 this._preferredWidth ? Math.max(this.contentBox.measureWidth, this._preferredWidth) : this.contentBox.measureWidth,
                 width - 40);
@@ -504,7 +504,7 @@ namespace Ui
             this.contentBox.arrange(px, py, usedWidth, usedHeight);
         }
 
-        setCenter(width, height) {
+        setCenter(width: number, height: number) {
             this.background.arrowBorder = 'none';
 
             let usedWidth = Math.min(
@@ -523,7 +523,7 @@ namespace Ui
         static style: any = {
             background: '#f8f8f8',
             shadow: 'rgba(0,0,0,0.15)',
-            radius: 0
+            radius: 5
         }
     }
 
@@ -576,8 +576,11 @@ namespace Ui
             }
         }
 
-        private genPath(width, height, radius, arrowBorder, arrowSize, arrowOffset) {
-            let v1; let v2;
+        private genPath(width: number, height: number, radius: number,
+            arrowBorder: 'none' | 'left' | 'right' | 'top' | 'bottom',
+            arrowSize: number, arrowOffset: number
+        ) {
+            let v1: number; let v2: number;
             if (arrowBorder == 'none') {
                 v1 = width - radius;
                 v2 = height - radius;
@@ -615,7 +618,7 @@ namespace Ui
                 ctx.roundRect(0, 0, width, height, this._radius, this._radius, this._radius, this._radius, false);
                 ctx.closePath();
                 ctx.fill();
-                ctx.fillStyle = 'rgba(0,0,0,0.5)';
+                ctx.fillStyle = 'rgba(0,0,0,0.3)';
                 ctx.beginPath();
                 ctx.roundRect(1, 1, width - 2, height - 2, this._radius, this._radius, this._radius, this._radius, false);
                 ctx.closePath();
@@ -631,7 +634,7 @@ namespace Ui
                 ctx.svgPath(this.genPath(width, height, this._radius, this.arrowBorder, this.arrowSize, this._arrowOffset));
                 ctx.fill();
                 ctx.save();
-                ctx.fillStyle = 'rgba(0,0,0,0.5)';
+                ctx.fillStyle = 'rgba(0,0,0,0.3)';
                 ctx.translate(1, 1);
                 ctx.svgPath(this.genPath(width - 2, height - 2, Math.max(0, this._radius - 1), this.arrowBorder, this.arrowSize - 1, this._arrowOffset - 1));
                 ctx.fill();

@@ -11074,7 +11074,6 @@ var Ui;
             this.scrollDiv.style.overflow = 'scroll';
             if (!Core.Navigator.iOs && !Core.Navigator.Android)
                 this.scrollDiv.classList.add('hide-scrollbar');
-            this.scrollDiv.style.setProperty('will-change', 'transform');
             this.scrollDiv.style.setProperty('transform', 'translateZ(0)');
             this.scrollDiv.style.setProperty('-webkit-overflow-scrolling', 'touch');
             this.scrollDiv.onscroll = () => this.onScroll();
@@ -12209,7 +12208,7 @@ var Ui;
     }
     CompactLabel.style = {
         maxLine: Number.MAX_VALUE,
-        color: new Ui.Color(0, 0, 0),
+        color: '#444444',
         fontSize: 16,
         fontFamily: 'sans-serif',
         fontWeight: 'normal',
@@ -13088,15 +13087,15 @@ var Ui;
         focusActiveForeground: 'white',
         radius: 3,
         spacing: 10,
-        padding: 7,
-        iconSize: 26,
-        fontSize: 16,
+        padding: 8,
+        iconSize: 18,
+        fontSize: 14,
         fontFamily: 'Sans-serif',
         fontWeight: 'normal',
         textWidth: 70,
         textTransform: 'uppercase',
         maxTextWidth: Number.MAX_VALUE,
-        textHeight: 26,
+        textHeight: 18,
         textAlign: 'auto',
         interLine: 1,
         maxLine: 3,
@@ -13717,7 +13716,7 @@ var Ui;
     Popup.style = {
         background: '#f8f8f8',
         shadow: 'rgba(0,0,0,0.15)',
-        radius: 0
+        radius: 5
     };
     Ui.Popup = Popup;
     class PopupBackground extends Ui.CanvasElement {
@@ -13797,7 +13796,7 @@ var Ui;
                 ctx.roundRect(0, 0, width, height, this._radius, this._radius, this._radius, this._radius, false);
                 ctx.closePath();
                 ctx.fill();
-                ctx.fillStyle = 'rgba(0,0,0,0.5)';
+                ctx.fillStyle = 'rgba(0,0,0,0.3)';
                 ctx.beginPath();
                 ctx.roundRect(1, 1, width - 2, height - 2, this._radius, this._radius, this._radius, this._radius, false);
                 ctx.closePath();
@@ -13813,7 +13812,7 @@ var Ui;
                 ctx.svgPath(this.genPath(width, height, this._radius, this.arrowBorder, this.arrowSize, this._arrowOffset));
                 ctx.fill();
                 ctx.save();
-                ctx.fillStyle = 'rgba(0,0,0,0.5)';
+                ctx.fillStyle = 'rgba(0,0,0,0.3)';
                 ctx.translate(1, 1);
                 ctx.svgPath(this.genPath(width - 2, height - 2, Math.max(0, this._radius - 1), this.arrowBorder, this.arrowSize - 1, this._arrowOffset - 1));
                 ctx.fill();
@@ -15174,7 +15173,7 @@ var Ui;
         autoClose: true,
         shadow: 'rgba(0,0,0,0.5)',
         background: '#f8f8f8',
-        radius: 0
+        radius: 5
     };
     Ui.Dialog = Dialog;
 })(Ui || (Ui = {}));
@@ -22045,7 +22044,7 @@ var Ui;
         }
     }
     ListViewRow.style = {
-        sepColor: 'rgba(0,0,0,0.5)',
+        sepColor: 'rgba(0,0,0,0.1)',
         color: new Ui.Color(0.99, 0.99, 0.99, 0.1),
         selectColor: new Ui.Color(0.88, 0.88, 0.88)
     };

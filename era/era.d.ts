@@ -3350,9 +3350,9 @@ declare namespace Ui {
         protected arrangeCore(width: number, height: number): void;
         setRight(x: any, y: any, width: any, height: any): void;
         setLeft(x: any, y: any, width: any, height: any): void;
-        setTop(x: any, y: any, width: any, height: any): void;
-        setBottom(x: any, y: any, width: any, height: any): void;
-        setCenter(width: any, height: any): void;
+        setTop(x: number, y: number, width: number, height: number): void;
+        setBottom(x: number, y: number, width: number, height: number): void;
+        setCenter(width: number, height: number): void;
         static style: any;
     }
     class PopupBackground extends CanvasElement {

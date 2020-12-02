@@ -690,7 +690,7 @@ namespace Ui {
 
         static style: object = {
             maxLine: Number.MAX_VALUE,
-            color: new Color(0, 0, 0),
+            color: '#444444',
             fontSize: 16,
             fontFamily: 'sans-serif',
             fontWeight: 'normal',
