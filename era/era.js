@@ -13809,17 +13809,17 @@ var Ui;
             }
             else {
                 ctx.fillStyle = 'rgba(0,0,0,0.1)';
-                ctx.svgPath(this.genPath(width, height, this._radius, this.arrowBorder, this.arrowSize, this._arrowOffset));
+                ctx.svgPath(this.genPath(width, height, this._radius + 2, this.arrowBorder, this.arrowSize, this._arrowOffset));
                 ctx.fill();
                 ctx.save();
                 ctx.fillStyle = 'rgba(0,0,0,0.3)';
                 ctx.translate(1, 1);
-                ctx.svgPath(this.genPath(width - 2, height - 2, Math.max(0, this._radius - 1), this.arrowBorder, this.arrowSize - 1, this._arrowOffset - 1));
+                ctx.svgPath(this.genPath(width - 2, height - 2, Math.max(0, this._radius + 1), this.arrowBorder, this.arrowSize, this._arrowOffset - 1));
                 ctx.fill();
                 ctx.restore();
                 ctx.fillStyle = this._fill.getCssRgba();
                 ctx.translate(2, 2);
-                ctx.svgPath(this.genPath(width - 4, height - 4, Math.max(0, this._radius - 2), this.arrowBorder, this.arrowSize - 1, this._arrowOffset - 2));
+                ctx.svgPath(this.genPath(width - 4, height - 4, Math.max(0, this._radius), this.arrowBorder, this.arrowSize, this._arrowOffset - 2));
                 ctx.fill();
             }
         }
