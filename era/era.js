@@ -14866,12 +14866,14 @@ var Ui;
             this.append(this.bg);
             this.actionBox = new Ui.HBox();
             this.actionBox.margin = 5;
-            this.actionBox.spacing = 10;
             this.append(new Ui.ScrollingArea({ content: this.actionBox, scrollVertical: false }));
             this.actionButtonsBox = new Ui.HBox();
             this.actionButtonsBox.spacing = 5;
             this.actionBox.append(this.actionButtonsBox, true);
-            this.titleLabel = new DialogTitle({ verticalAlign: 'center', horizontalAlign: 'left' });
+            this.titleLabel = new DialogTitle({
+                marginLeft: 10, marginRight: 10,
+                verticalAlign: 'center', horizontalAlign: 'left'
+            });
             this.actionButtonsBox.append(this.titleLabel, true);
         }
         getTitle() {
