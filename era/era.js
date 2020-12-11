@@ -8964,8 +8964,6 @@ var Ui;
         }
         static createMeasureCanvas() {
             let measureWindow = window;
-            if (Core.Navigator.isIE || Core.Navigator.isGecko)
-                measureWindow = Ui.App.getRootWindow();
             if (measureWindow.document.body === undefined) {
                 let body = measureWindow.document.createElement('body');
                 measureWindow.document.body = body;
