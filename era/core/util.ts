@@ -731,33 +731,34 @@ if (!Math.log10) {
   };
 }
 
-// @ts-ignore
-var ResizeObserver: any;
 // Provide a polyfill
-if (ResizeObserver == undefined) {
+if (!(window as any).ResizeObserver) {
     if ((<any>window).MutationObserver) {
         // @ts-ignore
-        ResizeObserver = function(callback: () => void) {
+        function EmuResizeObserver(callback: () => void) {
             // @ts-ignore
             this.callback = callback;
-        };
-        ResizeObserver.prototype.observe = function(element: HTMLElement) {
-            if (this.elements == undefined)
-                this.elements = [];
-            let data = {
-                element: element,
-                width: 0, height: 0,
-            }
-            let observer = new MutationObserver((e) => {
-                if ((data.width != data.element.offsetWidth) || (data.height != data.element.offsetHeight)) {
-                    data.width = data.element.offsetWidth;
-                    data.height = data.element.offsetHeight;
-                    this.callback();
+            this.observe = function(element: HTMLElement) {
+                if (this.elements == undefined)
+                    this.elements = [];
+                let data = {
+                    element: element,
+                    width: 0, height: 0,
                 }
-            });
-            observer.observe(element, {
-                attributes: true
-            });
-        }
+                let observer = new MutationObserver(() => {
+                    if ((data.width != data.element.offsetWidth) || (data.height != data.element.offsetHeight)) {
+                        data.width = data.element.offsetWidth;
+                        data.height = data.element.offsetHeight;
+                        this.callback();
+                    }
+                });
+                observer.observe(element, {
+                    attributes: true
+                });
+            }
+            this.disconnect = function() {};
+            this.unobserve = function(target: Element) {};
+        };
+        (window as any).ResizeObserver = EmuResizeObserver;
     }
 }

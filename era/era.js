@@ -692,30 +692,33 @@ if (!Math.log10) {
         return Math.log(x) * Math.LOG10E;
     };
 }
-var ResizeObserver;
-if (ResizeObserver == undefined) {
+if (!window.ResizeObserver) {
     if (window.MutationObserver) {
-        ResizeObserver = function (callback) {
+        function EmuResizeObserver(callback) {
             this.callback = callback;
-        };
-        ResizeObserver.prototype.observe = function (element) {
-            if (this.elements == undefined)
-                this.elements = [];
-            let data = {
-                element: element,
-                width: 0, height: 0,
+            this.observe = function (element) {
+                if (this.elements == undefined)
+                    this.elements = [];
+                let data = {
+                    element: element,
+                    width: 0, height: 0,
+                };
+                let observer = new MutationObserver(() => {
+                    if ((data.width != data.element.offsetWidth) || (data.height != data.element.offsetHeight)) {
+                        data.width = data.element.offsetWidth;
+                        data.height = data.element.offsetHeight;
+                        this.callback();
+                    }
+                });
+                observer.observe(element, {
+                    attributes: true
+                });
             };
-            let observer = new MutationObserver((e) => {
-                if ((data.width != data.element.offsetWidth) || (data.height != data.element.offsetHeight)) {
-                    data.width = data.element.offsetWidth;
-                    data.height = data.element.offsetHeight;
-                    this.callback();
-                }
-            });
-            observer.observe(element, {
-                attributes: true
-            });
-        };
+            this.disconnect = function () { };
+            this.unobserve = function (target) { };
+        }
+        ;
+        window.ResizeObserver = EmuResizeObserver;
     }
 }
 var Core;

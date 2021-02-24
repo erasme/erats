@@ -59,7 +59,6 @@ declare namespace Core {
         static supportUploadDirectory: boolean;
     }
 }
-declare var ResizeObserver: any;
 declare namespace Core {
     class Uri extends Object {
         scheme: string;
