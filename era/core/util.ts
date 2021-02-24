@@ -731,10 +731,12 @@ if (!Math.log10) {
   };
 }
 
+// @ts-ignore
 var ResizeObserver: any;
 // Provide a polyfill
 if (ResizeObserver == undefined) {
     if ((<any>window).MutationObserver) {
+        // @ts-ignore
         ResizeObserver = function(callback: () => void) {
             // @ts-ignore
             this.callback = callback;

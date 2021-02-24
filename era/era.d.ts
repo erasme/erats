@@ -2912,7 +2912,7 @@ declare namespace Ui {
         getFontFamily(): string;
         setFontWeight(fontWeight: any): void;
         getFontWeight(): string;
-        getTextTransform(): TextTransform;
+        getTextTransform(): "none" | "uppercase" | "lowercase";
         setTextTransform(textTransform: any): void;
         getTransformedText(): string;
         flushLine(y: any, line: any, width: any, render: any, lastLine?: boolean): number;
@@ -6185,7 +6185,7 @@ declare namespace Ui {
         setHeader(header: any): void;
         getContent(): Element;
         setContent(content: any): void;
-        getOrientation(): Orientation;
+        getOrientation(): "vertical" | "horizontal";
         setOrientation(orientation: any): void;
         unselect(): void;
         showContent(): void;
