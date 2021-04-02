@@ -6760,6 +6760,12 @@ declare namespace Ui {
         };
         onDisable(): void;
         onEnable(): void;
+        onStyleChange(): void;
+        static style: RadioBoxGraphicStyle;
+    }
+    interface RadioBoxGraphicStyle {
+        color: Color;
+        activeColor: Color;
     }
 }
 declare namespace Ui {

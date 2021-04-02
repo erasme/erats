@@ -2,13 +2,13 @@ namespace Ui {
     export class RadioBoxGraphic extends CanvasElement {
         private _isDown: boolean = false;
         private _isChecked: boolean = false;
-        private _color: Color;
-        private _activeColor: Color;
+        private _color: Color | undefined;
+        private _activeColor: Color | undefined;
         private _borderWidth: number = 2;
 
         constructor() {
             super();
-            this.color = new Ui.Color(1, 1, 1);
+            this.color = new Ui.Color(0.26, 0.26, 0.26);
             this.activeColor = new Ui.Color(0.31, 0.66, 0.31);
         }
 
@@ -35,7 +35,9 @@ namespace Ui {
         }
 
         get color() {
-            return this._color;
+            if (this._color)
+                return this._color;
+            return Ui.Color.create(this.getStyleProperty('color'));
         }
 
         set color(color) {
@@ -62,11 +64,11 @@ namespace Ui {
         }
 
         get activeColor() {
-            if (!this._activeColor) return;
+            let color = this._activeColor ? this._activeColor : Ui.Color.create(this.getStyleProperty('activeColor'));
             let deltaY = 0;
             if (this.isDown)
                 deltaY = 0.20;
-            let yuv = this._activeColor.getYuv();
+            let yuv = color.getYuv();
             return Color.createFromYuv(yuv.y + deltaY, yuv.u, yuv.v);
         }
 
@@ -117,5 +119,19 @@ namespace Ui {
         onEnable() {
             this.invalidateDraw();
         }
+
+        onStyleChange() {
+            this.invalidateDraw();
+        }
+
+        static style: RadioBoxGraphicStyle = {
+            color: Color.create('rgba(120,120,120,0.2)'),
+            activeColor: Color.create('rgba(33,211,255,0.4)')
+        }
+    }
+
+    export interface RadioBoxGraphicStyle {
+        color: Color;
+        activeColor: Color;
     }
 }

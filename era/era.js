@@ -25979,7 +25979,7 @@ var Ui;
             this._isDown = false;
             this._isChecked = false;
             this._borderWidth = 2;
-            this.color = new Ui.Color(1, 1, 1);
+            this.color = new Ui.Color(0.26, 0.26, 0.26);
             this.activeColor = new Ui.Color(0.31, 0.66, 0.31);
         }
         get isDown() {
@@ -26001,7 +26001,9 @@ var Ui;
             }
         }
         get color() {
-            return this._color;
+            if (this._color)
+                return this._color;
+            return Ui.Color.create(this.getStyleProperty('color'));
         }
         set color(color) {
             if (this.color !== color) {
@@ -26023,12 +26025,11 @@ var Ui;
             }
         }
         get activeColor() {
-            if (!this._activeColor)
-                return;
+            let color = this._activeColor ? this._activeColor : Ui.Color.create(this.getStyleProperty('activeColor'));
             let deltaY = 0;
             if (this.isDown)
                 deltaY = 0.20;
-            let yuv = this._activeColor.getYuv();
+            let yuv = color.getYuv();
             return Ui.Color.createFromYuv(yuv.y + deltaY, yuv.u, yuv.v);
         }
         updateCanvas(ctx) {
@@ -26067,7 +26068,14 @@ var Ui;
         onEnable() {
             this.invalidateDraw();
         }
+        onStyleChange() {
+            this.invalidateDraw();
+        }
     }
+    RadioBoxGraphic.style = {
+        color: Ui.Color.create('rgba(120,120,120,0.2)'),
+        activeColor: Ui.Color.create('rgba(33,211,255,0.4)')
+    };
     Ui.RadioBoxGraphic = RadioBoxGraphic;
 })(Ui || (Ui = {}));
 var Ui;
