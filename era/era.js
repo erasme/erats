@@ -26002,8 +26002,6 @@ var Ui;
             this._isDown = false;
             this._isChecked = false;
             this._borderWidth = 2;
-            this.color = new Ui.Color(0.26, 0.26, 0.26);
-            this.activeColor = new Ui.Color(0.31, 0.66, 0.31);
         }
         get isDown() {
             return this._isDown;
