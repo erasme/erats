@@ -4112,24 +4112,29 @@ declare namespace Ui {
 }
 declare namespace Ui {
     class CheckBoxGraphic extends CanvasElement {
-        isDown: boolean;
-        isChecked: boolean;
-        color: Color;
-        checkColor: Color;
-        activeColor: Color;
-        borderWidth: number;
-        radius: number;
+        private _isDown;
+        private _isChecked;
+        private _color;
+        private _checkColor;
+        private _borderWidth;
+        private _radius;
         constructor();
-        getIsDown(): boolean;
-        setIsDown(isDown: any): void;
-        getIsChecked(): boolean;
-        setIsChecked(isChecked: any): void;
-        setRadius(radius: any): void;
-        getColor(): Color;
-        setColor(color: any): void;
-        setBorderWidth(borderWidth: any): void;
-        setCheckColor(color: any): void;
-        getCheckColor(): Color;
+        get isDown(): boolean;
+        set isDown(isDown: boolean);
+        get isChecked(): boolean;
+        set isChecked(isChecked: boolean);
+        get radius(): number;
+        set radius(radius: number);
+        get color(): Ui.Color;
+        set color(value: Ui.Color);
+        private getColor;
+        private setColor;
+        get borderWidth(): number;
+        set borderWidth(borderWidth: number);
+        get checkColor(): Ui.Color;
+        set checkColor(value: Ui.Color);
+        private setCheckColor;
+        private getCheckColor;
         updateCanvas(ctx: any): void;
         measureCore(width: any, height: any): {
             width: number;
@@ -4137,6 +4142,11 @@ declare namespace Ui {
         };
         onDisable(): void;
         onEnable(): void;
+        static style: CheckBoxGraphicStyle;
+    }
+    interface CheckBoxGraphicStyle {
+        color: Color | string;
+        checkColor: Color | string;
     }
 }
 declare namespace Ui {
@@ -6764,8 +6774,8 @@ declare namespace Ui {
         static style: RadioBoxGraphicStyle;
     }
     interface RadioBoxGraphicStyle {
-        color: Color;
-        activeColor: Color;
+        color: Color | string;
+        activeColor: Color | string;
     }
 }
 declare namespace Ui {

@@ -2,78 +2,102 @@ namespace Ui
 {
     export class CheckBoxGraphic extends CanvasElement
     {
-        isDown: boolean = false;
-        isChecked: boolean = false;
-        color: Color;
-        checkColor: Color;
-        activeColor: Color;
-        borderWidth: number = 2;
-        radius: number = 3;
+        private _isDown: boolean = false;
+        private _isChecked: boolean = false;
+        private _color: Color | undefined;
+        private _checkColor: Color | undefined;
+        private _borderWidth: number = 2;
+        private _radius: number = 3;
 
         constructor() {
             super();
-            this.color = new Ui.Color(1, 1, 1);
-            this.activeColor = new Ui.Color(0.31, 0.66, 0.31);
-            this.checkColor = new Ui.Color(1, 1, 1);
         }
 
-        getIsDown() {
-            return this.isDown;
+        get isDown() {
+            return this._isDown;
         }
 
-        setIsDown(isDown) {
-            if (this.isDown != isDown) {
-                this.isDown = isDown;
+        set isDown(isDown: boolean) {
+            if (this._isDown != isDown) {
+                this._isDown = isDown;
                 this.invalidateDraw();
             }
         }
 
-        getIsChecked() {
-            return this.isChecked;
+        get isChecked() {
+            return this._isChecked;
         }
 
-        setIsChecked(isChecked) {
-            if (this.isChecked != isChecked) {
-                this.isChecked = isChecked;
+        set isChecked(isChecked: boolean) {
+            if (this._isChecked != isChecked) {
+                this._isChecked = isChecked;
                 this.invalidateDraw();
             }
         }
 
-        setRadius(radius) {
-            if (this.radius !== radius) {
-                this.radius = radius;
+        get radius() {
+            return this._radius;
+        }
+
+        set radius(radius: number) {
+            if (this._radius !== radius) {
+                this._radius = radius;
                 this.invalidateDraw();
             }
         }
 
-        getColor() {
+        get color() {
+            if (this._color)
+                return this._color;
+            return Ui.Color.create(this.getStyleProperty('color'));
+        }
+
+        set color(value: Ui.Color) {
+            this.setColor(value);
+        }
+
+        private getColor() {
             return this.color;
         }
 
-        setColor(color) {
-            if (this.color !== color) {
-                this.color = Ui.Color.create(color);
+        private setColor(color) {
+            if (this._color !== color) {
+                this._color = Ui.Color.create(color);
                 this.invalidateDraw();
             }
         }
 
-        setBorderWidth(borderWidth) {
-            if (this.borderWidth !== borderWidth) {
-                this.borderWidth = borderWidth;
+        get borderWidth() {
+            return this._borderWidth;
+        }
+
+        set borderWidth(borderWidth: number) {
+            if (this._borderWidth !== borderWidth) {
+                this._borderWidth = borderWidth;
                 this.invalidateDraw();
             }
         }
 
-        setCheckColor(color) {
-            if (this.checkColor !== color) {
-                this.checkColor = Ui.Color.create(color);
+        get checkColor() {
+            if (this._checkColor)
+                return this._checkColor;
+            return Ui.Color.create(this.getStyleProperty('checkColor'));
+        }
+
+        set checkColor(value: Ui.Color) {
+            this.setCheckColor(value);
+        }
+
+        private setCheckColor(color) {
+            if (this._checkColor !== color) {
+                this._checkColor = Ui.Color.create(color);
                 this.invalidateDraw();
             }
         }
 
-        getCheckColor() {
+        private getCheckColor() {
             let deltaY = 0;
-            if (this.getIsDown())
+            if (this.isDown)
                 deltaY = 0.20;
             let yuv = this.checkColor.getYuv();
             return Color.createFromYuv(yuv.y + deltaY, yuv.u, yuv.v);
@@ -88,7 +112,7 @@ namespace Ui
             let radius = Math.min(this.radius, 10);
 
             // background
-            if (this.getIsDown())
+            if (this.isDown)
                 ctx.globalAlpha = 0.8;
 
             // handle disable
@@ -142,5 +166,15 @@ namespace Ui
         onEnable() {
             this.invalidateDraw();
         }
+
+        static style: CheckBoxGraphicStyle = {
+            color: 'rgba(120,120,120,0.2)',
+            checkColor: 'rgba(33,211,255,0.4)'
+        }
+    }
+
+    export interface CheckBoxGraphicStyle {
+        color: Color | string;
+        checkColor: Color | string;
     }
 }

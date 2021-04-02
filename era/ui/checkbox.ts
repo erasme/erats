@@ -156,8 +156,8 @@ namespace Ui {
                 this._isToggled = true;
                 this.drawing.setAttribute('aria-checked', 'true');
                 this.toggled.fire({ target: this });
-                this.graphic.setIsChecked(true);
-                this.graphic.setColor(this.getStyleProperty('activeColor'));
+                this.graphic.isChecked = true;
+                this.graphic.color = this.getStyleProperty('activeColor');
                 this.changed.fire({ target: this, value: true });
             }
         }
@@ -167,50 +167,50 @@ namespace Ui {
                 this._isToggled = false;
                 this.drawing.setAttribute('aria-checked', 'false');
                 this.untoggled.fire({ target: this });
-                this.graphic.setIsChecked(false);
-                this.graphic.setColor(this.getStyleProperty('color'));
+                this.graphic.isChecked = false;
+                this.graphic.color = this.getStyleProperty('color');
                 this.changed.fire({ target: this, value: false });
             }
         }
 
         protected onCheckFocus() {
             if (!this.getIsMouseFocus()) {
-                this.graphic.setColor(this.getStyleProperty('focusColor'));
+                this.graphic.color = this.getStyleProperty('focusColor');
                 this.bg.border = this.getStyleProperty('focusBackgroundBorder');
             }
         }
 
         protected onCheckBlur() {
             if (this._isToggled)
-                this.graphic.setColor(this.getStyleProperty('activeColor'));
+                this.graphic.color = this.getStyleProperty('activeColor');
             else
-                this.graphic.setColor(this.getStyleProperty('color'));
+                this.graphic.color = this.getStyleProperty('color');
             this.bg.border = this.getStyleProperty('backgroundBorder');
         }
 
         protected onCheckBoxDown() {
-            this.graphic.setIsDown(true);
+            this.graphic.isDown = true;
         }
 
         protected onCheckBoxUp() {
-            this.graphic.setIsDown(false);
+            this.graphic.isDown = false;
         }
 
         protected onStyleChange() {
             if (this.hasFocus) {
-                this.graphic.setColor(this.getStyleProperty('focusColor'));
+                this.graphic.color = this.getStyleProperty('focusColor');
                 this.bg.border = this.getStyleProperty('focusBackgroundBorder');
             }
             else {
                 this.bg.border = this.getStyleProperty('backgroundBorder');
                 if (this._isToggled)
-                    this.graphic.setColor(this.getStyleProperty('activeColor'));
+                    this.graphic.color = this.getStyleProperty('activeColor');
                 else
-                    this.graphic.setColor(this.getStyleProperty('color'));
+                    this.graphic.color = this.getStyleProperty('color');
             }
-            this.graphic.setCheckColor(this.getStyleProperty('checkColor'));
-            this.graphic.setBorderWidth(this.getStyleProperty('checkWidth'));
-            this.graphic.setRadius(this.getStyleProperty('radius'));
+            this.graphic.checkColor = this.getStyleProperty('checkColor');
+            this.graphic.borderWidth = this.getStyleProperty('checkWidth');
+            this.graphic.radius = this.getStyleProperty('radius');
             this.bg.borderWidth = parseInt(this.getStyleProperty('borderWidth'));
             this.bg.background = this.getStyleProperty('background');
             this.bg.radius = parseInt(this.getStyleProperty('borderRadius'));

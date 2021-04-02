@@ -16618,62 +16618,81 @@ var Ui;
     class CheckBoxGraphic extends Ui.CanvasElement {
         constructor() {
             super();
-            this.isDown = false;
-            this.isChecked = false;
-            this.borderWidth = 2;
-            this.radius = 3;
-            this.color = new Ui.Color(1, 1, 1);
-            this.activeColor = new Ui.Color(0.31, 0.66, 0.31);
-            this.checkColor = new Ui.Color(1, 1, 1);
+            this._isDown = false;
+            this._isChecked = false;
+            this._borderWidth = 2;
+            this._radius = 3;
         }
-        getIsDown() {
-            return this.isDown;
+        get isDown() {
+            return this._isDown;
         }
-        setIsDown(isDown) {
-            if (this.isDown != isDown) {
-                this.isDown = isDown;
+        set isDown(isDown) {
+            if (this._isDown != isDown) {
+                this._isDown = isDown;
                 this.invalidateDraw();
             }
         }
-        getIsChecked() {
-            return this.isChecked;
+        get isChecked() {
+            return this._isChecked;
         }
-        setIsChecked(isChecked) {
-            if (this.isChecked != isChecked) {
-                this.isChecked = isChecked;
+        set isChecked(isChecked) {
+            if (this._isChecked != isChecked) {
+                this._isChecked = isChecked;
                 this.invalidateDraw();
             }
         }
-        setRadius(radius) {
-            if (this.radius !== radius) {
-                this.radius = radius;
+        get radius() {
+            return this._radius;
+        }
+        set radius(radius) {
+            if (this._radius !== radius) {
+                this._radius = radius;
                 this.invalidateDraw();
             }
+        }
+        get color() {
+            if (this._color)
+                return this._color;
+            return Ui.Color.create(this.getStyleProperty('color'));
+        }
+        set color(value) {
+            this.setColor(value);
         }
         getColor() {
             return this.color;
         }
         setColor(color) {
-            if (this.color !== color) {
-                this.color = Ui.Color.create(color);
+            if (this._color !== color) {
+                this._color = Ui.Color.create(color);
                 this.invalidateDraw();
             }
         }
-        setBorderWidth(borderWidth) {
-            if (this.borderWidth !== borderWidth) {
-                this.borderWidth = borderWidth;
+        get borderWidth() {
+            return this._borderWidth;
+        }
+        set borderWidth(borderWidth) {
+            if (this._borderWidth !== borderWidth) {
+                this._borderWidth = borderWidth;
                 this.invalidateDraw();
             }
+        }
+        get checkColor() {
+            if (this._checkColor)
+                return this._checkColor;
+            return Ui.Color.create(this.getStyleProperty('checkColor'));
+        }
+        set checkColor(value) {
+            this.setCheckColor(value);
         }
         setCheckColor(color) {
-            if (this.checkColor !== color) {
-                this.checkColor = Ui.Color.create(color);
+            if (this._checkColor !== color) {
+                this._checkColor = Ui.Color.create(color);
                 this.invalidateDraw();
             }
         }
         getCheckColor() {
             let deltaY = 0;
-            if (this.getIsDown())
+            if (this.isDown)
                 deltaY = 0.20;
             let yuv = this.checkColor.getYuv();
             return Ui.Color.createFromYuv(yuv.y + deltaY, yuv.u, yuv.v);
@@ -16684,7 +16703,7 @@ var Ui;
             let cx = w / 2;
             let cy = h / 2;
             let radius = Math.min(this.radius, 10);
-            if (this.getIsDown())
+            if (this.isDown)
                 ctx.globalAlpha = 0.8;
             if (this.isDisabled)
                 ctx.globalAlpha = 0.4;
@@ -16727,6 +16746,10 @@ var Ui;
             this.invalidateDraw();
         }
     }
+    CheckBoxGraphic.style = {
+        color: 'rgba(120,120,120,0.2)',
+        checkColor: 'rgba(33,211,255,0.4)'
+    };
     Ui.CheckBoxGraphic = CheckBoxGraphic;
 })(Ui || (Ui = {}));
 var Ui;
@@ -16855,8 +16878,8 @@ var Ui;
                 this._isToggled = true;
                 this.drawing.setAttribute('aria-checked', 'true');
                 this.toggled.fire({ target: this });
-                this.graphic.setIsChecked(true);
-                this.graphic.setColor(this.getStyleProperty('activeColor'));
+                this.graphic.isChecked = true;
+                this.graphic.color = this.getStyleProperty('activeColor');
                 this.changed.fire({ target: this, value: true });
             }
         }
@@ -16865,45 +16888,45 @@ var Ui;
                 this._isToggled = false;
                 this.drawing.setAttribute('aria-checked', 'false');
                 this.untoggled.fire({ target: this });
-                this.graphic.setIsChecked(false);
-                this.graphic.setColor(this.getStyleProperty('color'));
+                this.graphic.isChecked = false;
+                this.graphic.color = this.getStyleProperty('color');
                 this.changed.fire({ target: this, value: false });
             }
         }
         onCheckFocus() {
             if (!this.getIsMouseFocus()) {
-                this.graphic.setColor(this.getStyleProperty('focusColor'));
+                this.graphic.color = this.getStyleProperty('focusColor');
                 this.bg.border = this.getStyleProperty('focusBackgroundBorder');
             }
         }
         onCheckBlur() {
             if (this._isToggled)
-                this.graphic.setColor(this.getStyleProperty('activeColor'));
+                this.graphic.color = this.getStyleProperty('activeColor');
             else
-                this.graphic.setColor(this.getStyleProperty('color'));
+                this.graphic.color = this.getStyleProperty('color');
             this.bg.border = this.getStyleProperty('backgroundBorder');
         }
         onCheckBoxDown() {
-            this.graphic.setIsDown(true);
+            this.graphic.isDown = true;
         }
         onCheckBoxUp() {
-            this.graphic.setIsDown(false);
+            this.graphic.isDown = false;
         }
         onStyleChange() {
             if (this.hasFocus) {
-                this.graphic.setColor(this.getStyleProperty('focusColor'));
+                this.graphic.color = this.getStyleProperty('focusColor');
                 this.bg.border = this.getStyleProperty('focusBackgroundBorder');
             }
             else {
                 this.bg.border = this.getStyleProperty('backgroundBorder');
                 if (this._isToggled)
-                    this.graphic.setColor(this.getStyleProperty('activeColor'));
+                    this.graphic.color = this.getStyleProperty('activeColor');
                 else
-                    this.graphic.setColor(this.getStyleProperty('color'));
+                    this.graphic.color = this.getStyleProperty('color');
             }
-            this.graphic.setCheckColor(this.getStyleProperty('checkColor'));
-            this.graphic.setBorderWidth(this.getStyleProperty('checkWidth'));
-            this.graphic.setRadius(this.getStyleProperty('radius'));
+            this.graphic.checkColor = this.getStyleProperty('checkColor');
+            this.graphic.borderWidth = this.getStyleProperty('checkWidth');
+            this.graphic.radius = this.getStyleProperty('radius');
             this.bg.borderWidth = parseInt(this.getStyleProperty('borderWidth'));
             this.bg.background = this.getStyleProperty('background');
             this.bg.radius = parseInt(this.getStyleProperty('borderRadius'));
@@ -26073,8 +26096,8 @@ var Ui;
         }
     }
     RadioBoxGraphic.style = {
-        color: Ui.Color.create('rgba(120,120,120,0.2)'),
-        activeColor: Ui.Color.create('rgba(33,211,255,0.4)')
+        color: 'rgba(120,120,120,0.2)',
+        activeColor: 'rgba(33,211,255,0.4)'
     };
     Ui.RadioBoxGraphic = RadioBoxGraphic;
 })(Ui || (Ui = {}));

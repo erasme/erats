@@ -125,13 +125,13 @@ namespace Ui {
         }
 
         static style: RadioBoxGraphicStyle = {
-            color: Color.create('rgba(120,120,120,0.2)'),
-            activeColor: Color.create('rgba(33,211,255,0.4)')
+            color: 'rgba(120,120,120,0.2)',
+            activeColor: 'rgba(33,211,255,0.4)'
         }
     }
 
     export interface RadioBoxGraphicStyle {
-        color: Color;
-        activeColor: Color;
+        color: Color | string;
+        activeColor: Color | string;
     }
 }
