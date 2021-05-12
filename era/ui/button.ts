@@ -594,6 +594,16 @@ namespace Ui {
     }
 
     export class FlatButton extends Button {
+        protected onDisable() {
+            super.onDisable();
+            this.buttonPartsBox.opacity = 0.5;
+        }
+
+        protected onEnable() {
+            super.onEnable();
+            this.buttonPartsBox.opacity = 1;
+        }
+
         static style: object = {
             borderWidth: 1,
             background: 'rgba(250,250,250,0)',

@@ -13115,6 +13115,14 @@ var Ui;
     };
     Ui.DefaultButton = DefaultButton;
     class FlatButton extends Button {
+        onDisable() {
+            super.onDisable();
+            this.buttonPartsBox.opacity = 0.5;
+        }
+        onEnable() {
+            super.onEnable();
+            this.buttonPartsBox.opacity = 1;
+        }
     }
     FlatButton.style = {
         borderWidth: 1,

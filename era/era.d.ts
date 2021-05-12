@@ -3221,6 +3221,8 @@ declare namespace Ui {
         static style: object;
     }
     class FlatButton extends Button {
+        protected onDisable(): void;
+        protected onEnable(): void;
         static style: object;
     }
 }
