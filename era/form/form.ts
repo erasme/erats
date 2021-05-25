@@ -607,6 +607,18 @@ namespace Form {
             this.field.value = value.toString();
         }
 
+        set min(value: number) {
+            this.field.entry.drawing.min = value.toString();
+        }
+
+        set max(value: number) {
+            this.field.entry.drawing.max = value.toString();
+        }
+
+        set step(value: number) {
+            this.field.entry.drawing.step = value.toString();
+        }
+
         set placeholder(value: string) {
             this.field.textHolder = value;
         }

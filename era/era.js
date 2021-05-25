@@ -26892,6 +26892,15 @@ var Form;
         set value(value) {
             this.field.value = value.toString();
         }
+        set min(value) {
+            this.field.entry.drawing.min = value.toString();
+        }
+        set max(value) {
+            this.field.entry.drawing.max = value.toString();
+        }
+        set step(value) {
+            this.field.entry.drawing.step = value.toString();
+        }
         set placeholder(value) {
             this.field.textHolder = value;
         }

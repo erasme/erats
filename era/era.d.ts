@@ -7091,6 +7091,9 @@ declare namespace Form {
         get isDefined(): boolean;
         get value(): number;
         set value(value: number);
+        set min(value: number);
+        set max(value: number);
+        set step(value: number);
         set placeholder(value: string);
     }
     interface ColorFieldInit extends Form.FieldInit<Ui.ColorButton> {
