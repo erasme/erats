@@ -599,12 +599,12 @@ namespace Form {
             return this.field.value != '' && !isNaN(parseFloat(this.field.value));
         }
 
-        get value(): number {
-            return parseFloat(this.field.value);
+        get value(): number | undefined {
+            return this.field.value == '' ? undefined : parseFloat(this.field.value);
         }
 
-        set value(value: number) {
-            this.field.value = value.toString();
+        set value(value: number | undefined) {
+            this.field.value = value == undefined ? '' : value.toString();
         }
 
         set min(value: number) {

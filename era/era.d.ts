@@ -7089,8 +7089,8 @@ declare namespace Form {
         constructor(init?: NumberFieldInit);
         protected generateUi(): Ui.TextField;
         get isDefined(): boolean;
-        get value(): number;
-        set value(value: number);
+        get value(): number | undefined;
+        set value(value: number | undefined);
         set min(value: number);
         set max(value: number);
         set step(value: number);

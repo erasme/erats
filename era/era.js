@@ -26887,10 +26887,10 @@ var Form;
             return this.field.value != '' && !isNaN(parseFloat(this.field.value));
         }
         get value() {
-            return parseFloat(this.field.value);
+            return this.field.value == '' ? undefined : parseFloat(this.field.value);
         }
         set value(value) {
-            this.field.value = value.toString();
+            this.field.value = value == undefined ? '' : value.toString();
         }
         set min(value) {
             this.field.entry.drawing.min = value.toString();
