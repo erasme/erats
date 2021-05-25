@@ -3976,6 +3976,8 @@ declare namespace Ui {
         set value(value: string);
         get inputMode(): string;
         set inputMode(value: string);
+        get type(): string | 'text' | 'number' | 'password';
+        set type(value: string | 'text' | 'number' | 'password');
         get autocomplete(): string;
         set autocomplete(value: string);
         private onPaste;
@@ -4101,6 +4103,8 @@ declare namespace Ui {
         set captureValidated(value: boolean);
         get inputMode(): string;
         set inputMode(value: string);
+        get type(): string | 'text' | 'number' | 'password';
+        set type(value: string | 'text' | 'number' | 'password');
         get autocomplete(): string;
         set autocomplete(value: string);
         private onEntryFocus;

@@ -592,7 +592,7 @@ namespace Form {
         }
 
         protected generateUi() {
-            return new Ui.TextField();
+            return new Ui.TextField().assign({ inputMode: 'number', type: 'number' });
         }
 
         get isDefined(): boolean {

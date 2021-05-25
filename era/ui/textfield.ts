@@ -100,6 +100,14 @@ namespace Ui {
             this.entry.inputMode = value;
         }
 
+        get type(): string | 'text' | 'number' | 'password' {
+            return this.entry.type;
+        }
+
+        set type(value: string | 'text' | 'number' | 'password') {
+            this.entry.type = value;
+        }
+
         get autocomplete(): string {
             return this.entry.autocomplete;
         }

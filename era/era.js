@@ -16223,6 +16223,13 @@ var Ui;
         set inputMode(value) {
             this.drawing.inputMode = value;
         }
+        get type() {
+            return this.drawing.type;
+        }
+        set type(value) {
+            this.drawing.type = value;
+            this.invalidateMeasure();
+        }
         get autocomplete() {
             return this.drawing.autocomplete;
         }
@@ -16292,7 +16299,7 @@ var Ui;
         }
         measureCore(width, height) {
             this.drawing.style.height = '';
-            return { width: 10, height: Math.max(this.fontSize, this.drawing.scrollHeight) };
+            return { width: this.type == 'text' ? 10 : 30, height: Math.max(this.fontSize, this.drawing.scrollHeight) };
         }
         arrangeCore(width, height) {
             this.drawing.style.width = width + 'px';
@@ -16585,6 +16592,12 @@ var Ui;
         }
         set inputMode(value) {
             this.entry.inputMode = value;
+        }
+        get type() {
+            return this.entry.type;
+        }
+        set type(value) {
+            this.entry.type = value;
         }
         get autocomplete() {
             return this.entry.autocomplete;
@@ -26868,7 +26881,7 @@ var Form;
             }
         }
         generateUi() {
-            return new Ui.TextField();
+            return new Ui.TextField().assign({ inputMode: 'number', type: 'number' });
         }
         get isDefined() {
             return this.field.value != '' && !isNaN(parseFloat(this.field.value));

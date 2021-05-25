@@ -167,6 +167,15 @@ namespace Ui {
             this.drawing.inputMode = value;
         }
 
+        get type(): string | 'text' | 'number' | 'password' {
+            return this.drawing.type;
+        }
+
+        set type(value: string | 'text' | 'number' | 'password') {
+            this.drawing.type = value;
+            this.invalidateMeasure();
+        }
+
         get autocomplete(): string {
             return this.drawing.autocomplete;
         }
@@ -247,7 +256,7 @@ namespace Ui {
 
         protected measureCore(width: number, height: number): { width: number, height: number } {
             this.drawing.style.height = '';
-            return { width: 10, height: Math.max(this.fontSize, this.drawing.scrollHeight) };
+            return { width: this.type == 'text' ? 10 : 30, height: Math.max(this.fontSize, this.drawing.scrollHeight) };
         }
 
         protected arrangeCore(width: number, height: number) {
