@@ -29,7 +29,7 @@ namespace Ui {
             this.bar = new Rectangle({ width: 4, height: 14, radius: 7 });
             this.appendChild(this.bar);
 
-            this.button = new Movable({ moveVertical: false });
+            this.button = new Movable({ moveVertical: false, cursor: 'pointer' });
             this.appendChild(this.button);
             this.button.moved.connect(this.onButtonMove);
             this.button.focused.connect(() => this.updateColors());
@@ -222,9 +222,7 @@ namespace Ui {
         protected measureCore(width: number, height: number) {
             let buttonSize = this.button.measure(0, 0);
             let size = buttonSize;
-            let res;
-
-            res = this.background.measure(buttonSize.width * 1.75, 0);
+            let res = this.background.measure(buttonSize.width * 1.75, 0);
             if (res.width > size.width)
                 size.width = res.width;
             if (res.height > size.height)
