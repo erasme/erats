@@ -9343,6 +9343,18 @@ var Ui;
                 if (this.inertia)
                     this.startInertia();
                 this.onUp(false);
+                if (Core.Navigator.isFirefox) {
+                    let clickProtect = (e) => {
+                        if (e.button == 0) {
+                            e.preventDefault();
+                            e.stopImmediatePropagation();
+                        }
+                    };
+                    window.addEventListener('click', clickProtect, { capture: true });
+                    setTimeout(() => {
+                        window.removeEventListener('click', clickProtect, { capture: true });
+                    }, 10);
+                }
             };
             this.drawing.addEventListener('pointermove', onPointerMove);
             this.drawing.addEventListener('pointercancel', onPointerCancel);

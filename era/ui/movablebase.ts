@@ -330,6 +330,21 @@ namespace Ui {
                 if (this.inertia)
                     this.startInertia();
                 this.onUp(false);
+
+                // Firefox generate click event if mouse is released outside
+                // the drawing. Prevent unwanted click.
+                if (Core.Navigator.isFirefox) {
+                    let clickProtect = (e: MouseEvent) => {
+                        if (e.button == 0) {
+                            e.preventDefault();
+                            e.stopImmediatePropagation();
+                        }
+                    };
+                    window.addEventListener('click', clickProtect, { capture: true });
+                    setTimeout(() => {
+                        window.removeEventListener('click', clickProtect, { capture: true });
+                    }, 10);
+                }
             }
 
             this.drawing.addEventListener('pointermove', onPointerMove);
