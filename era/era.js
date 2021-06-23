@@ -18784,11 +18784,6 @@ var Ui;
             super.onUnload();
             if (this.canplaythrough)
                 this.pause();
-            this.audioDrawing.removeAttribute('src');
-            try {
-                this.audioDrawing.load();
-            }
-            catch (e) { }
         }
         renderDrawing() {
             let drawing;
