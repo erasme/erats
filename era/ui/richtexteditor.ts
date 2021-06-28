@@ -25,47 +25,48 @@ namespace Ui {
             super();
             this.focusable = true;
             let boldButton = new RichTextButton().assign({
-                icon: 'format-bold', focusable: false,
+                icon: 'format-bold', focusable: false, title: 'Mettre en gras',
                 ontoggled: () => document.execCommand('bold', false, null),
                 onuntoggled: () => document.execCommand('bold', false, null)
             });
             let italicButton = new RichTextButton().assign({
-                icon: 'format-italic', focusable: false,
+                icon: 'format-italic', focusable: false, title: 'Mettre en italique',
                 ontoggled: () => document.execCommand('italic', false, null),
                 onuntoggled: () => document.execCommand('italic', false, null)
             });
             let underlineButton = new RichTextButton().assign({
-                icon: 'format-underline', focusable: false,
+                icon: 'format-underline', focusable: false, title: 'Souligner',
                 ontoggled: () => document.execCommand('underline', false, null),
                 onuntoggled: () => document.execCommand('underline', false, null)
             });
             let alignLeftButton = new RichTextButton().assign({
-                icon: 'format-align-left', focusable: false,
+                icon: 'format-align-left', focusable: false, title: 'Aligner à gauche',
                 ontoggled: () => document.execCommand('justifyLeft', false, null),
                 onuntoggled: () => document.execCommand('justifyLeft', false, null)
             });
             let alignCenterButton = new RichTextButton().assign({
-                icon: 'format-align-center', focusable: false,
+                icon: 'format-align-center', focusable: false, title: 'Centrer',
                 ontoggled: () => document.execCommand('justifyCenter', false, null),
                 onuntoggled: () => document.execCommand('justifyCenter', false, null)
             });
             let alignRightButton = new RichTextButton().assign({
-                icon: 'format-align-right', focusable: false,
+                icon: 'format-align-right', focusable: false, title: 'Aligner à droite',
                 ontoggled: () => document.execCommand('justifyRight', false, null),
                 onuntoggled: () => document.execCommand('justifyRight', false, null)
             });
             let insertOrderedListButton = new RichTextButton().assign({
-                icon: 'format-insert-ordered-list', focusable: false,
+                icon: 'format-insert-ordered-list', focusable: false, title: 'Insérer une numérotation',
                 ontoggled: () => document.execCommand('insertOrderedList', false, null),
                 onuntoggled: () => document.execCommand('insertOrderedList', false, null)
             });
             let insertUnorderedListButton = new RichTextButton().assign({
-                icon: 'format-insert-unordered-list', focusable: false,
+                icon: 'format-insert-unordered-list', focusable: false, title: 'Insérer des puces',
                 ontoggled: () => document.execCommand('insertUnorderedList', false, null),
                 onuntoggled: () => document.execCommand('insertUnorderedList', false, null)
             });
             let insertURLButton = new Button().assign({
                 icon: 'format-insert-url', focusable: false,
+                title: 'Insérer une URL',
                 style: {
                     borderWidth: 0,
                     background: 'rgba(255,255,255,0)',
@@ -80,6 +81,7 @@ namespace Ui {
             });
             let quoteButton = new RichTextButton().assign({
                 icon: 'format-quote', focusable: false,
+                title: 'Insérer une citation',
                 style: {
                     borderWidth: 0,
                     background: 'rgba(255,255,255,0)',
