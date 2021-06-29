@@ -3694,7 +3694,7 @@ declare namespace Ui {
     }
     class Html extends Element implements HtmlInit {
         captureLink: boolean;
-        protected htmlDrawing: HTMLElement;
+        readonly htmlDrawing: HTMLElement;
         private bindedOnImageLoad;
         private _fontSize?;
         private _fontFamily?;

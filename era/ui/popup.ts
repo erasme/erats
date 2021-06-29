@@ -51,6 +51,8 @@ namespace Ui
 
             this.contentBox = new LBox();
             this.contentBox.margin = 2;
+            this.contentBox.width = 30;
+            this.contentBox.height = 30;
             this.contentBox.setTransformOrigin(0, 0);
             this.appendChild(this.contentBox);
 
