@@ -3420,10 +3420,10 @@ var Ui;
             }
         }
         getInverseLayoutTransform() {
-            let matrix = Ui.Matrix.createTranslate(this._layoutX, this._layoutY);
+            let matrix = Ui.Matrix.createTranslate(this.layoutX, this.layoutY);
             if (this._transform !== undefined) {
-                let originX = this.transformOriginX * this._layoutWidth;
-                let originY = this.transformOriginY * this._layoutHeight;
+                let originX = this.transformOriginX * this.layoutWidth;
+                let originY = this.transformOriginY * this.layoutHeight;
                 matrix = matrix.translate(-originX, -originY).multiply(this._transform).translate(originX, originY);
             }
             return matrix;
@@ -3431,14 +3431,14 @@ var Ui;
         getLayoutTransform() {
             let matrix = new Ui.Matrix();
             if (this._transform !== undefined) {
-                let originX = this.transformOriginX * this._layoutWidth;
-                let originY = this.transformOriginY * this._layoutHeight;
+                let originX = this.transformOriginX * this.layoutWidth;
+                let originY = this.transformOriginY * this.layoutHeight;
                 matrix = Ui.Matrix.createTranslate(-originX, -originY).
                     multiply(this._transform).
                     translate(originX, originY).
                     inverse();
             }
-            return matrix.translate(-this._layoutX, -this._layoutY);
+            return matrix.translate(-this.layoutX, -this.layoutY);
         }
         transformToWindow() {
             return Ui.Element.transformToWindow(this);
