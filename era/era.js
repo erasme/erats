@@ -3765,12 +3765,12 @@ var Ui;
             this.mergeStyles();
             this.onInternalStyleChange();
         }
-        getStyleProperty(property) {
+        getStyleProperty(property, forClass) {
             let current;
             if (this._style != undefined && this._style[property] != undefined)
                 return this._style[property];
             if (this.mergeStyle != undefined) {
-                current = this.constructor;
+                current = forClass !== null && forClass !== void 0 ? forClass : this.constructor;
                 while (current != undefined) {
                     if (this.mergeStyle['types'] != undefined && (this.mergeStyle['types'] instanceof Array)) {
                         let classStyle = undefined;
@@ -3787,7 +3787,7 @@ var Ui;
                         current = current.constructor;
                 }
             }
-            current = this.constructor;
+            current = forClass !== null && forClass !== void 0 ? forClass : this.constructor;
             while (current != undefined) {
                 if (('style' in current) && (property in current.style))
                     return current.style[property];

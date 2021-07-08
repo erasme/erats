@@ -972,7 +972,7 @@ declare namespace Ui {
         setParentStyle(parentStyle: object | undefined): void;
         set style(style: object | undefined);
         setStyleProperty(property: string, value: any): void;
-        getStyleProperty(property: string): any;
+        getStyleProperty(property: string, forClass?: Function): any;
         protected onInternalStyleChange(): void;
         protected onStyleChange(): void;
         get hasFocus(): boolean;
@@ -3694,7 +3694,7 @@ declare namespace Ui {
     }
     class Html extends Element implements HtmlInit {
         captureLink: boolean;
-        readonly htmlDrawing: HTMLElement;
+        protected htmlDrawing: HTMLElement;
         private bindedOnImageLoad;
         private _fontSize?;
         private _fontFamily?;

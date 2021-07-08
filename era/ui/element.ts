@@ -1332,12 +1332,12 @@ namespace Ui {
             this.onInternalStyleChange();
         }
 
-        getStyleProperty(property: string): any {
+        getStyleProperty(property: string, forClass?: Function): any {
             let current: Function;
             if (this._style != undefined && this._style[property] != undefined)
                 return this._style[property];
             if (this.mergeStyle != undefined) {
-                current = this.constructor;
+                current = forClass??this.constructor;
                 while (current != undefined) {
                     if (this.mergeStyle['types'] != undefined && (this.mergeStyle['types'] instanceof Array)) {
                         let classStyle = undefined;
@@ -1359,7 +1359,7 @@ namespace Ui {
                 }
             }
             // look for static default
-            current = this.constructor;
+            current = forClass??this.constructor;
             while (current != undefined) {
                 if (('style' in current) && (property in (current as any).style))
                     return (current as any).style[property];
