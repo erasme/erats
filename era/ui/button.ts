@@ -607,7 +607,9 @@ namespace Ui {
         static style: object = {
             borderWidth: 1,
             background: 'rgba(250,250,250,0)',
-            backgroundBorder: 'rgba(140,140,140,0)'
+            backgroundBorder: 'rgba(140,140,140,0)',
+            activeBackground: 'rgba(250,250,250,0)',
+            activeBackgroundBorder: 'rgba(140,140,140,0)'
         }
     }
 }
