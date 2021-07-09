@@ -27,15 +27,6 @@ namespace Ui {
             this.selectable = true;
             (this.drawing as HTMLDivElement).removeAttribute('tabindex');
             this.htmlDrawing.setAttribute('contenteditable', 'true');
-            this.drawing.addEventListener('blur', (e) => {
-                let node = window.getSelection().anchorNode;
-                if (window.getSelection().isCollapsed && this._hasSelection) {
-                    this._hasSelection = false;
-                    this.selectionleaved.fire({ target: this });
-                }
-                this.onBlur();
-            }, true);
-            this.drawing.addEventListener('focus', (e) => this.onFocus(), true);
             this.drawing.addEventListener('keyup', (e) => this.onKeyUp(e));
             if ((<any>window).MutationObserver) {
                 var observer = new MutationObserver((e) => this.onContentSubtreeModified(e));
@@ -46,8 +37,6 @@ namespace Ui {
                     characterData: true
                 });
             }
-
-            //this.drawing.addEventListener('DOMSubtreeModified', (e) => this.onContentSubtreeModified(e));
             if (init) {
                 if (init.onanchorchanged)
                     this.anchorchanged.connect(init.onanchorchanged);
