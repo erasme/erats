@@ -6693,7 +6693,7 @@ declare namespace Ui {
     }
 }
 declare namespace Ui {
-    class RichTextButton extends ToggleButton {
+    class RichTextButton extends FlatButton {
         static style: {
             borderWidth: number;
             background: string;
@@ -6707,6 +6707,16 @@ declare namespace Ui {
         private focusInWatcher;
         private _textHolder;
         private bg;
+        private boldButton;
+        private italicButton;
+        private underlineButton;
+        private alignLeftButton;
+        private alignCenterButton;
+        private alignRightButton;
+        private insertOrderedListButton;
+        private insertUnorderedListButton;
+        private insertURLButton;
+        private quoteButton;
         readonly changed: Core.Events<{
             target: RichTextEditor;
         }>;
@@ -6749,6 +6759,7 @@ declare namespace Ui {
         set isBackgroundVisible(value: boolean);
         get autoHideControls(): boolean;
         set autoHideControls(value: boolean);
+        onAnchorChanged(): void;
     }
 }
 declare namespace Ui {

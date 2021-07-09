@@ -25727,7 +25727,7 @@ var Ui;
 })(Ui || (Ui = {}));
 var Ui;
 (function (Ui) {
-    class RichTextButton extends Ui.ToggleButton {
+    class RichTextButton extends Ui.FlatButton {
     }
     RichTextButton.style = {
         borderWidth: 0,
@@ -25742,50 +25742,76 @@ var Ui;
             this.controlsBox = new Ui.LBox();
             this._textHolder = new Ui.Text();
             this.bg = new Ui.TextBgGraphic();
+            this.boldButton = new RichTextButton();
+            this.italicButton = new RichTextButton();
+            this.underlineButton = new RichTextButton();
+            this.alignLeftButton = new RichTextButton();
+            this.alignCenterButton = new RichTextButton();
+            this.alignRightButton = new RichTextButton();
+            this.insertOrderedListButton = new RichTextButton();
+            this.insertUnorderedListButton = new RichTextButton();
+            this.insertURLButton = new Ui.Button();
+            this.quoteButton = new RichTextButton();
             this.changed = new Core.Events();
             this.link = new Core.Events();
             this.focusable = true;
-            let boldButton = new RichTextButton().assign({
+            this.boldButton.assign({
                 icon: 'format-bold', focusable: false, title: 'Mettre en gras',
-                ontoggled: () => document.execCommand('bold', false, null),
-                onuntoggled: () => document.execCommand('bold', false, null)
+                onpressed: () => {
+                    document.execCommand('bold', false, null);
+                    this.onAnchorChanged();
+                }
             });
-            let italicButton = new RichTextButton().assign({
+            this.italicButton.assign({
                 icon: 'format-italic', focusable: false, title: 'Mettre en italique',
-                ontoggled: () => document.execCommand('italic', false, null),
-                onuntoggled: () => document.execCommand('italic', false, null)
+                onpressed: () => {
+                    document.execCommand('italic', false, null);
+                    this.onAnchorChanged();
+                }
             });
-            let underlineButton = new RichTextButton().assign({
+            this.underlineButton.assign({
                 icon: 'format-underline', focusable: false, title: 'Souligner',
-                ontoggled: () => document.execCommand('underline', false, null),
-                onuntoggled: () => document.execCommand('underline', false, null)
+                onpressed: () => {
+                    document.execCommand('underline', false, null);
+                    this.onAnchorChanged();
+                }
             });
-            let alignLeftButton = new RichTextButton().assign({
+            this.alignLeftButton.assign({
                 icon: 'format-align-left', focusable: false, title: 'Aligner à gauche',
-                ontoggled: () => document.execCommand('justifyLeft', false, null),
-                onuntoggled: () => document.execCommand('justifyLeft', false, null)
+                onpressed: () => {
+                    document.execCommand('justifyLeft', false, null);
+                    this.onAnchorChanged();
+                }
             });
-            let alignCenterButton = new RichTextButton().assign({
+            this.alignCenterButton.assign({
                 icon: 'format-align-center', focusable: false, title: 'Centrer',
-                ontoggled: () => document.execCommand('justifyCenter', false, null),
-                onuntoggled: () => document.execCommand('justifyCenter', false, null)
+                onpressed: () => {
+                    document.execCommand('justifyCenter', false, null);
+                    this.onAnchorChanged();
+                }
             });
-            let alignRightButton = new RichTextButton().assign({
+            this.alignRightButton.assign({
                 icon: 'format-align-right', focusable: false, title: 'Aligner à droite',
-                ontoggled: () => document.execCommand('justifyRight', false, null),
-                onuntoggled: () => document.execCommand('justifyRight', false, null)
+                onpressed: () => {
+                    document.execCommand('justifyRight', false, null);
+                    this.onAnchorChanged();
+                }
             });
-            let insertOrderedListButton = new RichTextButton().assign({
+            this.insertOrderedListButton.assign({
                 icon: 'format-insert-ordered-list', focusable: false, title: 'Insérer une numérotation',
-                ontoggled: () => document.execCommand('insertOrderedList', false, null),
-                onuntoggled: () => document.execCommand('insertOrderedList', false, null)
+                onpressed: () => {
+                    document.execCommand('insertOrderedList', false, null);
+                    this.onAnchorChanged();
+                }
             });
-            let insertUnorderedListButton = new RichTextButton().assign({
+            this.insertUnorderedListButton.assign({
                 icon: 'format-insert-unordered-list', focusable: false, title: 'Insérer des puces',
-                ontoggled: () => document.execCommand('insertUnorderedList', false, null),
-                onuntoggled: () => document.execCommand('insertUnorderedList', false, null)
+                onpressed: () => {
+                    document.execCommand('insertUnorderedList', false, null);
+                    this.onAnchorChanged();
+                }
             });
-            let insertURLButton = new Ui.Button().assign({
+            this.insertURLButton.assign({
                 icon: 'format-insert-url', focusable: false,
                 title: 'Insérer une URL',
                 style: {
@@ -25800,7 +25826,7 @@ var Ui;
                     }
                 }
             });
-            let quoteButton = new RichTextButton().assign({
+            this.quoteButton.assign({
                 icon: 'format-quote', focusable: false,
                 title: 'Insérer une citation',
                 style: {
@@ -25808,22 +25834,26 @@ var Ui;
                     background: 'rgba(255,255,255,0)',
                     activeBackground: 'rgba(255,255,255,0)'
                 },
-                ontoggled: () => document.execCommand('formatBlock', false, '<blockquote>'),
-                onuntoggled: () => {
-                    let sel = window.getSelection();
-                    if (sel)
-                        Ui.ContentEditable.unwrapNode(sel.anchorNode);
+                onpressed: () => {
+                    if (this.quoteButton.isActive) {
+                        let sel = window.getSelection();
+                        if (sel)
+                            Ui.ContentEditable.unwrapNode(sel.anchorNode);
+                    }
+                    else
+                        document.execCommand('formatBlock', false, '<blockquote>');
+                    this.onAnchorChanged();
                 }
             });
             let controls = new Ui.HBox().assign({
                 uniform: true, isDisabled: false,
                 content: [
-                    boldButton,
-                    italicButton,
-                    underlineButton,
-                    insertOrderedListButton,
-                    insertUnorderedListButton,
-                    insertURLButton
+                    this.boldButton,
+                    this.italicButton,
+                    this.underlineButton,
+                    this.insertOrderedListButton,
+                    this.insertUnorderedListButton,
+                    this.insertURLButton
                 ]
             });
             let allowedTags = ['B', 'I', 'U', 'A', '#text', 'BR', 'OL', 'UL', 'LI', 'BLOCKQUOTE'];
@@ -25832,15 +25862,7 @@ var Ui;
                 html: '', resizable: true,
                 onfocused: () => this.bg.hasFocus = true,
                 onblurred: () => this.bg.hasFocus = false,
-                onanchorchanged: () => {
-                    boldButton.isActive = document.queryCommandState('bold');
-                    italicButton.isActive = document.queryCommandState('italic');
-                    underlineButton.isActive = document.queryCommandState('underline');
-                    alignLeftButton.isActive = document.queryCommandState('justifyLeft');
-                    alignCenterButton.isActive = document.queryCommandState('justifyCenter');
-                    alignRightButton.isActive = document.queryCommandState('justifyRight');
-                    quoteButton.isActive = this._contentEditable.findTag('BLOCKQUOTE') != undefined;
-                },
+                onanchorchanged: () => this.onAnchorChanged(),
                 onselectionentered: () => {
                     controls.enable();
                     if (!this.isDisabled)
@@ -26010,6 +26032,17 @@ var Ui;
                 else if (!value)
                     this.controlsBox.show();
             }
+        }
+        onAnchorChanged() {
+            this.boldButton.isActive = document.queryCommandState('bold');
+            this.italicButton.isActive = document.queryCommandState('italic');
+            this.underlineButton.isActive = document.queryCommandState('underline');
+            this.alignLeftButton.isActive = document.queryCommandState('justifyLeft');
+            this.alignCenterButton.isActive = document.queryCommandState('justifyCenter');
+            this.alignRightButton.isActive = document.queryCommandState('justifyRight');
+            this.quoteButton.isActive = this._contentEditable.findTag('BLOCKQUOTE') != undefined;
+            this.insertOrderedListButton.isActive = this._contentEditable.findTag('OL') != undefined;
+            this.insertUnorderedListButton.isActive = this._contentEditable.findTag('UL') != undefined;
         }
     }
     Ui.RichTextEditor = RichTextEditor;
