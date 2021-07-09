@@ -13106,7 +13106,7 @@ var Ui;
         fontFamily: 'Sans-serif',
         fontWeight: 'normal',
         textWidth: 70,
-        textTransform: 'uppercase',
+        textTransform: 'none',
         maxTextWidth: Number.MAX_VALUE,
         textHeight: 18,
         textAlign: 'auto',
@@ -13139,7 +13139,9 @@ var Ui;
     FlatButton.style = {
         borderWidth: 1,
         background: 'rgba(250,250,250,0)',
-        backgroundBorder: 'rgba(140,140,140,0)'
+        backgroundBorder: 'rgba(140,140,140,0)',
+        activeBackground: 'rgba(250,250,250,0)',
+        activeBackgroundBorder: 'rgba(140,140,140,0)'
     };
     Ui.FlatButton = FlatButton;
 })(Ui || (Ui = {}));
@@ -18576,7 +18578,7 @@ var Ui;
         }
     }
     Slider.style = {
-        radius: 0,
+        radius: 4,
         background: '#e1e1e1',
         backgroundBorder: '#919191',
         foreground: '#07a0e5'

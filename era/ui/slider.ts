@@ -253,7 +253,7 @@ namespace Ui {
         }
 
         static style: object = {
-            radius: 0,
+            radius: 4,
             background: '#e1e1e1',
             backgroundBorder: '#919191',
             foreground: '#07a0e5'
