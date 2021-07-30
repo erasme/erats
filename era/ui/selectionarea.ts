@@ -23,13 +23,25 @@ namespace Ui {
                 // depending on the selection direction Chrome generate the "click" event
                 if (Math.abs(Date.now() - this.lastSelection.getTime()) < 60)
                     return;
-
+                // if click, clear the current selectionarea
                 var selection = this.getParentSelectionHandler();
                 if (selection.elements.length > 0) {
                     selection.clear();
                     e.stopImmediatePropagation();
                 }
             });
+            this.drawing.addEventListener('click', (e) => {
+                // protect against "click" event generated after "pointerup"
+                // depending on the selection direction Chrome and Firefox
+                // generate the "click" event that we dont want to propagate
+                // to other elements because the selection area action is already
+                // the accepted interaction
+                if (Math.abs(Date.now() - this.lastSelection.getTime()) < 60)
+                {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                }
+            }, true);
 
             // handle keyboard
             this.drawing.addEventListener('keydown', (e) => this.onKeyDown(e));

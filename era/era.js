@@ -21120,6 +21120,12 @@ var Ui;
                     e.stopImmediatePropagation();
                 }
             });
+            this.drawing.addEventListener('click', (e) => {
+                if (Math.abs(Date.now() - this.lastSelection.getTime()) < 60) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                }
+            }, true);
             this.drawing.addEventListener('keydown', (e) => this.onKeyDown(e));
         }
         getParentSelectionHandler() {
