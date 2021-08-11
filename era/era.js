@@ -26588,7 +26588,7 @@ var Form;
                     this._desc.text = this._descString ? this._descString : '';
                     this._desc.color = 'rgba(0,0,0,0.6)';
                     if (!this._descString)
-                        this._desc.hide();
+                        this._desc.hide(true);
                 }
                 this._errorMsg = newErrorMsg;
                 let isValid = this.isValid;
