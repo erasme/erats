@@ -14896,16 +14896,22 @@ var Ui;
             this.actionButtonsBox.spacing = 5;
             this.actionBox.append(this.actionButtonsBox, true);
             this.titleLabel = new DialogTitle({
-                marginLeft: 10, marginRight: 10,
+                marginLeft: 10, marginRight: 10, resizable: true,
                 verticalAlign: 'center', horizontalAlign: 'left'
             });
-            this.actionButtonsBox.append(this.titleLabel, true);
+            this.actionButtonsBox.append(this.titleLabel);
         }
         getTitle() {
             return this.titleLabel.text;
         }
         setTitle(title) {
             this.titleLabel.text = title;
+        }
+        get titleResizable() {
+            return this.titleLabel.resizable;
+        }
+        set titleResizable(value) {
+            this.titleLabel.resizable = value;
         }
         getCancelButton() {
             return this.cancelButton;
@@ -14925,7 +14931,7 @@ var Ui;
         }
         setActionButtons(buttons) {
             this.actionButtonsBox.content = buttons;
-            this.actionButtonsBox.prepend(this.titleLabel, true);
+            this.actionButtonsBox.prepend(this.titleLabel);
         }
         getActionButtons() {
             return this.actionButtonsBox.children.slice(1);
@@ -15098,6 +15104,12 @@ var Ui;
         }
         set title(title) {
             this.actionBox.setTitle(title);
+        }
+        get titleResizable() {
+            return this.actionBox.titleResizable;
+        }
+        set titleResizable(value) {
+            this.actionBox.titleResizable = value;
         }
         updateButtonsBoxVisible() {
             let visible = (this._cancelButton !== undefined) || (this._actionButtons !== undefined) ||

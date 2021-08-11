@@ -52,10 +52,10 @@ namespace Ui {
             this.actionBox.append(this.actionButtonsBox, true);
 
             this.titleLabel = new DialogTitle({
-                marginLeft: 10, marginRight: 10,
+                marginLeft: 10, marginRight: 10, resizable: true,
                 verticalAlign: 'center', horizontalAlign: 'left'
             });
-            this.actionButtonsBox.append(this.titleLabel, true);
+            this.actionButtonsBox.append(this.titleLabel);
         }
 
         getTitle(): string {
@@ -64,6 +64,14 @@ namespace Ui {
 
         setTitle(title: string) {
             this.titleLabel.text = title;
+        }
+
+        get titleResizable(): boolean {
+            return this.titleLabel.resizable;
+        }
+
+        set titleResizable(value: boolean) {
+            this.titleLabel.resizable = value;
         }
 
         getCancelButton(): Pressable | undefined {
@@ -86,7 +94,7 @@ namespace Ui {
 
         setActionButtons(buttons: Array<Element>) {
             this.actionButtonsBox.content = buttons;
-            this.actionButtonsBox.prepend(this.titleLabel, true);
+            this.actionButtonsBox.prepend(this.titleLabel);
         }
 
         getActionButtons() {
@@ -334,6 +342,14 @@ namespace Ui {
 
         set title(title: string) {
             this.actionBox.setTitle(title);
+        }
+
+        get titleResizable(): boolean {
+            return this.actionBox.titleResizable;
+        }
+
+        set titleResizable(value: boolean) {
+            this.actionBox.titleResizable = value;
         }
 
         updateButtonsBoxVisible() {

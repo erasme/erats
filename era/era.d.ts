@@ -3591,6 +3591,8 @@ declare namespace Ui {
         constructor();
         getTitle(): string;
         setTitle(title: string): void;
+        get titleResizable(): boolean;
+        set titleResizable(value: boolean);
         getCancelButton(): Pressable | undefined;
         setCancelButton(button: Pressable | undefined): void;
         setActionButtons(buttons: Array<Element>): void;
@@ -3653,6 +3655,8 @@ declare namespace Ui {
         defaultAction(): void;
         get title(): string;
         set title(title: string);
+        get titleResizable(): boolean;
+        set titleResizable(value: boolean);
         updateButtonsBoxVisible(): void;
         get cancelButton(): Pressable | undefined;
         set cancelButton(button: Pressable | undefined);
