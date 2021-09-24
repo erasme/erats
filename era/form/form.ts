@@ -18,6 +18,7 @@ namespace Form {
         private _requiredText: Ui.Html;
         private _required: boolean = false;
         private _lastIsValid: boolean | undefined;
+        private _validateTask: Promise<string> | undefined;
         private flow = new Ui.Flow();
         readonly changed = new Core.Events<{ target: Field<TE>, value: any }>();
         set onchanged(value: (event: { target: Field<TE>, value: any }) => void) { this.changed.connect(value); };
@@ -116,12 +117,27 @@ namespace Form {
             this.onChange();
         }
 
-        protected async onValidate() {
+        protected async onValidate(): Promise<string | undefined> {
             return (this.validate) ? await this.validate() : undefined;
         }
 
         protected async onChange() {
-            let newErrorMsg = await this.onValidate();
+            let newErrorMsg: string | undefined;
+            if (!this.isDefined) {
+                newErrorMsg = undefined;
+            }
+            else {
+                let validateTask = this.onValidate();
+                this._validateTask = validateTask;
+                newErrorMsg = await validateTask;
+                // if another validate task has started before we set our
+                // result, we drop this valid check to keep the temporal chronology
+                if (this._validateTask != validateTask) {
+                    return;
+                }
+            }
+            this._validateTask = undefined;
+            //let newErrorMsg = await this.onValidate();
             if (newErrorMsg) {
                 this._desc.text = newErrorMsg;
                 this._desc.color = 'red';

@@ -26578,7 +26578,19 @@ var Form;
         }
         onChange() {
             return __awaiter(this, void 0, void 0, function* () {
-                let newErrorMsg = yield this.onValidate();
+                let newErrorMsg;
+                if (!this.isDefined) {
+                    newErrorMsg = undefined;
+                }
+                else {
+                    let validateTask = this.onValidate();
+                    this._validateTask = validateTask;
+                    newErrorMsg = yield validateTask;
+                    if (this._validateTask != validateTask) {
+                        return;
+                    }
+                }
+                this._validateTask = undefined;
                 if (newErrorMsg) {
                     this._desc.text = newErrorMsg;
                     this._desc.color = 'red';

@@ -6928,6 +6928,7 @@ declare namespace Form {
         private _requiredText;
         private _required;
         private _lastIsValid;
+        private _validateTask;
         private flow;
         readonly changed: Core.Events<{
             target: Field<TE>;
@@ -6954,7 +6955,7 @@ declare namespace Form {
         get required(): boolean;
         set required(value: boolean);
         checkIsValid(): void;
-        protected onValidate(): Promise<string>;
+        protected onValidate(): Promise<string | undefined>;
         protected onChange(): Promise<void>;
         protected onDisable(): void;
         protected onEnable(): void;
