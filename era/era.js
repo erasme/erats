@@ -12907,7 +12907,7 @@ var Ui;
                 if (!this._badgeContent) {
                     this._badgeContent = new ButtonBadge().assign({
                         verticalAlign: 'top', horizontalAlign: 'right',
-                        fontSize: parseInt(this.getStyleProperty('iconSize')) / 4,
+                        fontSize: parseInt(this.getStyleProperty('iconSize')) * parseFloat(this.getStyleProperty('badgeRatio')),
                         badgeColor: this.getStyleProperty('badgeColor'),
                         badgeTextColor: this.getStyleProperty('badgeTextColor')
                     });
@@ -13102,6 +13102,7 @@ var Ui;
         spacing: 10,
         padding: 8,
         iconSize: 18,
+        badgeRatio: 0.25,
         fontSize: 14,
         fontFamily: 'Sans-serif',
         fontWeight: 'normal',
