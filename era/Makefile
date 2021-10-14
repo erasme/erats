@@ -2,7 +2,7 @@
 all: build
 
 build: */*.ts
-	tsc --sourcemap --outFile era.js */*.ts
+	tsc --sourcemap --outFile era.js
 
 clean:
 	
