@@ -23429,10 +23429,10 @@ var Ui;
             this.animNext = 0;
             this.animStart = 0;
             this.changed = new Core.Events();
-            this.bg = new Ui.SimpleButtonBackground();
-            this.appendChild(this.bg);
-            this.background = new Ui.Rectangle({ width: 4, height: 14, radius: 7 });
-            this.appendChild(this.background);
+            this.graphic = new Ui.SimpleButtonBackground();
+            this.appendChild(this.graphic);
+            this.barBackground = new Ui.Rectangle({ width: 4, height: 14, radius: 7 });
+            this.appendChild(this.barBackground);
             this.bar = new Ui.Rectangle({ width: 4, height: 14, radius: 7 });
             this.appendChild(this.bar);
             this.button = new Ui.Pressable();
@@ -23489,50 +23489,31 @@ var Ui;
         getForeground() {
             return Ui.Color.create(this.value ? this.getStyleProperty('activeForeground') : this.getStyleProperty('foreground'));
         }
-        getBackground() {
-            let yuv = Ui.Color.create(this.getStyleProperty('background')).getYuv();
+        getBarBackground() {
+            let yuv = Ui.Color.create(this.getStyleProperty('barBackground')).getYuv();
             let deltaY = 0;
             if (this.button.isDown)
                 deltaY = -0.30;
             return Ui.Color.createFromYuv(yuv.y + deltaY, yuv.u, yuv.v);
         }
-        getButtonColor() {
-            let yuv = Ui.Color.create(this.getStyleProperty('background')).getYuv();
-            let deltaY = 0;
-            if (this.button.isDown)
-                deltaY = -0.30;
-            else if (this.button.hasFocus)
-                deltaY = 0.10;
-            return Ui.Color.createFromYuv(yuv.y + deltaY, yuv.u, yuv.v);
-        }
-        getBg() {
+        getBorder() {
             if (this.button.hasFocus)
                 return Ui.Color.create(this.getStyleProperty('focusBackgroundBorder'));
             else
                 return Ui.Color.create(this.getStyleProperty('backgroundBorder'));
         }
+        getBackground() {
+            return Ui.Color.create(this.getStyleProperty('background'));
+        }
         updateColors() {
             this.bar.fill = this.getForeground().addA(-0.6);
-            this.background.fill = this.getBackground();
+            this.barBackground.fill = this.getBarBackground();
             this.buttonContent.fill = this.getForeground();
-            this.bg.border = this.getBg();
+            this.graphic.border = this.getBorder();
+            this.graphic.background = this.getBackground();
         }
         onDown() {
             this.stopAnimation();
-            this.updateColors();
-        }
-        onUp(speedX, cumulMove, abort) {
-            if (abort)
-                return;
-            if (cumulMove < 10)
-                this.value = !this._value;
-            else {
-                if (this.pos > 0.5)
-                    speedX = 1;
-                else
-                    speedX = -1;
-                this.startAnimation(speedX);
-            }
             this.updateColors();
         }
         startAnimation(speed) {
@@ -23584,7 +23565,7 @@ var Ui;
         measureCore(width, height) {
             let buttonSize = this.button.measure(0, 0);
             let size = buttonSize;
-            let res = this.background.measure(buttonSize.width * 1.75, 0);
+            let res = this.barBackground.measure(buttonSize.width * 1.75, 0);
             if (res.width > size.width)
                 size.width = res.width;
             if (res.height > size.height)
@@ -23600,14 +23581,14 @@ var Ui;
         }
         arrangeCore(width, height) {
             this.button.arrange(0, (height - this.button.measureHeight) / 2, this.button.measureWidth, this.button.measureHeight);
-            this.background.arrange(this.button.layoutWidth / 2, (height - this.background.measureHeight) / 2, width - this.button.layoutWidth, this.background.measureHeight);
-            this.bg.arrange(0, 0, width, height);
+            this.barBackground.arrange(this.button.layoutWidth / 2, (height - this.barBackground.measureHeight) / 2, width - this.button.layoutWidth, this.barBackground.measureHeight);
+            this.graphic.arrange(0, 0, width, height);
             this.updatePos();
         }
         onStyleChange() {
             this.updateColors();
-            this.bg.borderWidth = parseInt(this.getStyleProperty('borderWidth'));
-            this.bg.radius = parseInt(this.getStyleProperty('borderRadius'));
+            this.graphic.borderWidth = parseInt(this.getStyleProperty('borderWidth'));
+            this.graphic.radius = parseInt(this.getStyleProperty('borderRadius'));
         }
         onDisable() {
             super.onDisable();
@@ -23621,7 +23602,8 @@ var Ui;
     Switch.style = {
         radius: 0,
         borderWidth: 1,
-        background: '#e1e1e1',
+        background: 'rgba(250,250,250,0)',
+        barBackground: '#e1e1e1',
         backgroundBorder: 'rgba(250,250,250,0)',
         foreground: '#757575',
         activeForeground: '#07a0e5',

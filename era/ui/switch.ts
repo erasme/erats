@@ -9,7 +9,7 @@ namespace Ui {
         private _value: boolean = false;
         private pos: number = 0;
         private graphic: SimpleButtonBackground;
-        private background: Rectangle;
+        private barBackground: Rectangle;
         private button: Pressable;
         private bar: Rectangle;
         private buttonContent: Rectangle;
@@ -26,8 +26,8 @@ namespace Ui {
 
             this.graphic = new SimpleButtonBackground();
             this.appendChild(this.graphic);
-            this.background = new Rectangle({ width: 4, height: 14, radius: 7 });
-            this.appendChild(this.background);
+            this.barBackground = new Rectangle({ width: 4, height: 14, radius: 7 });
+            this.appendChild(this.barBackground);
 
             this.bar = new Rectangle({ width: 4, height: 14, radius: 7 });
             this.appendChild(this.bar);
@@ -107,8 +107,8 @@ namespace Ui {
             return Ui.Color.create(this.value ? this.getStyleProperty('activeForeground') : this.getStyleProperty('foreground'));
         }
 
-        private getBackground() {
-            let yuv = Color.create(this.getStyleProperty('background')).getYuv();
+        private getBarBackground() {
+            let yuv = Color.create(this.getStyleProperty('barBackground')).getYuv();
             let deltaY = 0;
             if (this.button.isDown)
                 deltaY = -0.30;
@@ -116,30 +116,23 @@ namespace Ui {
             return Color.createFromYuv(yuv.y + deltaY, yuv.u, yuv.v);
         }
 
-        private getButtonColor() {
-            let yuv = Color.create(this.getStyleProperty('background')).getYuv();
-
-            let deltaY = 0;
-            if (this.button.isDown)
-                deltaY = -0.30;
-            else if (this.button.hasFocus)
-                deltaY = 0.10;
-
-            return Color.createFromYuv(yuv.y + deltaY, yuv.u, yuv.v);
-        }
-
-        private getGraphic() {
+        private getBorder() {
             if(this.button.hasFocus)
                 return Color.create(this.getStyleProperty('focusBackgroundBorder'));
             else
                 return Color.create(this.getStyleProperty('backgroundBorder'));
         }
 
+        private getBackground() {
+            return Color.create(this.getStyleProperty('background'));
+        }
+
         private updateColors() {
             this.bar.fill = this.getForeground().addA(-0.6);
-            this.background.fill = this.getBackground();
+            this.barBackground.fill = this.getBarBackground();
             this.buttonContent.fill = this.getForeground();
-            this.graphic.border = this.getGraphic();
+            this.graphic.border = this.getBorder();
+            this.graphic.background = this.getBackground();
         }
 
         private onDown() {
@@ -202,7 +195,7 @@ namespace Ui {
         protected measureCore(width: number, height: number) {
             let buttonSize = this.button.measure(0, 0);
             let size = buttonSize;
-            let res = this.background.measure(buttonSize.width * 1.75, 0);
+            let res = this.barBackground.measure(buttonSize.width * 1.75, 0);
             if (res.width > size.width)
                 size.width = res.width;
             if (res.height > size.height)
@@ -219,10 +212,10 @@ namespace Ui {
 
         protected arrangeCore(width: number, height: number) {
             this.button.arrange(0, (height - this.button.measureHeight) / 2, this.button.measureWidth, this.button.measureHeight);
-            this.background.arrange(
+            this.barBackground.arrange(
                 this.button.layoutWidth / 2,
-                (height - this.background.measureHeight) / 2,
-                width - this.button.layoutWidth, this.background.measureHeight);
+                (height - this.barBackground.measureHeight) / 2,
+                width - this.button.layoutWidth, this.barBackground.measureHeight);
             this.graphic.arrange(0, 0, width, height);
             this.updatePos();
         }
@@ -247,7 +240,8 @@ namespace Ui {
         static style: object = {
             radius: 0,
             borderWidth: 1,
-            background: '#e1e1e1',
+            background: 'rgba(250,250,250,0)',
+            barBackground: '#e1e1e1',
             backgroundBorder: 'rgba(250,250,250,0)',
             foreground: '#757575',
             activeForeground: '#07a0e5',
