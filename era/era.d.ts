@@ -6080,6 +6080,7 @@ declare namespace Ui {
     class Switch extends Container {
         private _value;
         private pos;
+        private bg;
         private background;
         private button;
         private bar;
@@ -6102,11 +6103,11 @@ declare namespace Ui {
         set value(value: boolean);
         set title(title: string);
         get title(): string;
-        private onButtonMove;
         private updatePos;
         private getForeground;
         private getBackground;
         private getButtonColor;
+        private getBg;
         private updateColors;
         private onDown;
         private onUp;

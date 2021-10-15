@@ -23429,30 +23429,18 @@ var Ui;
             this.animNext = 0;
             this.animStart = 0;
             this.changed = new Core.Events();
-            this.onButtonMove = () => {
-                let pos = this.button.positionX;
-                let size = this.layoutWidth;
-                let max = size - this.button.layoutWidth;
-                if (pos < 0)
-                    pos = 0;
-                else if (pos > max)
-                    pos = max;
-                this.pos = pos / max;
-                this.button.moved.disconnect(this.onButtonMove);
-                this.updatePos();
-                this.button.moved.connect(this.onButtonMove);
-            };
+            this.bg = new Ui.SimpleButtonBackground();
+            this.appendChild(this.bg);
             this.background = new Ui.Rectangle({ width: 4, height: 14, radius: 7 });
             this.appendChild(this.background);
             this.bar = new Ui.Rectangle({ width: 4, height: 14, radius: 7 });
             this.appendChild(this.bar);
-            this.button = new Ui.Movable({ moveVertical: false, cursor: 'pointer' });
+            this.button = new Ui.Pressable();
             this.appendChild(this.button);
-            this.button.moved.connect(this.onButtonMove);
             this.button.focused.connect(() => this.updateColors());
             this.button.blurred.connect(() => this.updateColors());
             this.button.downed.connect(() => this.onDown());
-            this.button.upped.connect((e) => this.onUp(e.speedX, e.cumulMove, e.abort));
+            this.button.pressed.connect(() => this.value = !this.value);
             this.buttonContent = new Ui.Rectangle({ radius: 10, width: 20, height: 20, margin: 10 });
             this.buttonContent.drawing.style.boxShadow = '0px 0px 2px rgba(0,0,0,0.5)';
             this.button.content = this.buttonContent;
@@ -23495,7 +23483,7 @@ var Ui;
             let width = this.layoutWidth;
             let height = this.layoutHeight;
             let max = width - this.button.layoutWidth;
-            this.button.setPosition(max * this.pos, 0);
+            this.button.arrange(max * this.pos, 0, this.button.measureWidth, this.button.measureHeight);
             this.bar.arrange(this.button.layoutWidth / 2, (height - this.bar.measureHeight) / 2, max * this.pos, this.bar.measureHeight);
         }
         getForeground() {
@@ -23517,10 +23505,17 @@ var Ui;
                 deltaY = 0.10;
             return Ui.Color.createFromYuv(yuv.y + deltaY, yuv.u, yuv.v);
         }
+        getBg() {
+            if (this.button.hasFocus)
+                return Ui.Color.create(this.getStyleProperty('focusBackgroundBorder'));
+            else
+                return Ui.Color.create(this.getStyleProperty('backgroundBorder'));
+        }
         updateColors() {
             this.bar.fill = this.getForeground().addA(-0.6);
             this.background.fill = this.getBackground();
             this.buttonContent.fill = this.getForeground();
+            this.bg.border = this.getBg();
         }
         onDown() {
             this.stopAnimation();
@@ -23606,10 +23601,13 @@ var Ui;
         arrangeCore(width, height) {
             this.button.arrange(0, (height - this.button.measureHeight) / 2, this.button.measureWidth, this.button.measureHeight);
             this.background.arrange(this.button.layoutWidth / 2, (height - this.background.measureHeight) / 2, width - this.button.layoutWidth, this.background.measureHeight);
+            this.bg.arrange(0, 0, width, height);
             this.updatePos();
         }
         onStyleChange() {
             this.updateColors();
+            this.bg.borderWidth = parseInt(this.getStyleProperty('borderWidth'));
+            this.bg.radius = parseInt(this.getStyleProperty('borderRadius'));
         }
         onDisable() {
             super.onDisable();
@@ -23624,9 +23622,11 @@ var Ui;
         radius: 0,
         borderWidth: 1,
         background: '#e1e1e1',
-        backgroundBorder: '#919191',
+        backgroundBorder: 'rgba(250,250,250,0)',
         foreground: '#757575',
-        activeForeground: '#07a0e5'
+        activeForeground: '#07a0e5',
+        focusBackgroundBorder: '#21d3ff',
+        borderRadius: 4
     };
     Ui.Switch = Switch;
 })(Ui || (Ui = {}));
