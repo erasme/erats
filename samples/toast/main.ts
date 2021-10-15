@@ -46,4 +46,13 @@ class App extends Ui.App {
 	}
 }
 
+Ui.App.style = {
+	types: [
+		{
+			type: Ui.Toast,
+			radius: 5
+		}
+	]
+};
+
 new App();

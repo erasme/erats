@@ -3832,8 +3832,9 @@ declare namespace Ui {
     class Toast extends LBox {
         private _isClosed;
         private openClock?;
+        private runClock?;
         private toastContentBox;
-        private rectangle;
+        private progress;
         newToast: boolean;
         lastLayoutX: number;
         lastLayoutY: number;
@@ -3845,16 +3846,18 @@ declare namespace Ui {
         }>;
         private toaster?;
         constructor();
-        get background(): string | Color | LinearGradient;
-        set background(value: string | Color | LinearGradient);
+        get background(): string;
+        set background(value: string);
         get isClosed(): boolean;
         open(position?: ToastPosition): void;
         close(): void;
         protected onOpenTick(clock: any, progress: any, delta: any): void;
         set content(content: Element);
         protected arrangeCore(width: number, height: number): void;
+        protected onStyleChange(): void;
         static send(content: Element | string, position?: ToastPosition, duration?: number): Toast;
         static sendError(content: string, position?: ToastPosition, duration?: number): Toast;
+        static style: object;
     }
 }
 declare namespace Ui {

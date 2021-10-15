@@ -109,8 +109,9 @@
     export class Toast extends LBox {
         private _isClosed: boolean = true;
         private openClock?: Anim.Clock;
+        private runClock?: Anim.Clock;
         private toastContentBox: LBox;
-        private rectangle = new Ui.Rectangle();
+        private progress = new Ui.ProgressBar();
         newToast: boolean = false;
         lastLayoutX: number = 0;
         lastLayoutY: number = 0;
@@ -123,27 +124,26 @@
         constructor() {
             super();
 
-            this.append(new Ui.Shadow().assign({
-                shadowWidth: 3, radius: 1, inner: false, opacity: 0.4
-            }));
-
-            this.append(this.rectangle.assign({
-                fill: '#303030',
-                width: 200, height: 30,
-                margin: 2, opacity: 1
-            }));
+            this.clipToBounds = true;
+            this.drawing.style.boxShadow = '0px 0px 3px rgba(0,0,0,0.4)';
+            this.drawing.style.background = 'black';
 
             this.toastContentBox = new LBox();
             this.toastContentBox.margin = 10; this.toastContentBox.width = 200;
             this.append(this.toastContentBox);
+
+            this.progress.setStyleProperty('background', 'rgba(0,0,0,0)');
+            this.append(this.progress.assign({
+                verticalAlign: 'bottom'
+            }));
         }
 
         get background() {
-            return this.rectangle.fill;
+            return this.drawing.style.backgroundColor;
         }
 
         set background(value) {
-            this.rectangle.fill = value;
+            this.drawing.style.backgroundColor = value;
         }
 
         get isClosed(): boolean {
@@ -164,7 +164,22 @@
                     this.opacity = 0;
                     // the start of the animation is delayed to the next arrange
                 }
-                new Core.DelayedTask(this.duration, () => this.close());
+
+                if (this.duration > 2) {
+                    this.append(new Ui.FlatButton().assign({
+                        icon: 'close',
+                        horizontalAlign: 'right', verticalAlign: 'top',
+                        onpressed: () => this.close()
+                    }))
+                }
+
+                this.runClock = new Anim.Clock({
+                    duration: this.duration,
+                    ontimeupdate: (e) => this.progress.value = 1 - e.progress,
+                    oncompleted: () => this.close()
+                });
+                this.runClock.begin();
+
                 if (position == 'TopLeft')
                     this.toaster = Ui.Toaster.currentTopLeft;
                 else if (position == 'TopRight')
@@ -181,6 +196,10 @@
             if (!this._isClosed) {
                 this._isClosed = true;
                 this.disable();
+                if (this.runClock != undefined) {
+                    this.runClock.stop();
+                    this.runClock = undefined;
+                }
                 if (this.openClock == undefined) {
                     this.openClock = new Anim.Clock({
                         duration: 1, target: this, speed: 5,
@@ -224,6 +243,11 @@
                 this.openClock.begin();
         }
 
+        protected onStyleChange() {
+            let radius = this.getStyleProperty('radius');
+            this.drawing.style.borderRadius = `${radius}px`
+        }
+
         static send(content: Element | string, position: ToastPosition = 'BottomLeft', duration: number = 2) {
             let toast = new Ui.Toast();
             toast.duration = duration;
@@ -245,6 +269,10 @@
             return Ui.Toast.send(content, position, duration).assign({
                 background: '#f04040'
             });
+        }
+
+        static style: object = {
+            radius: 0
         }
     }
 }	
