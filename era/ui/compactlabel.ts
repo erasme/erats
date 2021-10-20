@@ -588,10 +588,7 @@ namespace Ui {
                 }
                 else {
                     this._color = Color.create(color);
-                    if (Core.Navigator.supportRgba)
-                        this.textDrawing.style.color = this._color.getCssRgba();
-                    else
-                        this.textDrawing.style.color = this._color.getCssHtml();
+                    this.textDrawing.style.color = this._color.getCssRgba();
                 }
             }
         }
@@ -611,10 +608,7 @@ namespace Ui {
             this.textDrawing.style.fontWeight = this.fontWeight;
             this.textDrawing.style.fontSize = this.fontSize + 'px';
             this.textDrawing.style.lineHeight = this.fontSize + 'px';
-            if (Core.Navigator.supportRgba)
-                this.textDrawing.style.color = (this.color as Color).getCssRgba();
-            else
-                this.textDrawing.style.color = (this.color as Color).getCssHtml();
+            this.textDrawing.style.color = (this.color as Color).getCssRgba();
             this.textDrawing.style.position = 'absolute';
             this.textDrawing.style.left = '0px';
             this.textDrawing.style.top = '0px';
@@ -627,10 +621,7 @@ namespace Ui {
             this.textDrawing.style.lineHeight = this.fontSize + 'px';
             this.textDrawing.style.fontFamily = this.fontFamily;
             this.textDrawing.style.fontWeight = this.fontWeight;
-            if (Core.Navigator.supportRgba)
-                this.textDrawing.style.color = (this.color as Color).getCssRgba();
-            else
-                this.textDrawing.style.color = (this.color as Color).getCssHtml();
+            this.textDrawing.style.color = (this.color as Color).getCssRgba();
 
             this.textContext.setMaxLine(this.maxLine);
             this.textContext.setTextAlign(this.textAlign);

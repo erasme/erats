@@ -186,55 +186,11 @@ namespace Core
 
         static Android: boolean = (navigator.userAgent.match(/Android/i) !== null);
 
-        static supportSVG: boolean = true;
-        static supportCanvas: boolean = true;
-        static supportRgba: boolean = true;
-        static supportRgb: boolean = true;
         static supportWebP: boolean = true;
-
-        static supportFormData: boolean = true;
-        static supportFileAPI: boolean = true;
-        static supportUploadDirectory: boolean = false;
     }
 }
 
 (function() {
-    let test;
-    Core.Navigator.supportSVG = false;
-    try {
-        test = document.createElementNS(svgNS, 'g');
-        if('ownerSVGElement' in test)
-            Core.Navigator.supportSVG = true;
-    } catch(e) {}
-
-    test = document.createElement('canvas');
-    Core.Navigator.supportCanvas = 'getContext' in test;
-
-    Core.Navigator.supportRgba = true;
-    Core.Navigator.supportRgb = true;
-    test = document.createElement('div');
-    try {
-        test.style.background = 'rgba(0, 0, 0, 0.5)';
-    } catch(e) {
-        Core.Navigator.supportRgba = false;
-    }
-    try {
-        test.style.background = 'rgb(0, 0, 0)';
-    } catch(e) {
-        Core.Navigator.supportRgb = false;
-    }
-
-    try {
-        new FormData();
-    }
-    catch(err) {
-        Core.Navigator.supportFormData = false;
-    }
-    let testInput = document.createElement('input');
-    Core.Navigator.supportFileAPI = 'files' in testInput;
-    Core.Navigator.supportUploadDirectory = 'webkitdirectory' in testInput;
-
-
     let testCanvas = document.createElement('canvas');
     if (!!(testCanvas.getContext && testCanvas.getContext('2d'))) {
         // was able or not to get WebP representation

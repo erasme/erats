@@ -4,7 +4,7 @@ namespace Ui {
         '100' | '200' | '300' | '400' | '500' | '600' | '700' | '800' | '900';
 
     export type TextTransform = 'none' | 'uppercase' | 'lowercase';
-    
+
     export type TextAlign = 'left' | 'right' | 'center' | 'justify';
 
     export interface LabelInit extends ElementInit {
@@ -49,15 +49,15 @@ namespace Ui {
                 this.selectable = false;
             if (init) {
                 if (init.text !== undefined)
-                    this.text = init.text;	
+                    this.text = init.text;
                 if (init.fontSize !== undefined)
                     this.fontSize = init.fontSize;
                 if (init.fontFamily !== undefined)
                     this.fontFamily = init.fontFamily;
                 if (init.fontWeight !== undefined)
-                    this.fontWeight = init.fontWeight;	
+                    this.fontWeight = init.fontWeight;
                 if (init.color !== undefined)
-                    this.color = init.color;	
+                    this.color = init.color;
                 if (init.orientation !== undefined)
                     this.orientation = init.orientation;
                 if (init.textTransform !== undefined)
@@ -165,10 +165,7 @@ namespace Ui {
         set color(color: Color | string) {
             if (this._color !== color) {
                 this._color = Color.create(color);
-                if (Core.Navigator.supportRgba)
-                    this.labelDrawing.style.color = this.getColor().getCssRgba();
-                else
-                    this.labelDrawing.style.color = this.getColor().getCssHtml();
+                this.labelDrawing.style.color = this.getColor().getCssRgba();
             }
         }
 
@@ -197,10 +194,7 @@ namespace Ui {
             this.labelDrawing.style.fontWeight = this.fontWeight;
             this.labelDrawing.style.textTransform = this.textTransform;
             this.labelDrawing.style.textAlign = this.textAlign;
-            if (Core.Navigator.supportRgba)
-                this.labelDrawing.style.color = this.getColor().getCssRgba();
-            else
-                this.labelDrawing.style.color = this.getColor().getCssHtml();
+            this.labelDrawing.style.color = this.getColor().getCssRgba();
             this.textMeasureValid = false;
             this.invalidateMeasure();
         }
@@ -297,11 +291,9 @@ namespace Ui {
             measureWindow.document.body.appendChild(Ui.Label.measureBox);
             Ui.Label.measureContext = Ui.Label.measureBox.getContext('2d');
         }
-    
+
         static isFontAvailable(fontFamily: string, fontWeight: string) {
             let i;
-            if (!Core.Navigator.supportCanvas)
-                return true;
             if (Ui.Label.measureBox === undefined)
                 Ui.Label.createMeasureCanvas();
             let ctx = Ui.Label.measureContext;
@@ -379,10 +371,7 @@ namespace Ui {
         static measureText(text: string, fontSize: number, fontFamily: string, fontWeight: string): { width: number, height: number } {
             if ((text === '') || (text === undefined))
                 return { width: 0, height: fontSize };
-            if (Core.Navigator.supportCanvas)
-                return Ui.Label.measureTextCanvas(text, fontSize, fontFamily, fontWeight);
-            else
-                return Ui.Label.measureTextHtml(text, fontSize, fontFamily, fontWeight);
+            return Ui.Label.measureTextCanvas(text, fontSize, fontFamily, fontWeight);
         }
 
         static style: object = {

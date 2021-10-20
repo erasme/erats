@@ -82,7 +82,7 @@ namespace Ui {
                     else
                         this.svgDrawing.setAttribute('pointer-events', 'none');
                 }
-                    
+
             }
         }
 
@@ -157,12 +157,6 @@ namespace Ui {
         }
 
         protected renderCanvasDrawing() {
-            // verify compatibility with the browser
-            if ((this.canvasEngine == 'canvas') && !Core.Navigator.supportCanvas)
-                this.canvasEngine = 'svg';
-            if ((this.canvasEngine == 'svg') && !Core.Navigator.supportSVG)
-                this.canvasEngine = 'canvas';
-
             let drawing; let resourceDrawing;
             if (this.canvasEngine === 'canvas') {
                 drawing = this.canvasDrawing = document.createElement('canvas');
@@ -185,8 +179,7 @@ namespace Ui {
 
                 drawing.appendChild(resourceDrawing);
                 this.containerDrawing = resourceDrawing;
-                if (Core.Navigator.supportCanvas)
-                    drawing.toDataURL = this.svgToDataURL.bind(this);
+                drawing.toDataURL = this.svgToDataURL.bind(this);
             }
             this.generateNeeded = false;
             this.drawing.appendChild(drawing);
@@ -958,8 +951,7 @@ namespace Core {
     }
 }
 
-if (Core.Navigator.supportCanvas) {
-    CanvasRenderingContext2D.prototype['roundRect'] = Core.SVG2DPath.prototype.roundRect;
-    CanvasRenderingContext2D.prototype['svgPath'] = Core.SVG2DContext.prototype.svgPath;
-    CanvasRenderingContext2D.prototype['roundRectFilledShadow'] = Core.SVG2DContext.prototype.roundRectFilledShadow;
-}
+CanvasRenderingContext2D.prototype['roundRect'] = Core.SVG2DPath.prototype.roundRect;
+CanvasRenderingContext2D.prototype['svgPath'] = Core.SVG2DContext.prototype.svgPath;
+CanvasRenderingContext2D.prototype['roundRectFilledShadow'] = Core.SVG2DContext.prototype.roundRectFilledShadow;
+

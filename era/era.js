@@ -211,51 +211,10 @@ var Core;
     Navigator.iPhone = (navigator.userAgent.match(/iPhone/i) !== null);
     Navigator.iOs = Navigator.iPad || Navigator.iPhone;
     Navigator.Android = (navigator.userAgent.match(/Android/i) !== null);
-    Navigator.supportSVG = true;
-    Navigator.supportCanvas = true;
-    Navigator.supportRgba = true;
-    Navigator.supportRgb = true;
     Navigator.supportWebP = true;
-    Navigator.supportFormData = true;
-    Navigator.supportFileAPI = true;
-    Navigator.supportUploadDirectory = false;
     Core.Navigator = Navigator;
 })(Core || (Core = {}));
 (function () {
-    let test;
-    Core.Navigator.supportSVG = false;
-    try {
-        test = document.createElementNS(svgNS, 'g');
-        if ('ownerSVGElement' in test)
-            Core.Navigator.supportSVG = true;
-    }
-    catch (e) { }
-    test = document.createElement('canvas');
-    Core.Navigator.supportCanvas = 'getContext' in test;
-    Core.Navigator.supportRgba = true;
-    Core.Navigator.supportRgb = true;
-    test = document.createElement('div');
-    try {
-        test.style.background = 'rgba(0, 0, 0, 0.5)';
-    }
-    catch (e) {
-        Core.Navigator.supportRgba = false;
-    }
-    try {
-        test.style.background = 'rgb(0, 0, 0)';
-    }
-    catch (e) {
-        Core.Navigator.supportRgb = false;
-    }
-    try {
-        new FormData();
-    }
-    catch (err) {
-        Core.Navigator.supportFormData = false;
-    }
-    let testInput = document.createElement('input');
-    Core.Navigator.supportFileAPI = 'files' in testInput;
-    Core.Navigator.supportUploadDirectory = 'webkitdirectory' in testInput;
     let testCanvas = document.createElement('canvas');
     if (!!(testCanvas.getContext && testCanvas.getContext('2d'))) {
         Core.Navigator.supportWebP = testCanvas.toDataURL('image/webp').indexOf('data:image/webp') == 0;
@@ -3865,10 +3824,6 @@ var Ui;
         updateCanvas(context) {
         }
         renderCanvasDrawing() {
-            if ((this.canvasEngine == 'canvas') && !Core.Navigator.supportCanvas)
-                this.canvasEngine = 'svg';
-            if ((this.canvasEngine == 'svg') && !Core.Navigator.supportSVG)
-                this.canvasEngine = 'canvas';
             let drawing;
             let resourceDrawing;
             if (this.canvasEngine === 'canvas') {
@@ -3891,8 +3846,7 @@ var Ui;
                 resourceDrawing.style.visibility = 'hidden';
                 drawing.appendChild(resourceDrawing);
                 this.containerDrawing = resourceDrawing;
-                if (Core.Navigator.supportCanvas)
-                    drawing.toDataURL = this.svgToDataURL.bind(this);
+                drawing.toDataURL = this.svgToDataURL.bind(this);
             }
             this.generateNeeded = false;
             this.drawing.appendChild(drawing);
@@ -4639,11 +4593,9 @@ var Core;
     SVG2DContext.counter = 0;
     Core.SVG2DContext = SVG2DContext;
 })(Core || (Core = {}));
-if (Core.Navigator.supportCanvas) {
-    CanvasRenderingContext2D.prototype['roundRect'] = Core.SVG2DPath.prototype.roundRect;
-    CanvasRenderingContext2D.prototype['svgPath'] = Core.SVG2DContext.prototype.svgPath;
-    CanvasRenderingContext2D.prototype['roundRectFilledShadow'] = Core.SVG2DContext.prototype.roundRectFilledShadow;
-}
+CanvasRenderingContext2D.prototype['roundRect'] = Core.SVG2DPath.prototype.roundRect;
+CanvasRenderingContext2D.prototype['svgPath'] = Core.SVG2DContext.prototype.svgPath;
+CanvasRenderingContext2D.prototype['roundRectFilledShadow'] = Core.SVG2DContext.prototype.roundRectFilledShadow;
 var Ui;
 (function (Ui) {
     class Rectangle extends Ui.Element {
@@ -8434,10 +8386,7 @@ var Ui;
         set color(color) {
             if (this._color !== color) {
                 this._color = Ui.Color.create(color);
-                if (Core.Navigator.supportRgba)
-                    this.labelDrawing.style.color = this.getColor().getCssRgba();
-                else
-                    this.labelDrawing.style.color = this.getColor().getCssHtml();
+                this.labelDrawing.style.color = this.getColor().getCssRgba();
             }
         }
         getColor() {
@@ -8462,10 +8411,7 @@ var Ui;
             this.labelDrawing.style.fontWeight = this.fontWeight;
             this.labelDrawing.style.textTransform = this.textTransform;
             this.labelDrawing.style.textAlign = this.textAlign;
-            if (Core.Navigator.supportRgba)
-                this.labelDrawing.style.color = this.getColor().getCssRgba();
-            else
-                this.labelDrawing.style.color = this.getColor().getCssHtml();
+            this.labelDrawing.style.color = this.getColor().getCssRgba();
             this.textMeasureValid = false;
             this.invalidateMeasure();
         }
@@ -8555,8 +8501,6 @@ var Ui;
         }
         static isFontAvailable(fontFamily, fontWeight) {
             let i;
-            if (!Core.Navigator.supportCanvas)
-                return true;
             if (Ui.Label.measureBox === undefined)
                 Ui.Label.createMeasureCanvas();
             let ctx = Ui.Label.measureContext;
@@ -8625,10 +8569,7 @@ var Ui;
         static measureText(text, fontSize, fontFamily, fontWeight) {
             if ((text === '') || (text === undefined))
                 return { width: 0, height: fontSize };
-            if (Core.Navigator.supportCanvas)
-                return Ui.Label.measureTextCanvas(text, fontSize, fontFamily, fontWeight);
-            else
-                return Ui.Label.measureTextHtml(text, fontSize, fontFamily, fontWeight);
+            return Ui.Label.measureTextCanvas(text, fontSize, fontFamily, fontWeight);
         }
     }
     Label.measureBox = undefined;
@@ -11702,10 +11643,7 @@ var Ui;
                 }
                 else {
                     this._color = Ui.Color.create(color);
-                    if (Core.Navigator.supportRgba)
-                        this.textDrawing.style.color = this._color.getCssRgba();
-                    else
-                        this.textDrawing.style.color = this._color.getCssHtml();
+                    this.textDrawing.style.color = this._color.getCssRgba();
                 }
             }
         }
@@ -11722,10 +11660,7 @@ var Ui;
             this.textDrawing.style.fontWeight = this.fontWeight;
             this.textDrawing.style.fontSize = this.fontSize + 'px';
             this.textDrawing.style.lineHeight = this.fontSize + 'px';
-            if (Core.Navigator.supportRgba)
-                this.textDrawing.style.color = this.color.getCssRgba();
-            else
-                this.textDrawing.style.color = this.color.getCssHtml();
+            this.textDrawing.style.color = this.color.getCssRgba();
             this.textDrawing.style.position = 'absolute';
             this.textDrawing.style.left = '0px';
             this.textDrawing.style.top = '0px';
@@ -11737,10 +11672,7 @@ var Ui;
             this.textDrawing.style.lineHeight = this.fontSize + 'px';
             this.textDrawing.style.fontFamily = this.fontFamily;
             this.textDrawing.style.fontWeight = this.fontWeight;
-            if (Core.Navigator.supportRgba)
-                this.textDrawing.style.color = this.color.getCssRgba();
-            else
-                this.textDrawing.style.color = this.color.getCssHtml();
+            this.textDrawing.style.color = this.color.getCssRgba();
             this.textContext.setMaxLine(this.maxLine);
             this.textContext.setTextAlign(this.textAlign);
             this.textContext.setFontSize(this.fontSize);
@@ -15033,10 +14965,7 @@ var Ui;
                 }
                 else {
                     this._color = Ui.Color.create(color);
-                    if (Core.Navigator.supportRgba)
-                        this.drawing.style.color = this._color.getCssRgba();
-                    else
-                        this.drawing.style.color = this._color.getCssHtml();
+                    this.drawing.style.color = this._color.getCssRgba();
                 }
             }
         }
@@ -15067,10 +14996,7 @@ var Ui;
             this.drawing.style.fontSize = this.fontSize + 'px';
             this.drawing.style.fontFamily = this.fontFamily;
             this.drawing.style.fontWeight = this.fontWeight;
-            if (Core.Navigator.supportRgba)
-                this.drawing.style.color = this.getColor().getCssRgba();
-            else
-                this.drawing.style.color = this.getColor().getCssHtml();
+            this.drawing.style.color = this.getColor().getCssRgba();
             this.drawing.style.lineHeight = this.interLine.toString();
             this.drawing.style.wordWrap = this.wordWrap;
         }
@@ -15824,10 +15750,7 @@ var Ui;
         set color(color) {
             if (this._color != color) {
                 this._color = Ui.Color.create(color);
-                if (Core.Navigator.supportRgba)
-                    this.drawing.style.color = this.getColor().getCssRgba();
-                else
-                    this.drawing.style.color = this.getColor().getCssHtml();
+                this.drawing.style.color = this.getColor().getCssRgba();
             }
         }
         get value() {
@@ -15942,10 +15865,7 @@ var Ui;
             this.drawing.style.fontSize = this.fontSize + 'px';
             this.drawing.style.fontFamily = this.fontFamily;
             this.drawing.style.fontWeight = this.fontWeight;
-            if (Core.Navigator.supportRgba)
-                this.drawing.style.color = this.getColor().getCssRgba();
-            else
-                this.drawing.style.color = this.getColor().getCssHtml();
+            this.drawing.style.color = this.getColor().getCssRgba();
             this.invalidateMeasure();
         }
     }
@@ -16883,10 +16803,7 @@ var Ui;
         set color(color) {
             if (this._color !== color) {
                 this._color = Ui.Color.create(color);
-                if (Core.Navigator.supportRgba)
-                    this.drawing.style.color = this.getColor().getCssRgba();
-                else
-                    this.drawing.style.color = this.getColor().getCssHtml();
+                this.drawing.style.color = this.getColor().getCssRgba();
             }
         }
         getColor() {
@@ -16969,10 +16886,7 @@ var Ui;
             drawing.style.fontSize = this.fontSize + 'px';
             drawing.style.fontFamily = this.fontFamily;
             drawing.style.fontWeight = this.fontWeight;
-            if (Core.Navigator.supportRgba)
-                drawing.style.color = this.getColor().getCssRgba();
-            else
-                drawing.style.color = this.getColor().getCssHtml();
+            drawing.style.color = this.getColor().getCssRgba();
             return drawing;
         }
         measureCore(width, height) {
@@ -17002,10 +16916,7 @@ var Ui;
             this.drawing.style.fontSize = this.fontSize + 'px';
             this.drawing.style.fontFamily = this.fontFamily;
             this.drawing.style.fontWeight = this.fontWeight;
-            if (Core.Navigator.supportRgba)
-                this.drawing.style.color = this.getColor().getCssRgba();
-            else
-                this.drawing.style.color = this.getColor().getCssHtml();
+            this.drawing.style.color = this.getColor().getCssRgba();
             this.invalidateMeasure();
         }
     }

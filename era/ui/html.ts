@@ -301,10 +301,7 @@ namespace Ui {
                 }
                 else {
                     this._color = Color.create(color);
-                    if (Core.Navigator.supportRgba)
-                        this.drawing.style.color = this._color.getCssRgba();
-                    else
-                        this.drawing.style.color = this._color.getCssHtml();
+                    this.drawing.style.color = this._color.getCssRgba();
                 }
             }
         }
@@ -342,10 +339,7 @@ namespace Ui {
             this.drawing.style.fontSize = this.fontSize + 'px';
             this.drawing.style.fontFamily = this.fontFamily;
             this.drawing.style.fontWeight = this.fontWeight;
-            if (Core.Navigator.supportRgba)
-                this.drawing.style.color = this.getColor().getCssRgba();
-            else
-                this.drawing.style.color = this.getColor().getCssHtml();
+            this.drawing.style.color = this.getColor().getCssRgba();
             this.drawing.style.lineHeight = this.interLine.toString();
             this.drawing.style.wordWrap = this.wordWrap;
         }

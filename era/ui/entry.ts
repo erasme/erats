@@ -137,10 +137,7 @@ namespace Ui {
         set color(color: Color | string) {
             if (this._color != color) {
                 this._color = Ui.Color.create(color);
-                if (Core.Navigator.supportRgba)
-                    this.drawing.style.color = this.getColor().getCssRgba();
-                else
-                    this.drawing.style.color = this.getColor().getCssHtml();
+                this.drawing.style.color = this.getColor().getCssRgba();
             }
         }
 
@@ -281,10 +278,7 @@ namespace Ui {
             this.drawing.style.fontSize = this.fontSize + 'px';
             this.drawing.style.fontFamily = this.fontFamily;
             this.drawing.style.fontWeight = this.fontWeight;
-            if (Core.Navigator.supportRgba)
-                this.drawing.style.color = this.getColor().getCssRgba();
-            else
-                this.drawing.style.color = this.getColor().getCssHtml();
+            this.drawing.style.color = this.getColor().getCssRgba();
             this.invalidateMeasure();
         }
 

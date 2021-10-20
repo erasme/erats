@@ -49,14 +49,7 @@ declare namespace Core {
         static iPhone: boolean;
         static iOs: boolean;
         static Android: boolean;
-        static supportSVG: boolean;
-        static supportCanvas: boolean;
-        static supportRgba: boolean;
-        static supportRgb: boolean;
         static supportWebP: boolean;
-        static supportFormData: boolean;
-        static supportFileAPI: boolean;
-        static supportUploadDirectory: boolean;
     }
 }
 declare namespace Core {

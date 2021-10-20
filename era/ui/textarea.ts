@@ -34,15 +34,15 @@ namespace Ui {
 
             if (init) {
                 if (init.fontSize !== undefined)
-                    this.fontSize = init.fontSize;	
+                    this.fontSize = init.fontSize;
                 if (init.fontFamily !== undefined)
-                    this.fontFamily = init.fontFamily;	
+                    this.fontFamily = init.fontFamily;
                 if (init.fontWeight !== undefined)
-                    this.fontWeight = init.fontWeight;	
+                    this.fontWeight = init.fontWeight;
                 if (init.color !== undefined)
-                    this.color = init.color;	
+                    this.color = init.color;
                 if (init.value !== undefined)
-                    this.value = init.value;	
+                    this.value = init.value;
             }
         }
 
@@ -94,10 +94,7 @@ namespace Ui {
         set color(color: Color | string) {
             if (this._color !== color) {
                 this._color = Ui.Color.create(color);
-                if (Core.Navigator.supportRgba)
-                    this.drawing.style.color = this.getColor().getCssRgba();
-                else
-                    this.drawing.style.color = this.getColor().getCssHtml();
+                this.drawing.style.color = this.getColor().getCssRgba();
             }
         }
 
@@ -132,7 +129,7 @@ namespace Ui {
         get offsetY(): number {
             return this.drawing.scrollTop;
         }
-    
+
         protected onPaste(event) {
             event.stopPropagation();
             new Core.DelayedTask(0, () => this.onAfterPaste());
@@ -145,7 +142,7 @@ namespace Ui {
                 this.invalidateMeasure();
             }
         }
-    
+
         protected onChange(event) {
             if (this.drawing.value != this._value) {
                 this._value = this.drawing.value;
@@ -196,10 +193,7 @@ namespace Ui {
             drawing.style.fontSize = this.fontSize + 'px';
             drawing.style.fontFamily = this.fontFamily;
             drawing.style.fontWeight = this.fontWeight;
-            if (Core.Navigator.supportRgba)
-                drawing.style.color = this.getColor().getCssRgba();
-            else
-                drawing.style.color = this.getColor().getCssHtml();
+            drawing.style.color = this.getColor().getCssRgba();
             return drawing;
         }
 
@@ -217,7 +211,7 @@ namespace Ui {
             this.drawing.style.width = width + 'px';
             this.drawing.style.height = height + 'px';
         }
-    
+
         protected onDisable() {
             super.onDisable();
             this.drawing.blur();
@@ -235,10 +229,7 @@ namespace Ui {
             this.drawing.style.fontSize = this.fontSize + 'px';
             this.drawing.style.fontFamily = this.fontFamily;
             this.drawing.style.fontWeight = this.fontWeight;
-            if (Core.Navigator.supportRgba)
-                this.drawing.style.color = this.getColor().getCssRgba();
-            else
-                this.drawing.style.color = this.getColor().getCssHtml();
+            this.drawing.style.color = this.getColor().getCssRgba();
             this.invalidateMeasure();
         }
 
@@ -256,5 +247,5 @@ namespace Ui {
         fontFamily: string;
         fontWeight: string;
     }
-}	
+}
 
