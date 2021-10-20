@@ -306,7 +306,7 @@ namespace Ui {
                         if (this.pointer.getIsCaptured()) {
                             e.preventDefault();
                             e.stopImmediatePropagation();
-                        }    
+                        }
                         this.pointer.up();
                         window.removeEventListener('mousemove', onMouseMove, true);
                         window.removeEventListener('mouseup', onMouseUp, true);
@@ -411,8 +411,6 @@ namespace Ui {
                     // remove possible matrix transform
                     if ('removeProperty' in image.style)
                         image.style.removeProperty('transform');
-                    if (Core.Navigator.isIE && ('removeProperty' in image.style))
-                        image.style.removeProperty('-ms-transform');
                     else if (Core.Navigator.isGecko)
                         image.style.removeProperty('-moz-transform');
                     else if (Core.Navigator.isWebkit)
@@ -683,7 +681,7 @@ namespace Ui {
                 if (this.dragWatcher !== undefined) {
                     this.removeImage();
                     this.dragWatcher.leave();
-                    
+
                     if (this.dropEffect.length === 1) {
                         this.dragWatcher.drop(this.dropEffect[0].action);
                         this.ended.fire({ target: this });
@@ -779,7 +777,7 @@ namespace Ui {
                                 if (effectAllowed[i].secondary === true)
                                     dropEffect = [effectAllowed[i]];
                             }
-                            // else if possible take the second 
+                            // else if possible take the second
                             if ((dropEffect === effectAllowed) && (effectAllowed.length > 1))
                                 dropEffect = [effectAllowed[1]];
                         }

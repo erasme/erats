@@ -239,11 +239,7 @@ namespace Ui {
             if (this._orientation == 'vertical') {
                 matrix = Ui.Matrix.createTranslate(this.labelDrawing.offsetHeight, 0);
                 matrix.rotate(90);
-                if (Core.Navigator.isIE) {
-                    (this.labelDrawing.style as any).msTransform = matrix.toString();
-                    (this.labelDrawing.style as any).msTransformOrigin = '0% 0%';
-                }
-                else if (Core.Navigator.isGecko) {
+                if (Core.Navigator.isGecko) {
                     (this.labelDrawing.style as any).MozTransform = 'matrix(' + matrix.svgMatrix.a.toFixed(4) + ', ' + matrix.svgMatrix.b.toFixed(4) + ', ' + matrix.svgMatrix.c.toFixed(4) + ', ' + matrix.svgMatrix.d.toFixed(4) + ', ' + matrix.svgMatrix.e.toFixed(0) + 'px, ' + matrix.svgMatrix.f.toFixed(0) + 'px)';
                     (this.labelDrawing.style as any).MozTransformOrigin = '0% 0%';
                 }
@@ -253,9 +249,7 @@ namespace Ui {
                 }
             }
             else {
-                if (Core.Navigator.isIE && ('removeProperty' in this.labelDrawing.style))
-                    this.labelDrawing.style.removeProperty('-ms-transform');
-                else if (Core.Navigator.isGecko)
+                if (Core.Navigator.isGecko)
                     this.labelDrawing.style.removeProperty('-moz-transform');
                 else if (Core.Navigator.isWebkit)
                     this.labelDrawing.style.removeProperty('-webkit-transform');
@@ -350,7 +344,7 @@ namespace Ui {
 
         private static createMeasureHtml() {
             let measureWindow = window as Window;
-            if (Core.Navigator.isIE || Core.Navigator.isGecko)
+            if (Core.Navigator.isGecko)
                 measureWindow = Ui.App.getRootWindow();
 
             if (measureWindow.document.body === undefined) {

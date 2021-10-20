@@ -31,7 +31,7 @@ namespace Ui
                 if (init.onready)
                     this.ready.connect(init.onready);
                 if (init.onerror)
-                    this.error.connect(init.onerror);	
+                    this.error.connect(init.onerror);
             }
         }
 
@@ -49,7 +49,7 @@ namespace Ui
         set src(src: string | undefined) {
             //if (src === undefined)
             //	throw ('Image src cant be undefined');
-    
+
             this.setSrcLock = true;
             this.loaddone = false;
             this._naturalWidth = undefined;
@@ -68,7 +68,7 @@ namespace Ui
             }
             this.setSrcLock = false;
         }
-    
+
         //
         // Return the natural width of the image as defined
         // in the image file. Return undefined if the image is
@@ -160,8 +160,6 @@ namespace Ui
             }
             else if (Core.Navigator.isGecko)
                 this.imageDrawing.style['MozUserSelect'] = 'none';
-            else if (Core.Navigator.isIE)
-                this.imageDrawing.addEventListener('selectstart', (e) => e.preventDefault());
             return this.imageDrawing;
         }
 
@@ -201,4 +199,4 @@ namespace Ui
             }
         }
     }
-}	
+}

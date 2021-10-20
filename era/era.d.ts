@@ -40,7 +40,6 @@ declare namespace Core {
     class Navigator {
         static isGecko: boolean;
         static isWebkit: boolean;
-        static isIE: boolean;
         static isOpera: boolean;
         static isChrome: boolean;
         static isSafari: boolean;

@@ -183,9 +183,7 @@ namespace Ui {
             this.drawing.style.outline = 'none';
             // set the transformOrigin to 0 0. Do it only once for performance
             this.drawing.style.transformOrigin = '0 0';
-            if (Core.Navigator.isIE)
-                (<any>this.drawing).style.msTransformOrigin = '0 0';
-            else if (Core.Navigator.isGecko)
+            if (Core.Navigator.isGecko)
                 (<any>this.drawing).style.MozTransformOrigin = '0 0';
             else if (Core.Navigator.isWebkit)
                 (<any>this.drawing).style.webkitTransformOrigin = '0 0';
@@ -1444,14 +1442,10 @@ namespace Ui {
                     matrix = Ui.Matrix.createTranslate(x, y).multiply(this._transform).translate(-x, -y);
 
                 this.drawing.style.transform = matrix.toString();
-                if (Core.Navigator.isIE)
-                    (<any>this.drawing.style).msTransform = matrix.toString();
             }
             else {
                 if ('removeProperty' in this.drawing.style)
                     this.drawing.style.removeProperty('transform');
-                if (Core.Navigator.isIE && ('removeProperty' in this.drawing.style))
-                    this.drawing.style.removeProperty('-ms-transform');
             }
         }
 
@@ -1533,8 +1527,6 @@ namespace Ui {
                     drawing.style.webkitUserSelect = 'text';
                 else if (Core.Navigator.isGecko)
                     drawing.style.MozUserSelect = 'text';
-                else if (Core.Navigator.isIE)
-                    drawing.style.msUserSelect = 'element';
             }
             else {
                 drawing.style.cursor = 'inherit';
@@ -1543,8 +1535,6 @@ namespace Ui {
                     drawing.style.webkitUserSelect = 'none';
                 else if (Core.Navigator.isGecko)
                     drawing.style.MozUserSelect = 'none';
-                else if (Core.Navigator.isIE)
-                    drawing.style.msUserSelect = 'none';
             }
         }
     }

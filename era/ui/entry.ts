@@ -238,10 +238,7 @@ namespace Ui {
             drawing.style.margin = '0px';
             drawing.style.padding = '0px';
             drawing.style.outline = 'none';
-            if (Core.Navigator.isIE)
-                drawing.style.backgroundColor = 'rgba(255,255,255,0.01)';
-            else
-                drawing.style.background = 'none';
+            drawing.style.background = 'none';
             if (Core.Navigator.isWebkit)
                 drawing.style.webkitAppearance = 'none';
             drawing.style.fontSize = this.fontSize + 'px';

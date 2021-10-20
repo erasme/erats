@@ -170,8 +170,6 @@ namespace Core
         static isGecko: boolean = (navigator.userAgent.match(/Gecko\//i) !== null);
         static isWebkit: boolean = (navigator.userAgent.match(/WebKit\//i) !== null);
 
-        static isIE: boolean = (navigator.userAgent.match(/MSIE/i) !== null) || (navigator.userAgent.match(/Trident/i) !== null);
-
         static isOpera: boolean =  ((navigator.userAgent === undefined) || (navigator.userAgent.match(/Opera\//i) !== null));
 
         static isChrome: boolean = (navigator.userAgent.match(/ Chrome\//) !== null);

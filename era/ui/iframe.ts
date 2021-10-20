@@ -83,8 +83,6 @@ namespace Ui {
                 this.iframeDrawing.style.padding = '0px';
                 this.iframeDrawing.style.width = '100%';
                 this.iframeDrawing.style.height = '100%';
-                if (Core.Navigator.isIE)
-                    this.iframeDrawing.frameBorder = '0';
                 return this.iframeDrawing;
             }
         }

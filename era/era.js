@@ -202,7 +202,6 @@ var Core;
     }
     Navigator.isGecko = (navigator.userAgent.match(/Gecko\//i) !== null);
     Navigator.isWebkit = (navigator.userAgent.match(/WebKit\//i) !== null);
-    Navigator.isIE = (navigator.userAgent.match(/MSIE/i) !== null) || (navigator.userAgent.match(/Trident/i) !== null);
     Navigator.isOpera = ((navigator.userAgent === undefined) || (navigator.userAgent.match(/Opera\//i) !== null));
     Navigator.isChrome = (navigator.userAgent.match(/ Chrome\//) !== null);
     Navigator.isSafari = (navigator.userAgent.match(/ Safari\//) !== null);
@@ -2452,9 +2451,7 @@ var Ui;
             this.drawing.style.visibility = 'hidden';
             this.drawing.style.outline = 'none';
             this.drawing.style.transformOrigin = '0 0';
-            if (Core.Navigator.isIE)
-                this.drawing.style.msTransformOrigin = '0 0';
-            else if (Core.Navigator.isGecko)
+            if (Core.Navigator.isGecko)
                 this.drawing.style.MozTransformOrigin = '0 0';
             else if (Core.Navigator.isWebkit)
                 this.drawing.style.webkitTransformOrigin = '0 0';
@@ -3383,14 +3380,10 @@ var Ui;
                 if ((x !== 0) || (y !== 0))
                     matrix = Ui.Matrix.createTranslate(x, y).multiply(this._transform).translate(-x, -y);
                 this.drawing.style.transform = matrix.toString();
-                if (Core.Navigator.isIE)
-                    this.drawing.style.msTransform = matrix.toString();
             }
             else {
                 if ('removeProperty' in this.drawing.style)
                     this.drawing.style.removeProperty('transform');
-                if (Core.Navigator.isIE && ('removeProperty' in this.drawing.style))
-                    this.drawing.style.removeProperty('-ms-transform');
             }
         }
         setAnimClock(clock) {
@@ -3461,8 +3454,6 @@ var Ui;
                     drawing.style.webkitUserSelect = 'text';
                 else if (Core.Navigator.isGecko)
                     drawing.style.MozUserSelect = 'text';
-                else if (Core.Navigator.isIE)
-                    drawing.style.msUserSelect = 'element';
             }
             else {
                 drawing.style.cursor = 'inherit';
@@ -3471,8 +3462,6 @@ var Ui;
                     drawing.style.webkitUserSelect = 'none';
                 else if (Core.Navigator.isGecko)
                     drawing.style.MozUserSelect = 'none';
-                else if (Core.Navigator.isIE)
-                    drawing.style.msUserSelect = 'none';
             }
         }
     }
@@ -6161,8 +6150,6 @@ var Ui;
                     let image = this.generateImage(el.drawing);
                     if ('removeProperty' in image.style)
                         image.style.removeProperty('transform');
-                    if (Core.Navigator.isIE && ('removeProperty' in image.style))
-                        image.style.removeProperty('-ms-transform');
                     else if (Core.Navigator.isGecko)
                         image.style.removeProperty('-moz-transform');
                     else if (Core.Navigator.isWebkit)
@@ -8452,11 +8439,7 @@ var Ui;
             if (this._orientation == 'vertical') {
                 matrix = Ui.Matrix.createTranslate(this.labelDrawing.offsetHeight, 0);
                 matrix.rotate(90);
-                if (Core.Navigator.isIE) {
-                    this.labelDrawing.style.msTransform = matrix.toString();
-                    this.labelDrawing.style.msTransformOrigin = '0% 0%';
-                }
-                else if (Core.Navigator.isGecko) {
+                if (Core.Navigator.isGecko) {
                     this.labelDrawing.style.MozTransform = 'matrix(' + matrix.svgMatrix.a.toFixed(4) + ', ' + matrix.svgMatrix.b.toFixed(4) + ', ' + matrix.svgMatrix.c.toFixed(4) + ', ' + matrix.svgMatrix.d.toFixed(4) + ', ' + matrix.svgMatrix.e.toFixed(0) + 'px, ' + matrix.svgMatrix.f.toFixed(0) + 'px)';
                     this.labelDrawing.style.MozTransformOrigin = '0% 0%';
                 }
@@ -8466,9 +8449,7 @@ var Ui;
                 }
             }
             else {
-                if (Core.Navigator.isIE && ('removeProperty' in this.labelDrawing.style))
-                    this.labelDrawing.style.removeProperty('-ms-transform');
-                else if (Core.Navigator.isGecko)
+                if (Core.Navigator.isGecko)
                     this.labelDrawing.style.removeProperty('-moz-transform');
                 else if (Core.Navigator.isWebkit)
                     this.labelDrawing.style.removeProperty('-webkit-transform');
@@ -8550,7 +8531,7 @@ var Ui;
         }
         static createMeasureHtml() {
             let measureWindow = window;
-            if (Core.Navigator.isIE || Core.Navigator.isGecko)
+            if (Core.Navigator.isGecko)
                 measureWindow = Ui.App.getRootWindow();
             if (measureWindow.document.body === undefined) {
                 let body = measureWindow.document.createElement('body');
@@ -13965,14 +13946,6 @@ var Ui;
                 style.innerHTML = '* { -webkit-tap-highlight-color: rgba(0, 0, 0, 0); }';
                 document.getElementsByTagName('head')[0].appendChild(style);
             }
-            else if (Core.Navigator.isIE) {
-                let style = document.createElement('style');
-                style.type = 'text/css';
-                style.innerHTML =
-                    '@-ms-viewport { width: device-width; } ' +
-                        'body { -ms-content-zooming: none; } ';
-                document.getElementsByTagName('head')[0].appendChild(style);
-            }
             window.addEventListener('resize', e => App.onWindowResize(e));
             window.addEventListener('keyup', e => App.onWindowKeyUp(e));
             if ('onorientationchange' in window)
@@ -15540,8 +15513,6 @@ var Ui;
             }
             else if (Core.Navigator.isGecko)
                 this.imageDrawing.style['MozUserSelect'] = 'none';
-            else if (Core.Navigator.isIE)
-                this.imageDrawing.addEventListener('selectstart', (e) => e.preventDefault());
             return this.imageDrawing;
         }
         measureCore(width, height) {
@@ -15830,10 +15801,7 @@ var Ui;
             drawing.style.margin = '0px';
             drawing.style.padding = '0px';
             drawing.style.outline = 'none';
-            if (Core.Navigator.isIE)
-                drawing.style.backgroundColor = 'rgba(255,255,255,0.01)';
-            else
-                drawing.style.background = 'none';
+            drawing.style.background = 'none';
             if (Core.Navigator.isWebkit)
                 drawing.style.webkitAppearance = 'none';
             drawing.style.fontSize = this.fontSize + 'px';
@@ -16877,10 +16845,7 @@ var Ui;
             drawing.style.margin = '0px';
             drawing.style.padding = '0px';
             drawing.style.outline = 'none';
-            if (Core.Navigator.isIE)
-                drawing.style.backgroundColor = 'rgba(255,255,255,0.01)';
-            else
-                drawing.style.background = 'none';
+            drawing.style.background = 'none';
             if (Core.Navigator.isWebkit)
                 drawing.style.webkitAppearance = 'none';
             drawing.style.fontSize = this.fontSize + 'px';
@@ -18348,7 +18313,7 @@ var Ui;
         }
         static createMeasureHtml() {
             let measureWindow = window;
-            if (Core.Navigator.isIE || Core.Navigator.isGecko)
+            if (Core.Navigator.isGecko)
                 measureWindow = Ui.App.getRootWindow();
             if (measureWindow.document.body === undefined) {
                 let body = measureWindow.document.createElement('body');
@@ -19806,8 +19771,6 @@ var Ui;
                 this.iframeDrawing.style.padding = '0px';
                 this.iframeDrawing.style.width = '100%';
                 this.iframeDrawing.style.height = '100%';
-                if (Core.Navigator.isIE)
-                    this.iframeDrawing.frameBorder = '0';
                 return this.iframeDrawing;
             }
         }

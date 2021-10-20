@@ -191,7 +191,7 @@ namespace Ui
                 for (let topLayer of Ui.App.topLayers)
                     topLayer.invalidateLayout();
             }
-                
+
         }
 
         getOrientation() {
@@ -252,16 +252,6 @@ namespace Ui
                 let style = document.createElement('style');
                 style.type = 'text/css';
                 style.innerHTML = '* { -webkit-tap-highlight-color: rgba(0, 0, 0, 0); }';
-                document.getElementsByTagName('head')[0].appendChild(style);
-            }
-            // disable page zoom and auto scale for IE
-            else if (Core.Navigator.isIE) {
-                let style = document.createElement('style');
-                style.type = 'text/css';
-                style.innerHTML =
-                    '@-ms-viewport { width: device-width; } ' +
-                    'body { -ms-content-zooming: none; } '; //+
-                    //'* { touch-action: none; } ';
                 document.getElementsByTagName('head')[0].appendChild(style);
             }
 
@@ -682,7 +672,7 @@ namespace Ui
         static initialize() {
             if(document.readyState == 'complete')
                 App.onWindowLoad();
-            else 
+            else
                 window.addEventListener('load', () => App.onWindowLoad());
         }
     }
