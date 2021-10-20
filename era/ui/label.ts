@@ -235,24 +235,14 @@ namespace Ui {
         }
 
         arrangeCore(width, height) {
-            let matrix;
             if (this._orientation == 'vertical') {
-                matrix = Ui.Matrix.createTranslate(this.labelDrawing.offsetHeight, 0);
-                matrix.rotate(90);
-                if (Core.Navigator.isGecko) {
-                    (this.labelDrawing.style as any).MozTransform = 'matrix(' + matrix.svgMatrix.a.toFixed(4) + ', ' + matrix.svgMatrix.b.toFixed(4) + ', ' + matrix.svgMatrix.c.toFixed(4) + ', ' + matrix.svgMatrix.d.toFixed(4) + ', ' + matrix.svgMatrix.e.toFixed(0) + 'px, ' + matrix.svgMatrix.f.toFixed(0) + 'px)';
-                    (this.labelDrawing.style as any).MozTransformOrigin = '0% 0%';
-                }
-                else if (Core.Navigator.isWebkit) {
-                    this.labelDrawing.style.webkitTransform = matrix.toString();
-                    this.labelDrawing.style.webkitTransformOrigin = '0% 0%';
-                }
+                let matrix = Ui.Matrix.createTranslate(this.labelDrawing.offsetHeight, 0);
+                matrix = matrix.rotate(90);
+                this.labelDrawing.style.transform = matrix.toString();
+                this.labelDrawing.style.transformOrigin = '0% 0%';
             }
             else {
-                if (Core.Navigator.isGecko)
-                    this.labelDrawing.style.removeProperty('-moz-transform');
-                else if (Core.Navigator.isWebkit)
-                    this.labelDrawing.style.removeProperty('-webkit-transform');
+                this.labelDrawing.style.removeProperty('transform');
             }
         }
 
