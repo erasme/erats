@@ -26367,6 +26367,8 @@ var Form;
             if (init) {
                 if (init.value != undefined)
                     this.value = init.value;
+                if (init.text != undefined)
+                    this.text = init.text;
             }
         }
         generateUi() {
@@ -26380,6 +26382,12 @@ var Form;
         }
         set value(value) {
             this.field.value = value;
+        }
+        get text() {
+            return this.field.text;
+        }
+        set text(value) {
+            this.field.text = value;
         }
     }
     Form.CheckBoxField = CheckBoxField;

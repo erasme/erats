@@ -7068,6 +7068,7 @@ declare namespace Form {
     }
     interface CheckBoxFieldInit extends FieldInit<Ui.CheckBox> {
         value?: boolean;
+        text?: string;
     }
     class CheckBoxField extends Field<Ui.CheckBox> implements CheckBoxFieldInit {
         constructor(init?: CheckBoxFieldInit);
@@ -7075,6 +7076,8 @@ declare namespace Form {
         get isDefined(): boolean;
         get value(): boolean;
         set value(value: boolean);
+        get text(): string | undefined;
+        set text(value: string | undefined);
     }
     interface YesNoFieldInit extends FieldInit<Ui.Combo<{
         name: string;

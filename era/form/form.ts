@@ -517,6 +517,7 @@ namespace Form {
 
     export interface CheckBoxFieldInit extends FieldInit<Ui.CheckBox> {
         value?: boolean;
+        text?: string;
     }
 
     export class CheckBoxField extends Field<Ui.CheckBox> implements CheckBoxFieldInit {
@@ -525,6 +526,8 @@ namespace Form {
             if (init) {
                 if (init.value != undefined)
                     this.value = init.value;
+                if (init.text != undefined)
+                    this.text = init.text;
             }
         }
 
@@ -542,6 +545,14 @@ namespace Form {
 
         set value(value: boolean) {
             this.field.value = value;
+        }
+
+        get text(): string | undefined {
+            return this.field.text;
+        }
+
+        set text(value: string | undefined) {
+            this.field.text = value;
         }
     }
 
