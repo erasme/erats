@@ -8138,7 +8138,7 @@ var Ui;
         getActions() {
             let actions;
             if (this._watchers.length === 0)
-                return undefined;
+                return {};
             else {
                 if (this._watchers.length === 1) {
                     actions = {};

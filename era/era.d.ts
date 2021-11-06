@@ -2173,7 +2173,7 @@ declare namespace Ui {
         get elements(): Element[];
         set elements(elements: Element[]);
         getElementActions(watcher: SelectionableWatcher): SelectionActions;
-        getActions(): SelectionActions | undefined;
+        getActions(): SelectionActions;
         getDefaultAction(): SelectionAction | undefined;
         executeDefaultAction(): boolean;
         getDeleteAction(): SelectionAction | undefined;
