@@ -4,7 +4,7 @@ namespace Ui {
             super();
         }
 
-        run(current: Element, next: Element, progress: number) {
+        run(current: Element | undefined, next: Element | undefined, progress: number) {
             throw ('transition classes MUST override run method');
         }
 

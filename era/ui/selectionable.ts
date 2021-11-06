@@ -74,13 +74,18 @@ namespace Ui {
             this._draggableElement = element;
             if (this.draggableWatcher) {
                 this.draggableWatcher.dispose();
-                this.draggableWatcher = new DraggableWatcher({
-                    element: this._draggableElement,
-                    data: this.element,
-                    image: this.element,
-                    start: (w) => this.onSelectionableDragStart(w),
-                    end: (w) => this.onSelectionableDragEnd(w)
-                });
+                if (element) {
+                    this.draggableWatcher = new DraggableWatcher({
+                        element: element,
+                        data: this.element,
+                        image: this.element,
+                        start: (w) => this.onSelectionableDragStart(w),
+                        end: (w) => this.onSelectionableDragEnd(w)
+                    });
+                }
+                else {
+                    this.draggableWatcher = undefined;
+                }
             }
         }
 
@@ -100,7 +105,7 @@ namespace Ui {
                         end: (w) => this.onSelectionableDragEnd(w)
                     });
                 else {
-                    this.draggableWatcher.dispose();
+                    this.draggableWatcher?.dispose();
                     this.draggableWatcher = undefined;
                 }
             }
@@ -238,7 +243,7 @@ namespace Ui {
 
         static getParentSelectionHandler(element: Element): Selection | undefined {
             // search for the selection handler
-            let parent: Element = element.parent;
+            let parent: Element | undefined = element.parent;
             while (parent !== undefined) {
                 if ('getSelectionHandler' in parent)
                     return (parent as any).getSelectionHandler();

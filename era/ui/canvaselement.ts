@@ -13,40 +13,40 @@ namespace Ui {
         direction: 'ltr' | 'rtl' | 'inherit';
         title: string | undefined;
 
-        beginPath();
-        moveTo(x: number, y: number);
-        lineTo(x: number, y: number);
-        quadraticCurveTo(cpx: number, cpy: number, x: number, y: number);
-        bezierCurveTo(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number);
-        rect(x: number, y: number, w: number, h: number);
-        arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, anticlockwise: boolean);
-        ellipse(x: number, y: number, radiusX: number, radiusY: number, rotation: number, startAngle: number, endAngle: number, anticlockwise: boolean);
-        closePath();
-        fill();
-        stroke();
-        clip();
-        resetClip();
-        getLineDash();
-        setLineDash(lineDash);
-        drawImage(image, sx?: number, sy?: number, sw?: number, sh?: number, dx?: number, dy?: number, dw?: number, dh?: number);
-        fillText(text: string, x: number, y: number, maxWidth?: number);
-        strokeText(text: string, x: number, y: number, maxWidth?: number);
-        save();
-        restore();
-        scale(x: number, y: number);
-        rotate(angle: number);
-        translate(x: number, y: number);
-        transform(a: number, b: number, c: number, d: number, e: number, f: number);
-        setTransform(a: number, b: number, c: number, d: number, e: number, f: number);
-        resetTransform();
-        clearRect(x: number, y: number, w: number, h: number);
-        fillRect(x: number, y: number, w: number, h: number);
-        strokeRect(x: number, y: number, w: number, h: number);
-        createLinearGradient(x0: number, y0: number, x1: number, y1: number);
-        measureText(text: string);
-        svgPath(path: string);
-        roundRect(x: number, y: number, w: number, h: number, radiusTopLeft: number, radiusTopRight: number, radiusBottomRight: number, radiusBottomLeft: number, antiClockwise: boolean);
-        roundRectFilledShadow(x, y, width, height, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, inner, shadowWidth, color);
+        beginPath(): void;
+        moveTo(x: number, y: number): void;
+        lineTo(x: number, y: number): void;
+        quadraticCurveTo(cpx: number, cpy: number, x: number, y: number): void;
+        bezierCurveTo(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number): void;
+        rect(x: number, y: number, w: number, h: number): void;
+        arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, anticlockwise: boolean): void;
+        ellipse(x: number, y: number, radiusX: number, radiusY: number, rotation: number, startAngle: number, endAngle: number, anticlockwise: boolean): void;
+        closePath(): void;
+        fill(): void;
+        stroke(): void;
+        clip(): void;
+        resetClip(): void;
+        getLineDash(): number[];
+        setLineDash(lineDash: number[]): void;
+        drawImage(image: HTMLImageElement, sx?: number, sy?: number, sw?: number, sh?: number, dx?: number, dy?: number, dw?: number, dh?: number): void;
+        fillText(text: string, x: number, y: number, maxWidth?: number): void;
+        strokeText(text: string, x: number, y: number, maxWidth?: number): void;
+        save(): void;
+        restore(): void;
+        scale(x: number, y: number): void;
+        rotate(angle: number): void;
+        translate(x: number, y: number): void;
+        transform(a: number, b: number, c: number, d: number, e: number, f: number): void;
+        setTransform(a: number, b: number, c: number, d: number, e: number, f: number): void;
+        resetTransform(): void;
+        clearRect(x: number, y: number, w: number, h: number): void;
+        fillRect(x: number, y: number, w: number, h: number): void;
+        strokeRect(x: number, y: number, w: number, h: number): void;
+        createLinearGradient(x0: number, y0: number, x1: number, y1: number): void;
+        measureText(text: string): { width: number; height: number };
+        svgPath(path: string): void;
+        roundRect(x: number, y: number, w: number, h: number, radiusTopLeft: number, radiusTopRight: number, radiusBottomRight: number, radiusBottomLeft: number, antiClockwise: boolean): void;
+        roundRectFilledShadow(x: number, y: number, width: number, height: number, radiusTopLeft: number, radiusTopRight: number, radiusBottomRight: number, radiusBottomLeft: number, inner: boolean, shadowWidth: number, color: Ui.Color): void;
     }
 
 
@@ -55,9 +55,9 @@ namespace Ui {
 
     export class CanvasElement extends Container implements CanvasElementInit {
         protected _canvasEngine: 'canvas' | 'svg';
-        private _context: CanvasRenderingContext2D;
+        private _context: CanvasRenderingContext2D | undefined;
         private svgDrawing: any;
-        private canvasDrawing: HTMLCanvasElement;
+        private canvasDrawing: HTMLCanvasElement | undefined;
         private dpiRatio: number = 1;
         private generateNeeded = true;
         private _allowPointerEvent: boolean = false;
@@ -111,12 +111,12 @@ namespace Ui {
                 this.renderCanvasDrawing();
 
             if (this.canvasEngine === 'canvas') {
-                this._context.clearRect(0, 0, Math.ceil(this.layoutWidth * this.dpiRatio), Math.ceil(this.layoutHeight * this.dpiRatio));
-                this._context.save();
+                this._context!.clearRect(0, 0, Math.ceil(this.layoutWidth * this.dpiRatio), Math.ceil(this.layoutHeight * this.dpiRatio));
+                this._context!.save();
                 if (this.dpiRatio !== 1)
-                    this._context.scale(this.dpiRatio, this.dpiRatio);
-                this.updateCanvas(this._context);
-                this._context.restore();
+                    this._context!.scale(this.dpiRatio, this.dpiRatio);
+                this.updateCanvas(this._context!);
+                this._context!.restore();
             }
             else {
                 if (this.svgDrawing !== undefined)
@@ -191,6 +191,7 @@ namespace Ui {
             drawing.setAttribute('width', Math.ceil(this.layoutWidth).toString());
             drawing.setAttribute('height', Math.ceil(this.layoutHeight).toString());
             this.updateCanvas(context as any as Ui.CanvasRenderingContext2D);
+            // @ts-ignore
             return drawing.toDataURL.apply(drawing, arguments);
         }
 
@@ -253,12 +254,12 @@ namespace Core {
             this.x = x; this.y = y;
         }
 
-        quadraticCurveTo(cpx, cpy, x, y) {
+        quadraticCurveTo(cpx: number, cpy: number, x: number, y: number) {
             this.d += ' Q ' + cpx + ' ' + cpy + ' ' + x + ' ' + y;
             this.x = x; this.y = y;
         }
 
-        bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y) {
+        bezierCurveTo(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number) {
             this.d += ' C ' + cp1x + ' ' + cp1y + ' ' + cp2x + ' ' + cp2y + ' ' + x + ' ' + y;
             this.x = x; this.y = y;
         }
@@ -282,18 +283,18 @@ namespace Core {
             this.d += ' Z';
         }
 
-        rect(x, y, w, h) {
+        rect(x: number, y: number, w: number, h: number) {
             this.moveTo(x, y);
             this.lineTo(x + w, y);
             this.lineTo(x + w, y + h);
             this.lineTo(x, y + h);
         }
 
-        arc(x, y, radius, startAngle, endAngle, anticlockwise) {
+        arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, anticlockwise: boolean) {
             this.ellipse(x, y, radius, radius, 0, startAngle, endAngle, anticlockwise);
         }
 
-        ellipse(x, y, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise) {
+        ellipse(x: number, y: number, radiusX: number, radiusY: number, rotation: number, startAngle: number, endAngle: number, anticlockwise: boolean) {
             // special case, full ellipse
             if ((rotation === 0) && (Math.abs(endAngle - startAngle) >= Math.PI * 2)) {
                 this.moveTo(x, y + radiusY);
@@ -330,7 +331,7 @@ namespace Core {
             }
         }
 
-        roundRect(x, y, w, h, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, antiClockwise) {
+        roundRect(x: number, y: number, w: number, h: number, radiusTopLeft: number, radiusTopRight: number, radiusBottomRight: number, radiusBottomLeft: number, antiClockwise: boolean) {
             if (antiClockwise === true) {
                 this.moveTo(x + radiusTopLeft, y);
                 if (radiusTopLeft > 0)
@@ -449,11 +450,11 @@ namespace Core {
             this.currentPath.lineTo(x, y);
         }
 
-        quadraticCurveTo(cpx, cpy, x, y) {
+        quadraticCurveTo(cpx: number, cpy: number, x: number, y: number) {
             this.currentPath.quadraticCurveTo(cpx, cpy, x, y);
         }
 
-        bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y) {
+        bezierCurveTo(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number) {
             this.currentPath.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y);
         }
 
@@ -539,8 +540,8 @@ namespace Core {
         }
 
         // drawing images
-        drawImage(image, sx?: number, sy?: number, sw?: number, sh?: number, dx?: number, dy?: number, dw?: number, dh?: number) {
-            let img;
+        drawImage(image: HTMLImageElement, sx?: number, sy?: number, sw?: number, sh?: number, dx?: number, dy?: number, dw?: number, dh?: number) {
+            let img: SVGImageElement;
             let nw = image.naturalWidth;
             let nh = image.naturalHeight;
 
@@ -558,20 +559,20 @@ namespace Core {
             }
 
             if ((sx === 0) && (sy === 0) && (sw === nw) && (sh == nh)) {
-                img = document.createElementNS(svgNS, 'image');
+                img = document.createElementNS(svgNS, 'image') as SVGImageElement;
                 if (this.clipId !== undefined)
                     img.setAttributeNS(null, 'clip-path', 'url(#' + this.clipId + ')');
-                img.style.opacity = this.globalAlpha;
+                img.style.opacity = this.globalAlpha.toString();
                 // very important, SVG elements cant take pointers events
                 // because touch* events are captured by the initial element they
                 // are raised over. If this element is remove from the DOM (like canvas redraw)
                 // the following events (like touchmove, touchend) will never raised
                 img.setAttributeNS(null, 'pointer-events', 'none');
                 img.href.baseVal = image.src;
-                img.setAttributeNS(null, 'x', dx);
-                img.setAttributeNS(null, 'y', dy);
-                img.setAttributeNS(null, 'width', dw);
-                img.setAttributeNS(null, 'height', dh);
+                img.setAttributeNS(null, 'x', dx!.toString());
+                img.setAttributeNS(null, 'y', dy!.toString());
+                img.setAttributeNS(null, 'width', dw!.toString());
+                img.setAttributeNS(null, 'height', dh!.toString());
                 img.transform.baseVal.initialize(this.document.createSVGTransformFromMatrix(this.currentTransform));
                 this.g.appendChild(img);
             }
@@ -580,23 +581,23 @@ namespace Core {
                 let id = '_pat' + (++Core.SVG2DContext.counter);
                 pattern.setAttributeNS(null, 'id', id);
                 pattern.setAttributeNS(null, 'patternUnits', 'userSpaceOnUse');
-                pattern.setAttributeNS(null, 'x', dx.toString());
-                pattern.setAttributeNS(null, 'y', dy.toString());
-                pattern.setAttributeNS(null, 'width', dw.toString());
-                pattern.setAttributeNS(null, 'height', dh.toString());
+                pattern.setAttributeNS(null, 'x', dx!.toString());
+                pattern.setAttributeNS(null, 'y', dy!.toString());
+                pattern.setAttributeNS(null, 'width', dw!.toString());
+                pattern.setAttributeNS(null, 'height', dh!.toString());
 
-                img = document.createElementNS(svgNS, 'image');
+                img = document.createElementNS(svgNS, 'image') as SVGImageElement;
                 img.href.baseVal = image.src;
-                img.setAttributeNS(null, 'x', -sx * dw / sw);
-                img.setAttributeNS(null, 'y', -sy * dh / sh);
-                img.setAttributeNS(null, 'width', nw * dw / sw);
-                img.setAttributeNS(null, 'height', nh * dh / sh);
+                img.setAttributeNS(null, 'x', (-sx! * dw! / sw).toString());
+                img.setAttributeNS(null, 'y', (-sy! * dh! / sh!).toString());
+                img.setAttributeNS(null, 'width', (nw * dw! / sw).toString());
+                img.setAttributeNS(null, 'height', (nh * dh! / sh!).toString());
                 pattern.appendChild(img);
                 this.defs.appendChild(pattern);
 
                 let path: any = document.createElementNS(svgNS, 'path');
                 path.setAttributeNS(null, 'pointer-events', 'none');
-                path.setAttributeNS(null, 'd', 'M ' + dx + ' ' + dy + ' L ' + (dx + dw) + ' ' + dy + ' L ' + (dx + dw) + ' ' + (dy + dh) + ' L ' + dx + ' ' + (dy + dh) + ' Z');
+                path.setAttributeNS(null, 'd', 'M ' + dx + ' ' + dy + ' L ' + (dx! + dw!) + ' ' + dy + ' L ' + (dx! + dw!) + ' ' + (dy! + dh!) + ' L ' + dx + ' ' + (dy! + dh!) + ' Z');
                 path.style.fill = 'url(#' + id + ')';
                 if (this.clipId !== undefined)
                     path.setAttributeNS(null, 'clip-path', 'url(#' + this.clipId + ')');
@@ -719,7 +720,7 @@ namespace Core {
             this.currentTransform = this.currentTransform.translate(x, y);
         }
 
-        transform(a, b, c, d, e, f) {
+        transform(a: number, b: number, c: number, d: number, e: number, f: number) {
             let mulMatrix = this.document.createSVGMatrix();
             mulMatrix.a = a;
             mulMatrix.b = b;
@@ -730,7 +731,7 @@ namespace Core {
             this.currentTransform = this.currentTransform.multiply(mulMatrix);
         }
 
-        setTransform(a, b, c, d, e, f) {
+        setTransform(a: number, b: number, c: number, d: number, e: number, f: number) {
             this.currentTransform.a = a;
             this.currentTransform.b = b;
             this.currentTransform.c = c;
@@ -743,35 +744,36 @@ namespace Core {
             this.currentTransform = this.document.createSVGMatrix();
         }
 
-        clearRect(x, y, w, h) {
+        clearRect(x: number, y: number, w: number, h: number) {
         }
 
-        fillRect(x, y, w, h) {
+        fillRect(x: number, y: number, w: number, h: number) {
             this.beginPath();
             this.currentPath.rect(x, y, w, h);
             this.closePath();
             this.fill();
         }
 
-        strokeRect(x, y, w, h) {
+        strokeRect(x: number, y: number, w: number, h: number) {
             this.beginPath();
             this.currentPath.rect(x, y, w, h);
             this.closePath();
             this.stroke();
         }
 
-        createLinearGradient(x0, y0, x1, y1) {
+        createLinearGradient(x0: number, y0: number, x1: number, y1: number) {
             return new Core.SVGGradient(x0, y0, x1, y1);
         }
 
-        measureText(text) {
+        measureText(text: string) {
             let font = this.parseFont(this.font);
             return Ui.Label.measureText(text, font.size, font.family, font.weight);
         }
 
-        svgPath(path) {
+        svgPath(path: string) {
             let x = 0; let y = 0;
-            let x1; let y1; let x2; let y2; let x3; let y3;
+            let x1: number; let y1: number; let x2: number; let y2: number;
+            let x3: number; let y3: number;
             let beginX = 0; let beginY = 0;
 
             let parser = new Ui.SvgParser(path);
@@ -895,7 +897,7 @@ namespace Core {
             }
         }
 
-        parseFont(font) {
+        parseFont(font: string) {
             let tab = font.split(' ');
             if (tab.length === 1)
                 return { style: 'default', weight: 'normal', size: 16, family: tab[0] };
@@ -905,9 +907,10 @@ namespace Core {
                 return { style: 'default', weight: tab[0], size: parseInt(tab[1]), family: tab[2] };
             else if (tab.length === 4)
                 return { style: tab[0], weight: tab[1], size: parseInt(tab[2]), family: tab[3] };
+            throw `Invalid font format ${font}`;
         }
 
-        roundRectFilledShadow(x, y, width, height, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, inner, shadowWidth, color) {
+        roundRectFilledShadow(x: number, y: number, width: number, height: number, radiusTopLeft: number, radiusTopRight: number, radiusBottomRight: number, radiusBottomLeft: number, inner: boolean, shadowWidth: number, color: Ui.Color) {
             this.save();
             let rgba = color.getRgba();
             for (let i = 0; i < shadowWidth; i++) {

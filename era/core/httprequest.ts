@@ -13,14 +13,14 @@ module Core {
     }
 
     export class HttpRequest extends Object {
-        url: string = null;
+        url: string | null = null;
         method: MethodType = 'GET';
         binary: boolean = false;
-        arguments: object = undefined;
+        arguments: object | undefined;
         content: any = undefined;
-        _headers: object = undefined;
+        _headers: object;
         private request: XMLHttpRequest;
-        static requestHeaders: object = undefined;
+        static requestHeaders: object | undefined = undefined;
         readonly error = new Core.Events<{ target: HttpRequest, code: number }>();
         set onerror(value: (event: { target: HttpRequest, code: number }) => void) { this.error.connect(value); }
 
@@ -61,7 +61,7 @@ module Core {
         }
 
         set headers(headers: object) {
-            this._headers = Core.Util.clone(headers);
+            this._headers = Core.Util.clone(headers) as object;
         }
 
         get headers(): object {
@@ -85,7 +85,7 @@ module Core {
         }
 
         send() {
-            if (this.url === undefined)
+            if (this.url == undefined)
                 throw ('url MUST be given for an HttpRequest');
             let header;
             // encode arguments
@@ -181,7 +181,7 @@ module Core {
                 let xmlDoc = parser.parseFromString(this.responseText, 'text/xml');
                 return xmlDoc;
             } catch (e) { }
-            return undefined;
+            return parser.parseFromString('', 'text/xml');
         }
 
         get status(): number {

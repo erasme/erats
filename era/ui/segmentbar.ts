@@ -83,9 +83,9 @@ namespace Ui {
         }
 
         get data(): Array<any> {
-            let data = [];
+            let data : any[] = [];
             for (let i = 0; i < this.logicalChildren.length; i++) {
-                data.push(this.logicalChildren[i].data);
+                data.push((this.logicalChildren[i] as SegmentButton).data);
             }
             return data;
         }
@@ -102,6 +102,7 @@ namespace Ui {
                 if (this.box.children[i] === this._current)
                     return i;
             }
+            return -1;
         }
 
         get logicalChildren(): Array<SegmentButton> {
@@ -132,10 +133,10 @@ namespace Ui {
             }
         }
 
-        private onSegmentSelect = (e: { target: SegmentButton }) => {
-            this._current = e.target;
+        private onSegmentSelect = (event: { target: Pressable, x?: number, y?: number, altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean, middleButton?: boolean }) => {
+            this._current = event.target as SegmentButton;
             this.onStyleChange();
-            this.changed.fire({ target: this, value: e.target.data });
+            this.changed.fire({ target: this, value: (event.target as SegmentButton).data });
         }
 
         private onKeyDown(event) {
@@ -240,7 +241,7 @@ namespace Ui {
         private label: CompactLabel;
         private icon: Icon;
         private bg: Rectangle;
-        private _mode: 'left' | 'right' | 'top' | 'bottom' = undefined;
+        private _mode: 'left' | 'right' | 'top' | 'bottom';
         private _data: undefined;
         private _radius: number = 3;
 

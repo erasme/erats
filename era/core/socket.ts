@@ -10,12 +10,12 @@ namespace Core
 
     export class Socket extends Object
     {
-        host: string = undefined;
+        host: string | undefined;
         service: string = '/';
         port: number = 80;
         mode: 'websocket' | 'poll';
         secure: boolean = false;
-        websocket: WebSocket;
+        websocket: WebSocket | undefined;
         websocketdelay: any;
         emuopenrequest: any;
         emupollrequest: any;
@@ -162,11 +162,11 @@ namespace Core
 
         private onWebSocketOpenTimeout() {
             this.websocketdelay = undefined;
-            this.websocket.removeEventListener('open', this.onWebSocketOpen);
-            this.websocket.removeEventListener('error', this.onWebSocketError);
-            this.websocket.removeEventListener('message', this.onWebSocketMessage);
-            this.websocket.removeEventListener('close', this.onWebSocketClose);
-            this.websocket.close();
+            this.websocket!.removeEventListener('open', this.onWebSocketOpen);
+            this.websocket!.removeEventListener('error', this.onWebSocketError);
+            this.websocket!.removeEventListener('message', this.onWebSocketMessage);
+            this.websocket!.removeEventListener('close', this.onWebSocketClose);
+            this.websocket!.close();
             this.websocket = undefined;
 
             // try emulated socket before giving up
@@ -198,7 +198,7 @@ namespace Core
 
         private onWebSocketMessage = (msg) => {
             if (msg.data === 'PING')
-                this.websocket.send('PONG');
+                this.websocket!.send('PONG');
             else
                 this.message.fire({ target: this, message: msg.data });
         }

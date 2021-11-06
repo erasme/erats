@@ -76,9 +76,8 @@ namespace Ui {
     export class ButtonBadge extends LBox {
         private _bg = new Rectangle();
         private _label = new Label();
-        private _badge: string = undefined;
-        private _badgeColor: Color = undefined;
-        private _badgeTextColor: Color = undefined;
+        private _badgeColor: Color | undefined;
+        private _badgeTextColor: Color | undefined;
 
         constructor() {
             super();
@@ -99,8 +98,11 @@ namespace Ui {
             this._bg.radius = (value + margin * 2) / 2;
         }
 
+        get badge() {
+            return this._label.text;
+        }
+
         set badge(badge: string) {
-            this._badge = badge;
             this._label.text = badge;
         }
 
@@ -134,7 +136,7 @@ namespace Ui {
         protected buttonPartsBox: Box;
         private _icon: Element;
         private _iconBox: LBox;
-        private _text: Element;
+        private _text: Element | undefined;
         private _textBox: LBox;
         private _marker?: Element;
         private _badge?: string;
@@ -313,17 +315,18 @@ namespace Ui {
             this.updateVisibles();
         }
 
-        get marker(): Element {
+        get marker(): Element | undefined {
             return this._marker;
         }
 
-        set marker(marker: Element) {
+        set marker(marker: Element | undefined) {
             if (this._marker !== undefined)
                 this.mainBox.remove(this._marker);
             this._marker = marker;
             if (marker instanceof Icon)
                 marker.fill = this.getForegroundColor();
-            this.mainBox.append(this._marker);
+            if (this._marker)
+                this.mainBox.append(this._marker);
         }
 
         get isActive(): boolean {
@@ -359,7 +362,7 @@ namespace Ui {
                     });
                     this.iconBox.append(this._badgeContent);
                 }
-                this._badgeContent.badge = text;
+                this._badgeContent.badge = text??'';
             }
         }
 
@@ -491,13 +494,13 @@ namespace Ui {
 
             if (this.orientation === 'horizontal') {
                 if (this.isTextVisible)
-                    this._text.verticalAlign = 'center';
+                    this._text!.verticalAlign = 'center';
             }
             else {
                 if (this.isIconVisible && this.isTextVisible)
-                    this._text.verticalAlign = 'top';
+                    this._text!.verticalAlign = 'top';
                 else if (this.isTextVisible)
-                    this._text.verticalAlign = 'center';
+                    this._text!.verticalAlign = 'center';
             }
         }
 

@@ -37,9 +37,9 @@ namespace Ui
             this.target = target;
 
             if (this.bubbles) {
-                let stack = [];
+                let stack : Element[] = [];
 
-                let current = this.target;
+                let current : Element | undefined = this.target;
                 while (current != undefined) {
                     stack.push(current);
                     current = current.parent;

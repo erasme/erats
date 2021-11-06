@@ -81,6 +81,8 @@ namespace Ui
         }
 
         protected onDragOver(event: DragEvent) {
+            if (!event.dataTransfer)
+                return;
             // test if we already captured this dataTransfer
             let found = false;
             for (let i = 0; !found && (i < this.watchers.length); i++)
@@ -130,7 +132,7 @@ namespace Ui
         private getAllowedTypesEffect(dataTransfer: DragDataTransfer): DropEffect[] {
             if (this.allowedTypes !== undefined) {
                 let data = dataTransfer.getData();
-                let effect = undefined;
+                let effect : DropEffect[] | DropEffectFunc | undefined = undefined;
                 for (let i = 0; (effect === undefined) && (i < this.allowedTypes.length); i++) {
                     let type = this.allowedTypes[i];
                     if (typeof (type.type) === 'string') {
@@ -256,8 +258,8 @@ namespace Ui
     }
 
     export class DropBox extends LBox implements DropBoxInit {
-        watchers: DragWatcher[] = undefined;
-        allowedTypes: { type: string | Function, effect: DropEffect[] | DropEffectFunc }[] = undefined;
+        watchers: DragWatcher[];
+        allowedTypes: { type: string | Function, effect: DropEffect[] | DropEffectFunc }[];
 
         readonly drageffect = new Core.Events<Ui.DragEvent>();
         set ondrageffect(value: (event: DragEvent) => void) { this.drageffect.connect(value); }
@@ -321,6 +323,8 @@ namespace Ui
         }
 
         protected onDragOver(event: DragEvent) {
+            if (!event.dataTransfer)
+                return;
             // test if we already captured this dataTransfer
             let found = false;
             for (let i = 0; !found && (i < this.watchers.length); i++)
@@ -374,7 +378,7 @@ namespace Ui
         getAllowedTypesEffect(dataTransfer: DragDataTransfer): DropEffect[] {
             if (this.allowedTypes !== undefined) {
                 let data = dataTransfer.getData();
-                let effect = undefined;
+                let effect : DropEffect[] | DropEffectFunc | undefined = undefined;
                 for (let i = 0; (effect === undefined) && (i < this.allowedTypes.length); i++) {
                     let type = this.allowedTypes[i];
                     if (typeof (type.type) === 'string') {

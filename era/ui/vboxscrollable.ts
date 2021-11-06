@@ -15,7 +15,7 @@ namespace Ui {
         }
 
         getElementAt(position: number): Ui.Element {
-            return undefined;
+            throw 'Invalid position';
         }
     }
 
@@ -42,7 +42,7 @@ namespace Ui {
         showShadows: boolean = false;
         lock: boolean = false;
         isOver: boolean = false;
-        showClock: Anim.Clock;
+        showClock?: Anim.Clock;
         offsetX: number = 0;
         offsetY: number = 0;
         viewWidth: number = 0;
@@ -128,11 +128,11 @@ namespace Ui {
             this.contentBox.maxScale = maxScale;
         }
 
-        set content(content: Element) {
+        set content(content: Element | undefined) {
             this.contentBox.content = content;
         }
 
-        get content(): Element {
+        get content(): Element | undefined {
             return this.contentBox.content;
         }
 
@@ -303,7 +303,8 @@ namespace Ui {
             this.scrollbarHorizontal.opacity = opacity;
             this.scrollbarVertical.opacity = opacity;
             if (stop) {
-                this.showClock.stop();
+                if (this.showClock)
+                    this.showClock.stop();
                 this.showClock = undefined;
             }
         }
@@ -544,7 +545,7 @@ namespace Ui {
 
             let refPos;
             let refY;
-            let stillActiveItems = [];
+            let stillActiveItems : Element[] = [];
             let stillActiveHeight = 0;
 
             // find active items still visible
@@ -578,6 +579,7 @@ namespace Ui {
                 this.activeItems = [];
 
                 let item = this.loader.getElementAt(refPos);
+
                 // in not a recycled item, add it
                 if (item.parent !== this)
                     this.appendChild(item);

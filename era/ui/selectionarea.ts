@@ -25,7 +25,7 @@ namespace Ui {
                     return;
                 // if click, clear the current selectionarea
                 var selection = this.getParentSelectionHandler();
-                if (selection.elements.length > 0) {
+                if (selection && selection.elements.length > 0) {
                     selection.clear();
                     e.stopImmediatePropagation();
                 }
@@ -49,7 +49,7 @@ namespace Ui {
 
         getParentSelectionHandler(): Ui.Selection | undefined {
             // search for the selection handler
-            let parent: Ui.Element = this.parent;
+            let parent: Ui.Element | undefined = this.parent;
             while (parent !== undefined) {
                 if ('getSelectionHandler' in parent)
                     return (parent as any).getSelectionHandler();
@@ -267,26 +267,28 @@ namespace Ui {
                     let selection = this.getParentSelectionHandler();
                     this.lastSelection = new Date();
 
-                    // Shift = selection append
-                    if (e.shiftKey)
-                        selection.append(res);
-                    // Ctrl = selection append the inverted selection status
-                    else if (e.ctrlKey) {
-                        let watchers = selection.watchers;
-                        let res2 = new Array<SelectionableWatcher>();
-                        watchers.forEach(w => {
-                            if (res.indexOf(w) == -1)
-                                res2.push(w);
-                        });
-                        res.forEach(w => {
-                            if (watchers.indexOf(w) == -1)
-                                res2.push(w);
-                        });
-                        selection.watchers = res2;
+                    if (selection) {
+                        // Shift = selection append
+                        if (e.shiftKey)
+                            selection.append(res);
+                        // Ctrl = selection append the inverted selection status
+                        else if (e.ctrlKey) {
+                            let watchers = selection.watchers;
+                            let res2 = new Array<SelectionableWatcher>();
+                            watchers.forEach(w => {
+                                if (res.indexOf(w) == -1)
+                                    res2.push(w);
+                            });
+                            res.forEach(w => {
+                                if (watchers.indexOf(w) == -1)
+                                    res2.push(w);
+                            });
+                            selection.watchers = res2;
+                        }
+                        // set the current selection    
+                        else
+                            selection.watchers = res;
                     }
-                    // set the current selection    
-                    else
-                        selection.watchers = res;
 
                     this.remove(this.rectangle);
                     this.rectangle = undefined;
@@ -338,27 +340,28 @@ namespace Ui {
                     let selection = this.getParentSelectionHandler();
                     this.lastSelection = new Date();
 
-                    // Shift = selection append
-                    if (e.shiftKey)
-                        selection.append(res);
-                    // Ctrl = selection append the inverted selection status
-                    else if (e.ctrlKey) {
-                        let watchers = selection.watchers;
-                        let res2 = new Array<SelectionableWatcher>();
-                        watchers.forEach(w => {
-                            if (res.indexOf(w) == -1)
-                                res2.push(w);
-                        });
-                        res.forEach(w => {
-                            if (watchers.indexOf(w) == -1)
-                                res2.push(w);
-                        });
-                        selection.watchers = res2;
+                    if (selection) {
+                        // Shift = selection append
+                        if (e.shiftKey)
+                            selection.append(res);
+                        // Ctrl = selection append the inverted selection status
+                        else if (e.ctrlKey) {
+                            let watchers = selection.watchers;
+                            let res2 = new Array<SelectionableWatcher>();
+                            watchers.forEach(w => {
+                                if (res.indexOf(w) == -1)
+                                    res2.push(w);
+                            });
+                            res.forEach(w => {
+                                if (watchers.indexOf(w) == -1)
+                                    res2.push(w);
+                            });
+                            selection.watchers = res2;
+                        }
+                        // set the current selection    
+                        else
+                            selection.watchers = res;
                     }
-                    // set the current selection    
-                    else
-                        selection.watchers = res;
-
                     this.remove(this.rectangle);
                     this.rectangle = undefined;
                 }

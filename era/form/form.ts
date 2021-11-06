@@ -18,7 +18,7 @@ namespace Form {
         private _requiredText: Ui.Html;
         private _required: boolean = false;
         private _lastIsValid: boolean | undefined;
-        private _validateTask: Promise<string> | undefined;
+        private _validateTask: Promise<string | undefined> | undefined;
         private flow = new Ui.Flow();
         readonly changed = new Core.Events<{ target: Field<TE>, value: any }>();
         set onchanged(value: (event: { target: Field<TE>, value: any }) => void) { this.changed.connect(value); };
@@ -304,11 +304,11 @@ namespace Form {
             return this.field.selectedDate != undefined;
         }
 
-        get value(): Date {
+        get value(): Date | undefined {
             return this.field.selectedDate;
         }
 
-        set value(value: Date) {
+        set value(value: Date | undefined) {
             this.field.selectedDate = value;
         }
 
@@ -493,11 +493,11 @@ namespace Form {
             this.field.text = value;
         }
 
-        get value(): T {
+        get value(): T | undefined {
             return this.field.value;
         }
 
-        set value(value: T) {
+        set value(value: T | undefined) {
             if (value) {
                 let pos = this.data.indexOf(value);
                 this.field.position = pos;
@@ -577,7 +577,7 @@ namespace Form {
         }
 
         get value(): boolean {
-            return this.field.value.value;
+            return this.field.value ? this.field.value.value : false;
         }
 
         set value(value: boolean) {

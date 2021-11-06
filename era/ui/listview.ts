@@ -242,7 +242,7 @@ namespace Ui {
                                 this.sortOrder = e.sortOrder;
                                 this.sortchanged.fire({ target: this, sortOrder: this.sortOrder });
                             }
-                        }).openAt(e.x, e.y);
+                        }).openAt(e.x??0, e.y??0);
                 }
             })
         }
@@ -346,7 +346,7 @@ namespace Ui {
                 let key = this.headers[col].key;
                 let cell: ListViewCell;
                 if (this.headers[col].ui !== undefined)
-                    cell = new this.headers[col].ui();
+                    cell = new this.headers[col].ui!();
                 else
                     cell = new ListViewCellString();
                 cell.setKey(key);
@@ -575,7 +575,7 @@ namespace Ui {
             this.headersScroll.setScrollbarHorizontal(new Movable());
             this.append(this.headersScroll);
 
-            this.headersBar = new ListViewHeadersBar({ headers: this.headers }, this).assign({
+            this.headersBar = new ListViewHeadersBar<T>({ headers: this.headers }, this).assign({
                 onsortchanged: (e) => this.sortOrder = e.sortOrder
             });
             this.headersScroll.content = this.headersBar;
@@ -804,7 +804,7 @@ namespace Ui {
             this.sortchanged.fire({ target: this, sortOrder: this.sortOrder });
         }
 
-        get sortColKey(): keyof T {
+        get sortColKey(): keyof T | undefined {
             return this.headersBar.sortColKey;
         }
 

@@ -11,18 +11,18 @@ namespace Ui {
         controls?: boolean;
         controlsList?: Array<string>;
         currentTime?: number;
-        onready?: (event: { target: Audio, code: number }) => void;
+        onready?: (event: { target: Audio }) => void;
         onerror?: (event: { target: Audio, code: number }) => void;
     }
 
     export class Audio extends Element {
-        private _src: string;
+        private _src: string | undefined;
         protected audioDrawing!: HTMLAudioElement;
         private canplaythrough: boolean = false;
         private _state: MediaState = 'initial';
         private audioMeasureValid: boolean = false;
         private audioSize = { width: 0, height: 0 }
-        static measureBox: HTMLAudioElement = undefined;
+        static measureBox: HTMLAudioElement | undefined;
 
         readonly ready = new Core.Events<{ target: Audio }>();
         set onready(value: (event: { target: Audio }) => void) { this.ready.connect(value); }
@@ -136,7 +136,7 @@ namespace Ui {
             if (value)
                 this.audioDrawing.controls = true;
             else
-                delete (this.audioDrawing.controls);
+                this.audioDrawing.controls = false;
             this.audioMeasureValid = false;
             this.invalidateMeasure();
         }
@@ -164,7 +164,7 @@ namespace Ui {
         get controlsList(): Array<string> {
             if (this.audioDrawing['controlsList'] === undefined)
                 return [];
-            let controlsList = [];
+            let controlsList : string[] = [];
             (this.audioDrawing['controlsList'] as DOMTokenList).forEach(token => controlsList.push(token));
             return controlsList;
         }
@@ -310,7 +310,7 @@ namespace Ui {
 
         protected onError(): void {
             this._state = 'error';
-            this.error.fire({ target: this, code: this.audioDrawing.error.code });
+            this.error.fire({ target: this, code: this.audioDrawing.error ? this.audioDrawing.error.code : 0 });
             this.statechange.fire({ target: this, state: this._state });
         }
 
@@ -367,7 +367,7 @@ namespace Ui {
         private static measureTextHtml() {
             if (Ui.Audio.measureBox === undefined)
                 this.createMeasureHtml();
-            return { width: Ui.Audio.measureBox.offsetWidth, height: Ui.Audio.measureBox.offsetHeight };
+            return { width: Ui.Audio.measureBox!.offsetWidth, height: Ui.Audio.measureBox!.offsetHeight };
         }
 
         private static createMeasureHtml() {

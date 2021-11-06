@@ -34,10 +34,10 @@ namespace Anim
          * @param {number} delta Time (in second) between two update calls.
          */
         private _animation: boolean = true;
-        private _parent: Clock = undefined;
-        private _time: number = undefined;
-        private _iteration: number = undefined;
-        private _progress: number = 0;
+        private _parent?: Clock = undefined;
+        private _time?: number = undefined;
+        private _iteration?: number = undefined;
+        private _progress?: number = 0;
         private _isActive: boolean = false;
         private _globalTime: number = 0;
         private startTime: number = 0;
@@ -52,8 +52,8 @@ namespace Anim
         private _autoReverse: boolean = false;
         // [forever|count]
         private _repeat: 'forever' | number = 1;
-        private _target: Target = undefined;
-        private _ease: EasingFunction = undefined;
+        private _target?: Target = undefined;
+        private _ease?: EasingFunction = undefined;
         readonly timeupdate = new Core.Events<{ target: Clock, progress: number, deltaTick: number }>();
         readonly completed = new Core.Events<{ target: Clock }>();
 
@@ -120,11 +120,11 @@ namespace Anim
                 this._duration = duration;
         }
 
-        set parent(parent: Clock) {
+        set parent(parent: Clock | undefined) {
             this._parent = parent;
         }
 
-        get parent(): Clock {
+        get parent(): Clock | undefined {
             return this._parent;
         }
 
@@ -137,15 +137,15 @@ namespace Anim
         }
 
         get time(): number {
-            return this._time;
+            return this._time??0;
         }
 
         get iteration(): number {
-            return this._iteration;
+            return this._iteration??0;
         }
 
         get progress(): number {
-            return this._progress;
+            return this._progress??0;
         }
 
         begin() {

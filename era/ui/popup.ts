@@ -113,11 +113,11 @@ namespace Ui
             this._autoClose = autoClose;
         }
 
-        get content(): Element {
+        get content(): Element | undefined {
             return this.scroll.content;
         }
 
-        set content(content: Element) {
+        set content(content: Element | undefined) {
             this.scroll.content = content;
         }
 
@@ -357,26 +357,26 @@ namespace Ui
                 for (i = 0; i < borders.length; i++) {
                     border = borders[i];
                     if (border === 'left') {
-                        if (usedWidth + 10 < this.posX) {
-                            this.setLeft(this.posX, this.posY, width, height);
+                        if (usedWidth + 10 < (this.posX??0)) {
+                            this.setLeft(this.posX??0, this.posY??0, width, height);
                             break;
                         }
                     }
                     else if (border === 'right') {
-                        if (usedWidth + this.posX + 10 < width) {
-                            this.setRight(this.posX, this.posY, width, height);
+                        if (usedWidth + (this.posX??0) + 10 < width) {
+                            this.setRight(this.posX??0, this.posY??0, width, height);
                             break;
                         }
                     }
                     else if (border === 'top') {
-                        if (usedHeight + 10 < this.posY) {
-                            this.setTop(this.posX, this.posY, width, height);
+                        if (usedHeight + 10 < (this.posY??0)) {
+                            this.setTop(this.posX??0, this.posY??0, width, height);
                             break;
                         }
                     }
                     else if (border === 'bottom') {
-                        if (usedHeight + 10 + this.posY < height) {
-                            this.setBottom(this.posX, this.posY, width, height);
+                        if (usedHeight + 10 + (this.posY??0) < height) {
+                            this.setBottom(this.posX??0, this.posY??0, width, height);
                             break;
                         }
                     }

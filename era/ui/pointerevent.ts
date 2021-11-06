@@ -20,7 +20,7 @@ namespace Ui
     export class PointerWatcher extends Core.Object
     {
         element: Element;
-        pointer: Pointer | undefined;
+        pointer: Pointer;
         readonly downed = new Core.Events<{ target: PointerWatcher }>()
         readonly moved = new Core.Events<{ target: PointerWatcher }>()
         readonly upped = new Core.Events<{ target: PointerWatcher }>()
@@ -33,12 +33,18 @@ namespace Ui
         }
 
         getAbsoluteDelta() {
+            if (!this.pointer) {
+                return { x: 0, y: 0 };
+            }
             let initial = { x: this.pointer.getInitialX(), y: this.pointer.getInitialY() };
             let current = { x: this.pointer.getX(), y: this.pointer.getY() };
             return { x: current.x - initial.x, y: current.y - initial.y };
         }
 
         getDelta() {
+            if (!this.pointer) {
+                return { x: 0, y: 0 };
+            }
             let initial = new Point(this.pointer.getInitialX(), this.pointer.getInitialY());
             let current = new Point(this.pointer.getX(), this.pointer.getY());
             initial = this.element.pointFromWindow(initial);
@@ -47,7 +53,7 @@ namespace Ui
         }
 
         getPosition() {
-            let current = new Point(this.pointer.getX(), this.pointer.getY());
+            let current = this.pointer ? new Point(this.pointer.getX(), this.pointer.getY()) : new Point();
             return this.element.pointFromWindow(current);
         }
 
@@ -102,20 +108,19 @@ namespace Ui
         // Ask for exclusive watching on this pointer
         //
         capture() {
-            this.pointer.capture(this);
+            if (this.pointer)
+                this.pointer.capture(this);
         }
 
         release() {
-            this.pointer.release(this);
+            if (this.pointer)
+                this.pointer.release(this);
         }
     
         cancel() {
             if (this.pointer != undefined) {
                 this.cancelled.fire({ target: this });
                 this.pointer.unwatch(this);
-                // no more events must happened, ensure the watcher
-                // will no more be used
-                this.pointer = undefined;
             }
         }
 
@@ -418,7 +423,7 @@ namespace Ui
         lastTouchY: number = -1;
         lastDownTouchX: number = -1;
         lastDownTouchY: number = -1;
-        mouse: Pointer = undefined;
+        mouse: Pointer | undefined = undefined;
         app: App;
         pointers: Core.HashTable<Pointer> = {};
 
@@ -448,15 +453,15 @@ namespace Ui
                 window.addEventListener('keydown', (event) => {
                     // if Ctrl, Alt or Shift change signal to the mouse
                     if ((event.which === 16) || (event.which === 17) || (event.which === 18)) {
-                        this.mouse.setControls(event.altKey, event.ctrlKey, event.shiftKey);
-                        this.mouse.move(this.mouse.x, this.mouse.y);
+                        this.mouse!.setControls(event.altKey, event.ctrlKey, event.shiftKey);
+                        this.mouse!.move(this.mouse!.x, this.mouse!.y);
                     }
                 });
                 window.addEventListener('keyup', (event) => {
                     // if Ctrl, Alt or Shift change signal to the mouse
                     if ((event.which === 16) || (event.which === 17) || (event.which === 18)) {
-                        this.mouse.setControls(event.altKey, event.ctrlKey, event.shiftKey);
-                        this.mouse.move(this.mouse.x, this.mouse.y);
+                        this.mouse!.setControls(event.altKey, event.ctrlKey, event.shiftKey);
+                        this.mouse!.move(this.mouse!.x, this.mouse!.y);
                     }
                 });
 
@@ -469,7 +474,7 @@ namespace Ui
 
         onSelectStart(event) {
             //console.log('selectstart '+event.target+' START '+this.mouse.getIsCaptured());
-            if (this.mouse.getIsCaptured()) {
+            if (this.mouse && this.mouse.getIsCaptured()) {
                 event.preventDefault();
                 return;
             }
@@ -512,17 +517,17 @@ namespace Ui
             else if (event.button === 2)
                 buttons |= 4;
 
-            this.mouse.setControls(event.altKey, event.ctrlKey, event.shiftKey);
+            this.mouse!.setControls(event.altKey, event.ctrlKey, event.shiftKey);
 
-            let oldButtons = this.mouse.getButtons();
+            let oldButtons = this.mouse!.getButtons();
             if (oldButtons === 0)
-                this.mouse.down(event.clientX, event.clientY, buttons, event.button);
+                this.mouse!.down(event.clientX, event.clientY, buttons, event.button);
             else
-                this.mouse.setButtons(oldButtons | buttons);
+                this.mouse!.setButtons(oldButtons | buttons);
         }
 
         onMouseMove(event: MouseEvent) {
-            this.mouse.setControls(event.altKey, event.ctrlKey, event.shiftKey);
+            this.mouse!.setControls(event.altKey, event.ctrlKey, event.shiftKey);
             // avoid emulated mouse event after touch events
             let deltaTime = (((new Date().getTime()) / 1000) - this.lastUpdate);
             let deltaX = (this.lastTouchX - event.clientX);
@@ -537,11 +542,11 @@ namespace Ui
 
             if ((deltaTime < 1) || ((deltaTime < 10) && ((deltaPos < 20) || (downDeltaPos < 20))))
                 return;
-            this.mouse.move(event.clientX, event.clientY);
+            this.mouse!.move(event.clientX, event.clientY);
         }
 
         onMouseUp(event: MouseEvent) {
-            this.mouse.setControls(event.altKey, event.ctrlKey, event.shiftKey);
+            this.mouse!.setControls(event.altKey, event.ctrlKey, event.shiftKey);
             // avoid emulated mouse event after touch events
             let deltaTime = (((new Date().getTime()) / 1000) - this.lastUpdate);
             let deltaX = (this.lastTouchX - event.clientX);
@@ -556,8 +561,8 @@ namespace Ui
 
             if ((deltaTime < 1) || ((deltaTime < 10) && ((deltaPos < 20) || (downDeltaPos < 20))))
                 return;
-            this.mouse.move(event.clientX, event.clientY);
-            this.mouse.up();
+            this.mouse!.move(event.clientX, event.clientY);
+            this.mouse!.up();
         }
 
         onWindowLoad() {

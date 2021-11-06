@@ -24,7 +24,7 @@ namespace Ui
         private _content?: Element;
 
         private static dialogs: Element[] = [];
-        private static dialogsFocus = [];
+        private static dialogsFocus: Element[] = [];
         private static topLayers: Element[] = [];
 
         static requireFonts: any;
@@ -124,7 +124,7 @@ namespace Ui
         }
 
         static forceInvalidateMeasure(element: Ui.Element) {
-            if (element === undefined)
+            if (element === undefined && Ui.App.current)
                 element = Ui.App.current;
             if (element instanceof Ui.Container)
                 for (let i = 0; i < element.children.length; i++)
@@ -274,7 +274,8 @@ namespace Ui
             window.addEventListener('dragstart', (event) => event.preventDefault());
             window.addEventListener('dragenter', (event) => { event.preventDefault(); return false; });
             window.addEventListener('dragover', (event) => {
-                event.dataTransfer.dropEffect = 'none';
+                if (event.dataTransfer)
+                    event.dataTransfer.dropEffect = 'none';
                 event.preventDefault(); return false;
             });
             window.addEventListener('drop', (event) => { event.preventDefault(); return false; });
@@ -343,8 +344,8 @@ namespace Ui
                 App.windowHeight = innerHeight;
 
                 if (Ui.App.current) {
-                    App.current.resized.fire({ target: App.current, width: App.windowWidth, height: App.windowHeight });
-                    App.current.invalidateLayout();
+                    Ui.App.current.resized.fire({ target: Ui.App.current, width: App.windowWidth, height: App.windowHeight });
+                    Ui.App.current.invalidateLayout();
                 }
                 for (let dialog of App.dialogs)
                     dialog.invalidateLayout();
@@ -640,7 +641,7 @@ namespace Ui
         }
 
         // {Ui.App} Reference to the current application instance
-        static current: App = undefined;
+        static current: App | undefined = undefined;
 
         static isPrint = false;
 

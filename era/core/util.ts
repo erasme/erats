@@ -205,6 +205,7 @@ if (!(window as any).ResizeObserver) {
         function EmuResizeObserver(callback: () => void) {
             // @ts-ignore
             this.callback = callback;
+            // @ts-ignore
             this.observe = function(element: HTMLElement) {
                 if (this.elements == undefined)
                     this.elements = [];
@@ -223,7 +224,9 @@ if (!(window as any).ResizeObserver) {
                     attributes: true
                 });
             }
+            // @ts-ignore
             this.disconnect = function() {};
+            // @ts-ignore
             this.unobserve = function(target: Element) {};
         };
         (window as any).ResizeObserver = EmuResizeObserver;

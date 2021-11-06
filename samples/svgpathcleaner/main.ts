@@ -104,7 +104,7 @@ class App extends Ui.App {
 	onCleanPressed() {
 		let svgParser = new Ui.SvgParser(this.pathTextField.value);
 		let lastIsValue = false;
-		let lastCmd = '';
+		let lastCmd : string | undefined = '';
 		let res = '';
 		svgParser.next();
 		while(!svgParser.isEnd()) {

@@ -60,7 +60,7 @@ namespace Ui {
             this.input.select();
         }
 
-        protected onFile(wrapper: UploadableFileWrapper, file: File) {
+        protected onFile(wrapper: UploadableFileWrapper | undefined, file: File) {
             this.filechanged.fire({ target: this, file: file });
         }
     }

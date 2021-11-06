@@ -107,7 +107,7 @@ namespace Ui {
         set accept(value: string | undefined) {
             this._accept = value;
             if (this.inputDrawing !== undefined) {
-                if (this._accept)
+                if (value)
                     this.inputDrawing.setAttribute('accept', value);
                 else
                     this.inputDrawing.removeAttribute('accept');
@@ -117,7 +117,7 @@ namespace Ui {
         set capture(value: string | undefined) {
             this._capture = value;
             if (this.inputDrawing !== undefined) {
-                if (this._capture)
+                if (value)
                     this.inputDrawing.setAttribute('capture', value);
                 else
                     this.inputDrawing.removeAttribute('capture');
@@ -161,7 +161,7 @@ namespace Ui {
             event.preventDefault();
             event.stopPropagation();
 
-            for (var i = 0; i < this.inputDrawing.files.length; i++)
+            for (let i = 0; this.inputDrawing && this.inputDrawing.files && i < this.inputDrawing.files.length; i++)
                 this.file.fire({ target: this, file: this.inputDrawing.files[i] });
         }
 

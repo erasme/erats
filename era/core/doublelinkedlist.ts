@@ -1,110 +1,91 @@
 
-namespace Core
-{
-    export class DoubleLinkedListNode
-    {
-        previous?: DoubleLinkedListNode;
-        next?: DoubleLinkedListNode;
+namespace Core {
+    export class DoubleLinkedListNode {
+        previous: DoubleLinkedListNode;
+        next: DoubleLinkedListNode;
         data: any;
 
-        constructor(data: any)
-        {
+        constructor(data: any) {
             this.data = data;
         }
     }
 
-    export class DoubleLinkedList
-    {
-        root: DoubleLinkedListNode;
+    export class DoubleLinkedList {
+        root: DoubleLinkedListNode | undefined;
         length: 0;
 
-        getLength()
-        {
+        getLength() {
             return this.length;
         }
 
-        getFirstNode()
-        {
+        getFirstNode() {
             return this.root;
         }
 
-        getLastNode()
-        {
+        getLastNode() {
             if (this.root === undefined)
                 return undefined;
             else
                 return this.root.previous;
         }
 
-        appendNode(node: DoubleLinkedListNode)
-        {
-            if (this.root === undefined)
-            {
+        appendNode(node: DoubleLinkedListNode) {
+            if (this.root === undefined) {
                 node.previous = node;
                 node.next = node;
                 this.root = node;
             }
-            else
-            {
-            node.previous = this.root.previous;
-            node.next = this.root;
-               this.root.previous.next = node;
-            this.root.previous = node;
+            else {
+                node.previous = this.root.previous;
+                node.next = this.root;
+                this.root.previous!.next = node;
+                this.root.previous = node;
             }
             this.length++;
             return node;
         }
 
-        prependNode(node: DoubleLinkedListNode)
-        {
-            if (this.root === undefined)
-            {
-            node.previous = node;
-            node.next = node;
-            this.root = node;
-          }
-            else
-            {
-            node.previous = this.root.previous;
-            node.next = this.root;
-            this.root.previous.next = node;
-            this.root.previous = node;
-            this.root = node;
-          }
+        prependNode(node: DoubleLinkedListNode) {
+            if (this.root === undefined) {
+                node.previous = node;
+                node.next = node;
+                this.root = node;
+            }
+            else {
+                node.previous = this.root.previous;
+                node.next = this.root;
+                this.root.previous!.next = node;
+                this.root.previous = node;
+                this.root = node;
+            }
             this.length++;
             return node;
         }
 
-        removeNode(node: DoubleLinkedListNode)
-        {
-            if (this.root === node)
-            {
+        removeNode(node: DoubleLinkedListNode) {
+            if (this.root === node) {
                 if (node.next === node)
                     this.root = undefined;
-                else
-                {
-                    node.next.previous = node.previous;
-                    node.previous.next = node.next;
+                else {
+                    node.next!.previous = node.previous;
+                    node.previous!.next = node.next;
                     this.root = node.next;
                 }
             }
-            else
-            {
+            else {
                 node.next.previous = node.previous;
                 node.previous.next = node.next;
             }
-            node.next = undefined;
-            node.previous = undefined;
+            node.next = node;
+            node.previous = node;
             this.length--;
         }
 
-        findNode(data: any)
-        {
+        findNode(data: any) {
             if (this.root === undefined)
                 return undefined;
             let current = this.root;
-            while (current.next !== this.root)
-            {
+            while (current.next !== this.root) {
                 if (current.data === data)
                     return current;
                 current = current.next;
@@ -112,8 +93,7 @@ namespace Core
             return undefined;
         }
 
-        getFirst()
-        {
+        getFirst() {
             let firstNode = this.getFirstNode();
             if (firstNode === undefined)
                 return undefined;
@@ -121,8 +101,7 @@ namespace Core
                 return firstNode.data;
         }
 
-        getLast()
-        {
+        getLast() {
             let lastNode = this.getLastNode();
             if (lastNode === undefined)
                 return undefined;
@@ -130,38 +109,32 @@ namespace Core
                 return lastNode.data;
         }
 
-        append(data: any)
-        {
+        append(data: any) {
             return this.appendNode(new DoubleLinkedListNode(data));
         }
 
-        prepend(data: any)
-        {
+        prepend(data: any) {
             return this.prependNode(new DoubleLinkedListNode(data));
         }
 
-        remove(data)
-        {
+        remove(data) {
             let node = this.findNode(data);
             if (node !== undefined)
                 this.removeNode(node);
         }
 
-        clear()
-        {
+        clear() {
             this.root = undefined;
         }
 
-        static moveNext(node: DoubleLinkedListNode)
-        {
+        static moveNext(node: DoubleLinkedListNode) {
             if (node !== undefined)
                 return node.next;
             else
                 return undefined;
         }
 
-        isLast(node: DoubleLinkedListNode)
-        {
+        isLast(node: DoubleLinkedListNode) {
             if (node === undefined)
                 return true;
             else

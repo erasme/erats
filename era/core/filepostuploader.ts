@@ -13,10 +13,10 @@ namespace Core {
     }
 
     export class FilePostUploader extends Object {
-        _headers: object = undefined;
+        _headers: object;
         protected _file: File;
         protected _service: string;
-        protected request: XMLHttpRequest;
+        protected request: XMLHttpRequest | undefined;
         protected _responseText: string;
         protected _method: string = 'POST';
         protected formData: FormData;
@@ -91,7 +91,7 @@ namespace Core {
         }
 
         set headers(headers: object) {
-            this._headers = Core.Util.clone(headers);
+            this._headers = Core.Util.clone(headers) as object;
         }
 
         get headers(): object {
@@ -169,7 +169,7 @@ namespace Core {
         }
 
         get status(): number {
-            return this.request ? this.request.status : this._lastStatus;
+            return this.request ? this.request.status : (this._lastStatus??-1);
         }
 
         sendAsync() {
@@ -227,16 +227,16 @@ namespace Core {
         }
 
         protected onStateChange(event) {
-            this._lastStatus = this.request.status;
-            if (this.request.readyState == 4) {
+            this._lastStatus = this.request!.status;
+            if (this.request!.readyState == 4) {
                 this._isCompleted = true;
-                if (this.request.status == 200) {
-                    this._responseText = this.request.responseText;
+                if (this.request!.status == 200) {
+                    this._responseText = this.request!.responseText;
                     this.completed.fire({ target: this });
                 }
                 else {
-                    this._responseText = this.request.responseText;
-                    this.error.fire({ target: this, status: this.request.status });
+                    this._responseText = this.request!.responseText;
+                    this.error.fire({ target: this, status: this.request!.status });
                 }
                 this.request = undefined;
             }

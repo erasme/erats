@@ -660,7 +660,7 @@ namespace Ui {
 
         protected arrangeCore(width: number, height: number) {
             while (this.textDrawing.hasChildNodes())
-                this.textDrawing.removeChild(this.textDrawing.firstChild);
+                this.textDrawing.removeChild(this.textDrawing.firstChild!);
             let textDrawing = this.textDrawing;
             this.textContext.setDrawLine(function (x: number, y: number, line: string) {
                 let tspan = document.createElement('div');

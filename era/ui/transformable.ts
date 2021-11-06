@@ -188,13 +188,13 @@ namespace Ui {
         down?: (watcher: TransformableWatcher) => void;
 
         private _inertia: boolean = false;
-        protected inertiaClock: Anim.Clock;
+        protected inertiaClock: Anim.Clock | undefined;
 
         private _isDown: boolean = false;
         private transformLock: boolean = false;
 
-        private watcher1: PointerWatcher;
-        private watcher2: PointerWatcher;
+        private watcher1: PointerWatcher | undefined;
+        private watcher2: PointerWatcher | undefined;
 
         private _angle: number = 0;
         private _scale: number = 1;
@@ -524,11 +524,11 @@ namespace Ui {
                 if (!this.watcher2.getIsCaptured() && this.watcher2.pointer.getIsMove())
                     this.watcher2.capture();
 
-                pos1 = this.element.parent.pointFromWindow(new Point(this.watcher1.pointer.getX(), this.watcher1.pointer.getY()));
-                pos2 = this.element.parent.pointFromWindow(new Point(this.watcher2.pointer.getX(), this.watcher2.pointer.getY()));
+                pos1 = this.element.parent!.pointFromWindow(new Point(this.watcher1.pointer.getX(), this.watcher1.pointer.getY()));
+                pos2 = this.element.parent!.pointFromWindow(new Point(this.watcher2.pointer.getX(), this.watcher2.pointer.getY()));
 
-                start1 = this.element.parent.pointFromWindow(new Point(this.watcher1.pointer.getInitialX(), this.watcher1.pointer.getInitialY()));
-                start2 = this.element.parent.pointFromWindow(new Point(this.watcher2.pointer.getInitialX(), this.watcher2.pointer.getInitialY()));
+                start1 = this.element.parent!.pointFromWindow(new Point(this.watcher1.pointer.getInitialX(), this.watcher1.pointer.getInitialY()));
+                start2 = this.element.parent!.pointFromWindow(new Point(this.watcher2.pointer.getInitialX(), this.watcher2.pointer.getInitialY()));
 
                 let startVector: any = { x: start2.x - start1.x, y: start2.y - start1.y };
                 let endVector: any = { x: pos2.x - pos1.x, y: pos2.y - pos1.y };
@@ -585,8 +585,8 @@ namespace Ui {
             // 1 finger
             else if ((this.watcher1 !== undefined) && this._allowTranslate) {
 
-                pos1 = this.element.parent.pointFromWindow(new Point(this.watcher1.pointer.getX(), this.watcher1.pointer.getY()));
-                start1 = this.element.parent.pointFromWindow(new Point(this.watcher1.pointer.getInitialX(), this.watcher1.pointer.getInitialY()));
+                pos1 = this.element.parent!.pointFromWindow(new Point(this.watcher1.pointer.getX(), this.watcher1.pointer.getY()));
+                start1 = this.element.parent!.pointFromWindow(new Point(this.watcher1.pointer.getInitialX(), this.watcher1.pointer.getInitialY()));
 
                 let deltaX = pos1.x - start1.x;
                 let deltaY = pos1.y - start1.y;
@@ -649,7 +649,10 @@ namespace Ui {
             if ((this.watcher2 !== undefined) && (this.watcher2 === watcher)) {
                 this.watcher2.unwatch();
                 delete (this.watcher2);
-                this.watcher1.pointer.setInitialPosition(this.watcher1.pointer.getX(), this.watcher1.pointer.getY());
+                this.watcher1!.pointer.setInitialPosition(
+                    this.watcher1!.pointer.getX(),
+                    this.watcher1!.pointer.getY()
+                );
                 this.startAngle = this._angle;
                 this.startScale = this._scale;
                 this.startTranslateX = this._translateX;
@@ -667,7 +670,7 @@ namespace Ui {
             if (event.altKey) {
                 if (this._allowRotate) {
                     let angle = delta / 5;
-                    let pos = this.element.parent.pointFromWindow(new Point(event.clientX, event.clientY));
+                    let pos = this.element.parent!.pointFromWindow(new Point(event.clientX, event.clientY));
                     let origin = new Ui.Point(
                         this.element.layoutX + this.element.layoutWidth * this.element.transformOriginX,
                         this.element.layoutY + this.element.layoutHeight * this.element.transformOriginY);
@@ -695,7 +698,7 @@ namespace Ui {
                         scale = this._maxScale;
                     let deltaScale = scale / this._scale;
 
-                    let pos = this.element.parent.pointFromWindow(new Point(event.clientX, event.clientY));
+                    let pos = this.element.parent!.pointFromWindow(new Point(event.clientX, event.clientY));
                     let origin = new Ui.Point(
                         this.element.layoutX + this.element.layoutWidth * this.element.transformOriginX,
                         this.element.layoutY + this.element.layoutHeight * this.element.transformOriginY);
@@ -793,14 +796,14 @@ namespace Ui {
 
     export class Transformable extends LBox {
         private _inertia: boolean = false;
-        protected inertiaClock: Anim.Clock;
+        protected inertiaClock: Anim.Clock | undefined;
         protected contentBox: LBox;
 
         private _isDown: boolean = false;
         private transformLock: boolean = false;
 
-        private watcher1: PointerWatcher;
-        private watcher2: PointerWatcher;
+        private watcher1: PointerWatcher | undefined;
+        private watcher2: PointerWatcher | undefined;
 
         private _angle: number = 0;
         private _scale: number = 1;
@@ -865,7 +868,7 @@ namespace Ui {
                     this.maxScale = init.maxScale;
                 if (init.allowRotate !== undefined)
                     this.allowRotate = init.allowRotate;
-                if (init.allowTranslate !== init.allowTranslate)
+                if (init.allowTranslate !== undefined)
                     this.allowTranslate = init.allowTranslate;
                 if (init.angle !== undefined)
                     this.angle = init.angle;
@@ -1220,7 +1223,7 @@ namespace Ui {
             if ((this.watcher2 !== undefined) && (this.watcher2 === watcher)) {
                 this.watcher2.unwatch();
                 delete (this.watcher2);
-                this.watcher1.pointer.setInitialPosition(this.watcher1.pointer.getX(), this.watcher1.pointer.getY());
+                this.watcher1!.pointer.setInitialPosition(this.watcher1!.pointer.getX(), this.watcher1!.pointer.getY());
                 this.startAngle = this._angle;
                 this.startScale = this._scale;
                 this.startTranslateX = this._translateX;
@@ -1341,15 +1344,15 @@ namespace Ui {
             }
         }
 
-        get content(): Element {
+        get content(): Element | undefined {
             return this.contentBox.firstChild;
         }
 
-        set content(content: Element) {
+        set content(content: Element | undefined) {
             this.contentBox.content = content;
         }
 
-        protected arrangeCore(width, height) {
+        protected arrangeCore(width: number, height: number) {
             super.arrangeCore(width, height);
             this.onContentTransform();
         }

@@ -21,8 +21,8 @@ namespace Ui {
         altKey: boolean = false;
         shiftKey: boolean = false;
         metaKey: boolean = false;
-        dataTransfer: DragDataTransfer = undefined;
-        effectAllowed: string = undefined;
+        dataTransfer: DragDataTransfer | undefined = undefined;
+        effectAllowed: string | undefined = undefined;
 
         private deltaX: number = 0;
         private deltaY: number = 0;
@@ -76,7 +76,7 @@ namespace Ui {
 
     export class DragWatcher extends Core.Object {
         effectAllowed: any = undefined;
-        dataTransfer: DragDataTransfer = undefined;
+        dataTransfer: DragDataTransfer;
         element: Element;
         x: number = 0;
         y: number = 0;
@@ -125,7 +125,8 @@ namespace Ui {
         }
 
         release() {
-            this.dataTransfer.releaseDragWatcher(this);
+            if (this.dataTransfer)
+                this.dataTransfer.releaseDragWatcher(this);
         }
     }
 
@@ -140,7 +141,7 @@ namespace Ui {
         draggable: Element;
         imageElement: Element;
         image: HTMLElement;
-        imageEffect: DragEffectIcon;
+        imageEffect: DragEffectIcon | undefined;
         // catcher: HTMLElement;
         startX: number = 0;
         startY: number = 0;
@@ -149,7 +150,7 @@ namespace Ui {
         x: number = 0;
         y: number = 0;
         startImagePoint: Point;
-        overElement: Element;
+        overElement: Element | undefined;
         hasStarted: boolean = false;
         dragDelta: Point;
 
@@ -164,7 +165,7 @@ namespace Ui {
         delayed: boolean = false;
         scrollControlTimer?: Anim.Clock;
 
-        dragWatcher: DragWatcher;
+        dragWatcher: DragWatcher | undefined;
         readonly started = new Core.Events<{ target: DragEmuDataTransfer }>();
         readonly ended = new Core.Events<{ target: DragEmuDataTransfer }>();
 
@@ -515,7 +516,7 @@ namespace Ui {
             let speed = this.watcher.getSpeed();
             let speedVal = Math.sqrt(speed.x * speed.x + speed.y * speed.y);
             if (speedVal < 2 && this.overElement) {
-                let div = this.overElement.drawing;
+                let div : HTMLElement | null = this.overElement.drawing;
                 while (div) {
                     let horizontalAllowed = div.style.overflowX == 'auto' || div.style.overflowX == 'scroll';
                     let verticalAllowed = div.style.overflowY == 'auto' || div.style.overflowY == 'scroll';
@@ -697,7 +698,8 @@ namespace Ui {
                             button.text = this.dropEffect[i].text;
                             button['Ui.DragEvent.dropEffect'] = this.dropEffect[i];
                             button.pressed.connect((e) => {
-                                this.dragWatcher.drop(e.target['Ui.DragEvent.dropEffect'].action);
+                                if (this.dragWatcher)
+                                    this.dragWatcher.drop(e.target['Ui.DragEvent.dropEffect'].action);
                                 popup.close();
                             });
                             vbox.append(button);
@@ -734,7 +736,7 @@ namespace Ui {
             //            }
         }
 
-        protected onDropFailsTimerUpdate(clock, progress) {
+        protected onDropFailsTimerUpdate(clock : Anim.Clock, progress : number) {
             if (progress >= 1)
                 this.removeImage();
             else {
@@ -750,7 +752,7 @@ namespace Ui {
             if ((effectAllowed1 === undefined) || (effectAllowed1 === 'all'))
                 return effectAllowed2;
             else {
-                let effectAllowed = [];
+                let effectAllowed : string[] = [];
 
                 for (let i = 0; i < effectAllowed1.length; i++) {
                     for (let i2 = 0; i2 < effectAllowed2.length; i2++) {
@@ -799,11 +801,11 @@ namespace Ui {
     }
 
     export class DragNativeDataTransfer extends Core.Object implements DragDataTransfer {
-        dataTransfer: any = undefined;
-        dragWatcher: DragWatcher = undefined;
-        nativeData: any = undefined;
+        dataTransfer: any;
+        dragWatcher: DragWatcher | undefined;
+        nativeData: any;
         dropEffect: any = 'none';
-        position: Point = undefined;
+        position: Point | undefined;
 
         constructor() {
             super();
@@ -811,7 +813,7 @@ namespace Ui {
         }
 
         getPosition(): Point {
-            return this.position;
+            return this.position?? new Ui.Point();
         }
 
         setPosition(position: Point) {
@@ -941,6 +943,7 @@ namespace Ui {
                 return ['move', 'link'];
             else if (effectAllowed === 'all')
                 return ['move', 'copy', 'link'];
+            return [];
         }
 
         customToNative(effectAllowed): string {

@@ -16,7 +16,7 @@ namespace Ui {
         private _iconField?: keyof T;
         private _data: T[];
         private _position: number = -1;
-        private _current: T;
+        private _current: T | undefined;
         private _placeHolder: string = '';
         sep: undefined;
         arrowbottom: Icon;
@@ -118,7 +118,7 @@ namespace Ui {
                 this._current = undefined;
                 this.text = this._placeHolder;
                 this.icon = undefined;
-                this.changed.fire({ target: this, value: this._current, position: this._position });
+                this.changed.fire({ target: this, value: this._current!, position: this._position });
             }
             else if ((position >= 0) && (position < this._data.length)) {
                 this._current = this._data[position];
@@ -130,15 +130,15 @@ namespace Ui {
             }
         }
 
-        get current(): T {
+        get current(): T | undefined {
             return this._current;
         }
 
-        get value(): T {
+        get value(): T | undefined {
             return this._current;
         }
 
-        set current(current: T) {
+        set current(current: T | undefined) {
             if (current == undefined)
                 this.position = -1;
             let position = -1;
@@ -255,11 +255,12 @@ namespace Ui {
                 this.emptyField.show();
             else
                 this.emptyField.hide(true);
-            this.list.children.forEach((item: ComboItem) => {
+            this.list.children.forEach((element) => {
+                let item = element as ComboItem;
                 if (value == '')
                     item.show();
                 else {
-                    let text = Core.Util.toNoDiacritics(item.text).toLocaleLowerCase();
+                    let text = Core.Util.toNoDiacritics(item.text??'').toLocaleLowerCase();
                     let search = Core.Util.toNoDiacritics(value).toLowerCase().split(' ');
                     if (search.length == 0)
                         item.show();
@@ -307,11 +308,11 @@ namespace Ui {
                 this.data = this._data;
         }
 
-        get iconField(): keyof T {
+        get iconField(): keyof T | undefined {
             return this._iconField;
         }
 
-        set iconField(field: keyof T) {
+        set iconField(field: keyof T | undefined) {
             this._iconField = field;
             if (this._data !== undefined)
                 this.data = this._data;

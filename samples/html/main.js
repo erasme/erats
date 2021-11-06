@@ -5,9 +5,7 @@ class App extends Ui.App {
         super();
         let mainvbox = new Ui.VBox();
         this.content = mainvbox;
-        let toolbar = new Ui.ToolBar();
-        mainvbox.append(toolbar);
-        toolbar.append(new Ui.CheckBox({
+        mainvbox.append(new Ui.CheckBox({
             text: 'selectable',
             ontoggled: () => html.selectable = true,
             onuntoggled: () => html.selectable = false

@@ -13,7 +13,7 @@ namespace Ui {
         private pos: number = 0;
         private lastPosition: number;
         private activeItems: Array<Ui.Element>;
-        private alignClock: Anim.Clock;
+        private alignClock: Anim.Clock | undefined;
         private animNext: number;
         private animStart: number;
         private speed: number = 1;
@@ -317,7 +317,7 @@ namespace Ui {
                 return;
             let relprogress = -(clock.time * this.speed) / (this.animNext - this.animStart);
             if (relprogress >= 1) {
-                this.alignClock.stop();
+                this.alignClock!.stop();
                 this.alignClock = undefined;
                 relprogress = 1;
             }
@@ -359,11 +359,11 @@ namespace Ui {
         private loadItems() {
             if (!this.isLoaded)
                 return;
-            let i;
+            let i: number;
             for (i = 0; i < this.activeItems.length; i++)
                 (this.activeItems[i] as any).carouselableSeen = undefined;
 
-            let newItems = [];
+            let newItems: Element[] = [];
             for (i = Math.max(0, Math.floor(this.pos - this._bufferingSize)); i < Math.min(this.items.length, Math.floor(this.pos + 1 + this._bufferingSize)); i++) {
                 let item = this.items[i];
                 let active = false;

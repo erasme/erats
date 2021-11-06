@@ -12,11 +12,11 @@ namespace Core
         query: string;
         fragment: string;
 
-        constructor(uri: string = null)
+        constructor(uri: string | null = null)
         {
             super();
             let fullpath = true;
-            let baseURI;
+            let baseURI : string;
             if('baseURI' in document)
                 baseURI = document.baseURI;
             else
@@ -25,11 +25,13 @@ namespace Core
             if (uri == null)
                 uri = baseURI;
 
-            let res = uri.match(/^([^:\/]+):\/\/([^\/]+)(\/.*)$/);
+            let res = uri!.match(/^([^:\/]+):\/\/([^\/]+)(\/.*)$/);
             if (res === null)
             {
                 fullpath = false;
                 res = baseURI.match(/^([^:\/]+):\/\/([^\/]+)(\/.*)$/);
+                if (res == null)
+                    throw `Invalid uri ${uri}`;
             }
             this.scheme = res[1];
             var authority = res[2];
@@ -131,7 +133,8 @@ namespace Core
 
         static mergePath(base: string, relative: string)
         {
-            var dir = base.match(/^(.*)\//)[0];
+            let matches = base.match(/^(.*)\//);
+            var dir = matches ? matches[0] : base;
             dir += relative;
             return Uri.cleanPath(dir);
         }

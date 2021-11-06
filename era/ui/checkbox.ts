@@ -11,10 +11,10 @@ namespace Ui {
     export class CheckBox extends Pressable implements CheckBoxInit {
         private bg = new SimpleButtonBackground();
         private graphic: CheckBoxGraphic;
-        private contentBox: Element;
+        private contentBox: Element | undefined;
         private hbox: HBox;
-        private _content: Element;
-        private _text: string;
+        private _content: Element | undefined;
+        private _text: string | undefined;
         private _isToggled: boolean = false;
         readonly changed = new Core.Events<{ target: CheckBox, value: boolean }>();
         set onchanged(value: (event: { target: CheckBox, value: boolean }) => void) { this.changed.connect(value); }
@@ -77,11 +77,11 @@ namespace Ui {
                 this.untoggle();
         }
 
-        get text(): string {
+        get text(): string | undefined {
             return this._text;
         }
 
-        set text(text: string) {
+        set text(text: string | undefined) {
             if (text === undefined) {
                 if (this.contentBox !== undefined) {
                     this.hbox.remove(this.contentBox);
@@ -97,7 +97,7 @@ namespace Ui {
                 }
                 else {
                     if (this._content !== undefined) {
-                        this.hbox.remove(this.contentBox);
+                        this.hbox.remove(this.contentBox!);
                         this._content = undefined;
                     }
                     this._text = text;
@@ -107,11 +107,11 @@ namespace Ui {
             }
         }
 
-        get content(): Element {
+        get content(): Element | undefined {
             return this._content;
         }
 
-        set content(content: Element) {
+        set content(content: Element | undefined) {
             if (content === undefined) {
                 if (this.contentBox !== undefined) {
                     this.hbox.remove(this.contentBox);
@@ -122,7 +122,7 @@ namespace Ui {
             }
             else {
                 if (this._text !== undefined) {
-                    this.hbox.remove(this.contentBox);
+                    this.hbox.remove(this.contentBox!);
                     this._text = undefined;
                 }
                 if (this._content !== undefined)

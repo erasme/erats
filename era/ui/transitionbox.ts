@@ -13,8 +13,8 @@ namespace Ui {
         protected _ease: Anim.EasingFunction;
         protected _position: number = -1;
         protected transitionClock?: Anim.Clock;
-        protected _current: Element;
-        protected next: Element;
+        protected _current: Element | undefined;
+        protected next: Element | undefined;
         protected replaceMode: boolean = false;
         protected progress: number;
         readonly changed = new Core.Events<{ target: TransitionBox, position: number }>();
@@ -75,15 +75,15 @@ namespace Ui {
             this._transition = Ui.Transition.create(transition);
         }
 
-        get current(): Element {
+        get current(): Element | undefined {
             if (this._position == -1)
                 return undefined;
             else
                 return (this.children[this._position] as TransitionBoxContent).children[0];
         }
 
-        set current(child: Element) {
-            let pos = this.getChildPosition(child);
+        set current(child: Element | undefined) {
+            let pos = child ? this.getChildPosition(child) : -1;
             if (pos != -1)
                 this.setCurrentAt(pos);
         }
@@ -149,7 +149,7 @@ namespace Ui {
             }
         }
 
-        protected onTransitionTick(clock, progress) {
+        protected onTransitionTick(clock: Anim.Clock, progress: number) {
             this.progress = progress;
             this._transition.run(this._current, this.next, progress);
         }
@@ -165,11 +165,14 @@ namespace Ui {
             if (this.replaceMode) {
                 this.replaceMode = false;
 
-                let removeList = [];
+                let removeList : Element[] = [];
                 for (i = 0; i < this.children.length; i++) {
                     let item = this.children[i];
-                    if (item !== current)
-                        removeList.push((item as TransitionBoxContent).firstChild);
+                    if (item !== current) {
+                        let firstChild = (item as TransitionBoxContent).firstChild;
+                        if (firstChild)
+                            removeList.push(firstChild);
+                    }
                 }
                 for (i = 0; i < removeList.length; i++)
                     this.remove(removeList[i]);

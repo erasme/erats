@@ -145,8 +145,14 @@ namespace Ui {
             this.draggableWatcher = new DraggableWatcher({
                 element: this,
                 data: this.draggableData,
-                start: (watcher) => this.onDragStart(watcher.dataTransfer),
-                end: (watcher) => this.onDragEnd(watcher.dataTransfer)
+                start: (watcher) => {
+                    if (watcher.dataTransfer)
+                        this.onDragStart(watcher.dataTransfer);
+                },
+                end: (watcher) => {
+                    if (watcher.dataTransfer)
+                        this.onDragEnd(watcher.dataTransfer)
+                }
             });
 
             if (init) {

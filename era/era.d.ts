@@ -29,7 +29,7 @@ declare namespace Core {
         [key: string]: T;
     }
     class Util {
-        static clone(obj: object): {};
+        static clone(obj: object): {} | null | undefined;
         static encodeURIQuery(obj: any): string;
         static utf8Encode(value: string): string;
         static utf8Decode(value: string): string;
@@ -61,7 +61,7 @@ declare namespace Core {
         path: string;
         query: string;
         fragment: string;
-        constructor(uri?: string);
+        constructor(uri?: string | null);
         getScheme(): string;
         getUser(): string;
         getPassword(): string;
@@ -77,28 +77,28 @@ declare namespace Core {
 }
 declare namespace Core {
     class DoubleLinkedListNode {
-        previous?: DoubleLinkedListNode;
-        next?: DoubleLinkedListNode;
+        previous: DoubleLinkedListNode;
+        next: DoubleLinkedListNode;
         data: any;
         constructor(data: any);
     }
     class DoubleLinkedList {
-        root: DoubleLinkedListNode;
+        root: DoubleLinkedListNode | undefined;
         length: 0;
         getLength(): 0;
-        getFirstNode(): DoubleLinkedListNode;
-        getLastNode(): DoubleLinkedListNode;
+        getFirstNode(): DoubleLinkedListNode | undefined;
+        getLastNode(): DoubleLinkedListNode | undefined;
         appendNode(node: DoubleLinkedListNode): DoubleLinkedListNode;
         prependNode(node: DoubleLinkedListNode): DoubleLinkedListNode;
         removeNode(node: DoubleLinkedListNode): void;
-        findNode(data: any): DoubleLinkedListNode;
+        findNode(data: any): DoubleLinkedListNode | undefined;
         getFirst(): any;
         getLast(): any;
         append(data: any): DoubleLinkedListNode;
         prepend(data: any): DoubleLinkedListNode;
         remove(data: any): void;
         clear(): void;
-        static moveNext(node: DoubleLinkedListNode): DoubleLinkedListNode;
+        static moveNext(node: DoubleLinkedListNode): DoubleLinkedListNode | undefined;
         isLast(node: DoubleLinkedListNode): boolean;
     }
 }
@@ -120,14 +120,14 @@ declare module Core {
         }) => void;
     }
     class HttpRequest extends Object {
-        url: string;
+        url: string | null;
         method: MethodType;
         binary: boolean;
-        arguments: object;
+        arguments: object | undefined;
         content: any;
         _headers: object;
         private request;
-        static requestHeaders: object;
+        static requestHeaders: object | undefined;
         readonly error: Events<{
             target: HttpRequest;
             code: number;
@@ -151,7 +151,7 @@ declare module Core {
         send(): void;
         sendAsync(): Promise<HttpRequest>;
         waitAsync(): Promise<HttpRequest>;
-        getResponseHeader(header: string): string;
+        getResponseHeader(header: string): string | null;
         get responseType(): XMLHttpRequestResponseType;
         set responseType(value: XMLHttpRequestResponseType);
         get response(): any;
@@ -203,12 +203,12 @@ declare namespace Core {
         mode?: 'websocket' | 'poll';
     }
     class Socket extends Object {
-        host: string;
+        host: string | undefined;
         service: string;
         port: number;
         mode: 'websocket' | 'poll';
         secure: boolean;
-        websocket: WebSocket;
+        websocket: WebSocket | undefined;
         websocketdelay: any;
         emuopenrequest: any;
         emupollrequest: any;
@@ -278,9 +278,9 @@ declare namespace Core {
         port: number;
     }
     class RemoteDebug extends Object {
-        host: string;
-        port: number;
-        socket: Socket;
+        host: string | undefined;
+        port: number | undefined;
+        socket: Socket | undefined;
         socketAlive: boolean;
         retryTask: any;
         nativeConsole: any;
@@ -297,12 +297,12 @@ declare namespace Core {
         onConsoleLog(message: any): void;
         onConsoleError(message: any): void;
         onConsoleWarn(message: any): void;
-        onError(message: any, url: any, line: any): void;
-        static current: RemoteDebug;
+        onError(message: any, url?: string, line?: number): void;
+        static current: RemoteDebug | undefined;
         static onConsoleLog(message: any): void;
         static onConsoleError(message: any): void;
         static onConsoleWarn(message: any): void;
-        static onError(message: any, url: any, line: any): void;
+        static onError(message: any, url?: string, line?: number): void;
     }
 }
 declare namespace Core {
@@ -331,7 +331,7 @@ declare namespace Core {
         _headers: object;
         protected _file: File;
         protected _service: string;
-        protected request: XMLHttpRequest;
+        protected request: XMLHttpRequest | undefined;
         protected _responseText: string;
         protected _method: string;
         protected formData: FormData;
@@ -503,10 +503,10 @@ declare namespace Anim {
     }
     class Clock extends Core.Object implements ClockInit {
         private _animation;
-        private _parent;
-        private _time;
-        private _iteration;
-        private _progress;
+        private _parent?;
+        private _time?;
+        private _iteration?;
+        private _progress?;
         private _isActive;
         private _globalTime;
         private startTime;
@@ -518,8 +518,8 @@ declare namespace Anim {
         pendingState: 'none' | 'active' | 'paused' | 'resumed' | 'stopped';
         private _autoReverse;
         private _repeat;
-        private _target;
-        private _ease;
+        private _target?;
+        private _ease?;
         readonly timeupdate: Core.Events<{
             target: Clock;
             progress: number;
@@ -537,8 +537,8 @@ declare namespace Anim {
         set ease(ease: EasingFunction | string);
         set target(target: Target);
         set duration(duration: number | 'forever' | 'automatic');
-        set parent(parent: Clock);
-        get parent(): Clock;
+        set parent(parent: Clock | undefined);
+        get parent(): Clock | undefined;
         get globalTime(): number;
         get isActive(): boolean;
         get time(): number;
@@ -1030,7 +1030,7 @@ declare namespace Ui {
         isEnd(): boolean;
         next(): void;
         setCmd(cmd: any): void;
-        getCmd(): string;
+        getCmd(): string | undefined;
         getCurrent(): any;
         isCmd(): boolean;
         isValue(): boolean;
@@ -1049,40 +1049,43 @@ declare namespace Ui {
         textBaseline: 'top' | 'hanging' | 'middle' | 'alphabetic' | 'ideographic' | 'bottom';
         direction: 'ltr' | 'rtl' | 'inherit';
         title: string | undefined;
-        beginPath(): any;
-        moveTo(x: number, y: number): any;
-        lineTo(x: number, y: number): any;
-        quadraticCurveTo(cpx: number, cpy: number, x: number, y: number): any;
-        bezierCurveTo(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number): any;
-        rect(x: number, y: number, w: number, h: number): any;
-        arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, anticlockwise: boolean): any;
-        ellipse(x: number, y: number, radiusX: number, radiusY: number, rotation: number, startAngle: number, endAngle: number, anticlockwise: boolean): any;
-        closePath(): any;
-        fill(): any;
-        stroke(): any;
-        clip(): any;
-        resetClip(): any;
-        getLineDash(): any;
-        setLineDash(lineDash: any): any;
-        drawImage(image: any, sx?: number, sy?: number, sw?: number, sh?: number, dx?: number, dy?: number, dw?: number, dh?: number): any;
-        fillText(text: string, x: number, y: number, maxWidth?: number): any;
-        strokeText(text: string, x: number, y: number, maxWidth?: number): any;
-        save(): any;
-        restore(): any;
-        scale(x: number, y: number): any;
-        rotate(angle: number): any;
-        translate(x: number, y: number): any;
-        transform(a: number, b: number, c: number, d: number, e: number, f: number): any;
-        setTransform(a: number, b: number, c: number, d: number, e: number, f: number): any;
-        resetTransform(): any;
-        clearRect(x: number, y: number, w: number, h: number): any;
-        fillRect(x: number, y: number, w: number, h: number): any;
-        strokeRect(x: number, y: number, w: number, h: number): any;
-        createLinearGradient(x0: number, y0: number, x1: number, y1: number): any;
-        measureText(text: string): any;
-        svgPath(path: string): any;
-        roundRect(x: number, y: number, w: number, h: number, radiusTopLeft: number, radiusTopRight: number, radiusBottomRight: number, radiusBottomLeft: number, antiClockwise: boolean): any;
-        roundRectFilledShadow(x: any, y: any, width: any, height: any, radiusTopLeft: any, radiusTopRight: any, radiusBottomRight: any, radiusBottomLeft: any, inner: any, shadowWidth: any, color: any): any;
+        beginPath(): void;
+        moveTo(x: number, y: number): void;
+        lineTo(x: number, y: number): void;
+        quadraticCurveTo(cpx: number, cpy: number, x: number, y: number): void;
+        bezierCurveTo(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number): void;
+        rect(x: number, y: number, w: number, h: number): void;
+        arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, anticlockwise: boolean): void;
+        ellipse(x: number, y: number, radiusX: number, radiusY: number, rotation: number, startAngle: number, endAngle: number, anticlockwise: boolean): void;
+        closePath(): void;
+        fill(): void;
+        stroke(): void;
+        clip(): void;
+        resetClip(): void;
+        getLineDash(): number[];
+        setLineDash(lineDash: number[]): void;
+        drawImage(image: HTMLImageElement, sx?: number, sy?: number, sw?: number, sh?: number, dx?: number, dy?: number, dw?: number, dh?: number): void;
+        fillText(text: string, x: number, y: number, maxWidth?: number): void;
+        strokeText(text: string, x: number, y: number, maxWidth?: number): void;
+        save(): void;
+        restore(): void;
+        scale(x: number, y: number): void;
+        rotate(angle: number): void;
+        translate(x: number, y: number): void;
+        transform(a: number, b: number, c: number, d: number, e: number, f: number): void;
+        setTransform(a: number, b: number, c: number, d: number, e: number, f: number): void;
+        resetTransform(): void;
+        clearRect(x: number, y: number, w: number, h: number): void;
+        fillRect(x: number, y: number, w: number, h: number): void;
+        strokeRect(x: number, y: number, w: number, h: number): void;
+        createLinearGradient(x0: number, y0: number, x1: number, y1: number): void;
+        measureText(text: string): {
+            width: number;
+            height: number;
+        };
+        svgPath(path: string): void;
+        roundRect(x: number, y: number, w: number, h: number, radiusTopLeft: number, radiusTopRight: number, radiusBottomRight: number, radiusBottomLeft: number, antiClockwise: boolean): void;
+        roundRectFilledShadow(x: number, y: number, width: number, height: number, radiusTopLeft: number, radiusTopRight: number, radiusBottomRight: number, radiusBottomLeft: number, inner: boolean, shadowWidth: number, color: Ui.Color): void;
     }
     interface CanvasElementInit extends ContainerInit {
     }
@@ -1100,10 +1103,10 @@ declare namespace Ui {
         get canvasEngine(): 'canvas' | 'svg';
         set canvasEngine(value: 'canvas' | 'svg');
         update(): void;
-        get context(): CanvasRenderingContext2D;
+        get context(): CanvasRenderingContext2D | undefined;
         protected updateCanvas(context: Ui.CanvasRenderingContext2D): void;
         protected renderCanvasDrawing(): void;
-        svgToDataURL(): any;
+        svgToDataURL(): string;
         protected arrangeCore(width: number, height: number): void;
         protected drawCore(): void;
         protected onInternalVisible(): void;
@@ -1117,14 +1120,14 @@ declare namespace Core {
         constructor();
         moveTo(x: number, y: number): void;
         lineTo(x: number, y: number): void;
-        quadraticCurveTo(cpx: any, cpy: any, x: any, y: any): void;
-        bezierCurveTo(cp1x: any, cp1y: any, cp2x: any, cp2y: any, x: any, y: any): void;
+        quadraticCurveTo(cpx: number, cpy: number, x: number, y: number): void;
+        bezierCurveTo(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number): void;
         arcTo(x1: number, y1: number, x2: number, y2: number, radiusX: number, radiusY: number, angle: number): void;
         closePath(): void;
-        rect(x: any, y: any, w: any, h: any): void;
-        arc(x: any, y: any, radius: any, startAngle: any, endAngle: any, anticlockwise: any): void;
-        ellipse(x: any, y: any, radiusX: any, radiusY: any, rotation: any, startAngle: any, endAngle: any, anticlockwise: any): void;
-        roundRect(x: any, y: any, w: any, h: any, radiusTopLeft: any, radiusTopRight: any, radiusBottomRight: any, radiusBottomLeft: any, antiClockwise: any): void;
+        rect(x: number, y: number, w: number, h: number): void;
+        arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, anticlockwise: boolean): void;
+        ellipse(x: number, y: number, radiusX: number, radiusY: number, rotation: number, startAngle: number, endAngle: number, anticlockwise: boolean): void;
+        roundRect(x: number, y: number, w: number, h: number, radiusTopLeft: number, radiusTopRight: number, radiusBottomRight: number, radiusBottomLeft: number, antiClockwise: boolean): void;
         getSVG(): Element;
     }
     class SVGGradient extends Object {
@@ -1158,8 +1161,8 @@ declare namespace Core {
         beginPath(): void;
         moveTo(x: number, y: number): void;
         lineTo(x: number, y: number): void;
-        quadraticCurveTo(cpx: any, cpy: any, x: any, y: any): void;
-        bezierCurveTo(cp1x: any, cp1y: any, cp2x: any, cp2y: any, x: any, y: any): void;
+        quadraticCurveTo(cpx: number, cpy: number, x: number, y: number): void;
+        bezierCurveTo(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number): void;
         rect(x: number, y: number, w: number, h: number): void;
         arcTo(x1: number, y1: number, x2: number, y2: number, radius: number): void;
         arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, anticlockwise: boolean): void;
@@ -1172,7 +1175,7 @@ declare namespace Core {
         resetClip(): void;
         getLineDash(): any;
         setLineDash(lineDash: any): void;
-        drawImage(image: any, sx?: number, sy?: number, sw?: number, sh?: number, dx?: number, dy?: number, dw?: number, dh?: number): void;
+        drawImage(image: HTMLImageElement, sx?: number, sy?: number, sw?: number, sh?: number, dx?: number, dy?: number, dw?: number, dh?: number): void;
         fillText(text: string, x: number, y: number, maxWidth: number): void;
         strokeText(text: string, x: number, y: number, maxWidth: number): void;
         save(): void;
@@ -1180,25 +1183,25 @@ declare namespace Core {
         scale(x: number, y: number): void;
         rotate(angle: number): void;
         translate(x: number, y: number): void;
-        transform(a: any, b: any, c: any, d: any, e: any, f: any): void;
-        setTransform(a: any, b: any, c: any, d: any, e: any, f: any): void;
+        transform(a: number, b: number, c: number, d: number, e: number, f: number): void;
+        setTransform(a: number, b: number, c: number, d: number, e: number, f: number): void;
         resetTransform(): void;
-        clearRect(x: any, y: any, w: any, h: any): void;
-        fillRect(x: any, y: any, w: any, h: any): void;
-        strokeRect(x: any, y: any, w: any, h: any): void;
-        createLinearGradient(x0: any, y0: any, x1: any, y1: any): SVGGradient;
-        measureText(text: any): {
+        clearRect(x: number, y: number, w: number, h: number): void;
+        fillRect(x: number, y: number, w: number, h: number): void;
+        strokeRect(x: number, y: number, w: number, h: number): void;
+        createLinearGradient(x0: number, y0: number, x1: number, y1: number): SVGGradient;
+        measureText(text: string): {
             width: number;
             height: number;
         };
-        svgPath(path: any): void;
-        parseFont(font: any): {
-            style: any;
-            weight: any;
+        svgPath(path: string): void;
+        parseFont(font: string): {
+            style: string;
+            weight: string;
             size: number;
-            family: any;
+            family: string;
         };
-        roundRectFilledShadow(x: any, y: any, width: any, height: any, radiusTopLeft: any, radiusTopRight: any, radiusBottomRight: any, radiusBottomLeft: any, inner: any, shadowWidth: any, color: any): void;
+        roundRectFilledShadow(x: number, y: number, width: number, height: number, radiusTopLeft: number, radiusTopRight: number, radiusBottomRight: number, radiusBottomLeft: number, inner: boolean, shadowWidth: number, color: Ui.Color): void;
         getSVG(): any;
         static counter: number;
     }
@@ -1353,7 +1356,7 @@ declare namespace Ui {
     }
     class PointerWatcher extends Core.Object {
         element: Element;
-        pointer: Pointer | undefined;
+        pointer: Pointer;
         readonly downed: Core.Events<{
             target: PointerWatcher;
         }>;
@@ -1466,7 +1469,7 @@ declare namespace Ui {
         lastTouchY: number;
         lastDownTouchX: number;
         lastDownTouchY: number;
-        mouse: Pointer;
+        mouse: Pointer | undefined;
         app: App;
         pointers: Core.HashTable<Pointer>;
         constructor(app: App);
@@ -1494,8 +1497,8 @@ declare namespace Ui {
         altKey: boolean;
         shiftKey: boolean;
         metaKey: boolean;
-        dataTransfer: DragDataTransfer;
-        effectAllowed: string;
+        dataTransfer: DragDataTransfer | undefined;
+        effectAllowed: string | undefined;
         private deltaX;
         private deltaY;
         constructor();
@@ -1552,7 +1555,7 @@ declare namespace Ui {
         draggable: Element;
         imageElement: Element;
         image: HTMLElement;
-        imageEffect: DragEffectIcon;
+        imageEffect: DragEffectIcon | undefined;
         startX: number;
         startY: number;
         dropX: number;
@@ -1560,7 +1563,7 @@ declare namespace Ui {
         x: number;
         y: number;
         startImagePoint: Point;
-        overElement: Element;
+        overElement: Element | undefined;
         hasStarted: boolean;
         dragDelta: Point;
         effectAllowed: any;
@@ -1573,7 +1576,7 @@ declare namespace Ui {
         dropFailsTimer: Anim.Clock;
         delayed: boolean;
         scrollControlTimer?: Anim.Clock;
-        dragWatcher: DragWatcher;
+        dragWatcher: DragWatcher | undefined;
         readonly started: Core.Events<{
             target: DragEmuDataTransfer;
         }>;
@@ -1602,22 +1605,22 @@ declare namespace Ui {
             target: PointerWatcher;
         }) => void;
         protected removeImage(): void;
-        protected onDropFailsTimerUpdate(clock: any, progress: any): void;
+        protected onDropFailsTimerUpdate(clock: Anim.Clock, progress: number): void;
         static getMergedEffectAllowed(effectAllowed1: any, effectAllowed2: any): any;
         static getMatchingDropEffect(srcEffectAllowed: any, dstEffectAllowed: any, pointerType: any, ctrlKey: any, altKey: any, shiftKey: any): any;
     }
     class DragNativeDataTransfer extends Core.Object implements DragDataTransfer {
         dataTransfer: any;
-        dragWatcher: DragWatcher;
+        dragWatcher: DragWatcher | undefined;
         nativeData: any;
         dropEffect: any;
-        position: Point;
+        position: Point | undefined;
         constructor();
         getPosition(): Point;
         setPosition(position: Point): void;
         getData(): any;
         setDataTransfer(dataTransfer: any): void;
-        capture(element: Element, effect: any): DragWatcher;
+        capture(element: Element, effect: any): any;
         releaseDragWatcher(dragWatcher: DragWatcher): void;
     }
     class DragNativeManager extends Core.Object {
@@ -1922,8 +1925,8 @@ declare namespace Ui {
         private pressWatcher;
         readonly downed: Core.Events<{
             target: Pressable;
-            x?: number;
-            y?: number;
+            x?: number | undefined;
+            y?: number | undefined;
         }>;
         set ondowned(value: (event: {
             target: Pressable;
@@ -1932,8 +1935,8 @@ declare namespace Ui {
         }) => void);
         readonly upped: Core.Events<{
             target: Pressable;
-            x?: number;
-            y?: number;
+            x?: number | undefined;
+            y?: number | undefined;
         }>;
         set onupped(value: (event: {
             target: Pressable;
@@ -1942,12 +1945,12 @@ declare namespace Ui {
         }) => void);
         readonly pressed: Core.Events<{
             target: Pressable;
-            x?: number;
-            y?: number;
-            altKey?: boolean;
-            shiftKey?: boolean;
-            ctrlKey?: boolean;
-            middleButton?: boolean;
+            x?: number | undefined;
+            y?: number | undefined;
+            altKey?: boolean | undefined;
+            shiftKey?: boolean | undefined;
+            ctrlKey?: boolean | undefined;
+            middleButton?: boolean | undefined;
         }>;
         set onpressed(value: (event: {
             target: Pressable;
@@ -1960,8 +1963,8 @@ declare namespace Ui {
         }) => void);
         readonly activated: Core.Events<{
             target: Pressable;
-            x?: number;
-            y?: number;
+            x?: number | undefined;
+            y?: number | undefined;
         }>;
         set onactivated(value: (event: {
             target: Pressable;
@@ -1970,12 +1973,12 @@ declare namespace Ui {
         }) => void);
         readonly delayedpress: Core.Events<{
             target: Pressable;
-            x?: number;
-            y?: number;
-            altKey?: boolean;
-            shiftKey?: boolean;
-            ctrlKey?: boolean;
-            middleButton?: boolean;
+            x?: number | undefined;
+            y?: number | undefined;
+            altKey?: boolean | undefined;
+            shiftKey?: boolean | undefined;
+            ctrlKey?: boolean | undefined;
+            middleButton?: boolean | undefined;
         }>;
         set ondelayedpress(value: (event: {
             target: Pressable;
@@ -2170,10 +2173,10 @@ declare namespace Ui {
         get elements(): Element[];
         set elements(elements: Element[]);
         getElementActions(watcher: SelectionableWatcher): SelectionActions;
-        getActions(): SelectionActions;
-        getDefaultAction(): SelectionAction;
+        getActions(): SelectionActions | undefined;
+        getDefaultAction(): SelectionAction | undefined;
         executeDefaultAction(): boolean;
-        getDeleteAction(): SelectionAction;
+        getDeleteAction(): SelectionAction | undefined;
         executeDeleteAction(): boolean;
         onElementUnload: (e: {
             target: Element;
@@ -2412,7 +2415,7 @@ declare namespace Ui {
         up?: (watcher: TransformableWatcher) => void;
         down?: (watcher: TransformableWatcher) => void;
         private _inertia;
-        protected inertiaClock: Anim.Clock;
+        protected inertiaClock: Anim.Clock | undefined;
         private _isDown;
         private transformLock;
         private watcher1;
@@ -2522,7 +2525,7 @@ declare namespace Ui {
     }
     class Transformable extends LBox {
         private _inertia;
-        protected inertiaClock: Anim.Clock;
+        protected inertiaClock: Anim.Clock | undefined;
         protected contentBox: LBox;
         private _isDown;
         private transformLock;
@@ -2613,9 +2616,9 @@ declare namespace Ui {
         startInertia(): void;
         protected onTimeupdate(clock: any, progress: any, delta: any): void;
         stopInertia(): void;
-        get content(): Element;
-        set content(content: Element);
-        protected arrangeCore(width: any, height: any): void;
+        get content(): Element | undefined;
+        set content(content: Element | undefined);
+        protected arrangeCore(width: number, height: number): void;
     }
 }
 declare namespace Ui {
@@ -2667,9 +2670,9 @@ declare namespace Ui {
         }) => void);
         constructor(init?: ScrollableInit);
         set maxScale(maxScale: number);
-        set content(content: Element);
-        get content(): Element;
-        protected setContent(content: Element): void;
+        set content(content: Element | undefined);
+        get content(): Element | undefined;
+        protected setContent(content: Element | undefined): void;
         get inertia(): boolean;
         set inertia(inertiaActive: boolean);
         get scrollHorizontal(): boolean;
@@ -3023,7 +3026,7 @@ declare namespace Ui {
         protected onWatcherDrop(watcher: DragWatcher, effect: any, x: number, y: number): void;
         protected onWatcherLeave(watcher: DragWatcher): void;
         private getAllowedTypesEffect;
-        protected onDragEffect(dataTransfer: DragDataTransfer): string | DropEffect[];
+        protected onDragEffect(dataTransfer: DragDataTransfer): string | DropEffect[] | undefined;
         protected onDragEffectFunction(dataTransfer: DragDataTransfer, func: DropEffectFunc): DropEffect[];
         protected onDrop(dataTransfer: DragDataTransfer, dropEffect: any, x: number, y: number): void;
         protected onDragEnter(dataTransfer: DragDataTransfer): void;
@@ -3114,7 +3117,7 @@ declare namespace Ui {
         protected onWatcherDrop(watcher: DragWatcher, effect: any, x: number, y: number): void;
         protected onWatcherLeave(watcher: DragWatcher): void;
         getAllowedTypesEffect(dataTransfer: DragDataTransfer): DropEffect[];
-        protected onDragEffect(dataTransfer: DragDataTransfer): string | DropEffect[];
+        protected onDragEffect(dataTransfer: DragDataTransfer): string | DropEffect[] | undefined;
         protected onDragEffectFunction(dataTransfer: DragDataTransfer, func: DropEffectFunc): DropEffect[];
         protected onDrop(dataTransfer: DragDataTransfer, dropEffect: any, x: number, y: number): void;
         protected onDragEnter(dataTransfer: DragDataTransfer): void;
@@ -3145,11 +3148,11 @@ declare namespace Ui {
     class ButtonBadge extends LBox {
         private _bg;
         private _label;
-        private _badge;
         private _badgeColor;
         private _badgeTextColor;
         constructor();
         set fontSize(value: number);
+        get badge(): string;
         set badge(badge: string);
         set badgeColor(badgeColor: Color | string);
         set badgeTextColor(badgeTextColor: Color | string);
@@ -3189,8 +3192,8 @@ declare namespace Ui {
         get icon(): string | undefined;
         set icon(icon: string | undefined);
         setIconOrElement(icon: Element | string | undefined): void;
-        get marker(): Element;
-        set marker(marker: Element);
+        get marker(): Element | undefined;
+        set marker(marker: Element | undefined);
         get isActive(): boolean;
         set isActive(isActive: boolean);
         get badge(): string | undefined;
@@ -3323,8 +3326,8 @@ declare namespace Ui {
         set preferredHeight(height: number);
         getSelectionHandler(): Selection;
         set autoClose(autoClose: boolean);
-        get content(): Element;
-        set content(content: Element);
+        get content(): Element | undefined;
+        set content(content: Element | undefined);
         protected onShadowPress(): void;
         protected onOpenTick(clock: Anim.Clock, progress: number, delta: number): void;
         protected onPopupSelectionChange(selection: Selection): void;
@@ -3402,7 +3405,7 @@ declare namespace Ui {
         private _itemsAlign;
         private _menuPosition;
         private _uniform;
-        private uniformSize;
+        private uniformSize?;
         private _spacing;
         private itemsWidth;
         private keepItems;
@@ -3537,7 +3540,7 @@ declare namespace Ui {
         invalidateMeasure(): void;
         invalidateArrange(): void;
         protected arrangeCore(w: number, h: number): void;
-        static current: App;
+        static current: App | undefined;
         static isPrint: boolean;
         static getWindowIFrame(currentWindow: any): any;
         static getRootWindow(): Window;
@@ -4202,10 +4205,10 @@ declare namespace Ui {
         get isToggled(): boolean;
         get value(): boolean;
         set value(value: boolean);
-        get text(): string;
-        set text(text: string);
-        get content(): Element;
-        set content(content: Element);
+        get text(): string | undefined;
+        set text(text: string | undefined);
+        get content(): Element | undefined;
+        set content(content: Element | undefined);
         toggle(): void;
         untoggle(): void;
         private onCheckPress;
@@ -4628,7 +4631,6 @@ declare namespace Ui {
         currentTime?: number;
         onready?: (event: {
             target: Audio;
-            code: number;
         }) => void;
         onerror?: (event: {
             target: Audio;
@@ -4642,7 +4644,7 @@ declare namespace Ui {
         private _state;
         private audioMeasureValid;
         private audioSize;
-        static measureBox: HTMLAudioElement;
+        static measureBox: HTMLAudioElement | undefined;
         readonly ready: Core.Events<{
             target: Audio;
         }>;
@@ -5052,7 +5054,7 @@ declare namespace Ui {
     class DatePicker extends TextButtonField implements DatePickerInit {
         protected popup?: Popup;
         protected calendar?: MonthCalendar;
-        protected _selectedDate: Date;
+        protected _selectedDate?: Date;
         protected _isValid: boolean;
         protected _dayFilter?: number[];
         protected _dateFilter?: string[];
@@ -5060,8 +5062,8 @@ declare namespace Ui {
         set dayFilter(dayFilter: number[]);
         set dateFilter(dateFilter: string[]);
         get isValid(): boolean;
-        get selectedDate(): Date;
-        set selectedDate(date: Date);
+        get selectedDate(): Date | undefined;
+        set selectedDate(date: Date | undefined);
         protected onDatePickerButtonPress(): void;
         protected onDatePickerChange(): void;
         private zeroPad;
@@ -5238,7 +5240,7 @@ declare namespace Ui {
         showShadows: boolean;
         lock: boolean;
         isOver: boolean;
-        showClock: Anim.Clock;
+        showClock?: Anim.Clock;
         offsetX: number;
         offsetY: number;
         viewWidth: number;
@@ -5264,8 +5266,8 @@ declare namespace Ui {
         getActiveItems(): Element[];
         set loader(loader: ScrollLoader);
         set maxScale(maxScale: number);
-        set content(content: Element);
-        get content(): Element;
+        set content(content: Element | undefined);
+        get content(): Element | undefined;
         get scrollHorizontal(): boolean;
         set scrollHorizontal(scroll: boolean);
         get scrollVertical(): boolean;
@@ -5418,9 +5420,9 @@ declare namespace Ui {
         get data(): T[];
         get position(): number;
         set position(position: number);
-        get current(): T;
-        get value(): T;
-        set current(current: T);
+        get current(): T | undefined;
+        get value(): T | undefined;
+        set current(current: T | undefined);
         protected onItemPress(popup: any, item: any, position: any): void;
         protected onPress(): void;
         protected updateColors(): void;
@@ -5456,8 +5458,8 @@ declare namespace Ui {
         set allowNone(value: boolean);
         get field(): keyof T;
         set field(field: keyof T);
-        get iconField(): keyof T;
-        set iconField(field: keyof T);
+        get iconField(): keyof T | undefined;
+        set iconField(field: keyof T | undefined);
         set data(data: T[]);
         set position(position: number);
         protected onItemPress(item: ComboItem): void;
@@ -5525,7 +5527,7 @@ declare namespace Ui {
             }>;
         }) => void);
         constructor(init: any, listview: ListView);
-        get sortColKey(): keyof T;
+        get sortColKey(): keyof T | undefined;
         get sortInvert(): boolean;
         sortBy(key: keyof T, invert: boolean): void;
         get sortOrder(): Array<{
@@ -5734,7 +5736,7 @@ declare namespace Ui {
             key: keyof T;
             invert: boolean;
         }>);
-        get sortColKey(): keyof T;
+        get sortColKey(): keyof T | undefined;
         get sortInvert(): boolean;
         findDataRow(data: T): number;
         onSelectionEdit(selection: Selection): void;
@@ -5874,13 +5876,13 @@ declare namespace Ui {
         set accept(value: string | undefined);
         set capture(value: string | undefined);
         protected onUploadButtonPress(): void;
-        protected onFile(wrapper: UploadableFileWrapper, file: File): void;
+        protected onFile(wrapper: UploadableFileWrapper | undefined, file: File): void;
     }
 }
 declare namespace Ui {
     class Transition extends Core.Object {
         constructor();
-        run(current: Element, next: Element, progress: number): void;
+        run(current: Element | undefined, next: Element | undefined, progress: number): void;
         protected static transitions: object;
         static register(transitionName: string, classType: any): void;
         static parse(transition: any): any;
@@ -5928,8 +5930,8 @@ declare namespace Ui {
         protected _ease: Anim.EasingFunction;
         protected _position: number;
         protected transitionClock?: Anim.Clock;
-        protected _current: Element;
-        protected next: Element;
+        protected _current: Element | undefined;
+        protected next: Element | undefined;
         protected replaceMode: boolean;
         protected progress: number;
         readonly changed: Core.Events<{
@@ -5946,15 +5948,15 @@ declare namespace Ui {
         set duration(duration: number);
         set ease(ease: Anim.EasingFunction | string);
         set transition(transition: Transition | string);
-        get current(): Element;
-        set current(child: Element);
+        get current(): Element | undefined;
+        set current(child: Element | undefined);
         setCurrentAt(position: number): void;
         replaceContent(content: any): void;
         protected onLoad(): void;
         protected onTransitionBoxLoad(): void;
         protected onUnload(): void;
         protected onTransitionBoxUnload(): void;
-        protected onTransitionTick(clock: any, progress: any): void;
+        protected onTransitionTick(clock: Anim.Clock, progress: number): void;
         protected onTransitionComplete: () => void;
         protected arrangeCore(width: number, height: number): void;
         append(child: Element): void;
@@ -6195,9 +6197,9 @@ declare namespace Ui {
         close(): void;
         select(): void;
         getIsSelected(): boolean;
-        getHeader(): Element;
+        getHeader(): Element | undefined;
         setHeader(header: any): void;
-        getContent(): Element;
+        getContent(): Element | undefined;
         setContent(content: any): void;
         getOrientation(): "vertical" | "horizontal";
         setOrientation(orientation: any): void;
@@ -6327,7 +6329,7 @@ declare namespace Ui {
         hasChild(child: Element): boolean;
         protected onStyleChange(): void;
         protected getAllowedTypesEffect(dataTransfer: DragDataTransfer): DropEffect[];
-        protected onDragEffect(dataTransfer: DragDataTransfer): string | DropEffect[];
+        protected onDragEffect(dataTransfer: DragDataTransfer): string | DropEffect[] | undefined;
         protected onDragOver(event: DragEvent): void;
         protected onDragEffectFunction(dataTransfer: DragDataTransfer, func: DropAtEffectFunc): DropEffect[];
         protected onWatcherEnter(watcher: DragWatcher): void;
@@ -6750,8 +6752,8 @@ declare namespace Ui {
         set wordWrap(wordWrap: string);
         get whiteSpace(): string;
         set whiteSpace(whiteSpace: string);
-        get color(): Color | string;
-        set color(color: Color | string);
+        get color(): Color | string | undefined;
+        set color(color: Color | string | undefined);
         get textHolder(): string;
         set textHolder(value: string);
         get isBackgroundVisible(): boolean;
@@ -6844,10 +6846,10 @@ declare namespace Ui {
         get isToggled(): boolean;
         get value(): boolean;
         set value(value: boolean);
-        get text(): string;
-        set text(text: string);
-        get content(): Element;
-        set content(content: Element);
+        get text(): string | undefined;
+        set text(text: string | undefined);
+        get content(): Element | undefined;
+        set content(content: Element | undefined);
         get group(): RadioGroup;
         set group(group: RadioGroup);
         toggle(): void;
@@ -7001,8 +7003,8 @@ declare namespace Form {
         constructor(init?: DateFieldInit);
         protected generateUi(): Ui.DatePicker;
         get isDefined(): boolean;
-        get value(): Date;
-        set value(value: Date);
+        get value(): Date | undefined;
+        set value(value: Date | undefined);
         set placeholder(value: string);
     }
     interface TimeFieldInit extends FieldInit<Ui.TextField> {
@@ -7055,8 +7057,8 @@ declare namespace Form {
         get data(): T[];
         set data(data: T[]);
         set text(value: string);
-        get value(): T;
-        set value(value: T);
+        get value(): T | undefined;
+        set value(value: T | undefined);
         set position(position: number);
         set placeholder(value: string);
     }

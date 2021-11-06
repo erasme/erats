@@ -8,7 +8,7 @@ namespace Ui {
     export class DatePicker extends TextButtonField implements DatePickerInit {
         protected popup?: Popup;
         protected calendar?: MonthCalendar;
-        protected _selectedDate: Date;
+        protected _selectedDate?: Date;
         protected _isValid: boolean = false;
         protected _dayFilter?: number[];
         protected _dateFilter?: string[];
@@ -45,11 +45,11 @@ namespace Ui {
             return this._isValid;
         }
 
-        get selectedDate(): Date {
+        get selectedDate(): Date | undefined {
             return this._selectedDate;
         }
 
-        set selectedDate(date: Date) {
+        set selectedDate(date: Date | undefined) {
             if (date === undefined) {
                 this._selectedDate = undefined;
                 this.textValue = '';
@@ -87,7 +87,7 @@ namespace Ui {
             this._selectedDate = undefined;
             var dateStr = this.textValue;
             if (dateStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{1,4})$/)) {
-                var splitDate = this.textValue.match(/^(\d{1,2})\/(\d{1,2})\/(\d{1,4})$/);
+                var splitDate = this.textValue.match(/^(\d{1,2})\/(\d{1,2})\/(\d{1,4})$/)!;
                 var date = new Date(parseInt(splitDate[3]), parseInt(splitDate[2]) - 1, parseInt(splitDate[1]));
                 var newStr = ((date.getDate() < 10) ? '0' : '') + date.getDate() + '/' + ((date.getMonth() < 9) ? '0' : '') + (date.getMonth() + 1) + '/' + date.getFullYear();
                 if (!((parseInt(splitDate[3]) != date.getFullYear()) || (parseInt(splitDate[2]) - 1 != date.getMonth()) || (parseInt(splitDate[1]) != date.getDate()))) {
@@ -107,7 +107,8 @@ namespace Ui {
 
         protected onDaySelect(monthcalendar, date: Date) {
             this.selectedDate = date;
-            this.popup.close();
+            if (this.popup)
+                this.popup.close();
             this.popup = undefined;
             this.changed.fire({ target: this, value: this.textValue });
         }

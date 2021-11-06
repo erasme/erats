@@ -33,17 +33,17 @@ namespace Ui
         private _paddingRight: number = 0;
         private star: number = 0;
         private measureLock: any = undefined;
-        items: Element[] = undefined;
-        private menuButton: MenuToolBarButton = undefined;
+        items: Element[];
+        private menuButton: MenuToolBarButton;
         private _itemsAlign: 'left' | 'right' = 'left';
         private _menuPosition: 'left' | 'right' = 'right';
         private _uniform: boolean = false;
-        private uniformSize: number = 0;
+        private uniformSize?: number = 0;
         private _spacing: number = 0;
         private itemsWidth: number = 0;
         private keepItems: any = undefined;
         private menuNeeded: boolean = false;
-        private bg: Rectangle = undefined;
+        private bg: Rectangle;
 
         constructor(init?: MenuToolBarInit) {
             super(init);
@@ -330,7 +330,7 @@ namespace Ui
             // measure the menu button
             let buttonSize = this.menuButton.measure(0, 0);
         
-            let minSizes = [];
+            let minSizes : Size[] = [];
 
             // set all item as graphical childs and get their min sizes
             for (i = 0; i < this.items.length; i++) {

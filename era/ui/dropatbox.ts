@@ -21,7 +21,7 @@
 
     export class DropAtBox<T extends Ui.Container & IContainer > extends LBox implements DropAtBoxInit<T> {
         watchers: DragWatcher[] = [];
-        allowedTypes: { type: string | Function, effect: DropEffect[] | DropAtEffectFunc }[] = undefined;
+        allowedTypes: { type: string | Function, effect: DropEffect[] | DropAtEffectFunc }[];
         readonly container: T;
         private fixed: Fixed;
         private markerOrientation: 'horizontal';
@@ -138,13 +138,13 @@
         }
 
         findPositionHorizontal(point: Point) {
-            let line = [];
+            let line : Element[] = [];
             let childs = this.container.children;
             for (let i = 0; i < childs.length; i++) {
                 if ((point.y >= childs[i].layoutY) && (point.y < childs[i].layoutY + childs[i].layoutHeight))
                     line.push(childs[i]);
             }
-            let element = undefined;
+            let element : Element | undefined = undefined;
             let dist = Number.MAX_VALUE;
             for (let i = 0; i < line.length; i++) {
                 let cx = line[i].layoutX + ((line[i].layoutWidth) / 2);
@@ -176,7 +176,7 @@
         findPositionVertical(point: Point) {
             let childs = this.container.children;
 
-            let element = undefined;
+            let element : Element | undefined = undefined;
             let dist = Number.MAX_VALUE;
             for (let i = 0; i < childs.length; i++) {
                 let cy = childs[i].layoutY + ((childs[i].layoutHeight) / 2);
@@ -255,7 +255,7 @@
         protected getAllowedTypesEffect(dataTransfer: DragDataTransfer): DropEffect[] {
             if (this.allowedTypes !== undefined) {
                 let data = dataTransfer.getData();
-                let effect = undefined;
+                let effect : DropEffect[] | DropAtEffectFunc | undefined = undefined;
                 for (let i = 0; (effect === undefined) && (i < this.allowedTypes.length); i++) {
                     let type = this.allowedTypes[i];
                     if (typeof (type.type) === 'string') {
@@ -326,8 +326,10 @@
         }
 
         protected onDragOver(event: DragEvent) {
+            if (!event.dataTransfer)
+                return;
             // test if we already captured this dataTransfer
-            let foundWatcher = undefined;
+            let foundWatcher : DragWatcher | undefined = undefined;
             for (let i = 0; (foundWatcher === undefined) && (i < this.watchers.length); i++)
                 if (this.watchers[i].getDataTransfer() === event.dataTransfer)
                     foundWatcher = this.watchers[i];
@@ -335,7 +337,7 @@
             // get allowed effect for the given dataTransfer
             let effect = this.onDragEffect(event.dataTransfer);
 
-            if (foundWatcher !== undefined) {
+            if (foundWatcher !== undefined && effect) {
                 let equal = effect.length === foundWatcher.getEffectAllowed();
                 for (let i = 0; equal && (i < effect.length); i++) {
                     equal = effect[i] === foundWatcher.getEffectAllowed()[i];

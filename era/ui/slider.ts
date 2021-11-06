@@ -125,11 +125,10 @@ namespace Ui {
         protected updateValue() {
             this.updateLock = true;
 
-            var max;
-            var width = this.layoutWidth;
-            var height = this.layoutHeight;
+            let width = this.layoutWidth;
+            let height = this.layoutHeight;
             if (this.orientation === 'horizontal') {
-                max = width - this.button.layoutWidth;
+                let max = width - this.button.layoutWidth;
                 this.button.setPosition(max * this._value, 0);
                 this.bar.arrange(
                     this.button.layoutWidth / 2,
@@ -137,16 +136,14 @@ namespace Ui {
                     max * this._value, this.bar.measureHeight);
             }
             else {
-                max = height - this.button.layoutHeight;
-                var x = (width - 44) / 2;
-                var size = (height - 36) * this._value;
+                let max = height - this.button.layoutHeight;
                 this.button.setPosition(0, max * (1 - this._value));
                 this.bar.arrange(
                     (width - this.bar.measureWidth) / 2,
                     this.button.layoutHeight / 2 + max * (1 - this._value),
                     this.bar.measureWidth, max * this._value);
             }
-            delete (this.updateLock);
+            this.updateLock = false;
         }
 
         protected getColor() {

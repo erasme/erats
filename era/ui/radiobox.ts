@@ -12,10 +12,10 @@ namespace Ui {
     export class RadioBox extends Pressable implements RadioBoxInit {
         private bg = new SimpleButtonBackground();
         private graphic: RadioBoxGraphic;
-        private contentBox: Element;
+        private contentBox: Element | undefined;
         private hbox: HBox;
-        private _content: Element;
-        private _text: string;
+        private _content: Element | undefined;
+        private _text: string | undefined;
         private _group: RadioGroup;
         private _isToggled: boolean = false;
         readonly changed = new Core.Events<{ target: RadioBox, value: boolean }>();
@@ -80,11 +80,11 @@ namespace Ui {
                 this.untoggle();
         }
 
-        get text(): string {
+        get text(): string | undefined {
             return this._text;
         }
 
-        set text(text: string) {
+        set text(text: string | undefined) {
             if (text === undefined) {
                 if (this.contentBox !== undefined) {
                     this.hbox.remove(this.contentBox);
@@ -100,7 +100,7 @@ namespace Ui {
                 }
                 else {
                     if (this._content !== undefined) {
-                        this.hbox.remove(this.contentBox);
+                        this.hbox.remove(this.contentBox!);
                         this._content = undefined;
                     }
                     this._text = text;
@@ -110,11 +110,11 @@ namespace Ui {
             }
         }
 
-        get content(): Element {
+        get content(): Element | undefined {
             return this._content;
         }
 
-        set content(content: Element) {
+        set content(content: Element | undefined) {
             if (content === undefined) {
                 if (this.contentBox !== undefined) {
                     this.hbox.remove(this.contentBox);
@@ -125,7 +125,7 @@ namespace Ui {
             }
             else {
                 if (this._text !== undefined) {
-                    this.hbox.remove(this.contentBox);
+                    this.hbox.remove(this.contentBox!);
                     this._text = undefined;
                 }
                 if (this._content !== undefined)
@@ -257,7 +257,7 @@ namespace Ui {
             if(this.current == radio) return;
             if(radio && !radio.isToggled)
                 radio.toggle();
-            if(radio == undefined && this.current.isToggled )
+            if(radio == undefined && this.current && this.current.isToggled )
                 this.current.untoggle();
             this._current = radio;
             this.changed.fire({ target: this });

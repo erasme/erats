@@ -37,56 +37,56 @@ namespace Ui {
             this.boldButton.assign({
                 icon: 'format-bold', focusable: false, title: 'Mettre en gras',
                 onpressed: () => {
-                    document.execCommand('bold', false, null);
+                    document.execCommand('bold', false, undefined);
                     this.onAnchorChanged();
                 }
             });
             this.italicButton.assign({
                 icon: 'format-italic', focusable: false, title: 'Mettre en italique',
                 onpressed: () => {
-                    document.execCommand('italic', false, null);
+                    document.execCommand('italic', false, undefined);
                     this.onAnchorChanged();
                 }
             });
             this.underlineButton.assign({
                 icon: 'format-underline', focusable: false, title: 'Souligner',
                 onpressed: () => {
-                    document.execCommand('underline', false, null);
+                    document.execCommand('underline', false, undefined);
                     this.onAnchorChanged();
                 }
             });
             this.alignLeftButton.assign({
                 icon: 'format-align-left', focusable: false, title: 'Aligner à gauche',
                 onpressed: () => {
-                    document.execCommand('justifyLeft', false, null);
+                    document.execCommand('justifyLeft', false, undefined);
                     this.onAnchorChanged();
                 }
             });
             this.alignCenterButton.assign({
                 icon: 'format-align-center', focusable: false, title: 'Centrer',
                 onpressed: () => {
-                    document.execCommand('justifyCenter', false, null);
+                    document.execCommand('justifyCenter', false, undefined);
                     this.onAnchorChanged();
                 }
             });
             this.alignRightButton.assign({
                 icon: 'format-align-right', focusable: false, title: 'Aligner à droite',
                 onpressed: () => {
-                    document.execCommand('justifyRight', false, null);
+                    document.execCommand('justifyRight', false, undefined);
                     this.onAnchorChanged();
                 }
             });
             this.insertOrderedListButton.assign({
                 icon: 'format-insert-ordered-list', focusable: false, title: 'Insérer une numérotation',
                 onpressed: () => {
-                    document.execCommand('insertOrderedList', false, null);
+                    document.execCommand('insertOrderedList', false, undefined);
                     this.onAnchorChanged();
                 }
             });
             this.insertUnorderedListButton.assign({
                 icon: 'format-insert-unordered-list', focusable: false, title: 'Insérer des puces',
                 onpressed: () => {
-                    document.execCommand('insertUnorderedList', false, null);
+                    document.execCommand('insertUnorderedList', false, undefined);
                     this.onAnchorChanged();
                 }
             });
@@ -116,7 +116,7 @@ namespace Ui {
                 onpressed: () => {
                     if (this.quoteButton.isActive) {
                         let sel = window.getSelection();
-                        if (sel)
+                        if (sel && sel.anchorNode)
                             ContentEditable.unwrapNode(sel.anchorNode);
                     }
                     else
@@ -310,11 +310,11 @@ namespace Ui {
             this._contentEditable.whiteSpace = whiteSpace;
         }
 
-        get color(): Color | string {
+        get color(): Color | string | undefined {
             return this._contentEditable.color;
         }
 
-        set color(color: Color | string) {
+        set color(color: Color | string | undefined) {
             this._contentEditable.color = color;
         }
 

@@ -1,3 +1,4 @@
+"use strict";
 function create(ctor, props) {
     return Object.assign(new ctor(), props);
 }
@@ -13,8 +14,10 @@ var Core;
         getClassName() {
             if ('name' in this.constructor)
                 return this.constructor['name'];
-            else
-                return /function (.{1,})\(/.exec(this.constructor.toString())[1];
+            else {
+                let matches = /function (.{1,})\(/.exec(this.constructor.toString());
+                return matches ? matches[1] : this.constructor.toString();
+            }
         }
         assign(props) {
             return assign(this, props);
@@ -267,6 +270,8 @@ var Core;
             if (res === null) {
                 fullpath = false;
                 res = baseURI.match(/^([^:\/]+):\/\/([^\/]+)(\/.*)$/);
+                if (res == null)
+                    throw `Invalid uri ${uri}`;
             }
             this.scheme = res[1];
             var authority = res[2];
@@ -342,7 +347,8 @@ var Core;
             return path;
         }
         static mergePath(base, relative) {
-            var dir = base.match(/^(.*)\//)[0];
+            let matches = base.match(/^(.*)\//);
+            var dir = matches ? matches[0] : base;
             dir += relative;
             return Uri.cleanPath(dir);
         }
@@ -415,8 +421,8 @@ var Core;
                 node.next.previous = node.previous;
                 node.previous.next = node.next;
             }
-            node.next = undefined;
-            node.previous = undefined;
+            node.next = node;
+            node.previous = node;
             this.length--;
         }
         findNode(data) {
@@ -481,9 +487,7 @@ var Core;
             this.url = null;
             this.method = 'GET';
             this.binary = false;
-            this.arguments = undefined;
             this.content = undefined;
-            this._headers = undefined;
             this.error = new Core.Events();
             this.done = new Core.Events();
             this.request = new XMLHttpRequest();
@@ -537,7 +541,7 @@ var Core;
             this.request.abort();
         }
         send() {
-            if (this.url === undefined)
+            if (this.url == undefined)
                 throw ('url MUST be given for an HttpRequest');
             let header;
             let args = '';
@@ -622,7 +626,7 @@ var Core;
                 return xmlDoc;
             }
             catch (e) { }
-            return undefined;
+            return parser.parseFromString('', 'text/xml');
         }
         get status() {
             return this.request.status;
@@ -704,7 +708,6 @@ var Core;
     class Socket extends Core.Object {
         constructor(init) {
             super();
-            this.host = undefined;
             this.service = '/';
             this.port = 80;
             this.secure = false;
@@ -1026,9 +1029,6 @@ var Core;
     class RemoteDebug extends Core.Object {
         constructor(init) {
             super();
-            this.host = undefined;
-            this.port = undefined;
-            this.socket = undefined;
             this.socketAlive = false;
             this.retryTask = undefined;
             this.nativeConsole = undefined;
@@ -1097,19 +1097,22 @@ var Core;
                 this.buffer.push(JSON.stringify({ type: 'warn', message: message, url: url, line: line }));
         }
         static onConsoleLog(message) {
-            Core.RemoteDebug.current.onConsoleLog.call(Core.RemoteDebug.current, message);
+            var _a;
+            (_a = Core.RemoteDebug.current) === null || _a === void 0 ? void 0 : _a.onConsoleLog.call(Core.RemoteDebug.current, message);
         }
         static onConsoleError(message) {
-            Core.RemoteDebug.current.onConsoleError.call(Core.RemoteDebug.current, message);
+            var _a;
+            (_a = Core.RemoteDebug.current) === null || _a === void 0 ? void 0 : _a.onConsoleError.call(Core.RemoteDebug.current, message);
         }
         static onConsoleWarn(message) {
-            Core.RemoteDebug.current.onConsoleWarn.call(Core.RemoteDebug.current, message);
+            var _a;
+            (_a = Core.RemoteDebug.current) === null || _a === void 0 ? void 0 : _a.onConsoleWarn.call(Core.RemoteDebug.current, message);
         }
         static onError(message, url, line) {
-            Core.RemoteDebug.current.onError.call(Core.RemoteDebug.current, message, url, line);
+            var _a;
+            (_a = Core.RemoteDebug.current) === null || _a === void 0 ? void 0 : _a.onError.call(Core.RemoteDebug.current, message, url, line);
         }
     }
-    RemoteDebug.current = undefined;
     Core.RemoteDebug = RemoteDebug;
 })(Core || (Core = {}));
 var Core;
@@ -1117,7 +1120,6 @@ var Core;
     class FilePostUploader extends Core.Object {
         constructor(init) {
             super();
-            this._headers = undefined;
             this._method = 'POST';
             this._isCompleted = false;
             this._isSent = false;
@@ -1215,7 +1217,8 @@ var Core;
             this.request.onreadystatechange = (event) => this.onStateChange(event);
         }
         get status() {
-            return this.request ? this.request.status : this._lastStatus;
+            var _a;
+            return this.request ? this.request.status : ((_a = this._lastStatus) !== null && _a !== void 0 ? _a : -1);
         }
         sendAsync() {
             return new Promise(resolve => {
@@ -1599,13 +1602,16 @@ var Anim;
             return this._isActive || (this.pendingState === 'active');
         }
         get time() {
-            return this._time;
+            var _a;
+            return (_a = this._time) !== null && _a !== void 0 ? _a : 0;
         }
         get iteration() {
-            return this._iteration;
+            var _a;
+            return (_a = this._iteration) !== null && _a !== void 0 ? _a : 0;
         }
         get progress() {
-            return this._progress;
+            var _a;
+            return (_a = this._progress) !== null && _a !== void 0 ? _a : 0;
         }
         begin() {
             if (this.isActive)
@@ -4177,13 +4183,13 @@ var Core;
                 img = document.createElementNS(svgNS, 'image');
                 if (this.clipId !== undefined)
                     img.setAttributeNS(null, 'clip-path', 'url(#' + this.clipId + ')');
-                img.style.opacity = this.globalAlpha;
+                img.style.opacity = this.globalAlpha.toString();
                 img.setAttributeNS(null, 'pointer-events', 'none');
                 img.href.baseVal = image.src;
-                img.setAttributeNS(null, 'x', dx);
-                img.setAttributeNS(null, 'y', dy);
-                img.setAttributeNS(null, 'width', dw);
-                img.setAttributeNS(null, 'height', dh);
+                img.setAttributeNS(null, 'x', dx.toString());
+                img.setAttributeNS(null, 'y', dy.toString());
+                img.setAttributeNS(null, 'width', dw.toString());
+                img.setAttributeNS(null, 'height', dh.toString());
                 img.transform.baseVal.initialize(this.document.createSVGTransformFromMatrix(this.currentTransform));
                 this.g.appendChild(img);
             }
@@ -4198,10 +4204,10 @@ var Core;
                 pattern.setAttributeNS(null, 'height', dh.toString());
                 img = document.createElementNS(svgNS, 'image');
                 img.href.baseVal = image.src;
-                img.setAttributeNS(null, 'x', -sx * dw / sw);
-                img.setAttributeNS(null, 'y', -sy * dh / sh);
-                img.setAttributeNS(null, 'width', nw * dw / sw);
-                img.setAttributeNS(null, 'height', nh * dh / sh);
+                img.setAttributeNS(null, 'x', (-sx * dw / sw).toString());
+                img.setAttributeNS(null, 'y', (-sy * dh / sh).toString());
+                img.setAttributeNS(null, 'width', (nw * dw / sw).toString());
+                img.setAttributeNS(null, 'height', (nh * dh / sh).toString());
                 pattern.appendChild(img);
                 this.defs.appendChild(pattern);
                 let path = document.createElementNS(svgNS, 'path');
@@ -4541,6 +4547,7 @@ var Core;
                 return { style: 'default', weight: tab[0], size: parseInt(tab[1]), family: tab[2] };
             else if (tab.length === 4)
                 return { style: tab[0], weight: tab[1], size: parseInt(tab[2]), family: tab[3] };
+            throw `Invalid font format ${font}`;
         }
         roundRectFilledShadow(x, y, width, height, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, inner, shadowWidth, color) {
             this.save();
@@ -4738,15 +4745,6 @@ var Ui;
     };
     Ui.Shape = Shape;
 })(Ui || (Ui = {}));
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var Ui;
 (function (Ui) {
     class Icon extends Ui.Element {
@@ -4805,39 +4803,37 @@ var Ui;
         onLoadingFailed() {
             this.loadingfailed.fire({ target: this });
         }
-        loadIcon(value) {
-            return __awaiter(this, void 0, void 0, function* () {
-                if (!(value.indexOf('.svg') + 4 == value.length && value.length > 4))
-                    value = `${value}.svg`;
-                let drawing = this.drawing;
-                if (Ui.Icon.iconsCache[value] != undefined) {
-                    drawing.innerHTML = Ui.Icon.iconsCache[value];
+        async loadIcon(value) {
+            if (!(value.indexOf('.svg') + 4 == value.length && value.length > 4))
+                value = `${value}.svg`;
+            let drawing = this.drawing;
+            if (Ui.Icon.iconsCache[value] != undefined) {
+                drawing.innerHTML = Ui.Icon.iconsCache[value];
+            }
+            else {
+                let req;
+                if (Ui.Icon.loadingReqs[value] != undefined) {
+                    req = Ui.Icon.loadingReqs[value];
+                    await req.waitAsync();
                 }
                 else {
-                    let req;
-                    if (Ui.Icon.loadingReqs[value] != undefined) {
-                        req = Ui.Icon.loadingReqs[value];
-                        yield req.waitAsync();
-                    }
-                    else {
-                        req = new Core.HttpRequest().assign({
-                            url: `${Icon.baseUrl}${value}`
-                        });
-                        Ui.Icon.loadingReqs[value] = req;
-                        yield req.sendAsync();
-                        delete (Ui.Icon.loadingReqs[value]);
-                    }
-                    if (req.status == 200) {
-                        drawing.innerHTML = req.responseText;
-                        this.normalize();
-                        Ui.Icon.iconsCache[value] = this.drawing.innerHTML;
-                    }
-                    else {
-                        drawing.innerHTML = '';
-                        this.onLoadingFailed();
-                    }
+                    req = new Core.HttpRequest().assign({
+                        url: `${Icon.baseUrl}${value}`
+                    });
+                    Ui.Icon.loadingReqs[value] = req;
+                    await req.sendAsync();
+                    delete (Ui.Icon.loadingReqs[value]);
                 }
-            });
+                if (req.status == 200) {
+                    drawing.innerHTML = req.responseText;
+                    this.normalize();
+                    Ui.Icon.iconsCache[value] = this.drawing.innerHTML;
+                }
+                else {
+                    drawing.innerHTML = '';
+                    this.onLoadingFailed();
+                }
+            }
         }
         normalize() {
             let child = this.drawing.children.item(0);
@@ -5149,11 +5145,17 @@ var Ui;
             this.pointer = pointer;
         }
         getAbsoluteDelta() {
+            if (!this.pointer) {
+                return { x: 0, y: 0 };
+            }
             let initial = { x: this.pointer.getInitialX(), y: this.pointer.getInitialY() };
             let current = { x: this.pointer.getX(), y: this.pointer.getY() };
             return { x: current.x - initial.x, y: current.y - initial.y };
         }
         getDelta() {
+            if (!this.pointer) {
+                return { x: 0, y: 0 };
+            }
             let initial = new Ui.Point(this.pointer.getInitialX(), this.pointer.getInitialY());
             let current = new Ui.Point(this.pointer.getX(), this.pointer.getY());
             initial = this.element.pointFromWindow(initial);
@@ -5161,7 +5163,7 @@ var Ui;
             return { x: current.x - initial.x, y: current.y - initial.y };
         }
         getPosition() {
-            let current = new Ui.Point(this.pointer.getX(), this.pointer.getY());
+            let current = this.pointer ? new Ui.Point(this.pointer.getX(), this.pointer.getY()) : new Ui.Point();
             return this.element.pointFromWindow(current);
         }
         getIsInside() {
@@ -5207,16 +5209,17 @@ var Ui;
             return (this.pointer !== undefined) && (this.pointer.captureWatcher === this);
         }
         capture() {
-            this.pointer.capture(this);
+            if (this.pointer)
+                this.pointer.capture(this);
         }
         release() {
-            this.pointer.release(this);
+            if (this.pointer)
+                this.pointer.release(this);
         }
         cancel() {
             if (this.pointer != undefined) {
                 this.cancelled.fire({ target: this });
                 this.pointer.unwatch(this);
-                this.pointer = undefined;
             }
         }
         down() {
@@ -5493,7 +5496,7 @@ var Ui;
             }
         }
         onSelectStart(event) {
-            if (this.mouse.getIsCaptured()) {
+            if (this.mouse && this.mouse.getIsCaptured()) {
                 event.preventDefault();
                 return;
             }
@@ -5741,7 +5744,6 @@ var Ui;
         constructor(element, dataTransfer) {
             super();
             this.effectAllowed = undefined;
-            this.dataTransfer = undefined;
             this.x = 0;
             this.y = 0;
             this.dropped = new Core.Events();
@@ -5777,7 +5779,8 @@ var Ui;
             this.dropped.fire({ target: this, effect: dropEffect, x: this.x, y: this.y });
         }
         release() {
-            this.dataTransfer.releaseDragWatcher(this);
+            if (this.dataTransfer)
+                this.dataTransfer.releaseDragWatcher(this);
         }
     }
     Ui.DragWatcher = DragWatcher;
@@ -5908,7 +5911,8 @@ var Ui;
                                 button.text = this.dropEffect[i].text;
                                 button['Ui.DragEvent.dropEffect'] = this.dropEffect[i];
                                 button.pressed.connect((e) => {
-                                    this.dragWatcher.drop(e.target['Ui.DragEvent.dropEffect'].action);
+                                    if (this.dragWatcher)
+                                        this.dragWatcher.drop(e.target['Ui.DragEvent.dropEffect'].action);
                                     popup.close();
                                 });
                                 vbox.append(button);
@@ -6321,15 +6325,12 @@ var Ui;
     class DragNativeDataTransfer extends Core.Object {
         constructor() {
             super();
-            this.dataTransfer = undefined;
-            this.dragWatcher = undefined;
-            this.nativeData = undefined;
             this.dropEffect = 'none';
-            this.position = undefined;
             this.nativeData = new DragNativeData(this);
         }
         getPosition() {
-            return this.position;
+            var _a;
+            return (_a = this.position) !== null && _a !== void 0 ? _a : new Ui.Point();
         }
         setPosition(position) {
             this.position = position;
@@ -6436,6 +6437,7 @@ var Ui;
                 return ['move', 'link'];
             else if (effectAllowed === 'all')
                 return ['move', 'copy', 'link'];
+            return [];
         }
         customToNative(effectAllowed) {
             let containsLink = false;
@@ -7331,34 +7333,32 @@ var Ui;
             this.ripple.style.height = '10px';
             this.fill = Ui.Color.create('rgba(0,0,0,0.1)');
         }
-        anim(x, y) {
-            return __awaiter(this, void 0, void 0, function* () {
-                if (this.isAnimated)
-                    return;
-                this.isAnimated = true;
-                if (x == undefined)
-                    x = this.element.layoutWidth / 2;
-                if (y == undefined)
-                    y = this.element.layoutHeight / 2;
-                let upPromise = new Promise((resolve) => this.upResolve = resolve);
-                this.element.drawing.appendChild(this.ripple);
-                this.ripple.style.transform = 'scale(0) translate3d(0,0,0)';
-                yield new Promise((resolve) => setTimeout(() => resolve(), 0));
-                let scale = 2.5 * Math.ceil(Math.max(this.element.layoutWidth, this.element.layoutHeight) / 10);
-                this.ripple.style.left = `${Math.round(x - 5)}px`;
-                this.ripple.style.top = `${Math.round(y - 5)}px`;
-                this.ripple.style.transition = 'transform 0.5s ease-out, opacity 0.1s';
-                this.ripple.style.transform = `scale(${scale}) translate3d(0,0,0)`;
-                yield new Promise((resolve) => setTimeout(() => resolve(), 500));
-                yield upPromise;
-                this.ripple.style.opacity = '0';
-                yield new Promise((resolve) => setTimeout(() => resolve(), 100));
-                this.ripple.style.transition = '';
-                this.ripple.style.opacity = '1';
-                this.ripple.style.transform = 'scale(0) translate3d(0,0,0)';
-                this.element.drawing.removeChild(this.ripple);
-                this.isAnimated = false;
-            });
+        async anim(x, y) {
+            if (this.isAnimated)
+                return;
+            this.isAnimated = true;
+            if (x == undefined)
+                x = this.element.layoutWidth / 2;
+            if (y == undefined)
+                y = this.element.layoutHeight / 2;
+            let upPromise = new Promise((resolve) => this.upResolve = resolve);
+            this.element.drawing.appendChild(this.ripple);
+            this.ripple.style.transform = 'scale(0) translate3d(0,0,0)';
+            await new Promise((resolve) => setTimeout(() => resolve(), 0));
+            let scale = 2.5 * Math.ceil(Math.max(this.element.layoutWidth, this.element.layoutHeight) / 10);
+            this.ripple.style.left = `${Math.round(x - 5)}px`;
+            this.ripple.style.top = `${Math.round(y - 5)}px`;
+            this.ripple.style.transition = 'transform 0.5s ease-out, opacity 0.1s';
+            this.ripple.style.transform = `scale(${scale}) translate3d(0,0,0)`;
+            await new Promise((resolve) => setTimeout(() => resolve(), 500));
+            await upPromise;
+            this.ripple.style.opacity = '0';
+            await new Promise((resolve) => setTimeout(() => resolve(), 100));
+            this.ripple.style.transition = '';
+            this.ripple.style.opacity = '1';
+            this.ripple.style.transform = 'scale(0) translate3d(0,0,0)';
+            this.element.drawing.removeChild(this.ripple);
+            this.isAnimated = false;
         }
         down(x, y) {
             this.anim(x, y);
@@ -7746,8 +7746,14 @@ var Ui;
             this.draggableWatcher = new DraggableWatcher({
                 element: this,
                 data: this.draggableData,
-                start: (watcher) => this.onDragStart(watcher.dataTransfer),
-                end: (watcher) => this.onDragEnd(watcher.dataTransfer)
+                start: (watcher) => {
+                    if (watcher.dataTransfer)
+                        this.onDragStart(watcher.dataTransfer);
+                },
+                end: (watcher) => {
+                    if (watcher.dataTransfer)
+                        this.onDragEnd(watcher.dataTransfer);
+                }
             });
             if (init) {
                 if (init.ondragstarted)
@@ -7817,19 +7823,25 @@ var Ui;
             this._draggableElement = element;
             if (this.draggableWatcher) {
                 this.draggableWatcher.dispose();
-                this.draggableWatcher = new Ui.DraggableWatcher({
-                    element: this._draggableElement,
-                    data: this.element,
-                    image: this.element,
-                    start: (w) => this.onSelectionableDragStart(w),
-                    end: (w) => this.onSelectionableDragEnd(w)
-                });
+                if (element) {
+                    this.draggableWatcher = new Ui.DraggableWatcher({
+                        element: element,
+                        data: this.element,
+                        image: this.element,
+                        start: (w) => this.onSelectionableDragStart(w),
+                        end: (w) => this.onSelectionableDragEnd(w)
+                    });
+                }
+                else {
+                    this.draggableWatcher = undefined;
+                }
             }
         }
         get draggable() {
             return this.draggableWatcher !== undefined;
         }
         set draggable(value) {
+            var _a;
             if (value !== this.draggable) {
                 if (value)
                     this.draggableWatcher = new Ui.DraggableWatcher({
@@ -7840,7 +7852,7 @@ var Ui;
                         end: (w) => this.onSelectionableDragEnd(w)
                     });
                 else {
-                    this.draggableWatcher.dispose();
+                    (_a = this.draggableWatcher) === null || _a === void 0 ? void 0 : _a.dispose();
                     this.draggableWatcher = undefined;
                 }
             }
@@ -7968,7 +7980,8 @@ var Ui;
             this.changed = new Core.Events();
             this.onElementUnload = (e) => {
                 let watcher = Ui.SelectionableWatcher.getSelectionableWatcher(e.target);
-                this.remove(watcher);
+                if (watcher)
+                    this.remove(watcher);
             };
             this._watchers = [];
         }
@@ -8046,7 +8059,8 @@ var Ui;
                 else if (el instanceof Ui.Container)
                     el.children.forEach(el2 => add_selectionable(el2));
             };
-            add_selectionable(common_parent);
+            if (common_parent)
+                add_selectionable(common_parent);
             let start_pos = all.indexOf(start);
             let end_pos = all.indexOf(end);
             let res = new Array();
@@ -8109,10 +8123,10 @@ var Ui;
             return this._watchers.map(w => w.element);
         }
         set elements(elements) {
-            this.watchers = elements.map(el => Ui.SelectionableWatcher.getSelectionableWatcher(el));
+            this.watchers = elements.map(el => Ui.SelectionableWatcher.getSelectionableWatcher(el)).filter(w => w != undefined);
         }
         getElementActions(watcher) {
-            let actions = Core.Util.clone(watcher.selectionActions);
+            let actions = watcher.selectionActions ? Core.Util.clone(watcher.selectionActions) : {};
             let current = watcher.element.parent;
             while (current != undefined) {
                 if ('getContextActions' in current)
@@ -8184,9 +8198,10 @@ var Ui;
             return undefined;
         }
         executeDefaultAction() {
+            var _a;
             let action = this.getDefaultAction();
             if (action !== undefined) {
-                action.callback(this);
+                (_a = action.callback) !== null && _a !== void 0 ? _a : (this);
                 this.clear();
                 return true;
             }
@@ -8196,7 +8211,9 @@ var Ui;
         }
         getDeleteAction() {
             let actions = this.getActions();
-            if ('delete' in actions)
+            if (actions == undefined)
+                return undefined;
+            else if ('delete' in actions)
                 return actions['delete'];
             else if (actions.suppress !== undefined)
                 return actions.suppress;
@@ -8204,9 +8221,10 @@ var Ui;
                 return undefined;
         }
         executeDeleteAction() {
+            var _a;
             let action = this.getDeleteAction();
             if (action !== undefined) {
-                action.callback(this);
+                (_a = action.callback) !== null && _a !== void 0 ? _a : (this);
                 this.clear();
                 return true;
             }
@@ -9668,7 +9686,7 @@ var Ui;
                     this.maxScale = init.maxScale;
                 if (init.allowRotate !== undefined)
                     this.allowRotate = init.allowRotate;
-                if (init.allowTranslate !== init.allowTranslate)
+                if (init.allowTranslate !== undefined)
                     this.allowTranslate = init.allowTranslate;
                 if (init.angle !== undefined)
                     this.angle = init.angle;
@@ -10071,7 +10089,6 @@ var Ui;
     class Scrollable extends Ui.Container {
         constructor(init) {
             super(init);
-            this.contentBox = undefined;
             this._scrollHorizontal = true;
             this._scrollVertical = true;
             this.showShadows = false;
@@ -10535,13 +10552,13 @@ var Ui;
                 this.translateY = 0;
             let viewWidth = this.layoutWidth;
             let viewHeight = this.layoutHeight;
-            this._contentWidth = this.firstChild.layoutWidth * scale;
-            this._contentHeight = this.firstChild.layoutHeight * scale;
+            this._contentWidth = this.firstChild ? this.firstChild.layoutWidth * scale : 0;
+            this._contentHeight = this.firstChild ? this.firstChild.layoutHeight * scale : 0;
             this.translateX = Math.max(this.translateX, -(this._contentWidth - viewWidth));
             this.translateY = Math.max(this.translateY, -(this._contentHeight - viewHeight));
             super.onContentTransform(testOnly);
-            this._contentWidth = this.firstChild.layoutWidth * scale;
-            this._contentHeight = this.firstChild.layoutHeight * scale;
+            this._contentWidth = this.firstChild ? this.firstChild.layoutWidth * scale : 0;
+            this._contentHeight = this.firstChild ? this.firstChild.layoutHeight * scale : 0;
             if (testOnly !== true)
                 this.scrolled.fire({ target: this, offsetX: this.offsetX, offsetY: this.offsetY });
         }
@@ -11762,6 +11779,8 @@ var Ui;
             types.forEach(type => this.addType(type.type, type.effects));
         }
         onDragOver(event) {
+            if (!event.dataTransfer)
+                return;
             let found = false;
             for (let i = 0; !found && (i < this.watchers.length); i++)
                 found = (this.watchers[i].getDataTransfer() === event.dataTransfer);
@@ -11898,8 +11917,6 @@ var Ui;
     class DropBox extends Ui.LBox {
         constructor(init) {
             super(init);
-            this.watchers = undefined;
-            this.allowedTypes = undefined;
             this.drageffect = new Core.Events();
             this.dragentered = new Core.Events();
             this.dragleaved = new Core.Events();
@@ -11957,6 +11974,8 @@ var Ui;
                 this.allowedTypes.push({ type: type, effect: effects });
         }
         onDragOver(event) {
+            if (!event.dataTransfer)
+                return;
             let found = false;
             for (let i = 0; !found && (i < this.watchers.length); i++)
                 found = (this.watchers[i].getDataTransfer() === event.dataTransfer);
@@ -12157,9 +12176,6 @@ var Ui;
             super();
             this._bg = new Ui.Rectangle();
             this._label = new Ui.Label();
-            this._badge = undefined;
-            this._badgeColor = undefined;
-            this._badgeTextColor = undefined;
             this._label.fontWeight = 'bold';
             this.content = [
                 this._bg, this._label.assign({ textAlign: 'center' })
@@ -12175,8 +12191,10 @@ var Ui;
             this._label.margin = margin;
             this._bg.radius = (value + margin * 2) / 2;
         }
+        get badge() {
+            return this._label.text;
+        }
         set badge(badge) {
-            this._badge = badge;
             this._label.text = badge;
         }
         set badgeColor(badgeColor) {
@@ -12355,7 +12373,8 @@ var Ui;
             this._marker = marker;
             if (marker instanceof Ui.Icon)
                 marker.fill = this.getForegroundColor();
-            this.mainBox.append(this._marker);
+            if (this._marker)
+                this.mainBox.append(this._marker);
         }
         get isActive() {
             return this._isActive;
@@ -12387,7 +12406,7 @@ var Ui;
                     });
                     this.iconBox.append(this._badgeContent);
                 }
-                this._badgeContent.badge = text;
+                this._badgeContent.badge = text !== null && text !== void 0 ? text : '';
             }
         }
         get orientation() {
@@ -12706,7 +12725,7 @@ var Ui;
         onActionButtonEffect(data, dataTransfer) {
             if ('draggable' in dataTransfer) {
                 let elements = this._selection.elements;
-                let found = undefined;
+                let found;
                 for (let i = 0; (found === undefined) && (i < elements.length); i++) {
                     if (elements[i] === dataTransfer.draggable)
                         found = elements[i];
@@ -13030,6 +13049,7 @@ var Ui;
                 return { width: Math.max(width, size.width + 40), height: Math.max(height, size.height + 40) };
         }
         arrangeCore(width, height) {
+            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
             if ((this.openClock !== undefined) && !this.openClock.isActive)
                 this.openClock.begin();
             let x = 0;
@@ -13091,26 +13111,26 @@ var Ui;
                 for (i = 0; i < borders.length; i++) {
                     border = borders[i];
                     if (border === 'left') {
-                        if (usedWidth + 10 < this.posX) {
-                            this.setLeft(this.posX, this.posY, width, height);
+                        if (usedWidth + 10 < ((_a = this.posX) !== null && _a !== void 0 ? _a : 0)) {
+                            this.setLeft((_b = this.posX) !== null && _b !== void 0 ? _b : 0, (_c = this.posY) !== null && _c !== void 0 ? _c : 0, width, height);
                             break;
                         }
                     }
                     else if (border === 'right') {
-                        if (usedWidth + this.posX + 10 < width) {
-                            this.setRight(this.posX, this.posY, width, height);
+                        if (usedWidth + ((_d = this.posX) !== null && _d !== void 0 ? _d : 0) + 10 < width) {
+                            this.setRight((_e = this.posX) !== null && _e !== void 0 ? _e : 0, (_f = this.posY) !== null && _f !== void 0 ? _f : 0, width, height);
                             break;
                         }
                     }
                     else if (border === 'top') {
-                        if (usedHeight + 10 < this.posY) {
-                            this.setTop(this.posX, this.posY, width, height);
+                        if (usedHeight + 10 < ((_g = this.posY) !== null && _g !== void 0 ? _g : 0)) {
+                            this.setTop((_h = this.posX) !== null && _h !== void 0 ? _h : 0, (_j = this.posY) !== null && _j !== void 0 ? _j : 0, width, height);
                             break;
                         }
                     }
                     else if (border === 'bottom') {
-                        if (usedHeight + 10 + this.posY < height) {
-                            this.setBottom(this.posX, this.posY, width, height);
+                        if (usedHeight + 10 + ((_k = this.posY) !== null && _k !== void 0 ? _k : 0) < height) {
+                            this.setBottom((_l = this.posX) !== null && _l !== void 0 ? _l : 0, (_m = this.posY) !== null && _m !== void 0 ? _m : 0, width, height);
                             break;
                         }
                     }
@@ -13362,8 +13382,6 @@ var Ui;
             this._paddingRight = 0;
             this.star = 0;
             this.measureLock = undefined;
-            this.items = undefined;
-            this.menuButton = undefined;
             this._itemsAlign = 'left';
             this._menuPosition = 'right';
             this._uniform = false;
@@ -13372,7 +13390,6 @@ var Ui;
             this.itemsWidth = 0;
             this.keepItems = undefined;
             this.menuNeeded = false;
-            this.bg = undefined;
             this.items = [];
             this.bg = new Ui.Rectangle();
             this.appendChild(this.bg);
@@ -13825,7 +13842,7 @@ var Ui;
             return this.selection;
         }
         static forceInvalidateMeasure(element) {
-            if (element === undefined)
+            if (element === undefined && Ui.App.current)
                 element = Ui.App.current;
             if (element instanceof Ui.Container)
                 for (let i = 0; i < element.children.length; i++)
@@ -13951,7 +13968,8 @@ var Ui;
             window.addEventListener('dragstart', (event) => event.preventDefault());
             window.addEventListener('dragenter', (event) => { event.preventDefault(); return false; });
             window.addEventListener('dragover', (event) => {
-                event.dataTransfer.dropEffect = 'none';
+                if (event.dataTransfer)
+                    event.dataTransfer.dropEffect = 'none';
                 event.preventDefault();
                 return false;
             });
@@ -14262,8 +14280,8 @@ var Ui;
             App.windowWidth = innerWidth;
             App.windowHeight = innerHeight;
             if (Ui.App.current) {
-                App.current.resized.fire({ target: App.current, width: App.windowWidth, height: App.windowHeight });
-                App.current.invalidateLayout();
+                Ui.App.current.resized.fire({ target: Ui.App.current, width: App.windowWidth, height: App.windowHeight });
+                Ui.App.current.invalidateLayout();
             }
             for (let dialog of App.dialogs)
                 dialog.invalidateLayout();
@@ -17950,22 +17968,19 @@ var Ui;
         }
         updateValue() {
             this.updateLock = true;
-            var max;
-            var width = this.layoutWidth;
-            var height = this.layoutHeight;
+            let width = this.layoutWidth;
+            let height = this.layoutHeight;
             if (this.orientation === 'horizontal') {
-                max = width - this.button.layoutWidth;
+                let max = width - this.button.layoutWidth;
                 this.button.setPosition(max * this._value, 0);
                 this.bar.arrange(this.button.layoutWidth / 2, (height - this.bar.measureHeight) / 2, max * this._value, this.bar.measureHeight);
             }
             else {
-                max = height - this.button.layoutHeight;
-                var x = (width - 44) / 2;
-                var size = (height - 36) * this._value;
+                let max = height - this.button.layoutHeight;
                 this.button.setPosition(0, max * (1 - this._value));
                 this.bar.arrange((width - this.bar.measureWidth) / 2, this.button.layoutHeight / 2 + max * (1 - this._value), this.bar.measureWidth, max * this._value);
             }
-            delete (this.updateLock);
+            this.updateLock = false;
         }
         getColor() {
             return Ui.Color.create(this.getStyleProperty('background'));
@@ -18140,7 +18155,7 @@ var Ui;
             if (value)
                 this.audioDrawing.controls = true;
             else
-                delete (this.audioDrawing.controls);
+                this.audioDrawing.controls = false;
             this.audioMeasureValid = false;
             this.invalidateMeasure();
         }
@@ -18249,7 +18264,7 @@ var Ui;
         }
         onError() {
             this._state = 'error';
-            this.error.fire({ target: this, code: this.audioDrawing.error.code });
+            this.error.fire({ target: this, code: this.audioDrawing.error ? this.audioDrawing.error.code : 0 });
             this.statechange.fire({ target: this, state: this._state });
         }
         onWaiting() {
@@ -18331,7 +18346,6 @@ var Ui;
             }
         }
     }
-    Audio.measureBox = undefined;
     Audio.htmlAudio = false;
     Audio.supportOgg = false;
     Audio.supportMp3 = false;
@@ -19629,7 +19643,8 @@ var Ui;
         }
         onDaySelect(monthcalendar, date) {
             this.selectedDate = date;
-            this.popup.close();
+            if (this.popup)
+                this.popup.close();
             this.popup = undefined;
             this.changed.fire({ target: this, value: this.textValue });
         }
@@ -19784,7 +19799,11 @@ var Ui;
             this.selectionleaved = new Core.Events();
             this._lastHtml = '';
             this.testAnchorChange = () => {
-                let node = window.getSelection().anchorNode;
+                var _a;
+                let sel = getSelection();
+                if (!sel)
+                    return;
+                let node = sel.anchorNode;
                 let currentNode = node;
                 while (currentNode != null && currentNode != this.drawing) {
                     currentNode = currentNode.parentNode;
@@ -19804,10 +19823,10 @@ var Ui;
                 }
                 if (!this.hasFocus)
                     this.onFocus();
-                if ((window.getSelection().anchorNode != this.anchorNode) ||
-                    (window.getSelection().anchorOffset != this.anchorOffset)) {
-                    this.anchorNode = window.getSelection().anchorNode;
-                    this.anchorOffset = window.getSelection().anchorOffset;
+                if ((sel.anchorNode != this.anchorNode) ||
+                    (sel.anchorOffset != this.anchorOffset)) {
+                    this.anchorNode = (_a = sel.anchorNode) !== null && _a !== void 0 ? _a : undefined;
+                    this.anchorOffset = sel.anchorOffset;
                     this.anchorchanged.fire({ target: this });
                 }
             };
@@ -19972,7 +19991,7 @@ var Ui;
             return -1;
         }
         getElementAt(position) {
-            return undefined;
+            throw 'Invalid position';
         }
     }
     Ui.ScrollLoader = ScrollLoader;
@@ -20200,7 +20219,8 @@ var Ui;
             this.scrollbarHorizontal.opacity = opacity;
             this.scrollbarVertical.opacity = opacity;
             if (stop) {
-                this.showClock.stop();
+                if (this.showClock)
+                    this.showClock.stop();
                 this.showClock = undefined;
             }
         }
@@ -20585,7 +20605,7 @@ var Ui;
                 if (Math.abs(Date.now() - this.lastSelection.getTime()) < 60)
                     return;
                 var selection = this.getParentSelectionHandler();
-                if (selection.elements.length > 0) {
+                if (selection && selection.elements.length > 0) {
                     selection.clear();
                     e.stopImmediatePropagation();
                 }
@@ -20779,23 +20799,25 @@ var Ui;
                     let res = this.findAreaElements(this.startPos, current);
                     let selection = this.getParentSelectionHandler();
                     this.lastSelection = new Date();
-                    if (e.shiftKey)
-                        selection.append(res);
-                    else if (e.ctrlKey) {
-                        let watchers = selection.watchers;
-                        let res2 = new Array();
-                        watchers.forEach(w => {
-                            if (res.indexOf(w) == -1)
-                                res2.push(w);
-                        });
-                        res.forEach(w => {
-                            if (watchers.indexOf(w) == -1)
-                                res2.push(w);
-                        });
-                        selection.watchers = res2;
+                    if (selection) {
+                        if (e.shiftKey)
+                            selection.append(res);
+                        else if (e.ctrlKey) {
+                            let watchers = selection.watchers;
+                            let res2 = new Array();
+                            watchers.forEach(w => {
+                                if (res.indexOf(w) == -1)
+                                    res2.push(w);
+                            });
+                            res.forEach(w => {
+                                if (watchers.indexOf(w) == -1)
+                                    res2.push(w);
+                            });
+                            selection.watchers = res2;
+                        }
+                        else
+                            selection.watchers = res;
                     }
-                    else
-                        selection.watchers = res;
                     this.remove(this.rectangle);
                     this.rectangle = undefined;
                 }
@@ -20836,23 +20858,25 @@ var Ui;
                     let res = this.findAreaElements(this.startPos, current);
                     let selection = this.getParentSelectionHandler();
                     this.lastSelection = new Date();
-                    if (e.shiftKey)
-                        selection.append(res);
-                    else if (e.ctrlKey) {
-                        let watchers = selection.watchers;
-                        let res2 = new Array();
-                        watchers.forEach(w => {
-                            if (res.indexOf(w) == -1)
-                                res2.push(w);
-                        });
-                        res.forEach(w => {
-                            if (watchers.indexOf(w) == -1)
-                                res2.push(w);
-                        });
-                        selection.watchers = res2;
+                    if (selection) {
+                        if (e.shiftKey)
+                            selection.append(res);
+                        else if (e.ctrlKey) {
+                            let watchers = selection.watchers;
+                            let res2 = new Array();
+                            watchers.forEach(w => {
+                                if (res.indexOf(w) == -1)
+                                    res2.push(w);
+                            });
+                            res.forEach(w => {
+                                if (watchers.indexOf(w) == -1)
+                                    res2.push(w);
+                            });
+                            selection.watchers = res2;
+                        }
+                        else
+                            selection.watchers = res;
                     }
-                    else
-                        selection.watchers = res;
                     this.remove(this.rectangle);
                     this.rectangle = undefined;
                 }
@@ -21102,11 +21126,13 @@ var Ui;
                 this.emptyField.show();
             else
                 this.emptyField.hide(true);
-            this.list.children.forEach((item) => {
+            this.list.children.forEach((element) => {
+                var _a;
+                let item = element;
                 if (value == '')
                     item.show();
                 else {
-                    let text = Core.Util.toNoDiacritics(item.text).toLocaleLowerCase();
+                    let text = Core.Util.toNoDiacritics((_a = item.text) !== null && _a !== void 0 ? _a : '').toLocaleLowerCase();
                     let search = Core.Util.toNoDiacritics(value).toLowerCase().split(' ');
                     if (search.length == 0)
                         item.show();
@@ -21399,6 +21425,7 @@ var Ui;
             new Ui.ContextMenuWatcher({
                 element: this,
                 press: (e) => {
+                    var _a, _b;
                     if (this.allowMultiSort)
                         new ListViewHeaderSortPopup(this.headers).assign({
                             sortOrder: this._sortOrder,
@@ -21406,7 +21433,7 @@ var Ui;
                                 this.sortOrder = e.sortOrder;
                                 this.sortchanged.fire({ target: this, sortOrder: this.sortOrder });
                             }
-                        }).openAt(e.x, e.y);
+                        }).openAt((_a = e.x) !== null && _a !== void 0 ? _a : 0, (_b = e.y) !== null && _b !== void 0 ? _b : 0);
                 }
             });
         }
@@ -22094,7 +22121,7 @@ var Ui;
             this.onChange = (event) => {
                 event.preventDefault();
                 event.stopPropagation();
-                for (var i = 0; i < this.inputDrawing.files.length; i++)
+                for (let i = 0; this.inputDrawing && this.inputDrawing.files && i < this.inputDrawing.files.length; i++)
                     this.file.fire({ target: this, file: this.inputDrawing.files[i] });
             };
             this.opacity = 0;
@@ -22127,7 +22154,7 @@ var Ui;
         set accept(value) {
             this._accept = value;
             if (this.inputDrawing !== undefined) {
-                if (this._accept)
+                if (value)
                     this.inputDrawing.setAttribute('accept', value);
                 else
                     this.inputDrawing.removeAttribute('accept');
@@ -22136,7 +22163,7 @@ var Ui;
         set capture(value) {
             this._capture = value;
             if (this.inputDrawing !== undefined) {
-                if (this._capture)
+                if (value)
                     this.inputDrawing.setAttribute('capture', value);
                 else
                     this.inputDrawing.removeAttribute('capture');
@@ -22417,8 +22444,11 @@ var Ui;
                     let removeList = [];
                     for (i = 0; i < this.children.length; i++) {
                         let item = this.children[i];
-                        if (item !== current)
-                            removeList.push(item.firstChild);
+                        if (item !== current) {
+                            let firstChild = item.firstChild;
+                            if (firstChild)
+                                removeList.push(firstChild);
+                        }
                     }
                     for (i = 0; i < removeList.length; i++)
                         this.remove(removeList[i]);
@@ -22463,7 +22493,7 @@ var Ui;
                 return this.children[this._position].children[0];
         }
         set current(child) {
-            let pos = this.getChildPosition(child);
+            let pos = child ? this.getChildPosition(child) : -1;
             if (pos != -1)
                 this.setCurrentAt(pos);
         }
@@ -23419,7 +23449,6 @@ var Ui;
         constructor(container, init) {
             super(init);
             this.watchers = [];
-            this.allowedTypes = undefined;
             this.drageffect = new Core.Events();
             this.dragentered = new Core.Events();
             this.dragleaved = new Core.Events();
@@ -23686,12 +23715,14 @@ var Ui;
                 return this.getAllowedTypesEffect(dataTransfer);
         }
         onDragOver(event) {
+            if (!event.dataTransfer)
+                return;
             let foundWatcher = undefined;
             for (let i = 0; (foundWatcher === undefined) && (i < this.watchers.length); i++)
                 if (this.watchers[i].getDataTransfer() === event.dataTransfer)
                     foundWatcher = this.watchers[i];
             let effect = this.onDragEffect(event.dataTransfer);
-            if (foundWatcher !== undefined) {
+            if (foundWatcher !== undefined && effect) {
                 let equal = effect.length === foundWatcher.getEffectAllowed();
                 for (let i = 0; equal && (i < effect.length); i++) {
                     equal = effect[i] === foundWatcher.getEffectAllowed()[i];
@@ -23869,10 +23900,10 @@ var Ui;
             this._iconField = 'icon';
             this._orientation = 'horizontal';
             this.changed = new Core.Events();
-            this.onSegmentSelect = (e) => {
-                this._current = e.target;
+            this.onSegmentSelect = (event) => {
+                this._current = event.target;
                 this.onStyleChange();
-                this.changed.fire({ target: this, value: e.target.data });
+                this.changed.fire({ target: this, value: event.target.data });
             };
             this.focusable = true;
             this.border = new Ui.Frame();
@@ -23945,6 +23976,7 @@ var Ui;
                 if (this.box.children[i] === this._current)
                     return i;
             }
+            return -1;
         }
         get logicalChildren() {
             return this.box.children;
@@ -24051,7 +24083,6 @@ var Ui;
     class SegmentButton extends Ui.Pressable {
         constructor(init) {
             super(init);
-            this._mode = undefined;
             this._radius = 3;
             this.focusable = false;
             this.bg = new Ui.Rectangle();
@@ -25209,56 +25240,56 @@ var Ui;
             this.boldButton.assign({
                 icon: 'format-bold', focusable: false, title: 'Mettre en gras',
                 onpressed: () => {
-                    document.execCommand('bold', false, null);
+                    document.execCommand('bold', false, undefined);
                     this.onAnchorChanged();
                 }
             });
             this.italicButton.assign({
                 icon: 'format-italic', focusable: false, title: 'Mettre en italique',
                 onpressed: () => {
-                    document.execCommand('italic', false, null);
+                    document.execCommand('italic', false, undefined);
                     this.onAnchorChanged();
                 }
             });
             this.underlineButton.assign({
                 icon: 'format-underline', focusable: false, title: 'Souligner',
                 onpressed: () => {
-                    document.execCommand('underline', false, null);
+                    document.execCommand('underline', false, undefined);
                     this.onAnchorChanged();
                 }
             });
             this.alignLeftButton.assign({
                 icon: 'format-align-left', focusable: false, title: 'Aligner à gauche',
                 onpressed: () => {
-                    document.execCommand('justifyLeft', false, null);
+                    document.execCommand('justifyLeft', false, undefined);
                     this.onAnchorChanged();
                 }
             });
             this.alignCenterButton.assign({
                 icon: 'format-align-center', focusable: false, title: 'Centrer',
                 onpressed: () => {
-                    document.execCommand('justifyCenter', false, null);
+                    document.execCommand('justifyCenter', false, undefined);
                     this.onAnchorChanged();
                 }
             });
             this.alignRightButton.assign({
                 icon: 'format-align-right', focusable: false, title: 'Aligner à droite',
                 onpressed: () => {
-                    document.execCommand('justifyRight', false, null);
+                    document.execCommand('justifyRight', false, undefined);
                     this.onAnchorChanged();
                 }
             });
             this.insertOrderedListButton.assign({
                 icon: 'format-insert-ordered-list', focusable: false, title: 'Insérer une numérotation',
                 onpressed: () => {
-                    document.execCommand('insertOrderedList', false, null);
+                    document.execCommand('insertOrderedList', false, undefined);
                     this.onAnchorChanged();
                 }
             });
             this.insertUnorderedListButton.assign({
                 icon: 'format-insert-unordered-list', focusable: false, title: 'Insérer des puces',
                 onpressed: () => {
-                    document.execCommand('insertUnorderedList', false, null);
+                    document.execCommand('insertUnorderedList', false, undefined);
                     this.onAnchorChanged();
                 }
             });
@@ -25288,7 +25319,7 @@ var Ui;
                 onpressed: () => {
                     if (this.quoteButton.isActive) {
                         let sel = window.getSelection();
-                        if (sel)
+                        if (sel && sel.anchorNode)
                             Ui.ContentEditable.unwrapNode(sel.anchorNode);
                     }
                     else
@@ -25830,7 +25861,7 @@ var Ui;
                 return;
             if (radio && !radio.isToggled)
                 radio.toggle();
-            if (radio == undefined && this.current.isToggled)
+            if (radio == undefined && this.current && this.current.isToggled)
                 this.current.untoggle();
             this._current = radio;
             this.changed.fire({ target: this });
@@ -26011,44 +26042,40 @@ var Form;
         checkIsValid() {
             this.onChange();
         }
-        onValidate() {
-            return __awaiter(this, void 0, void 0, function* () {
-                return (this.validate) ? yield this.validate() : undefined;
-            });
+        async onValidate() {
+            return (this.validate) ? await this.validate() : undefined;
         }
-        onChange() {
-            return __awaiter(this, void 0, void 0, function* () {
-                let newErrorMsg;
-                if (!this.isDefined) {
-                    newErrorMsg = undefined;
+        async onChange() {
+            let newErrorMsg;
+            if (!this.isDefined) {
+                newErrorMsg = undefined;
+            }
+            else {
+                let validateTask = this.onValidate();
+                this._validateTask = validateTask;
+                newErrorMsg = await validateTask;
+                if (this._validateTask != validateTask) {
+                    return;
                 }
-                else {
-                    let validateTask = this.onValidate();
-                    this._validateTask = validateTask;
-                    newErrorMsg = yield validateTask;
-                    if (this._validateTask != validateTask) {
-                        return;
-                    }
-                }
-                this._validateTask = undefined;
-                if (newErrorMsg) {
-                    this._desc.text = newErrorMsg;
-                    this._desc.color = 'red';
-                    this._desc.show();
-                }
-                else if (this._errorMsg != undefined) {
-                    this._desc.text = this._descString ? this._descString : '';
-                    this._desc.color = 'rgba(0,0,0,0.6)';
-                    if (!this._descString)
-                        this._desc.hide(true);
-                }
-                this._errorMsg = newErrorMsg;
-                let isValid = this.isValid;
-                if (this._lastIsValid != isValid) {
-                    this._lastIsValid = isValid;
-                    this.validchanged.fire({ target: this, value: isValid });
-                }
-            });
+            }
+            this._validateTask = undefined;
+            if (newErrorMsg) {
+                this._desc.text = newErrorMsg;
+                this._desc.color = 'red';
+                this._desc.show();
+            }
+            else if (this._errorMsg != undefined) {
+                this._desc.text = this._descString ? this._descString : '';
+                this._desc.color = 'rgba(0,0,0,0.6)';
+                if (!this._descString)
+                    this._desc.hide(true);
+            }
+            this._errorMsg = newErrorMsg;
+            let isValid = this.isValid;
+            if (this._lastIsValid != isValid) {
+                this._lastIsValid = isValid;
+                this.validchanged.fire({ target: this, value: isValid });
+            }
         }
         onDisable() {
             super.onDisable();
@@ -26173,7 +26200,7 @@ var Form;
         constructor(init) {
             super(init);
             this.placeholder = 'hh:mm';
-            this.validate = () => __awaiter(this, void 0, void 0, function* () {
+            this.validate = async () => {
                 if (this.value != "" && !this.value.match(/^\d{1,2}:\d{1,2}$/))
                     return "Format attendu hh:mm";
                 let parts = this.value.split(':');
@@ -26183,7 +26210,7 @@ var Form;
                     return "Heure invalide";
                 if (minutes < 0 || minutes > 59)
                     return "Minutes invalides";
-            });
+            };
             if (init) {
                 if (init.placeholder !== undefined)
                     this.placeholder = init.placeholder;
@@ -26365,7 +26392,7 @@ var Form;
             return this.field.value !== undefined && this.field.value.value !== undefined;
         }
         get value() {
-            return this.field.value.value;
+            return this.field.value ? this.field.value.value : false;
         }
         set value(value) {
             this.field.position = value ? 0 : 1;

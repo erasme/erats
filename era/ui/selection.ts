@@ -73,7 +73,7 @@ namespace Ui {
                 parent = parent.parent;
             }
 
-            let common_parent: Element;
+            let common_parent: Element | undefined;
             parent = end.element.parent;
             while (parent && !common_parent) {
                 let pos = start_parents.indexOf(parent);
@@ -90,7 +90,8 @@ namespace Ui {
                 else if (el instanceof Container)
                     el.children.forEach(el2 => add_selectionable(el2));
             };
-            add_selectionable(common_parent);
+            if (common_parent)
+                add_selectionable(common_parent);
 
             let start_pos = all.indexOf(start);
             let end_pos = all.indexOf(end);
@@ -165,11 +166,11 @@ namespace Ui {
         }
 
         set elements(elements: Element[]) {
-            this.watchers = elements.map(el => SelectionableWatcher.getSelectionableWatcher(el));
+            this.watchers = elements.map(el => SelectionableWatcher.getSelectionableWatcher(el)).filter(w => w != undefined) as SelectionableWatcher[];
         }
 
         getElementActions(watcher: SelectionableWatcher) {
-            let actions = Core.Util.clone(watcher.selectionActions) as SelectionActions;
+            let actions = watcher.selectionActions ? Core.Util.clone(watcher.selectionActions) as SelectionActions : {};
             // handle parent context actions
             let current = watcher.element.parent;
             while (current != undefined) {
@@ -250,7 +251,7 @@ namespace Ui {
         executeDefaultAction() {
             let action = this.getDefaultAction();
             if (action !== undefined) {
-                action.callback(this);
+                action.callback??(this);
                 this.clear();
                 return true;
             }
@@ -261,7 +262,9 @@ namespace Ui {
 
         getDeleteAction() {
             let actions = this.getActions();
-            if ('delete' in actions)
+            if (actions == undefined)
+                return undefined;
+            else if ('delete' in actions)
                 return actions['delete'];
             else if (actions.suppress !== undefined)
                 return actions.suppress;
@@ -272,7 +275,7 @@ namespace Ui {
         executeDeleteAction() {
             let action = this.getDeleteAction();
             if (action !== undefined) {
-                action.callback(this);
+                action.callback??(this);
                 this.clear();
                 return true;
             }
@@ -285,7 +288,8 @@ namespace Ui {
             // remove the element from the selection
             // if removed from the DOM
             let watcher = SelectionableWatcher.getSelectionableWatcher(e.target);
-            this.remove(watcher);
+            if (watcher)
+                this.remove(watcher);
         }
     }
 }

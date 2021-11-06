@@ -85,7 +85,10 @@ namespace Ui {
         }
 
         protected testAnchorChange = () => {
-            let node = window.getSelection().anchorNode;
+            let sel = getSelection();
+            if (!sel)
+                return;
+            let node = sel.anchorNode;
             // check if it's a child node
             let currentNode = node;
             while (currentNode != null && currentNode != this.drawing) {
@@ -107,10 +110,10 @@ namespace Ui {
             if (!this.hasFocus)
                 this.onFocus();
 
-            if ((window.getSelection().anchorNode != this.anchorNode) ||
-                (window.getSelection().anchorOffset != this.anchorOffset)) {
-                this.anchorNode = window.getSelection().anchorNode;
-                this.anchorOffset = window.getSelection().anchorOffset;
+            if ((sel.anchorNode != this.anchorNode) ||
+                (sel.anchorOffset != this.anchorOffset)) {
+                this.anchorNode = sel.anchorNode??undefined;
+                this.anchorOffset = sel.anchorOffset;
                 this.anchorchanged.fire({ target: this });
             }
         }

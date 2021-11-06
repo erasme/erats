@@ -42,7 +42,7 @@ namespace Ui {
         protected onActionButtonEffect(data, dataTransfer): DropEffect[] {
             if ('draggable' in dataTransfer) {
                 let elements = this._selection.elements;
-                let found = undefined;
+                let found : Element | undefined;
                 for (let i = 0; (found === undefined) && (i < elements.length); i++) {
                     if (elements[i] === dataTransfer.draggable)
                         found = elements[i];

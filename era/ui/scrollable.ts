@@ -13,7 +13,7 @@ namespace Ui
 
     export class Scrollable extends Container implements ScrollableInit
     {
-        private contentBox: ScrollableContent = undefined;
+        private contentBox: ScrollableContent;
         private _scrollHorizontal: boolean = true;
         private _scrollVertical: boolean = true;
         scrollbarHorizontalBox!: Movable;
@@ -89,15 +89,15 @@ namespace Ui
             this.contentBox.maxScale = maxScale;
         }
 
-        set content(content: Element) {
+        set content(content: Element | undefined) {
             this.setContent(content);
         }
 
-        get content(): Element {
+        get content(): Element | undefined {
             return this.contentBox.content;
         }
 
-        protected setContent(content: Element) {
+        protected setContent(content: Element | undefined) {
             this.contentBox.content = content;
         }
 
@@ -558,16 +558,16 @@ namespace Ui
             let viewWidth = this.layoutWidth;
             let viewHeight = this.layoutHeight;
 
-            this._contentWidth = this.firstChild.layoutWidth * scale;
-            this._contentHeight = this.firstChild.layoutHeight * scale;
+            this._contentWidth = this.firstChild ? this.firstChild.layoutWidth * scale : 0;
+            this._contentHeight = this.firstChild ? this.firstChild.layoutHeight * scale : 0;
 
             this.translateX = Math.max(this.translateX, -(this._contentWidth - viewWidth));
             this.translateY = Math.max(this.translateY, -(this._contentHeight - viewHeight));
 
             super.onContentTransform(testOnly);
 
-            this._contentWidth = this.firstChild.layoutWidth * scale;
-            this._contentHeight = this.firstChild.layoutHeight * scale;
+            this._contentWidth = this.firstChild ? this.firstChild.layoutWidth * scale : 0;
+            this._contentHeight = this.firstChild ? this.firstChild.layoutHeight * scale : 0;
             if (testOnly !== true)
                 this.scrolled.fire({ target: this, offsetX: this.offsetX, offsetY: this.offsetY });
         }
