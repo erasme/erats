@@ -250,8 +250,8 @@ namespace Ui {
 
         executeDefaultAction() {
             let action = this.getDefaultAction();
-            if (action !== undefined) {
-                action.callback??(this);
+            if (action !== undefined && action.callback) {
+                action.callback(this);
                 this.clear();
                 return true;
             }
@@ -274,8 +274,8 @@ namespace Ui {
 
         executeDeleteAction() {
             let action = this.getDeleteAction();
-            if (action !== undefined) {
-                action.callback??(this);
+            if (action !== undefined && action.callback) {
+                action.callback(this);
                 this.clear();
                 return true;
             }

@@ -8198,10 +8198,9 @@ var Ui;
             return undefined;
         }
         executeDefaultAction() {
-            var _a;
             let action = this.getDefaultAction();
-            if (action !== undefined) {
-                (_a = action.callback) !== null && _a !== void 0 ? _a : (this);
+            if (action !== undefined && action.callback) {
+                action.callback(this);
                 this.clear();
                 return true;
             }
@@ -8221,10 +8220,9 @@ var Ui;
                 return undefined;
         }
         executeDeleteAction() {
-            var _a;
             let action = this.getDeleteAction();
-            if (action !== undefined) {
-                (_a = action.callback) !== null && _a !== void 0 ? _a : (this);
+            if (action !== undefined && action.callback) {
+                action.callback(this);
                 this.clear();
                 return true;
             }
