@@ -22916,27 +22916,31 @@ var Ui;
             this.animNext = 0;
             this.animStart = 0;
             this.changed = new Core.Events();
+            this.role = 'checkbox';
+            this.drawing.setAttribute('aria-checked', 'false');
+            this.focusable = true;
+            this.drawing.style.cursor = 'pointer';
             this.graphic = new Ui.SimpleButtonBackground();
             this.appendChild(this.graphic);
             this.barBackground = new Ui.Rectangle({ width: 4, height: 14, radius: 7 });
             this.appendChild(this.barBackground);
             this.bar = new Ui.Rectangle({ width: 4, height: 14, radius: 7 });
             this.appendChild(this.bar);
-            this.button = new Ui.Pressable();
+            this.pressWatcher = new Ui.PressWatcher({
+                element: this,
+                ondowned: () => this.onDown(),
+                onupped: () => this.onUp(),
+                onpressed: () => this.value = !this.value
+            });
+            this.focused.connect(() => this.updateColors());
+            this.blurred.connect(() => this.updateColors());
+            this.button = new Ui.Rectangle({ radius: 10, width: 20, height: 20, margin: 10 });
+            this.button.drawing.style.boxShadow = '0px 0px 2px rgba(0,0,0,0.5)';
             this.appendChild(this.button);
-            this.button.focused.connect(() => this.updateColors());
-            this.button.blurred.connect(() => this.updateColors());
-            this.button.downed.connect(() => this.onDown());
-            this.button.pressed.connect(() => this.value = !this.value);
-            this.buttonContent = new Ui.Rectangle({ radius: 10, width: 20, height: 20, margin: 10 });
-            this.buttonContent.drawing.style.boxShadow = '0px 0px 2px rgba(0,0,0,0.5)';
-            this.button.content = this.buttonContent;
             this.ease = new Anim.PowerEase({ mode: 'out' });
             if (init) {
                 if (init.value !== undefined)
                     this.value = init.value;
-                if (init.ease !== undefined)
-                    this.ease = init.ease;
                 if (init.onchanged)
                     this.changed.connect(init.onchanged);
             }
@@ -22948,7 +22952,7 @@ var Ui;
         set value(value) {
             if (this._value !== value) {
                 this._value = value;
-                this.buttonContent.fill = this.getForeground();
+                this.updateColors();
                 if (this.isLoaded) {
                     if (this._value)
                         this.startAnimation(4);
@@ -22957,6 +22961,7 @@ var Ui;
                 }
                 else
                     this.pos = this._value ? 1 : 0;
+                this.drawing.setAttribute('aria-checked', this.value.toString());
                 this.changed.fire({ target: this, value: this._value });
             }
         }
@@ -22969,9 +22974,9 @@ var Ui;
         updatePos() {
             let width = this.layoutWidth;
             let height = this.layoutHeight;
-            let max = width - this.button.layoutWidth;
+            let max = width - (this.button.layoutWidth + this.button.marginLeft + this.button.marginRight);
             this.button.arrange(max * this.pos, 0, this.button.measureWidth, this.button.measureHeight);
-            this.bar.arrange(this.button.layoutWidth / 2, (height - this.bar.measureHeight) / 2, max * this.pos, this.bar.measureHeight);
+            this.bar.arrange(this.button.marginLeft + (this.button.layoutWidth / 2), (height - this.bar.measureHeight) / 2, max * this.pos, this.bar.measureHeight);
         }
         getForeground() {
             return Ui.Color.create(this.value ? this.getStyleProperty('activeForeground') : this.getStyleProperty('foreground'));
@@ -22979,12 +22984,12 @@ var Ui;
         getBarBackground() {
             let yuv = Ui.Color.create(this.getStyleProperty('barBackground')).getYuv();
             let deltaY = 0;
-            if (this.button.isDown)
+            if (this.pressWatcher.isDown)
                 deltaY = -0.30;
             return Ui.Color.createFromYuv(yuv.y + deltaY, yuv.u, yuv.v);
         }
         getBorder() {
-            if (this.button.hasFocus)
+            if (this.hasFocus && !this.isMouseFocus)
                 return Ui.Color.create(this.getStyleProperty('focusBackgroundBorder'));
             else
                 return Ui.Color.create(this.getStyleProperty('backgroundBorder'));
@@ -22995,12 +23000,15 @@ var Ui;
         updateColors() {
             this.bar.fill = this.getForeground().addA(-0.6);
             this.barBackground.fill = this.getBarBackground();
-            this.buttonContent.fill = this.getForeground();
+            this.button.fill = this.getForeground();
             this.graphic.border = this.getBorder();
             this.graphic.background = this.getBackground();
         }
         onDown() {
             this.stopAnimation();
+            this.updateColors();
+        }
+        onUp() {
             this.updateColors();
         }
         startAnimation(speed) {
@@ -23019,7 +23027,7 @@ var Ui;
             else {
                 if (this._value !== (this.animNext === 1)) {
                     this._value = (this.animNext === 1);
-                    this.buttonContent.fill = this.getForeground();
+                    this.button.fill = this.getForeground();
                     this.changed.fire({ target: this, value: this._value });
                 }
             }
@@ -23041,7 +23049,7 @@ var Ui;
                 relprogress = 1;
                 if (this._value != (this.animNext === 1)) {
                     this._value = (this.animNext === 1);
-                    this.buttonContent.fill = this.getForeground();
+                    this.button.fill = this.getForeground();
                     this.changed.fire({ target: this, value: this._value });
                 }
             }
@@ -23068,7 +23076,7 @@ var Ui;
         }
         arrangeCore(width, height) {
             this.button.arrange(0, (height - this.button.measureHeight) / 2, this.button.measureWidth, this.button.measureHeight);
-            this.barBackground.arrange(this.button.layoutWidth / 2, (height - this.barBackground.measureHeight) / 2, width - this.button.layoutWidth, this.barBackground.measureHeight);
+            this.barBackground.arrange(this.button.marginLeft + (this.button.layoutWidth / 2), (height - this.barBackground.measureHeight) / 2, width - (this.button.layoutWidth + this.button.marginLeft + this.button.marginRight), this.barBackground.measureHeight);
             this.graphic.arrange(0, 0, width, height);
             this.updatePos();
         }
@@ -23080,10 +23088,12 @@ var Ui;
         onDisable() {
             super.onDisable();
             this.button.opacity = 0.2;
+            this.drawing.style.cursor = 'inherit';
         }
         onEnable() {
             super.onEnable();
             this.button.opacity = 1;
+            this.drawing.style.cursor = 'pointer';
         }
     }
     Switch.style = {

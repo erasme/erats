@@ -1,7 +1,6 @@
 namespace Ui {
     export interface SwitchInit extends ContainerInit {
         value?: boolean;
-        ease?: Anim.EasingFunction;
         onchanged?: (event: { target: Switch, value: boolean }) => void;
     }
 
@@ -10,19 +9,25 @@ namespace Ui {
         private pos: number = 0;
         private graphic: SimpleButtonBackground;
         private barBackground: Rectangle;
-        private button: Pressable;
+        private pressWatcher: PressWatcher;
         private bar: Rectangle;
-        private buttonContent: Rectangle;
+        private button: Rectangle;
         private alignClock?: Anim.Clock;
         private speed: number = 0;
         private animNext: number = 0;
         private animStart: number = 0;
-        ease: Anim.EasingFunction;
+        private ease: Anim.EasingFunction;
         readonly changed = new Core.Events<{ target: Switch, value: boolean }>();
         set onchanged(value: (event: { target: Switch, value: boolean }) => void) { this.changed.connect(value); }
 
         constructor(init?: SwitchInit) {
             super(init);
+
+            this.role = 'checkbox';
+            this.drawing.setAttribute('aria-checked', 'false');
+
+            this.focusable = true;
+            this.drawing.style.cursor = 'pointer';
 
             this.graphic = new SimpleButtonBackground();
             this.appendChild(this.graphic);
@@ -32,24 +37,24 @@ namespace Ui {
             this.bar = new Rectangle({ width: 4, height: 14, radius: 7 });
             this.appendChild(this.bar);
 
-            this.button = new Pressable();
-            this.appendChild(this.button);
-            this.button.focused.connect(() => this.updateColors());
-            this.button.blurred.connect(() => this.updateColors());
-            this.button.downed.connect(() => this.onDown());
-            this.button.pressed.connect(() => this.value = !this.value);
+            this.pressWatcher = new PressWatcher({
+                element: this,
+                ondowned: () => this.onDown(),
+                onupped: () => this.onUp(),
+                onpressed: () => this.value = !this.value
+            });
+            this.focused.connect(() => this.updateColors());
+            this.blurred.connect(() => this.updateColors());
 
-            this.buttonContent = new Rectangle({ radius: 10, width: 20, height: 20, margin: 10 });
-            this.buttonContent.drawing.style.boxShadow = '0px 0px 2px rgba(0,0,0,0.5)';
-            this.button.content = this.buttonContent;
+            this.button = new Rectangle({ radius: 10, width: 20, height: 20, margin: 10 });
+            this.button.drawing.style.boxShadow = '0px 0px 2px rgba(0,0,0,0.5)';
+            this.appendChild(this.button);
 
             this.ease = new Anim.PowerEase({ mode: 'out' });
 
             if (init) {
                 if (init.value !== undefined)
                     this.value = init.value;
-                if (init.ease !== undefined)
-                    this.ease = init.ease;
                 if (init.onchanged)
                     this.changed.connect(init.onchanged);
             }
@@ -62,7 +67,7 @@ namespace Ui {
         set value(value: boolean) {
             if (this._value !== value) {
                 this._value = value;
-                this.buttonContent.fill = this.getForeground();
+                this.updateColors();
                 if (this.isLoaded) {
                     if (this._value)
                         this.startAnimation(4);
@@ -71,6 +76,7 @@ namespace Ui {
                 }
                 else
                     this.pos = this._value ? 1 : 0;
+                this.drawing.setAttribute('aria-checked', this.value.toString());
                 this.changed.fire({ target: this, value: this._value });
             }
         }
@@ -92,13 +98,13 @@ namespace Ui {
         private updatePos() {
             let width = this.layoutWidth;
             let height = this.layoutHeight;
-            let max = width - this.button.layoutWidth;
+            let max = width - (this.button.layoutWidth + this.button.marginLeft + this.button.marginRight);
             this.button.arrange(
                 max * this.pos, 0,
                 this.button.measureWidth, this.button.measureHeight
             )
             this.bar.arrange(
-                this.button.layoutWidth / 2,
+                this.button.marginLeft + (this.button.layoutWidth / 2),
                 (height - this.bar.measureHeight) / 2,
                 max * this.pos, this.bar.measureHeight);
         }
@@ -110,14 +116,14 @@ namespace Ui {
         private getBarBackground() {
             let yuv = Color.create(this.getStyleProperty('barBackground')).getYuv();
             let deltaY = 0;
-            if (this.button.isDown)
+            if (this.pressWatcher.isDown)
                 deltaY = -0.30;
 
             return Color.createFromYuv(yuv.y + deltaY, yuv.u, yuv.v);
         }
 
         private getBorder() {
-            if(this.button.hasFocus)
+            if(this.hasFocus && !this.isMouseFocus)
                 return Color.create(this.getStyleProperty('focusBackgroundBorder'));
             else
                 return Color.create(this.getStyleProperty('backgroundBorder'));
@@ -130,7 +136,7 @@ namespace Ui {
         private updateColors() {
             this.bar.fill = this.getForeground().addA(-0.6);
             this.barBackground.fill = this.getBarBackground();
-            this.buttonContent.fill = this.getForeground();
+            this.button.fill = this.getForeground();
             this.graphic.border = this.getBorder();
             this.graphic.background = this.getBackground();
         }
@@ -140,7 +146,11 @@ namespace Ui {
             this.updateColors();
         }
 
-        private startAnimation(speed) {
+        private onUp() {
+            this.updateColors();
+        }
+
+        private startAnimation(speed: number) {
             this.stopAnimation();
             this.speed = speed;
             this.animStart = this.pos;
@@ -158,7 +168,7 @@ namespace Ui {
             else {
                 if (this._value !== (this.animNext === 1)) {
                     this._value = (this.animNext === 1);
-                    this.buttonContent.fill = this.getForeground();
+                    this.button.fill = this.getForeground();
                     this.changed.fire({ target: this, value: this._value });
                 }
             }
@@ -183,7 +193,7 @@ namespace Ui {
                 relprogress = 1;
                 if (this._value != (this.animNext === 1)) {
                     this._value = (this.animNext === 1);
-                    this.buttonContent.fill = this.getForeground();
+                    this.button.fill = this.getForeground();
                     this.changed.fire({ target: this, value: this._value });
                 }
             }
@@ -213,9 +223,9 @@ namespace Ui {
         protected arrangeCore(width: number, height: number) {
             this.button.arrange(0, (height - this.button.measureHeight) / 2, this.button.measureWidth, this.button.measureHeight);
             this.barBackground.arrange(
-                this.button.layoutWidth / 2,
+                this.button.marginLeft + (this.button.layoutWidth / 2),
                 (height - this.barBackground.measureHeight) / 2,
-                width - this.button.layoutWidth, this.barBackground.measureHeight);
+                width - (this.button.layoutWidth + this.button.marginLeft + this.button.marginRight), this.barBackground.measureHeight);
             this.graphic.arrange(0, 0, width, height);
             this.updatePos();
         }
@@ -230,11 +240,13 @@ namespace Ui {
         protected onDisable() {
             super.onDisable();
             this.button.opacity = 0.2;
+            this.drawing.style.cursor = 'inherit';
         }
 
         protected onEnable() {
             super.onEnable();
             this.button.opacity = 1;
+            this.drawing.style.cursor = 'pointer';
         }
 
         static style: object = {

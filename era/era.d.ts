@@ -6068,7 +6068,6 @@ declare namespace Ui {
 declare namespace Ui {
     interface SwitchInit extends ContainerInit {
         value?: boolean;
-        ease?: Anim.EasingFunction;
         onchanged?: (event: {
             target: Switch;
             value: boolean;
@@ -6079,14 +6078,14 @@ declare namespace Ui {
         private pos;
         private graphic;
         private barBackground;
-        private button;
+        private pressWatcher;
         private bar;
-        private buttonContent;
+        private button;
         private alignClock?;
         private speed;
         private animNext;
         private animStart;
-        ease: Anim.EasingFunction;
+        private ease;
         readonly changed: Core.Events<{
             target: Switch;
             value: boolean;
@@ -6107,6 +6106,7 @@ declare namespace Ui {
         private getBackground;
         private updateColors;
         private onDown;
+        private onUp;
         private startAnimation;
         private stopAnimation;
         private onAlignTick;
