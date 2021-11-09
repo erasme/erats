@@ -2,6 +2,8 @@ namespace Ui {
 
     export class PressWatcher extends Core.Object {
         private element: Ui.Element;
+        private pointerElement: Ui.Element;
+        private keyboardElement: Ui.Element;
         private press?: (watcher: PressWatcher) => void;
         private down?: (watcher: PressWatcher) => void;
         private up?: (watcher: PressWatcher) => void;
@@ -22,6 +24,8 @@ namespace Ui {
 
         constructor(init: {
             element: Ui.Element,
+            pointerElement?: Ui.Element,
+            keyboardElement?: Ui.Element,
             onpressed?: (watcher: PressWatcher) => void,
             ondowned?: (watcher: PressWatcher) => void,
             onupped?: (watcher: PressWatcher) => void,
@@ -41,11 +45,14 @@ namespace Ui {
             if (init.ondelayedpress)
                 this.delayedpress = init.ondelayedpress;
 
+            this.pointerElement = init.pointerElement??this.element;
+            this.keyboardElement = init.keyboardElement??this.element;
+
             // handle pointers
             if ('PointerEvent' in window)
-                this.element.drawing.addEventListener('pointerdown', (e) => this.onPointerDown(e), { passive: true });
+                this.pointerElement.drawing.addEventListener('pointerdown', (e) => this.onPointerDown(e), { passive: true });
 
-            this.element.drawing.addEventListener('click', e => {
+            this.pointerElement.drawing.addEventListener('click', e => {
                 if (this.lock || this.element.isDisabled)
                     return;
                 e.stopImmediatePropagation();
@@ -55,8 +62,8 @@ namespace Ui {
             });
 
             // handle keyboard
-            this.element.drawing.addEventListener('keydown', (e) => this.onKeyDown(e));
-            this.element.drawing.addEventListener('keyup', (e) => this.onKeyUp(e));
+            this.keyboardElement.drawing.addEventListener('keydown', (e) => this.onKeyDown(e));
+            this.keyboardElement.drawing.addEventListener('keyup', (e) => this.onKeyUp(e));
         }
 
         get isDown(): boolean {

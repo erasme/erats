@@ -49,7 +49,9 @@ namespace Ui {
             if (init.onunselected)
                 this.unselect = init.onunselected;
             new PressWatcher({
-                element: init.pressElement ? init.pressElement : this.element,
+                element: this.element,
+                keyboardElement: this.element,
+                pointerElement: init.pressElement ?? this.element,
                 ondelayedpress: (w) => this.onDelayedPress(w),
                 onactivated: (w) => this.onSelectionableActivate(w)
             });

@@ -7402,6 +7402,7 @@ var Ui;
 (function (Ui) {
     class PressWatcher extends Core.Object {
         constructor(init) {
+            var _a, _b;
             super();
             this._isDown = false;
             this.lastTime = undefined;
@@ -7418,9 +7419,11 @@ var Ui;
                 this.activate = init.onactivated;
             if (init.ondelayedpress)
                 this.delayedpress = init.ondelayedpress;
+            this.pointerElement = (_a = init.pointerElement) !== null && _a !== void 0 ? _a : this.element;
+            this.keyboardElement = (_b = init.keyboardElement) !== null && _b !== void 0 ? _b : this.element;
             if ('PointerEvent' in window)
-                this.element.drawing.addEventListener('pointerdown', (e) => this.onPointerDown(e), { passive: true });
-            this.element.drawing.addEventListener('click', e => {
+                this.pointerElement.drawing.addEventListener('pointerdown', (e) => this.onPointerDown(e), { passive: true });
+            this.pointerElement.drawing.addEventListener('click', e => {
                 if (this.lock || this.element.isDisabled)
                     return;
                 e.stopImmediatePropagation();
@@ -7428,8 +7431,8 @@ var Ui;
                 this.y = e.clientY;
                 this.onPress(e.clientX, e.clientY, e.altKey, e.shiftKey, e.ctrlKey);
             });
-            this.element.drawing.addEventListener('keydown', (e) => this.onKeyDown(e));
-            this.element.drawing.addEventListener('keyup', (e) => this.onKeyUp(e));
+            this.keyboardElement.drawing.addEventListener('keydown', (e) => this.onKeyDown(e));
+            this.keyboardElement.drawing.addEventListener('keyup', (e) => this.onKeyUp(e));
         }
         get isDown() {
             return this._isDown;
@@ -7789,6 +7792,7 @@ var Ui;
 (function (Ui) {
     class SelectionableWatcher extends Core.Object {
         constructor(init) {
+            var _a;
             super();
             this._isSelected = false;
             this.element = init.element;
@@ -7803,7 +7807,9 @@ var Ui;
             if (init.onunselected)
                 this.unselect = init.onunselected;
             new Ui.PressWatcher({
-                element: init.pressElement ? init.pressElement : this.element,
+                element: this.element,
+                keyboardElement: this.element,
+                pointerElement: (_a = init.pressElement) !== null && _a !== void 0 ? _a : this.element,
                 ondelayedpress: (w) => this.onDelayedPress(w),
                 onactivated: (w) => this.onSelectionableActivate(w)
             });

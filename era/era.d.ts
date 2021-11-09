@@ -1854,6 +1854,8 @@ declare namespace Ui {
 declare namespace Ui {
     class PressWatcher extends Core.Object {
         private element;
+        private pointerElement;
+        private keyboardElement;
         private press?;
         private down?;
         private up?;
@@ -1873,6 +1875,8 @@ declare namespace Ui {
         allowMiddleButton: boolean;
         constructor(init: {
             element: Ui.Element;
+            pointerElement?: Ui.Element;
+            keyboardElement?: Ui.Element;
             onpressed?: (watcher: PressWatcher) => void;
             ondowned?: (watcher: PressWatcher) => void;
             onupped?: (watcher: PressWatcher) => void;
