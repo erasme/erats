@@ -619,7 +619,7 @@ namespace Form {
         }
 
         protected generateUi() {
-            return new Ui.TextField().assign({ inputMode: 'number', type: 'number' });
+            return new Ui.TextField().assign({ inputMode: 'numeric', type: 'number' });
         }
 
         get isDefined(): boolean {
