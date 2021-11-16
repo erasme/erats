@@ -928,7 +928,7 @@ namespace Ui {
             event.preventDefault();
         }
 
-        nativeToCustom(effectAllowed: string): string[] {
+        nativeToCustom(effectAllowed: string): string[] | undefined {
             if (effectAllowed === 'copy')
                 return ['copy'];
             else if (effectAllowed === 'link')
@@ -943,7 +943,7 @@ namespace Ui {
                 return ['move', 'link'];
             else if (effectAllowed === 'all')
                 return ['move', 'copy', 'link'];
-            return [];
+            return undefined;
         }
 
         customToNative(effectAllowed): string {

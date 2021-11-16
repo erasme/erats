@@ -6437,7 +6437,7 @@ var Ui;
                 return ['move', 'link'];
             else if (effectAllowed === 'all')
                 return ['move', 'copy', 'link'];
-            return [];
+            return undefined;
         }
         customToNative(effectAllowed) {
             let containsLink = false;
@@ -26436,7 +26436,7 @@ var Form;
             }
         }
         generateUi() {
-            return new Ui.TextField().assign({ inputMode: 'number', type: 'number' });
+            return new Ui.TextField().assign({ inputMode: 'numeric', type: 'number' });
         }
         get isDefined() {
             return this.field.value != '' && !isNaN(parseFloat(this.field.value));

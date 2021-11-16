@@ -1631,7 +1631,7 @@ declare namespace Ui {
         protected onDragEnter(e: any): void;
         protected onDragLeave(e: any): void;
         protected onDrop(event: any): void;
-        nativeToCustom(effectAllowed: string): string[];
+        nativeToCustom(effectAllowed: string): string[] | undefined;
         customToNative(effectAllowed: any): string;
     }
 }
