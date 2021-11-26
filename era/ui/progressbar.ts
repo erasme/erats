@@ -126,7 +126,7 @@ namespace Ui {
         }
 
         static style: object = {
-            background: '#e1e1e1',
+            background: 'rgba(0,0,0,0.2)',
             foreground: '#07a0e5',
             color: '#999999',
             radius: 0
