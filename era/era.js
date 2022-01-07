@@ -20056,6 +20056,17 @@ var Ui;
             this.contentBox.downed.connect(() => this.autoShowScrollbars());
             this.contentBox.inertiaended.connect(() => this.autoHideScrollbars());
             this.appendChild(this.contentBox);
+            new Ui.OverWatcher({
+                element: this,
+                onentered: () => {
+                    this.isOver = true;
+                    this.autoShowScrollbars();
+                },
+                onleaved: () => {
+                    this.isOver = false;
+                    this.autoHideScrollbars();
+                }
+            });
             new Ui.WheelWatcher({
                 element: this,
                 onchanged: (e) => this.onWheel(e)

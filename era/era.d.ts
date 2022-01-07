@@ -5251,7 +5251,6 @@ declare namespace Ui {
         viewHeight: number;
         contentWidth: number;
         contentHeight: number;
-        overWatcher: PointerWatcher;
         scrollLock: boolean;
         relativeOffsetX: number;
         relativeOffsetY: number;

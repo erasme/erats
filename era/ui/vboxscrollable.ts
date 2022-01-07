@@ -49,7 +49,6 @@ namespace Ui {
         viewHeight: number = 0;
         contentWidth: number = 0;
         contentHeight: number = 0;
-        overWatcher: PointerWatcher;
         scrollLock: boolean = false;
         relativeOffsetX: number;
         relativeOffsetY: number;
@@ -64,31 +63,17 @@ namespace Ui {
             this.contentBox.inertiaended.connect(() => this.autoHideScrollbars());
             this.appendChild(this.contentBox);
 
-/*            this.ptrmoved.connect((event: EmuPointerEvent) => {
-                if (!this.isDisabled && !event.pointer.getIsDown() && (this.overWatcher === undefined)) {
-                    this.overWatcher = event.pointer.watch(this);
+            new OverWatcher({
+                element: this,
+                onentered: () => {
                     this.isOver = true;
-                    // enter
                     this.autoShowScrollbars();
-
-                    this.overWatcher.moved.connect(() => {
-                        if (!this.overWatcher.getIsInside())
-                            this.overWatcher.cancel();
-                    });
-                    this.overWatcher.downed.connect(() => {
-                        this.overWatcher.cancel();
-                    });
-                    this.overWatcher.upped.connect(() => {
-                        this.overWatcher.cancel();
-                    });
-                    this.overWatcher.cancelled.connect(() => {
-                        this.overWatcher = undefined;
-                        this.isOver = false;
-                        // leave
-                        this.autoHideScrollbars();
-                    });
+                },
+                onleaved: () => {
+                    this.isOver = false;
+                    this.autoHideScrollbars();
                 }
-            });*/
+            });
 
             new WheelWatcher({
                 element: this,
