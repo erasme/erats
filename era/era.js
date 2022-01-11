@@ -2401,6 +2401,7 @@ var Ui;
             this._measureWidth = 0;
             this._measureHeight = 0;
             this.arrangeValid = false;
+            this.arrangeValidLock = false;
             this.arrangeX = 0;
             this.arrangeY = 0;
             this.arrangeWidth = 0;
@@ -2692,6 +2693,7 @@ var Ui;
                 (this.arrangeIsPrint != Ui.App.isPrint) ||
                 (this.arrangePixelRatio != (window.devicePixelRatio || 1))) {
                 this.arrangeValid = true;
+                this.arrangeValidLock = true;
                 this.arrangeX = x;
                 this.arrangeY = y;
                 this.arrangeWidth = width;
@@ -2754,6 +2756,7 @@ var Ui;
                 }
                 this.drawing.style.visibility = 'inherit';
                 this.arrangeCore(this._layoutWidth, this._layoutHeight);
+                this.arrangeValidLock = false;
                 if (!this.arrangeValid)
                     console.log(`${this}.arrange PROBLEM. Arrange invalidated during arrange`);
             }
@@ -2762,9 +2765,14 @@ var Ui;
         }
         invalidateArrange() {
             if (this.arrangeValid) {
+                if (this.arrangeValidLock)
+                    console.log(`${this} called invalidateArrange while in its own arrange process`);
                 this.arrangeValid = false;
-                if (this._parent != undefined)
+                if (this._parent != undefined) {
+                    if (this._parent.arrangeValidLock)
+                        console.log(`${this} invalidateArrange its parent ${this._parent} while its parent is in an arrange process`);
                     this._parent.onChildInvalidateArrange(this);
+                }
             }
         }
         onChildInvalidateArrange(child) {

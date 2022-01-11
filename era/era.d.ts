@@ -765,6 +765,7 @@ declare namespace Ui {
         private _measureWidth;
         private _measureHeight;
         private arrangeValid;
+        private arrangeValidLock;
         private arrangeX;
         private arrangeY;
         private arrangeWidth;

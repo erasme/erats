@@ -69,6 +69,7 @@ namespace Ui {
 
         // arrangement
         private arrangeValid: boolean = false;
+        private arrangeValidLock = false;
         private arrangeX: number = 0;
         private arrangeY: number = 0;
         private arrangeWidth: number = 0;
@@ -490,6 +491,7 @@ namespace Ui {
                 (this.arrangeIsPrint != Ui.App.isPrint) ||
                 (this.arrangePixelRatio != (window.devicePixelRatio || 1))) {
                 this.arrangeValid = true;
+                this.arrangeValidLock = true;
                 this.arrangeX = x;
                 this.arrangeY = y;
                 this.arrangeWidth = width;
@@ -561,6 +563,7 @@ namespace Ui {
 
                 this.drawing.style.visibility = 'inherit';
                 this.arrangeCore(this._layoutWidth, this._layoutHeight);
+                this.arrangeValidLock = false;
                 if (!this.arrangeValid)
                     console.log(`${this}.arrange PROBLEM. Arrange invalidated during arrange`);
             }
@@ -579,9 +582,14 @@ namespace Ui {
         //
         invalidateArrange() {
             if (this.arrangeValid) {
+                if (this.arrangeValidLock)
+                    console.log(`${this} called invalidateArrange while in its own arrange process`);
                 this.arrangeValid = false;
-                if (this._parent != undefined)
+                if (this._parent != undefined) {
+                    if (this._parent.arrangeValidLock)
+                        console.log(`${this} invalidateArrange its parent ${this._parent} while its parent is in an arrange process`);
                     this._parent.onChildInvalidateArrange(this);
+                }
             }
         }
 
