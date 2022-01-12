@@ -392,7 +392,7 @@ namespace Ui {
             let size = { width: 0, height: 0 };
 
             this.scrollbarHorizontal.measure(width, height);
-            let sSize = this.scrollbarVertical.measure(width, height);
+            this.scrollbarVertical.measure(width, height);
 
             let contentSize = this.contentBox.measure(width, height);
             if (contentSize.width < width)
@@ -528,8 +528,8 @@ namespace Ui {
             let p0 = (new Ui.Point(0, 0)).multiply(invMatrix);
             let p1 = (new Ui.Point(w, h)).multiply(invMatrix);
 
-            let refPos;
-            let refY;
+            let refPos : number | undefined;
+            let refY : number = 0;
             let stillActiveItems : Element[] = [];
             let stillActiveHeight = 0;
 
@@ -568,7 +568,7 @@ namespace Ui {
                 // in not a recycled item, add it
                 if (item.parent !== this)
                     this.appendChild(item);
-                let size = item.measure(w, h);
+                let size = item.measure(w, 0);
                 item.arrange(0, 0, w, size.height);
                 item.setTransformOrigin(0, 0);
 
@@ -589,7 +589,7 @@ namespace Ui {
             
                 let item = this.loader.getElementAt(pos);
                 this.prependChild(item);
-                let size = item.measure(w, h);
+                let size = item.measure(w, 0);
                 item.arrange(0, 0, w, size.height);
                 item.setTransformOrigin(0, 0);
 
@@ -607,7 +607,7 @@ namespace Ui {
 
                 let item = this.loader.getElementAt(pos);
                 this.appendChild(item);
-                let size = item.measure(w, h);
+                let size = item.measure(w, 0);
                 item.arrange(0, 0, w, size.height);
                 item.setTransformOrigin(0, 0);
 
@@ -636,12 +636,6 @@ namespace Ui {
             this.beforeRemoveItems = [];
         }
 
-        updateItems() {
-            let w = this.layoutWidth;
-            let h = this.layoutHeight;
-
-        }
-
         reload() {
             for (let i = 0; i < this.beforeRemoveItems.length; i++)
                 this.removeChild(this.beforeRemoveItems[i]);
@@ -666,6 +660,13 @@ namespace Ui {
                 this.reloadNeeded = false;
                 this.reload();
             }
+
+            // update measure for all active items
+            for (let i = 0; i < this.activeItems.length; i++) {
+                let item = this.activeItems[i];
+                item.measure(width, 0);
+            }
+
             // load items for the proposed view
             this.loadItems(width, height);
 
@@ -673,9 +674,8 @@ namespace Ui {
             let minWidth = 0;
             for (let i = 0; i < this.activeItems.length; i++) {
                 let item = this.activeItems[i];
-                let size = item.measure(width, 0);
-                minWidth = Math.max(minWidth, size.width);
-                y += size.height;
+                minWidth = Math.max(minWidth, item.measureWidth);
+                y += item.measureHeight;
             }
             this.activeItemsHeight = y;
             return { width: minWidth, height: this.getEstimatedContentHeight() };
@@ -740,6 +740,14 @@ namespace Ui {
 
             if (testOnly !== true)
                 this.scrolled.fire({ target: this, offsetX: this.offsetX, offsetY: this.offsetY });
+        }
+
+        protected onChildInvalidateMeasure(child, event) {
+            // dont invalidate measure when adding or removing 
+            // because add and remove are dont by loadItems during measure and
+            // arrange
+            if (event != 'add' && event != 'remove')
+                super.onChildInvalidateMeasure(child, event);
         }
     }
     

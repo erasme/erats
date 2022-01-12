@@ -757,7 +757,7 @@ declare namespace Ui {
         private _maxHeight?;
         readonly drawing: HTMLElement;
         private collapse;
-        private measureValid;
+        private _measureValid;
         private measureConstraintPixelRatio;
         private measureConstraintWidth;
         private measureConstraintHeight;
@@ -866,6 +866,7 @@ declare namespace Ui {
         get layoutY(): number;
         get layoutWidth(): number;
         get layoutHeight(): number;
+        get measureValid(): boolean;
         set id(id: string);
         get id(): string;
         get focusable(): boolean;
@@ -878,7 +879,7 @@ declare namespace Ui {
         protected measureCore(width: number, height: number): Size;
         invalidateMeasure(): void;
         invalidateLayout(): void;
-        protected onChildInvalidateMeasure(child: any, event: any): void;
+        protected onChildInvalidateMeasure(child: Ui.Element, event: 'add' | 'remove' | 'move' | 'change'): void;
         updateLayout(width: number, height: number): void;
         layoutCore(): void;
         arrange(x: number, y: number, width: number, height: number): void;
@@ -5333,7 +5334,6 @@ declare namespace Ui {
         getMinY(): number;
         getMaxY(): number;
         loadItems(w?: number, h?: number): void;
-        updateItems(): void;
         reload(): void;
         onLoaderChange: () => void;
         protected measureCore(width: number, height: number): {
@@ -5342,6 +5342,7 @@ declare namespace Ui {
         };
         protected arrangeCore(width: number, height: number): void;
         onContentTransform(testOnly: boolean): void;
+        protected onChildInvalidateMeasure(child: any, event: any): void;
     }
     interface VBoxScrollingAreaInit extends VBoxScrollableInit {
     }

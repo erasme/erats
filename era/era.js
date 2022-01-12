@@ -2393,7 +2393,7 @@ var Ui;
             this._marginRight = 0;
             this._resizable = false;
             this.collapse = false;
-            this.measureValid = false;
+            this._measureValid = false;
             this.measureConstraintPixelRatio = 1;
             this.measureConstraintWidth = 0;
             this.measureConstraintHeight = 0;
@@ -2558,6 +2558,9 @@ var Ui;
         get layoutHeight() {
             return this._layoutHeight;
         }
+        get measureValid() {
+            return this._measureValid;
+        }
         set id(id) {
             this.drawing.setAttribute('id', id);
         }
@@ -2597,10 +2600,10 @@ var Ui;
             if (!this._isLoaded)
                 return { width: 0, height: 0 };
             if (this.collapse) {
-                this.measureValid = true;
+                this._measureValid = true;
                 return { width: 0, height: 0 };
             }
-            if (this.measureValid && (this.measureConstraintWidth === width) && (this.measureConstraintHeight === height) &&
+            if (this._measureValid && (this.measureConstraintWidth === width) && (this.measureConstraintHeight === height) &&
                 (this.measureConstraintIsPrint == Ui.App.isPrint) &&
                 (this.measureConstraintPixelRatio == (window.devicePixelRatio || 1)))
                 return { width: this._measureWidth, height: this._measureHeight };
@@ -2626,7 +2629,7 @@ var Ui;
                 constraintWidth = Math.max(this._width, constraintWidth);
             if (this._height !== undefined)
                 constraintHeight = Math.max(this._height, constraintHeight);
-            this.measureValid = true;
+            this._measureValid = true;
             let size = this.measureCore(constraintWidth, constraintHeight);
             if ((this._width !== undefined) && (size.width < this._width))
                 this._measureWidth = this._width + marginLeft + marginRight;
@@ -2642,15 +2645,15 @@ var Ui;
             return { width: 0, height: 0 };
         }
         invalidateMeasure() {
-            if (this.measureValid) {
-                this.measureValid = false;
-                if ((this._parent != undefined) && (this._parent.measureValid))
+            if (this._measureValid) {
+                this._measureValid = false;
+                if ((this._parent != undefined) && (this._parent._measureValid))
                     this._parent.onChildInvalidateMeasure(this, 'change');
             }
             this.invalidateArrange();
         }
         invalidateLayout() {
-            this.measureValid = false;
+            this._measureValid = false;
             this.arrangeValid = false;
             if (this.layoutValid) {
                 this.layoutValid = false;
@@ -2666,7 +2669,7 @@ var Ui;
             this._layoutHeight = height;
             this.layoutValid = true;
             this.layoutCore();
-            if (!this.arrangeValid || !this.measureValid)
+            if (!this.arrangeValid || !this._measureValid)
                 this.invalidateLayout();
         }
         layoutCore() {
@@ -17810,16 +17813,20 @@ var Ui;
             var content2Size;
             if (this.vertical) {
                 cursorSize = this.cursor.measure(width, 0);
-                this.minContent1Size = this.content1Box.measure(width, 0).height;
-                this.minContent2Size = this.content2Box.measure(width, 0).height;
+                if (!this.content1Box.measureValid)
+                    this.minContent1Size = this.content1Box.measure(width, 0).height;
+                if (!this.content2Box.measureValid)
+                    this.minContent2Size = this.content2Box.measure(width, 0).height;
                 content1Size = this.content1Box.measure(width, (height - cursorSize.height) * this._pos);
                 content2Size = this.content2Box.measure(width, (height - cursorSize.height) * (1 - this._pos));
                 return { width: Math.max(cursorSize.width, Math.max(content1Size.width, content2Size.width)), height: content1Size.height + cursorSize.height + content2Size.height };
             }
             else {
                 cursorSize = this.cursor.measure(0, height);
-                this.minContent1Size = this.content1Box.measure(0, 0).width;
-                this.minContent2Size = this.content2Box.measure(0, 0).width;
+                if (!this.content1Box.measureValid)
+                    this.minContent1Size = this.content1Box.measure(0, 0).width;
+                if (!this.content2Box.measureValid)
+                    this.minContent2Size = this.content2Box.measure(0, 0).width;
                 content1Size = this.content1Box.measure((width - cursorSize.width) * this._pos, height);
                 content2Size = this.content2Box.measure((width - cursorSize.width) * (1 - this._pos), height);
                 return { width: content1Size.width + cursorSize.width + content2Size.width, height: Math.max(cursorSize.height, Math.max(content1Size.height, content2Size.height)) };
@@ -20310,7 +20317,7 @@ var Ui;
         measureCore(width, height) {
             let size = { width: 0, height: 0 };
             this.scrollbarHorizontal.measure(width, height);
-            let sSize = this.scrollbarVertical.measure(width, height);
+            this.scrollbarVertical.measure(width, height);
             let contentSize = this.contentBox.measure(width, height);
             if (contentSize.width < width)
                 size.width = contentSize.width;
@@ -20429,7 +20436,7 @@ var Ui;
             let p0 = (new Ui.Point(0, 0)).multiply(invMatrix);
             let p1 = (new Ui.Point(w, h)).multiply(invMatrix);
             let refPos;
-            let refY;
+            let refY = 0;
             let stillActiveItems = [];
             let stillActiveHeight = 0;
             let y = this.activeItemsY;
@@ -20459,7 +20466,7 @@ var Ui;
                 let item = this.loader.getElementAt(refPos);
                 if (item.parent !== this)
                     this.appendChild(item);
-                let size = item.measure(w, h);
+                let size = item.measure(w, 0);
                 item.arrange(0, 0, w, size.height);
                 item.setTransformOrigin(0, 0);
                 this.activeItems.push(item);
@@ -20476,7 +20483,7 @@ var Ui;
                     break;
                 let item = this.loader.getElementAt(pos);
                 this.prependChild(item);
-                let size = item.measure(w, h);
+                let size = item.measure(w, 0);
                 item.arrange(0, 0, w, size.height);
                 item.setTransformOrigin(0, 0);
                 this.activeItems.unshift(item);
@@ -20490,7 +20497,7 @@ var Ui;
                     break;
                 let item = this.loader.getElementAt(pos);
                 this.appendChild(item);
-                let size = item.measure(w, h);
+                let size = item.measure(w, 0);
                 item.arrange(0, 0, w, size.height);
                 item.setTransformOrigin(0, 0);
                 this.activeItems.push(item);
@@ -20513,10 +20520,6 @@ var Ui;
             }
             this.beforeRemoveItems = [];
         }
-        updateItems() {
-            let w = this.layoutWidth;
-            let h = this.layoutHeight;
-        }
         reload() {
             for (let i = 0; i < this.beforeRemoveItems.length; i++)
                 this.removeChild(this.beforeRemoveItems[i]);
@@ -20534,14 +20537,17 @@ var Ui;
                 this.reloadNeeded = false;
                 this.reload();
             }
+            for (let i = 0; i < this.activeItems.length; i++) {
+                let item = this.activeItems[i];
+                item.measure(width, 0);
+            }
             this.loadItems(width, height);
             let y = 0;
             let minWidth = 0;
             for (let i = 0; i < this.activeItems.length; i++) {
                 let item = this.activeItems[i];
-                let size = item.measure(width, 0);
-                minWidth = Math.max(minWidth, size.width);
-                y += size.height;
+                minWidth = Math.max(minWidth, item.measureWidth);
+                y += item.measureHeight;
             }
             this.activeItemsHeight = y;
             return { width: minWidth, height: this.getEstimatedContentHeight() };
@@ -20587,6 +20593,10 @@ var Ui;
             this.contentHeight = this.getEstimatedContentHeight() * scale;
             if (testOnly !== true)
                 this.scrolled.fire({ target: this, offsetX: this.offsetX, offsetY: this.offsetY });
+        }
+        onChildInvalidateMeasure(child, event) {
+            if (event != 'add' && event != 'remove')
+                super.onChildInvalidateMeasure(child, event);
         }
     }
     Ui.VBoxScrollableContent = VBoxScrollableContent;
