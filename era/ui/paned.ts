@@ -167,8 +167,10 @@ namespace Ui {
             if (this.vertical) {
                 cursorSize = this.cursor.measure(width, 0);
 
-                this.minContent1Size = this.content1Box.measure(width, 0).height;
-                this.minContent2Size = this.content2Box.measure(width, 0).height;
+                if (!this.content1Box.measureValid)
+                    this.minContent1Size = this.content1Box.measure(width, 0).height;
+                if (!this.content2Box.measureValid)
+                    this.minContent2Size = this.content2Box.measure(width, 0).height;
 
                 content1Size = this.content1Box.measure(width, (height - cursorSize.height) * this._pos);
                 content2Size = this.content2Box.measure(width, (height - cursorSize.height) * (1 - this._pos));
@@ -178,8 +180,11 @@ namespace Ui {
             else {
                 cursorSize = this.cursor.measure(0, height);
 
-                this.minContent1Size = this.content1Box.measure(0, 0).width;
-                this.minContent2Size = this.content2Box.measure(0, 0).width;
+                // update min size only if their content has changed
+                if (!this.content1Box.measureValid)
+                    this.minContent1Size = this.content1Box.measure(0, 0).width;
+                if (!this.content2Box.measureValid)
+                    this.minContent2Size = this.content2Box.measure(0, 0).width;
 
                 content1Size = this.content1Box.measure((width - cursorSize.width) * this._pos, height);
                 content2Size = this.content2Box.measure((width - cursorSize.width) * (1 - this._pos), height);
