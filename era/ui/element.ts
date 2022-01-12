@@ -59,7 +59,7 @@ namespace Ui {
 
         // measurement
         private collapse: boolean = false;
-        private measureValid: boolean = false;
+        private _measureValid: boolean = false;
         private measureConstraintPixelRatio: number = 1;
         private measureConstraintWidth: number = 0;
         private measureConstraintHeight: number = 0;
@@ -286,6 +286,10 @@ namespace Ui {
             return this._layoutHeight;
         }
 
+        get measureValid(): boolean {
+            return this._measureValid;
+        }
+
         //
         // Set a unique id for the current element
         //
@@ -365,11 +369,11 @@ namespace Ui {
                 return { width: 0, height: 0 };
 
             if (this.collapse) {
-                this.measureValid = true;
+                this._measureValid = true;
                 return { width: 0, height: 0 };
             }
 
-            if (this.measureValid && (this.measureConstraintWidth === width) && (this.measureConstraintHeight === height) &&
+            if (this._measureValid && (this.measureConstraintWidth === width) && (this.measureConstraintHeight === height) &&
                 (this.measureConstraintIsPrint == Ui.App.isPrint) &&
                 (this.measureConstraintPixelRatio == (window.devicePixelRatio || 1)))
                 return { width: this._measureWidth, height: this._measureHeight };
@@ -401,7 +405,7 @@ namespace Ui {
             if (this._height !== undefined)
                 constraintHeight = Math.max(this._height, constraintHeight);
 
-            this.measureValid = true;
+            this._measureValid = true;
             let size = this.measureCore(constraintWidth, constraintHeight);
 
             // if width and height are set they are taken as a minimum
@@ -430,16 +434,16 @@ namespace Ui {
         // updated
         //
         invalidateMeasure() {
-            if (this.measureValid) {
-                this.measureValid = false;
-                if ((this._parent != undefined) && (this._parent.measureValid))
+            if (this._measureValid) {
+                this._measureValid = false;
+                if ((this._parent != undefined) && (this._parent._measureValid))
                     this._parent.onChildInvalidateMeasure(this, 'change');
             }
             this.invalidateArrange();
         }
 
         invalidateLayout() {
-            this.measureValid = false;
+            this._measureValid = false;
             this.arrangeValid = false;
             if (this.layoutValid) {
                 this.layoutValid = false;
@@ -448,7 +452,7 @@ namespace Ui {
             }
         }
 
-        protected onChildInvalidateMeasure(child, event) {
+        protected onChildInvalidateMeasure(child: Ui.Element, event: 'add' | 'remove' | 'move' | 'change') {
             this.invalidateMeasure();
         }
 
@@ -457,7 +461,7 @@ namespace Ui {
             this._layoutHeight = height;
             this.layoutValid = true;
             this.layoutCore();
-            if (!this.arrangeValid || !this.measureValid)
+            if (!this.arrangeValid || !this._measureValid)
                 this.invalidateLayout();
         }
 
