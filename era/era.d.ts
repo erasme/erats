@@ -5323,7 +5323,7 @@ declare namespace Ui {
             offsetY: number;
         }) => void);
         constructor();
-        setLoader(loader: any): void;
+        setLoader(loader: ScrollLoader): void;
         getActiveItems(): Element[];
         get offsetX(): number;
         get offsetY(): number;

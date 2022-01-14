@@ -20197,8 +20197,8 @@ var Ui;
                 offsetY = 0;
             else if (this.viewHeight + offsetY > this.contentHeight)
                 offsetY = this.contentHeight - this.viewHeight;
-            this.relativeOffsetX = offsetX / (this.contentWidth - this.viewWidth);
-            this.relativeOffsetY = offsetY / (this.contentHeight - this.viewHeight);
+            this.relativeOffsetX = (this.contentWidth - this.viewWidth) > 0 ? offsetX / (this.contentWidth - this.viewWidth) : 0;
+            this.relativeOffsetY = (this.contentHeight - this.viewHeight) > 0 ? offsetY / (this.contentHeight - this.viewHeight) : 0;
             if ((this.offsetX !== offsetX) || (this.offsetY !== offsetY)) {
                 this.offsetX = offsetX;
                 this.offsetY = offsetY;
@@ -20267,8 +20267,8 @@ var Ui;
             this.viewHeight = this.layoutHeight;
             this.contentWidth = this.contentBox.getContentWidth();
             this.contentHeight = this.contentBox.getContentHeight();
-            this.relativeOffsetX = this.offsetX / (this.contentWidth - this.viewWidth);
-            this.relativeOffsetY = this.offsetY / (this.contentHeight - this.viewHeight);
+            this.relativeOffsetX = (this.contentWidth - this.viewWidth) > 0 ? this.offsetX / (this.contentWidth - this.viewWidth) : 0;
+            this.relativeOffsetY = (this.contentHeight - this.viewHeight) > 0 ? this.offsetY / (this.contentHeight - this.viewHeight) : 0;
             if (this.contentHeight > this.viewHeight)
                 this.scrollbarVerticalNeeded = true;
             else
