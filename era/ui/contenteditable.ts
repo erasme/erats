@@ -20,23 +20,14 @@ namespace Ui {
         readonly selectionleaved = new Core.Events<{ target: ContentEditable }>();
         set onselectionleaved(value: (event: { target: ContentEditable }) => void) { this.selectionleaved.connect(value); }
 
-        private _lastHtml = '';
-
         constructor(init?: ContentEditableInit) {
             super(init);
             this.selectable = true;
             (this.drawing as HTMLDivElement).removeAttribute('tabindex');
             this.htmlDrawing.setAttribute('contenteditable', 'true');
             this.drawing.addEventListener('keyup', (e) => this.onKeyUp(e));
-            if ((<any>window).MutationObserver) {
-                var observer = new MutationObserver((e) => this.onContentSubtreeModified(e));
-                observer.observe(this.drawing, {
-                    attributes: false,
-                    childList: true,
-                    subtree: true,
-                    characterData: true
-                });
-            }
+            this.htmlDrawing.addEventListener('input', () => this.onInput());
+
             if (init) {
                 if (init.onanchorchanged)
                     this.anchorchanged.connect(init.onanchorchanged);
@@ -44,15 +35,6 @@ namespace Ui {
                     this.changed.connect(init.onchanged);
                 if (init.onvalidated)
                     this.validated.connect(init.onvalidated);
-            }
-        }
-
-        protected onSetHtml() {
-            super.onSetHtml();
-            let html = this.htmlDrawing.outerHTML;
-            if (this._lastHtml !== html) {
-                this._lastHtml = html;
-                this.changed.fire({ target: this, element: this.htmlDrawing });
             }
         }
 
@@ -118,18 +100,9 @@ namespace Ui {
             }
         }
 
-        protected onContentSubtreeModified(event) {
-            this.testAnchorChange();
+        protected onInput() {
             this.invalidateMeasure();
-        }
-
-        protected measureCore(width: number, height: number) {
-            let html = this.htmlDrawing.outerHTML;
-            if (this._lastHtml !== html) {
-                this._lastHtml = html;
-                this.changed.fire({ target: this, element: this.htmlDrawing });
-            }
-            return super.measureCore(width, height);
+            this.changed.fire({ target: this, element: this.htmlDrawing });
         }
 
         static unwrapNode(node: Node) {
@@ -178,7 +151,7 @@ namespace Ui {
             let parser = new DOMParser();
             let doc = parser.parseFromString(html, 'text/html');
             // filter tags
-            Ui.ContentEditable.filterHtmlContent(doc.documentElement, allowedTags, true);
+            Ui.ContentEditable.filterHtmlContent(doc.documentElement, allowedTags, removeScript);
             return doc.documentElement.innerHTML;
         }
 

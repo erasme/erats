@@ -5191,20 +5191,14 @@ declare namespace Ui {
         set onselectionleaved(value: (event: {
             target: ContentEditable;
         }) => void);
-        private _lastHtml;
         constructor(init?: ContentEditableInit);
-        protected onSetHtml(): void;
         protected onDisable(): void;
         protected onEnable(): void;
         protected onLoad(): void;
         protected onUnload(): void;
         protected onKeyUp(event: any): void;
         protected testAnchorChange: () => void;
-        protected onContentSubtreeModified(event: any): void;
-        protected measureCore(width: number, height: number): {
-            width: number;
-            height: number;
-        };
+        protected onInput(): void;
         static unwrapNode(node: Node): void;
         static filterNode(node: Node, allowedTags: string[], removeScript?: boolean): void;
         static filterHtmlContent(rootElement: HTMLElement, allowedTags: string[], removeScript?: boolean): void;

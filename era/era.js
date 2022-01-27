@@ -19816,7 +19816,6 @@ var Ui;
             this.validated = new Core.Events();
             this.selectionentered = new Core.Events();
             this.selectionleaved = new Core.Events();
-            this._lastHtml = '';
             this.testAnchorChange = () => {
                 var _a;
                 let sel = getSelection();
@@ -19853,15 +19852,7 @@ var Ui;
             this.drawing.removeAttribute('tabindex');
             this.htmlDrawing.setAttribute('contenteditable', 'true');
             this.drawing.addEventListener('keyup', (e) => this.onKeyUp(e));
-            if (window.MutationObserver) {
-                var observer = new MutationObserver((e) => this.onContentSubtreeModified(e));
-                observer.observe(this.drawing, {
-                    attributes: false,
-                    childList: true,
-                    subtree: true,
-                    characterData: true
-                });
-            }
+            this.htmlDrawing.addEventListener('input', () => this.onInput());
             if (init) {
                 if (init.onanchorchanged)
                     this.anchorchanged.connect(init.onanchorchanged);
@@ -19876,14 +19867,6 @@ var Ui;
         set onvalidated(value) { this.validated.connect(value); }
         set onselectionentered(value) { this.selectionentered.connect(value); }
         set onselectionleaved(value) { this.selectionleaved.connect(value); }
-        onSetHtml() {
-            super.onSetHtml();
-            let html = this.htmlDrawing.outerHTML;
-            if (this._lastHtml !== html) {
-                this._lastHtml = html;
-                this.changed.fire({ target: this, element: this.htmlDrawing });
-            }
-        }
         onDisable() {
             super.onDisable();
             this.htmlDrawing.setAttribute('contenteditable', 'false');
@@ -19906,17 +19889,9 @@ var Ui;
             if (key == 13)
                 this.validated.fire({ target: this });
         }
-        onContentSubtreeModified(event) {
-            this.testAnchorChange();
+        onInput() {
             this.invalidateMeasure();
-        }
-        measureCore(width, height) {
-            let html = this.htmlDrawing.outerHTML;
-            if (this._lastHtml !== html) {
-                this._lastHtml = html;
-                this.changed.fire({ target: this, element: this.htmlDrawing });
-            }
-            return super.measureCore(width, height);
+            this.changed.fire({ target: this, element: this.htmlDrawing });
         }
         static unwrapNode(node) {
             let parent = node.parentNode;
@@ -19961,7 +19936,7 @@ var Ui;
         static filterHtmlString(html, allowedTags, removeScript = false) {
             let parser = new DOMParser();
             let doc = parser.parseFromString(html, 'text/html');
-            Ui.ContentEditable.filterHtmlContent(doc.documentElement, allowedTags, true);
+            Ui.ContentEditable.filterHtmlContent(doc.documentElement, allowedTags, removeScript);
             return doc.documentElement.innerHTML;
         }
         findTag(tagName) {
