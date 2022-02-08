@@ -112,6 +112,8 @@ namespace Ui
         // to specify position from the end.
         //
         moveChildAt(child: Element, position: number) {
+            if (this._children.indexOf(child) == position)
+                return;
             if (position < 0)
                 position = this._children.length + position;
             if (position < 0)

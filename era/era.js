@@ -3569,6 +3569,8 @@ var Ui;
             this.insertChildAt(child, this.getChildPosition(beforeChild));
         }
         moveChildAt(child, position) {
+            if (this._children.indexOf(child) == position)
+                return;
             if (position < 0)
                 position = this._children.length + position;
             if (position < 0)
