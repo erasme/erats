@@ -16736,7 +16736,7 @@ var Ui;
             this.changed = new Core.Events();
             this.selectable = true;
             this.focusable = true;
-            this.drawing.addEventListener('change', (e) => this.onChange(e));
+            this.drawing.addEventListener('input', (e) => this.onChange(e));
             this.drawing.addEventListener('paste', (e) => this.onPaste(e));
             this.drawing.addEventListener('keydown', (e) => this.onKeyDown(e));
             this.drawing.addEventListener('keyup', (e) => this.onKeyUp(e));

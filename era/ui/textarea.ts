@@ -23,7 +23,7 @@ namespace Ui {
             this.focusable = true;
 
             // handle change
-            this.drawing.addEventListener('change', (e) => this.onChange(e));
+            this.drawing.addEventListener('input', (e) => this.onChange(e));
 
             // handle paste
             this.drawing.addEventListener('paste', (e) => this.onPaste(e));
