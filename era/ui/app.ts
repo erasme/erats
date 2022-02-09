@@ -415,7 +415,7 @@ namespace Ui
             dialog.layoutValid = true;
             dialog.isLoaded = false;
             dialog.parentVisible = false;
-            if (document.readyState == 'complete')
+            if (document.readyState == 'complete' && dialog.drawing.parentElement == document.body)
                 document.body.removeChild(dialog.drawing);
             if (this.dialogs.length === 0) {
                 if (Ui.App.current)
