@@ -293,8 +293,10 @@ namespace Ui
             }
 
             let watchers = this.watchers.slice();
-            for (let i = 0; i < watchers.length; i++)
-                watchers[i].move();
+            for (let i = 0; i < watchers.length; i++) {
+                if (this.watchers.indexOf(watchers[i]) != -1)
+                    watchers[i].move();
+            }
 
             if (this.captureWatcher === undefined) {
                 let target = Element.elementFromPoint(new Point(this.x, this.y));
