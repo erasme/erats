@@ -25,6 +25,9 @@ namespace Ui {
             this.selectable = true;
             (this.drawing as HTMLDivElement).removeAttribute('tabindex');
             this.htmlDrawing.setAttribute('contenteditable', 'true');
+            // use block and not inline-block because Firefox has cursor
+            // placement bug with inline-block
+            this.htmlDrawing.style.display = 'block';
             this.drawing.addEventListener('keyup', (e) => this.onKeyUp(e));
             this.htmlDrawing.addEventListener('input', () => this.onInput());
 

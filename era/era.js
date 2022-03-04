@@ -19855,6 +19855,7 @@ var Ui;
             this.selectable = true;
             this.drawing.removeAttribute('tabindex');
             this.htmlDrawing.setAttribute('contenteditable', 'true');
+            this.htmlDrawing.style.display = 'block';
             this.drawing.addEventListener('keyup', (e) => this.onKeyUp(e));
             this.htmlDrawing.addEventListener('input', () => this.onInput());
             if (init) {
