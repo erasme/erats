@@ -22250,7 +22250,13 @@ var Ui;
             this.pressed.connect(() => this.onUploadButtonPress());
             new Ui.DropableWatcher({
                 element: this,
-                ondroppedfile: (w, f) => { this.onFile(undefined, f); return true; },
+                ondroppedfile: (w, f) => {
+                    if (this.testAccept(f))
+                        this.onFile(undefined, f);
+                    else
+                        Ui.Toast.sendError('Format de fichier non accepté');
+                    return true;
+                },
                 types: [{ type: 'files', effects: 'copy' }]
             });
             if (init) {
@@ -22273,7 +22279,11 @@ var Ui;
         set multiple(active) {
             this.input.multiple = active;
         }
+        get accept() {
+            return this._accept;
+        }
         set accept(value) {
+            this._accept = value;
             this.input.accept = value;
         }
         set capture(value) {
@@ -22284,6 +22294,14 @@ var Ui;
         }
         onFile(wrapper, file) {
             this.filechanged.fire({ target: this, file: file });
+        }
+        testAccept(file) {
+            if (this._accept) {
+                let tab = this._accept.split(',');
+                if (tab.indexOf(file.type) == -1)
+                    return false;
+            }
+            return true;
         }
     }
     Ui.UploadButton = UploadButton;

@@ -9,6 +9,7 @@ namespace Ui {
 
     export class UploadButton extends Button implements UploadButtonInit {
         input: UploadableFileWrapper;
+        private _accept: string | undefined;
         readonly filechanged = new Core.Events<{ target: UploadButton, file: File }>();
         set onfilechanged(value: (event: { target: UploadButton, file: File }) => void) { this.filechanged.connect(value); }
 
@@ -23,7 +24,14 @@ namespace Ui {
 
             new DropableWatcher({
                 element: this,
-                ondroppedfile: (w, f) => { this.onFile(undefined, f); return true; },
+                ondroppedfile: (w, f) => {
+                    // verify accept
+                    if (this.testAccept(f))
+                        this.onFile(undefined, f);
+                    else
+                        Toast.sendError('Format de fichier non accepté');
+                    return true;
+                },
                 types: [{ type: 'files', effects: 'copy' }]
             });
             if (init) {
@@ -48,7 +56,12 @@ namespace Ui {
             this.input.multiple = active;
         }
 
+        get accept(): string | undefined {
+            return this._accept;
+        }
+
         set accept(value: string | undefined) {
+            this._accept = value;
             this.input.accept = value;
         }
 
@@ -60,8 +73,17 @@ namespace Ui {
             this.input.select();
         }
 
-        protected onFile(wrapper: UploadableFileWrapper | undefined, file: File) {
+        protected onFile(wrapper: UploadableFileWrapper | undefined, file: File) {
             this.filechanged.fire({ target: this, file: file });
+        }
+
+        private testAccept(file: File) {
+            if (this._accept) {
+                let tab = this._accept.split(',');
+                if (tab.indexOf(file.type) == -1)
+                    return false;
+            }
+            return true;
         }
     }
 }

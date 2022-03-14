@@ -5861,6 +5861,7 @@ declare namespace Ui {
     }
     class UploadButton extends Button implements UploadButtonInit {
         input: UploadableFileWrapper;
+        private _accept;
         readonly filechanged: Core.Events<{
             target: UploadButton;
             file: File;
@@ -5872,10 +5873,12 @@ declare namespace Ui {
         constructor(init?: UploadButtonInit);
         set directoryMode(active: boolean);
         set multiple(active: boolean);
+        get accept(): string | undefined;
         set accept(value: string | undefined);
         set capture(value: string | undefined);
         protected onUploadButtonPress(): void;
         protected onFile(wrapper: UploadableFileWrapper | undefined, file: File): void;
+        private testAccept;
     }
 }
 declare namespace Ui {
