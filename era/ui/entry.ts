@@ -201,27 +201,27 @@ namespace Ui {
         }
 
         private onKeyDown(event: KeyboardEvent) {
-            let key = event.which;
-            // keep arrows + Del + Backspace for us only
-            if ((key == 37) || (key == 39) || (key == 46) || (key == 8))
+            let key = event.key;
+            // keep arrows + Del + Backspace + Space for us only
+            if ((key == 'ArrowLeft') || (key == 'ArrowRight') || (key == 'Delete') || (key == 'Backspace') || (key == ' '))
                 event.stopPropagation();
-            if (key == 13 && this.captureValidated) {
+            if (key == 'Enter' && this.captureValidated) {
                 event.stopPropagation();
                 event.preventDefault();
             }
         }
 
         private onKeyUp(event: KeyboardEvent) {
-            let key = event.which;
-            // keep arrows + Del + Backspace for us only
-            if ((key == 37) || (key == 39) || (key == 46) || (key == 8))
+            let key = event.key;
+            // keep arrows + Del + Backspace + Space for us only
+            if ((key == 'ArrowLeft') || (key == 'ArrowRight') || (key == 'Delete') || (key == 'Backspace') || (key == ' '))
                 event.stopPropagation();
             // check if value changed
             if (this.drawing.value !== this._value) {
                 this._value = this.drawing.value;
                 this.changed.fire({ target: this, value: this._value });
             }
-            if (key == 13) {
+            if (key == 'Enter') {
                 this.validated.fire({ target: this, value: this._value });
                 if (this.captureValidated) {
                     event.stopPropagation();

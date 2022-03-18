@@ -15796,23 +15796,23 @@ var Ui;
             }
         }
         onKeyDown(event) {
-            let key = event.which;
-            if ((key == 37) || (key == 39) || (key == 46) || (key == 8))
+            let key = event.key;
+            if ((key == 'ArrowLeft') || (key == 'ArrowRight') || (key == 'Delete') || (key == 'Backspace') || (key == ' '))
                 event.stopPropagation();
-            if (key == 13 && this.captureValidated) {
+            if (key == 'Enter' && this.captureValidated) {
                 event.stopPropagation();
                 event.preventDefault();
             }
         }
         onKeyUp(event) {
-            let key = event.which;
-            if ((key == 37) || (key == 39) || (key == 46) || (key == 8))
+            let key = event.key;
+            if ((key == 'ArrowLeft') || (key == 'ArrowRight') || (key == 'Delete') || (key == 'Backspace') || (key == ' '))
                 event.stopPropagation();
             if (this.drawing.value !== this._value) {
                 this._value = this.drawing.value;
                 this.changed.fire({ target: this, value: this._value });
             }
-            if (key == 13) {
+            if (key == 'Enter') {
                 this.validated.fire({ target: this, value: this._value });
                 if (this.captureValidated) {
                     event.stopPropagation();
