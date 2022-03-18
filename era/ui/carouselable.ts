@@ -227,13 +227,13 @@ namespace Ui {
         private onKeyDown(event: KeyboardEvent) {
             if (this.isDisabled)
                 return;
-            let key = event.which;
-            if ((key == 37) || (key == 39)) {
+            let key = event.key;
+            if ((key == 'ArrowLeft') || (key == 'ArrowRight')) {
                 event.stopPropagation();
                 event.preventDefault();
-                if (key == 37)
+                if (key == 'ArrowLeft')
                     this.previous();
-                else if (key == 39)
+                else if (key == 'ArrowRight')
                     this.next();
             }
         }

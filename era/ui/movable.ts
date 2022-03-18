@@ -28,26 +28,26 @@ namespace Ui {
             }
         }
 
-        protected onKeyDown(event) {
+        protected onKeyDown(event: KeyboardEvent) {
             if (this.isDisabled)
                 return;
-            let key = event.which;
+            let key = event.key;
             // horizontal move
-            if (((key == 37) || (key == 39)) && this.moveHorizontal) {
+            if (((key == 'ArrowLeft') || (key == 'ArrowRight')) && this.moveHorizontal) {
                 event.preventDefault();
                 event.stopPropagation();
-                if (key == 37)
+                if (key == 'ArrowLeft')
                     this.setPosition(this.posX - 10, undefined);
-                if (key == 39)
+                if (key == 'ArrowRight')
                     this.setPosition(this.posX + 10, undefined);
             }
             // vertical move
-            if (((key == 38) || (key == 40)) && this.moveVertical) {
+            if (((key == 'ArrowUp') || (key == 'ArrowDown')) && this.moveVertical) {
                 event.preventDefault();
                 event.stopPropagation();
-                if (key == 38)
+                if (key == 'ArrowUp')
                     this.setPosition(undefined, this.posY - 10);
-                if (key == 40)
+                if (key == 'ArrowDown')
                     this.setPosition(undefined, this.posY + 10);
             }
         }

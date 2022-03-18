@@ -2391,7 +2391,7 @@ declare namespace Ui {
         private _cursor;
         constructor(init?: MovableInit);
         set cursor(cursor: string);
-        protected onKeyDown(event: any): void;
+        protected onKeyDown(event: KeyboardEvent): void;
         protected onMove(x: number, y: number): void;
         protected measureCore(width: number, height: number): Size;
         protected arrangeCore(width: number, height: number): void;
@@ -2697,7 +2697,7 @@ declare namespace Ui {
         get isDown(): boolean;
         get isInertia(): boolean;
         protected onWheel(event: WheelEvent): void;
-        protected onKeyDown(event: any): void;
+        protected onKeyDown(event: KeyboardEvent): void;
         autoShowScrollbars: () => void;
         autoHideScrollbars: () => void;
         protected onShowBarsTick(clock: Anim.Clock, progress: number, delta: number): void;
@@ -3529,7 +3529,7 @@ declare namespace Ui {
         getArguments(): any;
         static get isReady(): boolean;
         protected onReady(): void;
-        protected static onWindowKeyUp(event: any): void;
+        protected static onWindowKeyUp(event: KeyboardEvent): void;
         protected onLoad(): void;
         protected onMessage(event: any): void;
         sendMessageToParent(msg: any): void;
@@ -3669,7 +3669,7 @@ declare namespace Ui {
         protected onCancelPress(): void;
         protected onFormSubmit(): void;
         protected onDialogSelectionChange(selection: Ui.Selection): void;
-        protected onKeyUp(event: any): void;
+        protected onKeyUp(event: KeyboardEvent): void;
         protected onShadowPress(): void;
         protected onStyleChange(): void;
         invalidateArrange(): void;
@@ -4327,8 +4327,8 @@ declare namespace Ui {
         protected onPaste(event: any): void;
         protected onAfterPaste(): void;
         protected onChange(event: any): void;
-        protected onKeyDown(event: any): void;
-        protected onKeyUp(event: any): void;
+        protected onKeyDown(event: KeyboardEvent): void;
+        protected onKeyUp(event: KeyboardEvent): void;
         protected renderDrawing(): HTMLTextAreaElement;
         protected measureCore(width: number, height: number): {
             width: number;
@@ -5196,7 +5196,7 @@ declare namespace Ui {
         protected onEnable(): void;
         protected onLoad(): void;
         protected onUnload(): void;
-        protected onKeyUp(event: any): void;
+        protected onKeyUp(event: KeyboardEvent): void;
         protected testAnchorChange: () => void;
         protected onInput(): void;
         static unwrapNode(node: Node): void;

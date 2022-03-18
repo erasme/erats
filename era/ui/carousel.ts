@@ -273,9 +273,9 @@ namespace Ui {
 
         private onKeyDown(event: KeyboardEvent) {
             if (this.hasFocus) {
-                if (event.which == 39)
+                if (event.key == 'ArrowRight')
                     this.next();
-                else if (event.which == 37)
+                else if (event.key == 'ArrowLeft')
                     this.previous();
             }
         }

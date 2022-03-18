@@ -139,17 +139,16 @@ namespace Ui {
             this.changed.fire({ target: this, value: (event.target as SegmentButton).data });
         }
 
-        private onKeyDown(event) {
+        private onKeyDown(event: KeyboardEvent) {
             if (this.isDisabled)
                 return;
-            let key = event.which;
-            if ((key == 37) || (key == 39)) {
+            if ((event.key == 'ArrowLeft') || (event.key == 'ArrowRight')) {
                 event.stopPropagation();
                 event.preventDefault();
             }
-            if (key == 37)
+            if (event.key == 'ArrowLeft')
                 this.previous();
-            else if (key == 39)
+            else if (event.key == 'ArrowRight')
                 this.next();
         }
 

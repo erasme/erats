@@ -374,7 +374,11 @@ namespace Ui {
         }
 
         private onKeyDown(event: KeyboardEvent) {
-            if ((event.which >= 37 && event.which <= 40) || event.which == 65 || event.which == 16 || event.which == 46) {
+            if (event.key == 'ArrowRight' || event.key == 'ArrowLeft' ||
+                event.key == 'ArrowUp' || event.key == 'ArrowDown' ||
+                event.key == 'a' || event.key == 'A' || event.key == 'Shift' ||
+                event.key == 'Delete')
+            {
                 let selection = this.getParentSelectionHandler();
                 if (!selection)
                     return;
@@ -393,19 +397,19 @@ namespace Ui {
 
                 let found: Ui.SelectionableWatcher | undefined;
                 // left (37)
-                if (event.which == 37) {
+                if (event.key == 'ArrowLeft') {
                     found = this.findLeftSelectionable(focusElement);
                 }
                 // right (39)
-                else if (event.which == 39) {
+                else if (event.key == 'ArrowRight') {
                     found = this.findRightSelectionable(focusElement);
                 }
                 // up (38)
-                else if (event.which == 38) {
+                else if (event.key == 'ArrowUp') {
                     found = this.findTopSelectionable(focusElement);
                 }
                 // down (40)
-                else if (event.which == 40) {
+                else if (event.key == 'ArrowDown') {
                     found = this.findBottomSelectionable(focusElement);
                 }
                 if (found) {
@@ -422,13 +426,13 @@ namespace Ui {
                         found.element.focus();
                 }
                 // Ctrl + A
-                if (event.which == 65 && event.ctrlKey)
+                if ((event.key == 'A' || event.key == 'a') && event.ctrlKey)
                     selection.watchers = this.findSelectionableWatchers();
                 // Shift
-                if (event.which == 16)
+                if (event.key == 'Shift')
                     this.shiftStart = focusWatcher;
                 // Del
-                if (event.which == 46)
+                if (event.key == 'Delete')
                     selection.executeDeleteAction();
             }
         }

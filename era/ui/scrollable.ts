@@ -257,17 +257,16 @@ namespace Ui
             }
         }
 
-        protected onKeyDown(event) {
+        protected onKeyDown(event: KeyboardEvent) {
             if (this.isDisabled)
                 return;
-            let key = event.which;
             // page down
-            if (key == 34 && this.setOffset(undefined, this.contentBox.offsetY + this.layoutHeight, true)) {
+            if (event.key == 'PageDown' && this.setOffset(undefined, this.contentBox.offsetY + this.layoutHeight, true)) {
                 event.stopPropagation();
                 event.preventDefault();
             }
             // page up
-            else if (key == 33 && this.setOffset(undefined, this.contentBox.offsetY - this.layoutHeight, true)) {
+            else if (event.key == 'PageUp' && this.setOffset(undefined, this.contentBox.offsetY - this.layoutHeight, true)) {
                 event.stopPropagation();
                 event.preventDefault();
             }

@@ -151,17 +151,19 @@ namespace Ui {
             }
         }
 
-        protected onKeyDown(event) {
-            let key = event.which;
+        protected onKeyDown(event: KeyboardEvent) {
+            let key = event.key;
             // keep arrows + Del + Backspace for us only
-            if ((key == 37) || (key == 39) || (key == 38) || (key == 40) || (key == 46) || (key == 8))
+            if ((key == 'ArrowLeft') || (key == 'ArrowRight') || (key == 'ArrowUp') ||
+                (key == 'ArrowDown') || (key == 'Delete') || (key == ' '))
                 event.stopPropagation();
         }
 
-        protected onKeyUp(event) {
-            let key = event.which;
+        protected onKeyUp(event: KeyboardEvent) {
+            let key = event.key;
             // keep arrows + Del + Backspace for us only
-            if ((key == 37) || (key == 39) || (key == 38) || (key == 40) || (key == 46) || (key == 8))
+            if ((key == 'ArrowLeft') || (key == 'ArrowRight') || (key == 'ArrowUp') ||
+                (key == 'ArrowDown') || (key == 'Delete') || (key == ' '))
                 event.stopPropagation();
             // test if content changed
             if (this.drawing.value !== this._value) {

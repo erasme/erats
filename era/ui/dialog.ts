@@ -418,9 +418,9 @@ namespace Ui {
             this.updateButtonsBoxVisible();
         }
     
-        protected onKeyUp(event) {
+        protected onKeyUp(event: KeyboardEvent) {
             // delete key
-            if (event.which === 46) {
+            if (event.key === 'Delete') {
                 // selection is not empty
                 if (this.dialogSelection.elements.length !== 0) {
                     if (this.dialogSelection.executeDeleteAction()) {

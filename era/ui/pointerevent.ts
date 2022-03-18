@@ -454,14 +454,14 @@ namespace Ui
 
                 window.addEventListener('keydown', (event) => {
                     // if Ctrl, Alt or Shift change signal to the mouse
-                    if ((event.which === 16) || (event.which === 17) || (event.which === 18)) {
+                    if ((event.key === 'Shift') || (event.key === 'Control') || (event.key === 'Alt')) {
                         this.mouse!.setControls(event.altKey, event.ctrlKey, event.shiftKey);
                         this.mouse!.move(this.mouse!.x, this.mouse!.y);
                     }
                 });
                 window.addEventListener('keyup', (event) => {
                     // if Ctrl, Alt or Shift change signal to the mouse
-                    if ((event.which === 16) || (event.which === 17) || (event.which === 18)) {
+                    if ((event.key === 'Shift') || (event.key === 'Control') || (event.key === 'Alt')) {
                         this.mouse!.setControls(event.altKey, event.ctrlKey, event.shiftKey);
                         this.mouse!.move(this.mouse!.x, this.mouse!.y);
                     }

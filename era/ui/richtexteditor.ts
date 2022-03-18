@@ -167,17 +167,17 @@ namespace Ui {
             this._contentEditable.drawing.addEventListener('keydown', (e) => {
                 if (e.ctrlKey) {
                     // Ctrl + B
-                    if (e.which == 66) {
+                    if (e.key == 'b' || e.key == 'B') {
                         document.execCommand('bold', false);
                         e.stopPropagation(); e.preventDefault();
                     }
                     // Ctrl + I
-                    else if (e.which == 73) {
+                    else if (e.key == 'i' || e.key == 'I') {
                         document.execCommand('italic', false);
                         e.stopPropagation(); e.preventDefault();
                     }
                     // Ctrl + U
-                    else if (e.which == 85) {
+                    else if (e.key == 'u' || e.key == 'U') {
                         document.execCommand('underline', false);
                         e.stopPropagation(); e.preventDefault();
                     }

@@ -5493,13 +5493,13 @@ var Ui;
                 window.addEventListener('mouseup', e => this.onMouseUp(e));
                 document.addEventListener('selectstart', e => this.onSelectStart(e));
                 window.addEventListener('keydown', (event) => {
-                    if ((event.which === 16) || (event.which === 17) || (event.which === 18)) {
+                    if ((event.key === 'Shift') || (event.key === 'Control') || (event.key === 'Alt')) {
                         this.mouse.setControls(event.altKey, event.ctrlKey, event.shiftKey);
                         this.mouse.move(this.mouse.x, this.mouse.y);
                     }
                 });
                 window.addEventListener('keyup', (event) => {
-                    if ((event.which === 16) || (event.which === 17) || (event.which === 18)) {
+                    if ((event.key === 'Shift') || (event.key === 'Control') || (event.key === 'Alt')) {
                         this.mouse.setControls(event.altKey, event.ctrlKey, event.shiftKey);
                         this.mouse.move(this.mouse.x, this.mouse.y);
                     }
@@ -7491,8 +7491,7 @@ var Ui;
             this.onDown();
         }
         onKeyDown(event) {
-            let key = event.which;
-            if (!this.lock && !this.element.isDisabled && (key == 13 || key == 32)) {
+            if (!this.lock && !this.element.isDisabled && (event.key == 'Enter' || event.key == ' ')) {
                 event.preventDefault();
                 event.stopImmediatePropagation();
                 this.x = undefined;
@@ -7501,8 +7500,7 @@ var Ui;
             }
         }
         onKeyUp(event) {
-            let key = event.which;
-            if (!this.lock && !this.element.isDisabled && this._isDown && (key == 13 || key == 32)) {
+            if (!this.lock && !this.element.isDisabled && this._isDown && (event.key == 'Enter' || event.key == ' ')) {
                 event.preventDefault();
                 event.stopImmediatePropagation();
                 this.x = undefined;
@@ -8989,21 +8987,21 @@ var Ui;
         onKeyDown(event) {
             if (this.isDisabled)
                 return;
-            let key = event.which;
-            if (((key == 37) || (key == 39)) && this.moveHorizontal) {
+            let key = event.key;
+            if (((key == 'ArrowLeft') || (key == 'ArrowRight')) && this.moveHorizontal) {
                 event.preventDefault();
                 event.stopPropagation();
-                if (key == 37)
+                if (key == 'ArrowLeft')
                     this.setPosition(this.posX - 10, undefined);
-                if (key == 39)
+                if (key == 'ArrowRight')
                     this.setPosition(this.posX + 10, undefined);
             }
-            if (((key == 38) || (key == 40)) && this.moveVertical) {
+            if (((key == 'ArrowUp') || (key == 'ArrowDown')) && this.moveVertical) {
                 event.preventDefault();
                 event.stopPropagation();
-                if (key == 38)
+                if (key == 'ArrowUp')
                     this.setPosition(undefined, this.posY - 10);
-                if (key == 40)
+                if (key == 'ArrowDown')
                     this.setPosition(undefined, this.posY + 10);
             }
         }
@@ -10349,12 +10347,11 @@ var Ui;
         onKeyDown(event) {
             if (this.isDisabled)
                 return;
-            let key = event.which;
-            if (key == 34 && this.setOffset(undefined, this.contentBox.offsetY + this.layoutHeight, true)) {
+            if (event.key == 'PageDown' && this.setOffset(undefined, this.contentBox.offsetY + this.layoutHeight, true)) {
                 event.stopPropagation();
                 event.preventDefault();
             }
-            else if (key == 33 && this.setOffset(undefined, this.contentBox.offsetY - this.layoutHeight, true)) {
+            else if (event.key == 'PageUp' && this.setOffset(undefined, this.contentBox.offsetY - this.layoutHeight, true)) {
                 event.stopPropagation();
                 event.preventDefault();
             }
@@ -14122,8 +14119,7 @@ var Ui;
             this.parentVisible = true;
         }
         static onWindowKeyUp(event) {
-            let key = event.which;
-            if ((key == 27) && (App.dialogs !== undefined) && (App.dialogs.length > 0)) {
+            if ((event.key == 'Escape') && (App.dialogs !== undefined) && (App.dialogs.length > 0)) {
                 let element = App.dialogs[App.dialogs.length - 1];
                 if (element instanceof Ui.Dialog) {
                     let dialog = element;
@@ -14670,7 +14666,7 @@ var Ui;
             this.updateButtonsBoxVisible();
         }
         onKeyUp(event) {
-            if (event.which === 46) {
+            if (event.key === 'Delete') {
                 if (this.dialogSelection.elements.length !== 0) {
                     if (this.dialogSelection.executeDeleteAction()) {
                         event.preventDefault();
@@ -16846,13 +16842,15 @@ var Ui;
             }
         }
         onKeyDown(event) {
-            let key = event.which;
-            if ((key == 37) || (key == 39) || (key == 38) || (key == 40) || (key == 46) || (key == 8))
+            let key = event.key;
+            if ((key == 'ArrowLeft') || (key == 'ArrowRight') || (key == 'ArrowUp') ||
+                (key == 'ArrowDown') || (key == 'Delete') || (key == ' '))
                 event.stopPropagation();
         }
         onKeyUp(event) {
-            let key = event.which;
-            if ((key == 37) || (key == 39) || (key == 38) || (key == 40) || (key == 46) || (key == 8))
+            let key = event.key;
+            if ((key == 'ArrowLeft') || (key == 'ArrowRight') || (key == 'ArrowUp') ||
+                (key == 'ArrowDown') || (key == 'Delete') || (key == ' '))
                 event.stopPropagation();
             if (this.drawing.value !== this._value) {
                 this._value = this.drawing.value;
@@ -19890,8 +19888,7 @@ var Ui;
         }
         onKeyUp(event) {
             this.testAnchorChange();
-            let key = event.which;
-            if (key == 13)
+            if (event.key == 'Enter')
                 this.validated.fire({ target: this });
         }
         onInput() {
@@ -20900,7 +20897,10 @@ var Ui;
             event.stopImmediatePropagation();
         }
         onKeyDown(event) {
-            if ((event.which >= 37 && event.which <= 40) || event.which == 65 || event.which == 16 || event.which == 46) {
+            if (event.key == 'ArrowRight' || event.key == 'ArrowLeft' ||
+                event.key == 'ArrowUp' || event.key == 'ArrowDown' ||
+                event.key == 'a' || event.key == 'A' || event.key == 'Shift' ||
+                event.key == 'Delete') {
                 let selection = this.getParentSelectionHandler();
                 if (!selection)
                     return;
@@ -20914,16 +20914,16 @@ var Ui;
                     focusWatcher = ours[0];
                 focusElement = focusWatcher.element;
                 let found;
-                if (event.which == 37) {
+                if (event.key == 'ArrowLeft') {
                     found = this.findLeftSelectionable(focusElement);
                 }
-                else if (event.which == 39) {
+                else if (event.key == 'ArrowRight') {
                     found = this.findRightSelectionable(focusElement);
                 }
-                else if (event.which == 38) {
+                else if (event.key == 'ArrowUp') {
                     found = this.findTopSelectionable(focusElement);
                 }
-                else if (event.which == 40) {
+                else if (event.key == 'ArrowDown') {
                     found = this.findBottomSelectionable(focusElement);
                 }
                 if (found) {
@@ -20937,11 +20937,11 @@ var Ui;
                     if (found.element.focusable)
                         found.element.focus();
                 }
-                if (event.which == 65 && event.ctrlKey)
+                if ((event.key == 'A' || event.key == 'a') && event.ctrlKey)
                     selection.watchers = this.findSelectionableWatchers();
-                if (event.which == 16)
+                if (event.key == 'Shift')
                     this.shiftStart = focusWatcher;
-                if (event.which == 46)
+                if (event.key == 'Delete')
                     selection.executeDeleteAction();
             }
         }
@@ -24044,14 +24044,13 @@ var Ui;
         onKeyDown(event) {
             if (this.isDisabled)
                 return;
-            let key = event.which;
-            if ((key == 37) || (key == 39)) {
+            if ((event.key == 'ArrowLeft') || (event.key == 'ArrowRight')) {
                 event.stopPropagation();
                 event.preventDefault();
             }
-            if (key == 37)
+            if (event.key == 'ArrowLeft')
                 this.previous();
-            else if (key == 39)
+            else if (event.key == 'ArrowRight')
                 this.next();
         }
         onStyleChange() {
@@ -24813,13 +24812,13 @@ var Ui;
         onKeyDown(event) {
             if (this.isDisabled)
                 return;
-            let key = event.which;
-            if ((key == 37) || (key == 39)) {
+            let key = event.key;
+            if ((key == 'ArrowLeft') || (key == 'ArrowRight')) {
                 event.stopPropagation();
                 event.preventDefault();
-                if (key == 37)
+                if (key == 'ArrowLeft')
                     this.previous();
-                else if (key == 39)
+                else if (key == 'ArrowRight')
                     this.next();
             }
         }
@@ -25214,9 +25213,9 @@ var Ui;
         }
         onKeyDown(event) {
             if (this.hasFocus) {
-                if (event.which == 39)
+                if (event.key == 'ArrowRight')
                     this.next();
-                else if (event.which == 37)
+                else if (event.key == 'ArrowLeft')
                     this.previous();
             }
         }
@@ -25402,17 +25401,17 @@ var Ui;
             });
             this._contentEditable.drawing.addEventListener('keydown', (e) => {
                 if (e.ctrlKey) {
-                    if (e.which == 66) {
+                    if (e.key == 'b' || e.key == 'B') {
                         document.execCommand('bold', false);
                         e.stopPropagation();
                         e.preventDefault();
                     }
-                    else if (e.which == 73) {
+                    else if (e.key == 'i' || e.key == 'I') {
                         document.execCommand('italic', false);
                         e.stopPropagation();
                         e.preventDefault();
                     }
-                    else if (e.which == 85) {
+                    else if (e.key == 'u' || e.key == 'U') {
                         document.execCommand('underline', false);
                         e.stopPropagation();
                         e.preventDefault();

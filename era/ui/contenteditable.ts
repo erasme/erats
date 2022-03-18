@@ -61,11 +61,10 @@ namespace Ui {
             document.removeEventListener('selectionchange', this.testAnchorChange);
         }
 
-        protected onKeyUp(event) {
+        protected onKeyUp(event: KeyboardEvent) {
             this.testAnchorChange();
-            let key = event.which;
             // if enter pressed
-            if (key == 13)
+            if (event.key == 'Enter')
                 this.validated.fire({ target: this });
         }
 

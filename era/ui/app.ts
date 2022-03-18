@@ -485,11 +485,9 @@ namespace Ui
             this.parentVisible = true;
         }
 
-        protected static onWindowKeyUp(event) {
-            let key = event.which;
-
+        protected static onWindowKeyUp(event: KeyboardEvent) {
             // escape
-            if ((key == 27) && (App.dialogs !== undefined) && (App.dialogs.length > 0)) {
+            if ((event.key == 'Escape') && (App.dialogs !== undefined) && (App.dialogs.length > 0)) {
                 let element = App.dialogs[App.dialogs.length - 1];
                 if (element instanceof Dialog) {
                     let dialog = element as Dialog;
