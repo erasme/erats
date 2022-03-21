@@ -494,7 +494,8 @@ namespace Ui
                     // if selection is not empty, empty the selection
                     if (dialog.dialogSelection.watchers.length > 0)
                         dialog.dialogSelection.watchers = [];
-                    else
+                    // if cancel is allowed
+                    else if (dialog.cancelButton != undefined)
                         dialog.close();
                 }
                 else if (element instanceof Popup) {
