@@ -6928,6 +6928,8 @@ declare namespace Form {
         private _required;
         private _lastIsValid;
         private _validateTask;
+        private _helpButton;
+        private _helpDialogWidth;
         private flow;
         readonly changed: Core.Events<{
             target: Field<TE>;
@@ -6953,6 +6955,10 @@ declare namespace Form {
         set desc(value: string);
         get required(): boolean;
         set required(value: boolean);
+        get helpSrc(): string | undefined;
+        set helpSrc(value: string | undefined);
+        get helpDialogWidth(): number | undefined;
+        set helpDialogWidth(value: number | undefined);
         checkIsValid(): void;
         protected onValidate(): Promise<string | undefined>;
         protected onChange(): Promise<void>;
@@ -7200,5 +7206,27 @@ declare namespace Ui {
         get value(): Ui.Color;
         private onColorButtonPress;
         protected onStyleChange(): void;
+    }
+}
+declare namespace Ui {
+    interface HelpButtonInit extends Ui.PressableInit {
+        icon?: string;
+        src?: string;
+        help?: Ui.Element;
+        dialogWidth?: number;
+        dialogHeight?: number;
+        title: string;
+    }
+    class HelpButton extends Ui.Pressable {
+        dialogWidth?: number;
+        dialogHeight?: number;
+        help?: Ui.Element;
+        src?: string;
+        private _icon;
+        constructor(init?: HelpButtonInit);
+        get icon(): string | undefined;
+        set icon(value: string | undefined);
+        fetchHelp(url: string): Promise<Ui.Element>;
+        showDialog(): Promise<void>;
     }
 }

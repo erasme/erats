@@ -141,6 +141,7 @@
         "ui/radiobox.ts",
         "ui/embed.ts",
         "form/form.ts",
-        "ui/colorchooser.ts"
+        "ui/colorchooser.ts",
+        "ui/helpbutton.ts"
     ]
 }

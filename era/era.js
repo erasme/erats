@@ -4902,6 +4902,7 @@ var Ui;
             this.register('dragrun', 'M24 2.4C12.1 2.4 2.4 12.1 2.4 24 2.4 36 12.1 45.6 24 45.6 36 45.6 45.6 36 45.6 24 45.6 12.1 36 2.4 24 2.4zM23.9 7.8C24 7.8 24 7.8 24 7.8 27 7.8 29.8 8.6 32.2 10L30.4 13.1C32.3 14.2 33.8 15.7 34.9 17.6L38 15.8C39.4 18.2 40.3 21 40.3 24 40.3 24 40.3 24 40.3 24.1L36.7 24C36.7 26.3 36.1 28.4 35 30.3L38.1 32.1C36.7 34.6 34.6 36.7 32.1 38.1L30.3 35C28.4 36.1 26.3 36.7 24 36.7L24.1 40.3C24 40.3 24 40.3 24 40.3 21 40.3 18.2 39.4 15.8 38L17.6 34.9C15.7 33.8 14.2 32.3 13.1 30.4L10 32.2C8.6 29.8 7.8 27 7.8 24 7.8 24 7.8 24 7.8 23.9L11.3 24C11.3 21.7 12 19.6 13 17.7L9.9 15.9C11.3 13.4 13.4 11.3 15.9 9.9L17.7 13C19.6 12 21.7 11.3 24 11.3L23.9 7.8zM24 18.8C21.1 18.8 18.8 21.1 18.8 24 18.8 26.9 21.1 29.2 24 29.2 26.9 29.2 29.2 26.9 29.2 24 29.2 21.1 26.9 18.8 24 18.8z');
             this.register('dragplay', 'M24 .2C10.8 .2 .2 10.8 .2 24 .2 37.2 10.8 47.8 24 47.8 37.2 47.8 47.8 37.2 47.8 24 47.8 10.8 37.2 .2 24 .2zM13.8 7.8L42.2 24 13.8 40.3 13.8 7.8z');
             this.register('burger', 'M24 1.47C20.77 1.48 18.16 4.17 18.16 7.49 18.16 10.82 20.77 13.52 24 13.52 27.23 13.52 29.84 10.82 29.84 7.49 29.84 4.17 27.23 1.48 24 1.47Zm0 16.42c-3.23 0-5.84 2.7-5.84 6.02 0 3.33 2.61 6.02 5.84 6.02 3.23 0 5.84-2.7 5.84-6.02C29.84 20.59 27.23 17.9 24 17.9Zm0 16.42c-3.23 0-5.84 2.7-5.84 6.02 0 3.33 2.61 6.02 5.84 6.02 3.23 0 5.84-2.7 5.84-6.02C29.84 37.01 27.23 34.32 24 34.32Z');
+            this.register('help', 'M24 4C6.2 4-2.7 25.5 9.9 38.1 22.5 50.7 44 41.8 44 24 44 13 35 4 24 4zM23.5 8C31.9 7.8 40 14.2 40 24 40 32.8 32.8 40 24 40 9.7 40 2.6 22.8 12.7 12.7 15.8 9.5 19.7 8.1 23.5 8zM24 12C19.6 12 16 15.6 16 20L20 20C20 14.7 28 14.7 28 20 28 24 22 23.5 22 30L26 30C26 25.5 32 25 32 20 32 15.6 28.4 12 24 12zM24 32.2A2.9 2.9 0 0 0 21.1 35.1 2.9 2.9 0 0 0 24 38 2.9 2.9 0 0 0 26.9 35.1 2.9 2.9 0 0 0 24 32.2z');
         }
         static getPath(icon) {
             return Icon.icons[icon];
@@ -26010,7 +26011,7 @@ var Form;
             this.flow = new Ui.Flow();
             this.flow.hide(true);
             this.append(this.flow);
-            this._title = new Ui.Text();
+            this._title = new Ui.Text().assign({ verticalAlign: 'center' });
             this.flow.append(this._title);
             this._requiredText = new Ui.Html({
                 color: 'red', html: '<label title="champs obligatoire">*</label>'
@@ -26078,6 +26079,34 @@ var Form;
                     this._requiredText.hide(true);
                 this.checkIsValid();
             }
+        }
+        get helpSrc() {
+            return this._helpButton ? this._helpButton.src : undefined;
+        }
+        set helpSrc(value) {
+            if (value) {
+                if (!this._helpButton) {
+                    this._helpButton = new Ui.HelpButton().assign({
+                        marginLeft: 5,
+                        dialogWidth: this._helpDialogWidth
+                    });
+                    this.flow.append(this._helpButton);
+                }
+                this._helpButton.src = value;
+            }
+            else {
+                if (this._helpButton) {
+                    this.flow.remove(this._helpButton);
+                }
+            }
+        }
+        get helpDialogWidth() {
+            return this._helpDialogWidth;
+        }
+        set helpDialogWidth(value) {
+            this._helpDialogWidth = value;
+            if (this._helpButton)
+                this._helpButton.dialogWidth = this._helpDialogWidth;
         }
         checkIsValid() {
             this.onChange();
@@ -26750,5 +26779,66 @@ var Ui;
         }
     }
     Ui.ColorButton = ColorButton;
+})(Ui || (Ui = {}));
+var Ui;
+(function (Ui) {
+    class HelpButton extends Ui.Pressable {
+        constructor(init) {
+            super(init);
+            this._icon = new Ui.Icon({
+                width: 24, height: 24,
+                fill: '#0074c1',
+                icon: "resource/help"
+            });
+            this.title = 'Aide';
+            this.append(this._icon);
+            this.pressed.connect(() => this.showDialog());
+            if (init) {
+                if (init.icon)
+                    this.icon = init.icon;
+                if (init.dialogWidth)
+                    this.dialogWidth = init.dialogWidth;
+                if (init.dialogHeight)
+                    this.dialogHeight = init.dialogHeight;
+                if (init.title)
+                    this.title = init.title;
+                if (init.src)
+                    this.src = init.src;
+                if (init.help)
+                    this.help = init.help;
+            }
+        }
+        get icon() {
+            return this._icon.icon;
+        }
+        set icon(value) {
+            if (value)
+                this._icon.icon = value;
+        }
+        async fetchHelp(url) {
+            let req = new Core.HttpRequest({ method: 'GET', url: url });
+            let res = await req.sendAsync();
+            if (res.status < 200 || res.status >= 300)
+                return new Ui.Text().assign({
+                    interLine: 1.2, margin: 20,
+                    textAlign: 'center', selectable: true,
+                    text: `Désolé la documentation n'a pas été trouvé. Ré-essayez plus tard ou contacter votre administrateur`
+                });
+            return new Ui.Html().assign({
+                interLine: 1.2, margin: 10,
+                selectable: true,
+                html: res.responseText
+            });
+        }
+        async showDialog() {
+            if (!this.help && this.src)
+                this.help = await this.fetchHelp(this.src);
+            new Ui.Dialog().assign({
+                preferredWidth: this.dialogWidth, title: this.title,
+                preferredHeight: this.dialogHeight, content: this.help
+            }).open();
+        }
+    }
+    Ui.HelpButton = HelpButton;
 })(Ui || (Ui = {}));
 //# sourceMappingURL=era.js.map
