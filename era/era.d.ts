@@ -6929,7 +6929,6 @@ declare namespace Form {
         private _lastIsValid;
         private _validateTask;
         private _helpButton;
-        private _helpDialogWidth;
         private flow;
         readonly changed: Core.Events<{
             target: Field<TE>;
@@ -6955,10 +6954,8 @@ declare namespace Form {
         set desc(value: string);
         get required(): boolean;
         set required(value: boolean);
-        get helpSrc(): string | undefined;
-        set helpSrc(value: string | undefined);
-        get helpDialogWidth(): number | undefined;
-        set helpDialogWidth(value: number | undefined);
+        get help(): Ui.Element | undefined;
+        set help(value: Ui.Element | undefined);
         checkIsValid(): void;
         protected onValidate(): Promise<string | undefined>;
         protected onChange(): Promise<void>;
@@ -7222,11 +7219,12 @@ declare namespace Ui {
         dialogHeight?: number;
         help?: Ui.Element;
         src?: string;
+        fetchContent: (helpButton: HelpButton) => Promise<string | undefined> | undefined;
         private _icon;
         constructor(init?: HelpButtonInit);
         get icon(): string | undefined;
         set icon(value: string | undefined);
-        fetchHelp(url: string): Promise<Ui.Element>;
+        protected fetchHelp(url: string): Promise<Ui.Element>;
         showDialog(): Promise<void>;
     }
 }

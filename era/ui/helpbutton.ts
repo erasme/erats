@@ -14,6 +14,7 @@ namespace Ui {
         dialogHeight?: number;
         help?: Ui.Element;
         src?: string;
+        fetchContent: (helpButton: HelpButton) => Promise<string | undefined> | undefined;
 
         private _icon = new Ui.Icon({
             width: 24, height: 24,
@@ -52,21 +53,31 @@ namespace Ui {
                 this._icon.icon = value;
         }
 
-        async fetchHelp(url: string): Promise<Ui.Element> {
-            let req = new Core.HttpRequest({ method: 'GET', url: url });
-            let res = await req.sendAsync();
-            if (res.status < 200 || res.status >= 300)
+        protected async fetchHelp(url: string): Promise<Ui.Element> {
+            let htmlContent: string | undefined;
+            if (this.fetchContent) {
+                htmlContent = await this.fetchContent(this);
+            }
+            else {
+                let req = new Core.HttpRequest({ method: 'GET', url: url });
+                let res = await req.sendAsync();
+                if (res.status >= 200 && res.status < 300)
+                    htmlContent = res.responseText;
+            }
+            if (htmlContent) {
+                return new Ui.Html().assign({
+                    interLine: 1.2, margin: 10,
+                    selectable: true,
+                    html: htmlContent
+                });
+            }
+            else {
                 return new Ui.Text().assign({
                     interLine: 1.2, margin: 20,
                     textAlign: 'center', selectable: true,
                     text: `Désolé la documentation n'a pas été trouvé. Ré-essayez plus tard ou contacter votre administrateur`
                 });
-
-            return new Ui.Html().assign({
-                interLine: 1.2, margin: 10,
-                selectable: true,
-                html: res.responseText
-            });
+            }
         }
 
         async showDialog() {

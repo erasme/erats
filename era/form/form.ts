@@ -19,8 +19,7 @@ namespace Form {
         private _required: boolean = false;
         private _lastIsValid: boolean | undefined;
         private _validateTask: Promise<string | undefined> | undefined;
-        private _helpButton: Ui.HelpButton | undefined;
-        private _helpDialogWidth: number | undefined;
+        private _helpButton: Ui.Element | undefined;
         private flow = new Ui.Flow();
         readonly changed = new Core.Events<{ target: Field<TE>, value: any }>();
         set onchanged(value: (event: { target: Field<TE>, value: any }) => void) { this.changed.connect(value); };
@@ -115,36 +114,17 @@ namespace Form {
             }
         }
 
-        get helpSrc(): string | undefined {
-            return this._helpButton ? this._helpButton.src : undefined;
+        get help(): Ui.Element | undefined {
+            return this._helpButton;
         }
 
-        set helpSrc(value: string | undefined) {
-            if (value) {
-                if (!this._helpButton) {
-                    this._helpButton = new Ui.HelpButton().assign({
-                        marginLeft: 5,
-                        dialogWidth : this._helpDialogWidth
-                    });
-                    this.flow.append(this._helpButton);
-                }
-                this._helpButton.src = value;
-            }
-            else {
-                if (this._helpButton) {
-                    this.flow.remove(this._helpButton);
-                }
-            }
-        }
-
-        get helpDialogWidth(): number | undefined {
-            return this._helpDialogWidth;
-        }
-
-        set helpDialogWidth(value: number | undefined) {
-            this._helpDialogWidth = value;
+        set help(value: Ui.Element | undefined) {
             if (this._helpButton)
-                this._helpButton.dialogWidth = this._helpDialogWidth;
+                this.flow.remove(this._helpButton);
+            this._helpButton = value;
+            if (value) {
+                this.flow.append(value);
+            }
         }
 
         checkIsValid() {
