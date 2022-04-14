@@ -7094,6 +7094,7 @@ declare namespace Form {
     }>> {
         value?: boolean;
         allowNone?: boolean;
+        noneText?: string;
     }
     class YesNoField extends Field<Ui.Combo<{
         name: string;

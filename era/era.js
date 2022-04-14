@@ -26456,6 +26456,8 @@ var Form;
             if (init) {
                 if (init.allowNone != undefined)
                     this.allowNone = init.allowNone;
+                if (init.noneText != undefined)
+                    this.noneText = init.noneText;
                 if (init.value != undefined)
                     this.value = init.value;
             }
