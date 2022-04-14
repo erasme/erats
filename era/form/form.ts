@@ -585,6 +585,7 @@ namespace Form {
         value?: boolean;
         allowNone?: boolean;
         noneText?: string;
+        placeholder?: string;
     }
 
     export class YesNoField extends Field<Ui.Combo<{ name: string, value: boolean }>> implements YesNoFieldInit {
@@ -598,6 +599,8 @@ namespace Form {
                     this.noneText = init.noneText;
                 if (init.value != undefined)
                     this.value = init.value;
+                if (init.placeholder != undefined)
+                    this.placeholder = init.placeholder;
             }
         }
 

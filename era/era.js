@@ -26460,6 +26460,8 @@ var Form;
                     this.noneText = init.noneText;
                 if (init.value != undefined)
                     this.value = init.value;
+                if (init.placeholder != undefined)
+                    this.placeholder = init.placeholder;
             }
         }
         generateUi() {
