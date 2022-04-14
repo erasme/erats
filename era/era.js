@@ -20957,6 +20957,7 @@ var Ui;
             this._position = -1;
             this._placeHolder = '';
             this.allowNone = false;
+            this.noneText = '';
             this.changed = new Core.Events();
             this.text = this._placeHolder;
             this.arrowbottom = new Ui.Icon({ icon: 'arrowbottom', width: 16, height: 16 });
@@ -20981,6 +20982,8 @@ var Ui;
                     this.search = init.search;
                 if (init.allowNone !== undefined)
                     this.allowNone = init.allowNone;
+                if (init.noneText !== undefined)
+                    this.noneText = init.noneText;
                 if (init.onchanged)
                     this.changed.connect(init.onchanged);
             }
@@ -21068,7 +21071,9 @@ var Ui;
                 iconField: this._iconField
             }).assign({
                 data: this._data,
-                search: this.search, allowNone: this.allowNone
+                search: this.search,
+                allowNone: this.allowNone,
+                noneText: this.noneText
             });
             if (this._position !== -1)
                 popup.position = this._position;
@@ -21125,6 +21130,8 @@ var Ui;
                     this.search = init.search;
                 if (init.allowNone !== undefined)
                     this.allowNone = init.allowNone;
+                if (init.noneText !== undefined)
+                    this.noneText = init.noneText;
                 if (init.field !== undefined)
                     this.field = init.field;
                 if (init.iconField !== undefined)
@@ -21179,6 +21186,12 @@ var Ui;
                 this.emptyField.show();
             else
                 this.emptyField.hide(true);
+        }
+        get noneText() {
+            return this.emptyField.text;
+        }
+        set noneText(value) {
+            this.emptyField.text = value;
         }
         get field() {
             return this._field;
@@ -26350,6 +26363,8 @@ var Form;
                     this.value = init.value;
                 if (init.allowNone != undefined)
                     this.allowNone = init.allowNone;
+                if (init.noneText != undefined)
+                    this.noneText = init.noneText;
             }
         }
         generateUi() {
@@ -26369,6 +26384,12 @@ var Form;
         }
         set allowNone(value) {
             this.field.allowNone = value;
+        }
+        get noneText() {
+            return this.field.noneText;
+        }
+        set noneText(value) {
+            this.field.noneText = value;
         }
         get data() {
             return this._data;
@@ -26462,6 +26483,15 @@ var Form;
         }
         set allowNone(value) {
             this.field.allowNone = value;
+        }
+        get noneText() {
+            return this.field.noneText;
+        }
+        set noneText(value) {
+            this.field.noneText = value;
+        }
+        set placeholder(value) {
+            this.field.placeHolder = value;
         }
     }
     Form.YesNoField = YesNoField;

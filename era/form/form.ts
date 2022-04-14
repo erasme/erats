@@ -441,6 +441,7 @@ namespace Form {
         search?: boolean;
         data?: T[];
         allowNone?: boolean;
+        noneText?: string;
         placeholder?: string;
         position?: number;
     }
@@ -467,6 +468,8 @@ namespace Form {
                     this.value = init.value;
                 if (init.allowNone != undefined)
                     this.allowNone = init.allowNone;
+                if (init.noneText != undefined)
+                    this.noneText = init.noneText;
             }
         }
 
@@ -492,6 +495,14 @@ namespace Form {
 
         set allowNone(value: boolean) {
             this.field.allowNone = value;
+        }
+
+        get noneText(): string {
+            return this.field.noneText;
+        }
+
+        set noneText(value: string) {
+            this.field.noneText = value;
         }
 
         get data(): T[] {
@@ -615,6 +626,18 @@ namespace Form {
 
         set allowNone(value: boolean) {
             this.field.allowNone = value;
+        }
+
+        get noneText(): string {
+            return this.field.noneText;
+        }
+
+        set noneText(value: string) {
+            this.field.noneText = value;
+        }
+
+        set placeholder(value: string) {
+            this.field.placeHolder = value;
         }
     }
 

@@ -5382,6 +5382,7 @@ declare namespace Ui {
         current?: T;
         search?: boolean;
         allowNone?: boolean;
+        noneText?: string;
         onchanged?: (event: {
             target: Combo<T>;
             value: T;
@@ -5399,6 +5400,7 @@ declare namespace Ui {
         arrowbottom: Icon;
         search: boolean;
         allowNone: boolean;
+        noneText: string;
         readonly changed: Core.Events<{
             target: Combo<T>;
             value: T;
@@ -5432,6 +5434,7 @@ declare namespace Ui {
     interface ComboPopupInit<T> extends MenuPopupInit {
         search?: boolean;
         allowNone?: boolean;
+        noneText?: string;
         field?: keyof T;
         iconField?: keyof T;
         data?: T[];
@@ -5455,6 +5458,8 @@ declare namespace Ui {
         set search(value: boolean);
         get allowNone(): boolean;
         set allowNone(value: boolean);
+        get noneText(): string | undefined;
+        set noneText(value: string | undefined);
         get field(): keyof T;
         set field(field: keyof T);
         get iconField(): keyof T | undefined;
@@ -7047,6 +7052,7 @@ declare namespace Form {
         search?: boolean;
         data?: T[];
         allowNone?: boolean;
+        noneText?: string;
         placeholder?: string;
         position?: number;
     }
@@ -7059,6 +7065,8 @@ declare namespace Form {
         set key(key: keyof T);
         get allowNone(): boolean;
         set allowNone(value: boolean);
+        get noneText(): string;
+        set noneText(value: string);
         get data(): T[];
         set data(data: T[]);
         set text(value: string);
@@ -7101,6 +7109,9 @@ declare namespace Form {
         set value(value: boolean);
         get allowNone(): boolean;
         set allowNone(value: boolean);
+        get noneText(): string;
+        set noneText(value: string);
+        set placeholder(value: string);
     }
     interface NumberFieldInit extends FieldInit<Ui.TextField> {
         placeholder?: string;

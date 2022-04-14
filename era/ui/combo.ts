@@ -8,6 +8,7 @@ namespace Ui {
         current?: T;
         search?: boolean;
         allowNone?: boolean;
+        noneText?: string;
         onchanged?: (event: { target: Combo<T>, value: T, position: number }) => void;
     }
 
@@ -22,6 +23,7 @@ namespace Ui {
         arrowbottom: Icon;
         search: boolean;
         allowNone = false;
+        noneText = '';
         readonly changed = new Core.Events<{ target: Combo<T>, value: T, position: number }>();
         set onchanged(value: (event: { target: Combo<T>, value: T, position: number }) => void) { this.changed.connect(value); }
 
@@ -62,6 +64,8 @@ namespace Ui {
                     this.search = init.search;
                 if (init.allowNone !== undefined)
                     this.allowNone = init.allowNone;
+                if (init.noneText !== undefined)
+                    this.noneText = init.noneText;
                 if (init.onchanged)
                     this.changed.connect(init.onchanged);
             }
@@ -134,11 +138,11 @@ namespace Ui {
             return this._current;
         }
 
-        get value(): T | undefined {
+        get value(): T | undefined {
             return this._current;
         }
 
-        set current(current: T | undefined) {
+        set current(current: T | undefined) {
             if (current == undefined)
                 this.position = -1;
             let position = -1;
@@ -162,7 +166,9 @@ namespace Ui {
                 iconField: this._iconField
             }).assign({
                 data: this._data,
-                search: this.search, allowNone: this.allowNone
+                search: this.search,
+                allowNone: this.allowNone,
+                noneText: this.noneText
             });
             if (this._position !== -1)
                 popup.position = this._position;
@@ -194,6 +200,7 @@ namespace Ui {
     export interface ComboPopupInit<T> extends MenuPopupInit {
         search?: boolean;
         allowNone?: boolean;
+        noneText?: string;
         field?: keyof T;
         iconField?: keyof T;
         data?: T[];
@@ -239,6 +246,8 @@ namespace Ui {
                     this.search = init.search;
                 if (init.allowNone !== undefined)
                     this.allowNone = init.allowNone;
+                if (init.noneText !== undefined)
+                    this.noneText = init.noneText;
                 if (init.field !== undefined)
                     this.field = init.field;
                 if (init.iconField !== undefined)
@@ -296,6 +305,14 @@ namespace Ui {
                 this.emptyField.show();
             else
                 this.emptyField.hide(true);
+        }
+
+        get noneText(): string | undefined {
+            return this.emptyField.text;
+        }
+
+        set noneText(value: string | undefined) {
+            this.emptyField.text = value;
         }
 
         get field(): keyof T {
