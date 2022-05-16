@@ -12814,6 +12814,7 @@ var Ui;
             this.append(hbox);
             this.closeButton = new Ui.ContextBarCloseButton();
             this.closeButton.icon = 'backarrow';
+            this.closeButton.title = 'Annuler la sélection';
             hbox.append(this.closeButton);
             this.closeButton.pressed.connect(() => this.onClosePress());
             let scroll = new Ui.ScrollingArea();
