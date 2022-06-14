@@ -22267,7 +22267,12 @@ var Ui;
             this.filechanged = new Core.Events();
             this.input = new Ui.UploadableFileWrapper();
             this.prepend(this.input);
-            this.input.file.connect((e) => this.onFile(e.target, e.file));
+            this.input.file.connect((e) => {
+                if (this.testAccept(e.file))
+                    this.onFile(e.target, e.file);
+                else
+                    Ui.Toast.sendError('Format de fichier non accepté');
+            });
             this.pressed.connect(() => this.onUploadButtonPress());
             new Ui.DropableWatcher({
                 element: this,

@@ -19,7 +19,13 @@ namespace Ui {
             this.input = new UploadableFileWrapper();
             this.prepend(this.input);
 
-            this.input.file.connect((e) => this.onFile(e.target, e.file));
+            this.input.file.connect((e) => {
+                // verify accept
+                if (this.testAccept(e.file))
+                    this.onFile(e.target, e.file)
+                else
+                    Toast.sendError('Format de fichier non accepté');
+            });
             this.pressed.connect(() => this.onUploadButtonPress());
 
             new DropableWatcher({
