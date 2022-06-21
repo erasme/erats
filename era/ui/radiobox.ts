@@ -87,7 +87,7 @@ namespace Ui {
                 this.untoggle();
         }
 
-        get text(): string | undefined {
+        get text(): string | undefined {
             return this._text;
         }
 

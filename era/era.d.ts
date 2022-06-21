@@ -2108,6 +2108,9 @@ declare namespace Ui {
             pressSelect?: boolean;
             onselected?: (selection: Selection) => void;
             onunselected?: (selection: Selection) => void;
+            ondowned?: (x?: number, y?: number) => void;
+            onupped?: (x?: number, y?: number) => void;
+            onpressed?: (x?: number, y?: number) => void;
             draggable?: boolean;
             draggableElement?: Element;
             pressElement?: Element;

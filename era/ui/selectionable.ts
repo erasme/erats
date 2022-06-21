@@ -32,6 +32,9 @@ namespace Ui {
             pressSelect?: boolean,
             onselected?: (selection: Selection) => void,
             onunselected?: (selection: Selection) => void,
+            ondowned?: (x?: number, y?: number) => void,
+            onupped?: (x?: number, y?: number) => void,
+            onpressed?: (x?: number, y?: number) => void,
             draggable?: boolean,
             draggableElement?: Element,
             pressElement?: Element,
@@ -53,7 +56,19 @@ namespace Ui {
                 keyboardElement: this.element,
                 pointerElement: init.pressElement ?? this.element,
                 ondelayedpress: (w) => this.onDelayedPress(w),
-                onactivated: (w) => this.onSelectionableActivate(w)
+                onactivated: (w) => this.onSelectionableActivate(w),
+                ondowned: (w) => {
+                    if (init.ondowned)
+                        init.ondowned(w.x, w.y);
+                },
+                onupped: (w) => {
+                    if (init.onupped)
+                        init.onupped(w.x, w.y);
+                },
+                onpressed: (w) => {
+                    if (init.onpressed)
+                        init.onpressed(w.x, w.y);
+                }
             });
             if (init.draggable === true)
                 this.draggable = init.draggable;

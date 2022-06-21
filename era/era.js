@@ -7833,7 +7833,19 @@ var Ui;
                 keyboardElement: this.element,
                 pointerElement: (_a = init.pressElement) !== null && _a !== void 0 ? _a : this.element,
                 ondelayedpress: (w) => this.onDelayedPress(w),
-                onactivated: (w) => this.onSelectionableActivate(w)
+                onactivated: (w) => this.onSelectionableActivate(w),
+                ondowned: (w) => {
+                    if (init.ondowned)
+                        init.ondowned(w.x, w.y);
+                },
+                onupped: (w) => {
+                    if (init.onupped)
+                        init.onupped(w.x, w.y);
+                },
+                onpressed: (w) => {
+                    if (init.onpressed)
+                        init.onpressed(w.x, w.y);
+                }
             });
             if (init.draggable === true)
                 this.draggable = init.draggable;
