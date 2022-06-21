@@ -3,6 +3,8 @@ namespace Ui {
         private ripple: HTMLDivElement;
         private isAnimated = false;
         private upResolve?: () => void;
+
+        mode: 'FILL' | 'INSIDE' = 'FILL';
     
         constructor(readonly element: Ui.Element) {
             super();
@@ -33,10 +35,17 @@ namespace Ui {
             this.element.drawing.appendChild(this.ripple);
             this.ripple.style.transform = 'scale(0) translate3d(0,0,0)';
             await new Promise<void>((resolve) => setTimeout(() => resolve(), 0));
-            let scale = 2.5 * Math.ceil(Math.max(this.element.layoutWidth, this.element.layoutHeight) / 10);
+            let scale = 1;
+            if (this.mode == 'FILL') {
+                scale = 2.5 * Math.ceil(Math.max(this.element.layoutWidth, this.element.layoutHeight) / 10);
+                this.ripple.style.transition = 'transform 0.5s ease-out, opacity 0.1s';
+            }
+            else {
+                scale = Math.min(this.element.layoutWidth, this.element.layoutHeight) / 10;
+                this.ripple.style.transition = 'transform 0.2s ease-out, opacity 0.1s';
+            }
             this.ripple.style.left = `${Math.round(x - 5)}px`;
             this.ripple.style.top = `${Math.round(y - 5)}px`;
-            this.ripple.style.transition = 'transform 0.5s ease-out, opacity 0.1s';
             this.ripple.style.transform = `scale(${scale}) translate3d(0,0,0)`;
             await new Promise<void>((resolve) => setTimeout(() => resolve(), 500));
             await upPromise;

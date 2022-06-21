@@ -7336,6 +7336,7 @@ var Ui;
             super();
             this.element = element;
             this.isAnimated = false;
+            this.mode = 'FILL';
             this.element.drawing.style.overflow = 'hidden';
             this.ripple = document.createElement('div');
             this.ripple.style.transformOrigin = 'center center';
@@ -7361,10 +7362,17 @@ var Ui;
             this.element.drawing.appendChild(this.ripple);
             this.ripple.style.transform = 'scale(0) translate3d(0,0,0)';
             await new Promise((resolve) => setTimeout(() => resolve(), 0));
-            let scale = 2.5 * Math.ceil(Math.max(this.element.layoutWidth, this.element.layoutHeight) / 10);
+            let scale = 1;
+            if (this.mode == 'FILL') {
+                scale = 2.5 * Math.ceil(Math.max(this.element.layoutWidth, this.element.layoutHeight) / 10);
+                this.ripple.style.transition = 'transform 0.5s ease-out, opacity 0.1s';
+            }
+            else {
+                scale = Math.min(this.element.layoutWidth, this.element.layoutHeight) / 10;
+                this.ripple.style.transition = 'transform 0.2s ease-out, opacity 0.1s';
+            }
             this.ripple.style.left = `${Math.round(x - 5)}px`;
             this.ripple.style.top = `${Math.round(y - 5)}px`;
-            this.ripple.style.transition = 'transform 0.5s ease-out, opacity 0.1s';
             this.ripple.style.transform = `scale(${scale}) translate3d(0,0,0)`;
             await new Promise((resolve) => setTimeout(() => resolve(), 500));
             await upPromise;
@@ -16323,10 +16331,14 @@ var Ui;
             this.append(this.bg.assign({
                 radius: 0
             }));
-            this.hbox = new Ui.HBox().assign({ margin: 2 });
+            this.hbox = new Ui.HBox();
             this.append(this.hbox);
-            this.graphic = new Ui.CheckBoxGraphic();
-            this.hbox.append(this.graphic);
+            let lbox = new Ui.LBox();
+            this.hbox.append(lbox);
+            this.graphic = new Ui.CheckBoxGraphic().assign({ margin: 2 });
+            lbox.content = this.graphic;
+            this.rippleEffect = new Ui.RippleEffect(lbox);
+            this.rippleEffect.mode = 'INSIDE';
             this.downed.connect(() => this.onCheckBoxDown());
             this.upped.connect(() => this.onCheckBoxUp());
             this.focused.connect(() => this.onCheckFocus());
@@ -16428,6 +16440,7 @@ var Ui;
                 this.onToggle();
             else
                 this.onUntoggle();
+            this.rippleEffect.press();
         }
         onToggle() {
             if (!this._isToggled) {
@@ -16464,9 +16477,11 @@ var Ui;
         }
         onCheckBoxDown() {
             this.graphic.isDown = true;
+            this.rippleEffect.down();
         }
         onCheckBoxUp() {
             this.graphic.isDown = false;
+            this.rippleEffect.up();
         }
         onStyleChange() {
             if (this.hasFocus) {
@@ -25726,10 +25741,14 @@ var Ui;
             this.append(this.bg.assign({
                 radius: 0
             }));
-            this.hbox = new Ui.HBox().assign({ margin: 2 });
+            this.hbox = new Ui.HBox();
             this.append(this.hbox);
-            this.graphic = new Ui.RadioBoxGraphic();
-            this.hbox.append(this.graphic);
+            let lbox = new Ui.LBox();
+            this.hbox.append(lbox);
+            this.rippleEffect = new Ui.RippleEffect(lbox);
+            this.rippleEffect.mode = 'INSIDE';
+            this.graphic = new Ui.RadioBoxGraphic().assign({ margin: 2 });
+            lbox.content = this.graphic;
             this.downed.connect(() => this.onRadioDown());
             this.upped.connect(() => this.onRadioUp());
             this.focused.connect(() => this.onRadioFocus());
@@ -25842,6 +25861,7 @@ var Ui;
         onRadioPress() {
             if (!this._isToggled)
                 this.onToggle();
+            this.rippleEffect.press();
         }
         onToggle() {
             if (!this._isToggled) {
@@ -25878,9 +25898,11 @@ var Ui;
         }
         onRadioDown() {
             this.graphic.isDown = true;
+            this.rippleEffect.down();
         }
         onRadioUp() {
             this.graphic.isDown = false;
+            this.rippleEffect.up();
         }
         onStyleChange() {
             if (this.hasFocus) {

@@ -18,6 +18,7 @@ namespace Ui {
         private _text: string | undefined;
         private _group: RadioGroup;
         private _isToggled: boolean = false;
+        private rippleEffect: RippleEffect;
         readonly changed = new Core.Events<{ target: RadioBox, value: boolean }>();
         set onchanged(value: (event: { target: RadioBox, value: boolean }) => void) { this.changed.connect(value); }
         readonly toggled = new Core.Events<{ target: RadioBox }>();
@@ -35,11 +36,17 @@ namespace Ui {
                 radius: 0
             }));
 
-            this.hbox = new Ui.HBox().assign({ margin: 2 });
+            this.hbox = new Ui.HBox();
             this.append(this.hbox);
 
-            this.graphic = new RadioBoxGraphic();
-            this.hbox.append(this.graphic);
+            let lbox = new Ui.LBox();
+            this.hbox.append(lbox);
+
+            this.rippleEffect = new RippleEffect(lbox);
+            this.rippleEffect.mode = 'INSIDE';
+
+            this.graphic = new RadioBoxGraphic().assign({ margin: 2 });
+            lbox.content = this.graphic;
 
             this.downed.connect(() => this.onRadioDown());
             this.upped.connect(() => this.onRadioUp());
@@ -164,6 +171,7 @@ namespace Ui {
         private onRadioPress() {
             if (!this._isToggled)
                 this.onToggle();
+            this.rippleEffect.press();
         }
 
         protected onToggle() {
@@ -205,10 +213,12 @@ namespace Ui {
 
         protected onRadioDown() {
             this.graphic.isDown = true;
+            this.rippleEffect.down();
         }
 
         protected onRadioUp() {
             this.graphic.isDown = false;
+            this.rippleEffect.up();
         }
 
         protected onStyleChange() {

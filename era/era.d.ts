@@ -1844,6 +1844,7 @@ declare namespace Ui {
         private ripple;
         private isAnimated;
         private upResolve?;
+        mode: 'FILL' | 'INSIDE';
         constructor(element: Ui.Element);
         protected anim(x?: number, y?: number): Promise<void>;
         down(x?: number, y?: number): void;
@@ -4187,6 +4188,7 @@ declare namespace Ui {
         private _content;
         private _text;
         private _isToggled;
+        private rippleEffect;
         readonly changed: Core.Events<{
             target: CheckBox;
             value: boolean;
@@ -6829,6 +6831,7 @@ declare namespace Ui {
         private _text;
         private _group;
         private _isToggled;
+        private rippleEffect;
         readonly changed: Core.Events<{
             target: RadioBox;
             value: boolean;

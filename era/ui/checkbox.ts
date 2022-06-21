@@ -13,9 +13,10 @@ namespace Ui {
         private graphic: CheckBoxGraphic;
         private contentBox: Element | undefined;
         private hbox: HBox;
-        private _content: Element | undefined;
+        private _content: Element | undefined;
         private _text: string | undefined;
         private _isToggled: boolean = false;
+        private rippleEffect: RippleEffect;
         readonly changed = new Core.Events<{ target: CheckBox, value: boolean }>();
         set onchanged(value: (event: { target: CheckBox, value: boolean }) => void) { this.changed.connect(value); }
         readonly toggled = new Core.Events<{ target: CheckBox }>();
@@ -34,11 +35,17 @@ namespace Ui {
                 radius: 0
             }));
 
-            this.hbox = new Ui.HBox().assign({ margin: 2 });
+            this.hbox = new Ui.HBox();
             this.append(this.hbox);
 
-            this.graphic = new CheckBoxGraphic();
-            this.hbox.append(this.graphic);
+            let lbox = new Ui.LBox();
+            this.hbox.append(lbox);
+
+            this.graphic = new CheckBoxGraphic().assign({ margin: 2 });
+            lbox.content = this.graphic;
+
+            this.rippleEffect = new RippleEffect(lbox);
+            this.rippleEffect.mode = 'INSIDE';
 
             this.downed.connect(() => this.onCheckBoxDown());
             this.upped.connect(() => this.onCheckBoxUp());
@@ -81,7 +88,7 @@ namespace Ui {
             return this._text;
         }
 
-        set text(text: string | undefined) {
+        set text(text: string | undefined) {
             if (text === undefined) {
                 if (this.contentBox !== undefined) {
                     this.hbox.remove(this.contentBox);
@@ -107,11 +114,11 @@ namespace Ui {
             }
         }
 
-        get content(): Element | undefined {
+        get content(): Element | undefined {
             return this._content;
         }
 
-        set content(content: Element | undefined) {
+        set content(content: Element | undefined) {
             if (content === undefined) {
                 if (this.contentBox !== undefined) {
                     this.hbox.remove(this.contentBox);
@@ -149,6 +156,7 @@ namespace Ui {
                 this.onToggle();
             else
                 this.onUntoggle();
+            this.rippleEffect.press();
         }
 
         protected onToggle() {
@@ -190,10 +198,12 @@ namespace Ui {
 
         protected onCheckBoxDown() {
             this.graphic.isDown = true;
+            this.rippleEffect.down();
         }
 
         protected onCheckBoxUp() {
             this.graphic.isDown = false;
+            this.rippleEffect.up();
         }
 
         protected onStyleChange() {
