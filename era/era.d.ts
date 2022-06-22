@@ -3533,7 +3533,7 @@ declare namespace Ui {
         getArguments(): any;
         static get isReady(): boolean;
         protected onReady(): void;
-        protected static onWindowKeyUp(event: KeyboardEvent): void;
+        protected static onWindowKeyDown(event: KeyboardEvent): void;
         protected onLoad(): void;
         protected onMessage(event: any): void;
         sendMessageToParent(msg: any): void;

@@ -13992,7 +13992,7 @@ var Ui;
                 document.getElementsByTagName('head')[0].appendChild(style);
             }
             window.addEventListener('resize', e => App.onWindowResize(e));
-            window.addEventListener('keyup', e => App.onWindowKeyUp(e));
+            window.addEventListener('keydown', e => App.onWindowKeyDown(e));
             if ('onorientationchange' in window)
                 window.addEventListener('orientationchange', (e) => App.onOrientationChange(e));
             window.addEventListener('focus', (event) => {
@@ -14140,7 +14140,7 @@ var Ui;
             this.isLoaded = true;
             this.parentVisible = true;
         }
-        static onWindowKeyUp(event) {
+        static onWindowKeyDown(event) {
             if ((event.key == 'Escape') && (App.dialogs !== undefined) && (App.dialogs.length > 0)) {
                 let element = App.dialogs[App.dialogs.length - 1];
                 if (element instanceof Ui.Dialog) {
