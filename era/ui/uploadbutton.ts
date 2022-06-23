@@ -85,8 +85,9 @@ namespace Ui {
 
         private testAccept(file: File) {
             if (this._accept) {
+                let extension = file.name.substring(file.name.lastIndexOf('.'));
                 let tab = this._accept.split(',');
-                if (tab.indexOf(file.type) == -1)
+                if (tab.indexOf(file.type) == -1 && tab.indexOf(extension) == -1 )
                     return false;
             }
             return true;
