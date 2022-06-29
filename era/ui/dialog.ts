@@ -63,6 +63,10 @@ namespace Ui {
         }
 
         setTitle(title: string) {
+            if (!this.titleResizable && title == '')
+                this.titleLabel.hide(true);
+            else
+                this.titleLabel.show();
             this.titleLabel.text = title;
         }
 
@@ -71,6 +75,10 @@ namespace Ui {
         }
 
         set titleResizable(value: boolean) {
+            if (!value && this.getTitle() == '')
+                this.titleLabel.hide(true);
+            else
+                this.titleLabel.show();
             this.titleLabel.resizable = value;
         }
 

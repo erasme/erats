@@ -14427,12 +14427,20 @@ var Ui;
             return this.titleLabel.text;
         }
         setTitle(title) {
+            if (!this.titleResizable && title == '')
+                this.titleLabel.hide(true);
+            else
+                this.titleLabel.show();
             this.titleLabel.text = title;
         }
         get titleResizable() {
             return this.titleLabel.resizable;
         }
         set titleResizable(value) {
+            if (!value && this.getTitle() == '')
+                this.titleLabel.hide(true);
+            else
+                this.titleLabel.show();
             this.titleLabel.resizable = value;
         }
         getCancelButton() {
