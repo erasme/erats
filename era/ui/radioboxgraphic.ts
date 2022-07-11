@@ -129,7 +129,7 @@ namespace Ui {
     }
 
     export interface RadioBoxGraphicStyle {
-        color: Color | string;
-        activeColor: Color | string;
+        color: Color | string;
+        activeColor: Color | string;
     }
 }

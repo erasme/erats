@@ -13,7 +13,7 @@ namespace Ui {
         private pos: number = 0;
         private lastPosition: number;
         private activeItems: Array<Ui.Element>;
-        private alignClock: Anim.Clock | undefined;
+        private alignClock: Anim.Clock | undefined;
         private animNext: number;
         private animStart: number;
         private speed: number = 1;

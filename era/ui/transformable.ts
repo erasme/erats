@@ -803,7 +803,7 @@ namespace Ui {
         private transformLock: boolean = false;
 
         private watcher1: PointerWatcher | undefined;
-        private watcher2: PointerWatcher | undefined;
+        private watcher2: PointerWatcher | undefined;
 
         private _angle: number = 0;
         private _scale: number = 1;

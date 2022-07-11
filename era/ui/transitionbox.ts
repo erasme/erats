@@ -13,7 +13,7 @@ namespace Ui {
         protected _ease: Anim.EasingFunction;
         protected _position: number = -1;
         protected transitionClock?: Anim.Clock;
-        protected _current: Element | undefined;
+        protected _current: Element | undefined;
         protected next: Element | undefined;
         protected replaceMode: boolean = false;
         protected progress: number;

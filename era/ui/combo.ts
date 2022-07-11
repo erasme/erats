@@ -329,7 +329,7 @@ namespace Ui {
             return this._iconField;
         }
 
-        set iconField(field: keyof T | undefined) {
+        set iconField(field: keyof T | undefined) {
             this._iconField = field;
             if (this._data !== undefined)
                 this.data = this._data;

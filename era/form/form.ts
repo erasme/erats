@@ -322,7 +322,7 @@ namespace Form {
             return this.field.selectedDate;
         }
 
-        set value(value: Date | undefined) {
+        set value(value: Date | undefined) {
             this.field.selectedDate = value;
         }
 

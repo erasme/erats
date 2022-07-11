@@ -4,8 +4,8 @@ namespace Ui
     {
         private _isDown: boolean = false;
         private _isChecked: boolean = false;
-        private _color: Color | undefined;
-        private _checkColor: Color | undefined;
+        private _color: Color | undefined;
+        private _checkColor: Color | undefined;
         private _borderWidth: number = 2;
         private _radius: number = 3;
 
@@ -175,6 +175,6 @@ namespace Ui
 
     export interface CheckBoxGraphicStyle {
         color: Color | string;
-        checkColor: Color | string;
+        checkColor: Color | string;
     }
 }

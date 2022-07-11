@@ -20,7 +20,7 @@ module Core {
         content: any = undefined;
         _headers: object;
         private request: XMLHttpRequest;
-        static requestHeaders: object | undefined = undefined;
+        static requestHeaders: object | undefined = undefined;
         readonly error = new Core.Events<{ target: HttpRequest, code: number }>();
         set onerror(value: (event: { target: HttpRequest, code: number }) => void) { this.error.connect(value); }
 

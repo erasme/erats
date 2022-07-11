@@ -120,7 +120,7 @@ namespace Anim
                 this._duration = duration;
         }
 
-        set parent(parent: Clock | undefined) {
+        set parent(parent: Clock | undefined) {
             this._parent = parent;
         }
 

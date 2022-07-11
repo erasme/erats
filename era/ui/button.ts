@@ -315,11 +315,11 @@ namespace Ui {
             this.updateVisibles();
         }
 
-        get marker(): Element | undefined {
+        get marker(): Element | undefined {
             return this._marker;
         }
 
-        set marker(marker: Element | undefined) {
+        set marker(marker: Element | undefined) {
             if (this._marker !== undefined)
                 this.mainBox.remove(this._marker);
             this._marker = marker;

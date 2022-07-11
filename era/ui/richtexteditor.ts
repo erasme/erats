@@ -314,7 +314,7 @@ namespace Ui {
             return this._contentEditable.color;
         }
 
-        set color(color: Color | string | undefined) {
+        set color(color: Color | string | undefined) {
             this._contentEditable.color = color;
         }
 

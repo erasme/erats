@@ -49,7 +49,7 @@ namespace Ui {
             return this._selectedDate;
         }
 
-        set selectedDate(date: Date | undefined) {
+        set selectedDate(date: Date | undefined) {
             if (date === undefined) {
                 this._selectedDate = undefined;
                 this.textValue = '';

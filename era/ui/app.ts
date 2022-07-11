@@ -640,7 +640,7 @@ namespace Ui
         }
 
         // {Ui.App} Reference to the current application instance
-        static current: App | undefined = undefined;
+        static current: App | undefined = undefined;
 
         static isPrint = false;
 

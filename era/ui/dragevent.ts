@@ -141,7 +141,7 @@ namespace Ui {
         draggable: Element;
         imageElement: Element;
         image: HTMLElement;
-        imageEffect: DragEffectIcon | undefined;
+        imageEffect: DragEffectIcon | undefined;
         // catcher: HTMLElement;
         startX: number = 0;
         startY: number = 0;
@@ -802,7 +802,7 @@ namespace Ui {
 
     export class DragNativeDataTransfer extends Core.Object implements DragDataTransfer {
         dataTransfer: any;
-        dragWatcher: DragWatcher | undefined;
+        dragWatcher: DragWatcher | undefined;
         nativeData: any;
         dropEffect: any = 'none';
         position: Point | undefined;

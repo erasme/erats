@@ -117,7 +117,7 @@ namespace Ui
             return this.scroll.content;
         }
 
-        set content(content: Element | undefined) {
+        set content(content: Element | undefined) {
             this.scroll.content = content;
         }
 

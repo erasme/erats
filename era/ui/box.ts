@@ -287,7 +287,7 @@ namespace Ui
                     if ((this.vertical ? size.height : size.width) > uniformSize)
                         uniformSize = this.vertical ? size.height : size.width;
                 }
-                if ((minOpSize > constraintOpSize) ||  (uniformSize > childConstraintSize)) {
+                if ((minOpSize > constraintOpSize) || (uniformSize > childConstraintSize)) {
                     if (uniformSize > childConstraintSize)
                         childConstraintSize = uniformSize;
                     constraintOpSize = minOpSize;
